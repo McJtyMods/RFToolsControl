@@ -18,15 +18,24 @@ import mcjty.lib.gui.widgets.Label;
 import mcjty.lib.gui.widgets.Panel;
 import mcjty.lib.gui.widgets.TextField;
 import mcjty.rftoolscontrol.RFToolsControl;
+import mcjty.rftoolscontrol.logic.GridInstance;
+import mcjty.rftoolscontrol.logic.ProgramCardInstance;
 import mcjty.rftoolscontrol.network.RFToolsCtrlMessages;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.awt.*;
+import java.util.HashMap;
+import java.util.Map;
 
 public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
     public static final int SIDEWIDTH = 80;
     public static final int WIDTH = 256;
     public static final int HEIGHT = 236;
+
+    public static final int GRID_HEIGHT = 10;
+    public static final int GRID_WIDTH = 11;
 
     public static int ICONSIZE = 20;
 
@@ -36,6 +45,15 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
 
     private Window sideWindow;
     private IconManager iconManager;
+    private WidgetList gridList;
+
+    private static final Map<String, IIcon> ICONS = new HashMap<>();
+
+    static {
+        ICONS.put("1", new ImageIcon(String.valueOf("1")).setDimensions(ICONSIZE, ICONSIZE).setImage(icons, 0*ICONSIZE, 0*ICONSIZE));
+        ICONS.put("2", new ImageIcon(String.valueOf("2")).setDimensions(ICONSIZE, ICONSIZE).setImage(icons, 1*ICONSIZE, 0*ICONSIZE));
+        ICONS.put("3", new ImageIcon(String.valueOf("3")).setDimensions(ICONSIZE, ICONSIZE).setImage(icons, 2*ICONSIZE, 0*ICONSIZE));
+    }
 
     public GuiProgrammer(ProgrammerTileEntity tileEntity, ProgrammerContainer container) {
         super(RFToolsControl.instance, RFToolsCtrlMessages.INSTANCE, tileEntity, container, RFToolsControl.GUI_MANUAL_CONTROL, "programmer");
@@ -65,6 +83,8 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
                 .addChild(listPanel);
         sidePanel.setBounds(new Rectangle(guiLeft-SIDEWIDTH, guiTop, SIDEWIDTH, ySize));
         sideWindow = new Window(this, sidePanel);
+
+        readProgramCard();
     }
 
     @Override
@@ -79,7 +99,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
         Panel panel = new Panel(mc, this).setLayout(new PositionalLayout())
                 .setLayoutHint(new PositionalLayout.PositionalHint(5, 5, 246, 113));
 
-        WidgetList list = new WidgetList(mc, this)
+        gridList = new WidgetList(mc, this)
                 .setLayoutHint(new PositionalLayout.PositionalHint(0, 0, 236, 113))
                 .setPropagateEventsToChildren(true)
                 .setInvisibleSelection(true)
@@ -87,12 +107,12 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
                 .setRowheight(ICONSIZE+1);
         Slider slider = new Slider(mc, this)
                 .setVertical()
-                .setScrollable(list)
+                .setScrollable(gridList)
                 .setLayoutHint(new PositionalLayout.PositionalHint(237, 0, 9, 113));
 
-        for (int y = 0 ; y < 10 ; y++) {
+        for (int y = 0; y < GRID_HEIGHT; y++) {
             Panel rowPanel = new Panel(mc, this).setLayout(new HorizontalLayout().setSpacing(-1).setHorizontalMargin(0).setVerticalMargin(0));
-            for (int x = 0 ; x < 11 ; x++) {
+            for (int x = 0; x < GRID_WIDTH; x++) {
                 IconHolder holder = new IconHolder(mc, this)
                         .setDesiredWidth(ICONSIZE+2)
                         .setDesiredHeight(ICONSIZE+2)
@@ -102,6 +122,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
                         .addIconEvent(new IconEvent() {
                             @Override
                             public boolean iconArrives(IconHolder parent, IIcon icon) {
+                                updateProgramCard();
                                 return true;
                             }
 
@@ -127,7 +148,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
                         });
                 rowPanel.addChild(holder);
             }
-            list.addChild(rowPanel);
+            gridList.addChild(rowPanel);
         }
 
 //        int leftx = 0;
@@ -139,7 +160,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
 //            }
 //        }
 
-        panel.addChild(list).addChild(slider);
+        panel.addChild(gridList).addChild(slider);
 
         return panel;
     }
@@ -153,6 +174,40 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
         } else {
             icon.addOverlay(new ImageIcon(prefix+"_red").setDimensions(ICONSIZE, ICONSIZE).setImage(icons, u*ICONSIZE, v*ICONSIZE));
         }
+        updateProgramCard();
+    }
+
+    private void clearGrid() {
+        for (int x = 0 ; x < GRID_WIDTH ; x++) {
+            for (int y = 0 ; y < GRID_HEIGHT ; y++) {
+                getHolder(x, y).setIcon(null);
+            }
+        }
+    }
+
+    private void updateProgramCard() {
+
+    }
+
+    private void readProgramCard() {
+        clearGrid();
+        ItemStack card = tileEntity.getStackInSlot(ProgrammerContainer.SLOT_CARD);
+        if (card == null) {
+            return;
+        }
+        ProgramCardInstance instance = ProgramCardInstance.parseInstance(card);
+        for (Map.Entry<Pair<Integer, Integer>, GridInstance> entry : instance.getGridInstances().entrySet()) {
+            int x = entry.getKey().getLeft();
+            int y = entry.getKey().getRight();
+            GridInstance gridInstance = entry.getValue();
+
+        }
+
+    }
+
+    private IconHolder getHolder(int x, int y) {
+        Panel row = (Panel) gridList.getChild(y);
+        return (IconHolder) row.getChild(x);
     }
 
     private Panel setupControlPanel() {
@@ -174,25 +229,25 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
                 .setScrollable(list)
                 .setLayoutHint(new PositionalLayout.PositionalHint(62, 0, 9, 220));
 
-        int x = 0;
-        for (int i = 0 ; i < 16 ; i++) {
+        int id = 1;
+        for (int x = 0 ; x < 16 ; x++) {
             Panel childPanel = new Panel(mc, this).setLayout(new HorizontalLayout().setVerticalMargin(1).setSpacing(1).setHorizontalMargin(1)).setDesiredHeight(ICONSIZE+1);
-            IconHolder holder = new IconHolder(mc, this).setDesiredWidth(ICONSIZE).setDesiredHeight(ICONSIZE)
-                    .setMakeCopy(true);
-            holder.setIcon(new ImageIcon(String.valueOf(i)).setDimensions(ICONSIZE, ICONSIZE).setImage(icons, i*ICONSIZE, x*2*ICONSIZE));
-            childPanel.addChild(holder);
 
-            holder = new IconHolder(mc, this).setDesiredWidth(ICONSIZE).setDesiredHeight(ICONSIZE)
-                    .setMakeCopy(true);
-            holder.setIcon(new ImageIcon(String.valueOf(i)).setDimensions(ICONSIZE, ICONSIZE).setImage(icons, i*ICONSIZE, x*2*ICONSIZE+ICONSIZE));
-            childPanel.addChild(holder);
-
-            holder = new IconHolder(mc, this).setDesiredWidth(ICONSIZE).setDesiredHeight(ICONSIZE)
-                    .setMakeCopy(true);
-            holder.setIcon(new ImageIcon(String.valueOf(i)).setDimensions(ICONSIZE, ICONSIZE).setImage(icons, i*ICONSIZE, x*2*ICONSIZE+ICONSIZE));
-            childPanel.addChild(holder);
+            for (int y = 0 ; y < 3 ; y++) {
+                IconHolder holder = new IconHolder(mc, this).setDesiredWidth(ICONSIZE).setDesiredHeight(ICONSIZE)
+                        .setMakeCopy(true);
+                holder.setIcon(ICONS.get("" + id));
+                childPanel.addChild(holder);
+                id++;
+                if (id >= ICONS.size()) {
+                    break;
+                }
+            }
 
             list.addChild(childPanel);
+            if (id >= ICONS.size()) {
+                break;
+            }
         }
 
         return new Panel(mc, this).setLayout(new PositionalLayout()).setLayoutHint(new PositionalLayout.PositionalHint(5, 5, 72, 220))

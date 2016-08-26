@@ -9,13 +9,13 @@ import net.minecraft.inventory.IInventory;
 
 public class ProgrammerContainer extends GenericContainer {
     public static final String CONTAINER_INVENTORY = "container";
-    public static final int SLOT_TAB = 0;
+    public static final int SLOT_CARD = 0;
 
     public static final ContainerFactory factory = new ContainerFactory() {
         @Override
         protected void setup() {
             addSlotBox(new SlotDefinition(SlotType.SLOT_CONTAINER),
-                    CONTAINER_INVENTORY, SLOT_TAB, 5, 157, 1, 18, 1, 18);
+                    CONTAINER_INVENTORY, SLOT_CARD, 5, 157, 1, 18, 1, 18);
             layoutPlayerInventorySlots(91, 157);
         }
     };
