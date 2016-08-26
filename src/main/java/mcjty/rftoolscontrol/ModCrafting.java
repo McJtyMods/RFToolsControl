@@ -13,6 +13,7 @@ public class ModCrafting {
 
     public static void init() {
         GameRegistry.addRecipe(new ItemStack(ModItems.rfToolsControlManualItem), "rrr", " b ", "   ", 'r', Items.REDSTONE, 'b', Items.BOOK);
+        GameRegistry.addRecipe(new ItemStack(ModItems.programCardItem), "rrr", "ppp", "nnn", 'r', Items.REDSTONE, 'p', Items.PAPER, 'n', Items.GOLD_NUGGET);
 
         Block machineFrame = ForgeRegistries.BLOCKS.getValue(new ResourceLocation("rftools", "machine_frame"));
 

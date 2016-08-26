@@ -2,6 +2,7 @@
 
 # Items
 item.rftoolscontrol.rftoolscontrol_manual.name=RFTools Control Manual
+item.rftoolscontrol.program_card.name=Program Card
 
 # Blocks
 tile.rftoolscontrol.programmer.name=Programmer
