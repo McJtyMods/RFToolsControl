@@ -32,6 +32,14 @@ public class ProgramCardInstance {
      * ]
      */
 
+    private ProgramCardInstance() {
+
+    }
+
+    public static ProgramCardInstance newInstance() {
+        return new ProgramCardInstance();
+    }
+
     public static ProgramCardInstance parseInstance(ItemStack card) {
         NBTTagCompound tagCompound = card.getTagCompound();
         if (tagCompound == null) {
@@ -59,10 +67,14 @@ public class ProgramCardInstance {
                 gridInstance.addConnection(connection);
             }
         }
-        instance.gridInstances.put(Pair.of(x, y), gridInstance);
+        instance.putGridInstance(x, y, gridInstance);
     }
 
-    void writeToNBT(ItemStack card) {
+    public void putGridInstance(int x, int y, GridInstance gridInstance) {
+        gridInstances.put(Pair.of(x, y), gridInstance);
+    }
+
+    public void writeToNBT(ItemStack card) {
         NBTTagCompound tagCompound = card.getTagCompound();
         if (tagCompound == null) {
             tagCompound = new NBTTagCompound();

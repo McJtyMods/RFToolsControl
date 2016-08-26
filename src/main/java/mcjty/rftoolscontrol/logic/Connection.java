@@ -34,4 +34,18 @@ public enum Connection {
     public static Connection getConnection(String id) {
         return ID_TO_CONNECTION.get(id);
     }
+
+    public Connection getOpposite() {
+        switch (this) {
+            case UP: return UP_NEG;
+            case DOWN: return DOWN_NEG;
+            case LEFT: return LEFT_NEG;
+            case RIGHT: return RIGHT_NEG;
+            case UP_NEG: return UP;
+            case DOWN_NEG: return DOWN;
+            case LEFT_NEG: return LEFT;
+            case RIGHT_NEG: return RIGHT;
+        }
+        return this;
+    }
 }

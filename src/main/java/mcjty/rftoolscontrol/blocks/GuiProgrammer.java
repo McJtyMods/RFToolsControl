@@ -18,6 +18,7 @@ import mcjty.lib.gui.widgets.Label;
 import mcjty.lib.gui.widgets.Panel;
 import mcjty.lib.gui.widgets.TextField;
 import mcjty.rftoolscontrol.RFToolsControl;
+import mcjty.rftoolscontrol.logic.Connection;
 import mcjty.rftoolscontrol.logic.GridInstance;
 import mcjty.rftoolscontrol.logic.ProgramCardInstance;
 import mcjty.rftoolscontrol.network.RFToolsCtrlMessages;
@@ -48,11 +49,21 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
     private WidgetList gridList;
 
     private static final Map<String, IIcon> ICONS = new HashMap<>();
+    private static final Map<Connection, IIcon> CONNECTION_ICONS = new HashMap<>();
 
     static {
         ICONS.put("1", new ImageIcon(String.valueOf("1")).setDimensions(ICONSIZE, ICONSIZE).setImage(icons, 0*ICONSIZE, 0*ICONSIZE));
         ICONS.put("2", new ImageIcon(String.valueOf("2")).setDimensions(ICONSIZE, ICONSIZE).setImage(icons, 1*ICONSIZE, 0*ICONSIZE));
         ICONS.put("3", new ImageIcon(String.valueOf("3")).setDimensions(ICONSIZE, ICONSIZE).setImage(icons, 2*ICONSIZE, 0*ICONSIZE));
+
+        CONNECTION_ICONS.put(Connection.UP, new ImageIcon(Connection.UP.getId()).setImage(icons, 0*ICONSIZE, 5*ICONSIZE));
+        CONNECTION_ICONS.put(Connection.UP_NEG, new ImageIcon(Connection.UP_NEG.getId()).setImage(icons, 0*ICONSIZE, 6*ICONSIZE));
+        CONNECTION_ICONS.put(Connection.RIGHT, new ImageIcon(Connection.RIGHT.getId()).setImage(icons, 1*ICONSIZE, 5*ICONSIZE));
+        CONNECTION_ICONS.put(Connection.RIGHT_NEG, new ImageIcon(Connection.RIGHT_NEG.getId()).setImage(icons, 1*ICONSIZE, 6*ICONSIZE));
+        CONNECTION_ICONS.put(Connection.DOWN, new ImageIcon(Connection.DOWN.getId()).setImage(icons, 2*ICONSIZE, 5*ICONSIZE));
+        CONNECTION_ICONS.put(Connection.DOWN_NEG, new ImageIcon(Connection.DOWN_NEG.getId()).setImage(icons, 2*ICONSIZE, 6*ICONSIZE));
+        CONNECTION_ICONS.put(Connection.LEFT, new ImageIcon(Connection.LEFT.getId()).setImage(icons, 3*ICONSIZE, 5*ICONSIZE));
+        CONNECTION_ICONS.put(Connection.LEFT_NEG, new ImageIcon(Connection.LEFT_NEG.getId()).setImage(icons, 3*ICONSIZE, 6*ICONSIZE));
     }
 
     public GuiProgrammer(ProgrammerTileEntity tileEntity, ProgrammerContainer container) {
@@ -83,8 +94,6 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
                 .addChild(listPanel);
         sidePanel.setBounds(new Rectangle(guiLeft-SIDEWIDTH, guiTop, SIDEWIDTH, ySize));
         sideWindow = new Window(this, sidePanel);
-
-        readProgramCard();
     }
 
     @Override
@@ -122,7 +131,6 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
                         .addIconEvent(new IconEvent() {
                             @Override
                             public boolean iconArrives(IconHolder parent, IIcon icon) {
-                                updateProgramCard();
                                 return true;
                             }
 
@@ -134,13 +142,13 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
                             @Override
                             public boolean iconClicked(IconHolder parent, IIcon icon, int dx, int dy) {
                                 if (dy <= 3 && dx >= 10 && dx <= 14) {
-                                    handleIconOverlay(icon, "top", 0, 5);
+                                    handleIconOverlay(icon, Connection.UP);
                                 } else if (dy >= ICONSIZE-3 && dx >= 10 && dx <= 14) {
-                                    handleIconOverlay(icon, "bot", 2, 5);
+                                    handleIconOverlay(icon, Connection.DOWN);
                                 } else if (dx <= 3 && dy >= 10 && dy <= 14) {
-                                    handleIconOverlay(icon, "lef", 3, 5);
+                                    handleIconOverlay(icon, Connection.LEFT);
                                 } else if (dx >= ICONSIZE-3 && dy >= 10 && dy <= 14) {
-                                    handleIconOverlay(icon, "rig", 1, 5);
+                                    handleIconOverlay(icon, Connection.RIGHT);
                                 }
                                 System.out.println("dx = " + dx + "," + dy);
                                 return true;
@@ -165,16 +173,15 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
         return panel;
     }
 
-    private void handleIconOverlay(IIcon icon, String prefix, int u, int v) {
-        if (icon.hasOverlay(prefix+"_red")) {
-            icon.removeOverlay(prefix+"_red");
-            icon.addOverlay(new ImageIcon(prefix+"_green").setDimensions(ICONSIZE, ICONSIZE).setImage(icons, u*ICONSIZE, (v+1)*ICONSIZE));
-        } else if (icon.hasOverlay(prefix+"_green")) {
-            icon.removeOverlay(prefix+"_green");
+    private void handleIconOverlay(IIcon icon, Connection connection) {
+        if (icon.hasOverlay(connection.getId())) {
+            icon.removeOverlay(connection.getId());
+            icon.addOverlay(CONNECTION_ICONS.get(connection.getOpposite().getId()));
+        } else if (icon.hasOverlay(connection.getOpposite().getId())) {
+            icon.removeOverlay(connection.getOpposite().getId());
         } else {
-            icon.addOverlay(new ImageIcon(prefix+"_red").setDimensions(ICONSIZE, ICONSIZE).setImage(icons, u*ICONSIZE, v*ICONSIZE));
+            icon.addOverlay(CONNECTION_ICONS.get(connection.getId()));
         }
-        updateProgramCard();
     }
 
     private void clearGrid() {
@@ -185,35 +192,56 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
         }
     }
 
-    private void updateProgramCard() {
-
-    }
-
-    private void readProgramCard() {
-        clearGrid();
-        ItemStack card = tileEntity.getStackInSlot(ProgrammerContainer.SLOT_CARD);
-        if (card == null) {
-            return;
-        }
-        ProgramCardInstance instance = ProgramCardInstance.parseInstance(card);
-        for (Map.Entry<Pair<Integer, Integer>, GridInstance> entry : instance.getGridInstances().entrySet()) {
-            int x = entry.getKey().getLeft();
-            int y = entry.getKey().getRight();
-            GridInstance gridInstance = entry.getValue();
-
-        }
-
-    }
-
     private IconHolder getHolder(int x, int y) {
         Panel row = (Panel) gridList.getChild(y);
         return (IconHolder) row.getChild(x);
     }
 
+    private void saveProgram() {
+        ItemStack card = tileEntity.getStackInSlot(ProgrammerContainer.SLOT_CARD);
+        if (card == null) {
+            return;
+        }
+        ProgramCardInstance instance = ProgramCardInstance.newInstance();
+        for (int x = 0 ; x < GRID_WIDTH ; x++) {
+            for (int y = 0 ; y < GRID_HEIGHT ; y++) {
+                IconHolder holder = getHolder(x, y);
+                IIcon icon = holder.getIcon();
+                if (icon != null) {
+                    GridInstance gridInstance = new GridInstance(icon.getID());
+                    instance.putGridInstance(x, y, gridInstance);
+                }
+            }
+        }
+        System.out.println("GuiProgrammer.saveProgram");
+        instance.writeToNBT(card);
+    }
+
+    private void loadProgram() {
+        ItemStack card = tileEntity.getStackInSlot(ProgrammerContainer.SLOT_CARD);
+        if (card == null) {
+            return;
+        }
+        clearGrid();
+        ProgramCardInstance instance = ProgramCardInstance.parseInstance(card);
+        if (instance == null) {
+            return;
+        }
+        for (Map.Entry<Pair<Integer, Integer>, GridInstance> entry : instance.getGridInstances().entrySet()) {
+            int x = entry.getKey().getLeft();
+            int y = entry.getKey().getRight();
+            GridInstance gridInstance = entry.getValue();
+            IIcon icon = ICONS.get(gridInstance.getId());
+            for (Connection connection : gridInstance.getConnections()) {
+                icon.addOverlay(CONNECTION_ICONS.get(connection.getId()));
+            }
+        }
+    }
+
     private Panel setupControlPanel() {
         return new Panel(mc, this).setLayout(new VerticalLayout()).setLayoutHint(new PositionalLayout.PositionalHint(26, 157, 58, 50))
-                .addChild(new Button(mc, this).setText("Load").setDesiredHeight(15))
-                .addChild(new Button(mc, this).setText("Save").setDesiredHeight(15))
+                .addChild(new Button(mc, this).setText("Load").setDesiredHeight(15).addButtonEvent(w -> loadProgram()))
+                .addChild(new Button(mc, this).setText("Save").setDesiredHeight(15).addButtonEvent(w -> saveProgram()))
                 .addChild(new Button(mc, this).setText("Clear").setDesiredHeight(15));
     }
 
