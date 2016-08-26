@@ -1,0 +1,16 @@
+[
+{
+  "modid": "rftoolsctrl",
+  "name": "RFTools Control",
+  "description": "RFTools Control Addon",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["McJty"],
+  "credits": "",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]

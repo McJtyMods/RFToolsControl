@@ -1,0 +1,10 @@
+# Achievements
+
+# Items
+item.rftoolscontrol.rftoolscontrol_manual.name=RFTools Control Manual
+
+# Blocks
+#tile.rftoolsdim.dimletFilterBlock.name=Dimlet Filter
+
+# Creative Tabs
+itemGroup.RFToolsControl=RFTools Control
