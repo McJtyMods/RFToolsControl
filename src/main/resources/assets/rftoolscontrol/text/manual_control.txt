@@ -1,9 +1,9 @@
-{b}RFTools Dimension Manual
+{b}RFTools Control Manual
 
 Table of Contents:
 {l:intro}Introduction to Control
 {-------------------------------------------------------------}
-{b}Introduction to Dimension Control
+{b}Introduction to Control
 {n:intro}
 Bla bla
 {-------------------------------------------------------------}

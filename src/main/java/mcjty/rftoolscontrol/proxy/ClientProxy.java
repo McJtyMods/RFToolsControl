@@ -1,5 +1,6 @@
 package mcjty.rftoolscontrol.proxy;
 
+import mcjty.rftoolscontrol.blocks.ModBlocks;
 import mcjty.rftoolscontrol.items.ModItems;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
@@ -11,7 +12,7 @@ public class ClientProxy extends CommonProxy {
     public void preInit(FMLPreInitializationEvent e) {
         super.preInit(e);
         ModItems.initClient();
-//        ModBlocks.initClient();
+        ModBlocks.initClient();
     }
 
     @Override

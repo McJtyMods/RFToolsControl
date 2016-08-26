@@ -4,7 +4,7 @@
 item.rftoolscontrol.rftoolscontrol_manual.name=RFTools Control Manual
 
 # Blocks
-#tile.rftoolsdim.dimletFilterBlock.name=Dimlet Filter
+tile.rftoolscontrol.programmer.name=Programmer
 
 # Creative Tabs
 itemGroup.RFToolsControl=RFTools Control

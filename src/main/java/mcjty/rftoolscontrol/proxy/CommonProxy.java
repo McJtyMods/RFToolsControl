@@ -1,6 +1,7 @@
 package mcjty.rftoolscontrol.proxy;
 
 import mcjty.rftoolscontrol.ModCrafting;
+import mcjty.rftoolscontrol.blocks.ModBlocks;
 import mcjty.rftoolscontrol.items.ModItems;
 import mcjty.lib.base.GeneralConfig;
 import mcjty.lib.network.PacketHandler;
@@ -36,7 +37,7 @@ public abstract class CommonProxy {
         RFToolsCtrlMessages.registerNetworkMessages(network);
 
         ModItems.init();
-//        ModBlocks.init();
+        ModBlocks.init();
     }
 
     private void readMainConfig() {

@@ -13,7 +13,7 @@ import net.minecraftforge.fml.common.event.*;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-@Mod(modid = RFToolsControl.MODID, name="RFTools Dimensions", dependencies =
+@Mod(modid = RFToolsControl.MODID, name="RFTools Control", dependencies =
         "required-after:Forge@["+ RFToolsControl.MIN_FORGE_VER+
         ",);required-after:rftools@["+RFToolsControl.MIN_RFTOOLS_VER+
         ",);required-after:McJtyLib@["+ RFToolsControl.MIN_MCJTYLIB_VER+",)",
