@@ -21,6 +21,7 @@ import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.logic.Connection;
 import mcjty.rftoolscontrol.logic.GridInstance;
 import mcjty.rftoolscontrol.logic.ProgramCardInstance;
+import mcjty.rftoolscontrol.network.PacketUpdateNBTItemInventory;
 import mcjty.rftoolscontrol.network.RFToolsCtrlMessages;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
@@ -64,6 +65,10 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
         CONNECTION_ICONS.put(Connection.DOWN_NEG, new ImageIcon(Connection.DOWN_NEG.getId()).setImage(icons, 2*ICONSIZE, 6*ICONSIZE));
         CONNECTION_ICONS.put(Connection.LEFT, new ImageIcon(Connection.LEFT.getId()).setImage(icons, 3*ICONSIZE, 5*ICONSIZE));
         CONNECTION_ICONS.put(Connection.LEFT_NEG, new ImageIcon(Connection.LEFT_NEG.getId()).setImage(icons, 3*ICONSIZE, 6*ICONSIZE));
+        for (IIcon icon : CONNECTION_ICONS.values()) {
+            ((ImageIcon)icon).setDimensions(ICONSIZE, ICONSIZE);
+        }
+
     }
 
     public GuiProgrammer(ProgrammerTileEntity tileEntity, ProgrammerContainer container) {
@@ -176,11 +181,11 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
     private void handleIconOverlay(IIcon icon, Connection connection) {
         if (icon.hasOverlay(connection.getId())) {
             icon.removeOverlay(connection.getId());
-            icon.addOverlay(CONNECTION_ICONS.get(connection.getOpposite().getId()));
+            icon.addOverlay(CONNECTION_ICONS.get(connection.getOpposite()));
         } else if (icon.hasOverlay(connection.getOpposite().getId())) {
             icon.removeOverlay(connection.getOpposite().getId());
         } else {
-            icon.addOverlay(CONNECTION_ICONS.get(connection.getId()));
+            icon.addOverlay(CONNECTION_ICONS.get(connection));
         }
     }
 
@@ -209,12 +214,20 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
                 IIcon icon = holder.getIcon();
                 if (icon != null) {
                     GridInstance gridInstance = new GridInstance(icon.getID());
+                    StringBuilder builder = new StringBuilder();
+                    for (Connection connection : Connection.values()) {
+                        if (icon.hasOverlay(connection.getId())) {
+                            gridInstance.addConnection(connection);
+                        }
+                    }
                     instance.putGridInstance(x, y, gridInstance);
                 }
             }
         }
         System.out.println("GuiProgrammer.saveProgram");
         instance.writeToNBT(card);
+        RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketUpdateNBTItemInventory(tileEntity.getPos(),
+                ProgrammerContainer.SLOT_CARD, card.getTagCompound()));
     }
 
     private void loadProgram() {
@@ -233,8 +246,9 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
             GridInstance gridInstance = entry.getValue();
             IIcon icon = ICONS.get(gridInstance.getId());
             for (Connection connection : gridInstance.getConnections()) {
-                icon.addOverlay(CONNECTION_ICONS.get(connection.getId()));
+                icon.addOverlay(CONNECTION_ICONS.get(connection));
             }
+            getHolder(x, y).setIcon(icon);
         }
     }
 

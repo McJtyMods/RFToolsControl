@@ -1,6 +1,8 @@
 package mcjty.rftoolscontrol.network;
 
+import mcjty.lib.network.PacketHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
+import net.minecraftforge.fml.relauncher.Side;
 
 public class RFToolsCtrlMessages {
     public static SimpleNetworkWrapper INSTANCE;
@@ -9,7 +11,7 @@ public class RFToolsCtrlMessages {
         INSTANCE = net;
 
         // Server side
-//        net.registerMessage(PacketGetDimensionEnergy.Handler.class, PacketGetDimensionEnergy.class, PacketHandler.nextID(), Side.SERVER);
+        net.registerMessage(PacketUpdateNBTItemInventory.Handler.class, PacketUpdateNBTItemInventory.class, PacketHandler.nextID(), Side.SERVER);
 
         // Client side
 //        net.registerMessage(PacketRegisterDimensions.Handler.class, PacketRegisterDimensions.class, PacketHandler.nextID(), Side.SERVER);
