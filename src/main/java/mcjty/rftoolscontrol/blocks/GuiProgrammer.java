@@ -242,7 +242,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
             int x = entry.getKey().getLeft();
             int y = entry.getKey().getRight();
             GridInstance gridInstance = entry.getValue();
-            IIcon icon = ICONS.get(gridInstance.getId());
+            IIcon icon = ICONS.get(gridInstance.getId()).clone();
             for (Connection connection : gridInstance.getConnections()) {
                 icon.addOverlay(CONNECTION_ICONS.get(connection));
             }
@@ -273,19 +273,19 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
         for (int x = 0 ; x < 16 ; x++) {
             Panel childPanel = new Panel(mc, this).setLayout(new HorizontalLayout().setVerticalMargin(1).setSpacing(1).setHorizontalMargin(1)).setDesiredHeight(ICONSIZE+1);
 
-            for (int y = 0 ; y < 3 ; y++) {
+            for (int y = 0 ; y < 2 ; y++) {
                 IconHolder holder = new IconHolder(mc, this).setDesiredWidth(ICONSIZE).setDesiredHeight(ICONSIZE)
                         .setMakeCopy(true);
                 holder.setIcon(ICONS.get("" + id).clone());
                 childPanel.addChild(holder);
                 id++;
-                if (id >= ICONS.size()) {
+                if (id > ICONS.size()) {
                     break;
                 }
             }
 
             list.addChild(childPanel);
-            if (id >= ICONS.size()) {
+            if (id > ICONS.size()) {
                 break;
             }
         }
