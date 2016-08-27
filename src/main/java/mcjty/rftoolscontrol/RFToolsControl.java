@@ -22,7 +22,7 @@ public class RFToolsControl implements ModBase {
     public static final String MODID = "rftoolscontrol";
     public static final String VERSION = "0.0.1";
     public static final String MIN_FORGE_VER = "12.16.1.1896";
-    public static final String MIN_MCJTYLIB_VER = "1.10-2.0.0beta1";
+    public static final String MIN_MCJTYLIB_VER = "1.10-2.0.0beta2";
     public static final String MIN_RFTOOLS_VER = "1.10-5.20";
 
     @SidedProxy(clientSide="mcjty.rftoolscontrol.proxy.ClientProxy", serverSide="mcjty.rftoolscontrol.proxy.ServerProxy")
