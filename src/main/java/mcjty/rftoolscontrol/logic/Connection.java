@@ -4,9 +4,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 public enum Connection {
-    UP("u"),
-    DOWN("d"),
-    LEFT("l"),
+    UP("U"),
+    DOWN("D"),
+    LEFT("L"),
     RIGHT("R"),
     UP_NEG("u"),
     DOWN_NEG("d"),

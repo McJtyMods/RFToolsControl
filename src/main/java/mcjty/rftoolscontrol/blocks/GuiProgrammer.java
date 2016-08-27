@@ -17,11 +17,11 @@ import mcjty.lib.gui.widgets.*;
 import mcjty.lib.gui.widgets.Label;
 import mcjty.lib.gui.widgets.Panel;
 import mcjty.lib.gui.widgets.TextField;
+import mcjty.lib.network.PacketUpdateNBTItemInventory;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.logic.Connection;
 import mcjty.rftoolscontrol.logic.GridInstance;
 import mcjty.rftoolscontrol.logic.ProgramCardInstance;
-import mcjty.rftoolscontrol.network.PacketUpdateNBTItemInventory;
 import mcjty.rftoolscontrol.network.RFToolsCtrlMessages;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
@@ -46,7 +46,6 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
     private static final ResourceLocation icons = new ResourceLocation(RFToolsControl.MODID, "textures/gui/icons.png");
 
     private Window sideWindow;
-    private IconManager iconManager;
     private WidgetList gridList;
 
     private static final Map<String, IIcon> ICONS = new HashMap<>();
@@ -214,7 +213,6 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
                 IIcon icon = holder.getIcon();
                 if (icon != null) {
                     GridInstance gridInstance = new GridInstance(icon.getID());
-                    StringBuilder builder = new StringBuilder();
                     for (Connection connection : Connection.values()) {
                         if (icon.hasOverlay(connection.getId())) {
                             gridInstance.addConnection(connection);
@@ -278,7 +276,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
             for (int y = 0 ; y < 3 ; y++) {
                 IconHolder holder = new IconHolder(mc, this).setDesiredWidth(ICONSIZE).setDesiredHeight(ICONSIZE)
                         .setMakeCopy(true);
-                holder.setIcon(ICONS.get("" + id));
+                holder.setIcon(ICONS.get("" + id).clone());
                 childPanel.addChild(holder);
                 id++;
                 if (id >= ICONS.size()) {

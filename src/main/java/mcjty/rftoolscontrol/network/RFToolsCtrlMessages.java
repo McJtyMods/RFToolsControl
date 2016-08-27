@@ -11,7 +11,7 @@ public class RFToolsCtrlMessages {
         INSTANCE = net;
 
         // Server side
-        net.registerMessage(PacketUpdateNBTItemInventory.Handler.class, PacketUpdateNBTItemInventory.class, PacketHandler.nextID(), Side.SERVER);
+//        net.registerMessage(PacketUpdateNBTItemInventory.Handler.class, PacketUpdateNBTItemInventory.class, PacketHandler.nextID(), Side.SERVER);
 
         // Client side
 //        net.registerMessage(PacketRegisterDimensions.Handler.class, PacketRegisterDimensions.class, PacketHandler.nextID(), Side.SERVER);
