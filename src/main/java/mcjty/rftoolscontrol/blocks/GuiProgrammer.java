@@ -6,7 +6,6 @@ import mcjty.lib.gui.Window;
 import mcjty.lib.gui.WindowManager;
 import mcjty.lib.gui.events.IconEvent;
 import mcjty.lib.gui.icons.IIcon;
-import mcjty.lib.gui.icons.IconManager;
 import mcjty.lib.gui.icons.ImageIcon;
 import mcjty.lib.gui.layout.HorizontalAlignment;
 import mcjty.lib.gui.layout.HorizontalLayout;
@@ -19,9 +18,7 @@ import mcjty.lib.gui.widgets.Panel;
 import mcjty.lib.gui.widgets.TextField;
 import mcjty.lib.network.PacketUpdateNBTItemInventory;
 import mcjty.rftoolscontrol.RFToolsControl;
-import mcjty.rftoolscontrol.logic.Connection;
-import mcjty.rftoolscontrol.logic.GridInstance;
-import mcjty.rftoolscontrol.logic.ProgramCardInstance;
+import mcjty.rftoolscontrol.logic.*;
 import mcjty.rftoolscontrol.network.RFToolsCtrlMessages;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
@@ -52,10 +49,6 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
     private static final Map<Connection, IIcon> CONNECTION_ICONS = new HashMap<>();
 
     static {
-        ICONS.put("1", new ImageIcon(String.valueOf("1")).setDimensions(ICONSIZE, ICONSIZE).setImage(icons, 0*ICONSIZE, 0*ICONSIZE));
-        ICONS.put("2", new ImageIcon(String.valueOf("2")).setDimensions(ICONSIZE, ICONSIZE).setImage(icons, 1*ICONSIZE, 0*ICONSIZE));
-        ICONS.put("3", new ImageIcon(String.valueOf("3")).setDimensions(ICONSIZE, ICONSIZE).setImage(icons, 2*ICONSIZE, 0*ICONSIZE));
-
         CONNECTION_ICONS.put(Connection.UP, new ImageIcon(Connection.UP.getId()).setImage(icons, 0*ICONSIZE, 5*ICONSIZE));
         CONNECTION_ICONS.put(Connection.UP_NEG, new ImageIcon(Connection.UP_NEG.getId()).setImage(icons, 0*ICONSIZE, 6*ICONSIZE));
         CONNECTION_ICONS.put(Connection.RIGHT, new ImageIcon(Connection.RIGHT.getId()).setImage(icons, 1*ICONSIZE, 5*ICONSIZE));
@@ -67,7 +60,6 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
         for (IIcon icon : CONNECTION_ICONS.values()) {
             ((ImageIcon)icon).setDimensions(ICONSIZE, ICONSIZE);
         }
-
     }
 
     public GuiProgrammer(ProgrammerTileEntity tileEntity, ProgrammerContainer container) {
@@ -75,6 +67,18 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
 
         xSize = WIDTH;
         ySize = HEIGHT;
+
+        initIcons();
+    }
+
+    private void initIcons() {
+        if (ICONS.isEmpty()) {
+            for (Map.Entry<String, Operand> entry : Operands.OPERANDS.entrySet()) {
+                String id = entry.getKey();
+                Operand operand = entry.getValue();
+                ICONS.put(id, new ImageIcon(id).setDimensions(ICONSIZE, ICONSIZE).setImage(icons, operand.getIconU()*ICONSIZE, operand.getIconV()*ICONSIZE));
+            }
+        }
     }
 
     @Override
@@ -147,11 +151,11 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
                             public boolean iconClicked(IconHolder parent, IIcon icon, int dx, int dy) {
                                 if (dy <= 3 && dx >= 10 && dx <= 14) {
                                     handleIconOverlay(icon, Connection.UP);
-                                } else if (dy >= ICONSIZE-3 && dx >= 10 && dx <= 14) {
+                                } else if (dy >= ICONSIZE-4 && dx >= 10 && dx <= 14) {
                                     handleIconOverlay(icon, Connection.DOWN);
                                 } else if (dx <= 3 && dy >= 10 && dy <= 14) {
                                     handleIconOverlay(icon, Connection.LEFT);
-                                } else if (dx >= ICONSIZE-3 && dy >= 10 && dy <= 14) {
+                                } else if (dx >= ICONSIZE-4 && dy >= 10 && dy <= 14) {
                                     handleIconOverlay(icon, Connection.RIGHT);
                                 }
                                 System.out.println("dx = " + dx + "," + dy);
@@ -269,24 +273,23 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
                 .setScrollable(list)
                 .setLayoutHint(new PositionalLayout.PositionalHint(62, 0, 9, 220));
 
-        int id = 1;
-        for (int x = 0 ; x < 16 ; x++) {
-            Panel childPanel = new Panel(mc, this).setLayout(new HorizontalLayout().setVerticalMargin(1).setSpacing(1).setHorizontalMargin(1)).setDesiredHeight(ICONSIZE+1);
-
-            for (int y = 0 ; y < 2 ; y++) {
-                IconHolder holder = new IconHolder(mc, this).setDesiredWidth(ICONSIZE).setDesiredHeight(ICONSIZE)
-                        .setMakeCopy(true);
-                holder.setIcon(ICONS.get("" + id).clone());
-                childPanel.addChild(holder);
-                id++;
-                if (id > ICONS.size()) {
-                    break;
-                }
+        int x = 0;
+        int y = 0;
+        Panel childPanel = null;
+        for (Map.Entry<String, Operand> entry : Operands.OPERANDS.entrySet()) {
+            if (childPanel == null) {
+                childPanel = new Panel(mc, this).setLayout(new HorizontalLayout().setVerticalMargin(1).setSpacing(1).setHorizontalMargin(1)).setDesiredHeight(ICONSIZE+1);
+                list.addChild(childPanel);
             }
-
-            list.addChild(childPanel);
-            if (id > ICONS.size()) {
-                break;
+            IconHolder holder = new IconHolder(mc, this).setDesiredWidth(ICONSIZE).setDesiredHeight(ICONSIZE)
+                    .setMakeCopy(true);
+            holder.setIcon(ICONS.get(entry.getKey()).clone());
+            childPanel.addChild(holder);
+            x++;
+            if (x >= 2) {
+                y++;
+                x = 0;
+                childPanel = null;
             }
         }
 

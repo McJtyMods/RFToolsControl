@@ -9,6 +9,7 @@ import mcjty.lib.varia.WrenchChecker;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.config.GeneralConfiguration;
 import mcjty.rftoolscontrol.gui.GuiProxy;
+import mcjty.rftoolscontrol.logic.Operands;
 import mcjty.rftoolscontrol.network.RFToolsCtrlMessages;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.common.FMLLog;
@@ -36,6 +37,7 @@ public abstract class CommonProxy {
         SimpleNetworkWrapper network = PacketHandler.registerMessages(RFToolsControl.MODID, "rftoolsctrl");
         RFToolsCtrlMessages.registerNetworkMessages(network);
 
+        Operands.init();
         ModItems.init();
         ModBlocks.init();
     }
