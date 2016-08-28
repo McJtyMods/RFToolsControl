@@ -4,7 +4,6 @@ import mcjty.lib.base.StyleConfig;
 import mcjty.lib.container.GenericGuiContainer;
 import mcjty.lib.gui.Window;
 import mcjty.lib.gui.WindowManager;
-import mcjty.lib.gui.events.IconEvent;
 import mcjty.lib.gui.icons.IIcon;
 import mcjty.lib.gui.icons.ImageIcon;
 import mcjty.lib.gui.layout.HorizontalAlignment;
@@ -18,15 +17,20 @@ import mcjty.lib.gui.widgets.Panel;
 import mcjty.lib.gui.widgets.TextField;
 import mcjty.lib.network.PacketUpdateNBTItemInventory;
 import mcjty.rftoolscontrol.RFToolsControl;
-import mcjty.rftoolscontrol.logic.*;
+import mcjty.rftoolscontrol.logic.Connection;
+import mcjty.rftoolscontrol.logic.GridInstance;
+import mcjty.rftoolscontrol.logic.ProgramCardInstance;
 import mcjty.rftoolscontrol.logic.program.Operand;
 import mcjty.rftoolscontrol.logic.program.Operands;
+import mcjty.rftoolscontrol.logic.program.Parameter;
 import mcjty.rftoolscontrol.network.RFToolsCtrlMessages;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.awt.*;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -46,6 +50,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
 
     private Window sideWindow;
     private WidgetList gridList;
+    private Panel editorPanel;
 
     private static final Map<String, IIcon> ICONS = new HashMap<>();
     private static final Map<Connection, IIcon> CONNECTION_ICONS = new HashMap<>();
@@ -88,7 +93,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
         super.initGui();
 
         // --- Main window ---
-        Panel editorPanel = setupEditorPanel();
+        editorPanel = setupEditorPanel();
         Panel controlPanel = setupControlPanel();
         Panel gridPanel = setupGridPanel();
         Panel toplevel = new Panel(mc, this).setLayout(new PositionalLayout()).setBackground(mainBackground)
@@ -96,7 +101,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
                 .addChild(controlPanel)
                 .addChild(gridPanel);
         toplevel.setBounds(new Rectangle(guiLeft, guiTop, xSize, ySize));
-        window = new Window(this, toplevel);
+        window = new Window(this, toplevel).addFocusEvent((parent, focused) -> selectIcon(parent, focused));
 
         // --- Side window ---
         Panel listPanel = setupListPanel();
@@ -138,31 +143,18 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
                         .setBorder(1)
                         .setBorderColor(0xff777777)
                         .setSelectable(true)
-                        .addIconEvent(new IconEvent() {
-                            @Override
-                            public boolean iconArrives(IconHolder parent, IIcon icon) {
-                                return true;
+                        .addIconClickedEvent((parent, icon, dx, dy) -> {
+                            if (dy <= 3 && dx >= 10 && dx <= 14) {
+                                handleIconOverlay(icon, Connection.UP);
+                            } else if (dy >= ICONSIZE-4 && dx >= 10 && dx <= 14) {
+                                handleIconOverlay(icon, Connection.DOWN);
+                            } else if (dx <= 3 && dy >= 10 && dy <= 14) {
+                                handleIconOverlay(icon, Connection.LEFT);
+                            } else if (dx >= ICONSIZE-4 && dy >= 10 && dy <= 14) {
+                                handleIconOverlay(icon, Connection.RIGHT);
                             }
-
-                            @Override
-                            public boolean iconLeaves(IconHolder parent, IIcon icon) {
-                                return true;
-                            }
-
-                            @Override
-                            public boolean iconClicked(IconHolder parent, IIcon icon, int dx, int dy) {
-                                if (dy <= 3 && dx >= 10 && dx <= 14) {
-                                    handleIconOverlay(icon, Connection.UP);
-                                } else if (dy >= ICONSIZE-4 && dx >= 10 && dx <= 14) {
-                                    handleIconOverlay(icon, Connection.DOWN);
-                                } else if (dx <= 3 && dy >= 10 && dy <= 14) {
-                                    handleIconOverlay(icon, Connection.LEFT);
-                                } else if (dx >= ICONSIZE-4 && dy >= 10 && dy <= 14) {
-                                    handleIconOverlay(icon, Connection.RIGHT);
-                                }
-                                System.out.println("dx = " + dx + "," + dy);
-                                return true;
-                            }
+                            System.out.println("dx = " + dx + "," + dy);
+                            return true;
                         });
                 rowPanel.addChild(holder);
             }
@@ -302,20 +294,31 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
 //                .setFilledBackground(StyleConfig.colorListBackground);
     }
 
-    private Panel createValuePanel(String labelName, String tempDefault) {
+    private void selectIcon(Window parent, Widget focused) {
+        if (parent == window && focused instanceof IconHolder) {
+            clearEditorPanel();
+            IconHolder iconHolder = (IconHolder) focused;
+            IIcon icon = iconHolder.getIcon();
+            if (icon != null) {
+                setEditorPanel(icon);
+            }
+        }
+    }
+
+    private Panel createValuePanel(Parameter parameter, IIcon icon, String tempDefault) {
         Label label = (Label) new Label(mc, this)
-                .setText(labelName)
+                .setText(StringUtils.capitalize(parameter.getName()) + ":")
                 .setHorizontalAlignment(HorizontalAlignment.ALIGH_LEFT)
                 .setDesiredHeight(13)
                 .setLayoutHint(new PositionalLayout.PositionalHint(0, 0, 55, 13));
         TextField field = new TextField(mc, this)
-                .setText(tempDefault)
+                .setText("<" + tempDefault + ">")
                 .setDesiredHeight(13)
                 .setLayoutHint(new PositionalLayout.PositionalHint(0, 12, 49, 13));
         Button button = new Button(mc, this)
                 .setText("...")
                 .setDesiredHeight(13)
-                .addButtonEvent(w -> openValueEditor())
+                .addButtonEvent(w -> openValueEditor(icon, parameter))
                 .setLayoutHint(new PositionalLayout.PositionalHint(50, 12, 11, 13));
 
         return new Panel(mc, this).setLayout(new PositionalLayout())
@@ -325,25 +328,51 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
                 .setDesiredWidth(62);
     }
 
-    private void openValueEditor() {
+    private void openValueEditor(IIcon icon, Parameter parameter) {
         Panel panel = new Panel(mc, this)
                 .setLayout(new VerticalLayout())
                 .setFilledBackground(0xff666666, 0xffaaaaaa);
         panel.setBounds(new Rectangle(50, 50, 200, 100));
         Window modalWindow = getWindowManager().createModalWindow(panel);
-        panel.addChild(new Label(mc, this).setText("Label"));
+        Map<String, Object> data = icon.getData() == null ? Collections.emptyMap() : icon.getData();
+        panel.addChild(new Label(mc, this).setText(StringUtils.capitalize(parameter.getName()) + ":"));
+        panel.addChild(new TextField(mc, this)
+                .setText(getValueSafe(parameter, data))
+                .addTextEvent((parent, newText) -> {
+                    Object o = parameter.getType().convertToObject(newText);
+                    icon.addData(parameter.getName(), o);
+                }));
         panel.addChild(new Button(mc, this)
                 .addButtonEvent(w -> getWindowManager().closeWindow(modalWindow))
                 .setText("Close"));
     }
 
-    private Panel setupEditorPanel() {
-        Panel slotPanel = createValuePanel("Slot:", "<var 3>");
-        Panel amountPanel = createValuePanel("Amount:", "<64>");
+    private String getValueSafe(Parameter parameter, Map<String, Object> data) {
+        Object par = data.get(parameter.getName());
+        if (par == null) {
+            return "";
+        }
+        return par.toString();
+    }
 
+    private void clearEditorPanel() {
+        editorPanel.removeChildren();
+    }
+
+    private void setEditorPanel(IIcon icon) {
+        String id = icon.getID();
+        Operand operand = Operands.OPERANDS.get(id);
+        Map<String, Object> data = icon.getData() == null ? Collections.emptyMap() : icon.getData();
+        clearEditorPanel();
+        for (Parameter parameter : operand.getParameters()) {
+            String name = parameter.getName();
+            Panel panel = createValuePanel(parameter, icon, parameter.getType().stringRepresentation(data.get(name)));
+            editorPanel.addChild(panel);
+        }
+    }
+
+    private Panel setupEditorPanel() {
         return new Panel(mc, this).setLayout(new HorizontalLayout()).setLayoutHint(new PositionalLayout.PositionalHint(4, 123, 249, 30))
-                .addChild(slotPanel)
-                .addChild(amountPanel)
                 .setFilledRectThickness(-1)
                 .setFilledBackground(StyleConfig.colorListBackground);
     }
