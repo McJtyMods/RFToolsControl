@@ -1,4 +1,4 @@
-package mcjty.rftoolscontrol.logic;
+package mcjty.rftoolscontrol.logic.program;
 
 import java.util.HashMap;
 import java.util.Map;

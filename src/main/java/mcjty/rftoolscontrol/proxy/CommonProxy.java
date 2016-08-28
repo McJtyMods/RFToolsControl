@@ -9,7 +9,7 @@ import mcjty.lib.varia.WrenchChecker;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.config.GeneralConfiguration;
 import mcjty.rftoolscontrol.gui.GuiProxy;
-import mcjty.rftoolscontrol.logic.Operands;
+import mcjty.rftoolscontrol.logic.program.Operands;
 import mcjty.rftoolscontrol.network.RFToolsCtrlMessages;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.common.FMLLog;
