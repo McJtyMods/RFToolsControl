@@ -20,9 +20,7 @@ import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.logic.Connection;
 import mcjty.rftoolscontrol.logic.GridInstance;
 import mcjty.rftoolscontrol.logic.ProgramCardInstance;
-import mcjty.rftoolscontrol.logic.program.Operand;
-import mcjty.rftoolscontrol.logic.program.Operands;
-import mcjty.rftoolscontrol.logic.program.Parameter;
+import mcjty.rftoolscontrol.logic.program.*;
 import mcjty.rftoolscontrol.network.RFToolsCtrlMessages;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
@@ -334,15 +332,15 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
                 .setFilledBackground(0xff666666, 0xffaaaaaa);
         panel.setBounds(new Rectangle(50, 50, 200, 100));
         Window modalWindow = getWindowManager().createModalWindow(panel);
-        Map<String, Object> data = icon.getData() == null ? Collections.emptyMap() : icon.getData();
         panel.addChild(new Label(mc, this).setText(StringUtils.capitalize(parameter.getName()) + ":"));
-        panel.addChild(new TextField(mc, this)
-                .setText(getValueSafe(parameter, data))
-                .addTextEvent((parent, newText) -> {
-                    Object o = parameter.getType().convertToObject(newText);
-                    icon.addData(parameter.getName(), o);
-                    field.setText("<" + parameter.getType().stringRepresentation(o) + ">");
-                }));
+        ParameterEditor editor = ParameterEditors.getEditor(parameter.getType());
+        if (editor != null) {
+            Map<String, Object> data = icon.getData() == null ? Collections.emptyMap() : icon.getData();
+            editor.build(mc, this, panel, o -> {
+                icon.addData(parameter.getName(), o);
+                field.setText("<" + parameter.getType().stringRepresentation(o) + ">");
+            }, parameter, data);
+        }
         panel.addChild(new Button(mc, this)
                 .addButtonEvent(w ->  {
                     getWindowManager().closeWindow(modalWindow);
