@@ -300,12 +300,12 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
             IconHolder iconHolder = (IconHolder) focused;
             IIcon icon = iconHolder.getIcon();
             if (icon != null) {
-                setEditorPanel(icon);
+                setEditorPanel(iconHolder, icon);
             }
         }
     }
 
-    private Panel createValuePanel(Parameter parameter, IIcon icon, String tempDefault) {
+    private Panel createValuePanel(Parameter parameter, IconHolder iconHolder, IIcon icon, String tempDefault) {
         Label label = (Label) new Label(mc, this)
                 .setText(StringUtils.capitalize(parameter.getName()) + ":")
                 .setHorizontalAlignment(HorizontalAlignment.ALIGH_LEFT)
@@ -318,7 +318,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
         Button button = new Button(mc, this)
                 .setText("...")
                 .setDesiredHeight(13)
-                .addButtonEvent(w -> openValueEditor(icon, parameter))
+                .addButtonEvent(w -> openValueEditor(iconHolder, icon, parameter, field))
                 .setLayoutHint(new PositionalLayout.PositionalHint(50, 12, 11, 13));
 
         return new Panel(mc, this).setLayout(new PositionalLayout())
@@ -328,7 +328,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
                 .setDesiredWidth(62);
     }
 
-    private void openValueEditor(IIcon icon, Parameter parameter) {
+    private void openValueEditor(IconHolder iconHolder, IIcon icon, Parameter parameter, TextField field) {
         Panel panel = new Panel(mc, this)
                 .setLayout(new VerticalLayout())
                 .setFilledBackground(0xff666666, 0xffaaaaaa);
@@ -341,9 +341,13 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
                 .addTextEvent((parent, newText) -> {
                     Object o = parameter.getType().convertToObject(newText);
                     icon.addData(parameter.getName(), o);
+                    field.setText("<" + parameter.getType().stringRepresentation(o) + ">");
                 }));
         panel.addChild(new Button(mc, this)
-                .addButtonEvent(w -> getWindowManager().closeWindow(modalWindow))
+                .addButtonEvent(w ->  {
+                    getWindowManager().closeWindow(modalWindow);
+                    window.setTextFocus(iconHolder);
+                })
                 .setText("Close"));
     }
 
@@ -359,14 +363,14 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
         editorPanel.removeChildren();
     }
 
-    private void setEditorPanel(IIcon icon) {
+    private void setEditorPanel(IconHolder iconHolder, IIcon icon) {
         String id = icon.getID();
         Operand operand = Operands.OPERANDS.get(id);
         Map<String, Object> data = icon.getData() == null ? Collections.emptyMap() : icon.getData();
         clearEditorPanel();
         for (Parameter parameter : operand.getParameters()) {
             String name = parameter.getName();
-            Panel panel = createValuePanel(parameter, icon, parameter.getType().stringRepresentation(data.get(name)));
+            Panel panel = createValuePanel(parameter, iconHolder, icon, parameter.getType().stringRepresentation(data.get(name)));
             editorPanel.addChild(panel);
         }
     }
