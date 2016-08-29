@@ -357,8 +357,10 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
             Map<String, Object> data = icon.getData() == null ? Collections.emptyMap() : icon.getData();
             editor.build(mc, this, editPanel, o -> {
                 icon.addData(parameter.getName(), o);
+                System.out.println("o = " + o);
                 field.setText("<" + parameter.getType().stringRepresentation(o) + ">");
-            }, parameter, data);
+            });
+            editor.writeValue((ParameterValue)data.get(parameter.getName()));
         } else {
             return;
         }
