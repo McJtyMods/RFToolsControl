@@ -11,11 +11,6 @@ public enum ParameterType {
         }
 
         @Override
-        public Object convertToObject(String input) {
-            return input;
-        }
-
-        @Override
         protected void writeToNBTInternal(NBTTagCompound tag, Object value) {
             tag.setString("v", (String) value);
         }
@@ -29,15 +24,6 @@ public enum ParameterType {
         @Override
         protected String stringRepresentationInternal(Object value) {
             return Integer.toString((Integer) value);
-        }
-
-        @Override
-        public Object convertToObject(String input) {
-            try {
-                return Integer.parseInt(input);
-            } catch (NumberFormatException e) {
-                return 0;
-            }
         }
 
         @Override
@@ -57,15 +43,6 @@ public enum ParameterType {
         }
 
         @Override
-        public Object convertToObject(String input) {
-            try {
-                return Float.parseFloat(input);
-            } catch (NumberFormatException e) {
-                return 0.0f;
-            }
-        }
-
-        @Override
         protected void writeToNBTInternal(NBTTagCompound tag, Object value) {
             tag.setFloat("v", (Float) value);
         }
@@ -79,15 +56,6 @@ public enum ParameterType {
         @Override
         protected String stringRepresentationInternal(Object value) {
             return ((EnumFacing) value).getName();
-        }
-
-        @Override
-        public Object convertToObject(String input) {
-            if (input.trim().isEmpty()) {
-                return null;
-            }
-            // @todo
-            return EnumFacing.NORTH;
         }
 
         @Override
@@ -113,10 +81,6 @@ public enum ParameterType {
 
     protected String stringRepresentationInternal(Object value) {
         return "?";
-    }
-
-    public Object convertToObject(String input) {
-        return input;
     }
 
     public void writeToNBT(NBTTagCompound tag, ParameterValue value) {
