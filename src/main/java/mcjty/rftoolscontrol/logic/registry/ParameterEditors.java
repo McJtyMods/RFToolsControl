@@ -1,7 +1,7 @@
 package mcjty.rftoolscontrol.logic.registry;
 
-import mcjty.lib.gui.widgets.ChoiceLabel;
-import mcjty.lib.gui.widgets.TextField;
+import mcjty.lib.gui.layout.HorizontalLayout;
+import mcjty.lib.gui.widgets.*;
 import net.minecraft.util.EnumFacing;
 import org.apache.commons.lang3.StringUtils;
 
@@ -28,14 +28,59 @@ public class ParameterEditors {
             panel.addChild(field);
         });
         EDITORS.put(ParameterType.PAR_SIDE, (mc, gui, panel, callback, parameter, data) -> {
+            Panel constantPanel = new Panel(mc, gui).setLayout(new HorizontalLayout());
             ChoiceLabel label = new ChoiceLabel(mc, gui).addChoices("*", "Down", "Up", "North", "South", "West", "East")
                     .addChoiceEvent((parent,newChoice) -> {
                         callback.valueChanged(ParameterValue.constant(parseFacingSafe(newChoice)));
                     })
                     .setDesiredWidth(60);
             label.setChoice(getFacingSafe(parameter, data));
-            panel.addChild(label);
+            constantPanel.addChild(label);
+
+            Panel variablePanel = new Panel(mc, gui).setLayout(new HorizontalLayout());
+            TextField variableIndex = new TextField(mc, gui);
+            variablePanel.addChild(new Label(mc, gui).setText("Index:")).addChild(variableIndex);
+
+            Panel functionPanel = new Panel(mc, gui).setLayout(new HorizontalLayout());
+
+            TabbedPanel tabbedPanel = new TabbedPanel(mc, gui)
+                    .addPage("Constant", constantPanel)
+                    .addPage("Variable", variablePanel)
+                    .addPage("Function", functionPanel);
+
+            Panel buttonPanel = new Panel(mc, gui).setLayout(new HorizontalLayout());
+            ToggleButton constantButton = new ToggleButton(mc, gui).setText("Constant")
+                    .addButtonEvent(w -> switchPage(tabbedPanel, buttonPanel, "Constant"));
+            ToggleButton variableButton = new ToggleButton(mc, gui).setText("Variable")
+                    .addButtonEvent(w -> switchPage(tabbedPanel, buttonPanel, "Variable"));
+            ToggleButton functionButton = new ToggleButton(mc, gui).setText("Function")
+                    .addButtonEvent(w -> switchPage(tabbedPanel, buttonPanel, "Function"));
+            buttonPanel.addChild(constantButton).addChild(variableButton).addChild(functionButton);
+
+            panel.addChild(buttonPanel).addChild(tabbedPanel);
+            ParameterValue value = (ParameterValue) data.get(parameter.getName());
+
+            if (value != null) {
+                if (value.isConstant()) {
+                    switchPage(tabbedPanel, buttonPanel, "Constant");
+                } else {
+                    switchPage(tabbedPanel, buttonPanel, "Variable");
+                }
+            }
         });
+    }
+
+    private static void switchPage(TabbedPanel tabbedPanel, Panel buttonPanel, String page) {
+        for (int i = 0 ; i < buttonPanel.getChildCount() ; i++) {
+            ToggleButton button = (ToggleButton) buttonPanel.getChild(i);
+            if (!page.equals(button.getText())) {
+                button.setPressed(false);
+            } else {
+                button.setPressed(true);
+            }
+            tabbedPanel.setCurrent(page);
+        }
+
     }
 
     private static EnumFacing parseFacingSafe(String t) {

@@ -333,6 +333,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
         TextField field = new TextField(mc, this)
                 .setText("<" + tempDefault + ">")
                 .setDesiredHeight(13)
+                .setEnabled(false)
                 .setLayoutHint(new PositionalLayout.PositionalHint(0, 12, 49, 13));
         Button button = new Button(mc, this)
                 .setText("...")
@@ -348,20 +349,28 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
     }
 
     private void openValueEditor(IconHolder iconHolder, IIcon icon, ParameterDescription parameter, TextField field) {
-        Panel panel = new Panel(mc, this)
-                .setLayout(new VerticalLayout())
-                .setFilledBackground(0xff666666, 0xffaaaaaa);
-        panel.setBounds(new Rectangle(50, 50, 200, 100));
-        Window modalWindow = getWindowManager().createModalWindow(panel);
-        panel.addChild(new Label(mc, this).setText(StringUtils.capitalize(parameter.getName()) + ":"));
         ParameterEditor editor = ParameterEditors.getEditor(parameter.getType());
+        Panel editPanel;
         if (editor != null) {
+            editPanel = new Panel(mc, this).setLayout(new VerticalLayout())
+                    .setFilledRectThickness(1);
             Map<String, Object> data = icon.getData() == null ? Collections.emptyMap() : icon.getData();
-            editor.build(mc, this, panel, o -> {
+            editor.build(mc, this, editPanel, o -> {
                 icon.addData(parameter.getName(), o);
                 field.setText("<" + parameter.getType().stringRepresentation(o) + ">");
             }, parameter, data);
+        } else {
+            return;
         }
+
+        Panel panel = new Panel(mc, this)
+                .setLayout(new VerticalLayout())
+                .setFilledBackground(0xff666666, 0xffaaaaaa)
+                .setFilledRectThickness(1);
+        panel.setBounds(new Rectangle(50, 50, 200, 80));
+        Window modalWindow = getWindowManager().createModalWindow(panel);
+        panel.addChild(new Label(mc, this).setText(StringUtils.capitalize(parameter.getName()) + ":"));
+        panel.addChild(editPanel);
         panel.addChild(new Button(mc, this)
                 .addButtonEvent(w ->  {
                     getWindowManager().closeWindow(modalWindow);
