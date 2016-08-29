@@ -2,6 +2,7 @@ package mcjty.rftoolscontrol.logic.registry;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
+import org.apache.commons.lang3.StringUtils;
 
 public enum ParameterType {
     PAR_STRING() {
@@ -55,7 +56,7 @@ public enum ParameterType {
     PAR_SIDE() {
         @Override
         protected String stringRepresentationInternal(Object value) {
-            return ((EnumFacing) value).getName();
+            return StringUtils.capitalize(((EnumFacing) value).getName());
         }
 
         @Override

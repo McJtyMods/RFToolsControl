@@ -1,14 +1,16 @@
 package mcjty.rftoolscontrol.logic.registry;
 
+import mcjty.lib.gui.widgets.ChoiceLabel;
 import mcjty.lib.gui.widgets.TextField;
-import mcjty.rftoolscontrol.logic.Parameter;
+import net.minecraft.util.EnumFacing;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class ParameterEditors {
 
-    private final static Map<ParameterType, ParameterEditor> EDITORS = new HashMap<>();
+    private static final Map<ParameterType, ParameterEditor> EDITORS = new HashMap<>();
 
     public static void init() {
         EDITORS.put(ParameterType.PAR_FLOAT, (mc, gui, panel, callback, parameter, data) -> {
@@ -25,6 +27,37 @@ public class ParameterEditors {
             field.setText(getValueSafe(parameter, data));
             panel.addChild(field);
         });
+        EDITORS.put(ParameterType.PAR_SIDE, (mc, gui, panel, callback, parameter, data) -> {
+            ChoiceLabel label = new ChoiceLabel(mc, gui).addChoices("*", "Down", "Up", "North", "South", "West", "East")
+                    .addChoiceEvent((parent,newChoice) -> {
+                        callback.valueChanged(ParameterValue.constant(parseFacingSafe(newChoice)));
+                    })
+                    .setDesiredWidth(60);
+            label.setChoice(getFacingSafe(parameter, data));
+            panel.addChild(label);
+        });
+    }
+
+    private static EnumFacing parseFacingSafe(String t) {
+        if ("*".equals(t)) {
+            return null;
+        }
+        return EnumFacing.byName(StringUtils.lowerCase(t));
+    }
+
+    private static String getFacingSafe(ParameterDescription parameter, Map<String, Object> data) {
+        ParameterValue value = (ParameterValue) data.get(parameter.getName());
+        String choice = "*";
+        if (value != null) {
+            if (value.isConstant()) {
+                if (value.getValue() != null) {
+                    choice = StringUtils.capitalize(value.getValue().toString());
+                }
+            } else {
+                // @todo variable support
+            }
+        }
+        return choice;
     }
 
     private static Float parseFloatSafe(String newText) {
@@ -48,11 +81,10 @@ public class ParameterEditors {
     }
 
     private static String getValueSafe(ParameterDescription parameter, Map<String, Object> data) {
-        Parameter par = (Parameter) data.get(parameter.getName());
-        if (par == null) {
-            return "ERR";
+        ParameterValue value = (ParameterValue) data.get(parameter.getName());
+        if (value == null) {
+            return "";
         }
-        ParameterValue value = par.getParameterValue();
         if (value.isConstant()) {
             if (value.getValue() == null) {
                 return "";
