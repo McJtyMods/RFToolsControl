@@ -40,6 +40,15 @@ public class Operand {
         return iconV;
     }
 
+    public ParameterDescription findParameter(String name) {
+        for (ParameterDescription description : parameters) {
+            if (name.equals(description.getName())) {
+                return description;
+            }
+        }
+        return null;
+    }
+
     public static Builder builder() {
         return new Builder();
     }

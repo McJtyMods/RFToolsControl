@@ -19,6 +19,7 @@ import mcjty.lib.network.PacketUpdateNBTItemInventory;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.logic.Connection;
 import mcjty.rftoolscontrol.logic.GridInstance;
+import mcjty.rftoolscontrol.logic.Parameter;
 import mcjty.rftoolscontrol.logic.ProgramCardInstance;
 import mcjty.rftoolscontrol.logic.registry.*;
 import mcjty.rftoolscontrol.network.RFToolsCtrlMessages;
@@ -208,12 +209,27 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
                 IconHolder holder = getHolder(x, y);
                 IIcon icon = holder.getIcon();
                 if (icon != null) {
-                    GridInstance.Builder builder = GridInstance.builder(icon.getID());
+                    String operandId = icon.getID();
+                    GridInstance.Builder builder = GridInstance.builder(operandId);
                     for (Connection connection : Connection.values()) {
                         if (icon.hasOverlay(connection.getId())) {
                             builder.connection(connection);
                         }
                     }
+                    Operand operand = Operands.OPERANDS.get(operandId);
+                    Map<String, Object> data = icon.getData();
+                    if (data != null) {
+                        for (Map.Entry<String, Object> entry : data.entrySet()) {
+                            String name = entry.getKey();
+                            ParameterValue value = (ParameterValue) entry.getValue();
+                            ParameterDescription description = operand.findParameter(name);
+                            if (description != null) {  // Should not be possible
+                                Parameter parameter = Parameter.builder().description(description).value(value).build();
+                                builder.parameter(parameter);
+                            }
+                        }
+                    }
+
                     instance.putGridInstance(x, y, builder.build());
                 }
             }
@@ -242,6 +258,11 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
             for (Connection connection : gridInstance.getConnections()) {
                 icon.addOverlay(CONNECTION_ICONS.get(connection));
             }
+            for (Parameter parameter : gridInstance.getParameters()) {
+                String name = parameter.getParameterDescription().getName();
+                icon.addData(name, parameter.getParameterValue());
+            }
+
             getHolder(x, y).setIcon(icon);
         }
     }
@@ -349,14 +370,6 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
                 .setText("Close"));
     }
 
-    private String getValueSafe(ParameterDescription parameter, Map<String, Object> data) {
-        Object par = data.get(parameter.getName());
-        if (par == null) {
-            return "";
-        }
-        return par.toString();
-    }
-
     private void clearEditorPanel() {
         editorPanel.removeChildren();
     }
@@ -368,7 +381,13 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
         clearEditorPanel();
         for (ParameterDescription parameter : operand.getParameters()) {
             String name = parameter.getName();
-            Panel panel = createValuePanel(parameter, iconHolder, icon, parameter.getType().stringRepresentation(data.get(name)));
+            ParameterValue value = (ParameterValue) data.get(name);
+            Panel panel;
+            if (value != null) {
+                panel = createValuePanel(parameter, iconHolder, icon, parameter.getType().stringRepresentation(value));
+            } else {
+                panel = createValuePanel(parameter, iconHolder, icon, "");
+            }
             editorPanel.addChild(panel);
         }
     }

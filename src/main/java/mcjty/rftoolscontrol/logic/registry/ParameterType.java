@@ -6,7 +6,7 @@ import net.minecraft.util.EnumFacing;
 public enum ParameterType {
     PAR_STRING() {
         @Override
-        public String stringRepresentation(Object value) {
+        protected String stringRepresentationInternal(Object value) {
             return (String) value;
         }
 
@@ -27,10 +27,7 @@ public enum ParameterType {
     },
     PAR_INTEGER() {
         @Override
-        public String stringRepresentation(Object value) {
-            if (value == null) {
-                return "null";
-            }
+        protected String stringRepresentationInternal(Object value) {
             return Integer.toString((Integer) value);
         }
 
@@ -55,10 +52,7 @@ public enum ParameterType {
     },
     PAR_FLOAT() {
         @Override
-        public String stringRepresentation(Object value) {
-            if (value == null) {
-                return "null";
-            }
+        protected String stringRepresentationInternal(Object value) {
             return Float.toString((Float) value);
         }
 
@@ -83,12 +77,8 @@ public enum ParameterType {
     },
     PAR_SIDE() {
         @Override
-        public String stringRepresentation(Object value) {
-            if (value == null) {
-                return "null";
-            } else {
-                return ((EnumFacing) value).getName();
-            }
+        protected String stringRepresentationInternal(Object value) {
+            return ((EnumFacing) value).getName();
         }
 
         @Override
@@ -111,7 +101,17 @@ public enum ParameterType {
         }
     };
 
-    public String stringRepresentation(Object value) {
+    public String stringRepresentation(ParameterValue value) {
+        if (value.isVariable()) {
+            return "V:" + value.getVariableIndex();
+        } else if (value.getValue() == null) {
+            return "NULL";
+        } else {
+            return stringRepresentationInternal(value.getValue());
+        }
+    }
+
+    protected String stringRepresentationInternal(Object value) {
         return "?";
     }
 
