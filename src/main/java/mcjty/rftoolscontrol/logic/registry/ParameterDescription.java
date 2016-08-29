@@ -1,11 +1,11 @@
-package mcjty.rftoolscontrol.logic.program;
+package mcjty.rftoolscontrol.logic.registry;
 
-public class Parameter {
+public class ParameterDescription {
 
     private final String name;
     private final ParameterType type;
 
-    private Parameter(Builder builder) {
+    private ParameterDescription(Builder builder) {
         this.name = builder.name;
         this.type = builder.type;
     }
@@ -37,8 +37,8 @@ public class Parameter {
             return this;
         }
 
-        public Parameter build() {
-            return new Parameter(this);
+        public ParameterDescription build() {
+            return new ParameterDescription(this);
         }
     }
 }

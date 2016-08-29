@@ -1,4 +1,4 @@
-package mcjty.rftoolscontrol.logic.program;
+package mcjty.rftoolscontrol.logic.registry;
 
 import mcjty.lib.gui.widgets.TextField;
 
@@ -46,7 +46,7 @@ public class ParameterEditors {
         return f;
     }
 
-    private static String getValueSafe(Parameter parameter, Map<String, Object> data) {
+    private static String getValueSafe(ParameterDescription parameter, Map<String, Object> data) {
         Object par = data.get(parameter.getName());
         if (par == null) {
             return "";

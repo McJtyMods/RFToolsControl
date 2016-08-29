@@ -1,4 +1,4 @@
-package mcjty.rftoolscontrol.logic.program;
+package mcjty.rftoolscontrol.logic.registry;
 
 public enum OperandOutput {
     NONE,

@@ -1,14 +1,13 @@
-package mcjty.rftoolscontrol.logic.program;
+package mcjty.rftoolscontrol.logic.registry;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 public class Operand {
 
     private final String id;
     private final OperandOutput operandOutput;
-    private final List<Parameter> parameters;
+    private final List<ParameterDescription> parameters;
 
     private final int iconU;
     private final int iconV;
@@ -29,7 +28,7 @@ public class Operand {
         return operandOutput;
     }
 
-    public List<Parameter> getParameters() {
+    public List<ParameterDescription> getParameters() {
         return parameters;
     }
 
@@ -51,7 +50,7 @@ public class Operand {
         private OperandOutput operandOutput;
         private int iconU;
         private int iconV;
-        private List<Parameter> parameters = new ArrayList<>();
+        private List<ParameterDescription> parameters = new ArrayList<>();
 
         public Builder id(String id) {
             this.id = id;
@@ -69,7 +68,7 @@ public class Operand {
             return this;
         }
 
-        public Builder parameter(Parameter parameter) {
+        public Builder parameter(ParameterDescription parameter) {
             parameters.add(parameter);
             return this;
         }

@@ -58,16 +58,7 @@ public class ProgramCardInstance {
     private static void parseElement(NBTTagCompound tag, ProgramCardInstance instance) {
         int x = tag.getInteger("x");
         int y = tag.getInteger("y");
-        GridInstance gridInstance = new GridInstance(tag.getString("id"));
-        String con = tag.getString("con");
-        for (int i = 0 ; i < con.length() ; i++) {
-            String c = con.substring(i, i + 1);
-            Connection connection = Connection.getConnection(c);
-            if (connection != null) {
-                gridInstance.addConnection(connection);
-            }
-        }
-        instance.putGridInstance(x, y, gridInstance);
+        instance.putGridInstance(x, y, GridInstance.readFromNBT(tag));
     }
 
     public void putGridInstance(int x, int y, GridInstance gridInstance) {
@@ -83,19 +74,11 @@ public class ProgramCardInstance {
         NBTTagList grid = new NBTTagList();
 
         for (Map.Entry<Pair<Integer, Integer>, GridInstance> entry : gridInstances.entrySet()) {
-            int x = entry.getKey().getLeft();
-            int y = entry.getKey().getRight();
+            Pair<Integer, Integer> coordinate = entry.getKey();
+            int x = coordinate.getLeft();
+            int y = coordinate.getRight();
             GridInstance gridInstance = entry.getValue();
-            NBTTagCompound tag = new NBTTagCompound();
-            tag.setInteger("x", x);
-            tag.setInteger("y", y);
-            tag.setString("id", gridInstance.getId());
-            StringBuilder c = new StringBuilder();
-            for (Connection connection : gridInstance.getConnections()) {
-                c.append(connection.getId());
-            }
-            tag.setString("con", c.toString());
-
+            NBTTagCompound tag = gridInstance.writeToNBT(x, y);
             grid.appendTag(tag);
         }
 

@@ -20,7 +20,7 @@ import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.logic.Connection;
 import mcjty.rftoolscontrol.logic.GridInstance;
 import mcjty.rftoolscontrol.logic.ProgramCardInstance;
-import mcjty.rftoolscontrol.logic.program.*;
+import mcjty.rftoolscontrol.logic.registry.*;
 import mcjty.rftoolscontrol.network.RFToolsCtrlMessages;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
@@ -208,13 +208,13 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
                 IconHolder holder = getHolder(x, y);
                 IIcon icon = holder.getIcon();
                 if (icon != null) {
-                    GridInstance gridInstance = new GridInstance(icon.getID());
+                    GridInstance.Builder builder = GridInstance.builder(icon.getID());
                     for (Connection connection : Connection.values()) {
                         if (icon.hasOverlay(connection.getId())) {
-                            gridInstance.addConnection(connection);
+                            builder.connection(connection);
                         }
                     }
-                    instance.putGridInstance(x, y, gridInstance);
+                    instance.putGridInstance(x, y, builder.build());
                 }
             }
         }
@@ -303,7 +303,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
         }
     }
 
-    private Panel createValuePanel(Parameter parameter, IconHolder iconHolder, IIcon icon, String tempDefault) {
+    private Panel createValuePanel(ParameterDescription parameter, IconHolder iconHolder, IIcon icon, String tempDefault) {
         Label label = (Label) new Label(mc, this)
                 .setText(StringUtils.capitalize(parameter.getName()) + ":")
                 .setHorizontalAlignment(HorizontalAlignment.ALIGH_LEFT)
@@ -326,7 +326,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
                 .setDesiredWidth(62);
     }
 
-    private void openValueEditor(IconHolder iconHolder, IIcon icon, Parameter parameter, TextField field) {
+    private void openValueEditor(IconHolder iconHolder, IIcon icon, ParameterDescription parameter, TextField field) {
         Panel panel = new Panel(mc, this)
                 .setLayout(new VerticalLayout())
                 .setFilledBackground(0xff666666, 0xffaaaaaa);
@@ -349,7 +349,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
                 .setText("Close"));
     }
 
-    private String getValueSafe(Parameter parameter, Map<String, Object> data) {
+    private String getValueSafe(ParameterDescription parameter, Map<String, Object> data) {
         Object par = data.get(parameter.getName());
         if (par == null) {
             return "";
@@ -366,7 +366,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
         Operand operand = Operands.OPERANDS.get(id);
         Map<String, Object> data = icon.getData() == null ? Collections.emptyMap() : icon.getData();
         clearEditorPanel();
-        for (Parameter parameter : operand.getParameters()) {
+        for (ParameterDescription parameter : operand.getParameters()) {
             String name = parameter.getName();
             Panel panel = createValuePanel(parameter, iconHolder, icon, parameter.getType().stringRepresentation(data.get(name)));
             editorPanel.addChild(panel);
