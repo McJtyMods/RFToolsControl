@@ -6,6 +6,7 @@ item.rftoolscontrol.program_card.name=Program Card
 
 # Blocks
 tile.rftoolscontrol.programmer.name=Programmer
+tile.rftoolscontrol.processor.name=Processor
 
 # Creative Tabs
 itemGroup.RFToolsControl=RFTools Control
