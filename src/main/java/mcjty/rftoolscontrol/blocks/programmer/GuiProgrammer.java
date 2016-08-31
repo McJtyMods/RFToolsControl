@@ -1,4 +1,4 @@
-package mcjty.rftoolscontrol.blocks;
+package mcjty.rftoolscontrol.blocks.programmer;
 
 import mcjty.lib.base.StyleConfig;
 import mcjty.lib.container.GenericGuiContainer;

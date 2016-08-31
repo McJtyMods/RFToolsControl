@@ -1,9 +1,8 @@
-package mcjty.rftoolscontrol.blocks;
+package mcjty.rftoolscontrol.blocks.processor;
 
 import mcjty.lib.container.DefaultSidedInventory;
 import mcjty.lib.container.InventoryHelper;
 import mcjty.lib.entity.GenericEnergyReceiverTileEntity;
-import mcjty.lib.entity.GenericTileEntity;
 import mcjty.rftoolscontrol.config.GeneralConfiguration;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;

@@ -1,4 +1,4 @@
-package mcjty.rftoolscontrol.blocks;
+package mcjty.rftoolscontrol.blocks.processor;
 
 import mcjty.lib.container.GenericGuiContainer;
 import mcjty.lib.entity.GenericEnergyStorageTileEntity;

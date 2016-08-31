@@ -1,7 +1,8 @@
-package mcjty.rftoolscontrol.blocks;
+package mcjty.rftoolscontrol.blocks.programmer;
 
 import mcjty.lib.container.GenericGuiContainer;
 import mcjty.rftoolscontrol.RFToolsControl;
+import mcjty.rftoolscontrol.blocks.GenericRFToolsBlock;
 import net.minecraft.block.material.Material;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
