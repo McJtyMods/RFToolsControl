@@ -5,11 +5,12 @@ import mcjty.lib.entity.GenericEnergyStorageTileEntity;
 import mcjty.lib.gui.RenderHelper;
 import mcjty.lib.gui.Window;
 import mcjty.lib.gui.WindowManager;
+import mcjty.lib.gui.events.SelectionEvent;
 import mcjty.lib.gui.layout.HorizontalAlignment;
 import mcjty.lib.gui.layout.HorizontalLayout;
 import mcjty.lib.gui.layout.PositionalLayout;
-import mcjty.lib.gui.widgets.*;
 import mcjty.lib.gui.widgets.Button;
+import mcjty.lib.gui.widgets.*;
 import mcjty.lib.gui.widgets.Label;
 import mcjty.lib.gui.widgets.Panel;
 import mcjty.lib.network.Argument;
@@ -38,6 +39,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
     private EnergyBar energyBar;
     private ToggleButton[] setupButtons = new ToggleButton[ProcessorTileEntity.CARD_SLOTS];
     private WidgetList log;
+    private WidgetList variableList;
 
     public GuiProcessor(ProcessorTileEntity tileEntity, ProcessorContainer container) {
         super(RFToolsControl.instance, RFToolsCtrlMessages.INSTANCE, tileEntity, container, RFToolsControl.GUI_MANUAL_CONTROL, "processor");
@@ -71,7 +73,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
         window = new Window(this, toplevel);
 
         // --- Side window ---
-        Panel listPanel = setupListPanel();
+        Panel listPanel = setupVariableListPanel();
         Panel sidePanel = new Panel(mc, this).setLayout(new PositionalLayout()).setBackground(sideBackground)
                 .addChild(listPanel);
         sidePanel.setBounds(new Rectangle(guiLeft-SIDEWIDTH, guiTop, SIDEWIDTH, ySize));
@@ -101,6 +103,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
                 }
             }
         }
+        updateVariableList();
     }
 
     private int getSetupMode() {
@@ -116,6 +119,8 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
     protected void mouseClicked(int x, int y, int button) throws IOException {
         int setupMode = getSetupMode();
         if (setupMode == -1) {
+            super.mouseClicked(x, y, button);
+        } else if (x-window.getToplevel().getBounds().x < 0) {
             super.mouseClicked(x, y, button);
         } else {
             int leftx = window.getToplevel().getBounds().x;
@@ -156,33 +161,89 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
         mgr.getIconManager().setClickHoldToDrag(true);
     }
 
-    private Panel setupListPanel() {
-        WidgetList list = new WidgetList(mc, this)
+    private Panel setupVariableListPanel() {
+        variableList = new WidgetList(mc, this)
                 .setLayoutHint(new PositionalLayout.PositionalHint(0, 0, 62, 220))
                 .setPropagateEventsToChildren(true)
                 .setInvisibleSelection(true)
                 .setDrawHorizontalLines(false);
+        variableList.addSelectionEvent(new SelectionEvent() {
+            @Override
+            public void select(Widget parent, int i) {
+                int setupMode = getSetupMode();
+                if (setupMode != -1) {
+                    CardInfo cardInfo = tileEntity.getCardInfo(setupMode);
+                    int varAlloc = cardInfo.getVarAllocation();
+                    int itemAlloc = cardInfo.getItemAllocation();
+
+                    boolean allocated = ((varAlloc >> i) & 1) != 0;
+                    allocated = !allocated;
+                    if (allocated) {
+                        varAlloc = varAlloc | (1 << i);
+                    } else {
+                        varAlloc = varAlloc & ~(1 << i);
+                    }
+                    cardInfo.setVarAllocation(varAlloc);
+
+                    Panel panel = (Panel) variableList.getChild(i);
+                    panel.removeChildren();
+                    int fill = allocated ? 0x7700ff00 : 0x77444444;
+                    panel.setFilledBackground(fill);
+                    panel.addChild(new Label(mc, GuiProcessor.this).setText(String.valueOf(i)).setDesiredWidth(26));
+                    panel.addChild(new Button(mc, GuiProcessor.this).setText("..."));
+
+                    sendServerCommand(RFToolsCtrlMessages.INSTANCE, ProcessorTileEntity.CMD_ALLOCATE,
+                            new Argument("card", setupMode),
+                            new Argument("items", itemAlloc),
+                            new Argument("vars", varAlloc));
+
+                    variableList.setSelected(-1);
+                }
+            }
+
+            @Override
+            public void doubleClick(Widget parent, int index) {
+
+            }
+        });
+
         Slider slider = new Slider(mc, this)
                 .setVertical()
-                .setScrollable(list)
+                .setScrollable(variableList)
                 .setLayoutHint(new PositionalLayout.PositionalHint(62, 0, 9, 220));
+
+        updateVariableList();
+
+        return new Panel(mc, this).setLayout(new PositionalLayout()).setLayoutHint(new PositionalLayout.PositionalHint(5, 5, 72, 220))
+                .addChild(variableList)
+                .addChild(slider);
+//                .setFilledRectThickness(-2)
+//                .setFilledBackground(StyleConfig.colorListBackground);
+    }
+
+    private void updateVariableList() {
+        variableList.removeChildren();
+        int setupMode = getSetupMode();
+
+        int varAlloc = 0;
+        if (setupMode != -1) {
+            CardInfo cardInfo = tileEntity.getCardInfo(setupMode);
+            varAlloc = cardInfo.getVarAllocation();
+        }
+        variableList.setPropagateEventsToChildren(setupMode == -1);
 
         // @todo temporary
         for (int i = 0 ; i < 32 ; i++) {
             Panel panel = new Panel(mc, this).setLayout(new HorizontalLayout()).setDesiredWidth(40);
-            if (i >= 3 && i <= 6) {
-                panel.setFilledBackground(0x7700ff00);
+            if (setupMode != -1) {
+                boolean allocated = ((varAlloc >> i) & 1) != 0;
+                int fill = allocated ? 0x7700ff00 : 0x77444444;
+                panel.setFilledBackground(fill);
             }
             panel.addChild(new Label(mc, this).setText(String.valueOf(i)).setDesiredWidth(26));
             panel.addChild(new Button(mc, this).setText("..."));
-            list.addChild(panel);
+            variableList.addChild(panel);
         }
-
-        return new Panel(mc, this).setLayout(new PositionalLayout()).setLayoutHint(new PositionalLayout.PositionalHint(5, 5, 72, 220))
-                .addChild(list)
-                .addChild(slider);
-//                .setFilledRectThickness(-2)
-//                .setFilledBackground(StyleConfig.colorListBackground);
     }
 
     @Override
