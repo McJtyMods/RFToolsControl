@@ -1,14 +1,6 @@
-package mcjty.rftoolscontrol.logic.registry;
+package mcjty.rftoolscontrol.logic.editors;
 
-import mcjty.lib.gui.layout.HorizontalLayout;
-import mcjty.lib.gui.widgets.*;
-import mcjty.rftoolscontrol.logic.registry.editors.FloatEditor;
-import mcjty.rftoolscontrol.logic.registry.editors.IntegerEditor;
-import mcjty.rftoolscontrol.logic.registry.editors.SideEditor;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Gui;
-import net.minecraft.util.EnumFacing;
-import org.apache.commons.lang3.StringUtils;
+import mcjty.rftoolscontrol.logic.registry.ParameterType;
 
 import java.util.HashMap;
 import java.util.Map;

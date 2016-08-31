@@ -2,7 +2,7 @@ package mcjty.rftoolscontrol.proxy;
 
 import mcjty.rftoolscontrol.blocks.ModBlocks;
 import mcjty.rftoolscontrol.items.ModItems;
-import mcjty.rftoolscontrol.logic.registry.ParameterEditors;
+import mcjty.rftoolscontrol.logic.editors.ParameterEditors;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;

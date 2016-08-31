@@ -1,15 +1,11 @@
-package mcjty.rftoolscontrol.logic.registry.editors;
+package mcjty.rftoolscontrol.logic.editors;
 
 import mcjty.lib.gui.layout.HorizontalLayout;
 import mcjty.lib.gui.widgets.Panel;
 import mcjty.lib.gui.widgets.TextField;
-import mcjty.rftoolscontrol.logic.registry.ParameterDescription;
-import mcjty.rftoolscontrol.logic.registry.ParameterEditorCallback;
 import mcjty.rftoolscontrol.logic.registry.ParameterValue;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
-
-import java.util.Map;
 
 public class IntegerEditor extends AbstractParameterEditor {
 

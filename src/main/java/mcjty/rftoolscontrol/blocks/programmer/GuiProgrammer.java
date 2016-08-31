@@ -21,6 +21,8 @@ import mcjty.rftoolscontrol.logic.Connection;
 import mcjty.rftoolscontrol.logic.GridInstance;
 import mcjty.rftoolscontrol.logic.Parameter;
 import mcjty.rftoolscontrol.logic.ProgramCardInstance;
+import mcjty.rftoolscontrol.logic.editors.ParameterEditor;
+import mcjty.rftoolscontrol.logic.editors.ParameterEditors;
 import mcjty.rftoolscontrol.logic.registry.*;
 import mcjty.rftoolscontrol.network.RFToolsCtrlMessages;
 import net.minecraft.item.ItemStack;
