@@ -2,17 +2,23 @@ package mcjty.rftoolscontrol.blocks;
 
 import mcjty.lib.container.DefaultSidedInventory;
 import mcjty.lib.container.InventoryHelper;
+import mcjty.lib.entity.GenericEnergyReceiverTileEntity;
 import mcjty.lib.entity.GenericTileEntity;
+import mcjty.rftoolscontrol.config.GeneralConfiguration;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.util.ITickable;
 
-public class ProcessorTileEntity extends GenericTileEntity implements DefaultSidedInventory, ITickable {
+public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity implements DefaultSidedInventory, ITickable {
 
-    private InventoryHelper inventoryHelper = new InventoryHelper(this, ProcessorContainer.factory, 1);
+    private InventoryHelper inventoryHelper = new InventoryHelper(this, ProcessorContainer.factory, ProcessorContainer.SLOTS);
     private boolean working = false;
+
+    public ProcessorTileEntity() {
+        super(GeneralConfiguration.PROCESSOR_MAXENERGY, GeneralConfiguration.PROCESSOR_RECEIVEPERTICK);
+    }
 
     @Override
     public InventoryHelper getInventoryHelper() {

@@ -1,5 +1,6 @@
 package mcjty.rftoolscontrol.blocks;
 
+import mcjty.lib.container.GenericGuiContainer;
 import mcjty.rftoolscontrol.RFToolsControl;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.PropertyBool;
@@ -8,6 +9,8 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class ProcessorBlock extends GenericRFToolsBlock<ProcessorTileEntity, ProcessorContainer> {
 
@@ -22,11 +25,11 @@ public class ProcessorBlock extends GenericRFToolsBlock<ProcessorTileEntity, Pro
         super(Material.IRON, ProcessorTileEntity.class, ProcessorContainer.class, "processor", false);
     }
 
-//    @SideOnly(Side.CLIENT)
-//    @Override
-//    public Class<? extends GenericGuiContainer> getGuiClass() {
-//        return GuiProgrammer.class;
-//    }
+    @SideOnly(Side.CLIENT)
+    @Override
+    public Class<? extends GenericGuiContainer> getGuiClass() {
+        return GuiProcessor.class;
+    }
 
     @Override
     public int getGuiID() {
