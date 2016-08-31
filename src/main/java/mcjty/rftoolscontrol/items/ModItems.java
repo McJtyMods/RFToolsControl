@@ -8,15 +8,21 @@ public class ModItems {
 
     public static RFToolsControlManualItem rfToolsControlManualItem;
     public static ProgramCardItem programCardItem;
+    public static CPUCoreItem cpuCoreEX2000Item;
+    public static RAMChipItem ramChipItem;
 
     public static void init() {
         rfToolsControlManualItem = new RFToolsControlManualItem();
         programCardItem = new ProgramCardItem();
+        cpuCoreEX2000Item = new CPUCoreItem();
+        ramChipItem = new RAMChipItem();
     }
 
     @SideOnly(Side.CLIENT)
     public static void initClient() {
         rfToolsControlManualItem.initModel();
         programCardItem.initModel();
+        cpuCoreEX2000Item.initModel();
+        ramChipItem.initModel();
     }
 }

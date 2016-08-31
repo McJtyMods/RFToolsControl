@@ -88,6 +88,8 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
         log.addChild(new Label(mc, this).setColor(0xff008800).setText("Initializing memory... [OK]").setHorizontalAlignment(HorizontalAlignment.ALIGH_LEFT));
         log.addChild(new Label(mc, this).setColor(0xff008800).setText("Initializing items... [OK]").setHorizontalAlignment(HorizontalAlignment.ALIGH_LEFT));
         log.addChild(new Label(mc, this).setColor(0xff008800).setText("Entering card setup mode: 3").setHorizontalAlignment(HorizontalAlignment.ALIGH_LEFT));
+        log.addChild(new Label(mc, this).setColor(0xff008800).setText("    Needed: 4 variables").setHorizontalAlignment(HorizontalAlignment.ALIGH_LEFT));
+        log.addChild(new Label(mc, this).setColor(0xff008800).setText("    Needed: 6 item slots").setHorizontalAlignment(HorizontalAlignment.ALIGH_LEFT));
     }
 
     private void setupMode(Widget parent) {
@@ -167,11 +169,11 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
 
         // @todo temporary
         for (int i = 0 ; i < 32 ; i++) {
-            Panel panel = new Panel(mc, this).setLayout(new HorizontalLayout()).setDesiredWidth(45);
+            Panel panel = new Panel(mc, this).setLayout(new HorizontalLayout()).setDesiredWidth(40);
             if (i >= 3 && i <= 6) {
                 panel.setFilledBackground(0x7700ff00);
             }
-            panel.addChild(new Label(mc, this).setText(String.valueOf(i)).setDesiredWidth(30));
+            panel.addChild(new Label(mc, this).setText(String.valueOf(i)).setDesiredWidth(26));
             panel.addChild(new Button(mc, this).setText("..."));
             list.addChild(panel);
         }
