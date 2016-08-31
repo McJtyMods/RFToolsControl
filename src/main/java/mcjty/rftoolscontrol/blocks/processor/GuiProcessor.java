@@ -2,15 +2,21 @@ package mcjty.rftoolscontrol.blocks.processor;
 
 import mcjty.lib.container.GenericGuiContainer;
 import mcjty.lib.entity.GenericEnergyStorageTileEntity;
+import mcjty.lib.gui.RenderHelper;
 import mcjty.lib.gui.Window;
 import mcjty.lib.gui.WindowManager;
+import mcjty.lib.gui.layout.HorizontalAlignment;
+import mcjty.lib.gui.layout.HorizontalLayout;
 import mcjty.lib.gui.layout.PositionalLayout;
 import mcjty.lib.gui.widgets.*;
+import mcjty.lib.gui.widgets.Button;
+import mcjty.lib.gui.widgets.Label;
 import mcjty.lib.gui.widgets.Panel;
+import mcjty.lib.network.Argument;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.network.RFToolsCtrlMessages;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.OpenGlHelper;
+import net.minecraft.inventory.Slot;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 
@@ -30,7 +36,8 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
 
     private Window sideWindow;
     private EnergyBar energyBar;
-    private ToggleButton[] setupButtons = new ToggleButton[ProcessorContainer.CARD_SLOTS];
+    private ToggleButton[] setupButtons = new ToggleButton[ProcessorTileEntity.CARD_SLOTS];
+    private WidgetList log;
 
     public GuiProcessor(ProcessorTileEntity tileEntity, ProcessorContainer container) {
         super(RFToolsControl.instance, RFToolsCtrlMessages.INSTANCE, tileEntity, container, RFToolsControl.GUI_MANUAL_CONTROL, "processor");
@@ -52,7 +59,10 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
         energyBar.setValue(GenericEnergyStorageTileEntity.getCurrentRF());
         toplevel.addChild(energyBar);
 
-        for (int i = 0 ; i < ProcessorContainer.CARD_SLOTS ; i++) {
+        setupLogWindow();
+        toplevel.addChild(log);
+
+        for (int i = 0; i < ProcessorTileEntity.CARD_SLOTS ; i++) {
             setupButtons[i] = new ToggleButton(mc, this)
                 .addButtonEvent(this::setupMode)
                 .setLayoutHint(new PositionalLayout.PositionalHint(11 + i * 18, 6, 15, 7));
@@ -66,6 +76,18 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
                 .addChild(listPanel);
         sidePanel.setBounds(new Rectangle(guiLeft-SIDEWIDTH, guiTop, SIDEWIDTH, ySize));
         sideWindow = new Window(this, sidePanel);
+    }
+
+    private void setupLogWindow() {
+        log = new WidgetList(mc, this).setFilledBackground(0xff000000).setFilledRectThickness(2)
+                .setLayoutHint(new PositionalLayout.PositionalHint(9, 40, 180, 110))
+                .setRowheight(14)
+                .setInvisibleSelection(true)
+                .setDrawHorizontalLines(false);
+        log.addChild(new Label(mc, this).setColor(0xff008800).setText("Processor booting...").setHorizontalAlignment(HorizontalAlignment.ALIGH_LEFT));
+        log.addChild(new Label(mc, this).setColor(0xff008800).setText("Initializing memory... [OK]").setHorizontalAlignment(HorizontalAlignment.ALIGH_LEFT));
+        log.addChild(new Label(mc, this).setColor(0xff008800).setText("Initializing items... [OK]").setHorizontalAlignment(HorizontalAlignment.ALIGH_LEFT));
+        log.addChild(new Label(mc, this).setColor(0xff008800).setText("Entering card setup mode: 3").setHorizontalAlignment(HorizontalAlignment.ALIGH_LEFT));
     }
 
     private void setupMode(Widget parent) {
@@ -95,8 +117,32 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
             super.mouseClicked(x, y, button);
         } else {
             int leftx = window.getToplevel().getBounds().x;
-            if (x >= leftx+10 && x <= leftx+10+ProcessorContainer.CARD_SLOTS*18 && y >= 6 && y <= 6+7) {
-                super.mouseClicked(x, y, button);
+            x -= leftx;
+            if (x >= 10 && x <= 10 + ProcessorTileEntity.CARD_SLOTS*18 && y >= 6 && y <= 6+7) {
+                super.mouseClicked(x + leftx, y, button);
+            } else {
+                CardInfo cardInfo = tileEntity.getCardInfo(setupMode);
+                int itemAlloc = cardInfo.getItemAllocation();
+                int varAlloc = cardInfo.getVarAllocation();
+
+                for (int i = 0 ; i < ProcessorTileEntity.ITEM_SLOTS ; i++) {
+                    Slot slot = inventorySlots.getSlot(ProcessorContainer.SLOT_BUFFER + i);
+                    if (x >= slot.xDisplayPosition && x <= slot.xDisplayPosition + 17 && y >= slot.yDisplayPosition && y <= slot.yDisplayPosition + 17) {
+                        boolean allocated = ((itemAlloc >> i) & 1) != 0;
+                        allocated = !allocated;
+                        if (allocated) {
+                            itemAlloc = itemAlloc | (1 << i);
+                        } else {
+                            itemAlloc = itemAlloc & ~(1 << i);
+                        }
+                        cardInfo.setItemAllocation(itemAlloc);
+                        sendServerCommand(RFToolsCtrlMessages.INSTANCE, ProcessorTileEntity.CMD_ALLOCATE,
+                                new Argument("card", setupMode),
+                                new Argument("items", itemAlloc),
+                                new Argument("vars", varAlloc));
+                        break;
+                    }
+                }
             }
         }
     }
@@ -113,12 +159,22 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
                 .setLayoutHint(new PositionalLayout.PositionalHint(0, 0, 62, 220))
                 .setPropagateEventsToChildren(true)
                 .setInvisibleSelection(true)
-                .setDrawHorizontalLines(false)
-                .setRowheight(ICONSIZE+2);
+                .setDrawHorizontalLines(false);
         Slider slider = new Slider(mc, this)
                 .setVertical()
                 .setScrollable(list)
                 .setLayoutHint(new PositionalLayout.PositionalHint(62, 0, 9, 220));
+
+        // @todo temporary
+        for (int i = 0 ; i < 32 ; i++) {
+            Panel panel = new Panel(mc, this).setLayout(new HorizontalLayout()).setDesiredWidth(45);
+            if (i >= 3 && i <= 6) {
+                panel.setFilledBackground(0x7700ff00);
+            }
+            panel.addChild(new Label(mc, this).setText(String.valueOf(i)).setDesiredWidth(30));
+            panel.addChild(new Button(mc, this).setText("..."));
+            list.addChild(panel);
+        }
 
         return new Panel(mc, this).setLayout(new PositionalLayout()).setLayoutHint(new PositionalLayout.PositionalHint(5, 5, 72, 220))
                 .addChild(list)
@@ -144,49 +200,22 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
             return;
         }
 
-        net.minecraft.client.renderer.RenderHelper.enableGUIStandardItemLighting();
         GlStateManager.pushMatrix();
-        GlStateManager.translate((float) guiLeft, (float) guiTop, 0.0F);
-        GlStateManager.color(1.0F, 0.0F, 0.0F, 1.0F);
-        GlStateManager.enableRescaleNormal();
-        OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, (float) (short) 240 / 1.0F, (float) (short) 240 / 1.0F);
+        GlStateManager.translate(guiLeft, guiTop, 0.0F);
 
-//        ItemStack[] ghostSlots = tileEntity.getGhostSlots();
-        zLevel = 100.0F;
-        itemRender.zLevel = 100.0F;
-        GlStateManager.enableDepth();
-        GlStateManager.disableBlend();
-        GlStateManager.enableLighting();
+        CardInfo cardInfo = tileEntity.getCardInfo(setupMode);
+        int itemAlloc = cardInfo.getItemAllocation();
 
-//        for (int i = 0 ; i < ghostSlots.length ; i++) {
-//            ItemStack stack = ghostSlots[i];
-//            if (stack != null) {
-//                int slotIdx;
-//                if (i < CrafterContainer.BUFFER_SIZE) {
-//                    slotIdx = i + CrafterContainer.SLOT_BUFFER;
-//                } else {
-//                    slotIdx = i + CrafterContainer.SLOT_BUFFEROUT - CrafterContainer.BUFFER_SIZE;
-//                }
-//                Slot slot = inventorySlots.getSlot(slotIdx);
-//                if (!slot.getHasStack()) {
-//                    itemRender.renderItemAndEffectIntoGUI(stack, slot.xDisplayPosition, slot.yDisplayPosition);
-//
-//                    GlStateManager.disableLighting();
-//                    GlStateManager.enableBlend();
-//                    GlStateManager.disableDepth();
-//                    this.mc.getTextureManager().bindTexture(iconGuiElements);
-//                    RenderHelper.drawTexturedModalRect(slot.xDisplayPosition, slot.yDisplayPosition, 14 * 16, 3 * 16, 16, 16);
-//                    GlStateManager.enableDepth();
-//                    GlStateManager.disableBlend();
-//                    GlStateManager.enableLighting();
-//                }
-//            }
-//
-//        }
-        itemRender.zLevel = 0.0F;
-        zLevel = 0.0F;
+        for (int i = 0 ; i < ProcessorTileEntity.ITEM_SLOTS ; i++) {
+            Slot slot = inventorySlots.getSlot(ProcessorContainer.SLOT_BUFFER + i);
+
+            boolean allocated = ((itemAlloc >> i) & 1) != 0;
+            int border = allocated ? 0xffffffff : 0xaaaaaaaa;
+            int fill = allocated ? 0x7700ff00 : 0x77444444;
+            RenderHelper.drawFlatBox(slot.xDisplayPosition, slot.yDisplayPosition, slot.xDisplayPosition + 17, slot.yDisplayPosition + 17,
+                    border, fill);
+        }
 
         GlStateManager.popMatrix();
-        net.minecraft.client.renderer.RenderHelper.disableStandardItemLighting();
     }
 }

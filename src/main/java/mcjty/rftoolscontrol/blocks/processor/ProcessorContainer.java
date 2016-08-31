@@ -9,15 +9,15 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 
+import static mcjty.rftoolscontrol.blocks.processor.ProcessorTileEntity.*;
+
 public class ProcessorContainer extends GenericContainer {
     public static final String CONTAINER_INVENTORY = "container";
 
-    public static final int CARD_SLOTS = 6;
-
     public static final int SLOT_EXPANSION = 0;     // 4*4 slots
-    public static final int SLOT_CARD = 4*4;        // 6 slots
-    public static final int SLOT_BUFFER = 4*4 + CARD_SLOTS;  // 3*8 slots
-    public static final int SLOTS = 4*4+ CARD_SLOTS +3*8;
+    public static final int SLOT_CARD = EXPANSION_SLOTS;        // 6 slots
+    public static final int SLOT_BUFFER = EXPANSION_SLOTS + CARD_SLOTS;  // 3*8 slots
+    public static final int SLOTS = EXPANSION_SLOTS+ CARD_SLOTS + ITEM_SLOTS;
 
     public static final ContainerFactory factory = new ContainerFactory() {
         @Override
