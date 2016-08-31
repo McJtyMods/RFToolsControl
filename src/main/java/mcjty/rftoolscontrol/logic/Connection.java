@@ -1,5 +1,7 @@
 package mcjty.rftoolscontrol.logic;
 
+import org.apache.commons.lang3.tuple.Pair;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -33,6 +35,25 @@ public enum Connection {
 
     public static Connection getConnection(String id) {
         return ID_TO_CONNECTION.get(id);
+    }
+
+    public Pair<Integer,Integer> offset(Pair<Integer,Integer> coordinate) {
+        switch (this) {
+            case UP_NEG:
+            case UP:
+                return Pair.of(coordinate.getLeft(), coordinate.getRight()-1);
+            case DOWN_NEG:
+            case DOWN:
+                return Pair.of(coordinate.getLeft(), coordinate.getRight()+1);
+            case LEFT_NEG:
+            case LEFT:
+                return Pair.of(coordinate.getLeft()-1, coordinate.getRight());
+            case RIGHT_NEG:
+            case RIGHT:
+                return Pair.of(coordinate.getLeft()+1, coordinate.getRight());
+            default:
+                return coordinate;
+        }
     }
 
     public Connection getOpposite() {

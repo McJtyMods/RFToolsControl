@@ -3,18 +3,20 @@ package mcjty.rftoolscontrol.logic.registry;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Operand {
+public class Opcode {
 
     private final String id;
-    private final OperandOutput operandOutput;
+    private final OpcodeOutput opcodeOutput;
+    private final OpcodeInput opcodeInput;
     private final List<ParameterDescription> parameters;
 
     private final int iconU;
     private final int iconV;
 
-    private Operand(Builder builder) {
+    private Opcode(Builder builder) {
         this.id = builder.id;
-        this.operandOutput = builder.operandOutput;
+        this.opcodeOutput = builder.opcodeOutput;
+        this.opcodeInput = builder.opcodeInput;
         this.parameters = new ArrayList<>(builder.parameters);
         this.iconU = builder.iconU;
         this.iconV = builder.iconV;
@@ -24,8 +26,12 @@ public class Operand {
         return id;
     }
 
-    public OperandOutput getOperandOutput() {
-        return operandOutput;
+    public OpcodeOutput getOpcodeOutput() {
+        return opcodeOutput;
+    }
+
+    public OpcodeInput getOpcodeInput() {
+        return opcodeInput;
     }
 
     public List<ParameterDescription> getParameters() {
@@ -56,7 +62,8 @@ public class Operand {
     public static class Builder {
 
         private String id;
-        private OperandOutput operandOutput;
+        private OpcodeOutput opcodeOutput = OpcodeOutput.SINGLE;
+        private OpcodeInput opcodeInput = OpcodeInput.NORMAL;
         private int iconU;
         private int iconV;
         private List<ParameterDescription> parameters = new ArrayList<>();
@@ -66,8 +73,13 @@ public class Operand {
             return this;
         }
 
-        public Builder operandOutput(OperandOutput operandOutput) {
-            this.operandOutput = operandOutput;
+        public Builder opcodeOutput(OpcodeOutput opcodeOutput) {
+            this.opcodeOutput = opcodeOutput;
+            return this;
+        }
+
+        public Builder opcodeInput(OpcodeInput opcodeInput) {
+            this.opcodeInput = opcodeInput;
             return this;
         }
 
@@ -82,8 +94,8 @@ public class Operand {
             return this;
         }
 
-        public Operand build() {
-            return new Operand(this);
+        public Opcode build() {
+            return new Opcode(this);
         }
     }
 }

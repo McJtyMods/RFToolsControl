@@ -81,10 +81,10 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
 
     private void initIcons() {
         if (ICONS.isEmpty()) {
-            for (Map.Entry<String, Operand> entry : Operands.OPERANDS.entrySet()) {
+            for (Map.Entry<String, Opcode> entry : Opcodes.OPCODES.entrySet()) {
                 String id = entry.getKey();
-                Operand operand = entry.getValue();
-                ICONS.put(id, new ImageIcon(id).setDimensions(ICONSIZE, ICONSIZE).setImage(icons, operand.getIconU()*ICONSIZE, operand.getIconV()*ICONSIZE));
+                Opcode opcode = entry.getValue();
+                ICONS.put(id, new ImageIcon(id).setDimensions(ICONSIZE, ICONSIZE).setImage(icons, opcode.getIconU()*ICONSIZE, opcode.getIconV()*ICONSIZE));
             }
         }
     }
@@ -218,13 +218,13 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
                             builder.connection(connection);
                         }
                     }
-                    Operand operand = Operands.OPERANDS.get(operandId);
+                    Opcode opcode = Opcodes.OPCODES.get(operandId);
                     Map<String, Object> data = icon.getData();
                     if (data != null) {
                         for (Map.Entry<String, Object> entry : data.entrySet()) {
                             String name = entry.getKey();
                             ParameterValue value = (ParameterValue) entry.getValue();
-                            ParameterDescription description = operand.findParameter(name);
+                            ParameterDescription description = opcode.findParameter(name);
                             if (description != null) {  // Should not be possible
                                 Parameter parameter = Parameter.builder().description(description).value(value).build();
                                 builder.parameter(parameter);
@@ -291,7 +291,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
         int x = 0;
         int y = 0;
         Panel childPanel = null;
-        for (Map.Entry<String, Operand> entry : Operands.OPERANDS.entrySet()) {
+        for (Map.Entry<String, Opcode> entry : Opcodes.OPCODES.entrySet()) {
             if (childPanel == null) {
                 childPanel = new Panel(mc, this).setLayout(new HorizontalLayout().setVerticalMargin(1).setSpacing(1).setHorizontalMargin(1)).setDesiredHeight(ICONSIZE+1);
                 list.addChild(childPanel);
@@ -389,10 +389,10 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
 
     private void setEditorPanel(IconHolder iconHolder, IIcon icon) {
         String id = icon.getID();
-        Operand operand = Operands.OPERANDS.get(id);
+        Opcode opcode = Opcodes.OPCODES.get(id);
         Map<String, Object> data = icon.getData() == null ? Collections.emptyMap() : icon.getData();
         clearEditorPanel();
-        for (ParameterDescription parameter : operand.getParameters()) {
+        for (ParameterDescription parameter : opcode.getParameters()) {
             String name = parameter.getName();
             ParameterValue value = (ParameterValue) data.get(name);
             Panel panel;

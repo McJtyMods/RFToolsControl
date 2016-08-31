@@ -1,6 +1,6 @@
 package mcjty.rftoolscontrol.logic.registry;
 
-public enum OperandOutput {
+public enum OpcodeOutput {
     NONE,
     SINGLE,
     YESNO
