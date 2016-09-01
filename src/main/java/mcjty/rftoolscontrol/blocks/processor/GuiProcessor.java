@@ -13,6 +13,7 @@ import mcjty.lib.gui.widgets.Button;
 import mcjty.lib.gui.widgets.*;
 import mcjty.lib.gui.widgets.Label;
 import mcjty.lib.gui.widgets.Panel;
+import mcjty.lib.gui.widgets.TextField;
 import mcjty.lib.network.Argument;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.network.PacketGetLog;
@@ -42,6 +43,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
     private ToggleButton[] setupButtons = new ToggleButton[ProcessorTileEntity.CARD_SLOTS];
     private WidgetList log;
     private WidgetList variableList;
+    private TextField command;
 
     private static java.util.List<PacketGetLog.StringConverter> fromServer_log = new ArrayList<PacketGetLog.StringConverter>();
     public static void storeLogForClient(java.util.List<PacketGetLog.StringConverter> messages) {
@@ -89,7 +91,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
 
     private void setupLogWindow(Panel toplevel) {
         log = new WidgetList(mc, this).setFilledBackground(0xff000000).setFilledRectThickness(2)
-                .setLayoutHint(new PositionalLayout.PositionalHint(9, 40, 170, 110))
+                .setLayoutHint(new PositionalLayout.PositionalHint(9, 35, 170, 97))
                 .setRowheight(14)
                 .setInvisibleSelection(true)
                 .setDrawHorizontalLines(false);
@@ -97,7 +99,11 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
         Slider slider = new Slider(mc, this)
                 .setVertical()
                 .setScrollable(log)
-                .setLayoutHint(new PositionalLayout.PositionalHint(180, 40, 9, 110));
+                .setLayoutHint(new PositionalLayout.PositionalHint(180, 35, 9, 97));
+
+        command = new TextField(mc, this)
+                .setLayoutHint(new PositionalLayout.PositionalHint(9, 35+98, 180, 16))
+                .addTextEnterEvent((e, text) -> executeCommand(text));
 //        log.addChild(new Label(mc, this).setColor(0xff008800).setText("Processor booting...").setHorizontalAlignment(HorizontalAlignment.ALIGH_LEFT));
 //        log.addChild(new Label(mc, this).setColor(0xff008800).setText("Initializing memory... [OK]").setHorizontalAlignment(HorizontalAlignment.ALIGH_LEFT));
 //        log.addChild(new Label(mc, this).setColor(0xff008800).setText("Initializing items... [OK]").setHorizontalAlignment(HorizontalAlignment.ALIGH_LEFT));
@@ -105,7 +111,12 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
 //        log.addChild(new Label(mc, this).setColor(0xff008800).setText("    Needed: 4 variables").setHorizontalAlignment(HorizontalAlignment.ALIGH_LEFT));
 //        log.addChild(new Label(mc, this).setColor(0xff008800).setText("    Needed: 6 item slots").setHorizontalAlignment(HorizontalAlignment.ALIGH_LEFT));
 
-        toplevel.addChild(log).addChild(slider);
+        toplevel.addChild(log).addChild(slider).addChild(command);
+    }
+
+    private void executeCommand(String text) {
+        sendServerCommand(RFToolsCtrlMessages.INSTANCE, ProcessorTileEntity.CMD_CLEARLOG, new Argument("cmd", text));
+        command.setText("");
     }
 
     private void requestLog() {
@@ -125,6 +136,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
         for (PacketGetLog.StringConverter message : fromServer_log) {
             log.addChild(new Label(mc, this).setColor(0xff008800).setText(message.getMessage()).setHorizontalAlignment(HorizontalAlignment.ALIGH_LEFT));
         }
+        log.setFirstSelected(log.getChildCount());
     }
 
     private void setupMode(Widget parent) {

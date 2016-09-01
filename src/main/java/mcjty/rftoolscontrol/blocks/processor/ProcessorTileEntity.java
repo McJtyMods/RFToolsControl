@@ -38,6 +38,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     public static final int EXPANSION_SLOTS = 4*4;
 
     public static final String CMD_ALLOCATE = "allocate";
+    public static final String CMD_CLEARLOG = "clearLog";
     public static final String CMD_GETLOG = "getLog";
     public static final String CLIENTCMD_GETLOG = "getLog";
 
@@ -226,6 +227,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     public void setInventorySlotContents(int index, ItemStack stack) {
         if (isCardSlot(index)) {
             cardInfo[index-ProcessorContainer.SLOT_CARD].setCompiledCard(null);
+            // @todo figure out a way to stop all programs running from this card when a card is removed
             cardsDirty = true;
         } else if (isExpansionSlot(index)) {
             coresDirty = true;
@@ -381,6 +383,34 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         markDirty();
     }
 
+    private void executeCommand(String cmd) {
+        markDirty();
+        cmd = cmd.toLowerCase();
+        if ("clear".equals(cmd)) {
+            logMessages.clear();
+        } else if ("stop".equals(cmd)) {
+            int n = 0;
+            for (CpuCore core : cpuCores) {
+                if (core.hasProgram()) {
+                    n++;
+                    core.stopProgram();
+                }
+            }
+            log("Stopped " + n + " programs!");
+        } else if ("list".equals(cmd)) {
+            int n = 0;
+            for (CpuCore core : cpuCores) {
+                if (core.hasProgram()) {
+                    log("Core: " + n + " -> <busy>");
+                } else {
+                    log("Core: " + n + " -> <idle>");
+                }
+                n++;
+            }
+        }
+    }
+
+
     @Override
     public boolean execute(EntityPlayerMP playerMP, String command, Map<String, Argument> args) {
         boolean rc = super.execute(playerMP, command, args);
@@ -392,6 +422,9 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             int itemAlloc = args.get("items").getInteger();
             int varAlloc = args.get("vars").getInteger();
             allocate(card, itemAlloc, varAlloc);
+            return true;
+        } else if (CMD_CLEARLOG.equals(command)) {
+            executeCommand(args.get("cmd").getString());
             return true;
         }
         return false;

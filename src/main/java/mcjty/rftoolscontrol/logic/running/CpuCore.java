@@ -21,6 +21,14 @@ public class CpuCore {
         return program != null;
     }
 
+    public RunningProgram getProgram() {
+        return program;
+    }
+
+    public void stopProgram() {
+        program = null;
+    }
+
     public void startProgram(RunningProgram program) {
         System.out.println("Core: starting program = " + program);
         this.program = program;
