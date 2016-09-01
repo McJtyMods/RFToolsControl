@@ -41,12 +41,22 @@ public class Opcodes {
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("ticks").type(ParameterType.PAR_INTEGER).build())
             .icon(6, 0)
-            .runnable(((processor, program) -> { program.setDelay(33); return true;}))
+            .runnable(((processor, program, opcode) -> {
+                int ticks = processor.evalulateParameter(opcode, 0);
+                System.out.println("Opcodes.DO_DELAY: ticks = " + ticks);
+                program.setDelay(ticks);
+                return true;
+            }))
             .build();
     public static Opcode DO_STOP = Opcode.builder()
             .id("do_stop")
             .opcodeOutput(NONE)
             .icon(7, 0)
+            .runnable((processor, program, opcode) -> {
+                System.out.println("Opcodes.DO_STOP");
+                program.killMe();
+                return true;
+            })
             .build();
 
     public static final Map<String, Opcode> OPCODES = new HashMap<>();

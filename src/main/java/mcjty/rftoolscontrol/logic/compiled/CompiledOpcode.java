@@ -43,7 +43,7 @@ public class CompiledOpcode {
     }
 
     public boolean run(ProcessorTileEntity processor, RunningProgram program) {
-        return opcode.getRunnable().run(processor, program);
+        return opcode.getRunnable().run(processor, program, this);
     }
 
     public static class Builder {

@@ -1,6 +1,5 @@
 package mcjty.rftoolscontrol.logic.running;
 
-import mcjty.rftoolscontrol.blocks.processor.CardInfo;
 import mcjty.rftoolscontrol.blocks.processor.ProcessorTileEntity;
 import mcjty.rftoolscontrol.logic.compiled.CompiledCard;
 import mcjty.rftoolscontrol.logic.compiled.CompiledOpcode;
@@ -19,6 +18,9 @@ public class RunningProgram {
     // If we need to wait a few ticks
     private int delay = 0;
 
+    // We are dead
+    private boolean dead = false;
+
     // Cache for the opcodes
     private List<CompiledOpcode> opcodeCache = null;
 
@@ -32,6 +34,14 @@ public class RunningProgram {
 
     public void setDelay(int delay) {
         this.delay = delay;
+    }
+
+    public void killMe() {
+        dead = true;
+    }
+
+    public boolean isDead() {
+        return dead;
     }
 
     public void run(ProcessorTileEntity processor) {
@@ -50,8 +60,7 @@ public class RunningProgram {
 
     private List<CompiledOpcode> opcodes(ProcessorTileEntity processor) {
         if (opcodeCache == null) {
-            CardInfo info = processor.getCardInfo(cardIndex);
-            CompiledCard card = info.getCompiledCard();
+            CompiledCard card = processor.getCompiledCard(cardIndex);
             opcodeCache = card.getOpcodes();
         }
         return opcodeCache;
@@ -61,6 +70,7 @@ public class RunningProgram {
         tag.setInteger("card", cardIndex);
         tag.setInteger("current", current);
         tag.setInteger("delay", delay);
+        tag.setBoolean("dead", dead);
     }
 
     public static RunningProgram readFromNBT(NBTTagCompound tag) {
@@ -71,6 +81,7 @@ public class RunningProgram {
         RunningProgram program = new RunningProgram(cardIndex);
         program.setCurrent(tag.getInteger("current"));
         program.setDelay(tag.getInteger("delay"));
+        program.dead = tag.getBoolean("dead");
         return program;
     }
 }

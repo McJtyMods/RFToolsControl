@@ -16,6 +16,10 @@ public class CompiledCard {
     private Map<Opcode, List<CompiledEvent>> events = new HashMap<>();
 
     public static CompiledCard compile(ProgramCardInstance cardInstance) {
+        if (cardInstance == null) {
+            return null;
+        }
+
         CompiledCard card = new CompiledCard();
 
         Map<GridPos, GridInstance> gridInstances = cardInstance.getGridInstances();
@@ -34,6 +38,7 @@ public class CompiledCard {
             GridInstance grid = entry.getValue();
             String id = grid.getId();
             Opcode opcode = Opcodes.OPCODES.get(id);
+            System.out.println(card.opcodes.size() + ": opcode = " + opcode + " at " + location);
 
             if (opcode.isEvent()) {
                 if (card.events.get(opcode) == null) {
@@ -44,6 +49,8 @@ public class CompiledCard {
 
             GridPos primaryOutput = grid.getPrimaryConnection() != null ? grid.getPrimaryConnection().offset(location) : null;
             GridPos secondaryOutput = grid.getSecondaryConnection() != null ? grid.getSecondaryConnection().offset(location) : null;
+            System.out.println("    primaryOutput = " + primaryOutput);
+            System.out.println("    secondaryOutput = " + secondaryOutput);
             CompiledOpcode.Builder opcodeBuilder = CompiledOpcode.builder().opcode(opcode);
             if (primaryOutput != null && posToIndex.containsKey(primaryOutput)) {
                 opcodeBuilder.primaryIndex(posToIndex.get(primaryOutput));

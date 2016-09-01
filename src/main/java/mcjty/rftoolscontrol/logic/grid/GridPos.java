@@ -18,6 +18,11 @@ public class GridPos {
         return y;
     }
 
+    @Override
+    public String toString() {
+        return "GridPos{" + x + "," + y + '}';
+    }
+
     public static GridPos pos(int x, int y) {
         return new GridPos(x, y);
     }

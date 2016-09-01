@@ -8,8 +8,10 @@ import mcjty.rftoolscontrol.config.GeneralConfiguration;
 import mcjty.rftoolscontrol.items.ModItems;
 import mcjty.rftoolscontrol.logic.compiled.CompiledCard;
 import mcjty.rftoolscontrol.logic.compiled.CompiledEvent;
+import mcjty.rftoolscontrol.logic.compiled.CompiledOpcode;
 import mcjty.rftoolscontrol.logic.grid.ProgramCardInstance;
 import mcjty.rftoolscontrol.logic.registry.Opcodes;
+import mcjty.rftoolscontrol.logic.registry.ParameterValue;
 import mcjty.rftoolscontrol.logic.running.CpuCore;
 import mcjty.rftoolscontrol.logic.running.RunningProgram;
 import net.minecraft.entity.player.EntityPlayer;
@@ -110,19 +112,22 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         for (int i = 0 ; i < cardInfo.length ; i++) {
             CardInfo info = cardInfo[i];
             CompiledCard compiledCard = info.getCompiledCard();
-            if (prevIn == 0 && powerLevel > 0) {
-                for (CompiledEvent event : compiledCard.getEvents(Opcodes.EVENT_REDSTONE_ON)) {
-                    runOrQueueEvent(i, event);
-                }
-            } else if (prevIn > 0 && powerLevel == 0) {
-                for (CompiledEvent event : compiledCard.getEvents(Opcodes.EVENT_REDSTONE_OFF)) {
-                    runOrQueueEvent(i, event);
+            if (compiledCard != null) {
+                if (prevIn == 0 && powerLevel > 0) {
+                    for (CompiledEvent event : compiledCard.getEvents(Opcodes.EVENT_REDSTONE_ON)) {
+                        runOrQueueEvent(i, event);
+                    }
+                } else if (prevIn > 0 && powerLevel == 0) {
+                    for (CompiledEvent event : compiledCard.getEvents(Opcodes.EVENT_REDSTONE_OFF)) {
+                        runOrQueueEvent(i, event);
+                    }
                 }
             }
         }
     }
 
     private void runOrQueueEvent(int cardIndex, CompiledEvent event) {
+        System.out.println("runOrQueueEvent: cardIndex = " + cardIndex);
         CpuCore core = findAvailableCore();
         if (core == null) {
             // No available core
@@ -155,7 +160,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             // @todo, keep state of current running programs?
             cpuCores.clear();
             for (int i = ProcessorContainer.SLOT_EXPANSION ; i < ProcessorContainer.SLOT_EXPANSION + EXPANSION_SLOTS ; i++) {
-                ItemStack expansionStack = invHandlerNull.getStackInSlot(i);
+                ItemStack expansionStack = inventoryHelper.getStackInSlot(i);
                 if (expansionStack != null && expansionStack.getItem() == ModItems.cpuCoreEX2000Item) {
                     cpuCores.add(new CpuCore());
                 }
@@ -172,10 +177,22 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                     int cardIndex = i - ProcessorContainer.SLOT_CARD;
                     if (cardInfo[cardIndex].getCompiledCard() == null) {
                         // @todo validation
-                        cardInfo[cardIndex].setCompiledCard(CompiledCard.compile(ProgramCardInstance.parseInstance(cardStack)));
+                        CompiledCard compiled = CompiledCard.compile(ProgramCardInstance.parseInstance(cardStack));
+                        System.out.println("compiled = " + compiled);
+                        cardInfo[cardIndex].setCompiledCard(compiled);
                     }
                 }
             }
+        }
+    }
+
+    public <T> T evalulateParameter(CompiledOpcode compiledOpcode, int parIndex) {
+        ParameterValue value = compiledOpcode.getParameters().get(parIndex).getParameterValue();
+        if (value.isConstant()) {
+            return (T) value.getValue();
+        } else {
+            // @todo support variables
+            return null;
         }
     }
 
@@ -241,6 +258,9 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             core.readFromNBT(coreList.getCompoundTagAt(i));
             cpuCores.add(core);
         }
+        if (cpuCores.isEmpty()) {
+            coresDirty = true;
+        }
 
         eventQueue.clear();
         NBTTagList eventQueueList = tagCompound.getTagList("events", Constants.NBT.TAG_COMPOUND);
@@ -297,6 +317,18 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
 
     public CardInfo getCardInfo(int index) {
         return cardInfo[index];
+    }
+
+    public CompiledCard getCompiledCard(int index) {
+        CardInfo info = getCardInfo(index);
+        CompiledCard card = info.getCompiledCard();
+        ItemStack cardStack = inventoryHelper.getStackInSlot(index + ProcessorContainer.SLOT_CARD);
+        if (card == null && cardStack != null) {
+            card = CompiledCard.compile(ProgramCardInstance.parseInstance(cardStack));
+            System.out.println("compiled2 = " + card);
+            cardInfo[index].setCompiledCard(card);
+        }
+        return card;
     }
 
     public boolean isWorking() {

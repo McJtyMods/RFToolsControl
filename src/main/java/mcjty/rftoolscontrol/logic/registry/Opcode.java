@@ -1,8 +1,5 @@
 package mcjty.rftoolscontrol.logic.registry;
 
-import mcjty.rftoolscontrol.blocks.processor.ProcessorTileEntity;
-import mcjty.rftoolscontrol.logic.running.RunningProgram;
-
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
@@ -83,13 +80,18 @@ public class Opcode {
     }
 
     @Override
+    public String toString() {
+        return "Opcode{" + id + '}';
+    }
+
+    @Override
     public int hashCode() {
         return id.hashCode();
     }
 
     public static class Builder {
 
-        private static final OpcodeRunnable NOOP = ((processor, program) -> true);
+        private static final OpcodeRunnable NOOP = ((processor, program, opcode) -> true);
 
         private String id;
         private OpcodeOutput opcodeOutput = OpcodeOutput.SINGLE;

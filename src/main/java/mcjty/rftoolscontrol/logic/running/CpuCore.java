@@ -10,6 +10,10 @@ public class CpuCore {
     public void run(ProcessorTileEntity processor) {
         if (program != null) {
             program.run(processor);
+            if (program.isDead()) {
+                System.out.println("Core: stopping program");
+                program = null;
+            }
         }
     }
 
@@ -18,6 +22,7 @@ public class CpuCore {
     }
 
     public void startProgram(RunningProgram program) {
+        System.out.println("Core: starting program = " + program);
         this.program = program;
     }
 
