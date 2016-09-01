@@ -9,6 +9,8 @@ import java.util.List;
 
 public class RunningProgram {
 
+    private static boolean DEBUG = true;
+
     // Card we are running from
     private final int cardIndex;
 
@@ -51,6 +53,9 @@ public class RunningProgram {
         }
 
         CompiledOpcode opcode = opcodes(processor).get(current);
+        if (DEBUG) {
+            System.out.println(opcode.getOpcode());
+        }
         if (opcode.run(processor, this)) {
             current = opcode.getPrimaryIndex();
         } else {
