@@ -25,21 +25,21 @@ public class CompiledCard {
             GridPos location = entry.getKey();
             GridInstance grid = entry.getValue();
             String id = grid.getId();
-            List<Connection> connections = grid.getConnections();
-            GridPos primaryOutput = null;
-            GridPos secondaryOutput = null;
-            Opcode opcode = Opcodes.OPCODES.get(id);
-            switch (opcode.getOpcodeOutput()) {
-                case NONE:
-                    break;
-                case SINGLE:
-                    primaryOutput = findPrimaryConnection(connections).offset(location);    // @todo handle the case no connections are given
-                    break;
-                case YESNO:
-                    primaryOutput = findPrimaryConnection(connections).offset(location);    // @todo handle the case no connections are given
-                    secondaryOutput = findSecondaryConnection(connections).offset(location);    // @todo handle the case no connections are given
-                    break;
-            }
+//            List<Connection> connections = grid.getConnections();
+//            GridPos primaryOutput = null;
+//            GridPos secondaryOutput = null;
+//            Opcode opcode = Opcodes.OPCODES.get(id);
+//            switch (opcode.getOpcodeOutput()) {
+//                case NONE:
+//                    break;
+//                case SINGLE:
+//                    primaryOutput = findPrimaryConnection(connections).offset(location);    // @todo handle the case no connections are given
+//                    break;
+//                case YESNO:
+//                    primaryOutput = findPrimaryConnection(connections).offset(location);    // @todo handle the case no connections are given
+//                    secondaryOutput = findSecondaryConnection(connections).offset(location);    // @todo handle the case no connections are given
+//                    break;
+//            }
             //@todo
         }
 

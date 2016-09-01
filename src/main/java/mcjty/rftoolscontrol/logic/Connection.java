@@ -2,8 +2,7 @@ package mcjty.rftoolscontrol.logic;
 
 import mcjty.rftoolscontrol.logic.grid.GridPos;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public enum Connection {
     UP("U"),
@@ -35,6 +34,10 @@ public enum Connection {
 
     public static Connection getConnection(String id) {
         return ID_TO_CONNECTION.get(id);
+    }
+
+    public boolean isPrimary() {
+        return id.equals(id.toUpperCase());
     }
 
     public GridPos offset(GridPos coordinate) {

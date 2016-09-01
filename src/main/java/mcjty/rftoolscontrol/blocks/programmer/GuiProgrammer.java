@@ -218,7 +218,11 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
                     GridInstance.Builder builder = GridInstance.builder(operandId);
                     for (Connection connection : Connection.values()) {
                         if (icon.hasOverlay(connection.getId())) {
-                            builder.connection(connection);
+                            if (connection.isPrimary()) {
+                                builder.primaryConnection(connection);
+                            } else {
+                                builder.secondaryConnection(connection);
+                            }
                         }
                     }
                     Opcode opcode = Opcodes.OPCODES.get(operandId);
@@ -260,8 +264,11 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
             int y = entry.getKey().getY();
             GridInstance gridInstance = entry.getValue();
             IIcon icon = ICONS.get(gridInstance.getId()).clone();
-            for (Connection connection : gridInstance.getConnections()) {
-                icon.addOverlay(CONNECTION_ICONS.get(connection));
+            if (gridInstance.getPrimaryConnection() != null) {
+                icon.addOverlay(CONNECTION_ICONS.get(gridInstance.getPrimaryConnection()));
+            }
+            if (gridInstance.getSecondaryConnection() != null) {
+                icon.addOverlay(CONNECTION_ICONS.get(gridInstance.getSecondaryConnection()));
             }
             for (Parameter parameter : gridInstance.getParameters()) {
                 String name = parameter.getParameterDescription().getName();

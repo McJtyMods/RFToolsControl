@@ -15,12 +15,14 @@ import java.util.List;
 public class GridInstance {
 
     private final String id;
-    private final List<Connection> connections;
+    private final Connection primaryConnection;
+    private final Connection secondaryConnection;
     private final List<Parameter> parameters;
 
     private GridInstance(Builder builder) {
         this.id = builder.id;
-        this.connections = new ArrayList<>(builder.connections);
+        this.primaryConnection = builder.primaryConnection;
+        this.secondaryConnection = builder.secondaryConnection;
         this.parameters = builder.parameters;
     }
 
@@ -28,8 +30,12 @@ public class GridInstance {
         return id;
     }
 
-    public List<Connection> getConnections() {
-        return connections;
+    public Connection getPrimaryConnection() {
+        return primaryConnection;
+    }
+
+    public Connection getSecondaryConnection() {
+        return secondaryConnection;
     }
 
     public List<Parameter> getParameters() {
@@ -45,12 +51,12 @@ public class GridInstance {
         tag.setInteger("x", x);
         tag.setInteger("y", y);
         tag.setString("id", getId());
-
-        StringBuilder c = new StringBuilder();
-        for (Connection connection : getConnections()) {
-            c.append(connection.getId());
+        if (primaryConnection != null) {
+            tag.setString("prim", primaryConnection.getId());
         }
-        tag.setString("con", c.toString());
+        if (secondaryConnection != null) {
+            tag.setString("sec", secondaryConnection.getId());
+        }
 
         NBTTagList parList = new NBTTagList();
         for (Parameter parameter : getParameters()) {
@@ -69,13 +75,11 @@ public class GridInstance {
 
     public static GridInstance readFromNBT(NBTTagCompound tag) {
         GridInstance.Builder builder = GridInstance.builder(tag.getString("id"));
-        String con = tag.getString("con");
-        for (int i = 0 ; i < con.length() ; i++) {
-            String c = con.substring(i, i + 1);
-            Connection connection = Connection.getConnection(c);
-            if (connection != null) {
-                builder.connection(connection);
-            }
+        if (tag.hasKey("prim")) {
+            builder.primaryConnection(Connection.getConnection(tag.getString("prim")));
+        }
+        if (tag.hasKey("sec")) {
+            builder.secondaryConnection(Connection.getConnection(tag.getString("sec")));
         }
         NBTTagList parList = tag.getTagList("pars", Constants.NBT.TAG_COMPOUND);
         for (int i = 0 ; i < parList.tagCount() ; i++) {
@@ -94,15 +98,21 @@ public class GridInstance {
     public static class Builder {
 
         private final String id;
-        private final List<Connection> connections = new ArrayList<>();
+        private Connection primaryConnection;
+        private Connection secondaryConnection;
         private final List<Parameter> parameters = new ArrayList<>();
 
         public Builder(String id) {
             this.id = id;
         }
 
-        public Builder connection(Connection connection) {
-            connections.add(connection);
+        public Builder primaryConnection(Connection primaryConnection) {
+            this.primaryConnection = primaryConnection;
+            return this;
+        }
+
+        public Builder secondaryConnection(Connection secondaryConnection) {
+            this.secondaryConnection = secondaryConnection;
             return this;
         }
 
