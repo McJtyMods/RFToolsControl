@@ -7,14 +7,13 @@ import mcjty.rftoolscontrol.logic.grid.ProgramCardInstance;
 import mcjty.rftoolscontrol.logic.registry.Opcode;
 import mcjty.rftoolscontrol.logic.registry.Opcodes;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import javax.annotation.Nonnull;
+import java.util.*;
 
 public class CompiledCard {
 
     private List<CompiledOpcode> opcodes = new ArrayList<>();
+    private Map<Opcode, List<CompiledEvent>> events = new HashMap<>();
 
     public static CompiledCard compile(ProgramCardInstance cardInstance) {
         CompiledCard card = new CompiledCard();
@@ -23,20 +22,25 @@ public class CompiledCard {
 
         // First find the indices of all compiled grid instances
         Map<GridPos, Integer> posToIndex = new HashMap<>();
-        int idx = 0;
         for (Map.Entry<GridPos, GridInstance> entry : gridInstances.entrySet()) {
             GridPos location = entry.getKey();
-            posToIndex.put(location, idx);
-            idx++;
+            posToIndex.put(location, posToIndex.size());
         }
         // Index of a dummy stop opcode that we can use to go too in case there is no real connection
-        int stopIdx = idx;
+        int stopIdx = posToIndex.size();
 
         for (Map.Entry<GridPos, GridInstance> entry : gridInstances.entrySet()) {
             GridPos location = entry.getKey();
             GridInstance grid = entry.getValue();
             String id = grid.getId();
             Opcode opcode = Opcodes.OPCODES.get(id);
+
+            if (opcode.isEvent()) {
+                if (card.events.get(opcode) == null) {
+                    card.events.put(opcode, new ArrayList<>());
+                }
+                card.events.get(opcode).add(new CompiledEvent(card.opcodes.size()));
+            }
 
             GridPos primaryOutput = grid.getPrimaryConnection() != null ? grid.getPrimaryConnection().offset(location) : null;
             GridPos secondaryOutput = grid.getSecondaryConnection() != null ? grid.getSecondaryConnection().offset(location) : null;
@@ -58,20 +62,23 @@ public class CompiledCard {
         }
         card.opcodes.add(CompiledOpcode.builder().opcode(Opcodes.DO_STOP).build());
 
-        return card;
-    }
-
-    private static List<GridPos> findEvents(ProgramCardInstance cardInstance) {
-        Map<GridPos, GridInstance> gridInstances = cardInstance.getGridInstances();
-        List<GridPos> events = new ArrayList<>();
-        for (Map.Entry<GridPos, GridInstance> entry : gridInstances.entrySet()) {
-            String id = entry.getValue().getId();
-            Opcode opcode = Opcodes.OPCODES.get(id);
-            if (opcode.isEvent()) {
-                events.add(entry.getKey());
+        for (Opcode opcode : Opcodes.OPCODES.values()) {
+            if (!card.events.containsKey(opcode)) {
+                card.events.put(opcode, Collections.emptyList());
             }
         }
 
-        return events;
+
+        return card;
+    }
+
+    @Nonnull
+    public List<CompiledOpcode> getOpcodes() {
+        return opcodes;
+    }
+
+    @Nonnull
+    public List<CompiledEvent> getEvents(Opcode opcode) {
+        return events.get(opcode);
     }
 }

@@ -1,5 +1,9 @@
 package mcjty.rftoolscontrol.logic.registry;
 
+import mcjty.rftoolscontrol.blocks.processor.ProcessorTileEntity;
+import mcjty.rftoolscontrol.logic.running.RunningProgram;
+
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,6 +13,7 @@ public class Opcode {
     private final OpcodeOutput opcodeOutput;
     private final boolean isEvent;
     private final List<ParameterDescription> parameters;
+    private final OpcodeRunnable runnable;
 
     private final int iconU;
     private final int iconV;
@@ -20,6 +25,7 @@ public class Opcode {
         this.parameters = new ArrayList<>(builder.parameters);
         this.iconU = builder.iconU;
         this.iconV = builder.iconV;
+        this.runnable = builder.runnable;
     }
 
     public String getId() {
@@ -36,6 +42,11 @@ public class Opcode {
 
     public List<ParameterDescription> getParameters() {
         return parameters;
+    }
+
+    @Nonnull
+    public OpcodeRunnable getRunnable() {
+        return runnable;
     }
 
     public int getIconU() {
@@ -59,7 +70,26 @@ public class Opcode {
         return new Builder();
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Opcode opcode = (Opcode) o;
+
+        if (!id.equals(opcode.id)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return id.hashCode();
+    }
+
     public static class Builder {
+
+        private static final OpcodeRunnable NOOP = ((processor, program) -> true);
 
         private String id;
         private OpcodeOutput opcodeOutput = OpcodeOutput.SINGLE;
@@ -67,9 +97,15 @@ public class Opcode {
         private int iconU;
         private int iconV;
         private List<ParameterDescription> parameters = new ArrayList<>();
+        private OpcodeRunnable runnable = NOOP;
 
         public Builder id(String id) {
             this.id = id;
+            return this;
+        }
+
+        public Builder runnable(OpcodeRunnable runnable) {
+            this.runnable = runnable;
             return this;
         }
 

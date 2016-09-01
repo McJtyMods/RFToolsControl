@@ -1,7 +1,9 @@
 package mcjty.rftoolscontrol.logic.compiled;
 
+import mcjty.rftoolscontrol.blocks.processor.ProcessorTileEntity;
 import mcjty.rftoolscontrol.logic.Parameter;
 import mcjty.rftoolscontrol.logic.registry.Opcode;
+import mcjty.rftoolscontrol.logic.running.RunningProgram;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,6 +40,10 @@ public class CompiledOpcode {
 
     public int getSecondaryIndex() {
         return secondaryIndex;
+    }
+
+    public boolean run(ProcessorTileEntity processor, RunningProgram program) {
+        return opcode.getRunnable().run(processor, program);
     }
 
     public static class Builder {

@@ -4,10 +4,14 @@ import mcjty.lib.container.DefaultSidedInventory;
 import mcjty.lib.container.InventoryHelper;
 import mcjty.lib.entity.GenericEnergyReceiverTileEntity;
 import mcjty.lib.network.Argument;
-import mcjty.lib.varia.RedstoneMode;
 import mcjty.rftoolscontrol.config.GeneralConfiguration;
+import mcjty.rftoolscontrol.items.ModItems;
 import mcjty.rftoolscontrol.logic.compiled.CompiledCard;
+import mcjty.rftoolscontrol.logic.compiled.CompiledEvent;
 import mcjty.rftoolscontrol.logic.grid.ProgramCardInstance;
+import mcjty.rftoolscontrol.logic.registry.Opcodes;
+import mcjty.rftoolscontrol.logic.running.CpuCore;
+import mcjty.rftoolscontrol.logic.running.RunningProgram;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
@@ -17,8 +21,9 @@ import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.util.ITickable;
 import net.minecraftforge.common.util.Constants;
+import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.Map;
+import java.util.*;
 
 public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity implements DefaultSidedInventory, ITickable {
 
@@ -31,11 +36,19 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
 
     private InventoryHelper inventoryHelper = new InventoryHelper(this, ProcessorContainer.factory, ProcessorContainer.SLOTS);
     private boolean working = false;
+    private List<CpuCore> cpuCores = new ArrayList<>();
 
     // If true some cards might need compiling
     private boolean cardsDirty = true;
+    // If true some cpu cores need updating
+    private boolean coresDirty = true;
+
+    // @todo, do this for all six sides
+    private int prevIn = 0;
 
     private CardInfo[] cardInfo = new CardInfo[CARD_SLOTS];
+
+    private Queue<Pair<Integer, CompiledEvent>> eventQueue = new ArrayDeque<>();        // Integer == card index
 
     public ProcessorTileEntity() {
         super(GeneralConfiguration.PROCESSOR_MAXENERGY, GeneralConfiguration.PROCESSOR_RECEIVEPERTICK);
@@ -58,7 +71,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     public void update() {
         if (!worldObj.isRemote) {
             boolean old = working;
-            working = isMachineEnabled();
+            working = true; // @todo
             if (working != old) {
                 markDirtyClient();
             }
@@ -66,11 +79,88 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             if (working) {
                 process();
             }
+
+            prevIn = powerLevel;
         }
     }
 
     private void process() {
+        markDirty();
+        updateCores();
         compileCards();
+        processEventQueue();
+        handleEvents();
+        run();
+    }
+
+    private void processEventQueue() {
+        Pair<Integer, CompiledEvent> pair = eventQueue.peek();
+        if (pair != null) {
+            CpuCore core = findAvailableCore();
+            if (core != null) {
+                eventQueue.remove();
+                RunningProgram program = new RunningProgram(pair.getKey());
+                program.setCurrent(pair.getRight().getIndex());
+                core.startProgram(program);
+            }
+        }
+    }
+
+    private void handleEvents() {
+        for (int i = 0 ; i < cardInfo.length ; i++) {
+            CardInfo info = cardInfo[i];
+            CompiledCard compiledCard = info.getCompiledCard();
+            if (prevIn == 0 && powerLevel > 0) {
+                for (CompiledEvent event : compiledCard.getEvents(Opcodes.EVENT_REDSTONE_ON)) {
+                    runOrQueueEvent(i, event);
+                }
+            } else if (prevIn > 0 && powerLevel == 0) {
+                for (CompiledEvent event : compiledCard.getEvents(Opcodes.EVENT_REDSTONE_OFF)) {
+                    runOrQueueEvent(i, event);
+                }
+            }
+        }
+    }
+
+    private void runOrQueueEvent(int cardIndex, CompiledEvent event) {
+        CpuCore core = findAvailableCore();
+        if (core == null) {
+            // No available core
+            eventQueue.add(Pair.of(cardIndex, event));
+        } else {
+            RunningProgram program = new RunningProgram(cardIndex);
+            program.setCurrent(event.getIndex());
+            core.startProgram(program);
+        }
+    }
+
+    private CpuCore findAvailableCore() {
+        for (CpuCore core : cpuCores) {
+            if (!core.hasProgram()) {
+                return core;
+            }
+        }
+        return null;
+    }
+
+    private void run() {
+        for (CpuCore core : cpuCores) {
+            core.run(this);
+        }
+    }
+
+    private void updateCores() {
+        if (coresDirty) {
+            coresDirty = false;
+            // @todo, keep state of current running programs?
+            cpuCores.clear();
+            for (int i = ProcessorContainer.SLOT_EXPANSION ; i < ProcessorContainer.SLOT_EXPANSION + EXPANSION_SLOTS ; i++) {
+                ItemStack expansionStack = invHandlerNull.getStackInSlot(i);
+                if (expansionStack != null && expansionStack.getItem() == ModItems.cpuCoreEX2000Item) {
+                    cpuCores.add(new CpuCore());
+                }
+            }
+        }
     }
 
     private void compileCards() {
@@ -89,22 +179,47 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         }
     }
 
+    private boolean isExpansionSlot(int index) {
+        return index >= ProcessorContainer.SLOT_EXPANSION && index < ProcessorContainer.SLOT_EXPANSION + EXPANSION_SLOTS;
+    }
+
+    private boolean isCardSlot(int index) {
+        return index >= ProcessorContainer.SLOT_CARD && index < ProcessorContainer.SLOT_CARD + CARD_SLOTS;
+    }
+
     @Override
     public void setInventorySlotContents(int index, ItemStack stack) {
-        if (index >= ProcessorContainer.SLOT_CARD && index < ProcessorContainer.SLOT_CARD + CARD_SLOTS) {
+        if (isCardSlot(index)) {
             cardInfo[index-ProcessorContainer.SLOT_CARD].setCompiledCard(null);
             cardsDirty = true;
+        } else if (isExpansionSlot(index)) {
+            coresDirty = true;
         }
         getInventoryHelper().setInventorySlotContents(getInventoryStackLimit(), index, stack);
     }
 
     @Override
     public ItemStack decrStackSize(int index, int count) {
-        if (index >= ProcessorContainer.SLOT_CARD && index < ProcessorContainer.SLOT_CARD + CARD_SLOTS) {
+        if (isCardSlot(index)) {
             cardInfo[index-ProcessorContainer.SLOT_CARD].setCompiledCard(null);
             cardsDirty = true;
+        } else if (isExpansionSlot(index)) {
+            coresDirty = true;
         }
         return getInventoryHelper().decrStackSize(index, count);
+    }
+
+    @Override
+    public void readFromNBT(NBTTagCompound tagCompound) {
+        super.readFromNBT(tagCompound);
+        prevIn = tagCompound.getInteger("prevIn");
+    }
+
+    @Override
+    public NBTTagCompound writeToNBT(NBTTagCompound tagCompound) {
+        super.writeToNBT(tagCompound);
+        tagCompound.setInteger("prevIn", prevIn);
+        return tagCompound;
     }
 
     @Override
@@ -112,11 +227,29 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         super.readRestorableFromNBT(tagCompound);
         working = tagCompound.getBoolean("working");
         readBufferFromNBT(tagCompound, inventoryHelper);
+
         NBTTagList cardInfoList = tagCompound.getTagList("cardInfo", Constants.NBT.TAG_COMPOUND);
         for (int i = 0 ; i < cardInfoList.tagCount() ; i++) {
             cardInfo[i] = CardInfo.readFromNBT(cardInfoList.getCompoundTagAt(i));
         }
 
+        NBTTagList coreList = tagCompound.getTagList("cores", Constants.NBT.TAG_COMPOUND);
+        cpuCores.clear();
+        coresDirty = false;
+        for (int i = 0 ; i < coreList.tagCount() ; i++) {
+            CpuCore core = new CpuCore();
+            core.readFromNBT(coreList.getCompoundTagAt(i));
+            cpuCores.add(core);
+        }
+
+        eventQueue.clear();
+        NBTTagList eventQueueList = tagCompound.getTagList("events", Constants.NBT.TAG_COMPOUND);
+        for (int i = 0 ; i < eventQueueList.tagCount() ; i++) {
+            NBTTagCompound tag = eventQueueList.getCompoundTagAt(i);
+            int card = tag.getInteger("card");
+            int index = tag.getInteger("index");
+            eventQueue.add(Pair.of(card, new CompiledEvent(index)));
+        }
     }
 
     @Override
@@ -124,11 +257,27 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         super.writeRestorableToNBT(tagCompound);
         tagCompound.setBoolean("working", working);
         writeBufferToNBT(tagCompound, inventoryHelper);
+
         NBTTagList cardInfoList = new NBTTagList();
         for (CardInfo info : cardInfo) {
             cardInfoList.appendTag(info.writeToNBT());
         }
         tagCompound.setTag("cardInfo", cardInfoList);
+
+        NBTTagList coreList = new NBTTagList();
+        for (CpuCore core : cpuCores) {
+            coreList.appendTag(core.writeToNBT());
+        }
+        tagCompound.setTag("cores", coreList);
+
+        NBTTagList eventQueueList = new NBTTagList();
+        for (Pair<Integer, CompiledEvent> pair : eventQueue) {
+            NBTTagCompound tag = new NBTTagCompound();
+            tag.setInteger("card", pair.getKey());
+            tag.setInteger("index", pair.getRight().getIndex());
+            eventQueueList.appendTag(tag);
+        }
+        tagCompound.setTag("events", eventQueueList);
     }
 
     @Override

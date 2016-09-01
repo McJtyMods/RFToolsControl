@@ -41,6 +41,7 @@ public class Opcodes {
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("ticks").type(ParameterType.PAR_INTEGER).build())
             .icon(6, 0)
+            .runnable(((processor, program) -> { program.setDelay(33); return true;}))
             .build();
     public static Opcode DO_STOP = Opcode.builder()
             .id("do_stop")
