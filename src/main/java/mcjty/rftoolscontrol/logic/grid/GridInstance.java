@@ -1,5 +1,7 @@
-package mcjty.rftoolscontrol.logic;
+package mcjty.rftoolscontrol.logic.grid;
 
+import mcjty.rftoolscontrol.logic.Connection;
+import mcjty.rftoolscontrol.logic.Parameter;
 import mcjty.rftoolscontrol.logic.registry.ParameterDescription;
 import mcjty.rftoolscontrol.logic.registry.ParameterType;
 import mcjty.rftoolscontrol.logic.registry.ParameterValue;

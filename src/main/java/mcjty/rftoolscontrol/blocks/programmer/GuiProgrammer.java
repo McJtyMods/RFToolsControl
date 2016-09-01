@@ -18,17 +18,20 @@ import mcjty.lib.gui.widgets.TextField;
 import mcjty.lib.network.PacketUpdateNBTItemInventory;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.logic.Connection;
-import mcjty.rftoolscontrol.logic.GridInstance;
 import mcjty.rftoolscontrol.logic.Parameter;
-import mcjty.rftoolscontrol.logic.ProgramCardInstance;
 import mcjty.rftoolscontrol.logic.editors.ParameterEditor;
 import mcjty.rftoolscontrol.logic.editors.ParameterEditors;
-import mcjty.rftoolscontrol.logic.registry.*;
+import mcjty.rftoolscontrol.logic.grid.GridInstance;
+import mcjty.rftoolscontrol.logic.grid.GridPos;
+import mcjty.rftoolscontrol.logic.grid.ProgramCardInstance;
+import mcjty.rftoolscontrol.logic.registry.Opcode;
+import mcjty.rftoolscontrol.logic.registry.Opcodes;
+import mcjty.rftoolscontrol.logic.registry.ParameterDescription;
+import mcjty.rftoolscontrol.logic.registry.ParameterValue;
 import mcjty.rftoolscontrol.network.RFToolsCtrlMessages;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
 
 import java.awt.*;
 import java.util.Collections;
@@ -252,9 +255,9 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
         if (instance == null) {
             return;
         }
-        for (Map.Entry<Pair<Integer, Integer>, GridInstance> entry : instance.getGridInstances().entrySet()) {
-            int x = entry.getKey().getLeft();
-            int y = entry.getKey().getRight();
+        for (Map.Entry<GridPos, GridInstance> entry : instance.getGridInstances().entrySet()) {
+            int x = entry.getKey().getX();
+            int y = entry.getKey().getY();
             GridInstance gridInstance = entry.getValue();
             IIcon icon = ICONS.get(gridInstance.getId()).clone();
             for (Connection connection : gridInstance.getConnections()) {

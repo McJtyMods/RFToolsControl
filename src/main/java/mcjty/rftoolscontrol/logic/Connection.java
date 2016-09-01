@@ -1,6 +1,6 @@
 package mcjty.rftoolscontrol.logic;
 
-import org.apache.commons.lang3.tuple.Pair;
+import mcjty.rftoolscontrol.logic.grid.GridPos;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -37,20 +37,20 @@ public enum Connection {
         return ID_TO_CONNECTION.get(id);
     }
 
-    public Pair<Integer,Integer> offset(Pair<Integer,Integer> coordinate) {
+    public GridPos offset(GridPos coordinate) {
         switch (this) {
             case UP_NEG:
             case UP:
-                return Pair.of(coordinate.getLeft(), coordinate.getRight()-1);
+                return GridPos.pos(coordinate.getX(), coordinate.getY()-1);
             case DOWN_NEG:
             case DOWN:
-                return Pair.of(coordinate.getLeft(), coordinate.getRight()+1);
+                return GridPos.pos(coordinate.getX(), coordinate.getY()+1);
             case LEFT_NEG:
             case LEFT:
-                return Pair.of(coordinate.getLeft()-1, coordinate.getRight());
+                return GridPos.pos(coordinate.getX()-1, coordinate.getY());
             case RIGHT_NEG:
             case RIGHT:
-                return Pair.of(coordinate.getLeft()+1, coordinate.getRight());
+                return GridPos.pos(coordinate.getX()+1, coordinate.getY());
             default:
                 return coordinate;
         }

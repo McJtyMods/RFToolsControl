@@ -1,12 +1,12 @@
 package mcjty.rftoolscontrol.logic.compiled;
 
 import mcjty.rftoolscontrol.logic.Connection;
-import mcjty.rftoolscontrol.logic.GridInstance;
-import mcjty.rftoolscontrol.logic.ProgramCardInstance;
+import mcjty.rftoolscontrol.logic.grid.GridInstance;
+import mcjty.rftoolscontrol.logic.grid.GridPos;
+import mcjty.rftoolscontrol.logic.grid.ProgramCardInstance;
 import mcjty.rftoolscontrol.logic.registry.Opcode;
 import mcjty.rftoolscontrol.logic.registry.OpcodeInput;
 import mcjty.rftoolscontrol.logic.registry.Opcodes;
-import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,15 +19,15 @@ public class CompiledCard {
     public static CompiledCard compile(ProgramCardInstance cardInstance) {
         CompiledCard card = new CompiledCard();
 
-        Map<Pair<Integer, Integer>, GridInstance> gridInstances = cardInstance.getGridInstances();
+        Map<GridPos, GridInstance> gridInstances = cardInstance.getGridInstances();
 
-        for (Map.Entry<Pair<Integer, Integer>, GridInstance> entry : gridInstances.entrySet()) {
-            Pair<Integer, Integer> location = entry.getKey();
+        for (Map.Entry<GridPos, GridInstance> entry : gridInstances.entrySet()) {
+            GridPos location = entry.getKey();
             GridInstance grid = entry.getValue();
             String id = grid.getId();
             List<Connection> connections = grid.getConnections();
-            Pair<Integer, Integer> primaryOutput = null;
-            Pair<Integer, Integer> secondaryOutput = null;
+            GridPos primaryOutput = null;
+            GridPos secondaryOutput = null;
             Opcode opcode = Opcodes.OPCODES.get(id);
             switch (opcode.getOpcodeOutput()) {
                 case NONE:
@@ -65,10 +65,10 @@ public class CompiledCard {
         return null;
     }
 
-    private static List<Pair<Integer, Integer>> findEvents(ProgramCardInstance cardInstance) {
-        Map<Pair<Integer, Integer>, GridInstance> gridInstances = cardInstance.getGridInstances();
-        List<Pair<Integer, Integer>> events = new ArrayList<>();
-        for (Map.Entry<Pair<Integer, Integer>, GridInstance> entry : gridInstances.entrySet()) {
+    private static List<GridPos> findEvents(ProgramCardInstance cardInstance) {
+        Map<GridPos, GridInstance> gridInstances = cardInstance.getGridInstances();
+        List<GridPos> events = new ArrayList<>();
+        for (Map.Entry<GridPos, GridInstance> entry : gridInstances.entrySet()) {
             String id = entry.getValue().getId();
             Opcode opcode = Opcodes.OPCODES.get(id);
             if (opcode.getOpcodeInput() == OpcodeInput.NONE) {

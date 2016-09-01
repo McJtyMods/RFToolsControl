@@ -1,19 +1,18 @@
-package mcjty.rftoolscontrol.logic;
+package mcjty.rftoolscontrol.logic.grid;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraftforge.common.util.Constants;
-import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class ProgramCardInstance {
 
-    private Map<Pair<Integer, Integer>, GridInstance> gridInstances = new HashMap<>();
+    private Map<GridPos, GridInstance> gridInstances = new HashMap<>();
 
-    public Map<Pair<Integer, Integer>, GridInstance> getGridInstances() {
+    public Map<GridPos, GridInstance> getGridInstances() {
         return gridInstances;
     }
 
@@ -62,7 +61,7 @@ public class ProgramCardInstance {
     }
 
     public void putGridInstance(int x, int y, GridInstance gridInstance) {
-        gridInstances.put(Pair.of(x, y), gridInstance);
+        gridInstances.put(GridPos.pos(x, y), gridInstance);
     }
 
     public void writeToNBT(ItemStack card) {
@@ -73,10 +72,10 @@ public class ProgramCardInstance {
         }
         NBTTagList grid = new NBTTagList();
 
-        for (Map.Entry<Pair<Integer, Integer>, GridInstance> entry : gridInstances.entrySet()) {
-            Pair<Integer, Integer> coordinate = entry.getKey();
-            int x = coordinate.getLeft();
-            int y = coordinate.getRight();
+        for (Map.Entry<GridPos, GridInstance> entry : gridInstances.entrySet()) {
+            GridPos coordinate = entry.getKey();
+            int x = coordinate.getX();
+            int y = coordinate.getY();
             GridInstance gridInstance = entry.getValue();
             NBTTagCompound tag = gridInstance.writeToNBT(x, y);
             grid.appendTag(tag);
