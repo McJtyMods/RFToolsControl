@@ -6,8 +6,11 @@ import mcjty.lib.entity.GenericEnergyReceiverTileEntity;
 import mcjty.lib.network.Argument;
 import mcjty.lib.varia.RedstoneMode;
 import mcjty.rftoolscontrol.config.GeneralConfiguration;
+import mcjty.rftoolscontrol.logic.compiled.CompiledCard;
+import mcjty.rftoolscontrol.logic.grid.ProgramCardInstance;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.NetworkManager;
@@ -28,6 +31,9 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
 
     private InventoryHelper inventoryHelper = new InventoryHelper(this, ProcessorContainer.factory, ProcessorContainer.SLOTS);
     private boolean working = false;
+
+    // If true some cards might need compiling
+    private boolean cardsDirty = true;
 
     private CardInfo[] cardInfo = new CardInfo[CARD_SLOTS];
 
@@ -56,7 +62,49 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             if (working != old) {
                 markDirtyClient();
             }
+
+            if (working) {
+                process();
+            }
         }
+    }
+
+    private void process() {
+        compileCards();
+    }
+
+    private void compileCards() {
+        if (cardsDirty) {
+            cardsDirty = false;
+            for (int i = ProcessorContainer.SLOT_CARD; i < ProcessorContainer.SLOT_CARD + CARD_SLOTS; i++) {
+                ItemStack cardStack = inventoryHelper.getStackInSlot(i);
+                if (cardStack != null) {
+                    int cardIndex = i - ProcessorContainer.SLOT_CARD;
+                    if (cardInfo[cardIndex].getCompiledCard() == null) {
+                        // @todo validation
+                        cardInfo[cardIndex].setCompiledCard(CompiledCard.compile(ProgramCardInstance.parseInstance(cardStack)));
+                    }
+                }
+            }
+        }
+    }
+
+    @Override
+    public void setInventorySlotContents(int index, ItemStack stack) {
+        if (index >= ProcessorContainer.SLOT_CARD && index < ProcessorContainer.SLOT_CARD + CARD_SLOTS) {
+            cardInfo[index-ProcessorContainer.SLOT_CARD].setCompiledCard(null);
+            cardsDirty = true;
+        }
+        getInventoryHelper().setInventorySlotContents(getInventoryStackLimit(), index, stack);
+    }
+
+    @Override
+    public ItemStack decrStackSize(int index, int count) {
+        if (index >= ProcessorContainer.SLOT_CARD && index < ProcessorContainer.SLOT_CARD + CARD_SLOTS) {
+            cardInfo[index-ProcessorContainer.SLOT_CARD].setCompiledCard(null);
+            cardsDirty = true;
+        }
+        return getInventoryHelper().decrStackSize(index, count);
     }
 
     @Override

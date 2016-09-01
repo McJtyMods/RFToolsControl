@@ -1,5 +1,6 @@
 package mcjty.rftoolscontrol.blocks.processor;
 
+import mcjty.rftoolscontrol.logic.compiled.CompiledCard;
 import net.minecraft.nbt.NBTTagCompound;
 
 public class CardInfo {
@@ -8,6 +9,8 @@ public class CardInfo {
     private int itemAllocation;
     // 32-bit field for variable allocation
     private int varAllocation;
+
+    private CompiledCard compiledCard;
 
     public int getItemAllocation() {
         return itemAllocation;
@@ -23,6 +26,14 @@ public class CardInfo {
 
     public void setVarAllocation(int varAllocation) {
         this.varAllocation = varAllocation;
+    }
+
+    public void setCompiledCard(CompiledCard compiledCard) {
+        this.compiledCard = compiledCard;
+    }
+
+    public CompiledCard getCompiledCard() {
+        return compiledCard;
     }
 
     public NBTTagCompound writeToNBT() {

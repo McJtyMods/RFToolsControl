@@ -1,6 +1,6 @@
 package mcjty.rftoolscontrol.logic.compiled;
 
-import mcjty.rftoolscontrol.logic.Connection;
+import mcjty.rftoolscontrol.logic.Parameter;
 import mcjty.rftoolscontrol.logic.grid.GridInstance;
 import mcjty.rftoolscontrol.logic.grid.GridPos;
 import mcjty.rftoolscontrol.logic.grid.ProgramCardInstance;
@@ -9,6 +9,7 @@ import mcjty.rftoolscontrol.logic.registry.OpcodeInput;
 import mcjty.rftoolscontrol.logic.registry.Opcodes;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -21,48 +22,44 @@ public class CompiledCard {
 
         Map<GridPos, GridInstance> gridInstances = cardInstance.getGridInstances();
 
+        // First find the indices of all compiled grid instances
+        Map<GridPos, Integer> posToIndex = new HashMap<>();
+        int idx = 0;
+        for (Map.Entry<GridPos, GridInstance> entry : gridInstances.entrySet()) {
+            GridPos location = entry.getKey();
+            posToIndex.put(location, idx);
+            idx++;
+        }
+        // Index of a dummy stop opcode that we can use to go too in case there is no real connection
+        int stopIdx = idx;
+
         for (Map.Entry<GridPos, GridInstance> entry : gridInstances.entrySet()) {
             GridPos location = entry.getKey();
             GridInstance grid = entry.getValue();
             String id = grid.getId();
-//            List<Connection> connections = grid.getConnections();
-//            GridPos primaryOutput = null;
-//            GridPos secondaryOutput = null;
-//            Opcode opcode = Opcodes.OPCODES.get(id);
-//            switch (opcode.getOpcodeOutput()) {
-//                case NONE:
-//                    break;
-//                case SINGLE:
-//                    primaryOutput = findPrimaryConnection(connections).offset(location);    // @todo handle the case no connections are given
-//                    break;
-//                case YESNO:
-//                    primaryOutput = findPrimaryConnection(connections).offset(location);    // @todo handle the case no connections are given
-//                    secondaryOutput = findSecondaryConnection(connections).offset(location);    // @todo handle the case no connections are given
-//                    break;
-//            }
-            //@todo
-        }
+            Opcode opcode = Opcodes.OPCODES.get(id);
 
+            GridPos primaryOutput = grid.getPrimaryConnection() != null ? grid.getPrimaryConnection().offset(location) : null;
+            GridPos secondaryOutput = grid.getSecondaryConnection() != null ? grid.getSecondaryConnection().offset(location) : null;
+            CompiledOpcode.Builder opcodeBuilder = CompiledOpcode.builder().opcode(opcode);
+            if (primaryOutput != null && posToIndex.containsKey(primaryOutput)) {
+                opcodeBuilder.primaryIndex(posToIndex.get(primaryOutput));
+            } else {
+                opcodeBuilder.primaryIndex(stopIdx);
+            }
+            if (secondaryOutput != null && posToIndex.containsKey(secondaryOutput)) {
+                opcodeBuilder.secondaryIndex(posToIndex.get(secondaryOutput));
+            } else {
+                opcodeBuilder.secondaryIndex(stopIdx);
+            }
+            for (Parameter parameter : grid.getParameters()) {
+                opcodeBuilder.parameter(parameter);
+            }
+            card.opcodes.add(opcodeBuilder.build());
+        }
+        card.opcodes.add(CompiledOpcode.builder().opcode(Opcodes.DO_STOP).build());
 
         return card;
-    }
-
-    private static Connection findPrimaryConnection(List<Connection> connections) {
-        for (Connection connection : connections) {
-            if (!connection.getId().toLowerCase().equals(connection.getId())) {
-                return connection;
-            }
-        }
-        return null;
-    }
-
-    private static Connection findSecondaryConnection(List<Connection> connections) {
-        for (Connection connection : connections) {
-            if (connection.getId().toLowerCase().equals(connection.getId())) {
-                return connection;
-            }
-        }
-        return null;
     }
 
     private static List<GridPos> findEvents(ProgramCardInstance cardInstance) {
