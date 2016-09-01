@@ -14,6 +14,6 @@ public class RFToolsCtrlMessages {
         net.registerMessage(PacketGetLog.Handler.class, PacketGetLog.class, PacketHandler.nextID(), Side.SERVER);
 
         // Client side
-        net.registerMessage(PacketLogReady.Handler.class, PacketLogReady.class, PacketHandler.nextID(), Side.SERVER);
+        net.registerMessage(PacketLogReady.Handler.class, PacketLogReady.class, PacketHandler.nextID(), Side.CLIENT);
     }
 }

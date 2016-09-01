@@ -44,8 +44,8 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
     private WidgetList variableList;
 
     private static java.util.List<PacketGetLog.StringConverter> fromServer_log = new ArrayList<PacketGetLog.StringConverter>();
-    public static void storeLogForClient(java.util.List<PacketGetLog.StringConverter> message) {
-        fromServer_log = new ArrayList<PacketGetLog.StringConverter>(message);
+    public static void storeLogForClient(java.util.List<PacketGetLog.StringConverter> messages) {
+        fromServer_log = new ArrayList<>(messages);
     }
     private int listDirty = 0;
 
