@@ -14,11 +14,13 @@ import mcjty.rftoolscontrol.logic.registry.Opcodes;
 import mcjty.rftoolscontrol.logic.registry.ParameterValue;
 import mcjty.rftoolscontrol.logic.running.CpuCore;
 import mcjty.rftoolscontrol.logic.running.RunningProgram;
+import mcjty.rftoolscontrol.network.PacketGetLog;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.NBTTagString;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.util.ITickable;
@@ -26,6 +28,7 @@ import net.minecraftforge.common.util.Constants;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity implements DefaultSidedInventory, ITickable {
 
@@ -35,6 +38,8 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     public static final int EXPANSION_SLOTS = 4*4;
 
     public static final String CMD_ALLOCATE = "allocate";
+    public static final String CMD_GETLOG = "getLog";
+    public static final String CLIENTCMD_GETLOG = "getLog";
 
     private InventoryHelper inventoryHelper = new InventoryHelper(this, ProcessorContainer.factory, ProcessorContainer.SLOTS);
     private boolean working = false;
@@ -52,8 +57,10 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
 
     private Queue<Pair<Integer, CompiledEvent>> eventQueue = new ArrayDeque<>();        // Integer == card index
 
+    private Queue<String> logMessages = new ArrayDeque<>();
+
     public ProcessorTileEntity() {
-        super(GeneralConfiguration.PROCESSOR_MAXENERGY, GeneralConfiguration.PROCESSOR_RECEIVEPERTICK);
+        super(GeneralConfiguration.processorMaxenergy, GeneralConfiguration.processorReceivepertick);
         for (int i = 0 ; i < cardInfo.length ; i++) {
             cardInfo[i] = new CardInfo();
         }
@@ -137,6 +144,17 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             program.setCurrent(event.getIndex());
             core.startProgram(program);
         }
+    }
+
+    public void log(String message) {
+        logMessages.add(message);
+        while (logMessages.size() > GeneralConfiguration.processorMaxloglines) {
+            logMessages.remove();
+        }
+    }
+
+    private List<PacketGetLog.StringConverter> getLog() {
+        return logMessages.stream().map(s -> new PacketGetLog.StringConverter(s)).collect(Collectors.toList());
     }
 
     private CpuCore findAvailableCore() {
@@ -227,6 +245,16 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     }
 
     @Override
+    public void readClientDataFromNBT(NBTTagCompound tagCompound) {
+        working = tagCompound.getBoolean("working");
+    }
+
+    @Override
+    public void writeClientDataToNBT(NBTTagCompound tagCompound) {
+        tagCompound.setBoolean("working", working);
+    }
+
+    @Override
     public void readFromNBT(NBTTagCompound tagCompound) {
         super.readFromNBT(tagCompound);
         prevIn = tagCompound.getInteger("prevIn");
@@ -270,6 +298,12 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             int index = tag.getInteger("index");
             eventQueue.add(Pair.of(card, new CompiledEvent(index)));
         }
+
+        logMessages.clear();
+        NBTTagList logList = tagCompound.getTagList("log", Constants.NBT.TAG_STRING);
+        for (int i = 0 ; i < logList.tagCount() ; i++) {
+            logMessages.add(logList.getStringTagAt(i));
+        }
     }
 
     @Override
@@ -298,6 +332,12 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             eventQueueList.appendTag(tag);
         }
         tagCompound.setTag("events", eventQueueList);
+
+        NBTTagList logList = new NBTTagList();
+        for (String message : logMessages) {
+            logList.appendTag(new NBTTagString(message));
+        }
+        tagCompound.setTag("log", logList);
     }
 
     @Override
@@ -356,4 +396,31 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         }
         return false;
     }
+
+    @Override
+    public List executeWithResultList(String command, Map<String, Argument> args) {
+        List rc = super.executeWithResultList(command, args);
+        if (rc != null) {
+            return rc;
+        }
+        if (CMD_GETLOG.equals(command)) {
+            return getLog();
+        }
+        return null;
+    }
+
+    @Override
+    public boolean execute(String command, List list) {
+        boolean rc = super.execute(command, list);
+        if (rc) {
+            return true;
+        }
+        if (CLIENTCMD_GETLOG.equals(command)) {
+            GuiProcessor.storeLogForClient(list);
+            return true;
+        }
+        return false;
+    }
+
+
 }

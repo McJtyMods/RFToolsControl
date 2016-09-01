@@ -60,15 +60,29 @@ public class Opcodes {
             })
             .build();
 
+    public static final Opcode DO_LOG = Opcode.builder()
+            .id("do_log")
+            .opcodeOutput(SINGLE)
+            .parameter(ParameterDescription.builder().name("message").type(PAR_STRING).build())
+            .icon(8, 0)
+            .runnable(((processor, program, opcode) -> {
+                String message = processor.evalulateParameter(opcode, 0);
+                processor.log(message);
+                return true;
+            }))
+            .build();
+
+
     public static final Map<String, Opcode> OPCODES = new HashMap<>();
 
     public static void init() {
-        register(DO_REDSTONE_ON);
-        register(DO_REDSTONE_OFF);
         register(EVENT_REDSTONE_ON);
         register(EVENT_REDSTONE_OFF);
+        register(DO_REDSTONE_ON);
+        register(DO_REDSTONE_OFF);
         register(DO_DELAY);
         register(DO_STOP);
+        register(DO_LOG);
     }
 
     private static void register(Opcode opcode) {

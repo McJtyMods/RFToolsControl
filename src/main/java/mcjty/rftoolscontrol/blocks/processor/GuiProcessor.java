@@ -15,6 +15,7 @@ import mcjty.lib.gui.widgets.Label;
 import mcjty.lib.gui.widgets.Panel;
 import mcjty.lib.network.Argument;
 import mcjty.rftoolscontrol.RFToolsControl;
+import mcjty.rftoolscontrol.network.PacketGetLog;
 import mcjty.rftoolscontrol.network.RFToolsCtrlMessages;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.inventory.Slot;
@@ -23,6 +24,7 @@ import net.minecraft.util.ResourceLocation;
 
 import java.awt.*;
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
     public static final int SIDEWIDTH = 80;
@@ -40,6 +42,12 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
     private ToggleButton[] setupButtons = new ToggleButton[ProcessorTileEntity.CARD_SLOTS];
     private WidgetList log;
     private WidgetList variableList;
+
+    private static java.util.List<PacketGetLog.StringConverter> fromServer_log = new ArrayList<PacketGetLog.StringConverter>();
+    public static void storeLogForClient(java.util.List<PacketGetLog.StringConverter> message) {
+        fromServer_log = new ArrayList<PacketGetLog.StringConverter>(message);
+    }
+    private int listDirty = 0;
 
     public GuiProcessor(ProcessorTileEntity tileEntity, ProcessorContainer container) {
         super(RFToolsControl.instance, RFToolsCtrlMessages.INSTANCE, tileEntity, container, RFToolsControl.GUI_MANUAL_CONTROL, "processor");
@@ -61,8 +69,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
         energyBar.setValue(GenericEnergyStorageTileEntity.getCurrentRF());
         toplevel.addChild(energyBar);
 
-        setupLogWindow();
-        toplevel.addChild(log);
+        setupLogWindow(toplevel);
 
         for (int i = 0; i < ProcessorTileEntity.CARD_SLOTS ; i++) {
             setupButtons[i] = new ToggleButton(mc, this)
@@ -80,18 +87,44 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
         sideWindow = new Window(this, sidePanel);
     }
 
-    private void setupLogWindow() {
+    private void setupLogWindow(Panel toplevel) {
         log = new WidgetList(mc, this).setFilledBackground(0xff000000).setFilledRectThickness(2)
-                .setLayoutHint(new PositionalLayout.PositionalHint(9, 40, 180, 110))
+                .setLayoutHint(new PositionalLayout.PositionalHint(9, 40, 170, 110))
                 .setRowheight(14)
                 .setInvisibleSelection(true)
                 .setDrawHorizontalLines(false);
-        log.addChild(new Label(mc, this).setColor(0xff008800).setText("Processor booting...").setHorizontalAlignment(HorizontalAlignment.ALIGH_LEFT));
-        log.addChild(new Label(mc, this).setColor(0xff008800).setText("Initializing memory... [OK]").setHorizontalAlignment(HorizontalAlignment.ALIGH_LEFT));
-        log.addChild(new Label(mc, this).setColor(0xff008800).setText("Initializing items... [OK]").setHorizontalAlignment(HorizontalAlignment.ALIGH_LEFT));
-        log.addChild(new Label(mc, this).setColor(0xff008800).setText("Entering card setup mode: 3").setHorizontalAlignment(HorizontalAlignment.ALIGH_LEFT));
-        log.addChild(new Label(mc, this).setColor(0xff008800).setText("    Needed: 4 variables").setHorizontalAlignment(HorizontalAlignment.ALIGH_LEFT));
-        log.addChild(new Label(mc, this).setColor(0xff008800).setText("    Needed: 6 item slots").setHorizontalAlignment(HorizontalAlignment.ALIGH_LEFT));
+
+        Slider slider = new Slider(mc, this)
+                .setVertical()
+                .setScrollable(log)
+                .setLayoutHint(new PositionalLayout.PositionalHint(180, 40, 9, 110));
+//        log.addChild(new Label(mc, this).setColor(0xff008800).setText("Processor booting...").setHorizontalAlignment(HorizontalAlignment.ALIGH_LEFT));
+//        log.addChild(new Label(mc, this).setColor(0xff008800).setText("Initializing memory... [OK]").setHorizontalAlignment(HorizontalAlignment.ALIGH_LEFT));
+//        log.addChild(new Label(mc, this).setColor(0xff008800).setText("Initializing items... [OK]").setHorizontalAlignment(HorizontalAlignment.ALIGH_LEFT));
+//        log.addChild(new Label(mc, this).setColor(0xff008800).setText("Entering card setup mode: 3").setHorizontalAlignment(HorizontalAlignment.ALIGH_LEFT));
+//        log.addChild(new Label(mc, this).setColor(0xff008800).setText("    Needed: 4 variables").setHorizontalAlignment(HorizontalAlignment.ALIGH_LEFT));
+//        log.addChild(new Label(mc, this).setColor(0xff008800).setText("    Needed: 6 item slots").setHorizontalAlignment(HorizontalAlignment.ALIGH_LEFT));
+
+        toplevel.addChild(log).addChild(slider);
+    }
+
+    private void requestLog() {
+        RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketGetLog(tileEntity.getPos()));
+    }
+
+    private void requestListsIfNeeded() {
+        listDirty--;
+        if (listDirty <= 0) {
+            requestLog();
+            listDirty = 10;
+        }
+    }
+
+    private void populateLog() {
+        log.removeChildren();
+        for (PacketGetLog.StringConverter message : fromServer_log) {
+            log.addChild(new Label(mc, this).setColor(0xff008800).setText(message.getMessage()).setHorizontalAlignment(HorizontalAlignment.ALIGH_LEFT));
+        }
     }
 
     private void setupMode(Widget parent) {
@@ -232,7 +265,6 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
         }
         variableList.setPropagateEventsToChildren(setupMode == -1);
 
-        // @todo temporary
         for (int i = 0 ; i < 32 ; i++) {
             Panel panel = new Panel(mc, this).setLayout(new HorizontalLayout()).setDesiredWidth(40);
             if (setupMode != -1) {
@@ -248,6 +280,9 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
 
     @Override
     protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
+        requestListsIfNeeded();
+        populateLog();
+
         drawWindow();
 
         int currentRF = GenericEnergyStorageTileEntity.getCurrentRF();

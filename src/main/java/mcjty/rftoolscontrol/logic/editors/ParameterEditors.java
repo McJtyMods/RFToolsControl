@@ -5,14 +5,17 @@ import mcjty.rftoolscontrol.logic.registry.ParameterType;
 import java.util.HashMap;
 import java.util.Map;
 
+import static mcjty.rftoolscontrol.logic.registry.ParameterType.*;
+
 public class ParameterEditors {
 
     private static final Map<ParameterType, ParameterEditor> EDITORS = new HashMap<>();
 
     public static void init() {
-        EDITORS.put(ParameterType.PAR_FLOAT, new FloatEditor());
-        EDITORS.put(ParameterType.PAR_INTEGER, new IntegerEditor());
-        EDITORS.put(ParameterType.PAR_SIDE, new SideEditor());
+        EDITORS.put(PAR_FLOAT, new FloatEditor());
+        EDITORS.put(PAR_INTEGER, new IntegerEditor());
+        EDITORS.put(PAR_STRING, new StringEditor());
+        EDITORS.put(PAR_SIDE, new SideEditor());
     }
 
     public static ParameterEditor getEditor(ParameterType type) {
