@@ -7,7 +7,7 @@ public class Opcode {
 
     private final String id;
     private final OpcodeOutput opcodeOutput;
-    private final OpcodeInput opcodeInput;
+    private final boolean isEvent;
     private final List<ParameterDescription> parameters;
 
     private final int iconU;
@@ -16,7 +16,7 @@ public class Opcode {
     private Opcode(Builder builder) {
         this.id = builder.id;
         this.opcodeOutput = builder.opcodeOutput;
-        this.opcodeInput = builder.opcodeInput;
+        this.isEvent = builder.isEvent;
         this.parameters = new ArrayList<>(builder.parameters);
         this.iconU = builder.iconU;
         this.iconV = builder.iconV;
@@ -30,8 +30,8 @@ public class Opcode {
         return opcodeOutput;
     }
 
-    public OpcodeInput getOpcodeInput() {
-        return opcodeInput;
+    public boolean isEvent() {
+        return isEvent;
     }
 
     public List<ParameterDescription> getParameters() {
@@ -63,7 +63,7 @@ public class Opcode {
 
         private String id;
         private OpcodeOutput opcodeOutput = OpcodeOutput.SINGLE;
-        private OpcodeInput opcodeInput = OpcodeInput.NORMAL;
+        private boolean isEvent = false;
         private int iconU;
         private int iconV;
         private List<ParameterDescription> parameters = new ArrayList<>();
@@ -78,8 +78,8 @@ public class Opcode {
             return this;
         }
 
-        public Builder opcodeInput(OpcodeInput opcodeInput) {
-            this.opcodeInput = opcodeInput;
+        public Builder isEvent(boolean isEvent) {
+            this.isEvent = isEvent;
             return this;
         }
 

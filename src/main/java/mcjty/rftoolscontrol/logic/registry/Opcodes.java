@@ -3,7 +3,8 @@ package mcjty.rftoolscontrol.logic.registry;
 import java.util.HashMap;
 import java.util.Map;
 
-import static mcjty.rftoolscontrol.logic.registry.OpcodeOutput.*;
+import static mcjty.rftoolscontrol.logic.registry.OpcodeOutput.NONE;
+import static mcjty.rftoolscontrol.logic.registry.OpcodeOutput.SINGLE;
 
 public class Opcodes {
 
@@ -23,14 +24,14 @@ public class Opcodes {
     public static Opcode EVENT_REDSTONE_ON = Opcode.builder()
             .id("ev_rs_on")
             .opcodeOutput(SINGLE)
-            .opcodeInput(OpcodeInput.NONE)
+            .isEvent(true)
             .parameter(ParameterDescription.builder().name("side").type(ParameterType.PAR_SIDE).build())
             .icon(3, 0)
             .build();
     public static Opcode EVENT_REDSTONE_OFF = Opcode.builder()
             .id("ev_rs_off")
             .opcodeOutput(SINGLE)
-            .opcodeInput(OpcodeInput.NONE)
+            .isEvent(true)
             .parameter(ParameterDescription.builder().name("side").type(ParameterType.PAR_SIDE).build())
             .icon(4, 0)
             .build();

@@ -5,7 +5,6 @@ import mcjty.rftoolscontrol.logic.grid.GridInstance;
 import mcjty.rftoolscontrol.logic.grid.GridPos;
 import mcjty.rftoolscontrol.logic.grid.ProgramCardInstance;
 import mcjty.rftoolscontrol.logic.registry.Opcode;
-import mcjty.rftoolscontrol.logic.registry.OpcodeInput;
 import mcjty.rftoolscontrol.logic.registry.Opcodes;
 
 import java.util.ArrayList;
@@ -68,7 +67,7 @@ public class CompiledCard {
         for (Map.Entry<GridPos, GridInstance> entry : gridInstances.entrySet()) {
             String id = entry.getValue().getId();
             Opcode opcode = Opcodes.OPCODES.get(id);
-            if (opcode.getOpcodeInput() == OpcodeInput.NONE) {
+            if (opcode.isEvent()) {
                 events.add(entry.getKey());
             }
         }
