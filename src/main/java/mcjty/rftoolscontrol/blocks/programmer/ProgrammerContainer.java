@@ -15,7 +15,7 @@ public class ProgrammerContainer extends GenericContainer {
         @Override
         protected void setup() {
             addSlotBox(new SlotDefinition(SlotType.SLOT_CONTAINER),
-                    CONTAINER_INVENTORY, SLOT_CARD, 5, 157, 1, 18, 1, 18);
+                    CONTAINER_INVENTORY, SLOT_CARD, 91, 136, 1, 18, 1, 18);
             layoutPlayerInventorySlots(91, 157);
         }
     };

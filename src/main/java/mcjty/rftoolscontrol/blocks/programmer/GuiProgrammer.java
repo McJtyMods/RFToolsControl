@@ -54,7 +54,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
 
     private Window sideWindow;
     private WidgetList gridList;
-    private Panel editorPanel;
+    private WidgetList editorList;
 
     private static final Map<String, IIcon> ICONS = new HashMap<>();
     private static final Map<Connection, IIcon> CONNECTION_ICONS = new HashMap<>();
@@ -97,7 +97,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
         super.initGui();
 
         // --- Main window ---
-        editorPanel = setupEditorPanel();
+        Panel editorPanel = setupEditorPanel();
         Panel controlPanel = setupControlPanel();
         Panel gridPanel = setupGridPanel();
         Panel toplevel = new Panel(mc, this).setLayout(new PositionalLayout()).setBackground(mainBackground)
@@ -125,10 +125,10 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
     private Panel setupGridPanel() {
 
         Panel panel = new Panel(mc, this).setLayout(new PositionalLayout())
-                .setLayoutHint(new PositionalLayout.PositionalHint(5, 5, 246, 113));
+                .setLayoutHint(new PositionalLayout.PositionalHint(5, 5, 246, 130));
 
         gridList = new WidgetList(mc, this)
-                .setLayoutHint(new PositionalLayout.PositionalHint(0, 0, 236, 113))
+                .setLayoutHint(new PositionalLayout.PositionalHint(0, 0, 236, 130))
                 .setPropagateEventsToChildren(true)
                 .setInvisibleSelection(true)
                 .setDrawHorizontalLines(false)
@@ -136,7 +136,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
         Slider slider = new Slider(mc, this)
                 .setVertical()
                 .setScrollable(gridList)
-                .setLayoutHint(new PositionalLayout.PositionalHint(237, 0, 9, 113));
+                .setLayoutHint(new PositionalLayout.PositionalHint(237, 0, 9, 130));
 
         for (int y = 0; y < GRID_HEIGHT; y++) {
             Panel rowPanel = new Panel(mc, this).setLayout(new HorizontalLayout().setSpacing(-1).setHorizontalMargin(0).setVerticalMargin(0));
@@ -279,7 +279,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
     }
 
     private Panel setupControlPanel() {
-        return new Panel(mc, this).setLayout(new VerticalLayout()).setLayoutHint(new PositionalLayout.PositionalHint(26, 157, 58, 50))
+        return new Panel(mc, this).setLayout(new HorizontalLayout()).setLayoutHint(new PositionalLayout.PositionalHint(111, 137, 140, 18))
                 .addChild(new Button(mc, this).setText("Load").setDesiredHeight(15).addButtonEvent(w -> loadProgram()))
                 .addChild(new Button(mc, this).setText("Save").setDesiredHeight(15).addButtonEvent(w -> saveProgram()))
                 .addChild(new Button(mc, this).setText("Clear").setDesiredHeight(15));
@@ -340,23 +340,23 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
                 .setText(StringUtils.capitalize(parameter.getName()) + ":")
                 .setHorizontalAlignment(HorizontalAlignment.ALIGH_LEFT)
                 .setDesiredHeight(13)
-                .setLayoutHint(new PositionalLayout.PositionalHint(0, 0, 55, 13));
+                .setLayoutHint(new PositionalLayout.PositionalHint(0, 0, 60, 13));
         TextField field = new TextField(mc, this)
                 .setText("<" + tempDefault + ">")
                 .setDesiredHeight(13)
                 .setEnabled(false)
-                .setLayoutHint(new PositionalLayout.PositionalHint(0, 12, 49, 13));
+                .setLayoutHint(new PositionalLayout.PositionalHint(0, 12, 54, 13));
         Button button = new Button(mc, this)
                 .setText("...")
                 .setDesiredHeight(13)
                 .addButtonEvent(w -> openValueEditor(icon, iconHolder, parameter, field))
-                .setLayoutHint(new PositionalLayout.PositionalHint(50, 12, 11, 13));
+                .setLayoutHint(new PositionalLayout.PositionalHint(55, 12, 11, 13));
 
         return new Panel(mc, this).setLayout(new PositionalLayout())
                 .addChild(label)
                 .addChild(field)
                 .addChild(button)
-                .setDesiredWidth(62);
+                .setDesiredWidth(68);
     }
 
     private void openValueEditor(IIcon icon, IconHolder iconHolder, ParameterDescription parameter, TextField field) {
@@ -392,7 +392,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
     }
 
     private void clearEditorPanel() {
-        editorPanel.removeChildren();
+        editorList.removeChildren();
     }
 
     private void setEditorPanel(IconHolder iconHolder, IIcon icon) {
@@ -409,14 +409,22 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
             } else {
                 panel = createValuePanel(parameter, icon, iconHolder, "");
             }
-            editorPanel.addChild(panel);
+            editorList.addChild(panel);
         }
     }
 
     private Panel setupEditorPanel() {
-        return new Panel(mc, this).setLayout(new HorizontalLayout()).setLayoutHint(new PositionalLayout.PositionalHint(4, 123, 249, 30))
+        editorList = new WidgetList(mc, this)
+                .setPropagateEventsToChildren(true)
+                .setRowheight(30)
+                .setLayoutHint(new PositionalLayout.PositionalHint(0, 0, 75, HEIGHT-137-3));
+        Slider slider = new Slider(mc, this).setScrollable(editorList)
+                .setLayoutHint(new PositionalLayout.PositionalHint(76, 0, 9, HEIGHT-137-3));
+        return new Panel(mc, this).setLayout(new PositionalLayout()).setLayoutHint(new PositionalLayout.PositionalHint(4, 137, 85, HEIGHT-137-3))
                 .setFilledRectThickness(-1)
-                .setFilledBackground(StyleConfig.colorListBackground);
+                .setFilledBackground(StyleConfig.colorListBackground)
+                .addChild(editorList)
+                .addChild(slider);
     }
 
     @Override
