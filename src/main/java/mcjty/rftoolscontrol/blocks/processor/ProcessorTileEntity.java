@@ -223,11 +223,19 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         return index >= ProcessorContainer.SLOT_CARD && index < ProcessorContainer.SLOT_CARD + CARD_SLOTS;
     }
 
+    private void stopPrograms(int cardIndex) {
+        for (CpuCore core : cpuCores) {
+            if (core.hasProgram() && core.getProgram().getCardIndex() == cardIndex) {
+                core.stopProgram();
+            }
+        }
+    }
+
     @Override
     public void setInventorySlotContents(int index, ItemStack stack) {
         if (isCardSlot(index)) {
             cardInfo[index-ProcessorContainer.SLOT_CARD].setCompiledCard(null);
-            // @todo figure out a way to stop all programs running from this card when a card is removed
+            stopPrograms(index-ProcessorContainer.SLOT_CARD);
             cardsDirty = true;
         } else if (isExpansionSlot(index)) {
             coresDirty = true;
@@ -239,6 +247,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     public ItemStack decrStackSize(int index, int count) {
         if (isCardSlot(index)) {
             cardInfo[index-ProcessorContainer.SLOT_CARD].setCompiledCard(null);
+            stopPrograms(index-ProcessorContainer.SLOT_CARD);
             cardsDirty = true;
         } else if (isExpansionSlot(index)) {
             coresDirty = true;

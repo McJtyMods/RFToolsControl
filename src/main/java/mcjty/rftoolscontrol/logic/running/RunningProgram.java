@@ -46,6 +46,10 @@ public class RunningProgram {
         return dead;
     }
 
+    public int getCardIndex() {
+        return cardIndex;
+    }
+
     public void run(ProcessorTileEntity processor) {
         if (delay > 0) {
             delay--;
