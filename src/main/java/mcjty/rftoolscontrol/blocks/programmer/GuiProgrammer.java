@@ -335,7 +335,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
         }
     }
 
-    private Panel createValuePanel(ParameterDescription parameter, IconHolder iconHolder, IIcon icon, String tempDefault) {
+    private Panel createValuePanel(ParameterDescription parameter, IIcon icon, IconHolder iconHolder, String tempDefault) {
         Label label = (Label) new Label(mc, this)
                 .setText(StringUtils.capitalize(parameter.getName()) + ":")
                 .setHorizontalAlignment(HorizontalAlignment.ALIGH_LEFT)
@@ -349,7 +349,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
         Button button = new Button(mc, this)
                 .setText("...")
                 .setDesiredHeight(13)
-                .addButtonEvent(w -> openValueEditor(iconHolder, icon, parameter, field))
+                .addButtonEvent(w -> openValueEditor(icon, iconHolder, parameter, field))
                 .setLayoutHint(new PositionalLayout.PositionalHint(50, 12, 11, 13));
 
         return new Panel(mc, this).setLayout(new PositionalLayout())
@@ -359,7 +359,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
                 .setDesiredWidth(62);
     }
 
-    private void openValueEditor(IconHolder iconHolder, IIcon icon, ParameterDescription parameter, TextField field) {
+    private void openValueEditor(IIcon icon, IconHolder iconHolder, ParameterDescription parameter, TextField field) {
         ParameterEditor editor = ParameterEditors.getEditor(parameter.getType());
         Panel editPanel;
         if (editor != null) {
@@ -405,9 +405,9 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
             ParameterValue value = (ParameterValue) data.get(name);
             Panel panel;
             if (value != null) {
-                panel = createValuePanel(parameter, iconHolder, icon, parameter.getType().stringRepresentation(value));
+                panel = createValuePanel(parameter, icon, iconHolder, parameter.getType().stringRepresentation(value));
             } else {
-                panel = createValuePanel(parameter, iconHolder, icon, "");
+                panel = createValuePanel(parameter, icon, iconHolder, "");
             }
             editorPanel.addChild(panel);
         }

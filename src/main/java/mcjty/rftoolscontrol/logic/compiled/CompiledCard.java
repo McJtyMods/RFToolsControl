@@ -63,15 +63,7 @@ public class CompiledCard {
                 opcodeBuilder.secondaryIndex(stopIdx);
             }
             for (Parameter parameter : grid.getParameters()) {
-                CompiledFunction compiledFunction = null;
-                if (parameter.getParameterValue().isFunction()) {
-                    CompiledFunction.Builder functionBuilder = CompiledFunction.builder();
-                    for (Parameter funPar : parameter.getParameterValue().getFunctionParameters()) {
-                        functionBuilder.parameter(funPar);
-                    }
-                    compiledFunction = functionBuilder.build();
-                }
-                opcodeBuilder.parameter(parameter, compiledFunction);
+                opcodeBuilder.parameter(parameter);
             }
             card.opcodes.add(opcodeBuilder.build());
         }

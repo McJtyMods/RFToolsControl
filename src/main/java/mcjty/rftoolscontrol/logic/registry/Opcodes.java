@@ -113,6 +113,57 @@ public class Opcodes {
             .icon(9, 0)
             .build();
 
+    public static final Opcode CALC_GT = Opcode.builder()
+            .id("calc_gt")
+            .opcodeOutput(YESNO)
+            .parameter(ParameterDescription.builder().name("v1").type(PAR_INTEGER).build())
+            .parameter(ParameterDescription.builder().name("v2").type(PAR_INTEGER).build())
+            .icon(10, 0)
+            .runnable(((processor, program, opcode) -> {
+                int v1 = processor.evalulateParameter(opcode, program, 0);
+                int v2 = processor.evalulateParameter(opcode, program, 1);
+                return v1 > v2;
+            }))
+            .build();
+
+    public static final Opcode CALC_EQ = Opcode.builder()
+            .id("calc_eq")
+            .opcodeOutput(YESNO)
+            .parameter(ParameterDescription.builder().name("v1").type(PAR_INTEGER).build())
+            .parameter(ParameterDescription.builder().name("v2").type(PAR_INTEGER).build())
+            .icon(11, 0)
+            .runnable(((processor, program, opcode) -> {
+                int v1 = processor.evalulateParameter(opcode, program, 0);
+                int v2 = processor.evalulateParameter(opcode, program, 1);
+                return v1 == v2;
+            }))
+            .build();
+
+    public static final Opcode DO_FETCHITEMS = Opcode.builder()
+            .id("do_fetchitems")
+            .opcodeOutput(SINGLE)
+            .parameter(ParameterDescription.builder().name("side").type(PAR_SIDE).build())
+            .parameter(ParameterDescription.builder().name("invside").type(PAR_SIDE).build())
+            .parameter(ParameterDescription.builder().name("slot").type(PAR_INTEGER).build())
+            .parameter(ParameterDescription.builder().name("amount").type(PAR_INTEGER).build())
+            .parameter(ParameterDescription.builder().name("slotOut").type(PAR_INTEGER).build())
+            .icon(0, 1)
+            .runnable(((processor, program, opcode) -> {
+                EnumFacing side = processor.evalulateParameter(opcode, program, 0);
+                EnumFacing invside = processor.evalulateParameter(opcode, program, 1);
+                int slot = processor.evalulateParameter(opcode, program, 2);
+                int amount = processor.evalulateParameter(opcode, program, 3);
+                int slotOut = processor.evalulateParameter(opcode, program, 4);
+                IItemHandler handler = processor.getItemHandlerAt(side, invside);
+                if (handler != null) {
+//                    ItemStack stackInSlot = handler.getStackInSlot(slot);
+//                    program.setLastValue(PAR_INTEGER, ParameterValue.constant(stackInSlot == null ? 0 : stackInSlot.stackSize));
+                }
+                return true;
+            }))
+            .build();
+
+
     public static final Map<String, Opcode> OPCODES = new HashMap<>();
 
     public static void init() {
@@ -120,12 +171,15 @@ public class Opcodes {
         register(EVENT_REDSTONE_OFF);
         register(EVENT_TIMER);
         register(TEST_COUNTINV);
-        register(CONTROL_IF);
+        register(CALC_GT);
+        register(CALC_EQ);
+//        register(CONTROL_IF);
         register(DO_REDSTONE_ON);
         register(DO_REDSTONE_OFF);
         register(DO_DELAY);
         register(DO_STOP);
         register(DO_LOG);
+        register(DO_FETCHITEMS);
     }
 
     private static void register(Opcode opcode) {
