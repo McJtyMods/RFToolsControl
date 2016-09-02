@@ -23,8 +23,14 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagString;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
+import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.items.CapabilityItemHandler;
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.ItemHandlerHelper;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
@@ -70,6 +76,11 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     @Override
     public InventoryHelper getInventoryHelper() {
         return inventoryHelper;
+    }
+
+    @Override
+    protected boolean needsCustomInvWrapper() {
+        return true;
     }
 
     @Override
@@ -213,6 +224,15 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             // @todo support variables
             return null;
         }
+    }
+
+    public IItemHandler getItemHandlerAt(EnumFacing side) {
+        BlockPos np = pos.offset(side);
+        TileEntity te = worldObj.getTileEntity(np);
+        if (te != null && te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null)) {
+            return te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
+        }
+        return null;
     }
 
     private boolean isExpansionSlot(int index) {

@@ -3,6 +3,8 @@ package mcjty.rftoolscontrol.logic.running;
 import mcjty.rftoolscontrol.blocks.processor.ProcessorTileEntity;
 import mcjty.rftoolscontrol.logic.compiled.CompiledCard;
 import mcjty.rftoolscontrol.logic.compiled.CompiledOpcode;
+import mcjty.rftoolscontrol.logic.registry.ParameterType;
+import mcjty.rftoolscontrol.logic.registry.ParameterValue;
 import net.minecraft.nbt.NBTTagCompound;
 
 import java.util.List;
@@ -22,6 +24,10 @@ public class RunningProgram {
 
     // We are dead
     private boolean dead = false;
+
+    // Last value result
+    private ParameterType lastValueType;
+    private ParameterValue lastValue;
 
     // Cache for the opcodes
     private List<CompiledOpcode> opcodeCache = null;
@@ -48,6 +54,19 @@ public class RunningProgram {
 
     public int getCardIndex() {
         return cardIndex;
+    }
+
+    public void setLastValue(ParameterType type, ParameterValue value) {
+        lastValueType = type;
+        lastValue = value;
+    }
+
+    public ParameterType getLastValueType() {
+        return lastValueType;
+    }
+
+    public Object getLastValue() {
+        return lastValue;
     }
 
     public void run(ProcessorTileEntity processor) {
@@ -80,6 +99,12 @@ public class RunningProgram {
         tag.setInteger("current", current);
         tag.setInteger("delay", delay);
         tag.setBoolean("dead", dead);
+        if (lastValueType != null && lastValue != null) {
+            NBTTagCompound varTag = new NBTTagCompound();
+            varTag.setInteger("type", lastValueType.ordinal());
+            lastValueType.writeToNBT(varTag, lastValue);
+            tag.setTag("lastvar", varTag);
+        }
     }
 
     public static RunningProgram readFromNBT(NBTTagCompound tag) {
@@ -91,6 +116,12 @@ public class RunningProgram {
         program.setCurrent(tag.getInteger("current"));
         program.setDelay(tag.getInteger("delay"));
         program.dead = tag.getBoolean("dead");
+        if (tag.hasKey("lastvar")) {
+            NBTTagCompound varTag = tag.getCompoundTag("lastvar");
+            int t = varTag.getInteger("type");
+            program.lastValueType = ParameterType.values()[t];
+            program.lastValue = program.lastValueType.readFromNBT(varTag);
+        }
         return program;
     }
 }
