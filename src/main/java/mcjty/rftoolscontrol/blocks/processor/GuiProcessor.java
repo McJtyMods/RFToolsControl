@@ -91,8 +91,8 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
     }
 
     private void setupLogWindow(Panel toplevel) {
-        log = new WidgetList(mc, this).setFilledBackground(0xff000000).setFilledRectThickness(2)
-                .setLayoutHint(new PositionalLayout.PositionalHint(9, 35, 170, 97))
+        log = new WidgetList(mc, this).setFilledBackground(0xff000000).setFilledRectThickness(1)
+                .setLayoutHint(new PositionalLayout.PositionalHint(9, 35, 170, 98))
                 .setRowheight(14)
                 .setInvisibleSelection(true)
                 .setDrawHorizontalLines(false);
@@ -100,10 +100,10 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
         Slider slider = new Slider(mc, this)
                 .setVertical()
                 .setScrollable(log)
-                .setLayoutHint(new PositionalLayout.PositionalHint(180, 35, 9, 97));
+                .setLayoutHint(new PositionalLayout.PositionalHint(180, 35, 9, 98));
 
         command = new TextField(mc, this)
-                .setLayoutHint(new PositionalLayout.PositionalHint(9, 35+98, 180, 16))
+                .setLayoutHint(new PositionalLayout.PositionalHint(9, 35+99, 180, 15))
                 .addTextEnterEvent((e, text) -> executeCommand(text));
 //        log.addChild(new Label(mc, this).setColor(0xff008800).setText("Processor booting...").setHorizontalAlignment(HorizontalAlignment.ALIGH_LEFT));
 //        log.addChild(new Label(mc, this).setColor(0xff008800).setText("Initializing memory... [OK]").setHorizontalAlignment(HorizontalAlignment.ALIGH_LEFT));
@@ -133,7 +133,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
     }
 
     private void populateLog() {
-        boolean atend = log.getFirstSelected() >= log.getChildCount();
+        boolean atend = log.getFirstSelected() + log.getCountSelected() >= log.getChildCount();
         log.removeChildren();
         for (PacketGetLog.StringConverter message : fromServer_log) {
             log.addChild(new Label(mc, this).setColor(0xff008800).setText(message.getMessage()).setHorizontalAlignment(HorizontalAlignment.ALIGH_LEFT));
