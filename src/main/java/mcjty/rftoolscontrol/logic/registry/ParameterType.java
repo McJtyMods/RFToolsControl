@@ -1,8 +1,14 @@
 package mcjty.rftoolscontrol.logic.registry;
 
+import mcjty.rftoolscontrol.logic.Parameter;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.EnumFacing;
+import net.minecraftforge.common.util.Constants;
 import org.apache.commons.lang3.StringUtils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public enum ParameterType {
     PAR_STRING() {
@@ -107,6 +113,11 @@ public enum ParameterType {
             tag.setInteger("varIdx", value.getVariableIndex());
         } else if (value.isFunction()) {
             tag.setString("funId", value.getFunction().getId());
+            NBTTagList parList = new NBTTagList();
+            for (Parameter parameter : value.getFunctionParameters()) {
+                parList.appendTag(Parameter.writeToNBT(parameter));
+            }
+            tag.setTag("funPars", parList);
         } else if (value.getValue() == null) {
             // No value
             tag.setBoolean("null", true);
@@ -119,7 +130,13 @@ public enum ParameterType {
         if (tag.hasKey("varIdx")) {
             return ParameterValue.variable(tag.getInteger("varIdx"));
         } else if (tag.hasKey("funId")) {
-            return ParameterValue.function(Functions.FUNCTIONS.get(tag.getString("funId")));
+            NBTTagList parList = tag.getTagList("funPars", Constants.NBT.TAG_COMPOUND);
+            List<Parameter> parameters = new ArrayList<>();
+            for (int i = 0 ; i < parList.tagCount() ; i++) {
+                NBTTagCompound parTag = (NBTTagCompound) parList.get(i);
+                parameters.add(Parameter.readFromNBT(parTag));
+            }
+            return ParameterValue.function(Functions.FUNCTIONS.get(tag.getString("funId")), parameters);
         } else if (tag.hasKey("null")) {
             return ParameterValue.constant(null);
         } else {

@@ -8,6 +8,7 @@ import mcjty.rftoolscontrol.config.GeneralConfiguration;
 import mcjty.rftoolscontrol.items.ModItems;
 import mcjty.rftoolscontrol.logic.compiled.CompiledCard;
 import mcjty.rftoolscontrol.logic.compiled.CompiledEvent;
+import mcjty.rftoolscontrol.logic.compiled.CompiledFunction;
 import mcjty.rftoolscontrol.logic.compiled.CompiledOpcode;
 import mcjty.rftoolscontrol.logic.grid.ProgramCardInstance;
 import mcjty.rftoolscontrol.logic.registry.Opcodes;
@@ -232,12 +233,27 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         }
     }
 
+    public <T> T evalulateParameter(CompiledFunction function, RunningProgram program, int parIndex) {
+        ParameterValue value = function.getParameters().get(parIndex).getParameterValue();
+        if (value.isConstant()) {
+            return (T) value.getValue();
+        } else if (value.isFunction()) {
+            ParameterValue v = value.getFunction().getFunctionRunnable().run(this, program, function);
+            // @todo  What if the function does not return a constant? Do we support that?
+            return (T) v.getValue();
+        } else {
+            // @todo support variables
+            return null;
+        }
+    }
+
     public <T> T evalulateParameter(CompiledOpcode compiledOpcode, RunningProgram program, int parIndex) {
         ParameterValue value = compiledOpcode.getParameters().get(parIndex).getParameterValue();
         if (value.isConstant()) {
             return (T) value.getValue();
         } else if (value.isFunction()) {
-            ParameterValue v = value.getFunction().getFunctionRunnable().run(this, program, value.getFunction());
+            CompiledFunction compiledFunction = compiledOpcode.getCompiledFunctions().get(parIndex);
+            ParameterValue v = value.getFunction().getFunctionRunnable().run(this, program, compiledFunction);
             // @todo  What if the function does not return a constant? Do we support that?
             return (T) v.getValue();
         } else {

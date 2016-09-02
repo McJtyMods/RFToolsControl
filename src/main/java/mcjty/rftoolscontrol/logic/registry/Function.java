@@ -1,17 +1,22 @@
 package mcjty.rftoolscontrol.logic.registry;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Function {
 
     private final String id;
     private final String name;
+    private final List<ParameterDescription> parameters;
     private final FunctionRunnable functionRunnable;
-    private final ParameterType type;
+    private final ParameterType returnType;
 
     private Function(Builder builder) {
         this.id = builder.id;
         this.name = builder.name;
         this.functionRunnable = builder.functionRunnable;
-        this.type = builder.type;
+        this.parameters = new ArrayList<>(builder.parameters);
+        this.returnType = builder.returnType;
     }
 
     public String getId() {
@@ -26,8 +31,12 @@ public class Function {
         return functionRunnable;
     }
 
-    public ParameterType getType() {
-        return type;
+    public ParameterType getReturnType() {
+        return returnType;
+    }
+
+    public List<ParameterDescription> getParameters() {
+        return parameters;
     }
 
     public static Builder builder() {
@@ -35,10 +44,14 @@ public class Function {
     }
 
     public static class Builder {
+
+        private static final FunctionRunnable NOOP = ((processor, program, opcode) -> null);
+
         private String id;
-        private FunctionRunnable functionRunnable;
-        private ParameterType type;
+        private FunctionRunnable functionRunnable = NOOP;
+        private ParameterType returnType;
         private String name;
+        private List<ParameterDescription> parameters = new ArrayList<>();
 
         public Builder() {
         }
@@ -59,7 +72,12 @@ public class Function {
         }
 
         public Builder type(ParameterType type) {
-            this.type = type;
+            this.returnType = type;
+            return this;
+        }
+
+        public Builder parameter(ParameterDescription parameter) {
+            parameters.add(parameter);
             return this;
         }
 

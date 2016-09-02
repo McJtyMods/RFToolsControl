@@ -2,6 +2,7 @@ package mcjty.rftoolscontrol.logic.editors;
 
 import mcjty.lib.gui.layout.HorizontalLayout;
 import mcjty.lib.gui.widgets.*;
+import mcjty.rftoolscontrol.logic.Parameter;
 import mcjty.rftoolscontrol.logic.registry.Function;
 import mcjty.rftoolscontrol.logic.registry.Functions;
 import mcjty.rftoolscontrol.logic.registry.ParameterType;
@@ -9,6 +10,7 @@ import mcjty.rftoolscontrol.logic.registry.ParameterValue;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public abstract class AbstractParameterEditor implements ParameterEditor {
@@ -43,7 +45,9 @@ public abstract class AbstractParameterEditor implements ParameterEditor {
         } else if (PAGE_VARIABLE.equals(tabbedPanel.getCurrentName())) {
             return ParameterValue.variable(parseIntSafe(variableIndex.getText()));
         } else if (PAGE_FUNCTION.equals(tabbedPanel.getCurrentName())) {
-            return ParameterValue.function(Functions.FUNCTIONS.get(functionLabel.getCurrentChoice()));
+            List<Parameter> parameters = new ArrayList<>();
+            // @todo fill the list of parameters from the gui
+            return ParameterValue.function(Functions.FUNCTIONS.get(functionLabel.getCurrentChoice()), parameters);
         }
         return null;
     }

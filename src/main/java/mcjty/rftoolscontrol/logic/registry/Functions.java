@@ -17,6 +17,16 @@ public class Functions {
                 return convertToBool(program.getLastValueType(), program.getLastValue());
             })
             .build();
+    public static final Function GT = Function.builder()
+            .id("gt")
+            .name(">")
+            .type(PAR_BOOLEAN)
+            .parameter(ParameterDescription.builder().name("value").type(PAR_INTEGER).build())
+            .runnable((processor, program, function) -> {
+                processor.evalulateParameter(function, program, 0);
+                return convertToBool(program.getLastValueType(), program.getLastValue());
+            })
+            .build();
     public static final Function LASTINT = Function.builder()
             .id("last_int")
             .name("last")
@@ -107,11 +117,12 @@ public class Functions {
         register(LASTBOOL);
         register(LASTINT);
         register(LASTSTRING);
+        register(GT);
     }
 
     private static void register(Function function) {
         FUNCTIONS.put(function.getId(), function);
-        ParameterType type = function.getType();
+        ParameterType type = function.getReturnType();
         if (!FUNCTIONS_BY_TYPE.containsKey(type)) {
             FUNCTIONS_BY_TYPE.put(type, new ArrayList<>());
         }

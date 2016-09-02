@@ -2,9 +2,6 @@ package mcjty.rftoolscontrol.logic.grid;
 
 import mcjty.rftoolscontrol.logic.Connection;
 import mcjty.rftoolscontrol.logic.Parameter;
-import mcjty.rftoolscontrol.logic.registry.ParameterDescription;
-import mcjty.rftoolscontrol.logic.registry.ParameterType;
-import mcjty.rftoolscontrol.logic.registry.ParameterValue;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraftforge.common.util.Constants;
@@ -60,14 +57,7 @@ public class GridInstance {
 
         NBTTagList parList = new NBTTagList();
         for (Parameter parameter : getParameters()) {
-            String name = parameter.getParameterDescription().getName();
-            ParameterType type = parameter.getParameterDescription().getType();
-            ParameterValue value = parameter.getParameterValue();
-            NBTTagCompound parTag = new NBTTagCompound();
-            parTag.setString("name", name);
-            parTag.setInteger("type", type.ordinal());
-            type.writeToNBT(parTag, value);
-            parList.appendTag(parTag);
+            parList.appendTag(Parameter.writeToNBT(parameter));
         }
         tag.setTag("pars", parList);
         return tag;
@@ -84,12 +74,7 @@ public class GridInstance {
         NBTTagList parList = tag.getTagList("pars", Constants.NBT.TAG_COMPOUND);
         for (int i = 0 ; i < parList.tagCount() ; i++) {
             NBTTagCompound parTag = (NBTTagCompound) parList.get(i);
-            String name = parTag.getString("name");
-            ParameterType type = ParameterType.values()[parTag.getInteger("type")];
-            ParameterDescription description = ParameterDescription.builder().name(name).type(type).build();
-            ParameterValue value = type.readFromNBT(parTag);
-            Parameter parameter = Parameter.builder().description(description).value(value).build();
-            builder.parameter(parameter);
+            builder.parameter(Parameter.readFromNBT(parTag));
         }
 
         return builder.build();

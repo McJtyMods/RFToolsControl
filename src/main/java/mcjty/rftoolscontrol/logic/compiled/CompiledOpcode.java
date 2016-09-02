@@ -12,6 +12,7 @@ public class CompiledOpcode {
 
     private final Opcode opcode;
     private final List<Parameter> parameters;
+    private final List<CompiledFunction> compiledFunctions;
     private final int primaryIndex;
     private final int secondaryIndex;
 
@@ -20,6 +21,7 @@ public class CompiledOpcode {
         parameters = new ArrayList<>(builder.parameters);
         primaryIndex = builder.primaryIndex;
         secondaryIndex = builder.secondaryIndex;
+        compiledFunctions = new ArrayList<>(builder.compiledFunctions);
     }
 
     public Opcode getOpcode() {
@@ -28,6 +30,10 @@ public class CompiledOpcode {
 
     public List<Parameter> getParameters() {
         return parameters;
+    }
+
+    public List<CompiledFunction> getCompiledFunctions() {
+        return compiledFunctions;
     }
 
     public static Builder builder() {
@@ -49,7 +55,8 @@ public class CompiledOpcode {
     public static class Builder {
 
         private Opcode opcode;
-        private List<Parameter> parameters = new ArrayList<>();
+        private final List<Parameter> parameters = new ArrayList<>();
+        private final List<CompiledFunction> compiledFunctions = new ArrayList<>();
         private int primaryIndex;
         private int secondaryIndex;
 
@@ -58,8 +65,9 @@ public class CompiledOpcode {
             return this;
         }
 
-        public Builder parameter(Parameter parameter) {
+        public Builder parameter(Parameter parameter, CompiledFunction compiledFunction) {
             parameters.add(parameter);
+            compiledFunctions.add(compiledFunction);
             return this;
         }
 
