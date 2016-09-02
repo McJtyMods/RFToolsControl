@@ -16,6 +16,7 @@ public class ParameterEditors {
         EDITORS.put(PAR_INTEGER, new IntegerEditor());
         EDITORS.put(PAR_STRING, new StringEditor());
         EDITORS.put(PAR_SIDE, new SideEditor());
+        EDITORS.put(PAR_BOOLEAN, new BooleanEditor());
     }
 
     public static ParameterEditor getEditor(ParameterType type) {

@@ -3,6 +3,7 @@ package mcjty.rftoolscontrol.logic.editors;
 import mcjty.lib.gui.layout.HorizontalLayout;
 import mcjty.lib.gui.widgets.Panel;
 import mcjty.lib.gui.widgets.TextField;
+import mcjty.rftoolscontrol.logic.registry.ParameterType;
 import mcjty.rftoolscontrol.logic.registry.ParameterValue;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
@@ -17,7 +18,7 @@ public class StringEditor extends AbstractParameterEditor {
         field = new TextField(mc, gui).addTextEvent((parent, newText) -> callback.valueChanged(readValue()));
         constantPanel.addChild(field);
 
-        createEditorPanel(mc, gui, panel, callback, constantPanel);
+        createEditorPanel(mc, gui, panel, callback, constantPanel, ParameterType.PAR_STRING);
     }
 
     @Override

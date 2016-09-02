@@ -7,34 +7,32 @@ import mcjty.rftoolscontrol.logic.registry.ParameterType;
 import mcjty.rftoolscontrol.logic.registry.ParameterValue;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
-import net.minecraft.util.EnumFacing;
-import org.apache.commons.lang3.StringUtils;
 
-public class SideEditor extends AbstractParameterEditor {
+public class BooleanEditor extends AbstractParameterEditor {
 
     private ChoiceLabel label;
 
-    private static EnumFacing parseFacingSafe(String t) {
+    private static Boolean parseBoolSafe(String t) {
         if ("*".equals(t)) {
             return null;
         }
-        return EnumFacing.byName(StringUtils.lowerCase(t));
+        return "true".equals(t);
     }
 
     @Override
     public void build(Minecraft mc, Gui gui, Panel panel, ParameterEditorCallback callback) {
         Panel constantPanel = new Panel(mc, gui).setLayout(new HorizontalLayout());
-        label = new ChoiceLabel(mc, gui).addChoices("*", "Down", "Up", "North", "South", "West", "East")
+        label = new ChoiceLabel(mc, gui).addChoices("*", "true", "false")
                 .addChoiceEvent((parent, newChoice) -> callback.valueChanged(readValue()))
                 .setDesiredWidth(60);
         constantPanel.addChild(label);
 
-        createEditorPanel(mc, gui, panel, callback, constantPanel, ParameterType.PAR_SIDE);
+        createEditorPanel(mc, gui, panel, callback, constantPanel, ParameterType.PAR_BOOLEAN);
     }
 
     @Override
     protected ParameterValue readConstantValue() {
-        return ParameterValue.constant(parseFacingSafe(label.getCurrentChoice()));
+        return ParameterValue.constant(parseBoolSafe(label.getCurrentChoice()));
     }
 
     @Override
@@ -42,7 +40,7 @@ public class SideEditor extends AbstractParameterEditor {
         if (value == null || value.getValue() == null) {
             label.setChoice("*");
         } else {
-            String choice = StringUtils.capitalize(value.getValue().toString());
+            String choice = value.getValue().toString();
             label.setChoice(choice);
         }
     }

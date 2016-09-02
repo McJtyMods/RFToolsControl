@@ -65,7 +65,8 @@ public class RunningProgram {
         return lastValueType;
     }
 
-    public Object getLastValue() {
+    // This is always a constant value
+    public ParameterValue getLastValue() {
         return lastValue;
     }
 
@@ -75,14 +76,20 @@ public class RunningProgram {
             return;
         }
 
-        CompiledOpcode opcode = opcodes(processor).get(current);
-        if (DEBUG) {
-            System.out.println(opcode.getOpcode());
-        }
-        if (opcode.run(processor, this)) {
-            current = opcode.getPrimaryIndex();
-        } else {
-            current = opcode.getSecondaryIndex();
+        try {
+            CompiledOpcode opcode = opcodes(processor).get(current);
+            if (DEBUG) {
+                System.out.println(opcode.getOpcode());
+            }
+            if (opcode.run(processor, this)) {
+                current = opcode.getPrimaryIndex();
+            } else {
+                current = opcode.getSecondaryIndex();
+            }
+        } catch (Exception e) {
+            processor.log("[ERROR]");
+            e.printStackTrace();
+            killMe();
         }
     }
 

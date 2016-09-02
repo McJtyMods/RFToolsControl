@@ -228,14 +228,13 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
                     Opcode opcode = Opcodes.OPCODES.get(operandId);
                     Map<String, Object> data = icon.getData();
                     if (data != null) {
-                        for (Map.Entry<String, Object> entry : data.entrySet()) {
-                            String name = entry.getKey();
-                            ParameterValue value = (ParameterValue) entry.getValue();
-                            ParameterDescription description = opcode.findParameter(name);
-                            if (description != null) {  // Should not be possible
-                                Parameter parameter = Parameter.builder().description(description).value(value).build();
-                                builder.parameter(parameter);
+                        for (ParameterDescription description : opcode.getParameters()) {
+                            ParameterValue value = (ParameterValue) data.get(description.getName());
+                            if (value == null) {
+                                value = ParameterValue.constant(null);
                             }
+                            Parameter parameter = Parameter.builder().description(description).value(value).build();
+                            builder.parameter(parameter);
                         }
                     }
 
@@ -369,7 +368,6 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
             Map<String, Object> data = icon.getData() == null ? Collections.emptyMap() : icon.getData();
             editor.build(mc, this, editPanel, o -> {
                 icon.addData(parameter.getName(), o);
-                System.out.println("o = " + o);
                 field.setText("<" + parameter.getType().stringRepresentation(o) + ">");
             });
             editor.writeValue((ParameterValue)data.get(parameter.getName()));

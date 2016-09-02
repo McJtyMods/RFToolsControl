@@ -2,9 +2,14 @@ package mcjty.rftoolscontrol.logic.editors;
 
 import mcjty.lib.gui.layout.HorizontalLayout;
 import mcjty.lib.gui.widgets.*;
+import mcjty.rftoolscontrol.logic.registry.Function;
+import mcjty.rftoolscontrol.logic.registry.Functions;
+import mcjty.rftoolscontrol.logic.registry.ParameterType;
 import mcjty.rftoolscontrol.logic.registry.ParameterValue;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
+
+import java.util.List;
 
 public abstract class AbstractParameterEditor implements ParameterEditor {
 
@@ -15,6 +20,7 @@ public abstract class AbstractParameterEditor implements ParameterEditor {
     private TextField variableIndex;
     private TabbedPanel tabbedPanel;
     private Panel buttonPanel;
+    private ChoiceLabel functionLabel;
 
     public static Integer parseIntSafe(String newText) {
         Integer f;
@@ -37,7 +43,7 @@ public abstract class AbstractParameterEditor implements ParameterEditor {
         } else if (PAGE_VARIABLE.equals(tabbedPanel.getCurrentName())) {
             return ParameterValue.variable(parseIntSafe(variableIndex.getText()));
         } else if (PAGE_FUNCTION.equals(tabbedPanel.getCurrentName())) {
-            // @todo
+            return ParameterValue.function(Functions.FUNCTIONS.get(functionLabel.getCurrentChoice()));
         }
         return null;
     }
@@ -50,16 +56,27 @@ public abstract class AbstractParameterEditor implements ParameterEditor {
         } else if (value.isVariable()) {
             switchPage(PAGE_VARIABLE, null);
             variableIndex.setText(Integer.toString(value.getVariableIndex()));
-        }  // @todo function
+        } else if (value.isFunction()) {
+            switchPage(PAGE_FUNCTION, null);
+            functionLabel.setChoice(value.getFunction().getId());
+        }
     }
 
-    void createEditorPanel(Minecraft mc, Gui gui, Panel panel, ParameterEditorCallback callback, Panel constantPanel) {
+    void createEditorPanel(Minecraft mc, Gui gui, Panel panel, ParameterEditorCallback callback, Panel constantPanel,
+                           ParameterType type) {
         Panel variablePanel = new Panel(mc, gui).setLayout(new HorizontalLayout());
         variableIndex = new TextField(mc, gui)
             .addTextEvent((parent,newText) -> callback.valueChanged(readValue()));
         variablePanel.addChild(new Label(mc, gui).setText("Index:")).addChild(variableIndex);
 
         Panel functionPanel = new Panel(mc, gui).setLayout(new HorizontalLayout());
+        functionLabel = new ChoiceLabel(mc, gui)
+                .setDesiredWidth(70);
+        List<Function> functions = Functions.getFunctionsByType(type);
+        for (Function function : functions) {
+            functionLabel.addChoices(function.getId());
+        }
+        functionPanel.addChild(functionLabel);
 
         tabbedPanel = new TabbedPanel(mc, gui)
                 .addPage(PAGE_CONSTANT, constantPanel)

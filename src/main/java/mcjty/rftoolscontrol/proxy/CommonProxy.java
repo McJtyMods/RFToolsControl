@@ -10,6 +10,7 @@ import mcjty.lib.varia.WrenchChecker;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.config.GeneralConfiguration;
 import mcjty.rftoolscontrol.gui.GuiProxy;
+import mcjty.rftoolscontrol.logic.registry.Functions;
 import mcjty.rftoolscontrol.logic.registry.Opcodes;
 import mcjty.rftoolscontrol.network.RFToolsCtrlMessages;
 import net.minecraft.entity.player.EntityPlayer;
@@ -42,6 +43,7 @@ public abstract class CommonProxy {
         RFToolsCtrlMessages.registerNetworkMessages(network);
 
         Opcodes.init();
+        Functions.init();
         ModItems.init();
         ModBlocks.init();
     }

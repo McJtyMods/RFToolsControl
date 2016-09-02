@@ -30,7 +30,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.ItemHandlerHelper;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
@@ -59,6 +58,8 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
 
     // @todo, do this for all six sides
     private int prevIn = 0;
+
+    private int tickCount = 0;
 
     private CardInfo[] cardInfo = new CardInfo[CARD_SLOTS];
 
@@ -106,6 +107,8 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     }
 
     private void process() {
+        tickCount++;
+
         markDirty();
         updateCores();
         compileCards();
@@ -141,6 +144,15 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                         runOrQueueEvent(i, event);
                     }
                 }
+
+                for (CompiledEvent event : compiledCard.getEvents(Opcodes.EVENT_TIMER)) {
+                    int index = event.getIndex();
+                    CompiledOpcode compiledOpcode = compiledCard.getOpcodes().get(index);
+                    int ticks = evalulateParameter(compiledOpcode, null, 0);
+                    if (tickCount % ticks == 0) {
+                        runOrQueueEvent(i, event);
+                    }
+                }
             }
         }
     }
@@ -159,6 +171,10 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     }
 
     public void log(String message) {
+        if (message == null) {
+            // @todo report?
+            return;
+        }
         logMessages.add(message);
         while (logMessages.size() > GeneralConfiguration.processorMaxloglines) {
             logMessages.remove();
@@ -216,21 +232,40 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         }
     }
 
-    public <T> T evalulateParameter(CompiledOpcode compiledOpcode, int parIndex) {
+    public <T> T evalulateParameter(CompiledOpcode compiledOpcode, RunningProgram program, int parIndex) {
         ParameterValue value = compiledOpcode.getParameters().get(parIndex).getParameterValue();
         if (value.isConstant()) {
             return (T) value.getValue();
+        } else if (value.isFunction()) {
+            ParameterValue v = value.getFunction().getFunctionRunnable().run(this, program, value.getFunction());
+            // @todo  What if the function does not return a constant? Do we support that?
+            return (T) v.getValue();
         } else {
             // @todo support variables
             return null;
         }
     }
 
-    public IItemHandler getItemHandlerAt(EnumFacing side) {
+    public boolean evalulateBoolParameter(CompiledOpcode compiledOpcode, RunningProgram program, int parIndex) {
+        Object value = evalulateParameter(compiledOpcode, program, parIndex);
+        if (value instanceof Boolean) {
+            return (Boolean) value;
+        } else if (value instanceof Integer) {
+            return ((Integer) value) != 0;
+        } else if (value instanceof String) {
+            return !((String) value).isEmpty();
+        } else if (value instanceof EnumFacing) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public IItemHandler getItemHandlerAt(EnumFacing side, EnumFacing invside) {
         BlockPos np = pos.offset(side);
         TileEntity te = worldObj.getTileEntity(np);
-        if (te != null && te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null)) {
-            return te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
+        if (te != null && te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, invside)) {
+            return te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, invside);
         }
         return null;
     }
@@ -304,6 +339,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     public void readRestorableFromNBT(NBTTagCompound tagCompound) {
         super.readRestorableFromNBT(tagCompound);
         working = tagCompound.getBoolean("working");
+        tickCount = tagCompound.getInteger("tickCount");
         readBufferFromNBT(tagCompound, inventoryHelper);
 
         readCardInfo(tagCompound);
@@ -356,6 +392,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     public void writeRestorableToNBT(NBTTagCompound tagCompound) {
         super.writeRestorableToNBT(tagCompound);
         tagCompound.setBoolean("working", working);
+        tagCompound.setInteger("tickCount", tickCount);
         writeBufferToNBT(tagCompound, inventoryHelper);
 
         writeCardInfo(tagCompound);

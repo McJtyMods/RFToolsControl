@@ -7,9 +7,7 @@ import net.minecraftforge.items.IItemHandler;
 import java.util.HashMap;
 import java.util.Map;
 
-import static mcjty.rftoolscontrol.logic.registry.OpcodeOutput.NONE;
-import static mcjty.rftoolscontrol.logic.registry.OpcodeOutput.SINGLE;
-import static mcjty.rftoolscontrol.logic.registry.OpcodeOutput.YESNO;
+import static mcjty.rftoolscontrol.logic.registry.OpcodeOutput.*;
 import static mcjty.rftoolscontrol.logic.registry.ParameterType.*;
 
 public class Opcodes {
@@ -49,7 +47,7 @@ public class Opcodes {
             .parameter(ParameterDescription.builder().name("ticks").type(PAR_INTEGER).build())
             .icon(6, 0)
             .runnable(((processor, program, opcode) -> {
-                int ticks = processor.evalulateParameter(opcode, 0);
+                int ticks = processor.evalulateParameter(opcode, program, 0);
                 program.setDelay(ticks);
                 return true;
             }))
@@ -59,12 +57,14 @@ public class Opcodes {
             .id("test_countinv")
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("side").type(PAR_SIDE).build())
+            .parameter(ParameterDescription.builder().name("invside").type(PAR_SIDE).build())
             .parameter(ParameterDescription.builder().name("slot").type(PAR_INTEGER).build())
             .icon(2, 0)
             .runnable(((processor, program, opcode) -> {
-                EnumFacing side = processor.evalulateParameter(opcode, 0);
-                int slot = processor.evalulateParameter(opcode, 1);
-                IItemHandler handler = processor.getItemHandlerAt(side);
+                EnumFacing side = processor.evalulateParameter(opcode, program, 0);
+                EnumFacing invside = processor.evalulateParameter(opcode, program, 1);
+                int slot = processor.evalulateParameter(opcode, program, 2);
+                IItemHandler handler = processor.getItemHandlerAt(side, invside);
                 if (handler != null) {
                     ItemStack stackInSlot = handler.getStackInSlot(slot);
                     program.setLastValue(PAR_INTEGER, ParameterValue.constant(stackInSlot == null ? 0 : stackInSlot.stackSize));
@@ -76,13 +76,10 @@ public class Opcodes {
     public static final Opcode CONTROL_IF = Opcode.builder()
             .id("ctrl_if")
             .opcodeOutput(YESNO)
-            .parameter(ParameterDescription.builder().name("side").type(PAR_SIDE).build())
+            .parameter(ParameterDescription.builder().name("eval").type(PAR_BOOLEAN).build())
             .icon(5, 0)
             .runnable(((processor, program, opcode) -> {
-                // @todo
-                int ticks = processor.evalulateParameter(opcode, 0);
-                program.setDelay(ticks);
-                return true;
+                return processor.evalulateBoolParameter(opcode, program, 0);
             }))
             .build();
 
@@ -102,18 +99,26 @@ public class Opcodes {
             .parameter(ParameterDescription.builder().name("message").type(PAR_STRING).build())
             .icon(8, 0)
             .runnable(((processor, program, opcode) -> {
-                String message = processor.evalulateParameter(opcode, 0);
+                String message = processor.evalulateParameter(opcode, program, 0);
                 processor.log(message);
                 return true;
             }))
             .build();
 
+    public static final Opcode EVENT_TIMER = Opcode.builder()
+            .id("ev_timer")
+            .opcodeOutput(SINGLE)
+            .isEvent(true)
+            .parameter(ParameterDescription.builder().name("ticks").type(PAR_INTEGER).build())
+            .icon(9, 0)
+            .build();
 
     public static final Map<String, Opcode> OPCODES = new HashMap<>();
 
     public static void init() {
         register(EVENT_REDSTONE_ON);
         register(EVENT_REDSTONE_OFF);
+        register(EVENT_TIMER);
         register(TEST_COUNTINV);
         register(CONTROL_IF);
         register(DO_REDSTONE_ON);

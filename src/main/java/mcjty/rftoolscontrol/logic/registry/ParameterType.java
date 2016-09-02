@@ -68,11 +68,29 @@ public enum ParameterType {
         protected ParameterValue readFromNBTInternal(NBTTagCompound tag) {
             return ParameterValue.constant(EnumFacing.values()[tag.getInteger("v")]);
         }
+    },
+    PAR_BOOLEAN() {
+        @Override
+        protected String stringRepresentationInternal(Object value) {
+            return ((Boolean) value) ? "true" : "false";
+        }
+
+        @Override
+        protected void writeToNBTInternal(NBTTagCompound tag, Object value) {
+            tag.setBoolean("v", (Boolean) value);
+        }
+
+        @Override
+        protected ParameterValue readFromNBTInternal(NBTTagCompound tag) {
+            return ParameterValue.constant(tag.getBoolean("v"));
+        }
     };
 
     public String stringRepresentation(ParameterValue value) {
         if (value.isVariable()) {
             return "V:" + value.getVariableIndex();
+        } else if (value.isFunction()) {
+            return "F:" + value.getFunction().getId();
         } else if (value.getValue() == null) {
             return "NULL";
         } else {
@@ -87,6 +105,8 @@ public enum ParameterType {
     public void writeToNBT(NBTTagCompound tag, ParameterValue value) {
         if (value.isVariable()) {
             tag.setInteger("varIdx", value.getVariableIndex());
+        } else if (value.isFunction()) {
+            tag.setString("funId", value.getFunction().getId());
         } else if (value.getValue() == null) {
             // No value
             tag.setBoolean("null", true);
@@ -98,6 +118,8 @@ public enum ParameterType {
     public ParameterValue readFromNBT(NBTTagCompound tag) {
         if (tag.hasKey("varIdx")) {
             return ParameterValue.variable(tag.getInteger("varIdx"));
+        } else if (tag.hasKey("funId")) {
+            return ParameterValue.function(Functions.FUNCTIONS.get(tag.getString("funId")));
         } else if (tag.hasKey("null")) {
             return ParameterValue.constant(null);
         } else {
