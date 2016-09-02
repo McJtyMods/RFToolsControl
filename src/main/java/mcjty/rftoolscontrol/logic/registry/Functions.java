@@ -9,8 +9,17 @@ import static mcjty.rftoolscontrol.logic.registry.ParameterType.*;
 
 public class Functions {
 
+    public static final Function LASTBOOL = Function.builder()
+            .id("last_bool")
+            .name("last")
+            .type(PAR_BOOLEAN)
+            .runnable((processor, program, function) -> {
+                return convertToBool(program.getLastValueType(), program.getLastValue());
+            })
+            .build();
     public static final Function LASTINT = Function.builder()
             .id("last_int")
+            .name("last")
             .type(PAR_INTEGER)
             .runnable((processor, program, function) -> {
                 return convertToInt(program.getLastValueType(), program.getLastValue());
@@ -18,11 +27,34 @@ public class Functions {
             .build();
     public static final Function LASTSTRING = Function.builder()
             .id("last_str")
+            .name("last")
             .type(PAR_STRING)
             .runnable((processor, program, function) -> {
                 return convertToString(program.getLastValueType(), program.getLastValue());
             })
             .build();
+
+    private static ParameterValue convertToBool(ParameterType type, ParameterValue value) {
+        if (value == null || type == null) {
+            return ParameterValue.constant(false);
+        }
+        if (value.getValue() == null) {
+            return ParameterValue.constant(false);
+        }
+        switch (type) {
+            case PAR_STRING:
+                return ParameterValue.constant(!((String) value.getValue()).isEmpty());
+            case PAR_INTEGER:
+                return ParameterValue.constant(((Integer) value.getValue()) != 0);
+            case PAR_FLOAT:
+                return ParameterValue.constant(((Float) value.getValue()) != 0);
+            case PAR_SIDE:
+                return ParameterValue.constant(false);
+            case PAR_BOOLEAN:
+                return value;
+        }
+        return ParameterValue.constant(false);
+    }
 
     private static ParameterValue convertToInt(ParameterType type, ParameterValue value) {
         if (value == null || type == null) {
@@ -72,6 +104,7 @@ public class Functions {
     private static final Map<ParameterType,List<Function>> FUNCTIONS_BY_TYPE = new HashMap<>();
 
     public static void init() {
+        register(LASTBOOL);
         register(LASTINT);
         register(LASTSTRING);
     }

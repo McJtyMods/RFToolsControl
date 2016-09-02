@@ -90,7 +90,7 @@ public enum ParameterType {
         if (value.isVariable()) {
             return "V:" + value.getVariableIndex();
         } else if (value.isFunction()) {
-            return "F:" + value.getFunction().getId();
+            return "F:" + value.getFunction().getName();
         } else if (value.getValue() == null) {
             return "NULL";
         } else {
