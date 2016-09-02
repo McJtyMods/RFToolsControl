@@ -148,13 +148,13 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
                         .setBorderColor(0xff777777)
                         .setSelectable(true)
                         .addIconClickedEvent((parent, icon, dx, dy) -> {
-                            if (dy <= 3 && dx >= 10 && dx <= 14) {
+                            if (dy <= 4 && dx >= 9 && dx <= 15) {
                                 handleIconOverlay(icon, Connection.UP);
-                            } else if (dy >= ICONSIZE-4 && dx >= 10 && dx <= 14) {
+                            } else if (dy >= ICONSIZE-5 && dx >= 9 && dx <= 15) {
                                 handleIconOverlay(icon, Connection.DOWN);
-                            } else if (dx <= 3 && dy >= 10 && dy <= 14) {
+                            } else if (dx <= 4 && dy >= 9 && dy <= 15) {
                                 handleIconOverlay(icon, Connection.LEFT);
-                            } else if (dx >= ICONSIZE-4 && dy >= 10 && dy <= 14) {
+                            } else if (dx >= ICONSIZE-5 && dy >= 9 && dy <= 15) {
                                 handleIconOverlay(icon, Connection.RIGHT);
                             }
                             System.out.println("dx = " + dx + "," + dy);
