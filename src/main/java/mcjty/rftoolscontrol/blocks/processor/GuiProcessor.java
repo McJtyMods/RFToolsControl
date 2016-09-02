@@ -132,11 +132,14 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
     }
 
     private void populateLog() {
+        boolean atend = log.getFirstSelected() >= log.getChildCount();
         log.removeChildren();
         for (PacketGetLog.StringConverter message : fromServer_log) {
             log.addChild(new Label(mc, this).setColor(0xff008800).setText(message.getMessage()).setHorizontalAlignment(HorizontalAlignment.ALIGH_LEFT));
         }
-        log.setFirstSelected(log.getChildCount());
+        if (atend) {
+            log.setFirstSelected(log.getChildCount());
+        }
     }
 
     private void setupMode(Widget parent) {
@@ -232,7 +235,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
 
                     Panel panel = (Panel) variableList.getChild(i);
                     panel.removeChildren();
-                    int fill = allocated ? 0x7700ff00 : 0x77444444;
+                    int fill = allocated ? 0x7700ff00 : (tileEntity.isVarAllocated(-1, i) ? 0x77660000 : 0x77444444);
                     panel.setFilledBackground(fill);
                     panel.addChild(new Label(mc, GuiProcessor.this).setText(String.valueOf(i)).setDesiredWidth(26));
                     panel.addChild(new Button(mc, GuiProcessor.this).setText("..."));
@@ -281,7 +284,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
             Panel panel = new Panel(mc, this).setLayout(new HorizontalLayout()).setDesiredWidth(40);
             if (setupMode != -1) {
                 boolean allocated = ((varAlloc >> i) & 1) != 0;
-                int fill = allocated ? 0x7700ff00 : 0x77444444;
+                int fill = allocated ? 0x7700ff00 : (tileEntity.isVarAllocated(-1, i) ? 0x77660000 : 0x77444444);
                 panel.setFilledBackground(fill);
             }
             panel.addChild(new Label(mc, this).setText(String.valueOf(i)).setDesiredWidth(26));
@@ -321,7 +324,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
 
             boolean allocated = ((itemAlloc >> i) & 1) != 0;
             int border = allocated ? 0xffffffff : 0xaaaaaaaa;
-            int fill = allocated ? 0x7700ff00 : 0x77444444;
+            int fill = allocated ? 0x7700ff00 : (tileEntity.isItemAllocated(-1, i) ? 0x77660000 : 0x77444444);
             RenderHelper.drawFlatBox(slot.xDisplayPosition, slot.yDisplayPosition, slot.xDisplayPosition + 17, slot.yDisplayPosition + 17,
                     border, fill);
         }

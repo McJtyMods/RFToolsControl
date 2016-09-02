@@ -249,11 +249,13 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     @Override
     public void readClientDataFromNBT(NBTTagCompound tagCompound) {
         working = tagCompound.getBoolean("working");
+        readCardInfo(tagCompound);
     }
 
     @Override
     public void writeClientDataToNBT(NBTTagCompound tagCompound) {
         tagCompound.setBoolean("working", working);
+        writeCardInfo(tagCompound);
     }
 
     @Override
@@ -275,11 +277,21 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         working = tagCompound.getBoolean("working");
         readBufferFromNBT(tagCompound, inventoryHelper);
 
-        NBTTagList cardInfoList = tagCompound.getTagList("cardInfo", Constants.NBT.TAG_COMPOUND);
-        for (int i = 0 ; i < cardInfoList.tagCount() ; i++) {
-            cardInfo[i] = CardInfo.readFromNBT(cardInfoList.getCompoundTagAt(i));
-        }
+        readCardInfo(tagCompound);
+        readCores(tagCompound);
+        readEventQueue(tagCompound);
+        readLog(tagCompound);
+    }
 
+    private void readLog(NBTTagCompound tagCompound) {
+        logMessages.clear();
+        NBTTagList logList = tagCompound.getTagList("log", Constants.NBT.TAG_STRING);
+        for (int i = 0 ; i < logList.tagCount() ; i++) {
+            logMessages.add(logList.getStringTagAt(i));
+        }
+    }
+
+    private void readCores(NBTTagCompound tagCompound) {
         NBTTagList coreList = tagCompound.getTagList("cores", Constants.NBT.TAG_COMPOUND);
         cpuCores.clear();
         coresDirty = false;
@@ -291,7 +303,9 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         if (cpuCores.isEmpty()) {
             coresDirty = true;
         }
+    }
 
+    private void readEventQueue(NBTTagCompound tagCompound) {
         eventQueue.clear();
         NBTTagList eventQueueList = tagCompound.getTagList("events", Constants.NBT.TAG_COMPOUND);
         for (int i = 0 ; i < eventQueueList.tagCount() ; i++) {
@@ -300,11 +314,12 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             int index = tag.getInteger("index");
             eventQueue.add(Pair.of(card, new CompiledEvent(index)));
         }
+    }
 
-        logMessages.clear();
-        NBTTagList logList = tagCompound.getTagList("log", Constants.NBT.TAG_STRING);
-        for (int i = 0 ; i < logList.tagCount() ; i++) {
-            logMessages.add(logList.getStringTagAt(i));
+    private void readCardInfo(NBTTagCompound tagCompound) {
+        NBTTagList cardInfoList = tagCompound.getTagList("cardInfo", Constants.NBT.TAG_COMPOUND);
+        for (int i = 0 ; i < cardInfoList.tagCount() ; i++) {
+            cardInfo[i] = CardInfo.readFromNBT(cardInfoList.getCompoundTagAt(i));
         }
     }
 
@@ -314,18 +329,29 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         tagCompound.setBoolean("working", working);
         writeBufferToNBT(tagCompound, inventoryHelper);
 
-        NBTTagList cardInfoList = new NBTTagList();
-        for (CardInfo info : cardInfo) {
-            cardInfoList.appendTag(info.writeToNBT());
-        }
-        tagCompound.setTag("cardInfo", cardInfoList);
+        writeCardInfo(tagCompound);
+        writeCores(tagCompound);
+        writeEventQueue(tagCompound);
+        writeLog(tagCompound);
+    }
 
+    private void writeLog(NBTTagCompound tagCompound) {
+        NBTTagList logList = new NBTTagList();
+        for (String message : logMessages) {
+            logList.appendTag(new NBTTagString(message));
+        }
+        tagCompound.setTag("log", logList);
+    }
+
+    private void writeCores(NBTTagCompound tagCompound) {
         NBTTagList coreList = new NBTTagList();
         for (CpuCore core : cpuCores) {
             coreList.appendTag(core.writeToNBT());
         }
         tagCompound.setTag("cores", coreList);
+    }
 
+    private void writeEventQueue(NBTTagCompound tagCompound) {
         NBTTagList eventQueueList = new NBTTagList();
         for (Pair<Integer, CompiledEvent> pair : eventQueue) {
             NBTTagCompound tag = new NBTTagCompound();
@@ -334,12 +360,14 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             eventQueueList.appendTag(tag);
         }
         tagCompound.setTag("events", eventQueueList);
+    }
 
-        NBTTagList logList = new NBTTagList();
-        for (String message : logMessages) {
-            logList.appendTag(new NBTTagString(message));
+    private void writeCardInfo(NBTTagCompound tagCompound) {
+        NBTTagList cardInfoList = new NBTTagList();
+        for (CardInfo info : cardInfo) {
+            cardInfoList.appendTag(info.writeToNBT());
         }
-        tagCompound.setTag("log", logList);
+        tagCompound.setTag("cardInfo", cardInfoList);
     }
 
     @Override
@@ -354,6 +382,38 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             if (newWorking != working) {
                 worldObj.markBlockRangeForRenderUpdate(getPos(), getPos());
             }
+        }
+    }
+
+    public boolean isVarAllocated(int cardIndex, int varIndex) {
+        if (cardIndex == -1) {
+            for (CardInfo info : cardInfo) {
+                int varAlloc = info.getVarAllocation();
+                if (((varAlloc >> varIndex) & 1) != 0) {
+                    return true;
+                }
+            }
+            return false;
+        } else {
+            CardInfo info = getCardInfo(cardIndex);
+            int varAlloc = info.getVarAllocation();
+            return ((varAlloc >> varIndex) & 1) != 0;
+        }
+    }
+
+    public boolean isItemAllocated(int cardIndex, int itemIndex) {
+        if (cardIndex == -1) {
+            for (CardInfo info : cardInfo) {
+                int itemAlloc = info.getItemAllocation();
+                if (((itemAlloc >> itemIndex) & 1) != 0) {
+                    return true;
+                }
+            }
+            return false;
+        } else {
+            CardInfo info = getCardInfo(cardIndex);
+            int itemAlloc = info.getItemAllocation();
+            return ((itemAlloc >> itemIndex) & 1) != 0;
         }
     }
 
