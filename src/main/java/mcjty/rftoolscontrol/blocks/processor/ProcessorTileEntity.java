@@ -232,6 +232,17 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         }
     }
 
+    public void insertStack(RunningProgram program, int virtualSlot, ItemStack stack) {
+        CardInfo info = this.cardInfo[program.getCardIndex()];
+        int realSlot = info.getRealSlot(virtualSlot);
+        if (realSlot == -1) {
+            // @todo Exception
+            log("No slot!");
+            return;
+        }
+        getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null).insertItem(realSlot + ProcessorContainer.SLOT_BUFFER, stack, false);
+    }
+
     public <T> T evalulateParameter(CompiledOpcode compiledOpcode, RunningProgram program, int parIndex) {
         ParameterValue value = compiledOpcode.getParameters().get(parIndex).getParameterValue();
         if (value.isConstant()) {

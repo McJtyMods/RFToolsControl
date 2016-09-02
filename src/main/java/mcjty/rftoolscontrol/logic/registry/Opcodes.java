@@ -156,8 +156,34 @@ public class Opcodes {
                 int slotOut = processor.evalulateParameter(opcode, program, 4);
                 IItemHandler handler = processor.getItemHandlerAt(side, invside);
                 if (handler != null) {
-//                    ItemStack stackInSlot = handler.getStackInSlot(slot);
+                    ItemStack extracted = handler.extractItem(slot, amount, false);
+                    processor.insertStack(program, slotOut, extracted);
 //                    program.setLastValue(PAR_INTEGER, ParameterValue.constant(stackInSlot == null ? 0 : stackInSlot.stackSize));
+                }
+                return true;
+            }))
+            .build();
+
+    public static final Opcode DO_PUSHITEMS = Opcode.builder()
+            .id("do_pushitems")
+            .opcodeOutput(SINGLE)
+            .parameter(ParameterDescription.builder().name("side").type(PAR_SIDE).build())
+            .parameter(ParameterDescription.builder().name("invside").type(PAR_SIDE).build())
+            .parameter(ParameterDescription.builder().name("slot").type(PAR_INTEGER).build())
+            .parameter(ParameterDescription.builder().name("amount").type(PAR_INTEGER).build())
+            .parameter(ParameterDescription.builder().name("slotOut").type(PAR_INTEGER).build())
+            .icon(1, 1)
+            .runnable(((processor, program, opcode) -> {
+                EnumFacing side = processor.evalulateParameter(opcode, program, 0);
+                EnumFacing invside = processor.evalulateParameter(opcode, program, 1);
+                int slot = processor.evalulateParameter(opcode, program, 2);
+                int amount = processor.evalulateParameter(opcode, program, 3);
+                int slotOut = processor.evalulateParameter(opcode, program, 4);
+                IItemHandler handler = processor.getItemHandlerAt(side, invside);
+                if (handler != null) {
+                    // @todo
+//                    ItemStack extracted = handler.extractItem(slot, amount, false);
+//                    processor.insertStack(program, slotOut, extracted);
                 }
                 return true;
             }))
@@ -180,6 +206,7 @@ public class Opcodes {
         register(DO_STOP);
         register(DO_LOG);
         register(DO_FETCHITEMS);
+        register(DO_PUSHITEMS);
     }
 
     private static void register(Opcode opcode) {
