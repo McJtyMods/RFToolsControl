@@ -51,6 +51,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
     private Window sideWindow;
     private WidgetList gridList;
     private WidgetList editorList;
+    private IconHolder trashcan;
 
     private int iconLeavesFromX = -1;
     private int iconLeavesFromY = -1;
@@ -400,10 +401,18 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
     }
 
     private Panel setupControlPanel() {
+        trashcan = new IconHolder(mc, this)
+                .setDesiredWidth(14)
+                .setDesiredHeight(14)
+                .setBorder(1)
+                .setBorderColor(0xffff0000)
+                .setTooltips("Drop opcodes here to", "delete them")
+                .setSelectable(false);
         return new Panel(mc, this).setLayout(new HorizontalLayout()).setLayoutHint(new PositionalLayout.PositionalHint(111, 137, 140, 18))
                 .addChild(new Button(mc, this).setText("Load").setDesiredHeight(15).addButtonEvent(w -> loadProgram()))
                 .addChild(new Button(mc, this).setText("Save").setDesiredHeight(15).addButtonEvent(w -> saveProgram()))
-                .addChild(new Button(mc, this).setText("Clear").setDesiredHeight(15));
+                .addChild(new Button(mc, this).setText("Clear").setDesiredHeight(15))
+                .addChild(trashcan);
     }
 
     private Panel setupListPanel() {
@@ -565,5 +574,6 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
     @Override
     protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
         drawWindow();
+        trashcan.setIcon(null);
     }
 }
