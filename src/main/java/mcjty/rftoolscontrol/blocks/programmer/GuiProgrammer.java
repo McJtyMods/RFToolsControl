@@ -24,10 +24,7 @@ import mcjty.rftoolscontrol.logic.editors.ParameterEditors;
 import mcjty.rftoolscontrol.logic.grid.GridInstance;
 import mcjty.rftoolscontrol.logic.grid.GridPos;
 import mcjty.rftoolscontrol.logic.grid.ProgramCardInstance;
-import mcjty.rftoolscontrol.logic.registry.Opcode;
-import mcjty.rftoolscontrol.logic.registry.Opcodes;
-import mcjty.rftoolscontrol.logic.registry.ParameterDescription;
-import mcjty.rftoolscontrol.logic.registry.ParameterValue;
+import mcjty.rftoolscontrol.logic.registry.*;
 import mcjty.rftoolscontrol.network.RFToolsCtrlMessages;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
@@ -56,6 +53,8 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
     private Window sideWindow;
     private WidgetList gridList;
     private WidgetList editorList;
+
+    private boolean loading = false;
 
     private static final Map<String, IIcon> ICONS = new HashMap<>();
     private static final Map<Connection, IIcon> CONNECTION_ICONS = new HashMap<>();
@@ -142,20 +141,28 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
         for (int y = 0; y < GRID_HEIGHT; y++) {
             Panel rowPanel = new Panel(mc, this).setLayout(new HorizontalLayout().setSpacing(-1).setHorizontalMargin(0).setVerticalMargin(0));
             for (int x = 0; x < GRID_WIDTH; x++) {
+                int finalX = x;
+                int finalY = y;
                 IconHolder holder = new IconHolder(mc, this)
                         .setDesiredWidth(ICONSIZE+2)
                         .setDesiredHeight(ICONSIZE+2)
                         .setBorder(1)
                         .setBorderColor(0xff777777)
                         .setSelectable(true)
+                        .addIconArrivesEvent(((parent, icon) -> {
+                            if (icon != null && !loading) {
+                                handleNewIconOverlay(icon, finalX, finalY);
+                            }
+                            return true;
+                        }))
                         .addIconClickedEvent((parent, icon, dx, dy) -> {
-                            if (dy <= 4 && dx >= 9 && dx <= 15) {
+                            if (dy <= 5 && dx >= 7 && dx <= 14) {
                                 handleIconOverlay(icon, Connection.UP);
-                            } else if (dy >= ICONSIZE-5 && dx >= 9 && dx <= 15) {
+                            } else if (dy >= ICONSIZE-3 && dx >= 7 && dx <= 14) {
                                 handleIconOverlay(icon, Connection.DOWN);
-                            } else if (dx <= 4 && dy >= 9 && dy <= 15) {
+                            } else if (dx <= 5 && dy >= 7 && dy <= 14) {
                                 handleIconOverlay(icon, Connection.LEFT);
-                            } else if (dx >= ICONSIZE-5 && dy >= 9 && dy <= 15) {
+                            } else if (dx >= ICONSIZE-3 && dy >= 7 && dy <= 14) {
                                 handleIconOverlay(icon, Connection.RIGHT);
                             }
                             System.out.println("dx = " + dx + "," + dy);
@@ -180,14 +187,105 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
         return panel;
     }
 
+    // Try to make a connection to this one in case there are no connections yet
+    private void handleNewIconOverlay(IIcon icon, int x, int y) {
+        Opcode opcode = Opcodes.OPCODES.get(icon.getID());
+        if (opcode.isEvent()) {
+            return;
+        }
+        tryConnectToThis(x-1, y, icon, Connection.RIGHT);
+        tryConnectToThis(x+1, y, icon, Connection.LEFT);
+        tryConnectToThis(x, y-1, icon, Connection.DOWN);
+        tryConnectToThis(x, y+1, icon, Connection.UP);
+    }
+
+    private void tryConnectToThis(int x, int y, IIcon icon, Connection connection) {
+        if (x < 0 || x >= GRID_WIDTH) {
+            return;
+        }
+        if (y < 0 || y >= GRID_HEIGHT) {
+            return;
+        }
+        IconHolder holder = getHolder(x, y);
+        IIcon sourceIcon = holder.getIcon();
+        if (sourceIcon != null) {
+            Opcode opcode = Opcodes.OPCODES.get(sourceIcon.getID());
+            if (opcode.getOpcodeOutput() == OpcodeOutput.NONE) {
+                return;
+            } else if (opcode.getOpcodeOutput() == OpcodeOutput.SINGLE) {
+                int cnt = countConnections(sourceIcon);
+                if (cnt == 0) {
+                    sourceIcon.addOverlay(CONNECTION_ICONS.get(connection));
+                }
+            } else if (opcode.getOpcodeOutput() == OpcodeOutput.YESNO) {
+                int cnt = countPrimaryConnections(sourceIcon);
+                if (cnt == 0) {
+                    sourceIcon.addOverlay(CONNECTION_ICONS.get(connection));
+                } else {
+                    cnt = countSecondaryConnections(sourceIcon);
+                    if (cnt == 0) {
+                        sourceIcon.addOverlay(CONNECTION_ICONS.get(connection.getOpposite()));
+                    }
+                }
+            }
+        }
+    }
+
+    private int countConnections(IIcon sourceIcon) {
+        int cnt = 0;
+        for (Connection connection : Connection.values()) {
+            if (sourceIcon.hasOverlay(connection.getId())) {
+                cnt++;
+            }
+        }
+        return cnt;
+    }
+
+    private int countPrimaryConnections(IIcon sourceIcon) {
+        int cnt = 0;
+        for (Connection connection : Connection.values()) {
+            if (connection.isPrimary()) {
+                if (sourceIcon.hasOverlay(connection.getId())) {
+                    cnt++;
+                }
+            }
+        }
+        return cnt;
+    }
+
+    private int countSecondaryConnections(IIcon sourceIcon) {
+        int cnt = 0;
+        for (Connection connection : Connection.values()) {
+            if (!connection.isPrimary()) {
+                if (sourceIcon.hasOverlay(connection.getId())) {
+                    cnt++;
+                }
+            }
+        }
+        return cnt;
+    }
+
     private void handleIconOverlay(IIcon icon, Connection connection) {
-        if (icon.hasOverlay(connection.getId())) {
-            icon.removeOverlay(connection.getId());
-            icon.addOverlay(CONNECTION_ICONS.get(connection.getOpposite()));
-        } else if (icon.hasOverlay(connection.getOpposite().getId())) {
-            icon.removeOverlay(connection.getOpposite().getId());
+        Opcode opcode = Opcodes.OPCODES.get(icon.getID());
+        if (opcode.getOpcodeOutput() == OpcodeOutput.NONE) {
+            return;
+        }
+        if (opcode.getOpcodeOutput() == OpcodeOutput.SINGLE) {
+            if (icon.hasOverlay(connection.getId())) {
+                icon.clearOverlays();
+            } else {
+                icon.clearOverlays();
+                icon.addOverlay(CONNECTION_ICONS.get(connection));
+            }
         } else {
-            icon.addOverlay(CONNECTION_ICONS.get(connection));
+            if (icon.hasOverlay(connection.getId())) {
+                icon.removeOverlay(connection.getId());
+                icon.addOverlay(CONNECTION_ICONS.get(connection.getOpposite()));
+            } else if (icon.hasOverlay(connection.getOpposite().getId())) {
+                icon.removeOverlay(connection.getOpposite().getId());
+            } else {
+                icon.addOverlay(CONNECTION_ICONS.get(connection));
+            }
         }
     }
 
@@ -275,7 +373,9 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
                 icon.addData(name, parameter.getParameterValue());
             }
 
+            loading = true;
             getHolder(x, y).setIcon(icon);
+            loading = false;
         }
     }
 
