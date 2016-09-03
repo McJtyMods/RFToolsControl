@@ -52,6 +52,8 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
     private WidgetList gridList;
     private WidgetList editorList;
 
+    private int iconLeavesFromX = -1;
+    private int iconLeavesFromY = -1;
     private boolean loading = false;
 
     private static final Map<String, IIcon> ICONS = new HashMap<>();
@@ -158,6 +160,11 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
                         .setBorder(1)
                         .setBorderColor(0xff777777)
                         .setSelectable(true)
+                        .addIconLeavesEvent(((parent, icon) -> {
+                            iconLeavesFromX = finalX;
+                            iconLeavesFromY = finalY;
+                            return true;
+                        }))
                         .addIconArrivesEvent(((parent, icon) -> {
                             if (icon != null && !loading) {
                                 handleNewIconOverlay(icon, finalX, finalY);
@@ -198,6 +205,10 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
 
     // Try to make a connection to this one in case there are no connections yet
     private void handleNewIconOverlay(IIcon icon, int x, int y) {
+        // We didn't move, do nothing
+        if (x == iconLeavesFromX && y == iconLeavesFromY) {
+            return;
+        }
         Opcode opcode = Opcodes.OPCODES.get(icon.getID());
         if (opcode.isEvent()) {
             return;
