@@ -10,6 +10,7 @@ import mcjty.rftoolscontrol.logic.compiled.CompiledCard;
 import mcjty.rftoolscontrol.logic.compiled.CompiledEvent;
 import mcjty.rftoolscontrol.logic.compiled.CompiledOpcode;
 import mcjty.rftoolscontrol.logic.grid.ProgramCardInstance;
+import mcjty.rftoolscontrol.logic.registry.Inventory;
 import mcjty.rftoolscontrol.logic.registry.Opcodes;
 import mcjty.rftoolscontrol.logic.registry.ParameterValue;
 import mcjty.rftoolscontrol.logic.running.CpuCore;
@@ -232,6 +233,68 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         }
     }
 
+    public void fetchItems(RunningProgram program, Inventory inv, int slot, int amount, int virtualSlot) {
+        CardInfo info = this.cardInfo[program.getCardIndex()];
+        int realSlot = info.getRealSlot(virtualSlot);
+        if (realSlot == -1) {
+            // @todo Exception
+            log("No slot!");
+            return;
+        }
+        IItemHandler handler = getItemHandlerAt(inv);
+        if (handler == null) {
+            // @todo exception
+            log("Invalid inventory!");
+            return;
+        }
+        ItemStack extracted = handler.extractItem(slot, amount, true);
+        if (extracted == null) {
+            // Nothing to do
+            return;
+        }
+        IItemHandler capability = getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
+        if (capability.insertItem(realSlot + ProcessorContainer.SLOT_BUFFER, extracted, true) != null) {
+            // Not enough room. Do nothing
+            return;
+        }
+
+        // All seems ok. Do the real thing now.
+        extracted = handler.extractItem(slot, amount, false);
+        capability.insertItem(realSlot + ProcessorContainer.SLOT_BUFFER, extracted, false);
+    }
+
+
+    public void pushItems(RunningProgram program, Inventory inv, int slot, int amount, int virtualSlot) {
+        CardInfo info = this.cardInfo[program.getCardIndex()];
+        int realSlot = info.getRealSlot(virtualSlot);
+        if (realSlot == -1) {
+            // @todo Exception
+            log("No slot!");
+            return;
+        }
+        IItemHandler handler = getItemHandlerAt(inv);
+        if (handler == null) {
+            // @todo exception
+            log("Invalid inventory!");
+            return;
+        }
+        IItemHandler capability = getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
+        ItemStack extracted = capability.extractItem(realSlot + ProcessorContainer.SLOT_BUFFER, amount, true);
+        if (extracted == null) {
+            // Nothing to do
+            return;
+        }
+        if (handler.insertItem(slot, extracted, true) != null) {
+            // Not enough room. Do nothing
+            return;
+        }
+
+        // All seems ok. Do the real thing now.
+        extracted = capability.extractItem(realSlot + ProcessorContainer.SLOT_BUFFER, amount, false);
+        handler.insertItem(slot, extracted, false);
+    }
+
+
     public void insertStack(RunningProgram program, int virtualSlot, ItemStack stack) {
         CardInfo info = this.cardInfo[program.getCardIndex()];
         int realSlot = info.getRealSlot(virtualSlot);
@@ -272,11 +335,11 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         }
     }
 
-    public IItemHandler getItemHandlerAt(EnumFacing side, EnumFacing invside) {
-        BlockPos np = pos.offset(side);
+    public IItemHandler getItemHandlerAt(Inventory inv) {
+        BlockPos np = pos.offset(inv.getSide());
         TileEntity te = worldObj.getTileEntity(np);
-        if (te != null && te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, invside)) {
-            return te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, invside);
+        if (te != null && te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, inv.getIntSide())) {
+            return te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, inv.getIntSide());
         }
         return null;
     }

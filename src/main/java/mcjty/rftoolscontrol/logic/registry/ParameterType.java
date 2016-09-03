@@ -90,6 +90,38 @@ public enum ParameterType {
         protected ParameterValue readFromNBTInternal(NBTTagCompound tag) {
             return ParameterValue.constant(tag.getBoolean("v"));
         }
+    },
+    PAR_INVENTORY() {
+        @Override
+        protected String stringRepresentationInternal(Object value) {
+            return "inv";
+        }
+
+        @Override
+        protected void writeToNBTInternal(NBTTagCompound tag, Object value) {
+            Inventory inv = (Inventory) value;
+            if (inv.getNodeName() != null) {
+                tag.setString("nodeName", inv.getNodeName());
+            }
+            tag.setInteger("side", inv.getSide().ordinal());
+            if (inv.getIntSide() != null) {
+                tag.setInteger("intSide", inv.getIntSide().ordinal());
+            }
+        }
+
+        @Override
+        protected ParameterValue readFromNBTInternal(NBTTagCompound tag) {
+            EnumFacing side = EnumFacing.values()[tag.getInteger("side")];
+            String name = null;
+            EnumFacing intSide = null;
+            if (tag.hasKey("nodeName")) {
+                name = tag.getString("nodeName");
+            }
+            if (tag.hasKey("intSide")) {
+                intSide = EnumFacing.values()[tag.getInteger("intSide")];
+            }
+            return ParameterValue.constant(new Inventory(name, side, intSide));
+        }
     };
 
     public String stringRepresentation(ParameterValue value) {

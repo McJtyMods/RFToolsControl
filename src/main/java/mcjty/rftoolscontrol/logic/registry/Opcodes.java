@@ -1,7 +1,6 @@
 package mcjty.rftoolscontrol.logic.registry;
 
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumFacing;
 import net.minecraftforge.items.IItemHandler;
 
 import java.util.HashMap;
@@ -56,15 +55,13 @@ public class Opcodes {
     public static final Opcode TEST_COUNTINV = Opcode.builder()
             .id("test_countinv")
             .opcodeOutput(SINGLE)
-            .parameter(ParameterDescription.builder().name("side").type(PAR_SIDE).build())
-            .parameter(ParameterDescription.builder().name("invside").type(PAR_SIDE).build())
+            .parameter(ParameterDescription.builder().name("inv").type(PAR_INVENTORY).build())
             .parameter(ParameterDescription.builder().name("slot").type(PAR_INTEGER).build())
             .icon(2, 0)
             .runnable(((processor, program, opcode) -> {
-                EnumFacing side = processor.evalulateParameter(opcode, program, 0);
-                EnumFacing invside = processor.evalulateParameter(opcode, program, 1);
-                int slot = processor.evalulateParameter(opcode, program, 2);
-                IItemHandler handler = processor.getItemHandlerAt(side, invside);
+                Inventory inv = processor.evalulateParameter(opcode, program, 0);
+                int slot = processor.evalulateParameter(opcode, program, 1);
+                IItemHandler handler = processor.getItemHandlerAt(inv);
                 if (handler != null) {
                     ItemStack stackInSlot = handler.getStackInSlot(slot);
                     program.setLastValue(PAR_INTEGER, ParameterValue.constant(stackInSlot == null ? 0 : stackInSlot.stackSize));
@@ -142,24 +139,17 @@ public class Opcodes {
     public static final Opcode DO_FETCHITEMS = Opcode.builder()
             .id("do_fetchitems")
             .opcodeOutput(SINGLE)
-            .parameter(ParameterDescription.builder().name("side").type(PAR_SIDE).build())
-            .parameter(ParameterDescription.builder().name("invside").type(PAR_SIDE).build())
+            .parameter(ParameterDescription.builder().name("inv").type(PAR_INVENTORY).build())
             .parameter(ParameterDescription.builder().name("slot").type(PAR_INTEGER).build())
             .parameter(ParameterDescription.builder().name("amount").type(PAR_INTEGER).build())
             .parameter(ParameterDescription.builder().name("slotOut").type(PAR_INTEGER).build())
             .icon(0, 1)
             .runnable(((processor, program, opcode) -> {
-                EnumFacing side = processor.evalulateParameter(opcode, program, 0);
-                EnumFacing invside = processor.evalulateParameter(opcode, program, 1);
-                int slot = processor.evalulateParameter(opcode, program, 2);
-                int amount = processor.evalulateParameter(opcode, program, 3);
-                int slotOut = processor.evalulateParameter(opcode, program, 4);
-                IItemHandler handler = processor.getItemHandlerAt(side, invside);
-                if (handler != null) {
-                    ItemStack extracted = handler.extractItem(slot, amount, false);
-                    processor.insertStack(program, slotOut, extracted);
-//                    program.setLastValue(PAR_INTEGER, ParameterValue.constant(stackInSlot == null ? 0 : stackInSlot.stackSize));
-                }
+                Inventory inv = processor.evalulateParameter(opcode, program, 0);
+                int slot = processor.evalulateParameter(opcode, program, 1);
+                int amount = processor.evalulateParameter(opcode, program, 2);
+                int slotOut = processor.evalulateParameter(opcode, program, 3);
+                processor.fetchItems(program, inv, slot, amount, slotOut);
                 return true;
             }))
             .build();
@@ -167,24 +157,17 @@ public class Opcodes {
     public static final Opcode DO_PUSHITEMS = Opcode.builder()
             .id("do_pushitems")
             .opcodeOutput(SINGLE)
-            .parameter(ParameterDescription.builder().name("side").type(PAR_SIDE).build())
-            .parameter(ParameterDescription.builder().name("invside").type(PAR_SIDE).build())
+            .parameter(ParameterDescription.builder().name("inv").type(PAR_INVENTORY).build())
             .parameter(ParameterDescription.builder().name("slot").type(PAR_INTEGER).build())
             .parameter(ParameterDescription.builder().name("amount").type(PAR_INTEGER).build())
-            .parameter(ParameterDescription.builder().name("slotOut").type(PAR_INTEGER).build())
+            .parameter(ParameterDescription.builder().name("slotIn").type(PAR_INTEGER).build())
             .icon(1, 1)
             .runnable(((processor, program, opcode) -> {
-                EnumFacing side = processor.evalulateParameter(opcode, program, 0);
-                EnumFacing invside = processor.evalulateParameter(opcode, program, 1);
-                int slot = processor.evalulateParameter(opcode, program, 2);
-                int amount = processor.evalulateParameter(opcode, program, 3);
-                int slotOut = processor.evalulateParameter(opcode, program, 4);
-                IItemHandler handler = processor.getItemHandlerAt(side, invside);
-                if (handler != null) {
-                    // @todo
-//                    ItemStack extracted = handler.extractItem(slot, amount, false);
-//                    processor.insertStack(program, slotOut, extracted);
-                }
+                Inventory inv = processor.evalulateParameter(opcode, program, 0);
+                int slot = processor.evalulateParameter(opcode, program, 1);
+                int amount = processor.evalulateParameter(opcode, program, 2);
+                int slotIn = processor.evalulateParameter(opcode, program, 3);
+                processor.pushItems(program, inv, slot, amount, slotIn);
                 return true;
             }))
             .build();
