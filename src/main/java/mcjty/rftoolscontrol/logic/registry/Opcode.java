@@ -2,6 +2,7 @@ package mcjty.rftoolscontrol.logic.registry;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class Opcode {
@@ -11,6 +12,7 @@ public class Opcode {
     private final boolean isEvent;
     private final List<ParameterDescription> parameters;
     private final OpcodeRunnable runnable;
+    private final List<String> description;
 
     private final int iconU;
     private final int iconV;
@@ -23,6 +25,7 @@ public class Opcode {
         this.iconU = builder.iconU;
         this.iconV = builder.iconV;
         this.runnable = builder.runnable;
+        this.description = new ArrayList<>(builder.description);
     }
 
     public String getId() {
@@ -44,6 +47,10 @@ public class Opcode {
     @Nonnull
     public OpcodeRunnable getRunnable() {
         return runnable;
+    }
+
+    public List<String> getDescription() {
+        return description;
     }
 
     public int getIconU() {
@@ -100,9 +107,16 @@ public class Opcode {
         private int iconV;
         private List<ParameterDescription> parameters = new ArrayList<>();
         private OpcodeRunnable runnable = NOOP;
+        private List<String> description = Collections.emptyList();
 
         public Builder id(String id) {
             this.id = id;
+            return this;
+        }
+
+        public Builder description(String... description) {
+            this.description = new ArrayList<>();
+            Collections.addAll(this.description, description);
             return this;
         }
 

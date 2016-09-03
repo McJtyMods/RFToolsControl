@@ -31,10 +31,8 @@ import net.minecraft.util.ResourceLocation;
 import org.apache.commons.lang3.StringUtils;
 
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.List;
 
 public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
     public static final int SIDEWIDTH = 80;
@@ -143,7 +141,18 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
             for (int x = 0; x < GRID_WIDTH; x++) {
                 int finalX = x;
                 int finalY = y;
-                IconHolder holder = new IconHolder(mc, this)
+                IconHolder holder = new IconHolder(mc, this) {
+                    @Override
+                    public List<String> getTooltips() {
+                        IIcon icon = getIcon();
+                        if (icon == null) {
+                            return Collections.emptyList();
+                        } else {
+                            Opcode opcode = Opcodes.OPCODES.get(icon.getID());
+                            return opcode.getDescription();
+                        }
+                    }
+                }
                         .setDesiredWidth(ICONSIZE+2)
                         .setDesiredHeight(ICONSIZE+2)
                         .setBorder(1)
@@ -408,7 +417,19 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
                 childPanel = new Panel(mc, this).setLayout(new HorizontalLayout().setVerticalMargin(1).setSpacing(1).setHorizontalMargin(1)).setDesiredHeight(ICONSIZE+1);
                 list.addChild(childPanel);
             }
-            IconHolder holder = new IconHolder(mc, this).setDesiredWidth(ICONSIZE).setDesiredHeight(ICONSIZE)
+            IconHolder holder = new IconHolder(mc, this) {
+                @Override
+                public List<String> getTooltips() {
+                    IIcon icon = getIcon();
+                    if (icon == null) {
+                        return Collections.emptyList();
+                    } else {
+                        Opcode opcode = Opcodes.OPCODES.get(icon.getID());
+                        return opcode.getDescription();
+                    }
+                }
+            }
+                    .setDesiredWidth(ICONSIZE).setDesiredHeight(ICONSIZE)
                     .setMakeCopy(true);
             holder.setIcon(ICONS.get(key).clone());
             childPanel.addChild(holder);

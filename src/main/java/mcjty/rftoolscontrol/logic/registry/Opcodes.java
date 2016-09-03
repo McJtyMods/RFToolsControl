@@ -13,12 +13,14 @@ public class Opcodes {
 
     public static final Opcode DO_REDSTONE_ON = Opcode.builder()
             .id("do_rs_on")
+            .description("WIP")
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("side").type(PAR_SIDE).build())
             .icon(0, 0)
             .build();
     public static final Opcode DO_REDSTONE_OFF = Opcode.builder()
             .id("do_rs_off")
+            .description("WIP")
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("side").type(PAR_SIDE).build())
             .icon(1, 0)
@@ -26,6 +28,7 @@ public class Opcodes {
     //    public static Operand DO_REDSTONE_OFF = Operand.builder().id("do_rs_off").operandOutput(OperandOutput.SINGLE).icon(2, 0).build();
     public static final Opcode EVENT_REDSTONE_ON = Opcode.builder()
             .id("ev_rs_on")
+            .description("Event: execute program", "on redstone pulse on")
             .opcodeOutput(SINGLE)
             .isEvent(true)
             .parameter(ParameterDescription.builder().name("side").type(PAR_SIDE).build())
@@ -33,6 +36,7 @@ public class Opcodes {
             .build();
     public static final Opcode EVENT_REDSTONE_OFF = Opcode.builder()
             .id("ev_rs_off")
+            .description("Event: execute program", "on redstone pulse off")
             .opcodeOutput(SINGLE)
             .isEvent(true)
             .parameter(ParameterDescription.builder().name("side").type(PAR_SIDE).build())
@@ -42,6 +46,7 @@ public class Opcodes {
 
     public static final Opcode DO_DELAY = Opcode.builder()
             .id("do_delay")
+            .description("Operation: wait for a number", "of ticks")
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("ticks").type(PAR_INTEGER).build())
             .icon(6, 0)
@@ -54,6 +59,7 @@ public class Opcodes {
 
     public static final Opcode TEST_COUNTINV = Opcode.builder()
             .id("test_countinv")
+            .description("Test: count the amount of items", "in a specific slot of", "an external inventory")
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("inv").type(PAR_INVENTORY).build())
             .parameter(ParameterDescription.builder().name("slot").type(PAR_INTEGER).build())
@@ -70,18 +76,10 @@ public class Opcodes {
             }))
             .build();
 
-    public static final Opcode CONTROL_IF = Opcode.builder()
-            .id("ctrl_if")
-            .opcodeOutput(YESNO)
-            .parameter(ParameterDescription.builder().name("eval").type(PAR_BOOLEAN).build())
-            .icon(5, 0)
-            .runnable(((processor, program, opcode) -> {
-                return processor.evalulateBoolParameter(opcode, program, 0);
-            }))
-            .build();
 
     public static final Opcode DO_STOP = Opcode.builder()
             .id("do_stop")
+            .description("Operation: stop program")
             .opcodeOutput(NONE)
             .icon(7, 0)
             .runnable((processor, program, opcode) -> {
@@ -92,6 +90,7 @@ public class Opcodes {
 
     public static final Opcode DO_LOG = Opcode.builder()
             .id("do_log")
+            .description("Operation: dump a message", "on the processor console")
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("message").type(PAR_STRING).build())
             .icon(8, 0)
@@ -104,6 +103,7 @@ public class Opcodes {
 
     public static final Opcode EVENT_TIMER = Opcode.builder()
             .id("ev_timer")
+            .description("Event: execute program every", "<N> ticks")
             .opcodeOutput(SINGLE)
             .isEvent(true)
             .parameter(ParameterDescription.builder().name("ticks").type(PAR_INTEGER).build())
@@ -112,6 +112,7 @@ public class Opcodes {
 
     public static final Opcode CALC_GT = Opcode.builder()
             .id("calc_gt")
+            .description("Calculation: compare two", "values")
             .opcodeOutput(YESNO)
             .parameter(ParameterDescription.builder().name("v1").type(PAR_INTEGER).build())
             .parameter(ParameterDescription.builder().name("v2").type(PAR_INTEGER).build())
@@ -125,6 +126,7 @@ public class Opcodes {
 
     public static final Opcode CALC_EQ = Opcode.builder()
             .id("calc_eq")
+            .description("Calculation: compare two", "values on equality")
             .opcodeOutput(YESNO)
             .parameter(ParameterDescription.builder().name("v1").type(PAR_INTEGER).build())
             .parameter(ParameterDescription.builder().name("v2").type(PAR_INTEGER).build())
@@ -138,6 +140,7 @@ public class Opcodes {
 
     public static final Opcode DO_FETCHITEMS = Opcode.builder()
             .id("do_fetchitems")
+            .description("Operation: fetch items from", "external inventory", "and place in internal", "inventory")
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("inv").type(PAR_INVENTORY).build())
             .parameter(ParameterDescription.builder().name("slot").type(PAR_INTEGER).build())
@@ -156,6 +159,7 @@ public class Opcodes {
 
     public static final Opcode DO_PUSHITEMS = Opcode.builder()
             .id("do_pushitems")
+            .description("Operation: push items to", "external inventory", "from internal inventory")
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("inv").type(PAR_INVENTORY).build())
             .parameter(ParameterDescription.builder().name("slot").type(PAR_INTEGER).build())
@@ -174,6 +178,7 @@ public class Opcodes {
 
     public static final Opcode TEST_COUNTINVINT = Opcode.builder()
             .id("test_countinvint")
+            .description("Test: count the amount of items", "in a specific slot of", "the internal inventory")
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("slot").type(PAR_INTEGER).build())
             .icon(2, 1)
