@@ -34,6 +34,7 @@ import net.minecraft.util.ResourceLocation;
 import org.apache.commons.lang3.StringUtils;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -300,14 +301,16 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
         int x = 0;
         int y = 0;
         Panel childPanel = null;
-        for (Map.Entry<String, Opcode> entry : Opcodes.OPCODES.entrySet()) {
+        ArrayList<String> keys = new ArrayList<>(Opcodes.OPCODES.keySet());
+        Collections.sort(keys);
+        for (String key : keys) {
             if (childPanel == null) {
                 childPanel = new Panel(mc, this).setLayout(new HorizontalLayout().setVerticalMargin(1).setSpacing(1).setHorizontalMargin(1)).setDesiredHeight(ICONSIZE+1);
                 list.addChild(childPanel);
             }
             IconHolder holder = new IconHolder(mc, this).setDesiredWidth(ICONSIZE).setDesiredHeight(ICONSIZE)
                     .setMakeCopy(true);
-            holder.setIcon(ICONS.get(entry.getKey()).clone());
+            holder.setIcon(ICONS.get(key).clone());
             childPanel.addChild(holder);
             x++;
             if (x >= 2) {
