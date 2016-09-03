@@ -172,6 +172,19 @@ public class Opcodes {
             }))
             .build();
 
+    public static final Opcode TEST_COUNTINVINT = Opcode.builder()
+            .id("test_countinvint")
+            .opcodeOutput(SINGLE)
+            .parameter(ParameterDescription.builder().name("slot").type(PAR_INTEGER).build())
+            .icon(2, 1)
+            .runnable(((processor, program, opcode) -> {
+                int slot = processor.evalulateParameter(opcode, program, 0);
+                ItemStack stack = processor.getItemInternal(program, slot);
+                program.setLastValue(PAR_INTEGER, ParameterValue.constant(stack == null ? 0 : stack.stackSize));
+                return true;
+            }))
+            .build();
+
 
     public static final Map<String, Opcode> OPCODES = new HashMap<>();
 
@@ -180,6 +193,7 @@ public class Opcodes {
         register(EVENT_REDSTONE_OFF);
         register(EVENT_TIMER);
         register(TEST_COUNTINV);
+        register(TEST_COUNTINVINT);
         register(CALC_GT);
         register(CALC_EQ);
 //        register(CONTROL_IF);

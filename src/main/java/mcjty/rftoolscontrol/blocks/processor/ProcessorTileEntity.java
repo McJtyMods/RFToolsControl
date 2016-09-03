@@ -263,6 +263,18 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         capability.insertItem(realSlot + ProcessorContainer.SLOT_BUFFER, extracted, false);
     }
 
+    public ItemStack getItemInternal(RunningProgram program, int virtualSlot) {
+        CardInfo info = this.cardInfo[program.getCardIndex()];
+        int realSlot = info.getRealSlot(virtualSlot);
+        if (realSlot == -1) {
+            // @todo Exception
+            log("No slot!");
+            return null;
+        }
+        IItemHandler capability = getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
+        return capability.getStackInSlot(realSlot + ProcessorContainer.SLOT_BUFFER);
+    }
+
 
     public void pushItems(RunningProgram program, Inventory inv, int slot, int amount, int virtualSlot) {
         CardInfo info = this.cardInfo[program.getCardIndex()];
