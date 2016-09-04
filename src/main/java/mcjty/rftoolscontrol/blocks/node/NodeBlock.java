@@ -18,7 +18,7 @@ public class NodeBlock extends GenericRFToolsBlock<NodeTileEntity, EmptyContaine
     @SideOnly(Side.CLIENT)
     @Override
     public Class<? extends GenericGuiContainer> getGuiClass() {
-        return GuiProcessor.class;
+        return GuiNode.class;
     }
 
     @Override
