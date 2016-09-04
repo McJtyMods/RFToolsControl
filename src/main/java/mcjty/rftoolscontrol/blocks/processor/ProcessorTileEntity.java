@@ -61,6 +61,9 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     // If true some cpu cores need updating
     private boolean coresDirty = true;
 
+    private int maxVars = -1;   // If -1 we need updating
+    private boolean hasNetworkCard = false;
+
     // @todo, do this for all six sides
     private int prevIn = 0;
 
@@ -383,6 +386,34 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         handler.insertItem(slot, extracted, false);
     }
 
+    public int getMaxvars() {
+        if (maxVars == -1) {
+            maxVars = 0;
+            hasNetworkCard = false;
+            for (int i = ProcessorContainer.SLOT_EXPANSION ; i < ProcessorContainer.SLOT_EXPANSION + EXPANSION_SLOTS ; i++) {
+                ItemStack stack = getStackInSlot(i);
+                if (stack != null) {
+                    if (stack.getItem() == ModItems.networkCardItem) {
+                        hasNetworkCard = true;
+                    } else if (stack.getItem() == ModItems.ramChipItem) {
+                        maxVars += 8;
+                    }
+                }
+            }
+            if (maxVars >= MAXVARS) {
+                maxVars = MAXVARS;
+            }
+        }
+        return maxVars;
+    }
+
+    public boolean hasNetworkCard() {
+        if (maxVars == -1) {
+            getMaxvars();       // Update
+        }
+        return hasNetworkCard;
+    }
+
 
     public void setVariable(RunningProgram program, int var) {
         CardInfo info = this.cardInfo[program.getCardIndex()];
@@ -390,6 +421,11 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         if (realVar == -1) {
             // @todo Exception
             log("No variable!");
+            return;
+        }
+        if (realVar >= getMaxvars()) {
+            // @todo exception
+            log("Not enough variable space!");
             return;
         }
         variables[realVar] = program.getLastValue();
@@ -409,6 +445,11 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             if (realVar == -1) {
                 // @todo Exception
                 log("No variable!");
+                return null;
+            }
+            if (realVar >= getMaxvars()) {
+                // @todo exception
+                log("Not enough variable space!");
                 return null;
             }
             // @todo  What if the variable does not return a constant? Do we support that?
@@ -554,6 +595,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             cardsDirty = true;
         } else if (isExpansionSlot(index)) {
             coresDirty = true;
+            maxVars = -1;
         }
         getInventoryHelper().setInventorySlotContents(getInventoryStackLimit(), index, stack);
     }

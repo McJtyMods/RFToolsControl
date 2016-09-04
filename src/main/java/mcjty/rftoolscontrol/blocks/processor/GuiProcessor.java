@@ -281,7 +281,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
         }
         variableList.setPropagateEventsToChildren(setupMode == -1);
 
-        for (int i = 0 ; i < ProcessorTileEntity.MAXVARS ; i++) {
+        for (int i = 0 ; i < tileEntity.getMaxvars() ; i++) {
             Panel panel = new Panel(mc, this).setLayout(new HorizontalLayout()).setDesiredWidth(40);
             if (setupMode != -1) {
                 boolean allocated = ((varAlloc >> i) & 1) != 0;
