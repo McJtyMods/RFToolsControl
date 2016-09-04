@@ -9,6 +9,7 @@ item.rftoolscontrol.ram_chip.name=RAM Chip 8E
 # Blocks
 tile.rftoolscontrol.programmer.name=Programmer
 tile.rftoolscontrol.processor.name=Processor
+tile.rftoolscontrol.node.name=Node
 
 # Creative Tabs
 itemGroup.RFToolsControl=RFTools Control

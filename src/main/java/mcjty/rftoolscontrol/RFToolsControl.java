@@ -36,6 +36,7 @@ public class RFToolsControl implements ModBase {
     public static final int GUI_MANUAL_CONTROL = modGuiIndex++;
     public static final int GUI_PROGRAMMER = modGuiIndex++;
     public static final int GUI_PROCESSOR = modGuiIndex++;
+    public static final int GUI_NODE = modGuiIndex++;
 
     public static CreativeTabs tabRFToolsControl = new CreativeTabs("RFToolsControl") {
         @Override
