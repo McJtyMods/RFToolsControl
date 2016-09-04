@@ -1,41 +1,40 @@
 package mcjty.rftoolscontrol.logic;
 
-import mcjty.rftoolscontrol.logic.registry.ParameterDescription;
 import mcjty.rftoolscontrol.logic.registry.ParameterType;
 import mcjty.rftoolscontrol.logic.registry.ParameterValue;
 import net.minecraft.nbt.NBTTagCompound;
 
 public class Parameter {
 
-    private final ParameterDescription parameterDescription;
+    private final ParameterType parameterType;
     private final ParameterValue parameterValue;
 
     private Parameter(Builder builder) {
-        parameterDescription = builder.parameterDescription;
+        parameterType = builder.parameterType;
         parameterValue = builder.parameterValue;
     }
 
     public static Parameter readFromNBT(NBTTagCompound parTag) {
-        String name = parTag.getString("name");
         ParameterType type = ParameterType.values()[parTag.getInteger("type")];
-        ParameterDescription description = ParameterDescription.builder().name(name).type(type).build();
         ParameterValue value = type.readFromNBT(parTag);
-        return builder().description(description).value(value).build();
+        return builder().type(type).value(value).build();
     }
 
     public static NBTTagCompound writeToNBT(Parameter parameter) {
-        String name = parameter.getParameterDescription().getName();
-        ParameterType type = parameter.getParameterDescription().getType();
+        ParameterType type = parameter.getParameterType();
         ParameterValue value = parameter.getParameterValue();
         NBTTagCompound parTag = new NBTTagCompound();
-        parTag.setString("name", name);
         parTag.setInteger("type", type.ordinal());
         type.writeToNBT(parTag, value);
         return parTag;
     }
 
-    public ParameterDescription getParameterDescription() {
-        return parameterDescription;
+    public boolean isSet() {
+        return parameterValue != null && parameterValue.getValue() != null;
+    }
+
+    public ParameterType getParameterType() {
+        return parameterType;
     }
 
     public ParameterValue getParameterValue() {
@@ -47,11 +46,11 @@ public class Parameter {
     }
 
     public static class Builder {
-        private ParameterDescription parameterDescription;
+        private ParameterType parameterType;
         private ParameterValue parameterValue;
 
-        public Builder description(ParameterDescription description) {
-            this.parameterDescription = description;
+        public Builder type(ParameterType parameterType) {
+            this.parameterType = parameterType;
             return this;
         }
 

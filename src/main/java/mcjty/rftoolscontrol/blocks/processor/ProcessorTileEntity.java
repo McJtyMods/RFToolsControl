@@ -6,6 +6,7 @@ import mcjty.lib.entity.GenericEnergyReceiverTileEntity;
 import mcjty.lib.network.Argument;
 import mcjty.rftoolscontrol.config.GeneralConfiguration;
 import mcjty.rftoolscontrol.items.ModItems;
+import mcjty.rftoolscontrol.logic.Parameter;
 import mcjty.rftoolscontrol.logic.compiled.CompiledCard;
 import mcjty.rftoolscontrol.logic.compiled.CompiledEvent;
 import mcjty.rftoolscontrol.logic.compiled.CompiledOpcode;
@@ -38,14 +39,13 @@ import javax.annotation.Nullable;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static mcjty.rftoolscontrol.logic.registry.ParameterType.PAR_INTEGER;
-
 public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity implements DefaultSidedInventory, ITickable {
 
     // Number of card slots the processor supports
     public static final int CARD_SLOTS = 6;
     public static final int ITEM_SLOTS = 3*8;
     public static final int EXPANSION_SLOTS = 4*4;
+    public static final int MAXVARS = 32;
 
     public static final String CMD_ALLOCATE = "allocate";
     public static final String CMD_CLEARLOG = "clearLog";
@@ -66,6 +66,8 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
 
     private int tickCount = 0;
 
+    private Parameter[] variables = new Parameter[MAXVARS];
+
     private CardInfo[] cardInfo = new CardInfo[CARD_SLOTS];
 
     private Queue<Pair<Integer, CompiledEvent>> eventQueue = new ArrayDeque<>();        // Integer == card index
@@ -76,6 +78,9 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         super(GeneralConfiguration.processorMaxenergy, GeneralConfiguration.processorReceivepertick);
         for (int i = 0 ; i < cardInfo.length ; i++) {
             cardInfo[i] = new CardInfo();
+        }
+        for (int i = 0 ; i < MAXVARS ; i++) {
+            variables[i] = null;
         }
     }
 
@@ -379,15 +384,15 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     }
 
 
-    public void insertStack(RunningProgram program, int virtualSlot, ItemStack stack) {
+    public void setVariable(RunningProgram program, int var) {
         CardInfo info = this.cardInfo[program.getCardIndex()];
-        int realSlot = info.getRealSlot(virtualSlot);
-        if (realSlot == -1) {
+        int realVar = info.getRealVar(var);
+        if (realVar == -1) {
             // @todo Exception
-            log("No slot!");
+            log("No variable!");
             return;
         }
-        getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null).insertItem(realSlot + ProcessorContainer.SLOT_BUFFER, stack, false);
+        variables[realVar] = program.getLastValue();
     }
 
     public <T> T evalulateParameter(CompiledOpcode compiledOpcode, RunningProgram program, int parIndex) {
@@ -399,8 +404,38 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             // @todo  What if the function does not return a constant? Do we support that?
             return (T) v.getValue();
         } else {
-            // @todo support variables
-            return null;
+            CardInfo info = this.cardInfo[program.getCardIndex()];
+            int realVar = info.getRealVar(value.getVariableIndex());
+            if (realVar == -1) {
+                // @todo Exception
+                log("No variable!");
+                return null;
+            }
+            // @todo  What if the variable does not return a constant? Do we support that?
+            Parameter par = variables[realVar];
+            if (par == null) {
+                return null;
+            }
+            return par.isSet() ? (T) par.getParameterValue().getValue() : null;
+        }
+    }
+
+    public String evalulateStringParameter(CompiledOpcode compiledOpcode, RunningProgram program, int parIndex) {
+        Object value = evalulateParameter(compiledOpcode, program, parIndex);
+        if (value instanceof String) {
+            return (String) value;
+        } else if (value instanceof Integer) {
+            return Integer.toString((Integer) value);
+        } else if (value instanceof Float) {
+            return Float.toString((Float) value);
+        } else if (value instanceof EnumFacing) {
+            return ((EnumFacing) value).getName();
+        } else if (value instanceof Boolean) {
+            return ((Boolean) value) ? "true" : "false";
+        } else if (value instanceof ItemStack) {
+            return ((ItemStack) value).getDisplayName();
+        } else {
+            return "";
         }
     }
 
@@ -536,6 +571,19 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         readCores(tagCompound);
         readEventQueue(tagCompound);
         readLog(tagCompound);
+        readVariables(tagCompound);
+    }
+
+    private void readVariables(NBTTagCompound tagCompound) {
+        for (int i = 0 ; i < MAXVARS ; i++) {
+            variables[i] = null;
+        }
+        NBTTagList varList = tagCompound.getTagList("vars", Constants.NBT.TAG_COMPOUND);
+        for (int i = 0 ; i < varList.tagCount() ; i++) {
+            NBTTagCompound var = varList.getCompoundTagAt(i);
+            int index = var.getInteger("varidx");
+            variables[index] = Parameter.readFromNBT(var);
+        }
     }
 
     private void readLog(NBTTagCompound tagCompound) {
@@ -589,6 +637,19 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         writeCores(tagCompound);
         writeEventQueue(tagCompound);
         writeLog(tagCompound);
+        writeVariables(tagCompound);
+    }
+
+    private void writeVariables(NBTTagCompound tagCompound) {
+        NBTTagList varList = new NBTTagList();
+        for (int i = 0 ; i < MAXVARS ; i++) {
+            if (variables[i] != null) {
+                NBTTagCompound var = Parameter.writeToNBT(variables[i]);
+                var.setInteger("varidx", i);
+                varList.appendTag(var);
+            }
+        }
+        tagCompound.setTag("vars", varList);
     }
 
     private void writeLog(NBTTagCompound tagCompound) {

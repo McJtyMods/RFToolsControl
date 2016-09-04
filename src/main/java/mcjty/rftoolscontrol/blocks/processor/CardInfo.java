@@ -13,6 +13,7 @@ public class CardInfo {
     private CompiledCard compiledCard;
 
     private int slotCache[] = null;
+    private int varCache[] = null;
 
     public int getItemAllocation() {
         return itemAllocation;
@@ -29,6 +30,7 @@ public class CardInfo {
 
     public void setVarAllocation(int varAllocation) {
         this.varAllocation = varAllocation;
+        varCache = null;
     }
 
     public void setCompiledCard(CompiledCard compiledCard) {
@@ -59,6 +61,26 @@ public class CardInfo {
         return slotCache[virtualSlot];
     }
 
+    public int getRealVar(int virtualVar) {
+        if (varCache == null) {
+            varCache = new int[ProcessorTileEntity.MAXVARS];
+            int idx = 0;
+            for (int i = 0 ; i < ProcessorTileEntity.MAXVARS ; i++) {
+                if (((varAllocation >> i) & 1) == 1) {
+                    varCache[idx] = i;
+                    idx++;
+                }
+            }
+            for ( ; idx < ProcessorTileEntity.MAXVARS ; idx++) {
+                varCache[idx] = -1;
+            }
+        }
+        if (virtualVar < 0 && virtualVar >= ProcessorTileEntity.MAXVARS) {
+            return -1;
+        }
+        return varCache[virtualVar];
+    }
+
     public NBTTagCompound writeToNBT() {
         NBTTagCompound tag = new NBTTagCompound();
         tag.setInteger("itemAlloc", itemAllocation);
@@ -71,6 +93,7 @@ public class CardInfo {
         cardInfo.itemAllocation = tag.getInteger("itemAlloc");
         cardInfo.varAllocation = tag.getInteger("varAlloc");
         cardInfo.slotCache = null;
+        cardInfo.varCache = null;
         return cardInfo;
     }
 }

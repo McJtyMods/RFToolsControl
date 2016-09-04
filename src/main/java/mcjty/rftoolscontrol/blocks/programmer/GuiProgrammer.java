@@ -353,7 +353,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
                             if (value == null) {
                                 value = ParameterValue.constant(null);
                             }
-                            Parameter parameter = Parameter.builder().description(description).value(value).build();
+                            Parameter parameter = Parameter.builder().type(description.getType()).value(value).build();
                             builder.parameter(parameter);
                         }
                     }
@@ -389,10 +389,16 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
             if (gridInstance.getSecondaryConnection() != null) {
                 icon.addOverlay(CONNECTION_ICONS.get(gridInstance.getSecondaryConnection()));
             }
-            for (Parameter parameter : gridInstance.getParameters()) {
-                String name = parameter.getParameterDescription().getName();
-                icon.addData(name, parameter.getParameterValue());
+            Opcode opcode = Opcodes.OPCODES.get(icon.getID());
+            List<Parameter> parameters = gridInstance.getParameters();
+            for (int i = 0 ; i < parameters.size() ; i++) {
+                String name = opcode.getParameters().get(i).getName();
+                icon.addData(name, parameters.get(i).getParameterValue());
             }
+//            for (Parameter parameter : parameters) {
+//                String name = parameter.getParameterDescription().getName();
+//                icon.addData(name, parameter.getParameterValue());
+//            }
 
             loading = true;
             getHolder(x, y).setIcon(icon);

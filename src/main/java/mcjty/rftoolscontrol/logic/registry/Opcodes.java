@@ -1,5 +1,6 @@
 package mcjty.rftoolscontrol.logic.registry;
 
+import mcjty.rftoolscontrol.logic.Parameter;
 import net.minecraft.item.ItemStack;
 
 import java.util.HashMap;
@@ -69,7 +70,7 @@ public class Opcodes {
                 Integer slot = processor.evalulateParameter(opcode, program, 1);
                 ItemStack item = processor.evalulateParameter(opcode, program, 2);
                 int cnt = processor.countItem(inv, slot, item);
-                program.setLastValue(PAR_INTEGER, ParameterValue.constant(cnt));
+                program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(cnt)).build());
                 return true;
             }))
             .build();
@@ -93,7 +94,7 @@ public class Opcodes {
             .parameter(ParameterDescription.builder().name("message").type(PAR_STRING).build())
             .icon(8, 0)
             .runnable(((processor, program, opcode) -> {
-                String message = processor.evalulateParameter(opcode, program, 0);
+                String message = processor.evalulateStringParameter(opcode, program, 0);
                 processor.log(message);
                 return true;
             }))
@@ -185,7 +186,20 @@ public class Opcodes {
             .runnable(((processor, program, opcode) -> {
                 int slot = processor.evalulateParameter(opcode, program, 0);
                 ItemStack stack = processor.getItemInternal(program, slot);
-                program.setLastValue(PAR_INTEGER, ParameterValue.constant(stack == null ? 0 : stack.stackSize));
+                program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(stack == null ? 0 : stack.stackSize)).build());
+                return true;
+            }))
+            .build();
+
+    public static final Opcode DO_SETVAR = Opcode.builder()
+            .id("do_setvar")
+            .description("Operation: copy last returned", "value to a variable")
+            .opcodeOutput(SINGLE)
+            .parameter(ParameterDescription.builder().name("var").type(PAR_INTEGER).build())
+            .icon(3, 1)
+            .runnable(((processor, program, opcode) -> {
+                int var = processor.evalulateParameter(opcode, program, 0);
+                processor.setVariable(program, var);
                 return true;
             }))
             .build();
@@ -209,6 +223,7 @@ public class Opcodes {
         register(DO_LOG);
         register(DO_FETCHITEMS);
         register(DO_PUSHITEMS);
+        register(DO_SETVAR);
     }
 
     private static void register(Opcode opcode) {

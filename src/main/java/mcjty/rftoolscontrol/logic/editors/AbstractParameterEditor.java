@@ -43,7 +43,12 @@ public abstract class AbstractParameterEditor implements ParameterEditor {
         if (PAGE_CONSTANT.equals(tabbedPanel.getCurrentName())) {
             return readConstantValue();
         } else if (PAGE_VARIABLE.equals(tabbedPanel.getCurrentName())) {
-            return ParameterValue.variable(parseIntSafe(variableIndex.getText()));
+            Integer var = parseIntSafe(variableIndex.getText());
+            if (var != null) {
+                return ParameterValue.variable(var);
+            } else {
+                return ParameterValue.variable(0);
+            }
         } else if (PAGE_FUNCTION.equals(tabbedPanel.getCurrentName())) {
             List<Parameter> parameters = new ArrayList<>();
             // @todo fill the list of parameters from the gui

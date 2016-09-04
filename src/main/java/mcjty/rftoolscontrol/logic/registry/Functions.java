@@ -1,5 +1,6 @@
 package mcjty.rftoolscontrol.logic.registry;
 
+import mcjty.rftoolscontrol.logic.Parameter;
 import net.minecraft.util.EnumFacing;
 
 import javax.annotation.Nonnull;
@@ -14,7 +15,7 @@ public class Functions {
             .name("last")
             .type(PAR_BOOLEAN)
             .runnable((processor, program, function) -> {
-                return convertToBool(program.getLastValueType(), program.getLastValue());
+                return convertToBool(program.getLastValue());
             })
             .build();
     public static final Function LASTINT = Function.builder()
@@ -22,7 +23,7 @@ public class Functions {
             .name("last")
             .type(PAR_INTEGER)
             .runnable((processor, program, function) -> {
-                return convertToInt(program.getLastValueType(), program.getLastValue());
+                return convertToInt(program.getLastValue());
             })
             .build();
     public static final Function LASTSTRING = Function.builder()
@@ -30,72 +31,75 @@ public class Functions {
             .name("last")
             .type(PAR_STRING)
             .runnable((processor, program, function) -> {
-                return convertToString(program.getLastValueType(), program.getLastValue());
+                return convertToString(program.getLastValue());
             })
             .build();
 
-    private static ParameterValue convertToBool(ParameterType type, ParameterValue value) {
-        if (value == null || type == null) {
+    private static ParameterValue convertToBool(Parameter value) {
+        if (value == null) {
             return ParameterValue.constant(false);
         }
-        if (value.getValue() == null) {
+        if (!value.isSet()) {
             return ParameterValue.constant(false);
         }
-        switch (type) {
+        Object v = value.getParameterValue().getValue();
+        switch (value.getParameterType()) {
             case PAR_STRING:
-                return ParameterValue.constant(!((String) value.getValue()).isEmpty());
+                return ParameterValue.constant(!((String) v).isEmpty());
             case PAR_INTEGER:
-                return ParameterValue.constant(((Integer) value.getValue()) != 0);
+                return ParameterValue.constant(((Integer) v) != 0);
             case PAR_FLOAT:
-                return ParameterValue.constant(((Float) value.getValue()) != 0);
+                return ParameterValue.constant(((Float) v) != 0);
             case PAR_SIDE:
                 return ParameterValue.constant(false);
             case PAR_BOOLEAN:
-                return value;
+                return value.getParameterValue();
         }
         return ParameterValue.constant(false);
     }
 
-    private static ParameterValue convertToInt(ParameterType type, ParameterValue value) {
-        if (value == null || type == null) {
+    private static ParameterValue convertToInt(Parameter value) {
+        if (value == null) {
             return ParameterValue.constant(0);
         }
-        if (value.getValue() == null) {
+        if (!value.isSet()) {
             return ParameterValue.constant(0);
         }
-        switch (type) {
+        Object v = value.getParameterValue().getValue();
+        switch (value.getParameterType()) {
             case PAR_STRING:
-                return ParameterValue.constant(Integer.parseInt((String) value.getValue()));
+                return ParameterValue.constant(Integer.parseInt((String) v));
             case PAR_INTEGER:
-                return value;
+                return value.getParameterValue();
             case PAR_FLOAT:
-                return ParameterValue.constant(((Float) value.getValue()).intValue());
+                return ParameterValue.constant(((Float) v).intValue());
             case PAR_SIDE:
                 return ParameterValue.constant(0);
             case PAR_BOOLEAN:
-                return ParameterValue.constant(((Boolean) value.getValue()) ? 1 : 0);
+                return ParameterValue.constant(((Boolean) v) ? 1 : 0);
         }
         return ParameterValue.constant(0);
     }
 
-    private static ParameterValue convertToString(ParameterType type, ParameterValue value) {
-        if (value == null || type == null) {
+    private static ParameterValue convertToString(Parameter value) {
+        if (value == null) {
             return ParameterValue.constant("");
         }
-        if (value.getValue() == null) {
+        if (!value.isSet()) {
             return ParameterValue.constant("");
         }
-        switch (type) {
+        Object v = value.getParameterValue().getValue();
+        switch (value.getParameterType()) {
             case PAR_STRING:
-                return value;
+                return value.getParameterValue();
             case PAR_INTEGER:
-                return ParameterValue.constant(Integer.toString((Integer) value.getValue()));
+                return ParameterValue.constant(Integer.toString((Integer) v));
             case PAR_FLOAT:
-                return ParameterValue.constant(Float.toString((Float) value.getValue()));
+                return ParameterValue.constant(Float.toString((Float) v));
             case PAR_SIDE:
-                return ParameterValue.constant(((EnumFacing)value.getValue()).getName());
+                return ParameterValue.constant(((EnumFacing)v).getName());
             case PAR_BOOLEAN:
-                return ParameterValue.constant(((Boolean) value.getValue()) ? "true" : "false");
+                return ParameterValue.constant(((Boolean) v) ? "true" : "false");
         }
         return ParameterValue.constant("");
     }
