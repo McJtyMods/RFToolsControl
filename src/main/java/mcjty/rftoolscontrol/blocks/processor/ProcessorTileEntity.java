@@ -420,6 +420,41 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         }
     }
 
+    public int evaluateIntParameter(CompiledOpcode compiledOpcode, RunningProgram program, int parIndex) {
+        Object value = evalulateParameter(compiledOpcode, program, parIndex);
+        if (value instanceof Integer) {
+            return (Integer) value;
+        } else if (value instanceof String) {
+            return Integer.parseInt((String) value);
+        } else if (value instanceof Float) {
+            return ((Float) value).intValue();
+        } else if (value instanceof Boolean) {
+            return ((Boolean) value) ? 1 : 0;
+        } else if (value instanceof ItemStack) {
+            return ((ItemStack) value).stackSize;
+        } else {
+            return 0;
+        }
+    }
+
+    // This version allows returning null
+    public Integer evaluateIntegerParameter(CompiledOpcode compiledOpcode, RunningProgram program, int parIndex) {
+        Object value = evalulateParameter(compiledOpcode, program, parIndex);
+        if (value instanceof Integer) {
+            return (Integer) value;
+        } else if (value instanceof String) {
+            return Integer.parseInt((String) value);
+        } else if (value instanceof Float) {
+            return ((Float) value).intValue();
+        } else if (value instanceof Boolean) {
+            return ((Boolean) value) ? 1 : 0;
+        } else if (value instanceof ItemStack) {
+            return ((ItemStack) value).stackSize;
+        } else {
+            return null;
+        }
+    }
+
     public String evalulateStringParameter(CompiledOpcode compiledOpcode, RunningProgram program, int parIndex) {
         Object value = evalulateParameter(compiledOpcode, program, parIndex);
         if (value instanceof String) {

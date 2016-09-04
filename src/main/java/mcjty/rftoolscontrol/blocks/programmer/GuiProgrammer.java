@@ -423,7 +423,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
 
     private Panel setupListPanel() {
         WidgetList list = new WidgetList(mc, this)
-                .setLayoutHint(new PositionalLayout.PositionalHint(0, 0, 62, 220))
+                .setLayoutHint(new PositionalLayout.PositionalHint(0, 0, 62, 226))
                 .setPropagateEventsToChildren(true)
                 .setInvisibleSelection(true)
                 .setDrawHorizontalLines(false)
@@ -431,7 +431,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
         Slider slider = new Slider(mc, this)
                 .setVertical()
                 .setScrollable(list)
-                .setLayoutHint(new PositionalLayout.PositionalHint(62, 0, 9, 220));
+                .setLayoutHint(new PositionalLayout.PositionalHint(62, 0, 9, 226));
 
         int x = 0;
         int y = 0;
@@ -467,7 +467,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
             }
         }
 
-        return new Panel(mc, this).setLayout(new PositionalLayout()).setLayoutHint(new PositionalLayout.PositionalHint(5, 5, 72, 220))
+        return new Panel(mc, this).setLayout(new PositionalLayout()).setLayoutHint(new PositionalLayout.PositionalHint(5, 5, 72, 226))
                 .addChild(list)
                 .addChild(slider);
 //                .setFilledRectThickness(-2)

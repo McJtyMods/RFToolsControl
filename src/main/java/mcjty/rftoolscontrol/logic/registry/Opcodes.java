@@ -51,7 +51,7 @@ public class Opcodes {
             .parameter(ParameterDescription.builder().name("ticks").type(PAR_INTEGER).build())
             .icon(6, 0)
             .runnable(((processor, program, opcode) -> {
-                int ticks = processor.evalulateParameter(opcode, program, 0);
+                int ticks = processor.evaluateIntParameter(opcode, program, 0);
                 program.setDelay(ticks);
                 return true;
             }))
@@ -67,7 +67,7 @@ public class Opcodes {
             .icon(2, 0)
             .runnable(((processor, program, opcode) -> {
                 Inventory inv = processor.evalulateParameter(opcode, program, 0);
-                Integer slot = processor.evalulateParameter(opcode, program, 1);
+                Integer slot = processor.evaluateIntegerParameter(opcode, program, 1);
                 ItemStack item = processor.evalulateParameter(opcode, program, 2);
                 int cnt = processor.countItem(inv, slot, item);
                 program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(cnt)).build());
@@ -117,8 +117,8 @@ public class Opcodes {
             .parameter(ParameterDescription.builder().name("v2").type(PAR_INTEGER).build())
             .icon(10, 0)
             .runnable(((processor, program, opcode) -> {
-                int v1 = processor.evalulateParameter(opcode, program, 0);
-                int v2 = processor.evalulateParameter(opcode, program, 1);
+                int v1 = processor.evaluateIntParameter(opcode, program, 0);
+                int v2 = processor.evaluateIntParameter(opcode, program, 1);
                 return v1 > v2;
             }))
             .build();
@@ -131,8 +131,8 @@ public class Opcodes {
             .parameter(ParameterDescription.builder().name("v2").type(PAR_INTEGER).build())
             .icon(11, 0)
             .runnable(((processor, program, opcode) -> {
-                int v1 = processor.evalulateParameter(opcode, program, 0);
-                int v2 = processor.evalulateParameter(opcode, program, 1);
+                int v1 = processor.evaluateIntParameter(opcode, program, 0);
+                int v2 = processor.evaluateIntParameter(opcode, program, 1);
                 return v1 == v2;
             }))
             .build();
@@ -149,10 +149,10 @@ public class Opcodes {
             .icon(0, 1)
             .runnable(((processor, program, opcode) -> {
                 Inventory inv = processor.evalulateParameter(opcode, program, 0);
-                Integer slot = processor.evalulateParameter(opcode, program, 1);
+                Integer slot = processor.evaluateIntegerParameter(opcode, program, 1);
                 ItemStack item = processor.evalulateParameter(opcode, program, 2);
-                int amount = processor.evalulateParameter(opcode, program, 3);
-                int slotOut = processor.evalulateParameter(opcode, program, 4);
+                int amount = processor.evaluateIntParameter(opcode, program, 3);
+                int slotOut = processor.evaluateIntParameter(opcode, program, 4);
                 processor.fetchItems(program, inv, slot, item, amount, slotOut);
                 return true;
             }))
@@ -169,9 +169,9 @@ public class Opcodes {
             .icon(1, 1)
             .runnable(((processor, program, opcode) -> {
                 Inventory inv = processor.evalulateParameter(opcode, program, 0);
-                int slot = processor.evalulateParameter(opcode, program, 1);
-                int amount = processor.evalulateParameter(opcode, program, 2);
-                int slotIn = processor.evalulateParameter(opcode, program, 3);
+                int slot = processor.evaluateIntParameter(opcode, program, 1);  // @todo allow null?
+                int amount = processor.evaluateIntParameter(opcode, program, 2);
+                int slotIn = processor.evaluateIntParameter(opcode, program, 3);
                 processor.pushItems(program, inv, slot, amount, slotIn);
                 return true;
             }))
@@ -184,7 +184,7 @@ public class Opcodes {
             .parameter(ParameterDescription.builder().name("slot").type(PAR_INTEGER).build())
             .icon(2, 1)
             .runnable(((processor, program, opcode) -> {
-                int slot = processor.evalulateParameter(opcode, program, 0);
+                int slot = processor.evaluateIntParameter(opcode, program, 0);
                 ItemStack stack = processor.getItemInternal(program, slot);
                 program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(stack == null ? 0 : stack.stackSize)).build());
                 return true;
@@ -198,11 +198,102 @@ public class Opcodes {
             .parameter(ParameterDescription.builder().name("var").type(PAR_INTEGER).build())
             .icon(3, 1)
             .runnable(((processor, program, opcode) -> {
-                int var = processor.evalulateParameter(opcode, program, 0);
+                int var = processor.evaluateIntParameter(opcode, program, 0);
                 processor.setVariable(program, var);
                 return true;
             }))
             .build();
+
+    public static final Opcode DO_ADD = Opcode.builder()
+            .id("do_add")
+            .description("Operation: add two integers")
+            .opcodeOutput(SINGLE)
+            .parameter(ParameterDescription.builder().name("v1").type(PAR_INTEGER).build())
+            .parameter(ParameterDescription.builder().name("v2").type(PAR_INTEGER).build())
+            .icon(4, 1)
+            .runnable(((processor, program, opcode) -> {
+                int v1 = processor.evaluateIntParameter(opcode, program, 0);
+                int v2 = processor.evaluateIntParameter(opcode, program, 1);
+                program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(v1+v2)).build());
+                return true;
+            }))
+            .build();
+
+    public static final Opcode DO_SUBTRACT = Opcode.builder()
+            .id("do_subtract")
+            .description("Operation: subtract two integers")
+            .opcodeOutput(SINGLE)
+            .parameter(ParameterDescription.builder().name("v1").type(PAR_INTEGER).build())
+            .parameter(ParameterDescription.builder().name("v2").type(PAR_INTEGER).build())
+            .icon(5, 1)
+            .runnable(((processor, program, opcode) -> {
+                int v1 = processor.evaluateIntParameter(opcode, program, 0);
+                int v2 = processor.evaluateIntParameter(opcode, program, 1);
+                program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(v1-v2)).build());
+                return true;
+            }))
+            .build();
+
+    public static final Opcode DO_DIVIDE = Opcode.builder()
+            .id("do_divide")
+            .description("Operation: divide two integers")
+            .opcodeOutput(SINGLE)
+            .parameter(ParameterDescription.builder().name("v1").type(PAR_INTEGER).build())
+            .parameter(ParameterDescription.builder().name("v2").type(PAR_INTEGER).build())
+            .icon(6, 1)
+            .runnable(((processor, program, opcode) -> {
+                int v1 = processor.evaluateIntParameter(opcode, program, 0);
+                int v2 = processor.evaluateIntParameter(opcode, program, 1);
+                program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(v1/v2)).build());
+                return true;
+            }))
+            .build();
+
+    public static final Opcode DO_MULTIPLY = Opcode.builder()
+            .id("do_multiply")
+            .description("Operation: multiply two integers")
+            .opcodeOutput(SINGLE)
+            .parameter(ParameterDescription.builder().name("v1").type(PAR_INTEGER).build())
+            .parameter(ParameterDescription.builder().name("v2").type(PAR_INTEGER).build())
+            .icon(7, 1)
+            .runnable(((processor, program, opcode) -> {
+                int v1 = processor.evaluateIntParameter(opcode, program, 0);
+                int v2 = processor.evaluateIntParameter(opcode, program, 1);
+                program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(v1*v2)).build());
+                return true;
+            }))
+            .build();
+
+    public static final Opcode DO_MODULO = Opcode.builder()
+            .id("do_modulo")
+            .description("Operation: calculate modula", "of two integers")
+            .opcodeOutput(SINGLE)
+            .parameter(ParameterDescription.builder().name("v1").type(PAR_INTEGER).build())
+            .parameter(ParameterDescription.builder().name("v2").type(PAR_INTEGER).build())
+            .icon(8, 1)
+            .runnable(((processor, program, opcode) -> {
+                int v1 = processor.evaluateIntParameter(opcode, program, 0);
+                int v2 = processor.evaluateIntParameter(opcode, program, 1);
+                program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(v1%v2)).build());
+                return true;
+            }))
+            .build();
+
+    public static final Opcode DO_CONCAT = Opcode.builder()
+            .id("do_concat")
+            .description("Operation: add two integers")
+            .opcodeOutput(SINGLE)
+            .parameter(ParameterDescription.builder().name("v1").type(PAR_STRING).build())
+            .parameter(ParameterDescription.builder().name("v2").type(PAR_STRING).build())
+            .icon(9, 1)
+            .runnable(((processor, program, opcode) -> {
+                String v1 = processor.evalulateStringParameter(opcode, program, 0);
+                String v2 = processor.evalulateStringParameter(opcode, program, 1);
+                program.setLastValue(Parameter.builder().type(PAR_STRING).value(ParameterValue.constant(v1+v2)).build());
+                return true;
+            }))
+            .build();
+
 
 
     public static final Map<String, Opcode> OPCODES = new HashMap<>();
@@ -224,6 +315,12 @@ public class Opcodes {
         register(DO_FETCHITEMS);
         register(DO_PUSHITEMS);
         register(DO_SETVAR);
+        register(DO_ADD);
+        register(DO_SUBTRACT);
+        register(DO_DIVIDE);
+        register(DO_MULTIPLY);
+        register(DO_MODULO);
+        register(DO_CONCAT);
     }
 
     private static void register(Opcode opcode) {
