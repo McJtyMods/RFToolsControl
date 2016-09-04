@@ -323,11 +323,64 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
         return (IconHolder) row.getChild(x);
     }
 
+    private void validateProgram() {
+        Panel panel = new Panel(mc, this)
+                .setLayout(new VerticalLayout())
+                .setFilledBackground(0xff666666, 0xffaaaaaa)
+                .setFilledRectThickness(1);
+        panel.setBounds(new Rectangle(60, 10, 200, 130));
+        Window modalWindow = getWindowManager().createModalWindow(panel);
+        WidgetList errors = new WidgetList(mc, this);
+        panel.addChild(errors);
+        panel.addChild(new Button(mc, this)
+                .addButtonEvent(w ->  {
+                    getWindowManager().closeWindow(modalWindow);
+                })
+                .setText("Close"));
+        ProgramCardInstance instance = makeGridInstance();
+
+        // @todo, move this code to a validator class
+
+        Map<GridPos, GridInstance> grid = instance.getGridInstances();
+
+        // Find all unreachable instances.
+        Set<GridPos> reachableLocations = new HashSet<>();
+        for (Map.Entry<GridPos, GridInstance> entry : grid.entrySet()) {
+            GridInstance g = entry.getValue();
+            if (g.getPrimaryConnection() != null) {
+                reachableLocations.add(g.getPrimaryConnection().offset(entry.getKey()));
+            }
+            if (g.getSecondaryConnection() != null) {
+                reachableLocations.add(g.getSecondaryConnection().offset(entry.getKey()));
+            }
+        }
+        for (Map.Entry<GridPos, GridInstance> entry : grid.entrySet()) {
+            GridInstance g = entry.getValue();
+            Opcode opcode = Opcodes.OPCODES.get(g.getId());
+            GridPos p = entry.getKey();
+            if (!opcode.isEvent() && !reachableLocations.contains(p)) {
+                errors.addChild(new Label(mc, this)
+                        .setColor(0xffff0000)
+                        .setHorizontalAlignment(HorizontalAlignment.ALIGH_LEFT)
+                        .setText("Unreachable: " + p.getX() + "," + p.getY()));
+            }
+        }
+
+    }
+
     private void saveProgram() {
         ItemStack card = tileEntity.getStackInSlot(ProgrammerContainer.SLOT_CARD);
         if (card == null) {
             return;
         }
+        ProgramCardInstance instance = makeGridInstance();
+        System.out.println("GuiProgrammer.saveProgram");
+        instance.writeToNBT(card);
+        RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketUpdateNBTItemInventory(tileEntity.getPos(),
+                ProgrammerContainer.SLOT_CARD, card.getTagCompound()));
+    }
+
+    private ProgramCardInstance makeGridInstance() {
         ProgramCardInstance instance = ProgramCardInstance.newInstance();
         for (int x = 0 ; x < GRID_WIDTH ; x++) {
             for (int y = 0 ; y < GRID_HEIGHT ; y++) {
@@ -362,10 +415,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
                 }
             }
         }
-        System.out.println("GuiProgrammer.saveProgram");
-        instance.writeToNBT(card);
-        RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketUpdateNBTItemInventory(tileEntity.getPos(),
-                ProgrammerContainer.SLOT_CARD, card.getTagCompound()));
+        return instance;
     }
 
     private void loadProgram() {
@@ -414,10 +464,11 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
                 .setBorderColor(0xffff0000)
                 .setTooltips("Drop opcodes here to", "delete them")
                 .setSelectable(false);
-        return new Panel(mc, this).setLayout(new HorizontalLayout()).setLayoutHint(new PositionalLayout.PositionalHint(111, 137, 140, 18))
+        return new Panel(mc, this).setLayout(new HorizontalLayout().setSpacing(2).setHorizontalMargin(1)).setLayoutHint(new PositionalLayout.PositionalHint(106, 136, 145, 18))
                 .addChild(new Button(mc, this).setText("Load").setDesiredHeight(15).addButtonEvent(w -> loadProgram()))
                 .addChild(new Button(mc, this).setText("Save").setDesiredHeight(15).addButtonEvent(w -> saveProgram()))
                 .addChild(new Button(mc, this).setText("Clear").setDesiredHeight(15))
+                .addChild(new Button(mc, this).setText("Val").setDesiredHeight(15).addButtonEvent(w -> validateProgram()))
                 .addChild(trashcan);
     }
 
