@@ -38,6 +38,8 @@ import javax.annotation.Nullable;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static mcjty.rftoolscontrol.logic.registry.ParameterType.PAR_INTEGER;
+
 public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity implements DefaultSidedInventory, ITickable {
 
     // Number of card slots the processor supports
@@ -415,6 +417,38 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         } else {
             return false;
         }
+    }
+
+    public int countItem(Inventory inv, Integer slot, ItemStack itemMatcher) {
+        IItemHandler handler = getItemHandlerAt(inv);
+        if (handler != null) {
+            if (slot != null) {
+                ItemStack stackInSlot = handler.getStackInSlot(slot);
+                return stackInSlot == null ? 0 : stackInSlot.stackSize;
+            } else if (itemMatcher != null) {
+                int cnt = 0;
+                for (int i = 0 ; i < handler.getSlots() ; i++) {
+                    ItemStack stack = handler.getStackInSlot(i);
+                    if (stack != null && ItemStack.areItemsEqual(stack, itemMatcher)) {
+                        cnt += stack.stackSize;
+                    }
+                }
+                return cnt;
+            } else {
+                // Just count all items
+                int cnt = 0;
+                for (int i = 0 ; i < handler.getSlots() ; i++) {
+                    ItemStack stack = handler.getStackInSlot(i);
+                    if (stack != null) {
+                        cnt += stack.stackSize;
+                    }
+                }
+                return cnt;
+            }
+        } else {
+            // @todo error?
+        }
+        return 0;
     }
 
     public IItemHandler getItemHandlerAt(Inventory inv) {

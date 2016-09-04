@@ -1,7 +1,6 @@
 package mcjty.rftoolscontrol.logic.registry;
 
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.items.IItemHandler;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -59,19 +58,18 @@ public class Opcodes {
 
     public static final Opcode TEST_COUNTINV = Opcode.builder()
             .id("test_countinv")
-            .description("Test: count the amount of items", "in a specific slot of", "an external inventory")
+            .description("Test: count the amount of items", "in a specific slot or", "of a certain type in", "an external inventory")
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("inv").type(PAR_INVENTORY).build())
             .parameter(ParameterDescription.builder().name("slot").type(PAR_INTEGER).build())
+            .parameter(ParameterDescription.builder().name("item").type(PAR_ITEM).build())
             .icon(2, 0)
             .runnable(((processor, program, opcode) -> {
                 Inventory inv = processor.evalulateParameter(opcode, program, 0);
-                int slot = processor.evalulateParameter(opcode, program, 1);
-                IItemHandler handler = processor.getItemHandlerAt(inv);
-                if (handler != null) {
-                    ItemStack stackInSlot = handler.getStackInSlot(slot);
-                    program.setLastValue(PAR_INTEGER, ParameterValue.constant(stackInSlot == null ? 0 : stackInSlot.stackSize));
-                }
+                Integer slot = processor.evalulateParameter(opcode, program, 1);
+                ItemStack item = processor.evalulateParameter(opcode, program, 2);
+                int cnt = processor.countItem(inv, slot, item);
+                program.setLastValue(PAR_INTEGER, ParameterValue.constant(cnt));
                 return true;
             }))
             .build();
