@@ -29,7 +29,7 @@ public abstract class AbstractParameterEditor implements ParameterEditor {
         try {
             f = Integer.parseInt(newText);
         } catch (NumberFormatException e) {
-            f = 0;
+            f = null;
         }
         return f;
     }

@@ -33,6 +33,8 @@ import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import org.apache.commons.lang3.tuple.Pair;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -233,7 +235,70 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         }
     }
 
-    public void fetchItems(RunningProgram program, Inventory inv, int slot, int amount, int virtualSlot) {
+    @Nonnull
+    private static List<Integer> extractFromHandlerSimulate(IItemHandler handler, Integer slot, ItemStack itemMatcher, int amount) {
+        List<Integer> result = new ArrayList<>();
+
+        if (slot == null) {
+            // No slot specified, check if we have an item
+            if (itemMatcher == null) {
+                // Just find the first available stack
+                for (int i = 0 ; i < handler.getSlots() ; i++) {
+                    ItemStack stack = handler.getStackInSlot(i);
+                    if (stack != null && amount <= stack.stackSize) {
+                        if (handler.extractItem(i, amount, true) != null) {
+                            result.add(i);
+                            return result;
+                        }
+                    }
+                }
+                // If we come here then we failed
+                return Collections.emptyList();
+            } else {
+                for (int i = 0 ; i < handler.getSlots() ; i++) {
+                    ItemStack stack = handler.getStackInSlot(i);
+                    if (stack != null && ItemStack.areItemsEqual(stack, itemMatcher)) {
+                        ItemStack r = handler.extractItem(i, amount, true);
+                        if (r != null) {
+                            result.add(i);
+                            amount -= r.stackSize;
+                        }
+                        if (amount <= 0) {
+                            return result;
+                        }
+                    }
+                }
+                // If we come here then we failed
+                return Collections.emptyList();
+            }
+        } else {
+            if (handler.extractItem(slot, amount, true) != null) {
+                result.add(slot);
+            }
+            return result;
+        }
+    }
+
+    @Nonnull
+    private static ItemStack extractFromHandler(IItemHandler handler, List<Integer> slots, int amount) {
+        ItemStack result = null;
+        for (Integer i : slots) {
+            ItemStack stack = handler.getStackInSlot(i);
+            if (stack != null && amount <= stack.stackSize) {
+                ItemStack rc = handler.extractItem(i, amount, false);
+                if (rc != null) {
+                    if (result == null) {
+                        result = rc;
+                    } else {
+                        result.stackSize += rc.stackSize;
+                    }
+                }
+            }
+        }
+        return result;
+    }
+
+    public void fetchItems(RunningProgram program, Inventory inv, Integer slot, @Nullable  ItemStack itemMatcher, int amount, int virtualSlot) {
         CardInfo info = this.cardInfo[program.getCardIndex()];
         int realSlot = info.getRealSlot(virtualSlot);
         if (realSlot == -1) {
@@ -247,20 +312,25 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             log("Invalid inventory!");
             return;
         }
-        ItemStack extracted = handler.extractItem(slot, amount, true);
-        if (extracted == null) {
+
+        List<Integer> extracted = extractFromHandlerSimulate(handler, slot, itemMatcher, amount);
+        if (extracted.isEmpty()) {
             // Nothing to do
             return;
         }
+        // Make a new itemstack as it would be inserted
+        ItemStack testExtract = handler.extractItem(extracted.get(0), 1, true).copy();
+        testExtract.stackSize = amount;
+
         IItemHandler capability = getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
-        if (capability.insertItem(realSlot + ProcessorContainer.SLOT_BUFFER, extracted, true) != null) {
+        if (capability.insertItem(realSlot + ProcessorContainer.SLOT_BUFFER, testExtract, true) != null) {
             // Not enough room. Do nothing
             return;
         }
 
         // All seems ok. Do the real thing now.
-        extracted = handler.extractItem(slot, amount, false);
-        capability.insertItem(realSlot + ProcessorContainer.SLOT_BUFFER, extracted, false);
+        ItemStack extractItem = extractFromHandler(handler, extracted, amount);
+        capability.insertItem(realSlot + ProcessorContainer.SLOT_BUFFER, extractItem, false);
     }
 
     public ItemStack getItemInternal(RunningProgram program, int virtualSlot) {

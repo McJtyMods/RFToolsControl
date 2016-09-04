@@ -140,26 +140,28 @@ public class Opcodes {
 
     public static final Opcode DO_FETCHITEMS = Opcode.builder()
             .id("do_fetchitems")
-            .description("Operation: fetch items from", "external inventory", "and place in internal", "inventory")
+            .description("Operation: fetch items from", "external inventory", "and place in internal", "inventory. Fails if", "amount does not exactly", "match")
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("inv").type(PAR_INVENTORY).build())
             .parameter(ParameterDescription.builder().name("slot").type(PAR_INTEGER).build())
+            .parameter(ParameterDescription.builder().name("item").type(PAR_ITEM).build())
             .parameter(ParameterDescription.builder().name("amount").type(PAR_INTEGER).build())
             .parameter(ParameterDescription.builder().name("slotOut").type(PAR_INTEGER).build())
             .icon(0, 1)
             .runnable(((processor, program, opcode) -> {
                 Inventory inv = processor.evalulateParameter(opcode, program, 0);
-                int slot = processor.evalulateParameter(opcode, program, 1);
-                int amount = processor.evalulateParameter(opcode, program, 2);
-                int slotOut = processor.evalulateParameter(opcode, program, 3);
-                processor.fetchItems(program, inv, slot, amount, slotOut);
+                Integer slot = processor.evalulateParameter(opcode, program, 1);
+                ItemStack item = processor.evalulateParameter(opcode, program, 2);
+                int amount = processor.evalulateParameter(opcode, program, 3);
+                int slotOut = processor.evalulateParameter(opcode, program, 4);
+                processor.fetchItems(program, inv, slot, item, amount, slotOut);
                 return true;
             }))
             .build();
 
     public static final Opcode DO_PUSHITEMS = Opcode.builder()
             .id("do_pushitems")
-            .description("Operation: push items to", "external inventory", "from internal inventory")
+            .description("Operation: push items to", "external inventory", "from internal inventory", "Fails if amount does", "not exactly match")
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("inv").type(PAR_INVENTORY).build())
             .parameter(ParameterDescription.builder().name("slot").type(PAR_INTEGER).build())

@@ -15,7 +15,7 @@ public class FloatEditor extends AbstractParameterEditor {
         try {
             f = Float.parseFloat(newText);
         } catch (NumberFormatException e) {
-            f = 0.0f;
+            f = null;
         }
         return f;
     }

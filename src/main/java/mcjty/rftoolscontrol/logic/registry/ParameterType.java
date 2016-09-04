@@ -1,6 +1,7 @@
 package mcjty.rftoolscontrol.logic.registry;
 
 import mcjty.rftoolscontrol.logic.Parameter;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.EnumFacing;
@@ -121,6 +122,31 @@ public enum ParameterType {
                 intSide = EnumFacing.values()[tag.getInteger("intSide")];
             }
             return ParameterValue.constant(new Inventory(name, side, intSide));
+        }
+    },
+    PAR_ITEM() {
+        @Override
+        protected String stringRepresentationInternal(Object value) {
+            // @todo, nicer
+            return "item";
+        }
+
+        @Override
+        protected void writeToNBTInternal(NBTTagCompound tag, Object value) {
+            ItemStack inv = (ItemStack) value;
+            NBTTagCompound tc = new NBTTagCompound();
+            inv.writeToNBT(tc);
+            tag.setTag("item", tc);
+        }
+
+        @Override
+        protected ParameterValue readFromNBTInternal(NBTTagCompound tag) {
+            if (tag.hasKey("item")) {
+                NBTTagCompound tc = (NBTTagCompound) tag.getTag("item");
+                ItemStack stack = ItemStack.loadItemStackFromNBT(tc);
+                return ParameterValue.constant(stack);
+            }
+            return ParameterValue.constant(null);
         }
     };
 
