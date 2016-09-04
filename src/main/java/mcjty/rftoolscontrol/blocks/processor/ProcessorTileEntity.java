@@ -32,6 +32,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nonnull;
@@ -839,7 +840,11 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
 
     private void executeCommand(String cmd) {
         markDirty();
-        cmd = cmd.toLowerCase();
+        String[] splitted = StringUtils.split(cmd, ' ');
+        if (splitted.length == 0) {
+            return;
+        }
+        cmd = splitted[0].toLowerCase();
         if ("clear".equals(cmd)) {
             logMessages.clear();
         } else if ("stop".equals(cmd)) {
@@ -861,6 +866,24 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                 }
                 n++;
             }
+        } else if ("net".equals(cmd)) {
+            if (hasNetworkCard()) {
+                if (splitted.length < 1) {
+                    log("Use: net setup/net scan");
+                } else {
+                    String sub = splitted[1].toLowerCase();
+                    if ("setup".equals(sub)) {
+                    } else if ("scan".equals(sub)) {
+
+                    } else {
+                        log("Unknown 'net' command!");
+                    }
+                }
+            } else {
+                log("No network card!");
+            }
+        } else {
+            log("Unknown command!");
         }
     }
 
