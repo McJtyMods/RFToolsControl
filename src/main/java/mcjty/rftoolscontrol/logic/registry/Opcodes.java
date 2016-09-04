@@ -2,6 +2,7 @@ package mcjty.rftoolscontrol.logic.registry;
 
 import mcjty.rftoolscontrol.logic.Parameter;
 import net.minecraft.item.ItemStack;
+import net.minecraftforge.items.IItemHandler;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -75,6 +76,25 @@ public class Opcodes {
             }))
             .build();
 
+    public static final Opcode TEST_GETITEM = Opcode.builder()
+            .id("test_getitem")
+            .description("Test: get the item (but", "do not remove it) from", "a specific slot")
+            .opcodeOutput(SINGLE)
+            .parameter(ParameterDescription.builder().name("inv").type(PAR_INVENTORY).build())
+            .parameter(ParameterDescription.builder().name("slot").type(PAR_INTEGER).build())
+            .icon(10, 1)
+            .runnable(((processor, program, opcode) -> {
+                Inventory inv = processor.evalulateParameter(opcode, program, 0);
+                int slot = processor.evaluateIntParameter(opcode, program, 1);
+                IItemHandler handler = processor.getItemHandlerAt(inv);
+                if (handler != null) {
+                    ItemStack item = handler.getStackInSlot(slot);
+                    program.setLastValue(Parameter.builder().type(PAR_ITEM).value(ParameterValue.constant(item)).build());
+                }
+                return true;
+            }))
+            .build();
+
 
     public static final Opcode DO_STOP = Opcode.builder()
             .id("do_stop")
@@ -125,7 +145,7 @@ public class Opcodes {
 
     public static final Opcode CALC_EQ = Opcode.builder()
             .id("calc_eq")
-            .description("Calculation: compare two", "values on equality")
+            .description("Calculation: compare two", "integer values on equality")
             .opcodeOutput(YESNO)
             .parameter(ParameterDescription.builder().name("v1").type(PAR_INTEGER).build())
             .parameter(ParameterDescription.builder().name("v2").type(PAR_INTEGER).build())
@@ -304,6 +324,7 @@ public class Opcodes {
         register(EVENT_TIMER);
         register(TEST_COUNTINV);
         register(TEST_COUNTINVINT);
+        register(TEST_GETITEM);
         register(CALC_GT);
         register(CALC_EQ);
 //        register(CONTROL_IF);
