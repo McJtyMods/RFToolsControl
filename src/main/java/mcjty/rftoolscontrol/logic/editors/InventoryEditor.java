@@ -38,7 +38,7 @@ public class InventoryEditor extends AbstractParameterEditor {
     public void build(Minecraft mc, Gui gui, Panel panel, ParameterEditorCallback callback) {
         Panel constantPanel = new Panel(mc, gui).setLayout(new HorizontalLayout());
         nameLabel = new TextField(mc, gui)
-                .addTextEnterEvent((o,text) -> callback.valueChanged(readValue()))
+                .addTextEvent((o,text) -> callback.valueChanged(readValue()))
                 .setDesiredWidth(40);
         constantPanel.addChild(nameLabel);
         sideLabel = new ChoiceLabel(mc, gui).addChoices("*", "Down", "Up", "North", "South", "West", "East")

@@ -4,6 +4,8 @@ import mcjty.lib.container.DefaultSidedInventory;
 import mcjty.lib.container.InventoryHelper;
 import mcjty.lib.entity.GenericEnergyReceiverTileEntity;
 import mcjty.lib.network.Argument;
+import mcjty.lib.varia.BlockPosTools;
+import mcjty.rftoolscontrol.blocks.node.NodeTileEntity;
 import mcjty.rftoolscontrol.config.GeneralConfiguration;
 import mcjty.rftoolscontrol.items.ModItems;
 import mcjty.rftoolscontrol.logic.Parameter;
@@ -32,7 +34,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nonnull;
@@ -64,6 +65,9 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
 
     private int maxVars = -1;   // If -1 we need updating
     private boolean hasNetworkCard = false;
+
+    private String channel = "";
+    private Map<String, BlockPos> networkNodes = new HashMap<>();
 
     // @todo, do this for all six sides
     private int prevIn = 0;
@@ -98,6 +102,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         return true;
     }
 
+    @SuppressWarnings("NullableProblems")
     @Override
     public boolean isUseableByPlayer(EntityPlayer player) {
         return canPlayerAccess(player);
@@ -184,6 +189,10 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         }
     }
 
+    public void clearLog() {
+        logMessages.clear();
+    }
+
     public void log(String message) {
         if (message == null) {
             // @todo report?
@@ -197,6 +206,10 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
 
     private List<PacketGetLog.StringConverter> getLog() {
         return logMessages.stream().map(s -> new PacketGetLog.StringConverter(s)).collect(Collectors.toList());
+    }
+
+    public List<CpuCore> getCpuCores() {
+        return cpuCores;
     }
 
     private CpuCore findAvailableCore() {
@@ -516,7 +529,21 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     }
 
     public IItemHandler getItemHandlerAt(Inventory inv) {
-        BlockPos np = pos.offset(inv.getSide());
+        BlockPos p = pos;
+        if (inv.getNodeName() != null) {
+            if (!hasNetworkCard()) {
+                log("No network card!");
+                // @todo exception
+                return null;
+            }
+            p = networkNodes.get(inv.getNodeName());
+            if (p == null) {
+                log("Can't find node: " + inv.getNodeName());
+                // @todo exception
+                return null;
+            }
+        }
+        BlockPos np = p.offset(inv.getSide());
         TileEntity te = worldObj.getTileEntity(np);
         if (te != null && te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, inv.getIntSide())) {
             return te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, inv.getIntSide());
@@ -596,6 +623,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         super.readRestorableFromNBT(tagCompound);
         working = tagCompound.getBoolean("working");
         tickCount = tagCompound.getInteger("tickCount");
+        channel = tagCompound.getString("channel");
         readBufferFromNBT(tagCompound, inventoryHelper);
 
         readCardInfo(tagCompound);
@@ -603,6 +631,18 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         readEventQueue(tagCompound);
         readLog(tagCompound);
         readVariables(tagCompound);
+        readNetworkNodes(tagCompound);
+    }
+
+    private void readNetworkNodes(NBTTagCompound tagCompound) {
+        networkNodes.clear();
+        NBTTagList networkList = tagCompound.getTagList("nodes", Constants.NBT.TAG_COMPOUND);
+        for (int i = 0 ; i < networkList.tagCount() ; i++) {
+            NBTTagCompound tag = networkList.getCompoundTagAt(i);
+            String name = tag.getString("name");
+            BlockPos nodePos = new BlockPos(tag.getInteger("nodex"), tag.getInteger("nodey"), tag.getInteger("nodez"));
+            networkNodes.put(name, nodePos);
+        }
     }
 
     private void readVariables(NBTTagCompound tagCompound) {
@@ -662,6 +702,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         super.writeRestorableToNBT(tagCompound);
         tagCompound.setBoolean("working", working);
         tagCompound.setInteger("tickCount", tickCount);
+        tagCompound.setString("channel", channel == null ? "" : channel);
         writeBufferToNBT(tagCompound, inventoryHelper);
 
         writeCardInfo(tagCompound);
@@ -669,6 +710,20 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         writeEventQueue(tagCompound);
         writeLog(tagCompound);
         writeVariables(tagCompound);
+        writeNetworkNodes(tagCompound);
+    }
+
+    private void writeNetworkNodes(NBTTagCompound tagCompound) {
+        NBTTagList networkList = new NBTTagList();
+        for (Map.Entry<String, BlockPos> entry : networkNodes.entrySet()) {
+            NBTTagCompound tag = new NBTTagCompound();
+            tag.setString("name", entry.getKey());
+            tag.setInteger("nodex", entry.getValue().getX());
+            tag.setInteger("nodey", entry.getValue().getY());
+            tag.setInteger("nodez", entry.getValue().getZ());
+            networkList.appendTag(tag);
+        }
+        tagCompound.setTag("nodes", networkList);
     }
 
     private void writeVariables(NBTTagCompound tagCompound) {
@@ -791,55 +846,54 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         markDirty();
     }
 
-    private void executeCommand(String cmd) {
-        markDirty();
-        String[] splitted = StringUtils.split(cmd, ' ');
-        if (splitted.length == 0) {
-            return;
-        }
-        cmd = splitted[0].toLowerCase();
-        if ("clear".equals(cmd)) {
-            logMessages.clear();
-        } else if ("stop".equals(cmd)) {
-            int n = 0;
-            for (CpuCore core : cpuCores) {
-                if (core.hasProgram()) {
-                    n++;
-                    core.stopProgram();
-                }
-            }
-            log("Stopped " + n + " programs!");
-        } else if ("list".equals(cmd)) {
-            int n = 0;
-            for (CpuCore core : cpuCores) {
-                if (core.hasProgram()) {
-                    log("Core: " + n + " -> <busy>");
-                } else {
-                    log("Core: " + n + " -> <idle>");
-                }
-                n++;
-            }
-        } else if ("net".equals(cmd)) {
-            if (hasNetworkCard()) {
-                if (splitted.length < 1) {
-                    log("Use: net setup/net scan");
-                } else {
-                    String sub = splitted[1].toLowerCase();
-                    if ("setup".equals(sub)) {
-                    } else if ("scan".equals(sub)) {
+    public void showNetworkInfo() {
+        log("Channel: " + channel);
+        log("Nodes: " + networkNodes.size());
+    }
 
-                    } else {
-                        log("Unknown 'net' command!");
-                    }
-                }
-            } else {
-                log("No network card!");
-            }
+    public void listNodes() {
+        if (networkNodes.isEmpty()) {
+            log("No nodes!");
         } else {
-            log("Unknown command!");
+            for (Map.Entry<String, BlockPos> entry : networkNodes.entrySet()) {
+                log("Node " + entry.getKey() + " at " + BlockPosTools.toString(entry.getValue()));
+            }
         }
     }
 
+    public void setupNetwork(String name) {
+        channel = name;
+        markDirty();
+        log("Ready to scan");
+    }
+
+    public void scanNodes() {
+        if (channel == null || channel.isEmpty()) {
+            log("Setup a channel first!");
+            return;
+        }
+        networkNodes.clear();
+        for (int x = -8 ; x <= 8 ; x++) {
+            for (int y = -8 ; y <= 8 ; y++) {
+                for (int z = -8 ; z <= 8 ; z++) {
+                    BlockPos n = new BlockPos(pos.getX() + x, pos.getY() + y, pos.getZ() + z);
+                    TileEntity te = worldObj.getTileEntity(n);
+                    if (te instanceof NodeTileEntity) {
+                        NodeTileEntity node = (NodeTileEntity) te;
+                        if (channel.equals(node.getChannelName())) {
+                            if (node.getNodeName() == null || node.getNodeName().isEmpty()) {
+                                log("Node is missing a name!");
+                            } else {
+                                networkNodes.put(node.getNodeName(), n);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        log("Found " + networkNodes.size() + " node(s)");
+        markDirty();
+    }
 
     @Override
     public boolean execute(EntityPlayerMP playerMP, String command, Map<String, Argument> args) {
@@ -854,7 +908,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             allocate(card, itemAlloc, varAlloc);
             return true;
         } else if (CMD_CLEARLOG.equals(command)) {
-            executeCommand(args.get("cmd").getString());
+            Commands.executeCommand(this, args.get("cmd").getString());
             return true;
         }
         return false;
