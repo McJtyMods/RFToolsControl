@@ -7,6 +7,7 @@ import mcjty.lib.network.Argument;
 import mcjty.lib.varia.BlockPosTools;
 import mcjty.rftoolscontrol.blocks.node.NodeTileEntity;
 import mcjty.rftoolscontrol.config.GeneralConfiguration;
+import mcjty.rftoolscontrol.items.CPUCoreItem;
 import mcjty.rftoolscontrol.items.ModItems;
 import mcjty.rftoolscontrol.logic.Parameter;
 import mcjty.rftoolscontrol.logic.TypeConverters;
@@ -291,8 +292,17 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     }
 
     private void run() {
+        int rf = getEnergyStored(EnumFacing.DOWN);
+
         for (CpuCore core : cpuCores) {
-            core.run(this);
+            if (core.hasProgram()) {
+                int rft = GeneralConfiguration.coreRFPerTick[core.getTier()];
+                if (rft < rf) {
+                    core.run(this);
+                    consumeEnergy(rft);
+                    rf -= rft;
+                }
+            }
         }
     }
 
@@ -303,8 +313,11 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             cpuCores.clear();
             for (int i = ProcessorContainer.SLOT_EXPANSION ; i < ProcessorContainer.SLOT_EXPANSION + EXPANSION_SLOTS ; i++) {
                 ItemStack expansionStack = inventoryHelper.getStackInSlot(i);
-                if (expansionStack != null && expansionStack.getItem() == ModItems.cpuCoreEX2000Item) {
-                    cpuCores.add(new CpuCore());
+                if (expansionStack != null && expansionStack.getItem() instanceof CPUCoreItem) {
+                    CPUCoreItem coreItem = (CPUCoreItem) expansionStack.getItem();
+                    CpuCore core = new CpuCore();
+                    core.setTier(coreItem.getTier());
+                    cpuCores.add(core);
                 }
             }
         }

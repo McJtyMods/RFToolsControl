@@ -3,7 +3,9 @@
 # Items
 item.rftoolscontrol.rftoolscontrol_manual.name=RFTools Control Manual
 item.rftoolscontrol.program_card.name=Program Card
-item.rftoolscontrol.cpu_core.name=CPU Core EX2000
+item.rftoolscontrol.cpu_core_500.name=CPU Core B500
+item.rftoolscontrol.cpu_core_1000.name=CPU Core S1000
+item.rftoolscontrol.cpu_core_2000.name=CPU Core EX2000
 item.rftoolscontrol.ram_chip.name=RAM Chip 8E
 item.rftoolscontrol.network_card.name=Network Card
 item.rftoolscontrol.card_base.name=Card Base
