@@ -7,6 +7,7 @@ import mcjty.lib.network.Argument;
 import mcjty.rftoolscontrol.config.GeneralConfiguration;
 import mcjty.rftoolscontrol.items.ModItems;
 import mcjty.rftoolscontrol.logic.Parameter;
+import mcjty.rftoolscontrol.logic.TypeConverters;
 import mcjty.rftoolscontrol.logic.compiled.CompiledCard;
 import mcjty.rftoolscontrol.logic.compiled.CompiledEvent;
 import mcjty.rftoolscontrol.logic.compiled.CompiledOpcode;
@@ -26,7 +27,6 @@ import net.minecraft.nbt.NBTTagString;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.util.Constants;
@@ -464,71 +464,23 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
 
     public int evaluateIntParameter(CompiledOpcode compiledOpcode, RunningProgram program, int parIndex) {
         Object value = evalulateParameter(compiledOpcode, program, parIndex);
-        if (value instanceof Integer) {
-            return (Integer) value;
-        } else if (value instanceof String) {
-            return Integer.parseInt((String) value);
-        } else if (value instanceof Float) {
-            return ((Float) value).intValue();
-        } else if (value instanceof Boolean) {
-            return ((Boolean) value) ? 1 : 0;
-        } else if (value instanceof ItemStack) {
-            return ((ItemStack) value).stackSize;
-        } else {
-            return 0;
-        }
+        return TypeConverters.convertToInt(value);
     }
 
     // This version allows returning null
     public Integer evaluateIntegerParameter(CompiledOpcode compiledOpcode, RunningProgram program, int parIndex) {
         Object value = evalulateParameter(compiledOpcode, program, parIndex);
-        if (value instanceof Integer) {
-            return (Integer) value;
-        } else if (value instanceof String) {
-            return Integer.parseInt((String) value);
-        } else if (value instanceof Float) {
-            return ((Float) value).intValue();
-        } else if (value instanceof Boolean) {
-            return ((Boolean) value) ? 1 : 0;
-        } else if (value instanceof ItemStack) {
-            return ((ItemStack) value).stackSize;
-        } else {
-            return null;
-        }
+        return TypeConverters.convertToInteger(value);
     }
 
     public String evalulateStringParameter(CompiledOpcode compiledOpcode, RunningProgram program, int parIndex) {
         Object value = evalulateParameter(compiledOpcode, program, parIndex);
-        if (value instanceof String) {
-            return (String) value;
-        } else if (value instanceof Integer) {
-            return Integer.toString((Integer) value);
-        } else if (value instanceof Float) {
-            return Float.toString((Float) value);
-        } else if (value instanceof EnumFacing) {
-            return ((EnumFacing) value).getName();
-        } else if (value instanceof Boolean) {
-            return ((Boolean) value) ? "true" : "false";
-        } else if (value instanceof ItemStack) {
-            return ((ItemStack) value).getDisplayName();
-        } else {
-            return "";
-        }
+        return TypeConverters.convertToString(value);
     }
 
     public boolean evalulateBoolParameter(CompiledOpcode compiledOpcode, RunningProgram program, int parIndex) {
         Object value = evalulateParameter(compiledOpcode, program, parIndex);
-        if (value instanceof Boolean) {
-            return (Boolean) value;
-        } else if (value instanceof Integer) {
-            return ((Integer) value) != 0;
-        } else if (value instanceof String) {
-            return !((String) value).isEmpty();
-        } else if (value instanceof EnumFacing) {
-            return true;
-        } else {
-            return false;
-        }
+        return TypeConverters.convertToBool(value);
     }
 
     public int countItem(Inventory inv, Integer slot, ItemStack itemMatcher) {
