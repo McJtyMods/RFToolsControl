@@ -104,6 +104,10 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         return true;
     }
 
+    public int readRedstoneIn(EnumFacing side) {
+        return worldObj.getRedstonePower(pos.offset(side), side);
+    }
+
     public void setPowerOut(@Nonnull EnumFacing side, int level) {
         powerOut[side.ordinal()] = level;
         markDirty();

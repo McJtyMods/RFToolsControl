@@ -96,6 +96,19 @@ public class Opcodes {
             }))
             .build();
 
+    public static final Opcode TEST_REDSTONE = Opcode.builder()
+            .id("test_rs")
+            .description("Test: get redstone value")
+            .opcodeOutput(SINGLE)
+            .parameter(ParameterDescription.builder().name("side").type(PAR_SIDE).build())
+            .icon(1, 0)
+            .runnable(((processor, program, opcode) -> {
+                EnumFacing side = processor.evalulateParameter(opcode, program, 0);
+                int rs = processor.readRedstoneIn(side);
+                program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(rs)).build());
+                return true;
+            }))
+            .build();
 
     public static final Opcode DO_STOP = Opcode.builder()
             .id("do_stop")
@@ -326,6 +339,7 @@ public class Opcodes {
         register(TEST_COUNTINV);
         register(TEST_COUNTINVINT);
         register(TEST_GETITEM);
+        register(TEST_REDSTONE);
         register(CALC_GT);
         register(CALC_EQ);
 //        register(CONTROL_IF);
