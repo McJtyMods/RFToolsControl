@@ -311,6 +311,11 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
 
     @Override
     protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
+
+        if (variableList.getChildCount() != tileEntity.getMaxvars()) {
+            updateVariableList();
+        }
+
         requestListsIfNeeded();
         populateLog();
 

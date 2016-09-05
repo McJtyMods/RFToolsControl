@@ -609,6 +609,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             cardsDirty = true;
         } else if (isExpansionSlot(index)) {
             coresDirty = true;
+            maxVars = -1;
         }
         return getInventoryHelper().decrStackSize(index, count);
     }
