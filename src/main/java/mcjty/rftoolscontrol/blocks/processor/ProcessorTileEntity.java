@@ -29,6 +29,7 @@ import net.minecraft.nbt.NBTTagString;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.util.Constants;
@@ -69,8 +70,9 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     private String channel = "";
     private Map<String, BlockPos> networkNodes = new HashMap<>();
 
-    // @todo, do this for all six sides
+    // Bitmask for all six sides
     private int prevIn = 0;
+    private int powerOut[] = new int[] { 0, 0, 0, 0, 0, 0 };
 
     private int tickCount = 0;
 
@@ -100,6 +102,16 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     @Override
     protected boolean needsCustomInvWrapper() {
         return true;
+    }
+
+    public void setPowerOut(@Nonnull EnumFacing side, int level) {
+        powerOut[side.ordinal()] = level;
+        markDirty();
+        worldObj.notifyBlockOfStateChange(this.pos.offset(side), this.getBlockType());
+    }
+
+    public int getPowerOut(EnumFacing side) {
+        return powerOut[side.ordinal()];
     }
 
     @SuppressWarnings("NullableProblems")
@@ -154,13 +166,26 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             CardInfo info = cardInfo[i];
             CompiledCard compiledCard = info.getCompiledCard();
             if (compiledCard != null) {
-                if (prevIn == 0 && powerLevel > 0) {
+                int redstoneOnMask = powerLevel & ~prevIn;
+                if (redstoneOnMask != 0) {
                     for (CompiledEvent event : compiledCard.getEvents(Opcodes.EVENT_REDSTONE_ON)) {
-                        runOrQueueEvent(i, event);
+                        int index = event.getIndex();
+                        CompiledOpcode compiledOpcode = compiledCard.getOpcodes().get(index);
+                        EnumFacing side = evalulateParameter(compiledOpcode, null, 0);
+                        if (side == null || ((redstoneOnMask >> side.ordinal()) & 1) == 1) {
+                            runOrQueueEvent(i, event);
+                        }
                     }
-                } else if (prevIn > 0 && powerLevel == 0) {
+                }
+                int redstoneOffMask = prevIn & ~powerLevel;
+                if (redstoneOffMask != 0) {
                     for (CompiledEvent event : compiledCard.getEvents(Opcodes.EVENT_REDSTONE_OFF)) {
-                        runOrQueueEvent(i, event);
+                        int index = event.getIndex();
+                        CompiledOpcode compiledOpcode = compiledCard.getOpcodes().get(index);
+                        EnumFacing side = evalulateParameter(compiledOpcode, null, 0);
+                        if (side == null || ((redstoneOffMask >> side.ordinal()) & 1) == 1) {
+                            runOrQueueEvent(i, event);
+                        }
                     }
                 }
 
@@ -609,12 +634,18 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     public void readFromNBT(NBTTagCompound tagCompound) {
         super.readFromNBT(tagCompound);
         prevIn = tagCompound.getInteger("prevIn");
+        for (int i = 0 ; i < 6 ; i++) {
+            powerOut[i] = tagCompound.getByte("p" + i);
+        }
     }
 
     @Override
     public NBTTagCompound writeToNBT(NBTTagCompound tagCompound) {
         super.writeToNBT(tagCompound);
         tagCompound.setInteger("prevIn", prevIn);
+        for (int i = 0 ; i < 6 ; i++) {
+            tagCompound.setByte("p" + i, (byte) powerOut[i]);
+        }
         return tagCompound;
     }
 

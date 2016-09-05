@@ -2,6 +2,7 @@ package mcjty.rftoolscontrol.logic.registry;
 
 import mcjty.rftoolscontrol.logic.Parameter;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumFacing;
 import net.minecraftforge.items.IItemHandler;
 
 import java.util.HashMap;
@@ -12,21 +13,21 @@ import static mcjty.rftoolscontrol.logic.registry.ParameterType.*;
 
 public class Opcodes {
 
-    public static final Opcode DO_REDSTONE_ON = Opcode.builder()
-            .id("do_rs_on")
-            .description("WIP")
+    public static final Opcode DO_REDSTONE = Opcode.builder()
+            .id("do_rs")
+            .description("Operation: set redstone level", "at a specific side")
             .opcodeOutput(SINGLE)
+            // @todo network node name
             .parameter(ParameterDescription.builder().name("side").type(PAR_SIDE).build())
+            .parameter(ParameterDescription.builder().name("level").type(PAR_INTEGER).build())
+            .runnable(((processor, program, opcode) -> {
+                EnumFacing side = processor.evalulateParameter(opcode, program, 0);
+                int level = processor.evaluateIntParameter(opcode, program, 1);
+                processor.setPowerOut(side, level);
+                return true;
+            }))
             .icon(0, 0)
             .build();
-    public static final Opcode DO_REDSTONE_OFF = Opcode.builder()
-            .id("do_rs_off")
-            .description("WIP")
-            .opcodeOutput(SINGLE)
-            .parameter(ParameterDescription.builder().name("side").type(PAR_SIDE).build())
-            .icon(1, 0)
-            .build();
-    //    public static Operand DO_REDSTONE_OFF = Operand.builder().id("do_rs_off").operandOutput(OperandOutput.SINGLE).icon(2, 0).build();
     public static final Opcode EVENT_REDSTONE_ON = Opcode.builder()
             .id("ev_rs_on")
             .description("Event: execute program", "on redstone pulse on")
@@ -328,8 +329,7 @@ public class Opcodes {
         register(CALC_GT);
         register(CALC_EQ);
 //        register(CONTROL_IF);
-        register(DO_REDSTONE_ON);
-        register(DO_REDSTONE_OFF);
+        register(DO_REDSTONE);
         register(DO_DELAY);
         register(DO_STOP);
         register(DO_LOG);
