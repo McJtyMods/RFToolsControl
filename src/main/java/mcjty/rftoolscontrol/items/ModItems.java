@@ -11,6 +11,7 @@ public class ModItems {
     public static CPUCoreItem cpuCoreEX2000Item;
     public static RAMChipItem ramChipItem;
     public static NetworkCardItem networkCardItem;
+    public static CardBaseItem cardBaseItem;
 
     public static void init() {
         rfToolsControlManualItem = new RFToolsControlManualItem();
@@ -18,6 +19,7 @@ public class ModItems {
         cpuCoreEX2000Item = new CPUCoreItem();
         ramChipItem = new RAMChipItem();
         networkCardItem = new NetworkCardItem();
+        cardBaseItem = new CardBaseItem();
     }
 
     @SideOnly(Side.CLIENT)
@@ -27,5 +29,6 @@ public class ModItems {
         cpuCoreEX2000Item.initModel();
         ramChipItem.initModel();
         networkCardItem.initModel();
+        cardBaseItem.initModel();
     }
 }

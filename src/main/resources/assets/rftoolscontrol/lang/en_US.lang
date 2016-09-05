@@ -6,6 +6,7 @@ item.rftoolscontrol.program_card.name=Program Card
 item.rftoolscontrol.cpu_core.name=CPU Core EX2000
 item.rftoolscontrol.ram_chip.name=RAM Chip 8E
 item.rftoolscontrol.network_card.name=Network Card
+item.rftoolscontrol.card_base.name=Card Base
 
 # Blocks
 tile.rftoolscontrol.programmer.name=Programmer
