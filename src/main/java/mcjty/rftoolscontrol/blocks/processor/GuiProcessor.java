@@ -26,6 +26,7 @@ import net.minecraft.util.ResourceLocation;
 import java.awt.*;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Optional;
 
 public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
     public static final int SIDEWIDTH = 80;
@@ -75,7 +76,8 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
             setupButtons[i] = new ToggleButton(mc, this)
                 .addButtonEvent(this::setupMode)
                 .setTooltips("Setup item and variable", "allocation for this card")
-                .setLayoutHint(new PositionalLayout.PositionalHint(11 + i * 18, 6, 15, 7));
+                .setLayoutHint(new PositionalLayout.PositionalHint(11 + i * 18, 6, 15, 7))
+                .setUserObject("allowed");
             toplevel.addChild(setupButtons[i]);
         }
         window = new Window(this, toplevel);
@@ -167,35 +169,40 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
         int setupMode = getSetupMode();
         if (setupMode == -1) {
             super.mouseClicked(x, y, button);
-        } else if (x-window.getToplevel().getBounds().x < 0) {
-            super.mouseClicked(x, y, button);
         } else {
-            int leftx = window.getToplevel().getBounds().x;
-            x -= leftx;
-            if (x >= 10 && x <= 10 + ProcessorTileEntity.CARD_SLOTS*18 && y >= 6 && y <= 6+7) {
-                super.mouseClicked(x + leftx, y, button);
-            } else {
-                CardInfo cardInfo = tileEntity.getCardInfo(setupMode);
-                int itemAlloc = cardInfo.getItemAllocation();
-                int varAlloc = cardInfo.getVarAllocation();
+            Optional<Widget> widget = getWindowManager().findWidgetAtPosition(x, y);
+            if (widget.isPresent()) {
+                Widget w = widget.get();
+                if ("allowed".equals(w.getUserObject())) {
+                    super.mouseClicked(x, y, button);
+                    return;
+                }
+            }
 
-                for (int i = 0 ; i < ProcessorTileEntity.ITEM_SLOTS ; i++) {
-                    Slot slot = inventorySlots.getSlot(ProcessorContainer.SLOT_BUFFER + i);
-                    if (x >= slot.xDisplayPosition && x <= slot.xDisplayPosition + 17 && y >= slot.yDisplayPosition && y <= slot.yDisplayPosition + 17) {
-                        boolean allocated = ((itemAlloc >> i) & 1) != 0;
-                        allocated = !allocated;
-                        if (allocated) {
-                            itemAlloc = itemAlloc | (1 << i);
-                        } else {
-                            itemAlloc = itemAlloc & ~(1 << i);
-                        }
-                        cardInfo.setItemAllocation(itemAlloc);
-                        sendServerCommand(RFToolsCtrlMessages.INSTANCE, ProcessorTileEntity.CMD_ALLOCATE,
-                                new Argument("card", setupMode),
-                                new Argument("items", itemAlloc),
-                                new Argument("vars", varAlloc));
-                        break;
+            int leftx = window.getToplevel().getBounds().x;
+            int topy = window.getToplevel().getBounds().y;
+            x -= leftx;
+            y -= topy;
+            CardInfo cardInfo = tileEntity.getCardInfo(setupMode);
+            int itemAlloc = cardInfo.getItemAllocation();
+            int varAlloc = cardInfo.getVarAllocation();
+
+            for (int i = 0 ; i < ProcessorTileEntity.ITEM_SLOTS ; i++) {
+                Slot slot = inventorySlots.getSlot(ProcessorContainer.SLOT_BUFFER + i);
+                if (x >= slot.xDisplayPosition && x <= slot.xDisplayPosition + 17 && y >= slot.yDisplayPosition && y <= slot.yDisplayPosition + 17) {
+                    boolean allocated = ((itemAlloc >> i) & 1) != 0;
+                    allocated = !allocated;
+                    if (allocated) {
+                        itemAlloc = itemAlloc | (1 << i);
+                    } else {
+                        itemAlloc = itemAlloc & ~(1 << i);
                     }
+                    cardInfo.setItemAllocation(itemAlloc);
+                    sendServerCommand(RFToolsCtrlMessages.INSTANCE, ProcessorTileEntity.CMD_ALLOCATE,
+                            new Argument("card", setupMode),
+                            new Argument("items", itemAlloc),
+                            new Argument("vars", varAlloc));
+                    break;
                 }
             }
         }
@@ -213,7 +220,8 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
                 .setLayoutHint(new PositionalLayout.PositionalHint(0, 0, 62, 220))
                 .setPropagateEventsToChildren(true)
                 .setInvisibleSelection(true)
-                .setDrawHorizontalLines(false);
+                .setDrawHorizontalLines(false)
+                .setUserObject("allowed");
         variableList.addSelectionEvent(new SelectionEvent() {
             @Override
             public void select(Widget parent, int i) {
@@ -236,8 +244,14 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
                     panel.removeChildren();
                     int fill = allocated ? 0x7700ff00 : (tileEntity.isVarAllocated(-1, i) ? 0x77660000 : 0x77444444);
                     panel.setFilledBackground(fill);
-                    panel.addChild(new Label(mc, GuiProcessor.this).setText(String.valueOf(i)).setDesiredWidth(26));
-                    panel.addChild(new Button(mc, GuiProcessor.this).setText("..."));
+                    panel.addChild(new Label(mc, GuiProcessor.this)
+                            .setText(String.valueOf(i))
+                            .setDesiredWidth(26)
+                            .setUserObject("allowed"));
+                    panel.addChild(new Button(mc, GuiProcessor.this)
+                            .setText("...")
+                            .setUserObject("allowed"));
+                    panel.setUserObject("allowed");
 
                     sendServerCommand(RFToolsCtrlMessages.INSTANCE, ProcessorTileEntity.CMD_ALLOCATE,
                             new Argument("card", setupMode),
@@ -257,13 +271,15 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
         Slider slider = new Slider(mc, this)
                 .setVertical()
                 .setScrollable(variableList)
-                .setLayoutHint(new PositionalLayout.PositionalHint(62, 0, 9, 220));
+                .setLayoutHint(new PositionalLayout.PositionalHint(62, 0, 9, 220))
+                .setUserObject("allowed");
 
         updateVariableList();
 
         return new Panel(mc, this).setLayout(new PositionalLayout()).setLayoutHint(new PositionalLayout.PositionalHint(5, 5, 72, 220))
                 .addChild(variableList)
-                .addChild(slider);
+                .addChild(slider)
+                .setUserObject("allowed");
 //                .setFilledRectThickness(-2)
 //                .setFilledBackground(StyleConfig.colorListBackground);
     }
@@ -286,8 +302,9 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
                 int fill = allocated ? 0x7700ff00 : (tileEntity.isVarAllocated(-1, i) ? 0x77660000 : 0x77444444);
                 panel.setFilledBackground(fill);
             }
-            panel.addChild(new Label(mc, this).setText(String.valueOf(i)).setDesiredWidth(26));
-            panel.addChild(new Button(mc, this).setText("..."));
+            panel.addChild(new Label(mc, this).setText(String.valueOf(i)).setDesiredWidth(26).setUserObject("allowed"));
+            panel.addChild(new Button(mc, this).setText("...").setUserObject("allowed"));
+            panel.setUserObject("allowed");
             variableList.addChild(panel);
         }
     }
