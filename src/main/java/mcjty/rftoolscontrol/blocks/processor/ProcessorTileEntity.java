@@ -14,6 +14,7 @@ import mcjty.rftoolscontrol.logic.compiled.CompiledCard;
 import mcjty.rftoolscontrol.logic.compiled.CompiledEvent;
 import mcjty.rftoolscontrol.logic.compiled.CompiledOpcode;
 import mcjty.rftoolscontrol.logic.grid.ProgramCardInstance;
+import mcjty.rftoolscontrol.logic.registry.BlockSide;
 import mcjty.rftoolscontrol.logic.registry.Inventory;
 import mcjty.rftoolscontrol.logic.registry.Opcodes;
 import mcjty.rftoolscontrol.logic.registry.ParameterValue;
@@ -104,14 +105,51 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         return true;
     }
 
-    public int readRedstoneIn(EnumFacing side) {
-        return worldObj.getRedstonePower(pos.offset(side), side);
+    private BlockPos getRedstonePos(@Nonnull BlockSide side) {
+        BlockPos p;
+        if (side.getNodeName() != null && !side.getNodeName().isEmpty()) {
+            p = networkNodes.get(side.getNodeName());
+            if (p == null) {
+                // @todo exception
+                log("Node missing!");
+                return null;
+            }
+            TileEntity te = worldObj.getTileEntity(p);
+            if (!(te instanceof NodeTileEntity)) {
+                // @todo exception
+                log("Node missing!");
+                return null;
+            }
+        } else {
+            p = pos;
+        }
+        return p;
     }
 
-    public void setPowerOut(@Nonnull EnumFacing side, int level) {
-        powerOut[side.ordinal()] = level;
-        markDirty();
-        worldObj.notifyBlockOfStateChange(this.pos.offset(side), this.getBlockType());
+    public int readRedstoneIn(@Nonnull BlockSide side) {
+        EnumFacing facing = side.getSide();
+        BlockPos p = getRedstonePos(side);
+        if (p == null) {
+            return 0;
+        }
+        return worldObj.getRedstonePower(p.offset(facing), facing);
+    }
+
+    public void setPowerOut(@Nonnull BlockSide side, int level) {
+        EnumFacing facing = side.getSide();
+        BlockPos p = getRedstonePos(side);
+        if (p == null) {
+            return;
+        }
+
+        if (p.equals(pos)) {
+            powerOut[facing.ordinal()] = level;
+            markDirty();
+            worldObj.notifyBlockOfStateChange(this.pos.offset(facing), this.getBlockType());
+        } else {
+            NodeTileEntity te = (NodeTileEntity) worldObj.getTileEntity(p);
+            te.setPowerOut(facing, level);
+}
     }
 
     public int getPowerOut(EnumFacing side) {
@@ -175,8 +213,9 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                     for (CompiledEvent event : compiledCard.getEvents(Opcodes.EVENT_REDSTONE_ON)) {
                         int index = event.getIndex();
                         CompiledOpcode compiledOpcode = compiledCard.getOpcodes().get(index);
-                        EnumFacing side = evalulateParameter(compiledOpcode, null, 0);
-                        if (side == null || ((redstoneOnMask >> side.ordinal()) & 1) == 1) {
+                        BlockSide side = evalulateParameter(compiledOpcode, null, 0);
+                        EnumFacing facing = side == null ? null : side.getSide();
+                        if (facing == null || ((redstoneOnMask >> facing.ordinal()) & 1) == 1) {
                             runOrQueueEvent(i, event);
                         }
                     }
@@ -186,8 +225,9 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                     for (CompiledEvent event : compiledCard.getEvents(Opcodes.EVENT_REDSTONE_OFF)) {
                         int index = event.getIndex();
                         CompiledOpcode compiledOpcode = compiledCard.getOpcodes().get(index);
-                        EnumFacing side = evalulateParameter(compiledOpcode, null, 0);
-                        if (side == null || ((redstoneOffMask >> side.ordinal()) & 1) == 1) {
+                        BlockSide side = evalulateParameter(compiledOpcode, null, 0);
+                        EnumFacing facing = side == null ? null : side.getSide();
+                        if (facing == null || ((redstoneOffMask >> facing.ordinal()) & 1) == 1) {
                             runOrQueueEvent(i, event);
                         }
                     }

@@ -2,7 +2,6 @@ package mcjty.rftoolscontrol.logic.registry;
 
 import mcjty.rftoolscontrol.logic.Parameter;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumFacing;
 import net.minecraftforge.items.IItemHandler;
 
 import java.util.HashMap;
@@ -21,7 +20,7 @@ public class Opcodes {
             .parameter(ParameterDescription.builder().name("side").type(PAR_SIDE).build())
             .parameter(ParameterDescription.builder().name("level").type(PAR_INTEGER).build())
             .runnable(((processor, program, opcode) -> {
-                EnumFacing side = processor.evalulateParameter(opcode, program, 0);
+                BlockSide side = processor.evalulateParameter(opcode, program, 0);
                 int level = processor.evaluateIntParameter(opcode, program, 1);
                 processor.setPowerOut(side, level);
                 return true;
@@ -103,7 +102,7 @@ public class Opcodes {
             .parameter(ParameterDescription.builder().name("side").type(PAR_SIDE).build())
             .icon(1, 0)
             .runnable(((processor, program, opcode) -> {
-                EnumFacing side = processor.evalulateParameter(opcode, program, 0);
+                BlockSide side = processor.evalulateParameter(opcode, program, 0);
                 int rs = processor.readRedstoneIn(side);
                 program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(rs)).build());
                 return true;

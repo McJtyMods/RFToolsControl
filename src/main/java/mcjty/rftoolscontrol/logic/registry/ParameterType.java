@@ -63,17 +63,24 @@ public enum ParameterType {
     PAR_SIDE() {
         @Override
         protected String stringRepresentationInternal(Object value) {
-            return StringUtils.capitalize(((EnumFacing) value).getName());
+            BlockSide side = (BlockSide) value;
+            EnumFacing facing = side.getSide();
+            return StringUtils.capitalize(facing == null ? "*" : facing.getName());
         }
 
         @Override
         protected void writeToNBTInternal(NBTTagCompound tag, Object value) {
-            tag.setInteger("v", ((EnumFacing) value).ordinal());
+            BlockSide side = (BlockSide) value;
+            tag.setInteger("v", side.getSide() == null ? -1 : side.getSide().ordinal());
+            tag.setString("node", side.getNodeName() == null ? "" : side.getNodeName());
         }
 
         @Override
         protected ParameterValue readFromNBTInternal(NBTTagCompound tag) {
-            return ParameterValue.constant(EnumFacing.values()[tag.getInteger("v")]);
+            int v = tag.getInteger("v");
+            EnumFacing facing = v == -1 ? null : EnumFacing.values()[v];
+            String node = tag.getString("node");
+            return ParameterValue.constant(new BlockSide(node, facing));
         }
     },
     PAR_BOOLEAN() {

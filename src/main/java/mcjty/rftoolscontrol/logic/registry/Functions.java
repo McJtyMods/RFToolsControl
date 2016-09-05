@@ -100,7 +100,7 @@ public class Functions {
             case PAR_FLOAT:
                 return ParameterValue.constant(Float.toString((Float) v));
             case PAR_SIDE:
-                return ParameterValue.constant(((EnumFacing)v).getName());
+                return ParameterValue.constant(v.toString());
             case PAR_BOOLEAN:
                 return ParameterValue.constant(((Boolean) v) ? "true" : "false");
             case PAR_ITEM:
