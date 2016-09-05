@@ -2,6 +2,7 @@ package mcjty.rftoolscontrol.logic.registry;
 
 import mcjty.rftoolscontrol.logic.Parameter;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.items.IItemHandler;
 
 import java.util.HashMap;
@@ -14,9 +15,15 @@ public class Opcodes {
 
     public static final Opcode DO_REDSTONE = Opcode.builder()
             .id("do_rs")
-            .description("Operation: set redstone level", "at a specific side")
+            .description(
+                    TextFormatting.GREEN + "Operation: set redstone",
+                    "set redstone level at a specific",
+                    "side on the processor or a node",
+                    "in the network",
+                    TextFormatting.BLUE + "Par 'side': node + side",
+                    TextFormatting.BLUE + "Par 'level': amount of redstone to set",
+                    TextFormatting.YELLOW + "No result")
             .opcodeOutput(SINGLE)
-            // @todo network node name
             .parameter(ParameterDescription.builder().name("side").type(PAR_SIDE).build())
             .parameter(ParameterDescription.builder().name("level").type(PAR_INTEGER).build())
             .runnable(((processor, program, opcode) -> {
@@ -29,7 +36,14 @@ public class Opcodes {
             .build();
     public static final Opcode EVENT_REDSTONE_ON = Opcode.builder()
             .id("ev_rs_on")
-            .description("Event: execute program", "on redstone pulse on")
+            .description(
+                    TextFormatting.GREEN + "Event: redstone on",
+                    "execute program when redstone",
+                    "signal at a specific side (or in",
+                    "general) goes on",
+                    "Note: not yet supported on nodes",
+                    TextFormatting.BLUE + "Par 'side': node + side",
+                    TextFormatting.YELLOW + "No result")
             .opcodeOutput(SINGLE)
             .isEvent(true)
             .parameter(ParameterDescription.builder().name("side").type(PAR_SIDE).build())
@@ -37,7 +51,14 @@ public class Opcodes {
             .build();
     public static final Opcode EVENT_REDSTONE_OFF = Opcode.builder()
             .id("ev_rs_off")
-            .description("Event: execute program", "on redstone pulse off")
+            .description(
+                    TextFormatting.GREEN + "Event: redstone off",
+                    "execute program when redstone",
+                    "signal at a specific side (or in",
+                    "general) goes off",
+                    "Note: not yet supported on nodes",
+                    TextFormatting.BLUE + "Par 'side': node + side",
+                    TextFormatting.YELLOW + "No result")
             .opcodeOutput(SINGLE)
             .isEvent(true)
             .parameter(ParameterDescription.builder().name("side").type(PAR_SIDE).build())
@@ -47,7 +68,11 @@ public class Opcodes {
 
     public static final Opcode DO_DELAY = Opcode.builder()
             .id("do_delay")
-            .description("Operation: wait for a number", "of ticks")
+            .description(
+                    TextFormatting.GREEN + "Operation: wait",
+                    "wait a specific number of ticks",
+                    TextFormatting.BLUE + "Par 'ticks': amount of ticks to wait",
+                    TextFormatting.YELLOW + "No result")
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("ticks").type(PAR_INTEGER).build())
             .icon(6, 0)
@@ -58,9 +83,18 @@ public class Opcodes {
             }))
             .build();
 
-    public static final Opcode TEST_COUNTINV = Opcode.builder()
-            .id("test_countinv")
-            .description("Test: count the amount of items", "in a specific slot or", "of a certain type in", "an external inventory")
+    public static final Opcode EVAL_COUNTINV = Opcode.builder()
+            .id("eval_countinv")
+            .description(
+                    TextFormatting.GREEN + "Eval: count items external",
+                    "count the amount of items in a",
+                    "specific slot or of a certain type",
+                    "in an external inventory adjacent to",
+                    "the processor or a connected node",
+                    TextFormatting.BLUE + "Par 'inv': an adjacent inventory",
+                    TextFormatting.BLUE + "Par 'slot': an optional slot",
+                    TextFormatting.BLUE + "Par 'item': an optional item",
+                    TextFormatting.YELLOW + "Result: amount of items (integer)")
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("inv").type(PAR_INVENTORY).build())
             .parameter(ParameterDescription.builder().name("slot").type(PAR_INTEGER).build())
@@ -76,9 +110,16 @@ public class Opcodes {
             }))
             .build();
 
-    public static final Opcode TEST_GETITEM = Opcode.builder()
-            .id("test_getitem")
-            .description("Test: get the item (but", "do not remove it) from", "a specific slot")
+    public static final Opcode EVAL_GETITEM = Opcode.builder()
+            .id("eval_getitem")
+            .description(
+                    TextFormatting.GREEN + "Eval: examine item",
+                    "examine an item in a specific slot",
+                    "from an external inventory adjacent to",
+                    "the processor or a connected node",
+                    TextFormatting.BLUE + "Par 'inv': an adjacent inventory",
+                    TextFormatting.BLUE + "Par 'slot': an optional slot",
+                    TextFormatting.YELLOW + "Result: the item (stack)")
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("inv").type(PAR_INVENTORY).build())
             .parameter(ParameterDescription.builder().name("slot").type(PAR_INTEGER).build())
@@ -95,9 +136,15 @@ public class Opcodes {
             }))
             .build();
 
-    public static final Opcode TEST_REDSTONE = Opcode.builder()
-            .id("test_rs")
-            .description("Test: get redstone value")
+    public static final Opcode EVAL_REDSTONE = Opcode.builder()
+            .id("eval_rs")
+            .description(
+                    TextFormatting.GREEN + "Eval: read redstone",
+                    "read the redstone value coming",
+                    "to a specific side of the processor",
+                    "or a connected node",
+                    TextFormatting.BLUE + "Par 'side': a specific side",
+                    TextFormatting.YELLOW + "Result: redstone value (integer)")
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("side").type(PAR_SIDE).build())
             .icon(1, 0)
@@ -111,7 +158,13 @@ public class Opcodes {
 
     public static final Opcode DO_STOP = Opcode.builder()
             .id("do_stop")
-            .description("Operation: stop program")
+            .description(
+                    TextFormatting.GREEN + "Operation: stop program",
+                    "stop executing at this point",
+                    "you normally don't have to use",
+                    "this manually",
+                    TextFormatting.BLUE + "No parameters",
+                    TextFormatting.YELLOW + "No result")
             .opcodeOutput(NONE)
             .icon(7, 0)
             .runnable((processor, program, opcode) -> {
@@ -122,7 +175,12 @@ public class Opcodes {
 
     public static final Opcode DO_LOG = Opcode.builder()
             .id("do_log")
-            .description("Operation: dump a message", "on the processor console")
+            .description(
+                    TextFormatting.GREEN + "Operation: log message",
+                    "log a message on the processor",
+                    "console",
+                    TextFormatting.BLUE + "Par 'message': the message",
+                    TextFormatting.YELLOW + "No result")
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("message").type(PAR_STRING).build())
             .icon(8, 0)
@@ -135,16 +193,26 @@ public class Opcodes {
 
     public static final Opcode EVENT_TIMER = Opcode.builder()
             .id("ev_timer")
-            .description("Event: execute program every", "<N> ticks")
+            .description(
+                    TextFormatting.GREEN + "Event: repeat",
+                    "execute program every <N> ticks",
+                    TextFormatting.BLUE + "Par 'ticks': ticks to wait",
+                    TextFormatting.YELLOW + "No result")
             .opcodeOutput(SINGLE)
             .isEvent(true)
             .parameter(ParameterDescription.builder().name("ticks").type(PAR_INTEGER).build())
             .icon(9, 0)
             .build();
 
-    public static final Opcode CALC_GT = Opcode.builder()
-            .id("calc_gt")
-            .description("Calculation: compare two", "values")
+    public static final Opcode TEST_GT = Opcode.builder()
+            .id("test_gt")
+            .description(
+                    TextFormatting.GREEN + "Test: greater than",
+                    "check if the first value is greater",
+                    "then the second value",
+                    TextFormatting.BLUE + "Par 'v1': first value",
+                    TextFormatting.BLUE + "Par 'v2': second value",
+                    TextFormatting.YELLOW + "Result: v1 > v2 (boolean)")
             .opcodeOutput(YESNO)
             .parameter(ParameterDescription.builder().name("v1").type(PAR_INTEGER).build())
             .parameter(ParameterDescription.builder().name("v2").type(PAR_INTEGER).build())
@@ -156,9 +224,15 @@ public class Opcodes {
             }))
             .build();
 
-    public static final Opcode CALC_EQ = Opcode.builder()
-            .id("calc_eq")
-            .description("Calculation: compare two", "integer values on equality")
+    public static final Opcode TEST_EQ = Opcode.builder()
+            .id("test_eq")
+            .description(
+                    TextFormatting.GREEN + "Test: equality",
+                    "check if the first value is equal",
+                    "to the second value",
+                    TextFormatting.BLUE + "Par 'v1': first value",
+                    TextFormatting.BLUE + "Par 'v2': second value",
+                    TextFormatting.YELLOW + "Result: v1 = v2 (boolean)")
             .opcodeOutput(YESNO)
             .parameter(ParameterDescription.builder().name("v1").type(PAR_INTEGER).build())
             .parameter(ParameterDescription.builder().name("v2").type(PAR_INTEGER).build())
@@ -172,7 +246,18 @@ public class Opcodes {
 
     public static final Opcode DO_FETCHITEMS = Opcode.builder()
             .id("do_fetchitems")
-            .description("Operation: fetch items from", "external inventory", "and place in internal", "inventory. Fails if", "amount does not exactly", "match")
+            .description(
+                    TextFormatting.GREEN + "Operation: fetch items",
+                    "fetch items from an external",
+                    "inventory adjacent to the processor",
+                    "or a connected node and place the",
+                    "result in the internal inventory",
+                    TextFormatting.BLUE + "Par 'inv': an adjacent inventory",
+                    TextFormatting.BLUE + "Par 'slot': an optional slot",
+                    TextFormatting.BLUE + "Par 'item': an optional item",
+                    TextFormatting.BLUE + "Par 'amount': number of items",
+                    TextFormatting.BLUE + "Par 'slotOut': slot in processor",
+                    TextFormatting.YELLOW + "No result")
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("inv").type(PAR_INVENTORY).build())
             .parameter(ParameterDescription.builder().name("slot").type(PAR_INTEGER).build())
@@ -193,7 +278,17 @@ public class Opcodes {
 
     public static final Opcode DO_PUSHITEMS = Opcode.builder()
             .id("do_pushitems")
-            .description("Operation: push items to", "external inventory", "from internal inventory", "Fails if amount does", "not exactly match")
+            .description(
+                    TextFormatting.GREEN + "Operation: push items",
+                    "push items to an external",
+                    "inventory adjacent to the processor",
+                    "or a connected node from the",
+                    "internal inventory",
+                    TextFormatting.BLUE + "Par 'inv': an adjacent inventory",
+                    TextFormatting.BLUE + "Par 'slot': an optional slot",
+                    TextFormatting.BLUE + "Par 'amount': number of items",
+                    TextFormatting.BLUE + "Par 'slotIn': slot in processor",
+                    TextFormatting.YELLOW + "No result")
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("inv").type(PAR_INVENTORY).build())
             .parameter(ParameterDescription.builder().name("slot").type(PAR_INTEGER).build())
@@ -210,9 +305,14 @@ public class Opcodes {
             }))
             .build();
 
-    public static final Opcode TEST_COUNTINVINT = Opcode.builder()
-            .id("test_countinvint")
-            .description("Test: count the amount of items", "in a specific slot of", "the internal inventory")
+    public static final Opcode EVAL_COUNTINVINT = Opcode.builder()
+            .id("eval_countinvint")
+            .description(
+                    TextFormatting.GREEN + "Eval: count items internal",
+                    "count the amount of items in a",
+                    "specific slot in the processor inventory",
+                    TextFormatting.BLUE + "Par 'slot': internal slot",
+                    TextFormatting.YELLOW + "Result: amount of items (integer)")
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("slot").type(PAR_INTEGER).build())
             .icon(2, 1)
@@ -226,7 +326,12 @@ public class Opcodes {
 
     public static final Opcode DO_SETVAR = Opcode.builder()
             .id("do_setvar")
-            .description("Operation: copy last returned", "value to a variable")
+            .description(
+                    TextFormatting.GREEN + "Operation: set variable",
+                    "copy the last returned value to",
+                    "the specified variable",
+                    TextFormatting.BLUE + "Par 'var': variable index",
+                    TextFormatting.YELLOW + "No result")
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("var").type(PAR_INTEGER).build())
             .icon(3, 1)
@@ -239,7 +344,12 @@ public class Opcodes {
 
     public static final Opcode DO_ADD = Opcode.builder()
             .id("do_add")
-            .description("Operation: add two integers")
+            .description(
+                    TextFormatting.GREEN + "Operation: add integers",
+                    "add the two given integers",
+                    TextFormatting.BLUE + "Par 'v1': first value",
+                    TextFormatting.BLUE + "Par 'v2': second value",
+                    TextFormatting.YELLOW + "Result: v1 + v2 (integer)")
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("v1").type(PAR_INTEGER).build())
             .parameter(ParameterDescription.builder().name("v2").type(PAR_INTEGER).build())
@@ -254,7 +364,12 @@ public class Opcodes {
 
     public static final Opcode DO_SUBTRACT = Opcode.builder()
             .id("do_subtract")
-            .description("Operation: subtract two integers")
+            .description(
+                    TextFormatting.GREEN + "Operation: subtract integers",
+                    "subtract the two given integers",
+                    TextFormatting.BLUE + "Par 'v1': first value",
+                    TextFormatting.BLUE + "Par 'v2': second value",
+                    TextFormatting.YELLOW + "Result: v1 - v2 (integer)")
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("v1").type(PAR_INTEGER).build())
             .parameter(ParameterDescription.builder().name("v2").type(PAR_INTEGER).build())
@@ -269,7 +384,12 @@ public class Opcodes {
 
     public static final Opcode DO_DIVIDE = Opcode.builder()
             .id("do_divide")
-            .description("Operation: divide two integers")
+            .description(
+                    TextFormatting.GREEN + "Operation: divide integers",
+                    "divide the two given integers",
+                    TextFormatting.BLUE + "Par 'v1': first value",
+                    TextFormatting.BLUE + "Par 'v2': second value",
+                    TextFormatting.YELLOW + "Result: v1 / v2 (integer)")
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("v1").type(PAR_INTEGER).build())
             .parameter(ParameterDescription.builder().name("v2").type(PAR_INTEGER).build())
@@ -284,7 +404,12 @@ public class Opcodes {
 
     public static final Opcode DO_MULTIPLY = Opcode.builder()
             .id("do_multiply")
-            .description("Operation: multiply two integers")
+            .description(
+                    TextFormatting.GREEN + "Operation: multiply integers",
+                    "multiply the two given integers",
+                    TextFormatting.BLUE + "Par 'v1': first value",
+                    TextFormatting.BLUE + "Par 'v2': second value",
+                    TextFormatting.YELLOW + "Result: v1 * v2 (integer)")
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("v1").type(PAR_INTEGER).build())
             .parameter(ParameterDescription.builder().name("v2").type(PAR_INTEGER).build())
@@ -299,7 +424,13 @@ public class Opcodes {
 
     public static final Opcode DO_MODULO = Opcode.builder()
             .id("do_modulo")
-            .description("Operation: calculate modula", "of two integers")
+            .description(
+                    TextFormatting.GREEN + "Operation: modulo",
+                    "calculate the modulo of two",
+                    "given integers",
+                    TextFormatting.BLUE + "Par 'v1': first value",
+                    TextFormatting.BLUE + "Par 'v2': second value",
+                    TextFormatting.YELLOW + "Result: v1 % v2 (integer)")
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("v1").type(PAR_INTEGER).build())
             .parameter(ParameterDescription.builder().name("v2").type(PAR_INTEGER).build())
@@ -314,7 +445,12 @@ public class Opcodes {
 
     public static final Opcode DO_CONCAT = Opcode.builder()
             .id("do_concat")
-            .description("Operation: add two integers")
+            .description(
+                    TextFormatting.GREEN + "Operation: string concat",
+                    "concatenate the two given strings",
+                    TextFormatting.BLUE + "Par 'v1': first value",
+                    TextFormatting.BLUE + "Par 'v2': second value",
+                    TextFormatting.YELLOW + "Result: v1 + v2 (string)")
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("v1").type(PAR_STRING).build())
             .parameter(ParameterDescription.builder().name("v2").type(PAR_STRING).build())
@@ -335,12 +471,12 @@ public class Opcodes {
         register(EVENT_REDSTONE_ON);
         register(EVENT_REDSTONE_OFF);
         register(EVENT_TIMER);
-        register(TEST_COUNTINV);
-        register(TEST_COUNTINVINT);
-        register(TEST_GETITEM);
-        register(TEST_REDSTONE);
-        register(CALC_GT);
-        register(CALC_EQ);
+        register(EVAL_COUNTINV);
+        register(EVAL_COUNTINVINT);
+        register(EVAL_GETITEM);
+        register(EVAL_REDSTONE);
+        register(TEST_GT);
+        register(TEST_EQ);
 //        register(CONTROL_IF);
         register(DO_REDSTONE);
         register(DO_DELAY);

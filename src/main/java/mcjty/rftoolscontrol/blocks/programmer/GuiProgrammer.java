@@ -29,6 +29,7 @@ import mcjty.rftoolscontrol.network.RFToolsCtrlMessages;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import org.apache.commons.lang3.StringUtils;
+import org.lwjgl.input.Keyboard;
 
 import java.awt.*;
 import java.util.*;
@@ -147,13 +148,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
                 IconHolder holder = new IconHolder(mc, this) {
                     @Override
                     public List<String> getTooltips() {
-                        IIcon icon = getIcon();
-                        if (icon == null) {
-                            return Collections.emptyList();
-                        } else {
-                            Opcode opcode = Opcodes.OPCODES.get(icon.getID());
-                            return opcode.getDescription();
-                        }
+                        return getIconTooltip(getIcon());
                     }
                 }
                         .setDesiredWidth(ICONSIZE+2)
@@ -497,13 +492,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
             IconHolder holder = new IconHolder(mc, this) {
                 @Override
                 public List<String> getTooltips() {
-                    IIcon icon = getIcon();
-                    if (icon == null) {
-                        return Collections.emptyList();
-                    } else {
-                        Opcode opcode = Opcodes.OPCODES.get(icon.getID());
-                        return opcode.getDescription();
-                    }
+                    return getIconTooltip(getIcon());
                 }
             }
                     .setDesiredWidth(ICONSIZE).setDesiredHeight(ICONSIZE)
@@ -523,6 +512,22 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
                 .addChild(slider);
 //                .setFilledRectThickness(-2)
 //                .setFilledBackground(StyleConfig.colorListBackground);
+    }
+
+    private List<String> getIconTooltip(IIcon icon) {
+        if (icon != null) {
+            Opcode opcode = Opcodes.OPCODES.get(icon.getID());
+            List<String> description = opcode.getDescription();
+            if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT)) {
+                return description;
+            } else {
+                List<String> tooltips = new ArrayList<>();
+                tooltips.add(description.get(0));
+                tooltips.add("<Shift for more info>");
+                return tooltips;
+            }
+        }
+        return Collections.emptyList();
     }
 
     private void selectIcon(Window parent, Widget focused) {
