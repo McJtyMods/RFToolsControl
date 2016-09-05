@@ -32,8 +32,6 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
     public static final int WIDTH = 256;
     public static final int HEIGHT = 236;
 
-    public static int ICONSIZE = 20;
-
     private static final ResourceLocation mainBackground = new ResourceLocation(RFToolsControl.MODID, "textures/gui/processor.png");
     private static final ResourceLocation sideBackground = new ResourceLocation(RFToolsControl.MODID, "textures/gui/sidegui.png");
     private static final ResourceLocation icons = new ResourceLocation(RFToolsControl.MODID, "textures/gui/icons.png");

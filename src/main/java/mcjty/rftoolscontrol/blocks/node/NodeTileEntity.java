@@ -32,8 +32,12 @@ public class NodeTileEntity extends GenericTileEntity {
     @Override
     public void writeRestorableToNBT(NBTTagCompound tagCompound) {
         super.writeRestorableToNBT(tagCompound);
-        tagCompound.setString("channel", channel);
-        tagCompound.setString("node", node);
+        if (channel != null) {
+            tagCompound.setString("channel", channel);
+        }
+        if (node != null) {
+            tagCompound.setString("node", node);
+        }
     }
 
     @Override

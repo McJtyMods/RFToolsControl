@@ -1,6 +1,7 @@
 package mcjty.rftoolscontrol.logic.registry;
 
 import mcjty.rftoolscontrol.logic.Parameter;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 
 import javax.annotation.Nonnull;
@@ -77,6 +78,8 @@ public class Functions {
                 return ParameterValue.constant(0);
             case PAR_BOOLEAN:
                 return ParameterValue.constant(((Boolean) v) ? 1 : 0);
+            case PAR_ITEM:
+                return ParameterValue.constant(((ItemStack) v).stackSize);
         }
         return ParameterValue.constant(0);
     }
@@ -100,6 +103,8 @@ public class Functions {
                 return ParameterValue.constant(((EnumFacing)v).getName());
             case PAR_BOOLEAN:
                 return ParameterValue.constant(((Boolean) v) ? "true" : "false");
+            case PAR_ITEM:
+                return ParameterValue.constant(((ItemStack) v).getDisplayName());
         }
         return ParameterValue.constant("");
     }
