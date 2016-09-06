@@ -415,6 +415,10 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
         return instance;
     }
 
+    private void clearProgram() {
+        clearGrid();
+    }
+
     private void loadProgram(int slot) {
         ItemStack card = tileEntity.getStackInSlot(slot);
         if (card == null) {
@@ -470,7 +474,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
         return new Panel(mc, this).setLayout(new HorizontalLayout().setSpacing(2).setHorizontalMargin(1)).setLayoutHint(new PositionalLayout.PositionalHint(106, 136, 145, 18))
                 .addChild(new Button(mc, this).setText("Load").setDesiredHeight(15).addButtonEvent(w -> loadProgram(ProgrammerContainer.SLOT_CARD)))
                 .addChild(new Button(mc, this).setText("Save").setDesiredHeight(15).addButtonEvent(w -> saveProgram(ProgrammerContainer.SLOT_CARD)))
-                .addChild(new Button(mc, this).setText("Clear").setDesiredHeight(15))
+                .addChild(new Button(mc, this).setText("Clear").setDesiredHeight(15).addButtonEvent(w -> clearProgram()))
                 .addChild(new Button(mc, this).setText("Val").setDesiredHeight(15).addButtonEvent(w -> validateProgram()))
                 .addChild(trashcan);
     }

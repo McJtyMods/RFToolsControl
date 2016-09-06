@@ -23,7 +23,7 @@ public class GuiNode extends GenericGuiContainer<NodeTileEntity> {
     private TextField nodeNameField;
 
     public GuiNode(NodeTileEntity tileEntity, EmptyContainer container) {
-        super(RFToolsControl.instance, RFToolsCtrlMessages.INSTANCE, tileEntity, container, RFToolsControl.GUI_MANUAL_CONTROL, "node");
+        super(RFToolsControl.instance, RFToolsCtrlMessages.INSTANCE, tileEntity, container, RFToolsControl.GUI_MANUAL_CONTROL, "networking");
 
         xSize = WIDTH;
         ySize = HEIGHT;

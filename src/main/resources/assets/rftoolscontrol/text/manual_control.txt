@@ -27,6 +27,39 @@ The Programmer is the basic block where you create your programs. To
 use it you need to insert a program card item:
 {ri:program_card}
 {-------------------------------------------------------------}
+The programmer gui can seem complicated at first but it is not that
+hard. At the left side you can see all the available opcodes that you
+can use in your programs. You can click and drag them onto the big
+grid in the middle.
+
+When an opcode is in the main grid you can connect it to neighbours
+by clicking a side. If that side turns green you have made a connection
+going from that opcode (the one with the green side) to the adjacent
+one. Some opcodes (tests) have two outputs. There is also a red output
+which indicates the negative path to follow (if the test fails)
+{-------------------------------------------------------------}
+Every program needs an event to start with. An event opcode describes
+what needs to happen before a program can start. Note that you can
+have multiple events on the same card (and thus multiple programs) and
+the same program string (connected opcodes) can even have multiple
+events which indicate different entry points in the same program.
+
+There are currently four events: redstone pulse on, redstone pulse
+off, timer, and signal.
+{-------------------------------------------------------------}
+Many opcodes have parameters. When you select an opcode on the main
+grid you get a list of all possible parameters below the gui.
+Parameters are typed but many conversions are done automatically (for
+example, an integer is automatically converted to a string when
+that is required).
+
+You can specify a parameter in three different ways: as a constant
+value, as a variable, or as a function. Variables are stored in
+the processor (more on that later). The only function available right
+now is 'last' which simply returns the last result of the previous
+opcode. This is important, many opcodes have a result which you
+can access with this function.
+{-------------------------------------------------------------}
 {b}The Processor
 {n:processor}
 {rb:processor}
@@ -46,4 +79,29 @@ and the RF/t energy consumption.
 {-------------------------------------------------------------}
 The Processor can store up to 32 variables. To do that it needs RAM chips.
 Every RAM chip adds 8 variables so maximum 4 RAM chips are supported.
+
+Variables can be used by programs but to do that you have to allocate
+the variables to the right card slot. To do that there are six small
+buttons above the card slots. Pressing such a button will switch the
+gui to 'allocation' mode. Then you can select the variables and mark
+them green. The first variable marked green will be index 0 for
+programs on that card. And so on.
+
+Note that you can allocate variables that are already used by other
+cards. That way it is possible to share information between programs
+on different cards.
+{-------------------------------------------------------------}
+The Processor also has access to 24 internal item slots. These are
+always available but just like the variables you also have to allocate
+them for each card.
+{-------------------------------------------------------------}
+{b}Networking
+{n:networking}
+Using a network card:
+{ri:network_card}
+and several nodes:
+{rb:node}
+you can create an automation network. Without networking you can only
+access inventories and blocks adjacent to the processor. With a
+network blocks around nodes are also available (17x17x17 area).
 {-------------------------------------------------------------}
