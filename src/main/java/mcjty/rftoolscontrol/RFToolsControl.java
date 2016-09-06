@@ -3,6 +3,7 @@ package mcjty.rftoolscontrol;
 import mcjty.lib.base.ModBase;
 import mcjty.lib.compat.MainCompatHandler;
 import mcjty.rftoolscontrol.items.ModItems;
+import mcjty.rftoolscontrol.items.manual.GuiRFToolsManual;
 import mcjty.rftoolscontrol.proxy.CommonProxy;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
@@ -106,7 +107,7 @@ public class RFToolsControl implements ModBase {
 
     @Override
     public void openManual(EntityPlayer player, int bookIndex, String page) {
-//        GuiRFToolsManual.locatePage = page;
-//        player.openGui(RFToolsControl.instance, bookIndex, player.worldObj, (int) player.posX, (int) player.posY, (int) player.posZ);
+        GuiRFToolsManual.locatePage = page;
+        player.openGui(RFToolsControl.instance, bookIndex, player.worldObj, (int) player.posX, (int) player.posY, (int) player.posZ);
     }
 }

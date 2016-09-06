@@ -1,9 +1,49 @@
 {b}RFTools Control Manual
 
 Table of Contents:
-{l:intro}Introduction to Control
+{l:intro}Introduction
+{l:programmer}Programmer
+{l:processor}Processor
+{l:networking}Networking
 {-------------------------------------------------------------}
-{b}Introduction to Control
+{b}Introduction
 {n:intro}
-Bla bla
+RFTools Control is an addon mod for RFTools which adds a visual
+programming system that is suitable for automation tasks. Programs
+written with RFTools Control can move items around, interact with
+redstone, examine energy levels of machines and so on. There is direct
+support for the storage scanner and in the future it will also give
+auto crafting abilities to that scanner.
+
+Don't be too afraid of the word 'programming' though. Programs written
+for RFTools Control are typically very simple and they are also written
+in a visual manner. That means you don't actually have to 'write' code.
+Instead you drag icons on a grid.
+{-------------------------------------------------------------}
+{b}The Programmer
+{n:programmer}
+{rb:programmer}
+The Programmer is the basic block where you create your programs. To
+use it you need to insert a program card item:
+{ri:program_card}
+{-------------------------------------------------------------}
+{b}The Processor
+{n:processor}
+{rb:processor}
+The Processor is the device that actually runs your programs. First you
+write a program with the Programmer and then you insert that card in
+the processor. Up to 6 program cards are supported. The Processor needs
+some more modules before it can really work though.
+{-------------------------------------------------------------}
+The most important thing that the Processor needs is at least one cpu
+core. For every core that you install in one of the 16 expansion slots
+you can run an additional program at the same time. Note that cpu cores
+are expensive but you don't always need many even if you plan to run
+multiple programs because typical programs don't run very long.
+
+There are three tiers of cpu cores. They differ in their execution speed
+and the RF/t energy consumption.
+{-------------------------------------------------------------}
+The Processor can store up to 32 variables. To do that it needs RAM chips.
+Every RAM chip adds 8 variables so maximum 4 RAM chips are supported.
 {-------------------------------------------------------------}
