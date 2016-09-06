@@ -510,6 +510,14 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         return hasNetworkCard;
     }
 
+    public String getChannelName() {
+        return channel;
+    }
+
+    public int getNodeCount() {
+        return networkNodes.size();
+    }
+
 
     public void setVariable(RunningProgram program, int var) {
         CardInfo info = this.cardInfo[program.getCardIndex()];

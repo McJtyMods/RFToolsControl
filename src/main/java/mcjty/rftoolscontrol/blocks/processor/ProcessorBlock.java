@@ -3,17 +3,25 @@ package mcjty.rftoolscontrol.blocks.processor;
 import mcjty.lib.container.GenericGuiContainer;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.blocks.GenericRFToolsBlock;
+import mcjty.theoneprobe.api.IProbeHitData;
+import mcjty.theoneprobe.api.IProbeInfo;
+import mcjty.theoneprobe.api.ProbeMode;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.PropertyBool;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+
+import java.util.List;
 
 public class ProcessorBlock extends GenericRFToolsBlock<ProcessorTileEntity, ProcessorContainer> {
 
@@ -38,6 +46,28 @@ public class ProcessorBlock extends GenericRFToolsBlock<ProcessorTileEntity, Pro
     public int getGuiID() {
         return RFToolsControl.GUI_PROCESSOR;
     }
+
+    @SideOnly(Side.CLIENT)
+    @Override
+    public void addInformation(ItemStack stack, EntityPlayer playerIn, List<String> list, boolean advanced) {
+        super.addInformation(stack, playerIn, list, advanced);
+        list.add("The processor executes programs");
+        list.add("for automation");
+    }
+
+    @Override
+    public void addProbeInfo(ProbeMode mode, IProbeInfo probeInfo, EntityPlayer player, World world, IBlockState blockState, IProbeHitData data) {
+        super.addProbeInfo(mode, probeInfo, player, world, blockState, data);
+        TileEntity te = world.getTileEntity(data.getPos());
+        if (te instanceof ProcessorTileEntity) {
+            ProcessorTileEntity processor = (ProcessorTileEntity) te;
+            if (processor.hasNetworkCard()) {
+                probeInfo.text(TextFormatting.GREEN + "Channel: " + processor.getChannelName());
+                probeInfo.text(TextFormatting.GREEN + "Nodes: " + processor.getNodeCount());
+            }
+        }
+    }
+
 
     private int getInputStrength(World world, BlockPos pos, EnumFacing side) {
         return world.getRedstonePower(pos.offset(side), side);

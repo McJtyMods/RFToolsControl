@@ -20,7 +20,9 @@ public class CpuCore {
         for (int i = 0; i < GeneralConfiguration.coreSpeed[tier]; i++) {
             boolean rc = program.run(processor);
             if (program.isDead()) {
-                System.out.println("Core: stopping program");
+                if (RunningProgram.DEBUG) {
+                    System.out.println("Core: stopping program");
+                }
                 program = null;
                 return;
             }
@@ -47,7 +49,9 @@ public class CpuCore {
     }
 
     public void startProgram(RunningProgram program) {
-        System.out.println("Core: starting program = " + program);
+        if (RunningProgram.DEBUG) {
+            System.out.println("Core: starting program = " + program);
+        }
         this.program = program;
     }
 

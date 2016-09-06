@@ -11,7 +11,7 @@ import java.util.List;
 
 public class RunningProgram {
 
-    private static boolean DEBUG = true;
+    public static boolean DEBUG = false;
 
     // Card we are running from
     private final int cardIndex;
