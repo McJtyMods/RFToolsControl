@@ -63,10 +63,10 @@ public class RunningProgram {
         return lastValue;
     }
 
-    public void run(ProcessorTileEntity processor) {
+    public boolean run(ProcessorTileEntity processor) {
         if (delay > 0) {
             delay--;
-            return;
+            return false;
         }
 
         try {
@@ -84,6 +84,7 @@ public class RunningProgram {
             e.printStackTrace();
             killMe();
         }
+        return true;
     }
 
     private List<CompiledOpcode> opcodes(ProcessorTileEntity processor) {

@@ -18,10 +18,13 @@ public class CpuCore {
 
     public void run(ProcessorTileEntity processor) {
         for (int i = 0; i < GeneralConfiguration.coreSpeed[tier]; i++) {
-            program.run(processor);
+            boolean rc = program.run(processor);
             if (program.isDead()) {
                 System.out.println("Core: stopping program");
                 program = null;
+                return;
+            }
+            if (!rc) {
                 return;
             }
         }

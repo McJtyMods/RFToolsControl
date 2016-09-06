@@ -11,7 +11,7 @@ public class GeneralConfiguration {
     public static int processorMaxloglines = 100;
 
     public static int coreSpeed[] = new int[] { 1, 4, 16 };
-    public static int coreRFPerTick[] = new int[] { 4, 16, 80 };
+    public static int coreRFPerTick[] = new int[] { 4, 14, 50 };
 
 	public static void init(Configuration cfg) {
         processorMaxenergy = cfg.get(CATEGORY_GENERAL, "processorMaxRF", processorMaxenergy,
