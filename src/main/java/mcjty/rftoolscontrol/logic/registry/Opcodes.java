@@ -561,6 +561,45 @@ public class Opcodes {
             }))
             .build();
 
+    public static final Opcode EVAL_GETRF = Opcode.builder()
+            .id("eval_getrf")
+            .description(
+                    TextFormatting.GREEN + "Eval: get RF in machine",
+                    "get the amount of RF stored in a",
+                    "specific machine adjacent to the",
+                    "processor or a connected node",
+                    TextFormatting.BLUE + "Par 'side': an adjacent block",
+                    TextFormatting.YELLOW + "Result: amount of RF (integer)")
+            .opcodeOutput(SINGLE)
+            .parameter(ParameterDescription.builder().name("side").type(PAR_INVENTORY).build())
+            .icon(3, 2)
+            .runnable(((processor, program, opcode) -> {
+                Inventory side = processor.evalulateParameter(opcode, program, 0);
+                int rf = processor.getEnergy(side, program);
+                program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(rf)).build());
+                return true;
+            }))
+            .build();
+    public static final Opcode EVAL_GETMAXRF = Opcode.builder()
+            .id("eval_getmaxrf")
+            .description(
+                    TextFormatting.GREEN + "Eval: get max RF in machine",
+                    "get the maximum amount of RF stored",
+                    "in a specific machine adjacent to the",
+                    "processor or a connected node",
+                    TextFormatting.BLUE + "Par 'side': an adjacent block",
+                    TextFormatting.YELLOW + "Result: max amount of RF (integer)")
+            .opcodeOutput(SINGLE)
+            .parameter(ParameterDescription.builder().name("side").type(PAR_INVENTORY).build())
+            .icon(4, 2)
+            .runnable(((processor, program, opcode) -> {
+                Inventory side = processor.evalulateParameter(opcode, program, 0);
+                int rf = processor.getMaxEnergy(side, program);
+                program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(rf)).build());
+                return true;
+            }))
+            .build();
+
     public static final Map<String, Opcode> OPCODES = new HashMap<>();
     public static final List<Opcode> SORTED_OPCODES = new ArrayList<>();
 
@@ -574,6 +613,8 @@ public class Opcodes {
         register(EVAL_COUNTSTOR);
         register(EVAL_GETITEM);
         register(EVAL_REDSTONE);
+        register(EVAL_GETRF);
+        register(EVAL_GETMAXRF);
         register(TEST_GT);
         register(TEST_EQ);
         register(DO_REDSTONE);

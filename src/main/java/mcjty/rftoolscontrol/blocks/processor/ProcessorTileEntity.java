@@ -1,5 +1,6 @@
 package mcjty.rftoolscontrol.blocks.processor;
 
+import cofh.api.energy.IEnergyHandler;
 import mcjty.lib.container.DefaultSidedInventory;
 import mcjty.lib.container.InventoryHelper;
 import mcjty.lib.entity.GenericEnergyReceiverTileEntity;
@@ -119,7 +120,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         return true;
     }
 
-    private BlockPos getRedstonePos(@Nonnull BlockSide side, @Nonnull RunningProgram program) {
+    private BlockPos getAdjacentPosition(@Nonnull BlockSide side, @Nonnull RunningProgram program) {
         BlockPos p;
         if (side.getNodeName() != null && !side.getNodeName().isEmpty()) {
             p = networkNodes.get(side.getNodeName());
@@ -140,7 +141,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
 
     public int readRedstoneIn(@Nonnull BlockSide side, @Nonnull RunningProgram program) {
         EnumFacing facing = side.getSide();
-        BlockPos p = getRedstonePos(side, program);
+        BlockPos p = getAdjacentPosition(side, program);
         if (p == null) {
             return 0;
         }
@@ -149,7 +150,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
 
     public void setPowerOut(@Nonnull BlockSide side, int level, RunningProgram program) {
         EnumFacing facing = side.getSide();
-        BlockPos p = getRedstonePos(side, program);
+        BlockPos p = getAdjacentPosition(side, program);
         if (p == null) {
             return;
         }
@@ -376,6 +377,26 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                 }
             }
         }
+    }
+
+    public int getEnergy(Inventory side, RunningProgram program) {
+        TileEntity te = getTileEntityAt(side, program);
+        if (te instanceof IEnergyHandler) {
+            IEnergyHandler handler = (IEnergyHandler) te;
+            return handler.getEnergyStored(side.getIntSide() == null ? EnumFacing.DOWN : side.getIntSide());
+        }
+        exception("No RF support!", program);
+        return 0;
+    }
+
+    public int getMaxEnergy(Inventory side, RunningProgram program) {
+        TileEntity te = getTileEntityAt(side, program);
+        if (te instanceof IEnergyHandler) {
+            IEnergyHandler handler = (IEnergyHandler) te;
+            return handler.getMaxEnergyStored(side.getIntSide() == null ? EnumFacing.DOWN : side.getIntSide());
+        }
+        exception("No RF support!", program);
+        return 0;
     }
 
     @Nonnull
@@ -768,7 +789,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         return 0;
     }
 
-    public IItemHandler getItemHandlerAt(Inventory inv, RunningProgram program) {
+    public TileEntity getTileEntityAt(Inventory inv, RunningProgram program) {
         BlockPos p = pos;
         if (inv.hasNodeName()) {
             if (!hasNetworkCard()) {
@@ -782,7 +803,11 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             }
         }
         BlockPos np = p.offset(inv.getSide());
-        TileEntity te = worldObj.getTileEntity(np);
+        return worldObj.getTileEntity(np);
+    }
+
+    public IItemHandler getItemHandlerAt(Inventory inv, RunningProgram program) {
+        TileEntity te = getTileEntityAt(inv, program);
         if (te != null && te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, inv.getIntSide())) {
             return te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, inv.getIntSide());
         }
