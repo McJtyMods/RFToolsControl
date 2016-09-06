@@ -1,6 +1,6 @@
 package mcjty.rftoolscontrol.items;
 
-import mcjty.rftoolscontrol.config.GeneralConfiguration;
+import mcjty.rftoolscontrol.items.interactionmodule.InteractionModuleItem;
 import mcjty.rftoolscontrol.items.manual.RFToolsControlManualItem;
 import mcjty.rftoolscontrol.items.variablemodule.VariableModuleItem;
 import net.minecraftforge.fml.relauncher.Side;
@@ -18,6 +18,7 @@ public class ModItems {
     public static CardBaseItem cardBaseItem;
 
     public static VariableModuleItem variableModuleItem;
+    public static InteractionModuleItem interactionModuleItem;
 
     public static void init() {
         rfToolsControlManualItem = new RFToolsControlManualItem();
@@ -29,6 +30,7 @@ public class ModItems {
         networkCardItem = new NetworkCardItem();
         cardBaseItem = new CardBaseItem();
         variableModuleItem = new VariableModuleItem();
+        interactionModuleItem = new InteractionModuleItem();
     }
 
     @SideOnly(Side.CLIENT)
@@ -42,5 +44,6 @@ public class ModItems {
         networkCardItem.initModel();
         cardBaseItem.initModel();
         variableModuleItem.initModel();
+        interactionModuleItem.initModel();
     }
 }

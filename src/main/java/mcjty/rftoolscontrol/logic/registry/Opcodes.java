@@ -66,7 +66,20 @@ public class Opcodes {
             .parameter(ParameterDescription.builder().name("side").type(PAR_SIDE).build())
             .icon(4, 0)
             .build();
-    //    public static Operand DO_REDSTONE_OFF = Operand.builder().id("do_rs_off").operandOutput(OperandOutput.SINGLE).icon(5, 0).build();
+
+    public static final Opcode EVENT_SIGNAL = Opcode.builder()
+            .id("ev_signal")
+            .description(
+                    TextFormatting.GREEN + "Event: signal",
+                    "execute program when a signal",
+                    "is received from an rftools screen",
+                    TextFormatting.BLUE + "Par 'signal': match this signal",
+                    TextFormatting.YELLOW + "No result")
+            .opcodeOutput(SINGLE)
+            .isEvent(true)
+            .parameter(ParameterDescription.builder().name("signal").type(PAR_STRING).build())
+            .icon(5, 0)
+            .build();
 
     public static final Opcode DO_DELAY = Opcode.builder()
             .id("do_delay")
@@ -474,6 +487,7 @@ public class Opcodes {
         register(EVENT_REDSTONE_ON);
         register(EVENT_REDSTONE_OFF);
         register(EVENT_TIMER);
+        register(EVENT_SIGNAL);
         register(EVAL_COUNTINV);
         register(EVAL_COUNTINVINT);
         register(EVAL_GETITEM);

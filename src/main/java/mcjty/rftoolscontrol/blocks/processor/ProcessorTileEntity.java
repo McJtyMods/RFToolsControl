@@ -262,6 +262,23 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         }
     }
 
+    public void signal(String signal) {
+        for (int i = 0 ; i < cardInfo.length ; i++) {
+            CardInfo info = cardInfo[i];
+            CompiledCard compiledCard = info.getCompiledCard();
+            if (compiledCard != null) {
+                for (CompiledEvent event : compiledCard.getEvents(Opcodes.EVENT_SIGNAL)) {
+                    int index = event.getIndex();
+                    CompiledOpcode compiledOpcode = compiledCard.getOpcodes().get(index);
+                    String sig = evalulateParameter(compiledOpcode, null, 0);
+                    if (signal.equals(sig)) {
+                        runOrQueueEvent(i, event);
+                    }
+                }
+            }
+        }
+    }
+
     public void clearLog() {
         logMessages.clear();
     }
