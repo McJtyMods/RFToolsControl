@@ -63,6 +63,10 @@ public class RunningProgram {
         return lastValue;
     }
 
+    public CompiledOpcode getCurrentOpcode(ProcessorTileEntity processor) {
+        return opcodes(processor).get(current);
+    }
+
     public boolean run(ProcessorTileEntity processor) {
         if (delay > 0) {
             delay--;

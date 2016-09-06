@@ -31,7 +31,7 @@ public class Opcodes {
             .runnable(((processor, program, opcode) -> {
                 BlockSide side = processor.evalulateParameter(opcode, program, 0);
                 int level = processor.evaluateIntParameter(opcode, program, 1);
-                processor.setPowerOut(side, level);
+                processor.setPowerOut(side, level, program);
                 return true;
             }))
             .icon(0, 0)
@@ -119,7 +119,7 @@ public class Opcodes {
                 Inventory inv = processor.evalulateParameter(opcode, program, 0);
                 Integer slot = processor.evaluateIntegerParameter(opcode, program, 1);
                 ItemStack item = processor.evalulateParameter(opcode, program, 2);
-                int cnt = processor.countItem(inv, slot, item);
+                int cnt = processor.countItem(inv, slot, item, program);
                 program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(cnt)).build());
                 return true;
             }))
@@ -142,7 +142,7 @@ public class Opcodes {
             .runnable(((processor, program, opcode) -> {
                 Inventory inv = processor.evalulateParameter(opcode, program, 0);
                 int slot = processor.evaluateIntParameter(opcode, program, 1);
-                IItemHandler handler = processor.getItemHandlerAt(inv);
+                IItemHandler handler = processor.getItemHandlerAt(inv, program);
                 if (handler != null) {
                     ItemStack item = handler.getStackInSlot(slot);
                     program.setLastValue(Parameter.builder().type(PAR_ITEM).value(ParameterValue.constant(item)).build());
@@ -165,7 +165,7 @@ public class Opcodes {
             .icon(1, 0)
             .runnable(((processor, program, opcode) -> {
                 BlockSide side = processor.evalulateParameter(opcode, program, 0);
-                int rs = processor.readRedstoneIn(side);
+                int rs = processor.readRedstoneIn(side, program);
                 program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(rs)).build());
                 return true;
             }))
@@ -499,7 +499,7 @@ public class Opcodes {
                 ItemStack item = processor.evalulateParameter(opcode, program, 0);
                 boolean oredict = processor.evalulateBoolParameter(opcode, program, 1);
                 boolean routable = processor.evalulateBoolParameter(opcode, program, 2);
-                int cnt = processor.countItemStorage(item, routable, oredict);
+                int cnt = processor.countItemStorage(item, routable, oredict, program);
                 program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(cnt)).build());
                 return true;
             }))

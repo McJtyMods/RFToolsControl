@@ -49,9 +49,8 @@ public class CompiledCard {
 
             GridPos primaryOutput = grid.getPrimaryConnection() != null ? grid.getPrimaryConnection().offset(location) : null;
             GridPos secondaryOutput = grid.getSecondaryConnection() != null ? grid.getSecondaryConnection().offset(location) : null;
-            System.out.println("    primaryOutput = " + primaryOutput);
-            System.out.println("    secondaryOutput = " + secondaryOutput);
             CompiledOpcode.Builder opcodeBuilder = CompiledOpcode.builder().opcode(opcode);
+            opcodeBuilder.grid(location.getX(), location.getY());
             if (primaryOutput != null && posToIndex.containsKey(primaryOutput)) {
                 opcodeBuilder.primaryIndex(posToIndex.get(primaryOutput));
             } else {

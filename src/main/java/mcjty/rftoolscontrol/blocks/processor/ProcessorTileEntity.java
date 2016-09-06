@@ -119,19 +119,17 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         return true;
     }
 
-    private BlockPos getRedstonePos(@Nonnull BlockSide side) {
+    private BlockPos getRedstonePos(@Nonnull BlockSide side, @Nonnull RunningProgram program) {
         BlockPos p;
         if (side.getNodeName() != null && !side.getNodeName().isEmpty()) {
             p = networkNodes.get(side.getNodeName());
             if (p == null) {
-                // @todo exception
-                log("Node missing!");
+                exception("Missing node!", program);
                 return null;
             }
             TileEntity te = worldObj.getTileEntity(p);
             if (!(te instanceof NodeTileEntity)) {
-                // @todo exception
-                log("Node missing!");
+                exception("Missing node!", program);
                 return null;
             }
         } else {
@@ -140,18 +138,18 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         return p;
     }
 
-    public int readRedstoneIn(@Nonnull BlockSide side) {
+    public int readRedstoneIn(@Nonnull BlockSide side, @Nonnull RunningProgram program) {
         EnumFacing facing = side.getSide();
-        BlockPos p = getRedstonePos(side);
+        BlockPos p = getRedstonePos(side, program);
         if (p == null) {
             return 0;
         }
         return worldObj.getRedstonePower(p.offset(facing), facing);
     }
 
-    public void setPowerOut(@Nonnull BlockSide side, int level) {
+    public void setPowerOut(@Nonnull BlockSide side, int level, RunningProgram program) {
         EnumFacing facing = side.getSide();
-        BlockPos p = getRedstonePos(side);
+        BlockPos p = getRedstonePos(side, program);
         if (p == null) {
             return;
         }
@@ -290,6 +288,16 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
 
     public void clearLog() {
         logMessages.clear();
+    }
+
+    public void exception(String message, RunningProgram program) {
+        if (program != null) {
+            CompiledOpcode opcode = program.getCurrentOpcode(this);
+            int gridX = opcode.getGridX();
+            int gridY = opcode.getGridY();
+            message = "[" + gridX + "," + gridY + "] " + message;
+        }
+        log(message);
     }
 
     public void log(String message) {
@@ -436,7 +444,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     public int fetchItemsStorage(RunningProgram program, @Nullable ItemStack itemMatcher,
                                  boolean routable, boolean oredict,
                                  int amount, int virtualSlot) {
-        IStorageScanner scanner = getStorageScanner();
+        IStorageScanner scanner = getStorageScanner(program);
         if (scanner == null) {
             return 0;
         }
@@ -444,8 +452,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         CardInfo info = this.cardInfo[program.getCardIndex()];
         int realSlot = info.getRealSlot(virtualSlot);
         if (realSlot == -1) {
-            // @todo Exception
-            log("No slot!");
+            exception("No slot!", program);
             return 0;
         }
 
@@ -473,14 +480,12 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         CardInfo info = this.cardInfo[program.getCardIndex()];
         int realSlot = info.getRealSlot(virtualSlot);
         if (realSlot == -1) {
-            // @todo Exception
-            log("No slot!");
+            exception("No slot!", program);
             return;
         }
-        IItemHandler handler = getItemHandlerAt(inv);
+        IItemHandler handler = getItemHandlerAt(inv, program);
         if (handler == null) {
-            // @todo exception
-            log("Invalid inventory!");
+            exception("Invalid inventory!", program);
             return;
         }
 
@@ -508,8 +513,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         CardInfo info = this.cardInfo[program.getCardIndex()];
         int realSlot = info.getRealSlot(virtualSlot);
         if (realSlot == -1) {
-            // @todo Exception
-            log("No slot!");
+            exception("No slot!", program);
             return null;
         }
         IItemHandler capability = getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
@@ -517,7 +521,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     }
 
     public int pushItemsStorage(RunningProgram program, int amount, int virtualSlot) {
-        IStorageScanner scanner = getStorageScanner();
+        IStorageScanner scanner = getStorageScanner(program);
         if (scanner == null) {
             return 0;
         }
@@ -525,8 +529,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         CardInfo info = this.cardInfo[program.getCardIndex()];
         int realSlot = info.getRealSlot(virtualSlot);
         if (realSlot == -1) {
-            // @todo Exception
-            log("No slot!");
+            exception("No slot!", program);
             return 0;
         }
 
@@ -552,14 +555,12 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         CardInfo info = this.cardInfo[program.getCardIndex()];
         int realSlot = info.getRealSlot(virtualSlot);
         if (realSlot == -1) {
-            // @todo Exception
-            log("No slot!");
+            exception("No slot!", program);
             return;
         }
-        IItemHandler handler = getItemHandlerAt(inv);
+        IItemHandler handler = getItemHandlerAt(inv, program);
         if (handler == null) {
-            // @todo exception
-            log("Invalid inventory!");
+            exception("Invalid inventory!", program);
             return;
         }
         IItemHandler capability = getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
@@ -630,13 +631,11 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         CardInfo info = this.cardInfo[program.getCardIndex()];
         int realVar = info.getRealVar(var);
         if (realVar == -1) {
-            // @todo Exception
-            log("No variable!");
+            exception("No variable!", program);
             return;
         }
         if (realVar >= getMaxvars()) {
-            // @todo exception
-            log("Not enough variable space!");
+            exception("Not enough variables!", program);
             return;
         }
         variables[realVar] = program.getLastValue();
@@ -654,13 +653,11 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             CardInfo info = this.cardInfo[program.getCardIndex()];
             int realVar = info.getRealVar(value.getVariableIndex());
             if (realVar == -1) {
-                // @todo Exception
-                log("No variable!");
+                exception("No variable!", program);
                 return null;
             }
             if (realVar >= getMaxvars()) {
-                // @todo exception
-                log("Not enough variable space!");
+                exception("Not enough variables!", program);
                 return null;
             }
             // @todo  What if the variable does not return a constant? Do we support that?
@@ -693,25 +690,23 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         return TypeConverters.convertToBool(value);
     }
 
-    public int countItemStorage(ItemStack stack, boolean routable, boolean oredict) {
-        IStorageScanner scanner = getStorageScanner();
+    public int countItemStorage(ItemStack stack, boolean routable, boolean oredict, RunningProgram program) {
+        IStorageScanner scanner = getStorageScanner(program);
         if (scanner == null) {
             return 0;
         }
         return scanner.countItems(stack, routable, oredict);
     }
 
-    private IStorageScanner getStorageScanner() {
+    private IStorageScanner getStorageScanner(RunningProgram program) {
         int card = getStorageCard();
         if (card == -1) {
-            // @todo exception
-            log("No storage card!");
+            exception("No storage card!", program);
             return null;
         }
         ItemStack storageStack = getStackInSlot(card);
         if (!storageStack.hasTagCompound()) {
-            // @todo exception
-            log("Invalid storage card!");
+            exception("Invalid storage card!", program);
             return null;
         }
         NBTTagCompound tagCompound = storageStack.getTagCompound();
@@ -719,34 +714,30 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         int dim = tagCompound.getInteger("monitordim");
         World world = DimensionManager.getWorld(dim);
         if (world == null) {
-            // @todo exception
-            log("Storage scanner not loaded!");
+            exception("Can't find storage!", program);
             return null;
         }
 
         if (!WorldTools.chunkLoaded(world, c)) {
-            // @todo exception
-            log("Storage scanner not loaded!");
+            exception("Can't find storage!", program);
             return null;
         }
 
         TileEntity te = world.getTileEntity(c);
         if (te == null) {
-            // @todo exception
-            log("Storage scanner invalid!");
+            exception("Storage scanner invalid!", program);
             return null;
         }
 
         if (!(te instanceof IStorageScanner)) {
-            // @todo exception
-            log("Storage scanner invalid!");
+            exception("Storage scanner invalid!", program);
             return null;
         }
         return (IStorageScanner) te;
     }
 
-    public int countItem(Inventory inv, Integer slot, ItemStack itemMatcher) {
-        IItemHandler handler = getItemHandlerAt(inv);
+    public int countItem(Inventory inv, Integer slot, ItemStack itemMatcher, RunningProgram program) {
+        IItemHandler handler = getItemHandlerAt(inv, program);
         if (handler != null) {
             if (slot != null) {
                 ItemStack stackInSlot = handler.getStackInSlot(slot);
@@ -777,18 +768,16 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         return 0;
     }
 
-    public IItemHandler getItemHandlerAt(Inventory inv) {
+    public IItemHandler getItemHandlerAt(Inventory inv, RunningProgram program) {
         BlockPos p = pos;
         if (inv.hasNodeName()) {
             if (!hasNetworkCard()) {
-                log("No network card!");
-                // @todo exception
+                exception("No network card!", program);
                 return null;
             }
             p = networkNodes.get(inv.getNodeName());
             if (p == null) {
-                log("Can't find node: " + inv.getNodeName());
-                // @todo exception
+                exception("Can't find node: " + inv.getNodeName(), program);
                 return null;
             }
         }
