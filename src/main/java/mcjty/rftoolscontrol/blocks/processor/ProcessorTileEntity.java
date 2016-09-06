@@ -101,6 +101,10 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         return inventoryHelper;
     }
 
+    public Parameter getParameter(int idx) {
+        return variables[idx];
+    }
+
     @Override
     protected boolean needsCustomInvWrapper() {
         return true;

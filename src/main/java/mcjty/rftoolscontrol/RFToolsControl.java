@@ -57,6 +57,7 @@ public class RFToolsControl implements ModBase {
         this.proxy.preInit(e);
         MainCompatHandler.registerWaila();
         MainCompatHandler.registerTOP();
+        FMLInterModComms.sendFunctionMessage("rftools", "getScreenModuleRegistry", "mcjty.rftoolscontrol.rftoolssupport.RFToolsSupport$GetScreenModuleRegistry");
 
 //        FMLInterModComms.sendFunctionMessage("rftools", "getTeleportationManager", "mcjty.RFToolsControl.RFToolsControl$GetTeleportationManager");
 //        FMLInterModComms.sendFunctionMessage("theoneprobe", "getTheOneProbe", "mcjty.RFToolsControl.theoneprobe.TheOneProbeSupport");

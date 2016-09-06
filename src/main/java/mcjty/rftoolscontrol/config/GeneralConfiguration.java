@@ -13,7 +13,10 @@ public class GeneralConfiguration {
     public static int coreSpeed[] = new int[] { 1, 4, 16 };
     public static int coreRFPerTick[] = new int[] { 4, 14, 50 };
 
-	public static void init(Configuration cfg) {
+    public static int VARIABLEMODULE_RFPERTICK = 1;
+    public static int INTERACTMODULE_RFPERTICK = 2;
+
+    public static void init(Configuration cfg) {
         processorMaxenergy = cfg.get(CATEGORY_GENERAL, "processorMaxRF", processorMaxenergy,
                 "Maximum RF storage that the processor can hold").getInt();
         processorReceivepertick = cfg.get(CATEGORY_GENERAL, "processorRFPerTick", processorReceivepertick,
@@ -32,6 +35,10 @@ public class GeneralConfiguration {
                 "RF per tick for the CPU Core S1000").getInt();
         coreRFPerTick[2] = cfg.get(CATEGORY_GENERAL, "rfEX2000", coreRFPerTick[2],
                 "RF per tick for the CPU Core EX2000").getInt();
+        VARIABLEMODULE_RFPERTICK = cfg.get(CATEGORY_GENERAL, "variableModuleRFPerTick", VARIABLEMODULE_RFPERTICK,
+                "RF per tick/per block for the variable screen module").getInt();
+        INTERACTMODULE_RFPERTICK = cfg.get(CATEGORY_GENERAL, "interactionModuleRFPerTick", INTERACTMODULE_RFPERTICK,
+                "RF per tick/per block for the interaction screen module").getInt();
     }
 
 }
