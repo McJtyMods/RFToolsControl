@@ -25,6 +25,7 @@ import mcjty.rftoolscontrol.logic.registry.ParameterValue;
 import mcjty.rftoolscontrol.logic.running.CpuCore;
 import mcjty.rftoolscontrol.logic.running.RunningProgram;
 import mcjty.rftoolscontrol.network.PacketGetLog;
+import mcjty.rftoolscontrol.network.PacketGetVariables;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -46,6 +47,7 @@ import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.ItemHandlerHelper;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nonnull;
@@ -65,6 +67,8 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     public static final String CMD_CLEARLOG = "clearLog";
     public static final String CMD_GETLOG = "getLog";
     public static final String CLIENTCMD_GETLOG = "getLog";
+    public static final String CMD_GETVARS = "getVars";
+    public static final String CLIENTCMD_GETVARS = "getVars";
 
     private InventoryHelper inventoryHelper = new InventoryHelper(this, ProcessorContainer.factory, ProcessorContainer.SLOTS);
     private boolean working = false;
@@ -314,6 +318,14 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
 
     private List<PacketGetLog.StringConverter> getLog() {
         return logMessages.stream().map(s -> new PacketGetLog.StringConverter(s)).collect(Collectors.toList());
+    }
+
+    private List<PacketGetVariables.ParameterConverter> getVariables() {
+        List<PacketGetVariables.ParameterConverter> pars = new ArrayList<>();
+        for (Parameter variable : variables) {
+            pars.add(new PacketGetVariables.ParameterConverter(variable));
+        }
+        return pars;
     }
 
     public List<CpuCore> getCpuCores() {
@@ -572,7 +584,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         return extracted.stackSize;
     }
 
-    public void pushItems(RunningProgram program, Inventory inv, int slot, int amount, int virtualSlot) {
+    public void pushItems(RunningProgram program, Inventory inv, Integer slot, int amount, int virtualSlot) {
         CardInfo info = this.cardInfo[program.getCardIndex()];
         int realSlot = info.getRealSlot(virtualSlot);
         if (realSlot == -1) {
@@ -590,14 +602,25 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             // Nothing to do
             return;
         }
-        if (handler.insertItem(slot, extracted, true) != null) {
-            // Not enough room. Do nothing
-            return;
+        if (slot == null) {
+            if (ItemHandlerHelper.insertItem(handler, extracted, true) != null) {
+                // Not enough room. Do nothing
+                return;
+            }
+        } else {
+            if (handler.insertItem(slot, extracted, true) != null) {
+                // Not enough room. Do nothing
+                return;
+            }
         }
 
         // All seems ok. Do the real thing now.
         extracted = capability.extractItem(realSlot + ProcessorContainer.SLOT_BUFFER, amount, false);
-        handler.insertItem(slot, extracted, false);
+        if (slot == null) {
+            ItemHandlerHelper.insertItem(handler, extracted, false);
+        } else {
+            handler.insertItem(slot, extracted, false);
+        }
     }
 
     public int getMaxvars() {
@@ -1191,6 +1214,8 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         }
         if (CMD_GETLOG.equals(command)) {
             return getLog();
+        } else if (CMD_GETVARS.equals(command)) {
+            return getVariables();
         }
         return null;
     }
@@ -1203,6 +1228,9 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         }
         if (CLIENTCMD_GETLOG.equals(command)) {
             GuiProcessor.storeLogForClient(list);
+            return true;
+        } else if (CLIENTCMD_GETVARS.equals(command)) {
+            GuiProcessor.storeVarsForClient(list);
             return true;
         }
         return false;

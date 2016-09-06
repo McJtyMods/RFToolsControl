@@ -312,7 +312,7 @@ public class Opcodes {
             .icon(1, 1)
             .runnable(((processor, program, opcode) -> {
                 Inventory inv = processor.evalulateParameter(opcode, program, 0);
-                int slot = processor.evaluateIntParameter(opcode, program, 1);  // @todo allow null?
+                Integer slot = processor.evaluateIntegerParameter(opcode, program, 1);
                 int amount = processor.evaluateIntParameter(opcode, program, 2);
                 int slotIn = processor.evaluateIntParameter(opcode, program, 3);
                 processor.pushItems(program, inv, slot, amount, slotIn);

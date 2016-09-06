@@ -9,6 +9,7 @@ import mcjty.lib.gui.events.SelectionEvent;
 import mcjty.lib.gui.layout.HorizontalAlignment;
 import mcjty.lib.gui.layout.HorizontalLayout;
 import mcjty.lib.gui.layout.PositionalLayout;
+import mcjty.lib.gui.layout.VerticalLayout;
 import mcjty.lib.gui.widgets.Button;
 import mcjty.lib.gui.widgets.*;
 import mcjty.lib.gui.widgets.Label;
@@ -16,7 +17,11 @@ import mcjty.lib.gui.widgets.Panel;
 import mcjty.lib.gui.widgets.TextField;
 import mcjty.lib.network.Argument;
 import mcjty.rftoolscontrol.RFToolsControl;
+import mcjty.rftoolscontrol.logic.Parameter;
+import mcjty.rftoolscontrol.logic.editors.ParameterEditor;
+import mcjty.rftoolscontrol.logic.editors.ParameterEditors;
 import mcjty.rftoolscontrol.network.PacketGetLog;
+import mcjty.rftoolscontrol.network.PacketGetVariables;
 import mcjty.rftoolscontrol.network.RFToolsCtrlMessages;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.inventory.Slot;
@@ -26,6 +31,7 @@ import net.minecraft.util.ResourceLocation;
 import java.awt.*;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
@@ -44,9 +50,13 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
     private WidgetList variableList;
     private TextField command;
 
-    private static java.util.List<PacketGetLog.StringConverter> fromServer_log = new ArrayList<PacketGetLog.StringConverter>();
-    public static void storeLogForClient(java.util.List<PacketGetLog.StringConverter> messages) {
+    private static List<PacketGetLog.StringConverter> fromServer_log = new ArrayList<>();
+    public static void storeLogForClient(List<PacketGetLog.StringConverter> messages) {
         fromServer_log = new ArrayList<>(messages);
+    }
+    private static List<PacketGetVariables.ParameterConverter> fromServer_vars = new ArrayList<>();
+    public static void storeVarsForClient(List<PacketGetVariables.ParameterConverter> messages) {
+        fromServer_vars = new ArrayList<>(messages);
     }
     private int listDirty = 0;
 
@@ -120,14 +130,15 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
         command.setText("");
     }
 
-    private void requestLog() {
+    private void requestLists() {
         RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketGetLog(tileEntity.getPos()));
+        RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketGetVariables(tileEntity.getPos()));
     }
 
     private void requestListsIfNeeded() {
         listDirty--;
         if (listDirty <= 0) {
-            requestLog();
+            requestLists();
             listDirty = 10;
         }
     }
@@ -284,6 +295,48 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
 //                .setFilledBackground(StyleConfig.colorListBackground);
     }
 
+    private void openValueEditor(int varIdx) {
+        System.out.println("GuiProcessor.openValueEditor: 1");
+        if (fromServer_vars == null || varIdx > fromServer_vars.size()) {
+            return;
+        }
+        System.out.println("GuiProcessor.openValueEditor: 2");
+        if (fromServer_vars.get(varIdx) == null) {
+            return;
+        }
+        PacketGetVariables.ParameterConverter converter = fromServer_vars.get(varIdx);
+        Parameter parameter = converter.getParameter();
+        if (parameter == null) {
+            return;
+        }
+        System.out.println("GuiProcessor.openValueEditor: 3");
+        ParameterEditor editor = ParameterEditors.getEditor(parameter.getParameterType());
+        Panel editPanel;
+        if (editor != null) {
+            editPanel = new Panel(mc, this).setLayout(new VerticalLayout())
+                    .setFilledRectThickness(1);
+            editor.build(mc, this, editPanel, o -> { });
+            editor.writeValue(parameter.getParameterValue());
+        } else {
+            return;
+        }
+
+        System.out.println("GuiProcessor.openValueEditor: 4");
+        Panel panel = new Panel(mc, this)
+                .setLayout(new VerticalLayout())
+                .setFilledBackground(0xff666666, 0xffaaaaaa)
+                .setFilledRectThickness(1);
+        panel.setBounds(new Rectangle(50, 50, 200, 80));
+        Window modalWindow = getWindowManager().createModalWindow(panel);
+        panel.addChild(new Label(mc, this).setText("Var " + varIdx + ":"));
+        panel.addChild(editPanel);
+        panel.addChild(new Button(mc, this)
+                .addButtonEvent(w ->  {
+                    getWindowManager().closeWindow(modalWindow);
+                })
+                .setText("Close"));
+    }
+
     private void updateVariableList() {
         variableList.removeChildren();
         int setupMode = getSetupMode();
@@ -303,7 +356,11 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
                 panel.setFilledBackground(fill);
             }
             panel.addChild(new Label(mc, this).setText(String.valueOf(i)).setDesiredWidth(26).setUserObject("allowed"));
-            panel.addChild(new Button(mc, this).setText("...").setUserObject("allowed"));
+            int finalI = i;
+            panel.addChild(new Button(mc, this)
+                    .addButtonEvent(w -> openValueEditor(finalI))
+                    .setText("...")
+                    .setUserObject("allowed"));
             panel.setUserObject("allowed");
             variableList.addChild(panel);
         }
