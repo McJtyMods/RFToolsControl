@@ -116,6 +116,8 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
                 .addChild(listPanel);
         sidePanel.setBounds(new Rectangle(guiLeft-SIDEWIDTH, guiTop, SIDEWIDTH, ySize));
         sideWindow = new Window(this, sidePanel);
+
+        loadProgram(ProgrammerContainer.SLOT_DUMMY);
     }
 
     @Override
@@ -364,16 +366,15 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
 
     }
 
-    private void saveProgram() {
-        ItemStack card = tileEntity.getStackInSlot(ProgrammerContainer.SLOT_CARD);
+    private void saveProgram(int slot) {
+        ItemStack card = tileEntity.getStackInSlot(slot);
         if (card == null) {
             return;
         }
         ProgramCardInstance instance = makeGridInstance();
-        System.out.println("GuiProgrammer.saveProgram");
         instance.writeToNBT(card);
         RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketUpdateNBTItemInventory(tileEntity.getPos(),
-                ProgrammerContainer.SLOT_CARD, card.getTagCompound()));
+                slot, card.getTagCompound()));
     }
 
     private ProgramCardInstance makeGridInstance() {
@@ -414,8 +415,8 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
         return instance;
     }
 
-    private void loadProgram() {
-        ItemStack card = tileEntity.getStackInSlot(ProgrammerContainer.SLOT_CARD);
+    private void loadProgram(int slot) {
+        ItemStack card = tileEntity.getStackInSlot(slot);
         if (card == null) {
             return;
         }
@@ -467,8 +468,8 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
                 .setTooltips("Drop opcodes here to", "delete them")
                 .setSelectable(false);
         return new Panel(mc, this).setLayout(new HorizontalLayout().setSpacing(2).setHorizontalMargin(1)).setLayoutHint(new PositionalLayout.PositionalHint(106, 136, 145, 18))
-                .addChild(new Button(mc, this).setText("Load").setDesiredHeight(15).addButtonEvent(w -> loadProgram()))
-                .addChild(new Button(mc, this).setText("Save").setDesiredHeight(15).addButtonEvent(w -> saveProgram()))
+                .addChild(new Button(mc, this).setText("Load").setDesiredHeight(15).addButtonEvent(w -> loadProgram(ProgrammerContainer.SLOT_CARD)))
+                .addChild(new Button(mc, this).setText("Save").setDesiredHeight(15).addButtonEvent(w -> saveProgram(ProgrammerContainer.SLOT_CARD)))
                 .addChild(new Button(mc, this).setText("Clear").setDesiredHeight(15))
                 .addChild(new Button(mc, this).setText("Val").setDesiredHeight(15).addButtonEvent(w -> validateProgram()))
                 .addChild(trashcan);
@@ -637,9 +638,16 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
                 .addChild(slider);
     }
 
+    private int saveCounter = 10;
+
     @Override
     protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
         drawWindow();
         trashcan.setIcon(null);
+        saveCounter--;
+        if (saveCounter < 0) {
+            saveCounter = 10;
+            saveProgram(ProgrammerContainer.SLOT_DUMMY);
+        }
     }
 }
