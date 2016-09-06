@@ -478,7 +478,88 @@ public class Opcodes {
             }))
             .build();
 
+    public static final Opcode EVAL_COUNTSTOR = Opcode.builder()
+            .id("eval_countstor")
+            .description(
+                    TextFormatting.GREEN + "Eval: count items storage",
+                    "count the amount of items in a",
+                    "stroage system (scanner) of a",
+                    "certain type",
+                    TextFormatting.BLUE + "Par 'item': the item to count",
+                    TextFormatting.BLUE + "Par 'oredict': use oredict matching",
+                    TextFormatting.BLUE + "Par 'routable': only routable",
+                    TextFormatting.YELLOW + "Result: amount of items (integer)",
+                    TextFormatting.RED + "Needs storage scanner module")
+            .opcodeOutput(SINGLE)
+            .parameter(ParameterDescription.builder().name("item").type(PAR_ITEM).build())
+            .parameter(ParameterDescription.builder().name("oredict").type(PAR_BOOLEAN).build())
+            .parameter(ParameterDescription.builder().name("routable").type(PAR_BOOLEAN).build())
+            .icon(0, 2)
+            .runnable(((processor, program, opcode) -> {
+                ItemStack item = processor.evalulateParameter(opcode, program, 0);
+                boolean oredict = processor.evalulateBoolParameter(opcode, program, 1);
+                boolean routable = processor.evalulateBoolParameter(opcode, program, 2);
+                int cnt = processor.countItemStorage(item, routable, oredict);
+                program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(cnt)).build());
+                return true;
+            }))
+            .build();
 
+    public static final Opcode DO_FETCHSTOR = Opcode.builder()
+            .id("do_fetchstor")
+            .description(
+                    TextFormatting.GREEN + "Operation: fetch from storage",
+                    "fetch items from a storage system",
+                    "(scanner) and place the result",
+                    "in the internal inventory",
+                    TextFormatting.BLUE + "Par 'item': the item to fetch",
+                    TextFormatting.BLUE + "Par 'oredict': use oredict matching",
+                    TextFormatting.BLUE + "Par 'routable': only routable",
+                    TextFormatting.BLUE + "Par 'amount': number of items",
+                    TextFormatting.BLUE + "Par 'slotOut': slot in processor",
+                    TextFormatting.YELLOW + "Result: amount of items fetched (integer)",
+                    TextFormatting.RED + "Needs storage scanner module")
+            .opcodeOutput(SINGLE)
+            .parameter(ParameterDescription.builder().name("item").type(PAR_ITEM).build())
+            .parameter(ParameterDescription.builder().name("oredict").type(PAR_BOOLEAN).build())
+            .parameter(ParameterDescription.builder().name("routable").type(PAR_BOOLEAN).build())
+            .parameter(ParameterDescription.builder().name("amount").type(PAR_INTEGER).build())
+            .parameter(ParameterDescription.builder().name("slotOut").type(PAR_INTEGER).build())
+            .icon(1, 2)
+            .runnable(((processor, program, opcode) -> {
+                ItemStack item = processor.evalulateParameter(opcode, program, 0);
+                boolean oredict = processor.evalulateBoolParameter(opcode, program, 1);
+                boolean routable = processor.evalulateBoolParameter(opcode, program, 2);
+                int amount = processor.evaluateIntParameter(opcode, program, 3);
+                int slotOut = processor.evaluateIntParameter(opcode, program, 4);
+                int cnt = processor.fetchItemsStorage(program, item, routable, oredict, amount, slotOut);
+                program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(cnt)).build());
+                return true;
+            }))
+            .build();
+
+    public static final Opcode DO_PUSHSTOR = Opcode.builder()
+            .id("do_pushstor")
+            .description(
+                    TextFormatting.GREEN + "Operation: push to storage",
+                    "push items to a storage system",
+                    "(scanner) from the internal inventory",
+                    TextFormatting.BLUE + "Par 'amount': number of items",
+                    TextFormatting.BLUE + "Par 'slotIn': slot in processor",
+                    TextFormatting.YELLOW + "Result: amount of items inserted (integer)",
+                    TextFormatting.RED + "Needs storage scanner module")
+            .opcodeOutput(SINGLE)
+            .parameter(ParameterDescription.builder().name("amount").type(PAR_INTEGER).build())
+            .parameter(ParameterDescription.builder().name("slotIn").type(PAR_INTEGER).build())
+            .icon(2, 2)
+            .runnable(((processor, program, opcode) -> {
+                int amount = processor.evaluateIntParameter(opcode, program, 2);
+                int slotIn = processor.evaluateIntParameter(opcode, program, 3);
+                int cnt = processor.pushItemsStorage(program, amount, slotIn);
+                program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(cnt)).build());
+                return true;
+            }))
+            .build();
 
     public static final Map<String, Opcode> OPCODES = new HashMap<>();
     public static final List<Opcode> SORTED_OPCODES = new ArrayList<>();
@@ -490,6 +571,7 @@ public class Opcodes {
         register(EVENT_SIGNAL);
         register(EVAL_COUNTINV);
         register(EVAL_COUNTINVINT);
+        register(EVAL_COUNTSTOR);
         register(EVAL_GETITEM);
         register(EVAL_REDSTONE);
         register(TEST_GT);
@@ -500,6 +582,8 @@ public class Opcodes {
         register(DO_LOG);
         register(DO_FETCHITEMS);
         register(DO_PUSHITEMS);
+        register(DO_FETCHSTOR);
+        register(DO_PUSHSTOR);
         register(DO_SETVAR);
         register(DO_ADD);
         register(DO_SUBTRACT);

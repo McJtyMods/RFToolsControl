@@ -5,6 +5,8 @@ import mcjty.lib.container.InventoryHelper;
 import mcjty.lib.entity.GenericEnergyReceiverTileEntity;
 import mcjty.lib.network.Argument;
 import mcjty.lib.varia.BlockPosTools;
+import mcjty.lib.varia.WorldTools;
+import mcjty.rftools.api.storage.IStorageScanner;
 import mcjty.rftoolscontrol.blocks.node.NodeTileEntity;
 import mcjty.rftoolscontrol.config.GeneralConfiguration;
 import mcjty.rftoolscontrol.items.CPUCoreItem;
@@ -22,8 +24,10 @@ import mcjty.rftoolscontrol.logic.registry.ParameterValue;
 import mcjty.rftoolscontrol.logic.running.CpuCore;
 import mcjty.rftoolscontrol.logic.running.RunningProgram;
 import mcjty.rftoolscontrol.network.PacketGetLog;
+import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -33,8 +37,12 @@ import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
+import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import org.apache.commons.lang3.tuple.Pair;
@@ -68,6 +76,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
 
     private int maxVars = -1;   // If -1 we need updating
     private boolean hasNetworkCard = false;
+    private int storageCard = -2;   // -2 is unknown
 
     private String channel = "";
     private Map<String, BlockPos> networkNodes = new HashMap<>();
@@ -424,7 +433,43 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         return result;
     }
 
-    public void fetchItems(RunningProgram program, Inventory inv, Integer slot, @Nullable  ItemStack itemMatcher, int amount, int virtualSlot) {
+    public int fetchItemsStorage(RunningProgram program, @Nullable ItemStack itemMatcher,
+                                 boolean routable, boolean oredict,
+                                 int amount, int virtualSlot) {
+        IStorageScanner scanner = getStorageScanner();
+        if (scanner == null) {
+            return 0;
+        }
+
+        CardInfo info = this.cardInfo[program.getCardIndex()];
+        int realSlot = info.getRealSlot(virtualSlot);
+        if (realSlot == -1) {
+            // @todo Exception
+            log("No slot!");
+            return 0;
+        }
+
+        ItemStack result = scanner.requestItem(itemMatcher, amount, routable, oredict);
+        if (result == null) {
+            return 0;
+        }
+        IItemHandler capability = getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
+        ItemStack overflow = capability.insertItem(realSlot + ProcessorContainer.SLOT_BUFFER, result, false);
+        if (overflow != null) {
+            int lostItems = scanner.insertItem(overflow);
+            // 'lostItems' don't fit in the processor and they don't fit in the storage
+            // Throw them in the world
+            if (lostItems > 0) {
+                overflow.stackSize = lostItems;
+                EntityItem entityItem = new EntityItem(worldObj, pos.getX(), pos.getY(), pos.getZ(), overflow);
+                worldObj.spawnEntityInWorld(entityItem);
+            }
+            return result.stackSize - overflow.stackSize;
+        }
+        return result.stackSize;
+    }
+
+    public void fetchItems(RunningProgram program, Inventory inv, Integer slot, @Nullable ItemStack itemMatcher, int amount, int virtualSlot) {
         CardInfo info = this.cardInfo[program.getCardIndex()];
         int realSlot = info.getRealSlot(virtualSlot);
         if (realSlot == -1) {
@@ -471,6 +516,37 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         return capability.getStackInSlot(realSlot + ProcessorContainer.SLOT_BUFFER);
     }
 
+    public int pushItemsStorage(RunningProgram program, int amount, int virtualSlot) {
+        IStorageScanner scanner = getStorageScanner();
+        if (scanner == null) {
+            return 0;
+        }
+
+        CardInfo info = this.cardInfo[program.getCardIndex()];
+        int realSlot = info.getRealSlot(virtualSlot);
+        if (realSlot == -1) {
+            // @todo Exception
+            log("No slot!");
+            return 0;
+        }
+
+        IItemHandler capability = getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
+        ItemStack extracted = capability.extractItem(realSlot + ProcessorContainer.SLOT_BUFFER, amount, false);
+        if (extracted == null) {
+            // Nothing to do
+            return 0;
+        }
+
+        int remaining = scanner.insertItem(extracted);
+        if (remaining > 0) {
+            int inserted = extracted.stackSize - remaining;
+            extracted.stackSize = remaining;
+            capability.insertItem(realSlot + ProcessorContainer.SLOT_BUFFER, extracted, false);
+            return remaining;
+        }
+
+        return extracted.stackSize;
+    }
 
     public void pushItems(RunningProgram program, Inventory inv, int slot, int amount, int virtualSlot) {
         CardInfo info = this.cardInfo[program.getCardIndex()];
@@ -506,6 +582,8 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         if (maxVars == -1) {
             maxVars = 0;
             hasNetworkCard = false;
+            storageCard = -1;
+            Item storageCardItem = ForgeRegistries.ITEMS.getValue(new ResourceLocation("rftools", "storage_control_module"));
             for (int i = ProcessorContainer.SLOT_EXPANSION ; i < ProcessorContainer.SLOT_EXPANSION + EXPANSION_SLOTS ; i++) {
                 ItemStack stack = getStackInSlot(i);
                 if (stack != null) {
@@ -513,6 +591,8 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                         hasNetworkCard = true;
                     } else if (stack.getItem() == ModItems.ramChipItem) {
                         maxVars += 8;
+                    } else if (stack.getItem() == storageCardItem) {
+                        storageCard = i;
                     }
                 }
             }
@@ -528,6 +608,13 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             getMaxvars();       // Update
         }
         return hasNetworkCard;
+    }
+
+    public int getStorageCard() {
+        if (storageCard == -2) {
+            getMaxvars();   // Update
+        }
+        return storageCard;
     }
 
     public String getChannelName() {
@@ -604,6 +691,58 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     public boolean evalulateBoolParameter(CompiledOpcode compiledOpcode, RunningProgram program, int parIndex) {
         Object value = evalulateParameter(compiledOpcode, program, parIndex);
         return TypeConverters.convertToBool(value);
+    }
+
+    public int countItemStorage(ItemStack stack, boolean routable, boolean oredict) {
+        IStorageScanner scanner = getStorageScanner();
+        if (scanner == null) {
+            return 0;
+        }
+        return scanner.countItems(stack, routable, oredict);
+    }
+
+    private IStorageScanner getStorageScanner() {
+        int card = getStorageCard();
+        if (card == -1) {
+            // @todo exception
+            log("No storage card!");
+            return null;
+        }
+        ItemStack storageStack = getStackInSlot(card);
+        if (!storageStack.hasTagCompound()) {
+            // @todo exception
+            log("Invalid storage card!");
+            return null;
+        }
+        NBTTagCompound tagCompound = storageStack.getTagCompound();
+        BlockPos c = new BlockPos(tagCompound.getInteger("monitorx"), tagCompound.getInteger("monitory"), tagCompound.getInteger("monitorz"));
+        int dim = tagCompound.getInteger("monitordim");
+        World world = DimensionManager.getWorld(dim);
+        if (world == null) {
+            // @todo exception
+            log("Storage scanner not loaded!");
+            return null;
+        }
+
+        if (!WorldTools.chunkLoaded(world, c)) {
+            // @todo exception
+            log("Storage scanner not loaded!");
+            return null;
+        }
+
+        TileEntity te = world.getTileEntity(c);
+        if (te == null) {
+            // @todo exception
+            log("Storage scanner invalid!");
+            return null;
+        }
+
+        if (!(te instanceof IStorageScanner)) {
+            // @todo exception
+            log("Storage scanner invalid!");
+            return null;
+        }
+        return (IStorageScanner) te;
     }
 
     public int countItem(Inventory inv, Integer slot, ItemStack itemMatcher) {
