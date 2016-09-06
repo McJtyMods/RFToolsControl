@@ -247,7 +247,6 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     }
 
     private void runOrQueueEvent(int cardIndex, CompiledEvent event) {
-        System.out.println("runOrQueueEvent: cardIndex = " + cardIndex);
         CpuCore core = findAvailableCore();
         if (core == null) {
             // No available core

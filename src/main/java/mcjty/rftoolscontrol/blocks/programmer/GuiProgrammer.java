@@ -482,11 +482,10 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
         int x = 0;
         int y = 0;
         Panel childPanel = null;
-        ArrayList<String> keys = new ArrayList<>(Opcodes.OPCODES.keySet());
-        Collections.sort(keys);
-        for (String key : keys) {
+        for (Opcode opcode : Opcodes.SORTED_OPCODES) {
+            String key = opcode.getId();
             if (childPanel == null) {
-                childPanel = new Panel(mc, this).setLayout(new HorizontalLayout().setVerticalMargin(1).setSpacing(1).setHorizontalMargin(1)).setDesiredHeight(ICONSIZE+1);
+                childPanel = new Panel(mc, this).setLayout(new HorizontalLayout().setVerticalMargin(1).setSpacing(3).setHorizontalMargin(3)).setDesiredHeight(ICONSIZE+1);
                 list.addChild(childPanel);
             }
             IconHolder holder = new IconHolder(mc, this) {
@@ -510,8 +509,6 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
         return new Panel(mc, this).setLayout(new PositionalLayout()).setLayoutHint(new PositionalLayout.PositionalHint(5, 5, 72, 226))
                 .addChild(list)
                 .addChild(slider);
-//                .setFilledRectThickness(-2)
-//                .setFilledBackground(StyleConfig.colorListBackground);
     }
 
     private List<String> getIconTooltip(IIcon icon) {

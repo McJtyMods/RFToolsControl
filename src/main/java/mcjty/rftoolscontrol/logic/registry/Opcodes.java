@@ -5,7 +5,9 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.items.IItemHandler;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static mcjty.rftoolscontrol.logic.registry.OpcodeOutput.*;
@@ -466,6 +468,7 @@ public class Opcodes {
 
 
     public static final Map<String, Opcode> OPCODES = new HashMap<>();
+    public static final List<Opcode> SORTED_OPCODES = new ArrayList<>();
 
     public static void init() {
         register(EVENT_REDSTONE_ON);
@@ -477,7 +480,6 @@ public class Opcodes {
         register(EVAL_REDSTONE);
         register(TEST_GT);
         register(TEST_EQ);
-//        register(CONTROL_IF);
         register(DO_REDSTONE);
         register(DO_DELAY);
         register(DO_STOP);
@@ -495,5 +497,6 @@ public class Opcodes {
 
     private static void register(Opcode opcode) {
         OPCODES.put(opcode.getId(), opcode);
+        SORTED_OPCODES.add(opcode);
     }
 }
