@@ -16,6 +16,7 @@ import mcjty.lib.gui.widgets.Label;
 import mcjty.lib.gui.widgets.Panel;
 import mcjty.lib.gui.widgets.TextField;
 import mcjty.lib.network.PacketUpdateNBTItemInventory;
+import mcjty.lib.varia.Logging;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.logic.Connection;
 import mcjty.rftoolscontrol.logic.Parameter;
@@ -427,7 +428,13 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
             int x = entry.getKey().getX();
             int y = entry.getKey().getY();
             GridInstance gridInstance = entry.getValue();
-            IIcon icon = ICONS.get(gridInstance.getId()).clone();
+            IIcon icon = ICONS.get(gridInstance.getId());
+            if (icon == null) {
+                // Ignore missing icon
+                Logging.logError("Opcode with id '" + gridInstance.getId() + "' is missing!");
+                continue;
+            }
+            icon = icon.clone();
             if (gridInstance.getPrimaryConnection() != null) {
                 icon.addOverlay(CONNECTION_ICONS.get(gridInstance.getPrimaryConnection()));
             }

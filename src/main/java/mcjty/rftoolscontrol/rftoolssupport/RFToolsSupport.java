@@ -19,7 +19,11 @@ public class RFToolsSupport {
         @Override
         public Void apply(IScreenModuleRegistry manager) {
             manager.registerModuleDataFactory(ModuleDataVariable.ID, buf -> {
-                ParameterType type = ParameterType.values()[buf.readByte()];
+                byte b = buf.readByte();
+                if (b == -1) {
+                    return new ModuleDataVariable(null);
+                }
+                ParameterType type = ParameterType.values()[b];
                 Parameter.Builder builder = Parameter.builder().type(type);
                 switch (type) {
                     case PAR_STRING:
@@ -49,7 +53,9 @@ public class RFToolsSupport {
                         builder.value(ParameterValue.constant(new Inventory(nodeName2, side2, intSide)));
                         break;
                     case PAR_ITEM:
-                        builder.value(ParameterValue.constant(NetworkTools.readItemStack(buf)));
+                        if (buf.readBoolean()) {
+                            builder.value(ParameterValue.constant(NetworkTools.readItemStack(buf)));
+                        }
                         break;
                 }
                 return new ModuleDataVariable(builder.build());

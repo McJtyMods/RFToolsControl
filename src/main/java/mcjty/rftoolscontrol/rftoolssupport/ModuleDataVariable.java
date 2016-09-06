@@ -29,6 +29,10 @@ public class ModuleDataVariable implements mcjty.rftools.api.screens.data.IModul
 
     @Override
     public void writeToBuf(ByteBuf buf) {
+        if (parameter == null) {
+            buf.writeByte(-1);
+            return;
+        }
         buf.writeByte(parameter.getParameterType().ordinal());
         Object value = parameter.getParameterValue().getValue();
         switch (parameter.getParameterType()) {
@@ -56,7 +60,12 @@ public class ModuleDataVariable implements mcjty.rftools.api.screens.data.IModul
                 buf.writeByte(inv.getIntSide() == null ? -1 : inv.getIntSide().ordinal());
                 break;
             case PAR_ITEM:
-                NetworkTools.writeItemStack(buf, (ItemStack) value);
+                if (value != null) {
+                    buf.writeBoolean(true);
+                    NetworkTools.writeItemStack(buf, (ItemStack) value);
+                } else {
+                    buf.writeBoolean(false);
+                }
                 break;
         }
     }

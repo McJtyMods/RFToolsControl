@@ -41,8 +41,9 @@ public class VariableClientScreenModule implements IClientScreenModule<ModuleDat
         }
         if (screenData != null) {
             Parameter parameter = screenData.getParameter();
-            if (parameter != null) {
-                String str = TypeConverters.convertToString(parameter.getParameterValue().getValue());
+            if (parameter != null && parameter.getParameterValue() != null) {
+                Object value = parameter.getParameterValue().getValue();
+                String str = TypeConverters.convertToString(value);
                 fontRenderer.drawString(str, xoffset, currenty, varcolor);
             }
         }
@@ -58,14 +59,18 @@ public class VariableClientScreenModule implements IClientScreenModule<ModuleDat
         guiBuilder.
                 label("Label:").text("text", "Label text").color("color", "Color for the label").nl().
                 label("Stats:").color("varcolor", "Color for the variable text").nl().
-                label("Var:").text("varIdx", "Index of the variable").nl().
+                label("Var:").integer("varIdx", "Index of the variable").nl().
                 block("monitor").nl();
     }
 
     @Override
     public void setupFromNBT(NBTTagCompound tagCompound, int dim, BlockPos pos) {
         if (tagCompound != null) {
-            varIdx = tagCompound.getInteger("varIdx");
+            if (tagCompound.hasKey("varIdx")) {
+                varIdx = tagCompound.getInteger("varIdx");
+            } else {
+                varIdx = -1;
+            }
             line = tagCompound.getString("text");
             if (tagCompound.hasKey("color")) {
                 color = tagCompound.getInteger("color");

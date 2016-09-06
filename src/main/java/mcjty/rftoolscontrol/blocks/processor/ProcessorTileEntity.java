@@ -623,7 +623,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
 
     public IItemHandler getItemHandlerAt(Inventory inv) {
         BlockPos p = pos;
-        if (inv.getNodeName() != null) {
+        if (inv.hasNodeName()) {
             if (!hasNetworkCard()) {
                 log("No network card!");
                 // @todo exception

@@ -54,7 +54,11 @@ public class VariableScreenModule implements IScreenModule<ModuleDataVariable> {
     @Override
     public void setupFromNBT(NBTTagCompound tagCompound, int dim, BlockPos pos) {
         if (tagCompound != null) {
-            varIdx = tagCompound.getInteger("varIdx");
+            if (tagCompound.hasKey("varIdx")) {
+                varIdx = tagCompound.getInteger("varIdx");
+            } else {
+                varIdx = -1;
+            }
             coordinate = BlockPosTools.INVALID;
             if (tagCompound.hasKey("monitorx")) {
                 if (tagCompound.hasKey("monitordim")) {

@@ -24,6 +24,10 @@ public class Inventory {
         return nodeName;
     }
 
+    public boolean hasNodeName() {
+        return nodeName != null && !nodeName.isEmpty();
+    }
+
     @Nonnull
     public EnumFacing getSide() {
         return side;
