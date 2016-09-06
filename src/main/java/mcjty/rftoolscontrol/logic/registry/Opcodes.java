@@ -599,6 +599,20 @@ public class Opcodes {
                 return true;
             }))
             .build();
+    public static final Opcode DO_WIRE = Opcode.builder()
+            .id("do_wire")
+            .description(
+                    TextFormatting.GREEN + "Operation: wire",
+                    "use this to connect opcodes that",
+                    "are not adjacent to each other",
+                    TextFormatting.BLUE + "No parameters",
+                    TextFormatting.YELLOW + "No result")
+            .opcodeOutput(SINGLE)
+            .icon(11, 1)
+            .runnable(((processor, program, opcode) -> {
+                return true;
+            }))
+            .build();
 
     public static final Map<String, Opcode> OPCODES = new HashMap<>();
     public static final List<Opcode> SORTED_OPCODES = new ArrayList<>();
@@ -608,6 +622,7 @@ public class Opcodes {
         register(EVENT_REDSTONE_OFF);
         register(EVENT_TIMER);
         register(EVENT_SIGNAL);
+        register(DO_WIRE);
         register(EVAL_COUNTINV);
         register(EVAL_COUNTINVINT);
         register(EVAL_COUNTSTOR);
