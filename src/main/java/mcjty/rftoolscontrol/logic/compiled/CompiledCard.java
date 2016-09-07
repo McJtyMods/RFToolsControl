@@ -41,9 +41,7 @@ public class CompiledCard {
             System.out.println(card.opcodes.size() + ": opcode = " + opcode + " at " + location);
 
             if (opcode.isEvent()) {
-                if (card.events.get(opcode) == null) {
-                    card.events.put(opcode, new ArrayList<>());
-                }
+                card.events.putIfAbsent(opcode, new ArrayList<>());
                 card.events.get(opcode).add(new CompiledEvent(card.opcodes.size()));
             }
 

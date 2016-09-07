@@ -686,7 +686,11 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     }
 
     public <T> T evalulateParameter(CompiledOpcode compiledOpcode, RunningProgram program, int parIndex) {
-        ParameterValue value = compiledOpcode.getParameters().get(parIndex).getParameterValue();
+        List<Parameter> parameters = compiledOpcode.getParameters();
+        if (parIndex >= parameters.size()) {
+            return null;
+        }
+        ParameterValue value = parameters.get(parIndex).getParameterValue();
         if (value.isConstant()) {
             return (T) value.getValue();
         } else if (value.isFunction()) {
