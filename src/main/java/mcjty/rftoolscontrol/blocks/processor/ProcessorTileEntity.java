@@ -8,6 +8,7 @@ import mcjty.lib.network.Argument;
 import mcjty.lib.varia.BlockPosTools;
 import mcjty.lib.varia.WorldTools;
 import mcjty.rftools.api.storage.IStorageScanner;
+import mcjty.rftoolscontrol.blocks.craftingstation.CraftingStationTileEntity;
 import mcjty.rftoolscontrol.blocks.node.NodeTileEntity;
 import mcjty.rftoolscontrol.config.GeneralConfiguration;
 import mcjty.rftoolscontrol.items.CPUCoreItem;
@@ -1169,6 +1170,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             return;
         }
         networkNodes.clear();
+        int stations = 0;
         for (int x = -8 ; x <= 8 ; x++) {
             for (int y = -8 ; y <= 8 ; y++) {
                 for (int z = -8 ; z <= 8 ; z++) {
@@ -1183,11 +1185,16 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                                 networkNodes.put(node.getNodeName(), n);
                             }
                         }
+                    } else if (te instanceof CraftingStationTileEntity) {
+                        CraftingStationTileEntity craftingStation = (CraftingStationTileEntity) te;
+                        craftingStation.registerProcessor(pos);
+                        stations++;
                     }
                 }
             }
         }
         log("Found " + networkNodes.size() + " node(s)");
+        log("Found " + stations + " crafting station(s)");
         markDirty();
     }
 

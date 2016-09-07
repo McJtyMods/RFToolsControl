@@ -614,6 +614,20 @@ public class Opcodes {
             }))
             .build();
 
+    public static final Opcode EVENT_CRAFT = Opcode.builder()
+            .id("ev_craft")
+            .description(
+                    TextFormatting.GREEN + "Event: craft",
+                    "execute program when a crafting",
+                    "station requests a specific item",
+                    TextFormatting.BLUE + "Par 'item': the item to craft",
+                    TextFormatting.YELLOW + "Result: the desired item")
+            .opcodeOutput(SINGLE)
+            .isEvent(true)
+            .parameter(ParameterDescription.builder().name("item").type(PAR_ITEM).build())
+            .icon(5, 2)
+            .build();
+
     public static final Map<String, Opcode> OPCODES = new HashMap<>();
     public static final List<Opcode> SORTED_OPCODES = new ArrayList<>();
 
@@ -622,6 +636,7 @@ public class Opcodes {
         register(EVENT_REDSTONE_OFF);
         register(EVENT_TIMER);
         register(EVENT_SIGNAL);
+        register(EVENT_CRAFT);
         register(DO_WIRE);
         register(EVAL_COUNTINV);
         register(EVAL_COUNTINVINT);

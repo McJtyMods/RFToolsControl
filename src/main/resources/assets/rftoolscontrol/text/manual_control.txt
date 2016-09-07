@@ -105,3 +105,11 @@ you can create an automation network. Without networking you can only
 access inventories and blocks adjacent to the processor. With a
 network blocks around nodes are also available (17x17x17 area).
 {-------------------------------------------------------------}
+After installing a network card you need to set it up. This can be
+done with the 'net setup <name>' console command (in the Processor
+console). The <name> will be the network name and is also used
+in all the nodes that want to connect to this network.
+
+After setting up the network card you can do 'net scan' to find
+all nodes that match the given channel name.
+{-------------------------------------------------------------}

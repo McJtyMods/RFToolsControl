@@ -15,6 +15,7 @@ item.rftoolscontrol.interaction_module.name=Interaction Module
 # Blocks
 tile.rftoolscontrol.programmer.name=Programmer
 tile.rftoolscontrol.processor.name=Processor
+tile.rftoolscontrol.craftingstation.name=Crafting Station
 tile.rftoolscontrol.node.name=Node
 
 # Creative Tabs
