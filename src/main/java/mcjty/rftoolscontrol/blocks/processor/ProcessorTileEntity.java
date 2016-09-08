@@ -25,7 +25,6 @@ import mcjty.rftoolscontrol.logic.registry.Opcodes;
 import mcjty.rftoolscontrol.logic.registry.ParameterValue;
 import mcjty.rftoolscontrol.logic.running.CpuCore;
 import mcjty.rftoolscontrol.logic.running.RunningProgram;
-import mcjty.rftoolscontrol.network.PacketGetLog;
 import mcjty.rftoolscontrol.network.PacketGetVariables;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
@@ -221,6 +220,19 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         }
     }
 
+    public void getCraftableItems(List<ItemStack> stacks) {
+        for (int i = 0 ; i < cardInfo.length ; i++) {
+            CardInfo info = cardInfo[i];
+            CompiledCard compiledCard = info.getCompiledCard();
+            for (CompiledEvent event : compiledCard.getEvents(Opcodes.EVENT_CRAFT)) {
+                int index = event.getIndex();
+                CompiledOpcode compiledOpcode = compiledCard.getOpcodes().get(index);
+                ItemStack stack = evalulateParameter(compiledOpcode, null, 0);
+                stacks.add(stack);
+            }
+        }
+    }
+
     private void handleEvents() {
         for (int i = 0 ; i < cardInfo.length ; i++) {
             CardInfo info = cardInfo[i];
@@ -317,8 +329,8 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         }
     }
 
-    private List<PacketGetLog.StringConverter> getLog() {
-        return logMessages.stream().map(s -> new PacketGetLog.StringConverter(s)).collect(Collectors.toList());
+    private List<String> getLog() {
+        return logMessages.stream().collect(Collectors.toList());
     }
 
     private List<PacketGetVariables.ParameterConverter> getVariables() {

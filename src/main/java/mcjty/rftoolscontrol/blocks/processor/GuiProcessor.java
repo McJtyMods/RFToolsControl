@@ -50,8 +50,8 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
     private WidgetList variableList;
     private TextField command;
 
-    private static List<PacketGetLog.StringConverter> fromServer_log = new ArrayList<>();
-    public static void storeLogForClient(List<PacketGetLog.StringConverter> messages) {
+    private static List<String> fromServer_log = new ArrayList<>();
+    public static void storeLogForClient(List<String> messages) {
         fromServer_log = new ArrayList<>(messages);
     }
     private static List<PacketGetVariables.ParameterConverter> fromServer_vars = new ArrayList<>();
@@ -146,8 +146,8 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
     private void populateLog() {
         boolean atend = log.getFirstSelected() + log.getCountSelected() >= log.getChildCount();
         log.removeChildren();
-        for (PacketGetLog.StringConverter message : fromServer_log) {
-            log.addChild(new Label(mc, this).setColor(0xff008800).setText(message.getMessage()).setHorizontalAlignment(HorizontalAlignment.ALIGH_LEFT));
+        for (String message : fromServer_log) {
+            log.addChild(new Label(mc, this).setColor(0xff008800).setText(message).setHorizontalAlignment(HorizontalAlignment.ALIGH_LEFT));
         }
         if (atend) {
             log.setFirstSelected(log.getChildCount());

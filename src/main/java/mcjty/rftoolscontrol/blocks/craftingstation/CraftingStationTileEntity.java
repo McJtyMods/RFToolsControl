@@ -3,9 +3,12 @@ package mcjty.rftoolscontrol.blocks.craftingstation;
 import mcjty.lib.container.DefaultSidedInventory;
 import mcjty.lib.container.InventoryHelper;
 import mcjty.lib.entity.GenericTileEntity;
+import mcjty.rftoolscontrol.blocks.processor.ProcessorTileEntity;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.util.Constants;
@@ -28,6 +31,18 @@ public class CraftingStationTileEntity extends GenericTileEntity implements Defa
             processorList.add(pos);
         }
         markDirty();
+    }
+
+    public List<ItemStack> getCraftableItems() {
+        List<ItemStack> items = new ArrayList<>();
+        for (BlockPos p : processorList) {
+            TileEntity te = worldObj.getTileEntity(p);
+            if (te instanceof ProcessorTileEntity) {
+                ProcessorTileEntity processor = (ProcessorTileEntity) te;
+                processor.getCraftableItems(items);
+            }
+        }
+        return items;
     }
 
     @Override

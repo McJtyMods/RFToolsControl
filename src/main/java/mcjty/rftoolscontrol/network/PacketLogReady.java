@@ -3,7 +3,7 @@ package mcjty.rftoolscontrol.network;
 import io.netty.buffer.ByteBuf;
 import mcjty.lib.network.ClientCommandHandler;
 import mcjty.lib.network.NetworkTools;
-import mcjty.lib.network.PacketListFromServer;
+import mcjty.lib.network.PacketListToClient;
 import mcjty.lib.varia.Logging;
 import mcjty.rftoolscontrol.RFToolsControl;
 import net.minecraft.tileentity.TileEntity;
@@ -14,12 +14,12 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
 import java.util.List;
 
-public class PacketLogReady extends PacketListFromServer<PacketLogReady,PacketGetLog.StringConverter> {
+public class PacketLogReady extends PacketListToClient<String> {
 
     public PacketLogReady() {
     }
 
-    public PacketLogReady(BlockPos pos, String command, List<PacketGetLog.StringConverter> list) {
+    public PacketLogReady(BlockPos pos, String command, List<String> list) {
         super(pos, command, list);
     }
 
@@ -33,7 +33,7 @@ public class PacketLogReady extends PacketListFromServer<PacketLogReady,PacketGe
         private void handle(PacketLogReady message, MessageContext ctx) {
             TileEntity te = RFToolsControl.proxy.getClientWorld().getTileEntity(message.pos);
             if(!(te instanceof ClientCommandHandler)) {
-                Logging.log("createInventoryReadyPacket: TileEntity is not a ClientCommandHandler!");
+                Logging.log("TileEntity is not a ClientCommandHandler!");
                 return;
             }
             ClientCommandHandler clientCommandHandler = (ClientCommandHandler) te;
@@ -44,7 +44,12 @@ public class PacketLogReady extends PacketListFromServer<PacketLogReady,PacketGe
     }
 
     @Override
-    protected PacketGetLog.StringConverter createItem(ByteBuf buf) {
-        return new PacketGetLog.StringConverter(NetworkTools.readString(buf));
+    protected String createItem(ByteBuf buf) {
+        return NetworkTools.readString(buf);
+    }
+
+    @Override
+    protected void writeItemToBuf(ByteBuf buf, String s) {
+        NetworkTools.writeString(buf, s);
     }
 }
