@@ -41,7 +41,7 @@ public class CraftingCardContainer extends GenericContainer {
 			if (i == 0) {
 				this.inventorySlots.get(SLOT_OUT).putStack(stacks.get(i));
 			} else {
-				int slot = y*7 + x;
+				int slot = y*5 + x;
 				this.inventorySlots.get(slot).putStack(stacks.get(i));
 				x++;
 				if (x >= 3) { x = 0; y++; }

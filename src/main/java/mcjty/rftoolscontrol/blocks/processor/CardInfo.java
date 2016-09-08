@@ -58,7 +58,8 @@ public class CardInfo {
         if (virtualSlot < 0 && virtualSlot >= ProcessorTileEntity.ITEM_SLOTS) {
             return -1;
         }
-        return slotCache[virtualSlot];
+        int realSlot = slotCache[virtualSlot];
+        return realSlot == -1 ? -1 : (realSlot + ProcessorContainer.SLOT_BUFFER);
     }
 
     public int getRealVar(int virtualVar) {

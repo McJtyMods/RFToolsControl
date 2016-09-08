@@ -663,6 +663,126 @@ public class Opcodes {
             }))
             .build();
 
+    public static final Opcode DO_GETINGREDIENTS = Opcode.builder()
+            .id("do_getingredients")
+            .description(
+                    TextFormatting.GREEN + "Operation: get ingredients",
+                    "given a crafting card get the",
+                    "needed and missing ingredients",
+                    "from a chest and insert in processor",
+                    TextFormatting.BLUE + "Par 'inv': an adjacent inventory",
+                    TextFormatting.BLUE + "Par 'cardSlot': internal slot for crafting card",
+                    TextFormatting.BLUE + "Par 'slot1': internal first slot for ingredients",
+                    TextFormatting.BLUE + "Par 'slot2': internal last slot for ingredients",
+                    TextFormatting.YELLOW + "No result")
+            .opcodeOutput(SINGLE)
+            .parameter(ParameterDescription.builder().name("inv").type(PAR_INVENTORY).build())
+            .parameter(ParameterDescription.builder().name("cardSlot").type(PAR_INTEGER).build())
+            .parameter(ParameterDescription.builder().name("slot1").type(PAR_INTEGER).build())
+            .parameter(ParameterDescription.builder().name("slot2").type(PAR_INTEGER).build())
+            .icon(8, 2)
+            .runnable(((processor, program, opcode) -> {
+                Inventory inv = processor.evalulateParameter(opcode, program, 0);
+                int cardSlot = processor.evaluateIntParameter(opcode, program, 1);
+                int slot1 = processor.evaluateIntParameter(opcode, program, 2);
+                int slot2 = processor.evaluateIntParameter(opcode, program, 3);
+                processor.getIngredients(program, inv, cardSlot, slot1, slot2);
+                return true;
+            }))
+            .build();
+
+    public static final Opcode DO_GETINGREDIENTS_STOR = Opcode.builder()
+            .id("do_getingredients_stor")
+            .description(
+                    TextFormatting.GREEN + "Operation: get ingredients (storage)",
+                    "given a crafting card get the",
+                    "needed and missing ingredients",
+                    "from a storage scanner system",
+                    "and insert in processor",
+                    TextFormatting.BLUE + "Par 'cardSlot': internal slot for crafting card",
+                    TextFormatting.BLUE + "Par 'slot1': internal first slot for ingredients",
+                    TextFormatting.BLUE + "Par 'slot2': internal last slot for ingredients",
+                    TextFormatting.YELLOW + "No result",
+                    TextFormatting.RED + "Needs storage scanner module")
+            .opcodeOutput(SINGLE)
+            .parameter(ParameterDescription.builder().name("cardSlot").type(PAR_INTEGER).build())
+            .parameter(ParameterDescription.builder().name("slot1").type(PAR_INTEGER).build())
+            .parameter(ParameterDescription.builder().name("slot2").type(PAR_INTEGER).build())
+            .icon(9, 2)
+            .runnable(((processor, program, opcode) -> {
+                int cardSlot = processor.evaluateIntParameter(opcode, program, 0);
+                int slot1 = processor.evaluateIntParameter(opcode, program, 1);
+                int slot2 = processor.evaluateIntParameter(opcode, program, 2);
+                return true;
+            }))
+            .build();
+    public static final Opcode DO_FETCH_CARD = Opcode.builder()
+            .id("do_fetch_card")
+            .description(
+                    TextFormatting.GREEN + "Operation: fetch crafting card",
+                    "fetch a crafting card from",
+                    "an adjacnet inventory and place it",
+                    "in the processor. Move the card that",
+                    "is already there back to that inventory",
+                    TextFormatting.BLUE + "Par 'inv': an adjacent inventory",
+                    TextFormatting.BLUE + "Par 'cardSlot': internal slot for crafting card",
+                    TextFormatting.YELLOW + "No result")
+            .opcodeOutput(SINGLE)
+            .parameter(ParameterDescription.builder().name("inv").type(PAR_INVENTORY).build())
+            .parameter(ParameterDescription.builder().name("cardSlot").type(PAR_INTEGER).build())
+            .icon(10, 2)
+            .runnable(((processor, program, opcode) -> {
+                Inventory inv = processor.evalulateParameter(opcode, program, 0);
+                int cardSlot = processor.evaluateIntParameter(opcode, program, 1);
+                return true;
+            }))
+            .build();
+
+    public static final Opcode DO_PUSHMULTI = Opcode.builder()
+            .id("do_pushmulti")
+            .description(
+                    TextFormatting.GREEN + "Operation: push multiple items",
+                    "push multiple items to an external",
+                    "inventory adjacent to the processor",
+                    "or a connected node from the",
+                    "internal inventory",
+                    TextFormatting.BLUE + "Par 'inv': an adjacent inventory",
+                    TextFormatting.BLUE + "Par 'slot1': first slot in processor",
+                    TextFormatting.BLUE + "Par 'slot2': last slot in processor",
+                    TextFormatting.YELLOW + "No result")
+            .opcodeOutput(SINGLE)
+            .parameter(ParameterDescription.builder().name("inv").type(PAR_INVENTORY).build())
+            .parameter(ParameterDescription.builder().name("slot1").type(PAR_INTEGER).build())
+            .parameter(ParameterDescription.builder().name("slot2").type(PAR_INTEGER).build())
+            .icon(11, 2)
+            .runnable(((processor, program, opcode) -> {
+                Inventory inv = processor.evalulateParameter(opcode, program, 0);
+                int slot1 = processor.evaluateIntParameter(opcode, program, 1);
+                int slot2 = processor.evaluateIntParameter(opcode, program, 2);
+                processor.pushItemsMulti(program, inv, slot1, slot2);
+                return true;
+            }))
+            .build();
+
+    public static final Opcode DO_SETCRAFTID = Opcode.builder()
+            .id("do_setcraftid")
+            .description(
+                    TextFormatting.GREEN + "Operation: resume craft operation",
+                    "resume a previously stored",
+                    "crafting operation",
+                    TextFormatting.BLUE + "Par 'craftid': the craft identification",
+                    TextFormatting.YELLOW + "No result")
+            .opcodeOutput(SINGLE)
+            .parameter(ParameterDescription.builder().name("craftid").type(PAR_STRING).build())
+            .icon(0, 3)
+            .runnable(((processor, program, opcode) -> {
+                String craftId = processor.evalulateStringParameter(opcode, program, 0);
+                processor.setCraftId(program, craftId);
+                return true;
+            }))
+            .build();
+
+
     public static final Map<String, Opcode> OPCODES = new HashMap<>();
     public static final List<Opcode> SORTED_OPCODES = new ArrayList<>();
 
@@ -699,6 +819,11 @@ public class Opcodes {
         register(DO_CONCAT);
         register(DO_CRAFTOK);
         register(DO_CRAFTFAIL);
+        register(DO_GETINGREDIENTS);
+        register(DO_GETINGREDIENTS_STOR);
+        register(DO_FETCH_CARD);
+        register(DO_PUSHMULTI);
+        register(DO_SETCRAFTID);
     }
 
     private static void register(Opcode opcode) {

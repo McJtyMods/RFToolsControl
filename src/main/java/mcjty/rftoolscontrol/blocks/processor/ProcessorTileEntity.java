@@ -13,6 +13,7 @@ import mcjty.rftoolscontrol.blocks.node.NodeTileEntity;
 import mcjty.rftoolscontrol.config.GeneralConfiguration;
 import mcjty.rftoolscontrol.items.CPUCoreItem;
 import mcjty.rftoolscontrol.items.ModItems;
+import mcjty.rftoolscontrol.items.craftingcard.CraftingCardItem;
 import mcjty.rftoolscontrol.logic.Parameter;
 import mcjty.rftoolscontrol.logic.TypeConverters;
 import mcjty.rftoolscontrol.logic.compiled.CompiledCard;
@@ -249,11 +250,10 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                 exception("No slot!", program);
                 return;
             }
-            realSlot += ProcessorContainer.SLOT_BUFFER;
         }
         ItemStack craftedItem = null;
         if (realSlot != null) {
-            craftedItem = getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null).getStackInSlot(realSlot);
+            craftedItem = getItemHandler().getStackInSlot(realSlot);
         }
 
         for (BlockPos p : craftingStations) {
@@ -284,6 +284,100 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                 craftingStation.craftFail(craftId);
             }
         }
+    }
+
+    public void pushItemsMulti(RunningProgram program, Inventory inv, int slot1, int slot2) {
+        IItemHandler handler = getItemHandlerAt(inv, program);
+        if (handler == null) {
+            exception("Invalid inventory!", program);
+            return;
+        }
+        CardInfo info = this.cardInfo[program.getCardIndex()];
+        IItemHandler itemHandler = getItemHandler();
+        for (int slot = slot1 ; slot <= slot2 ; slot++) {
+            int realSlot = info.getRealSlot(slot);
+            if (realSlot == -1) {
+                exception("No slot!", program);
+                return;
+            }
+            ItemStack stack = itemHandler.getStackInSlot(realSlot);
+            if (stack != null) {
+                ItemStack remaining = ItemHandlerHelper.insertItem(handler, stack, false);
+                inventoryHelper.setStackInSlot(realSlot, remaining);
+            }
+        }
+    }
+
+
+    public void getIngredients(RunningProgram program, Inventory inv, int cardSlot, int slot1, int slot2) {
+        CardInfo info = this.cardInfo[program.getCardIndex()];
+        int realCardSlot = info.getRealSlot(cardSlot);
+        if (realCardSlot == -1) {
+            exception("No slot!", program);
+            return;
+        }
+        IItemHandler handler = getItemHandlerAt(inv, program);
+        if (handler == null) {
+            exception("Invalid inventory!", program);
+            return;
+        }
+        IItemHandler itemHandler = getItemHandler();
+        ItemStack card = itemHandler.getStackInSlot(realCardSlot);
+        if (card == null) {
+            exception("Missing crafting card!", program);
+            return;
+        }
+
+        int slot = slot1;
+        List<ItemStack> ingredients = CraftingCardItem.getIngredients(card);
+        for (ItemStack ingredient : ingredients) {
+            int realSlot = info.getRealSlot(slot);
+            if (realSlot == -1) {
+                exception("No slot!", program);
+                return;
+            }
+            List<Integer> slots = extractFromHandlerSimulate(handler, null, ingredient, ingredient.stackSize);
+            ItemStack stack = extractItemFromHandler(handler, ingredient, ingredient.stackSize);
+            if (stack != null) {
+                // Make a new itemstack as it would be inserted
+                ItemStack testExtract = handler.extractItem(slots.get(0), 1, true).copy();
+                testExtract.stackSize = ingredient.stackSize;
+
+                IItemHandler capability = getItemHandler();
+                if (capability.insertItem(realSlot, testExtract, true) == null) {
+                    // All seems ok. Do the real thing now.
+                    ItemStack extractItem = extractFromHandler(handler, slots, ingredient.stackSize);
+                    capability.insertItem(realSlot, extractItem, false);
+                }
+            }
+            slot++;
+        }
+
+    }
+
+    private IItemHandler getItemHandler() {
+        return getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
+    }
+
+    public void setCraftId(RunningProgram program, String craftId) {
+        program.setCraftId(craftId);
+    }
+
+    public ItemStack getCraftResult(RunningProgram program) {
+        if (program.getCraftId() == null) {
+            return null;
+        }
+        for (BlockPos p : craftingStations) {
+            TileEntity te = worldObj.getTileEntity(p);
+            if (te instanceof CraftingStationTileEntity) {
+                CraftingStationTileEntity craftingStation = (CraftingStationTileEntity) te;
+                ItemStack stack = craftingStation.getCraftResult(program.getCraftId());
+                if (stack != null) {
+                    return stack;
+                }
+            }
+        }
+        return null;
     }
 
     public void fireCraftEvent(String craftID, ItemStack stack, int amount) {
@@ -493,6 +587,28 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         return 0;
     }
 
+    private static ItemStack extractItemFromHandler(IItemHandler handler, ItemStack itemMatcher, int amount) {
+        ItemStack result = null;
+        for (int i = 0 ; i < handler.getSlots() ; i++) {
+            ItemStack stack = handler.getStackInSlot(i);
+            if (stack != null && ItemStack.areItemsEqual(stack, itemMatcher)) {
+                ItemStack r = handler.extractItem(i, amount, false);
+                if (r != null) {
+                    if (result == null) {
+                        result = r;
+                    } else {
+                        result.stackSize += r.stackSize;
+                    }
+                    amount -= r.stackSize;
+                }
+                if (amount <= 0) {
+                    return result;
+                }
+            }
+        }
+        return result;
+    }
+
     @Nonnull
     private static List<Integer> extractFromHandlerSimulate(IItemHandler handler, Integer slot, ItemStack itemMatcher, int amount) {
         List<Integer> result = new ArrayList<>();
@@ -575,8 +691,8 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         if (result == null) {
             return 0;
         }
-        IItemHandler capability = getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
-        ItemStack overflow = capability.insertItem(realSlot + ProcessorContainer.SLOT_BUFFER, result, false);
+        IItemHandler capability = getItemHandler();
+        ItemStack overflow = capability.insertItem(realSlot, result, false);
         if (overflow != null) {
             int lostItems = scanner.insertItem(overflow);
             // 'lostItems' don't fit in the processor and they don't fit in the storage
@@ -613,15 +729,15 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         ItemStack testExtract = handler.extractItem(extracted.get(0), 1, true).copy();
         testExtract.stackSize = amount;
 
-        IItemHandler capability = getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
-        if (capability.insertItem(realSlot + ProcessorContainer.SLOT_BUFFER, testExtract, true) != null) {
+        IItemHandler capability = getItemHandler();
+        if (capability.insertItem(realSlot, testExtract, true) != null) {
             // Not enough room. Do nothing
             return;
         }
 
         // All seems ok. Do the real thing now.
         ItemStack extractItem = extractFromHandler(handler, extracted, amount);
-        capability.insertItem(realSlot + ProcessorContainer.SLOT_BUFFER, extractItem, false);
+        capability.insertItem(realSlot, extractItem, false);
     }
 
     public ItemStack getItemInternal(RunningProgram program, int virtualSlot) {
@@ -631,8 +747,8 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             exception("No slot!", program);
             return null;
         }
-        IItemHandler capability = getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
-        return capability.getStackInSlot(realSlot + ProcessorContainer.SLOT_BUFFER);
+        IItemHandler capability = getItemHandler();
+        return capability.getStackInSlot(realSlot);
     }
 
     public int pushItemsStorage(RunningProgram program, int amount, int virtualSlot) {
@@ -648,8 +764,8 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             return 0;
         }
 
-        IItemHandler capability = getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
-        ItemStack extracted = capability.extractItem(realSlot + ProcessorContainer.SLOT_BUFFER, amount, false);
+        IItemHandler capability = getItemHandler();
+        ItemStack extracted = capability.extractItem(realSlot, amount, false);
         if (extracted == null) {
             // Nothing to do
             return 0;
@@ -659,12 +775,13 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         if (remaining > 0) {
             int inserted = extracted.stackSize - remaining;
             extracted.stackSize = remaining;
-            capability.insertItem(realSlot + ProcessorContainer.SLOT_BUFFER, extracted, false);
+            capability.insertItem(realSlot, extracted, false);
             return remaining;
         }
 
         return extracted.stackSize;
     }
+
 
     public void pushItems(RunningProgram program, Inventory inv, Integer slot, int amount, int virtualSlot) {
         CardInfo info = this.cardInfo[program.getCardIndex()];
@@ -678,8 +795,8 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             exception("Invalid inventory!", program);
             return;
         }
-        IItemHandler capability = getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
-        ItemStack extracted = capability.extractItem(realSlot + ProcessorContainer.SLOT_BUFFER, amount, true);
+        IItemHandler itemHandler = getItemHandler();
+        ItemStack extracted = itemHandler.extractItem(realSlot, amount, true);
         if (extracted == null) {
             // Nothing to do
             return;
@@ -697,7 +814,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         }
 
         // All seems ok. Do the real thing now.
-        extracted = capability.extractItem(realSlot + ProcessorContainer.SLOT_BUFFER, amount, false);
+        extracted = itemHandler.extractItem(realSlot, amount, false);
         if (slot == null) {
             ItemHandlerHelper.insertItem(handler, extracted, false);
         } else {

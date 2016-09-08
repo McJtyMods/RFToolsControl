@@ -52,6 +52,18 @@ public class CraftingStationTileEntity extends GenericTileEntity implements Defa
         markDirty();
     }
 
+
+    // @todo optimize finding requests on craftid!!!!
+
+    public ItemStack getCraftResult(String craftId) {
+        for (CraftingRequest request : activeCraftingRequests) {
+            if (craftId.equals(request.getCraftId())) {
+                return request.getStack();
+            }
+        }
+        return null;
+    }
+
     private Pair<ProcessorTileEntity, ItemStack> findCraftableItem(int index) {
         for (BlockPos p : processorList) {
             TileEntity te = worldObj.getTileEntity(p);
@@ -74,7 +86,6 @@ public class CraftingStationTileEntity extends GenericTileEntity implements Defa
     public ItemStack craftOk(String craftId, @Nullable ItemStack stack) {
         CraftingRequest foundRequest = null;
         for (CraftingRequest request : activeCraftingRequests) {
-            System.out.println("craftId = " + craftId + " -> " + request.getCraftId());
             if (craftId.equals(request.getCraftId())) {
                 foundRequest = request;
                 break;

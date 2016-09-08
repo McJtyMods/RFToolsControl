@@ -35,6 +35,22 @@ public class Functions {
                 return convertToString(program.getLastValue());
             })
             .build();
+    public static final Function CRAFTID = Function.builder()
+            .id("craftid")
+            .name("craftid")
+            .type(PAR_STRING)
+            .runnable((processor, program, function) -> {
+                return ParameterValue.constant(program.getCraftId());
+            })
+            .build();
+    public static final Function CRAFTRESULT = Function.builder()
+            .id("craftresult")
+            .name("craftresult")
+            .type(PAR_ITEM)
+            .runnable((processor, program, function) -> {
+                return ParameterValue.constant(processor.getCraftResult(program));
+            })
+            .build();
 
     private static ParameterValue convertToBool(Parameter value) {
         if (value == null) {
@@ -116,6 +132,8 @@ public class Functions {
         register(LASTBOOL);
         register(LASTINT);
         register(LASTSTRING);
+        register(CRAFTID);
+        register(CRAFTRESULT);
     }
 
     private static void register(Function function) {
