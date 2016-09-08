@@ -1,5 +1,6 @@
 package mcjty.rftoolscontrol.items;
 
+import mcjty.rftoolscontrol.items.craftingcard.CraftingCardItem;
 import mcjty.rftoolscontrol.items.interactionmodule.InteractionModuleItem;
 import mcjty.rftoolscontrol.items.manual.RFToolsControlManualItem;
 import mcjty.rftoolscontrol.items.variablemodule.VariableModuleItem;
@@ -16,6 +17,7 @@ public class ModItems {
     public static RAMChipItem ramChipItem;
     public static NetworkCardItem networkCardItem;
     public static CardBaseItem cardBaseItem;
+    public static CraftingCardItem craftingCardItem;
 
     public static VariableModuleItem variableModuleItem;
     public static InteractionModuleItem interactionModuleItem;
@@ -29,6 +31,7 @@ public class ModItems {
         ramChipItem = new RAMChipItem();
         networkCardItem = new NetworkCardItem();
         cardBaseItem = new CardBaseItem();
+        craftingCardItem = new CraftingCardItem();
         variableModuleItem = new VariableModuleItem();
         interactionModuleItem = new InteractionModuleItem();
     }
@@ -43,6 +46,7 @@ public class ModItems {
         ramChipItem.initModel();
         networkCardItem.initModel();
         cardBaseItem.initModel();
+        craftingCardItem.initModel();
         variableModuleItem.initModel();
         interactionModuleItem.initModel();
     }

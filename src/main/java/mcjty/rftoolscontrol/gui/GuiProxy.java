@@ -1,8 +1,10 @@
 package mcjty.rftoolscontrol.gui;
 
-import mcjty.rftoolscontrol.items.manual.GuiRFToolsManual;
 import mcjty.lib.container.GenericBlock;
 import mcjty.rftoolscontrol.RFToolsControl;
+import mcjty.rftoolscontrol.items.craftingcard.CraftingCardContainer;
+import mcjty.rftoolscontrol.items.craftingcard.GuiCraftingCard;
+import mcjty.rftoolscontrol.items.manual.GuiRFToolsManual;
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
@@ -15,6 +17,8 @@ public class GuiProxy implements IGuiHandler {
     public Object getServerGuiElement(int guiid, EntityPlayer entityPlayer, World world, int x, int y, int z) {
         if (guiid == RFToolsControl.GUI_MANUAL_CONTROL) {
             return null;
+        } else if (guiid == RFToolsControl.GUI_CRAFTINGCARD) {
+            return new CraftingCardContainer(entityPlayer);
         }
 
         BlockPos pos = new BlockPos(x, y, z);
@@ -31,6 +35,8 @@ public class GuiProxy implements IGuiHandler {
     public Object getClientGuiElement(int guiid, EntityPlayer entityPlayer, World world, int x, int y, int z) {
         if (guiid == RFToolsControl.GUI_MANUAL_CONTROL) {
             return new GuiRFToolsManual(GuiRFToolsManual.MANUAL_CONTROL);
+        } else if (guiid == RFToolsControl.GUI_CRAFTINGCARD) {
+            return new GuiCraftingCard(new CraftingCardContainer(entityPlayer));
         }
 
         BlockPos pos = new BlockPos(x, y, z);

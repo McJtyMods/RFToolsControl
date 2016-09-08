@@ -9,6 +9,7 @@ item.rftoolscontrol.cpu_core_2000.name=CPU Core EX2000
 item.rftoolscontrol.ram_chip.name=RAM Chip 8E
 item.rftoolscontrol.network_card.name=Network Card
 item.rftoolscontrol.card_base.name=Card Base
+item.rftoolscontrol.crafting_card.name=Crafting Card
 item.rftoolscontrol.variable_module.name=Variable Module
 item.rftoolscontrol.interaction_module.name=Interaction Module
 

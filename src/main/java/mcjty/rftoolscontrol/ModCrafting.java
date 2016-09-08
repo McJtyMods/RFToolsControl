@@ -23,6 +23,7 @@ public class ModCrafting {
         GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(ModItems.cardBaseItem),
                 "rrr", "ppp", "nnn", 'r', Items.REDSTONE, 'p', "dyeGreen", 'n', Items.GOLD_NUGGET));
         GameRegistry.addRecipe(new ItemStack(ModItems.programCardItem), "pp", "np", 'n', ModItems.cardBaseItem, 'p', Items.PAPER);
+        GameRegistry.addRecipe(new ItemStack(ModItems.craftingCardItem), "pc", "np", 'n', ModItems.cardBaseItem, 'p', Items.PAPER, 'c', Blocks.CRAFTING_TABLE);
         GameRegistry.addRecipe(new ItemStack(ModItems.ramChipItem), "rrr", "pnp", "rrr", 'n', ModItems.cardBaseItem, 'p', Items.PAPER, 'r', Items.REDSTONE);
         GameRegistry.addRecipe(new ItemStack(ModItems.networkCardItem), "rer", "pnp", "rrr", 'n', ModItems.cardBaseItem, 'p', Items.GOLD_NUGGET, 'r', Items.REDSTONE, 'e', Items.ENDER_PEARL);
         GameRegistry.addRecipe(new ItemStack(ModItems.cpuCoreB500Item), "rgr", "pnp", "rgr", 'n', ModItems.cardBaseItem, 'p', Items.PAPER, 'r', Items.REDSTONE, 'g', Items.GOLD_NUGGET);
