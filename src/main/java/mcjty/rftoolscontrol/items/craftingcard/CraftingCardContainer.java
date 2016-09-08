@@ -15,13 +15,13 @@ public class CraftingCardContainer extends GenericContainer {
     public static final String CONTAINER_INVENTORY = "container";
 
     public static final int SLOT_INPUT = 0;
-    public static final int INPUT_SLOTS = 7*4;
+    public static final int INPUT_SLOTS = 5*4;
 	public static final int SLOT_OUT = INPUT_SLOTS;
 
     public static final ContainerFactory factory = new ContainerFactory() {
         @Override
         protected void setup() {
-			addSlotBox(new SlotDefinition(SlotType.SLOT_GHOST), CONTAINER_INVENTORY, SLOT_INPUT, 10, 27, 7, 18, 4, 18);
+			addSlotBox(new SlotDefinition(SlotType.SLOT_GHOST), CONTAINER_INVENTORY, SLOT_INPUT, 10, 27, 5, 18, 4, 18);
 			addSlotBox(new SlotDefinition(SlotType.SLOT_GHOST), CONTAINER_INVENTORY, SLOT_OUT, 10 + 8*18, 27, 1, 18, 1, 18);
             layoutPlayerInventorySlots(10, 106);
         }
