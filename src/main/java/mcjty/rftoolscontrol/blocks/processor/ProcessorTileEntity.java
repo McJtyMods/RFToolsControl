@@ -47,7 +47,6 @@ import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
-import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -84,6 +83,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
 
     private String channel = "";
     private Map<String, BlockPos> networkNodes = new HashMap<>();
+    private Set<BlockPos> craftingStations = new HashSet<>();
 
     // Bitmask for all six sides
     private int prevIn = 0;
@@ -95,7 +95,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
 
     private CardInfo[] cardInfo = new CardInfo[CARD_SLOTS];
 
-    private Queue<Pair<Integer, CompiledEvent>> eventQueue = new ArrayDeque<>();        // Integer == card index
+    private Queue<QueuedEvent> eventQueue = new ArrayDeque<>();        // Integer == card index
 
     private Queue<String> logMessages = new ArrayDeque<>();
 
@@ -207,27 +207,98 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     }
 
     private void processEventQueue() {
-        Pair<Integer, CompiledEvent> pair = eventQueue.peek();
-        if (pair != null) {
+        QueuedEvent queuedEvent = eventQueue.peek();
+        if (queuedEvent != null) {
             CpuCore core = findAvailableCore();
             if (core != null) {
                 eventQueue.remove();
-                RunningProgram program = new RunningProgram(pair.getKey());
-                program.setCurrent(pair.getRight().getIndex());
+                RunningProgram program = new RunningProgram(queuedEvent.getCardIndex());
+                program.setCurrent(queuedEvent.getCompiledEvent().getIndex());
+                program.setCraftId(queuedEvent.getCraftId());
                 core.startProgram(program);
             }
         }
     }
 
     public void getCraftableItems(List<ItemStack> stacks) {
+        for (CardInfo info : cardInfo) {
+            CompiledCard compiledCard = info.getCompiledCard();
+            if (compiledCard != null) {
+                for (CompiledEvent event : compiledCard.getEvents(Opcodes.EVENT_CRAFT)) {
+                    int index = event.getIndex();
+                    CompiledOpcode compiledOpcode = compiledCard.getOpcodes().get(index);
+                    ItemStack stack = evalulateParameter(compiledOpcode, null, 0);
+                    stacks.add(stack);
+                }
+            }
+        }
+    }
+
+    public void craftOk(RunningProgram program, Integer slot) {
+        String craftId = program.getCraftId();
+        if (craftId == null) {
+            exception("No crafting context!", program);
+            return;
+        }
+
+        CardInfo info = this.cardInfo[program.getCardIndex()];
+        Integer realSlot = null;
+        if (slot != null) {
+            realSlot = info.getRealSlot(slot);
+            if (realSlot == -1) {
+                exception("No slot!", program);
+                return;
+            }
+            realSlot += ProcessorContainer.SLOT_BUFFER;
+        }
+        ItemStack craftedItem = null;
+        if (realSlot != null) {
+            craftedItem = getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null).getStackInSlot(realSlot);
+        }
+
+        for (BlockPos p : craftingStations) {
+            TileEntity te = worldObj.getTileEntity(p);
+            if (te instanceof CraftingStationTileEntity) {
+                CraftingStationTileEntity craftingStation = (CraftingStationTileEntity) te;
+                craftedItem = craftingStation.craftOk(craftId, craftedItem);
+            }
+        }
+
+        if (realSlot != null) {
+            // Put back what could not be accepted
+            getInventoryHelper().setStackInSlot(realSlot, craftedItem);
+        }
+    }
+
+    public void craftFail(RunningProgram program) {
+        String craftId = program.getCraftId();
+        if (craftId == null) {
+            exception("No crafting context!", program);
+            return;
+        }
+
+        for (BlockPos p : craftingStations) {
+            TileEntity te = worldObj.getTileEntity(p);
+            if (te instanceof CraftingStationTileEntity) {
+                CraftingStationTileEntity craftingStation = (CraftingStationTileEntity) te;
+                craftingStation.craftFail(craftId);
+            }
+        }
+    }
+
+    public void fireCraftEvent(String craftID, ItemStack stack, int amount) {
         for (int i = 0 ; i < cardInfo.length ; i++) {
             CardInfo info = cardInfo[i];
             CompiledCard compiledCard = info.getCompiledCard();
-            for (CompiledEvent event : compiledCard.getEvents(Opcodes.EVENT_CRAFT)) {
-                int index = event.getIndex();
-                CompiledOpcode compiledOpcode = compiledCard.getOpcodes().get(index);
-                ItemStack stack = evalulateParameter(compiledOpcode, null, 0);
-                stacks.add(stack);
+            if (compiledCard != null) {
+                for (CompiledEvent event : compiledCard.getEvents(Opcodes.EVENT_CRAFT)) {
+                    int index = event.getIndex();
+                    CompiledOpcode compiledOpcode = compiledCard.getOpcodes().get(index);
+                    ItemStack s = evalulateParameter(compiledOpcode, null, 0);
+                    if (stack.isItemEqual(s)) {
+                        runOrQueueEvent(i, event, craftID);
+                    }
+                }
             }
         }
     }
@@ -245,7 +316,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                         BlockSide side = evalulateParameter(compiledOpcode, null, 0);
                         EnumFacing facing = side == null ? null : side.getSide();
                         if (facing == null || ((redstoneOnMask >> facing.ordinal()) & 1) == 1) {
-                            runOrQueueEvent(i, event);
+                            runOrQueueEvent(i, event, null);
                         }
                     }
                 }
@@ -257,7 +328,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                         BlockSide side = evalulateParameter(compiledOpcode, null, 0);
                         EnumFacing facing = side == null ? null : side.getSide();
                         if (facing == null || ((redstoneOffMask >> facing.ordinal()) & 1) == 1) {
-                            runOrQueueEvent(i, event);
+                            runOrQueueEvent(i, event, null);
                         }
                     }
                 }
@@ -267,21 +338,22 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                     CompiledOpcode compiledOpcode = compiledCard.getOpcodes().get(index);
                     int ticks = evalulateParameter(compiledOpcode, null, 0);
                     if (tickCount % ticks == 0) {
-                        runOrQueueEvent(i, event);
+                        runOrQueueEvent(i, event, null);
                     }
                 }
             }
         }
     }
 
-    private void runOrQueueEvent(int cardIndex, CompiledEvent event) {
+    private void runOrQueueEvent(int cardIndex, CompiledEvent event, @Nullable String craftId) {
         CpuCore core = findAvailableCore();
         if (core == null) {
             // No available core
-            eventQueue.add(Pair.of(cardIndex, event));
+            eventQueue.add(new QueuedEvent(cardIndex, event, craftId));
         } else {
             RunningProgram program = new RunningProgram(cardIndex);
             program.setCurrent(event.getIndex());
+            program.setCraftId(craftId);
             core.startProgram(program);
         }
     }
@@ -296,7 +368,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                     CompiledOpcode compiledOpcode = compiledCard.getOpcodes().get(index);
                     String sig = evalulateParameter(compiledOpcode, null, 0);
                     if (signal.equals(sig)) {
-                        runOrQueueEvent(i, event);
+                        runOrQueueEvent(i, event, null);
                     }
                 }
             }
@@ -938,6 +1010,17 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         readLog(tagCompound);
         readVariables(tagCompound);
         readNetworkNodes(tagCompound);
+        readCraftingStations(tagCompound);
+    }
+
+    private void readCraftingStations(NBTTagCompound tagCompound) {
+        craftingStations.clear();
+        NBTTagList stationList = tagCompound.getTagList("stations", Constants.NBT.TAG_COMPOUND);
+        for (int i = 0 ; i < stationList.tagCount() ; i++) {
+            NBTTagCompound tag = stationList.getCompoundTagAt(i);
+            BlockPos nodePos = new BlockPos(tag.getInteger("nodex"), tag.getInteger("nodey"), tag.getInteger("nodez"));
+            craftingStations.add(nodePos);
+        }
     }
 
     private void readNetworkNodes(NBTTagCompound tagCompound) {
@@ -992,7 +1075,8 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             NBTTagCompound tag = eventQueueList.getCompoundTagAt(i);
             int card = tag.getInteger("card");
             int index = tag.getInteger("index");
-            eventQueue.add(Pair.of(card, new CompiledEvent(index)));
+            String craftId = tag.hasKey("craftId") ? tag.getString("craftId") : null;
+            eventQueue.add(new QueuedEvent(card, new CompiledEvent(index), craftId));
         }
     }
 
@@ -1017,6 +1101,19 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         writeLog(tagCompound);
         writeVariables(tagCompound);
         writeNetworkNodes(tagCompound);
+        writeCraftingStations(tagCompound);
+    }
+
+    private void writeCraftingStations(NBTTagCompound tagCompound) {
+        NBTTagList stationList = new NBTTagList();
+        for (BlockPos pos : craftingStations) {
+            NBTTagCompound tag = new NBTTagCompound();
+            tag.setInteger("nodex", pos.getX());
+            tag.setInteger("nodey", pos.getY());
+            tag.setInteger("nodez", pos.getZ());
+            stationList.appendTag(tag);
+        }
+        tagCompound.setTag("stations", stationList);
     }
 
     private void writeNetworkNodes(NBTTagCompound tagCompound) {
@@ -1062,10 +1159,13 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
 
     private void writeEventQueue(NBTTagCompound tagCompound) {
         NBTTagList eventQueueList = new NBTTagList();
-        for (Pair<Integer, CompiledEvent> pair : eventQueue) {
+        for (QueuedEvent queuedEvent : eventQueue) {
             NBTTagCompound tag = new NBTTagCompound();
-            tag.setInteger("card", pair.getKey());
-            tag.setInteger("index", pair.getRight().getIndex());
+            tag.setInteger("card", queuedEvent.getCardIndex());
+            tag.setInteger("index", queuedEvent.getCompiledEvent().getIndex());
+            if (queuedEvent.getCraftId() != null) {
+                tag.setString("craftId", queuedEvent.getCraftId());
+            }
             eventQueueList.appendTag(tag);
         }
         tagCompound.setTag("events", eventQueueList);
@@ -1179,7 +1279,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             return;
         }
         networkNodes.clear();
-        int stations = 0;
+        craftingStations.clear();
         for (int x = -8 ; x <= 8 ; x++) {
             for (int y = -8 ; y <= 8 ; y++) {
                 for (int z = -8 ; z <= 8 ; z++) {
@@ -1197,13 +1297,13 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                     } else if (te instanceof CraftingStationTileEntity) {
                         CraftingStationTileEntity craftingStation = (CraftingStationTileEntity) te;
                         craftingStation.registerProcessor(pos);
-                        stations++;
+                        craftingStations.add(n);
                     }
                 }
             }
         }
         log("Found " + networkNodes.size() + " node(s)");
-        log("Found " + stations + " crafting station(s)");
+        log("Found " + craftingStations.size() + " crafting station(s)");
         markDirty();
     }
 

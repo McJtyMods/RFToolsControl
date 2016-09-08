@@ -628,6 +628,41 @@ public class Opcodes {
             .icon(5, 2)
             .build();
 
+    public static final Opcode DO_CRAFTOK = Opcode.builder()
+            .id("do_craftok")
+            .description(
+                    TextFormatting.GREEN + "Operation: mark craft ok",
+                    "as a result of a crafting event",
+                    "you can use this opcode to mark",
+                    "the craft operation as ok",
+                    TextFormatting.BLUE + "Par 'slot': internal slot where craft result is",
+                    TextFormatting.YELLOW + "No result")
+            .opcodeOutput(SINGLE)
+            .parameter(ParameterDescription.builder().name("slot").type(PAR_INTEGER).build())
+            .icon(6, 2)
+            .runnable(((processor, program, opcode) -> {
+                Integer slot = processor.evaluateIntegerParameter(opcode, program, 0);
+                processor.craftOk(program, slot);
+                return true;
+            }))
+            .build();
+    public static final Opcode DO_CRAFTFAIL = Opcode.builder()
+            .id("do_craftfail")
+            .description(
+                    TextFormatting.GREEN + "Operation: mark craft failure",
+                    "as a result of a crafting event",
+                    "you can use this opcode to mark",
+                    "the craft operation as failed",
+                    TextFormatting.BLUE + "No parameters",
+                    TextFormatting.YELLOW + "No result")
+            .opcodeOutput(SINGLE)
+            .icon(7, 2)
+            .runnable(((processor, program, opcode) -> {
+                processor.craftFail(program);
+                return true;
+            }))
+            .build();
+
     public static final Map<String, Opcode> OPCODES = new HashMap<>();
     public static final List<Opcode> SORTED_OPCODES = new ArrayList<>();
 
@@ -662,6 +697,8 @@ public class Opcodes {
         register(DO_MULTIPLY);
         register(DO_MODULO);
         register(DO_CONCAT);
+        register(DO_CRAFTOK);
+        register(DO_CRAFTFAIL);
     }
 
     private static void register(Opcode opcode) {

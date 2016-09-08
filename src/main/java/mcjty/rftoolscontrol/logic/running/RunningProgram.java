@@ -7,6 +7,7 @@ import mcjty.rftoolscontrol.logic.compiled.CompiledOpcode;
 import mcjty.rftoolscontrol.logic.registry.ParameterType;
 import net.minecraft.nbt.NBTTagCompound;
 
+import javax.annotation.Nullable;
 import java.util.List;
 
 public class RunningProgram {
@@ -18,6 +19,9 @@ public class RunningProgram {
 
     // Current opcode
     private int current = 0;
+
+    // Current craftId
+    private String craftId = null;
 
     // If we need to wait a few ticks
     private int delay = 0;
@@ -37,6 +41,15 @@ public class RunningProgram {
 
     public void setCurrent(int current) {
         this.current = current;
+    }
+
+    public void setCraftId(@Nullable String craftId) {
+        this.craftId = craftId;
+    }
+
+    @Nullable
+    public String getCraftId() {
+        return craftId;
     }
 
     public void setDelay(int delay) {

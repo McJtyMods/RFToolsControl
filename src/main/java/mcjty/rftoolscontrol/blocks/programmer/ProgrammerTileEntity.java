@@ -18,10 +18,16 @@ public class ProgrammerTileEntity extends GenericTileEntity implements DefaultSi
     }
 
     @Override
+    protected boolean needsCustomInvWrapper() {
+        return true;
+    }
+
+    @Override
     public InventoryHelper getInventoryHelper() {
         return inventoryHelper;
     }
 
+    @SuppressWarnings("NullableProblems")
     @Override
     public boolean isUseableByPlayer(EntityPlayer player) {
         return canPlayerAccess(player);
