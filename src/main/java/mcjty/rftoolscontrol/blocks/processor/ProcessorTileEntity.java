@@ -25,7 +25,6 @@ import mcjty.rftoolscontrol.logic.registry.Opcodes;
 import mcjty.rftoolscontrol.logic.registry.ParameterValue;
 import mcjty.rftoolscontrol.logic.running.CpuCore;
 import mcjty.rftoolscontrol.logic.running.RunningProgram;
-import mcjty.rftoolscontrol.network.PacketGetVariables;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -333,11 +332,9 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         return logMessages.stream().collect(Collectors.toList());
     }
 
-    private List<PacketGetVariables.ParameterConverter> getVariables() {
-        List<PacketGetVariables.ParameterConverter> pars = new ArrayList<>();
-        for (Parameter variable : variables) {
-            pars.add(new PacketGetVariables.ParameterConverter(variable));
-        }
+    private List<Parameter> getVariables() {
+        List<Parameter> pars = new ArrayList<>();
+        Collections.addAll(pars, variables);
         return pars;
     }
 

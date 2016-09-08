@@ -54,8 +54,8 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
     public static void storeLogForClient(List<String> messages) {
         fromServer_log = new ArrayList<>(messages);
     }
-    private static List<PacketGetVariables.ParameterConverter> fromServer_vars = new ArrayList<>();
-    public static void storeVarsForClient(List<PacketGetVariables.ParameterConverter> messages) {
+    private static List<Parameter> fromServer_vars = new ArrayList<>();
+    public static void storeVarsForClient(List<Parameter> messages) {
         fromServer_vars = new ArrayList<>(messages);
     }
     private int listDirty = 0;
@@ -296,20 +296,16 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
     }
 
     private void openValueEditor(int varIdx) {
-        System.out.println("GuiProcessor.openValueEditor: 1");
         if (fromServer_vars == null || varIdx > fromServer_vars.size()) {
             return;
         }
-        System.out.println("GuiProcessor.openValueEditor: 2");
         if (fromServer_vars.get(varIdx) == null) {
             return;
         }
-        PacketGetVariables.ParameterConverter converter = fromServer_vars.get(varIdx);
-        Parameter parameter = converter.getParameter();
+        Parameter parameter = fromServer_vars.get(varIdx);
         if (parameter == null) {
             return;
         }
-        System.out.println("GuiProcessor.openValueEditor: 3");
         ParameterEditor editor = ParameterEditors.getEditor(parameter.getParameterType());
         Panel editPanel;
         if (editor != null) {
@@ -321,7 +317,6 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
             return;
         }
 
-        System.out.println("GuiProcessor.openValueEditor: 4");
         Panel panel = new Panel(mc, this)
                 .setLayout(new VerticalLayout())
                 .setFilledBackground(0xff666666, 0xffaaaaaa)

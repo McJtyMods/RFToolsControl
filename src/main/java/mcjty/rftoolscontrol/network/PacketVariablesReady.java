@@ -2,7 +2,7 @@ package mcjty.rftoolscontrol.network;
 
 import io.netty.buffer.ByteBuf;
 import mcjty.lib.network.ClientCommandHandler;
-import mcjty.lib.network.PacketListFromServer;
+import mcjty.lib.network.PacketListToClient;
 import mcjty.lib.varia.Logging;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.logic.Parameter;
@@ -14,12 +14,12 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
 import java.util.List;
 
-public class PacketVariablesReady extends PacketListFromServer<PacketVariablesReady,PacketGetVariables.ParameterConverter> {
+public class PacketVariablesReady extends PacketListToClient<Parameter> {
 
     public PacketVariablesReady() {
     }
 
-    public PacketVariablesReady(BlockPos pos, String command, List<PacketGetVariables.ParameterConverter> list) {
+    public PacketVariablesReady(BlockPos pos, String command, List<Parameter> list) {
         super(pos, command, list);
     }
 
@@ -33,7 +33,7 @@ public class PacketVariablesReady extends PacketListFromServer<PacketVariablesRe
         private void handle(PacketVariablesReady message, MessageContext ctx) {
             TileEntity te = RFToolsControl.proxy.getClientWorld().getTileEntity(message.pos);
             if(!(te instanceof ClientCommandHandler)) {
-                Logging.log("createInventoryReadyPacket: TileEntity is not a ClientCommandHandler!");
+                Logging.log("TileEntity is not a ClientCommandHandler!");
                 return;
             }
             ClientCommandHandler clientCommandHandler = (ClientCommandHandler) te;
@@ -44,7 +44,16 @@ public class PacketVariablesReady extends PacketListFromServer<PacketVariablesRe
     }
 
     @Override
-    protected PacketGetVariables.ParameterConverter createItem(ByteBuf buf) {
-        return new PacketGetVariables.ParameterConverter(Parameter.readFromBuf(buf));
+    protected Parameter createItem(ByteBuf buf) {
+        return Parameter.readFromBuf(buf);
+    }
+
+    @Override
+    protected void writeItemToBuf(ByteBuf buf, Parameter item) {
+        if (item == null) {
+            buf.writeByte(-1);
+        } else {
+            item.writeToBuf(buf);
+        }
     }
 }
