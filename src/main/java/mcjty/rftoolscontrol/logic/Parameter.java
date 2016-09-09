@@ -62,12 +62,7 @@ public class Parameter {
                 builder.value(ParameterValue.constant(buf.readBoolean()));
                 break;
             case PAR_INVENTORY:
-                String nodeName2 = NetworkTools.readString(buf);
-                int sideIdx2 = buf.readByte();
-                EnumFacing side2 = EnumFacing.values()[sideIdx2];
-                sideIdx2 = buf.readByte();
-                EnumFacing intSide = sideIdx2 == -1 ? null : EnumFacing.values()[sideIdx2];
-                builder.value(ParameterValue.constant(new Inventory(nodeName2, side2, intSide)));
+                builder.value(ParameterValue.constant(Inventory.readBuf(buf)));
                 break;
             case PAR_ITEM:
                 if (buf.readBoolean()) {
@@ -101,9 +96,7 @@ public class Parameter {
                 break;
             case PAR_INVENTORY:
                 Inventory inv = (Inventory) value;
-                NetworkTools.writeString(buf, inv.getNodeName());
-                buf.writeByte(inv.getSide().ordinal());
-                buf.writeByte(inv.getIntSide() == null ? -1 : inv.getIntSide().ordinal());
+                inv.writeBuf(buf);
                 break;
             case PAR_ITEM:
                 if (value != null) {

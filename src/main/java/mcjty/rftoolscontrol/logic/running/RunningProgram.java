@@ -52,6 +52,10 @@ public class RunningProgram {
         return craftId;
     }
 
+    public boolean hasCraftId() {
+        return craftId != null && !craftId.isEmpty();
+    }
+
     public void setDelay(int delay) {
         this.delay = delay;
     }

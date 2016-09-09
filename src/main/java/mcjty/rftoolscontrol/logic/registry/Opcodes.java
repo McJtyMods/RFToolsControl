@@ -620,8 +620,9 @@ public class Opcodes {
                     TextFormatting.GREEN + "Event: craft",
                     "execute program when a crafting",
                     "station requests a specific item",
+                    "This operation sets the crafting context",
                     TextFormatting.BLUE + "Par 'item': the item to craft",
-                    TextFormatting.YELLOW + "Result: the desired item")
+                    TextFormatting.YELLOW + "No result")
             .opcodeOutput(SINGLE)
             .isEvent(true)
             .parameter(ParameterDescription.builder().name("item").type(PAR_ITEM).build())
@@ -713,6 +714,7 @@ public class Opcodes {
                 int cardSlot = processor.evaluateIntParameter(opcode, program, 0);
                 int slot1 = processor.evaluateIntParameter(opcode, program, 1);
                 int slot2 = processor.evaluateIntParameter(opcode, program, 2);
+                // @todo
                 return true;
             }))
             .build();
@@ -720,10 +722,11 @@ public class Opcodes {
             .id("do_fetch_card")
             .description(
                     TextFormatting.GREEN + "Operation: fetch crafting card",
-                    "fetch a crafting card from",
-                    "an adjacnet inventory and place it",
-                    "in the processor. Move the card that",
-                    "is already there back to that inventory",
+                    "fetch the right crafting card (from",
+                    "current card context) from an adjacent",
+                    "inventory and place it in the processor.",
+                    "Move the card that was already there back",
+                    "to that inventory",
                     TextFormatting.BLUE + "Par 'inv': an adjacent inventory",
                     TextFormatting.BLUE + "Par 'cardSlot': internal slot for crafting card",
                     TextFormatting.YELLOW + "No result")
@@ -734,6 +737,7 @@ public class Opcodes {
             .runnable(((processor, program, opcode) -> {
                 Inventory inv = processor.evaluateParameter(opcode, program, 0);
                 int cardSlot = processor.evaluateIntParameter(opcode, program, 1);
+                processor.fetchCard(program, inv, cardSlot);
                 return true;
             }))
             .build();
@@ -798,6 +802,42 @@ public class Opcodes {
             }))
             .build();
 
+    public static final Opcode EVENT_CRAFTRESUME = Opcode.builder()
+            .id("ev_craftresume")
+            .description(
+                    TextFormatting.GREEN + "Event: craft resume",
+                    "resume crafting operation",
+                    "This operation sets the crafting context",
+                    TextFormatting.BLUE + "Par 'ticks': ticks to wait between checks",
+                    TextFormatting.YELLOW + "No result")
+            .parameter(ParameterDescription.builder().name("ticks").type(PAR_INTEGER).build())
+            .opcodeOutput(SINGLE)
+            .isEvent(true)
+            .icon(2, 3)
+            .build();
+
+    public static final Opcode DO_CRAFTWAIT = Opcode.builder()
+            .id("do_craftwait")
+            .description(
+                    TextFormatting.GREEN + "Operation: wait for finished craft",
+                    "suspend the crafting operation",
+                    "and resume it as soon as a certain",
+                    "item appears in an inventory",
+                    TextFormatting.BLUE + "Par 'inv': the inventory where the item will appear",
+                    TextFormatting.BLUE + "Par 'item': the item to wait for (optional)",
+                    TextFormatting.YELLOW + "No result")
+            .opcodeOutput(SINGLE)
+            .parameter(ParameterDescription.builder().name("inv").type(PAR_INVENTORY).build())
+            .parameter(ParameterDescription.builder().name("item").type(PAR_ITEM).build())
+            .icon(3, 3)
+            .runnable(((processor, program, opcode) -> {
+                Inventory inv = processor.evaluateParameter(opcode, program, 0);
+                ItemStack item = processor.evaluateParameter(opcode, program, 1);
+                processor.craftWait(program, inv, item);
+                return true;
+            }))
+            .build();
+
 
     public static final Map<String, Opcode> OPCODES = new HashMap<>();
     public static final List<Opcode> SORTED_OPCODES = new ArrayList<>();
@@ -808,6 +848,7 @@ public class Opcodes {
         register(EVENT_TIMER);
         register(EVENT_SIGNAL);
         register(EVENT_CRAFT);
+        register(EVENT_CRAFTRESUME);
         register(DO_WIRE);
         register(EVAL_COUNTINV);
         register(EVAL_COUNTINVINT);
@@ -827,6 +868,7 @@ public class Opcodes {
         register(DO_PUSHITEMS);
         register(DO_FETCHSTOR);
         register(DO_PUSHSTOR);
+        register(DO_PUSHMULTI);
         register(DO_SETVAR);
         register(DO_ADD);
         register(DO_SUBTRACT);
@@ -839,8 +881,8 @@ public class Opcodes {
         register(DO_GETINGREDIENTS);
         register(DO_GETINGREDIENTS_STOR);
         register(DO_FETCH_CARD);
-        register(DO_PUSHMULTI);
         register(DO_SETCRAFTID);
+        register(DO_CRAFTWAIT);
     }
 
     private static void register(Opcode opcode) {

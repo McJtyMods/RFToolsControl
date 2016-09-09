@@ -46,6 +46,16 @@ public class CraftingCardItem extends GenericRFToolsItem {
         return new ActionResult<>(EnumActionResult.SUCCESS, stack);
     }
 
+    public static ItemStack getResult(ItemStack card) {
+        NBTTagCompound tagCompound = card.getTagCompound();
+        if (tagCompound == null) {
+            return null;
+        }
+        NBTTagList bufferTagList = tagCompound.getTagList("Items", Constants.NBT.TAG_COMPOUND);
+        NBTTagCompound nbtTagCompound = bufferTagList.getCompoundTagAt(CraftingCardContainer.SLOT_OUT);
+        return ItemStack.loadItemStackFromNBT(nbtTagCompound);
+    }
+
     public static List<ItemStack> getIngredients(ItemStack card) {
         NBTTagCompound tagCompound = card.getTagCompound();
         if (tagCompound == null) {
@@ -54,10 +64,12 @@ public class CraftingCardItem extends GenericRFToolsItem {
         NBTTagList bufferTagList = tagCompound.getTagList("Items", Constants.NBT.TAG_COMPOUND);
         List<ItemStack> stacks = new ArrayList<>();
         for (int i = 0 ; i < bufferTagList.tagCount() ; i++) {
-            NBTTagCompound nbtTagCompound = bufferTagList.getCompoundTagAt(i);
-            ItemStack s = ItemStack.loadItemStackFromNBT(nbtTagCompound);
-            if (s != null && s.stackSize > 0) {
-                stacks.add(s);
+            if (i < CraftingCardContainer.INPUT_SLOTS) {
+                NBTTagCompound nbtTagCompound = bufferTagList.getCompoundTagAt(i);
+                ItemStack s = ItemStack.loadItemStackFromNBT(nbtTagCompound);
+                if (s != null && s.stackSize > 0) {
+                    stacks.add(s);
+                }
             }
         }
         return stacks;

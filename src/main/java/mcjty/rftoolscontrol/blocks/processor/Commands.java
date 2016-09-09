@@ -1,12 +1,10 @@
 package mcjty.rftoolscontrol.blocks.processor;
 
 import mcjty.rftoolscontrol.logic.running.CpuCore;
+import net.minecraft.util.text.TextFormatting;
 import org.apache.commons.lang3.StringUtils;
 
 public class Commands {
-
-    public static void log(String message) {
-    }
 
     static void executeCommand(ProcessorTileEntity processor, String cmd) {
         processor.markDirty();
@@ -15,6 +13,7 @@ public class Commands {
             return;
         }
         cmd = splitted[0].toLowerCase();
+        System.out.println("cmd = " + cmd);
         if ("clear".equals(cmd)) {
             processor.clearLog();
         } else if ("stop".equals(cmd)) {
@@ -25,21 +24,18 @@ public class Commands {
                     core.stopProgram();
                 }
             }
-            log("Stopped " + n + " programs!");
+            processor.log("Stopped " + n + " programs!");
         } else if ("list".equals(cmd)) {
-            int n = 0;
-            for (CpuCore core : processor.getCpuCores()) {
-                if (core.hasProgram()) {
-                    log("Core: " + n + " -> <busy>");
-                } else {
-                    log("Core: " + n + " -> <idle>");
-                }
-                n++;
-            }
+            processor.listStatus();
         } else if ("net".equals(cmd)) {
             handleNetworkCommand(processor, splitted);
+        } else if ("reset".equals(cmd)) {
+            processor.log(TextFormatting.YELLOW + "Reset the processor!");
+            processor.reset();
+        } else if ("help".equals(cmd)) {
+            processor.log("Commands: clear/stop/list/net/help/reset");
         } else {
-            log("Unknown command!");
+            processor.log("Unknown command!");
         }
     }
 
@@ -47,7 +43,7 @@ public class Commands {
         System.out.println("splitted = " + splitted);
         if (processor.hasNetworkCard()) {
             if (splitted.length < 1) {
-                log("Use: net setup/net/list scan");
+                processor.log("Use: net setup/net/list scan");
             } else {
                 String sub = splitted[1].toLowerCase();
                 if ("setup".equals(sub)) {
@@ -59,7 +55,7 @@ public class Commands {
                         }
                         processor.setupNetwork(name.toString());
                     } else {
-                        log("Missing channel name!");
+                        processor.log("Missing channel name!");
                     }
                 } else if ("scan".equals(sub)) {
                     processor.scanNodes();
@@ -68,11 +64,11 @@ public class Commands {
                 } else if ("info".equals(sub)) {
                     processor.showNetworkInfo();
                 } else {
-                    log("Unknown 'net' command!");
+                    processor.log("Unknown 'net' command!");
                 }
             }
         } else {
-            log("No network card!");
+            processor.log("No network card!");
         }
     }
 }

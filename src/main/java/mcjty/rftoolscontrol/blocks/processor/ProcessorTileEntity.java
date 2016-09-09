@@ -41,6 +41,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.util.Constants;
@@ -97,6 +98,8 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     private CardInfo[] cardInfo = new CardInfo[CARD_SLOTS];
 
     private Queue<QueuedEvent> eventQueue = new ArrayDeque<>();        // Integer == card index
+
+    private List<WaitForItem> waitingForItems = new ArrayList<>();
 
     private Queue<String> logMessages = new ArrayDeque<>();
 
@@ -236,11 +239,11 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     }
 
     public void craftOk(RunningProgram program, Integer slot) {
-        String craftId = program.getCraftId();
-        if (craftId == null) {
+        if (!program.hasCraftId()) {
             exception("No crafting context!", program);
             return;
         }
+        String craftId = program.getCraftId();
 
         CardInfo info = this.cardInfo[program.getCardIndex()];
         Integer realSlot = null;
@@ -271,11 +274,11 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     }
 
     public void craftFail(RunningProgram program) {
-        String craftId = program.getCraftId();
-        if (craftId == null) {
+        if (!program.hasCraftId()) {
             exception("No crafting context!", program);
             return;
         }
+        String craftId = program.getCraftId();
 
         for (BlockPos p : craftingStations) {
             TileEntity te = worldObj.getTileEntity(p);
@@ -359,12 +362,80 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         return getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
     }
 
+    public void craftWait(RunningProgram program, Inventory inv, ItemStack stack) {
+        if (!program.hasCraftId()) {
+            exception("No craft context!", program);
+            return;
+        }
+        if (stack == null) {
+            stack = getCraftResult(program);
+            if (stack == null) {
+                exception("Missing craft result!", program);
+                return;
+            }
+        }
+        WaitForItem waitForItem = new WaitForItem(program.getCraftId(), stack, inv);
+        waitingForItems.add(waitForItem);
+        markDirty();
+    }
+
+    public void fetchCard(RunningProgram program, Inventory inv, int cardSlot) {
+        CardInfo info = this.cardInfo[program.getCardIndex()];
+        int realSlot = info.getRealSlot(cardSlot);
+        if (realSlot == -1) {
+            exception("No slot!", program);
+            return;
+        }
+
+        IItemHandler handler = getItemHandlerAt(inv, program);
+        if (handler == null) {
+            exception("No valid inventory!", program);
+            return;
+        }
+
+        ItemStack craftResult = getCraftResult(program);
+        if (craftResult == null) {
+            exception("No craft result!", program);
+            return;
+        }
+
+        IItemHandler itemHandler = getItemHandler();
+        ItemStack oldStack = itemHandler.getStackInSlot(realSlot);
+        if (oldStack != null && oldStack.getItem() == ModItems.craftingCardItem) {
+            ItemStack result = CraftingCardItem.getResult(oldStack);
+            if (craftResult.isItemEqual(result)) {
+                // Card is already ok
+                return;
+            }
+        }
+
+        for (int i = 0 ; i < handler.getSlots() ; i++) {
+            ItemStack stack = handler.getStackInSlot(i);
+            if (stack != null && stack.getItem() == ModItems.craftingCardItem) {
+                ItemStack result = CraftingCardItem.getResult(stack);
+                if (craftResult.isItemEqual(result)) {
+                    ItemStack craftingCard = handler.extractItem(i, 1, false);
+                    if (oldStack != null) {
+                        oldStack = itemHandler.extractItem(realSlot, oldStack.stackSize, false);
+                    }
+                    itemHandler.insertItem(realSlot, craftingCard, false);
+                    if (oldStack != null) {
+                        handler.insertItem(i, oldStack, false);
+                    }
+                    return;
+                }
+            }
+        }
+        exception("No crafting card found!", program);
+    }
+
     public void setCraftId(RunningProgram program, String craftId) {
         program.setCraftId(craftId);
     }
 
     public ItemStack getCraftResult(RunningProgram program) {
-        if (program.getCraftId() == null) {
+        if (!program.hasCraftId()) {
+            // @todo ? exception?
             return null;
         }
         for (BlockPos p : craftingStations) {
@@ -402,38 +473,80 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             CardInfo info = cardInfo[i];
             CompiledCard compiledCard = info.getCompiledCard();
             if (compiledCard != null) {
-                int redstoneOnMask = powerLevel & ~prevIn;
-                if (redstoneOnMask != 0) {
-                    for (CompiledEvent event : compiledCard.getEvents(Opcodes.EVENT_REDSTONE_ON)) {
-                        int index = event.getIndex();
-                        CompiledOpcode compiledOpcode = compiledCard.getOpcodes().get(index);
-                        BlockSide side = evaluateParameter(compiledOpcode, null, 0);
-                        EnumFacing facing = side == null ? null : side.getSide();
-                        if (facing == null || ((redstoneOnMask >> facing.ordinal()) & 1) == 1) {
-                            runOrQueueEvent(i, event, null);
-                        }
-                    }
-                }
-                int redstoneOffMask = prevIn & ~powerLevel;
-                if (redstoneOffMask != 0) {
-                    for (CompiledEvent event : compiledCard.getEvents(Opcodes.EVENT_REDSTONE_OFF)) {
-                        int index = event.getIndex();
-                        CompiledOpcode compiledOpcode = compiledCard.getOpcodes().get(index);
-                        BlockSide side = evaluateParameter(compiledOpcode, null, 0);
-                        EnumFacing facing = side == null ? null : side.getSide();
-                        if (facing == null || ((redstoneOffMask >> facing.ordinal()) & 1) == 1) {
-                            runOrQueueEvent(i, event, null);
-                        }
-                    }
-                }
+                handleEventsRedstoneOn(i, compiledCard);
+                handleEventsRedstoneOff(i, compiledCard);
+                handleEventsTimer(i, compiledCard);
+                handleEventsCraftResume(i, compiledCard);
+            }
+        }
+    }
 
-                for (CompiledEvent event : compiledCard.getEvents(Opcodes.EVENT_TIMER)) {
-                    int index = event.getIndex();
-                    CompiledOpcode compiledOpcode = compiledCard.getOpcodes().get(index);
-                    int ticks = evaluateParameter(compiledOpcode, null, 0);
-                    if (tickCount % ticks == 0) {
-                        runOrQueueEvent(i, event, null);
+    private void handleEventsCraftResume(int cardIndex, CompiledCard compiledCard) {
+        for (CompiledEvent event : compiledCard.getEvents(Opcodes.EVENT_CRAFTRESUME)) {
+            int index = event.getIndex();
+            CompiledOpcode compiledOpcode = compiledCard.getOpcodes().get(index);
+            int ticks = evaluateParameter(compiledOpcode, null, 0);
+            if (tickCount % ticks == 0) {
+                if (!waitingForItems.isEmpty()) {
+                    WaitForItem found = null;
+                    int foundIdx = -1;
+                    for (int i = 0 ; i < waitingForItems.size() ; i++) {
+                        WaitForItem wfi = waitingForItems.get(i);
+                        IItemHandler handler = getItemHandlerAt(wfi.getInventory(), null);
+                        if (handler != null) {
+                            int cnt = countItemInHandler(wfi.getItemStack(), handler);
+                            if (cnt >= wfi.getItemStack().stackSize) {
+                                foundIdx = i;
+                                found = wfi;
+                                break;
+                            }
+                        }
                     }
+                    if (found != null) {
+                        waitingForItems.remove(foundIdx);
+                        runOrQueueEvent(cardIndex, event, found.getCraftId());
+                    }
+                }
+            }
+        }
+    }
+
+    private void handleEventsTimer(int i, CompiledCard compiledCard) {
+        for (CompiledEvent event : compiledCard.getEvents(Opcodes.EVENT_TIMER)) {
+            int index = event.getIndex();
+            CompiledOpcode compiledOpcode = compiledCard.getOpcodes().get(index);
+            int ticks = evaluateParameter(compiledOpcode, null, 0);
+            if (tickCount % ticks == 0) {
+                runOrQueueEvent(i, event, null);
+            }
+        }
+    }
+
+    private void handleEventsRedstoneOff(int i, CompiledCard compiledCard) {
+        int redstoneOffMask = prevIn & ~powerLevel;
+        if (redstoneOffMask != 0) {
+            for (CompiledEvent event : compiledCard.getEvents(Opcodes.EVENT_REDSTONE_OFF)) {
+                int index = event.getIndex();
+                CompiledOpcode compiledOpcode = compiledCard.getOpcodes().get(index);
+                BlockSide side = evaluateParameter(compiledOpcode, null, 0);
+                EnumFacing facing = side == null ? null : side.getSide();
+                if (facing == null || ((redstoneOffMask >> facing.ordinal()) & 1) == 1) {
+                    runOrQueueEvent(i, event, null);
+                }
+            }
+        }
+    }
+
+    private void handleEventsRedstoneOn(int i, CompiledCard compiledCard) {
+        int redstoneOnMask = powerLevel & ~prevIn;
+        if (redstoneOnMask != 0) {
+            for (CompiledEvent event : compiledCard.getEvents(Opcodes.EVENT_REDSTONE_ON)) {
+                int index = event.getIndex();
+                CompiledOpcode compiledOpcode = compiledCard.getOpcodes().get(index);
+                BlockSide side = evaluateParameter(compiledOpcode, null, 0);
+                EnumFacing facing = side == null ? null : side.getSide();
+                if (facing == null || ((redstoneOnMask >> facing.ordinal()) & 1) == 1) {
+                    runOrQueueEvent(i, event, null);
                 }
             }
         }
@@ -468,6 +581,25 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             }
         }
     }
+    public void listStatus() {
+        int n = 0;
+        for (CpuCore core : getCpuCores()) {
+            if (core.hasProgram()) {
+                log("Core: " + n + " -> <busy>");
+            } else {
+                log("Core: " + n + " -> <idle>");
+            }
+            n++;
+        }
+        log("Event queue: " + eventQueue.size());
+        log("Waiting items: " + waitingForItems.size());
+    }
+
+    public void reset() {
+        waitingForItems.clear();
+        eventQueue.clear();
+        markDirty();
+    }
 
     public void clearLog() {
         logMessages.clear();
@@ -478,7 +610,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             CompiledOpcode opcode = program.getCurrentOpcode(this);
             int gridX = opcode.getGridX();
             int gridY = opcode.getGridY();
-            message = "[" + gridX + "," + gridY + "] " + message;
+            message = TextFormatting.RED + "[" + gridX + "," + gridY + "] " + message;
         }
         log(message);
     }
@@ -990,14 +1122,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                 ItemStack stackInSlot = handler.getStackInSlot(slot);
                 return stackInSlot == null ? 0 : stackInSlot.stackSize;
             } else if (itemMatcher != null) {
-                int cnt = 0;
-                for (int i = 0 ; i < handler.getSlots() ; i++) {
-                    ItemStack stack = handler.getStackInSlot(i);
-                    if (stack != null && ItemStack.areItemsEqual(stack, itemMatcher)) {
-                        cnt += stack.stackSize;
-                    }
-                }
-                return cnt;
+                return countItemInHandler(itemMatcher, handler);
             } else {
                 // Just count all items
                 int cnt = 0;
@@ -1013,6 +1138,17 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             // @todo error?
         }
         return 0;
+    }
+
+    private int countItemInHandler(ItemStack itemMatcher, IItemHandler handler) {
+        int cnt = 0;
+        for (int i = 0 ; i < handler.getSlots() ; i++) {
+            ItemStack stack = handler.getStackInSlot(i);
+            if (stack != null && ItemStack.areItemsEqual(stack, itemMatcher)) {
+                cnt += stack.stackSize;
+            }
+        }
+        return cnt;
     }
 
     public TileEntity getTileEntityAt(Inventory inv, RunningProgram program) {
@@ -1128,7 +1264,23 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         readVariables(tagCompound);
         readNetworkNodes(tagCompound);
         readCraftingStations(tagCompound);
+        readWaitingForItems(tagCompound);
     }
+
+
+    private void readWaitingForItems(NBTTagCompound tagCompound) {
+        waitingForItems.clear();
+        NBTTagList waitingList = tagCompound.getTagList("waiting", Constants.NBT.TAG_COMPOUND);
+        for (int i = 0 ; i < waitingList.tagCount() ; i++) {
+            NBTTagCompound tag = waitingList.getCompoundTagAt(i);
+            String craftId = tag.getString("craftId");
+            ItemStack stack = ItemStack.loadItemStackFromNBT(tag.getCompoundTag("item"));
+            Inventory inventory = Inventory.readFromNBT(tag.getCompoundTag("inv"));
+            WaitForItem waitForItem = new WaitForItem(craftId, stack, inventory);
+            waitingForItems.add(waitForItem);
+        }
+    }
+
 
     private void readCraftingStations(NBTTagCompound tagCompound) {
         craftingStations.clear();
@@ -1219,7 +1371,21 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         writeVariables(tagCompound);
         writeNetworkNodes(tagCompound);
         writeCraftingStations(tagCompound);
+        writeWaitingForItems(tagCompound);
     }
+
+    private void writeWaitingForItems(NBTTagCompound tagCompound) {
+        NBTTagList waitingList = new NBTTagList();
+        for (WaitForItem waitingForItem : waitingForItems) {
+            NBTTagCompound tag = new NBTTagCompound();
+            tag.setString("craftId", waitingForItem.getCraftId());
+            tag.setTag("item", waitingForItem.getItemStack().serializeNBT());
+            tag.setTag("inv", waitingForItem.getInventory().writeToNBT());
+            waitingList.appendTag(tag);
+        }
+        tagCompound.setTag("waiting", waitingList);
+    }
+
 
     private void writeCraftingStations(NBTTagCompound tagCompound) {
         NBTTagList stationList = new NBTTagList();
