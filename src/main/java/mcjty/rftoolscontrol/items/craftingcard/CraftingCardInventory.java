@@ -68,9 +68,6 @@ public class CraftingCardInventory implements IInventory {
         if (CraftingCardContainer.factory.isGhostSlot(index)) {
             if (stack != null) {
                 stacks[index] = stack.copy();
-                if (index < 9) {
-                    stacks[index].stackSize = 1;
-                }
             } else {
                 stacks[index] = null;
             }

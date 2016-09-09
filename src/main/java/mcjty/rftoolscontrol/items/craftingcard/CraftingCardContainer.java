@@ -1,9 +1,6 @@
 package mcjty.rftoolscontrol.items.craftingcard;
 
-import mcjty.lib.container.ContainerFactory;
-import mcjty.lib.container.GenericContainer;
-import mcjty.lib.container.SlotDefinition;
-import mcjty.lib.container.SlotType;
+import mcjty.lib.container.*;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
@@ -33,6 +30,37 @@ public class CraftingCardContainer extends GenericContainer {
         addInventory(ContainerFactory.CONTAINER_PLAYER, player.inventory);
         generateSlots();
     }
+
+	@Override
+	protected Slot createSlot(SlotFactory slotFactory, IInventory inventory, int index, int x, int y, SlotType slotType) {
+		if (slotType == SlotType.SLOT_GHOST) {
+			return new GhostSlot(inventory, index, x, y) {
+
+				@Override
+				public int getSlotStackLimit() {
+					return 0;
+				}
+
+				@Override
+				public int getItemStackLimit(ItemStack stack) {
+					return 0;
+				}
+
+				@Override
+				public void putStack(ItemStack stack) {
+					if (stack != null) {
+						if (stack.stackSize == 0) {
+							stack.stackSize = 1;
+						}
+					}
+					inventory.setInventorySlotContents(getSlotIndex(), stack);
+					onSlotChanged();
+				}
+			};
+		} else {
+			return super.createSlot(slotFactory, inventory, index, x, y, slotType);
+		}
+	}
 
 	public void setGridContents(List<ItemStack> stacks) {
 		int x = 0;
