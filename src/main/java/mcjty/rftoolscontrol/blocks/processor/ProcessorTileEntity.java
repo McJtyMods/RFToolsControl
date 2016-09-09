@@ -1353,7 +1353,6 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         ItemStack cardStack = inventoryHelper.getStackInSlot(index + ProcessorContainer.SLOT_CARD);
         if (card == null && cardStack != null) {
             card = CompiledCard.compile(ProgramCardInstance.parseInstance(cardStack));
-            System.out.println("compiled2 = " + card);
             cardInfo[index].setCompiledCard(card);
         }
         return card;

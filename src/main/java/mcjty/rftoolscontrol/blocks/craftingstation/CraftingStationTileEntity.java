@@ -98,7 +98,7 @@ public class CraftingStationTileEntity extends GenericTileEntity implements Defa
                 return ItemHandlerHelper.insertItem(getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null), stack, false);
             }
         }
-        return null;
+        return stack;
     }
 
     public void craftFail(String craftId) {

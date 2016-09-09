@@ -52,7 +52,8 @@ public abstract class AbstractParameterEditor implements ParameterEditor {
         } else if (PAGE_FUNCTION.equals(tabbedPanel.getCurrentName())) {
             List<Parameter> parameters = new ArrayList<>();
             // @todo fill the list of parameters from the gui
-            return ParameterValue.function(Functions.FUNCTIONS.get(functionLabel.getCurrentChoice()), parameters);
+            String currentChoice = functionLabel.getCurrentChoice();
+            return ParameterValue.function(Functions.FUNCTIONS.get(currentChoice), parameters);
         }
         return null;
     }
@@ -67,7 +68,8 @@ public abstract class AbstractParameterEditor implements ParameterEditor {
             variableIndex.setText(Integer.toString(value.getVariableIndex()));
         } else if (value.isFunction()) {
             switchPage(PAGE_FUNCTION, null);
-            functionLabel.setChoice(value.getFunction().getId());
+            String id = value.getFunction().getId();
+            functionLabel.setChoice(id);
         }
     }
 
@@ -86,6 +88,7 @@ public abstract class AbstractParameterEditor implements ParameterEditor {
             functionLabel.addChoices(function.getId());
         }
         functionPanel.addChild(functionLabel);
+        functionLabel.addChoiceEvent(((parent, newChoice) -> callback.valueChanged(readValue())));
 
         tabbedPanel = new TabbedPanel(mc, gui)
                 .addPage(PAGE_CONSTANT, constantPanel)
