@@ -11,6 +11,7 @@ public class Opcode {
     private final OpcodeOutput opcodeOutput;
     private final boolean isEvent;
     private final List<ParameterDescription> parameters;
+    private final String outputDescription;
     private final OpcodeRunnable runnable;
     private final List<String> description;
 
@@ -26,6 +27,7 @@ public class Opcode {
         this.iconV = builder.iconV;
         this.runnable = builder.runnable;
         this.description = new ArrayList<>(builder.description);
+        this.outputDescription = builder.outputDescription;
     }
 
     public String getId() {
@@ -53,21 +55,16 @@ public class Opcode {
         return description;
     }
 
+    public String getOutputDescription() {
+        return outputDescription;
+    }
+
     public int getIconU() {
         return iconU;
     }
 
     public int getIconV() {
         return iconV;
-    }
-
-    public ParameterDescription findParameter(String name) {
-        for (ParameterDescription description : parameters) {
-            if (name.equals(description.getName())) {
-                return description;
-            }
-        }
-        return null;
     }
 
     public static Builder builder() {
@@ -108,6 +105,7 @@ public class Opcode {
         private List<ParameterDescription> parameters = new ArrayList<>();
         private OpcodeRunnable runnable = NOOP;
         private List<String> description = Collections.emptyList();
+        private String outputDescription = "No result";
 
         public Builder id(String id) {
             this.id = id;
@@ -117,6 +115,11 @@ public class Opcode {
         public Builder description(String... description) {
             this.description = new ArrayList<>();
             Collections.addAll(this.description, description);
+            return this;
+        }
+
+        public Builder outputDescription(String outputDescription) {
+            this.outputDescription = outputDescription;
             return this;
         }
 

@@ -29,6 +29,7 @@ import mcjty.rftoolscontrol.logic.registry.*;
 import mcjty.rftoolscontrol.network.RFToolsCtrlMessages;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.TextFormatting;
 import org.apache.commons.lang3.StringUtils;
 import org.lwjgl.input.Keyboard;
 
@@ -527,10 +528,23 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
         if (icon != null) {
             Opcode opcode = Opcodes.OPCODES.get(icon.getID());
             List<String> description = opcode.getDescription();
+            List<String> tooltips = new ArrayList<>();
             if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT)) {
-                return description;
+                tooltips.addAll(description);
+                for (ParameterDescription parameter : opcode.getParameters()) {
+                    boolean first = true;
+                    for (String s : parameter.getDescription()) {
+                        if (first) {
+                            tooltips.add(TextFormatting.BLUE + "Par '" + parameter.getName() + "': " + s);
+                            first = false;
+                        } else {
+                            tooltips.add(TextFormatting.BLUE + "      " + s);
+                        }
+                    }
+                }
+                tooltips.add(TextFormatting.YELLOW + "Result: " + opcode.getOutputDescription());
+                return tooltips;
             } else {
-                List<String> tooltips = new ArrayList<>();
                 tooltips.add(description.get(0));
                 tooltips.add("<Shift for more info>");
                 return tooltips;

@@ -21,13 +21,10 @@ public class Opcodes {
                     TextFormatting.GREEN + "Operation: set redstone",
                     "set redstone level at a specific",
                     "side on the processor or a node",
-                    "in the network",
-                    TextFormatting.BLUE + "Par 'side': node + side",
-                    TextFormatting.BLUE + "Par 'level': amount of redstone to set",
-                    TextFormatting.YELLOW + "No result")
+                    "in the network")
             .opcodeOutput(SINGLE)
-            .parameter(ParameterDescription.builder().name("side").type(PAR_SIDE).build())
-            .parameter(ParameterDescription.builder().name("level").type(PAR_INTEGER).build())
+            .parameter(ParameterDescription.builder().name("side").type(PAR_SIDE).description("side of (networked) block").build())
+            .parameter(ParameterDescription.builder().name("level").type(PAR_INTEGER).description("redstone level").build())
             .runnable(((processor, program, opcode) -> {
                 BlockSide side = processor.evaluateParameter(opcode, program, 0);
                 int level = processor.evaluateIntParameter(opcode, program, 1);
@@ -43,12 +40,10 @@ public class Opcodes {
                     "execute program when redstone",
                     "signal at a specific side (or in",
                     "general) goes on",
-                    "Note: not yet supported on nodes",
-                    TextFormatting.BLUE + "Par 'side': node + side",
-                    TextFormatting.YELLOW + "No result")
+                    "Note: not yet supported on nodes")
             .opcodeOutput(SINGLE)
             .isEvent(true)
-            .parameter(ParameterDescription.builder().name("side").type(PAR_SIDE).build())
+            .parameter(ParameterDescription.builder().name("side").type(PAR_SIDE).description("side of (networked) block").build())
             .icon(3, 0)
             .build();
     public static final Opcode EVENT_REDSTONE_OFF = Opcode.builder()
@@ -58,12 +53,10 @@ public class Opcodes {
                     "execute program when redstone",
                     "signal at a specific side (or in",
                     "general) goes off",
-                    "Note: not yet supported on nodes",
-                    TextFormatting.BLUE + "Par 'side': node + side",
-                    TextFormatting.YELLOW + "No result")
+                    "Note: not yet supported on nodes")
             .opcodeOutput(SINGLE)
             .isEvent(true)
-            .parameter(ParameterDescription.builder().name("side").type(PAR_SIDE).build())
+            .parameter(ParameterDescription.builder().name("side").type(PAR_SIDE).description("side of (networked) block").build())
             .icon(4, 0)
             .build();
 
@@ -72,12 +65,10 @@ public class Opcodes {
             .description(
                     TextFormatting.GREEN + "Event: signal",
                     "execute program when a signal",
-                    "is received from an rftools screen",
-                    TextFormatting.BLUE + "Par 'signal': match this signal",
-                    TextFormatting.YELLOW + "No result")
+                    "is received from an rftools screen")
             .opcodeOutput(SINGLE)
             .isEvent(true)
-            .parameter(ParameterDescription.builder().name("signal").type(PAR_STRING).build())
+            .parameter(ParameterDescription.builder().name("signal").type(PAR_STRING).description("matching signal").build())
             .icon(5, 0)
             .build();
 
@@ -85,11 +76,9 @@ public class Opcodes {
             .id("do_delay")
             .description(
                     TextFormatting.GREEN + "Operation: wait",
-                    "wait a specific number of ticks",
-                    TextFormatting.BLUE + "Par 'ticks': amount of ticks to wait",
-                    TextFormatting.YELLOW + "No result")
+                    "wait a specific number of ticks")
             .opcodeOutput(SINGLE)
-            .parameter(ParameterDescription.builder().name("ticks").type(PAR_INTEGER).build())
+            .parameter(ParameterDescription.builder().name("ticks").type(PAR_INTEGER).description("amount of ticks to wait").build())
             .icon(6, 0)
             .runnable(((processor, program, opcode) -> {
                 int ticks = processor.evaluateIntParameter(opcode, program, 0);
@@ -105,15 +94,12 @@ public class Opcodes {
                     "count the amount of items in a",
                     "specific slot or of a certain type",
                     "in an external inventory adjacent to",
-                    "the processor or a connected node",
-                    TextFormatting.BLUE + "Par 'inv': an adjacent inventory",
-                    TextFormatting.BLUE + "Par 'slot': an optional slot",
-                    TextFormatting.BLUE + "Par 'item': an optional item",
-                    TextFormatting.YELLOW + "Result: amount of items (integer)")
+                    "the processor or a connected node")
+            .outputDescription("amount of items (integer)")
             .opcodeOutput(SINGLE)
-            .parameter(ParameterDescription.builder().name("inv").type(PAR_INVENTORY).build())
-            .parameter(ParameterDescription.builder().name("slot").type(PAR_INTEGER).build())
-            .parameter(ParameterDescription.builder().name("item").type(PAR_ITEM).build())
+            .parameter(ParameterDescription.builder().name("inv").type(PAR_INVENTORY).description("inventory adjacent to (networked) block").build())
+            .parameter(ParameterDescription.builder().name("slot").type(PAR_INTEGER).description("optional slot in inventory").build())
+            .parameter(ParameterDescription.builder().name("item").type(PAR_ITEM).description("optional item to count").build())
             .icon(2, 0)
             .runnable(((processor, program, opcode) -> {
                 Inventory inv = processor.evaluateParameter(opcode, program, 0);
@@ -131,13 +117,11 @@ public class Opcodes {
                     TextFormatting.GREEN + "Eval: examine item",
                     "examine an item in a specific slot",
                     "from an external inventory adjacent to",
-                    "the processor or a connected node",
-                    TextFormatting.BLUE + "Par 'inv': an adjacent inventory",
-                    TextFormatting.BLUE + "Par 'slot': an optional slot",
-                    TextFormatting.YELLOW + "Result: the item (stack)")
+                    "the processor or a connected node")
+            .outputDescription("itemstack in target slot (stack)")
             .opcodeOutput(SINGLE)
-            .parameter(ParameterDescription.builder().name("inv").type(PAR_INVENTORY).build())
-            .parameter(ParameterDescription.builder().name("slot").type(PAR_INTEGER).build())
+            .parameter(ParameterDescription.builder().name("inv").type(PAR_INVENTORY).description("inventory adjacent to (networked) block").build())
+            .parameter(ParameterDescription.builder().name("slot").type(PAR_INTEGER).description("optional slot in inventory").build())
             .icon(10, 1)
             .runnable(((processor, program, opcode) -> {
                 Inventory inv = processor.evaluateParameter(opcode, program, 0);
@@ -157,11 +141,10 @@ public class Opcodes {
                     TextFormatting.GREEN + "Eval: read redstone",
                     "read the redstone value coming",
                     "to a specific side of the processor",
-                    "or a connected node",
-                    TextFormatting.BLUE + "Par 'side': a specific side",
-                    TextFormatting.YELLOW + "Result: redstone value (integer)")
+                    "or a connected node")
+            .outputDescription("read redstone value (integer)")
             .opcodeOutput(SINGLE)
-            .parameter(ParameterDescription.builder().name("side").type(PAR_SIDE).build())
+            .parameter(ParameterDescription.builder().name("side").type(PAR_SIDE).description("side of (networked) block").build())
             .icon(1, 0)
             .runnable(((processor, program, opcode) -> {
                 BlockSide side = processor.evaluateParameter(opcode, program, 0);
@@ -177,9 +160,7 @@ public class Opcodes {
                     TextFormatting.GREEN + "Operation: stop program",
                     "stop executing at this point",
                     "you normally don't have to use",
-                    "this manually",
-                    TextFormatting.BLUE + "No parameters",
-                    TextFormatting.YELLOW + "No result")
+                    "this manually")
             .opcodeOutput(NONE)
             .icon(7, 0)
             .runnable((processor, program, opcode) -> {
@@ -193,11 +174,9 @@ public class Opcodes {
             .description(
                     TextFormatting.GREEN + "Operation: log message",
                     "log a message on the processor",
-                    "console",
-                    TextFormatting.BLUE + "Par 'message': the message",
-                    TextFormatting.YELLOW + "No result")
+                    "console")
             .opcodeOutput(SINGLE)
-            .parameter(ParameterDescription.builder().name("message").type(PAR_STRING).build())
+            .parameter(ParameterDescription.builder().name("message").type(PAR_STRING).description("message to output").build())
             .icon(8, 0)
             .runnable(((processor, program, opcode) -> {
                 String message = processor.evaluateStringParameter(opcode, program, 0);
@@ -210,12 +189,10 @@ public class Opcodes {
             .id("ev_timer")
             .description(
                     TextFormatting.GREEN + "Event: repeat",
-                    "execute program every <N> ticks",
-                    TextFormatting.BLUE + "Par 'ticks': ticks to wait",
-                    TextFormatting.YELLOW + "No result")
+                    "execute program every <N> ticks")
             .opcodeOutput(SINGLE)
             .isEvent(true)
-            .parameter(ParameterDescription.builder().name("ticks").type(PAR_INTEGER).build())
+            .parameter(ParameterDescription.builder().name("ticks").type(PAR_INTEGER).description("ticks between each execution").build())
             .icon(9, 0)
             .build();
 
@@ -224,13 +201,11 @@ public class Opcodes {
             .description(
                     TextFormatting.GREEN + "Test: greater than",
                     "check if the first value is greater",
-                    "then the second value",
-                    TextFormatting.BLUE + "Par 'v1': first value",
-                    TextFormatting.BLUE + "Par 'v2': second value",
-                    TextFormatting.YELLOW + "Result: v1 > v2 (boolean)")
+                    "then the second value")
+            .outputDescription("v1 > v2 (boolean)")
             .opcodeOutput(YESNO)
-            .parameter(ParameterDescription.builder().name("v1").type(PAR_INTEGER).build())
-            .parameter(ParameterDescription.builder().name("v2").type(PAR_INTEGER).build())
+            .parameter(ParameterDescription.builder().name("v1").type(PAR_INTEGER).description("first value").build())
+            .parameter(ParameterDescription.builder().name("v2").type(PAR_INTEGER).description("second value").build())
             .icon(10, 0)
             .runnable(((processor, program, opcode) -> {
                 int v1 = processor.evaluateIntParameter(opcode, program, 0);
@@ -244,13 +219,11 @@ public class Opcodes {
             .description(
                     TextFormatting.GREEN + "Test: equality",
                     "check if the first value is equal",
-                    "to the second value",
-                    TextFormatting.BLUE + "Par 'v1': first value",
-                    TextFormatting.BLUE + "Par 'v2': second value",
-                    TextFormatting.YELLOW + "Result: v1 = v2 (boolean)")
+                    "to the second value")
+            .outputDescription("v1 = v2 (boolean)")
             .opcodeOutput(YESNO)
-            .parameter(ParameterDescription.builder().name("v1").type(PAR_INTEGER).build())
-            .parameter(ParameterDescription.builder().name("v2").type(PAR_INTEGER).build())
+            .parameter(ParameterDescription.builder().name("v1").type(PAR_INTEGER).description("first value").build())
+            .parameter(ParameterDescription.builder().name("v2").type(PAR_INTEGER).description("second value").build())
             .icon(11, 0)
             .runnable(((processor, program, opcode) -> {
                 int v1 = processor.evaluateIntParameter(opcode, program, 0);
@@ -266,19 +239,13 @@ public class Opcodes {
                     "fetch items from an external",
                     "inventory adjacent to the processor",
                     "or a connected node and place the",
-                    "result in the internal inventory",
-                    TextFormatting.BLUE + "Par 'inv': an adjacent inventory",
-                    TextFormatting.BLUE + "Par 'slot': an optional slot",
-                    TextFormatting.BLUE + "Par 'item': an optional item",
-                    TextFormatting.BLUE + "Par 'amount': number of items",
-                    TextFormatting.BLUE + "Par 'slotOut': slot in processor",
-                    TextFormatting.YELLOW + "No result")
+                    "result in the internal inventory")
             .opcodeOutput(SINGLE)
-            .parameter(ParameterDescription.builder().name("inv").type(PAR_INVENTORY).build())
-            .parameter(ParameterDescription.builder().name("slot").type(PAR_INTEGER).build())
-            .parameter(ParameterDescription.builder().name("item").type(PAR_ITEM).build())
-            .parameter(ParameterDescription.builder().name("amount").type(PAR_INTEGER).build())
-            .parameter(ParameterDescription.builder().name("slotOut").type(PAR_INTEGER).build())
+            .parameter(ParameterDescription.builder().name("inv").type(PAR_INVENTORY).description("inventory adjacent to (networked) block").build())
+            .parameter(ParameterDescription.builder().name("slot").type(PAR_INTEGER).description("optional slot in inventory").build())
+            .parameter(ParameterDescription.builder().name("item").type(PAR_ITEM).description("optional item to fetch").build())
+            .parameter(ParameterDescription.builder().name("amount").type(PAR_INTEGER).description("amount of items to fetch").build())
+            .parameter(ParameterDescription.builder().name("slotOut").type(PAR_INTEGER).description("internal (processor) slot for result").build())
             .icon(0, 1)
             .runnable(((processor, program, opcode) -> {
                 Inventory inv = processor.evaluateParameter(opcode, program, 0);
@@ -298,17 +265,12 @@ public class Opcodes {
                     "push items to an external",
                     "inventory adjacent to the processor",
                     "or a connected node from the",
-                    "internal inventory",
-                    TextFormatting.BLUE + "Par 'inv': an adjacent inventory",
-                    TextFormatting.BLUE + "Par 'slot': an optional slot",
-                    TextFormatting.BLUE + "Par 'amount': number of items",
-                    TextFormatting.BLUE + "Par 'slotIn': slot in processor",
-                    TextFormatting.YELLOW + "No result")
+                    "internal inventory")
             .opcodeOutput(SINGLE)
-            .parameter(ParameterDescription.builder().name("inv").type(PAR_INVENTORY).build())
-            .parameter(ParameterDescription.builder().name("slot").type(PAR_INTEGER).build())
-            .parameter(ParameterDescription.builder().name("amount").type(PAR_INTEGER).build())
-            .parameter(ParameterDescription.builder().name("slotIn").type(PAR_INTEGER).build())
+            .parameter(ParameterDescription.builder().name("inv").type(PAR_INVENTORY).description("inventory adjacent to (networked) block").build())
+            .parameter(ParameterDescription.builder().name("slot").type(PAR_INTEGER).description("optional slot in inventory").build())
+            .parameter(ParameterDescription.builder().name("amount").type(PAR_INTEGER).description("amount of items to push").build())
+            .parameter(ParameterDescription.builder().name("slotIn").type(PAR_INTEGER).description("internal (processor) slot for input").build())
             .icon(1, 1)
             .runnable(((processor, program, opcode) -> {
                 Inventory inv = processor.evaluateParameter(opcode, program, 0);
@@ -325,11 +287,10 @@ public class Opcodes {
             .description(
                     TextFormatting.GREEN + "Eval: count items internal",
                     "count the amount of items in a",
-                    "specific slot in the processor inventory",
-                    TextFormatting.BLUE + "Par 'slot': internal slot",
-                    TextFormatting.YELLOW + "Result: amount of items (integer)")
+                    "specific slot in the processor inventory")
+            .outputDescription("amount of items (integer)")
             .opcodeOutput(SINGLE)
-            .parameter(ParameterDescription.builder().name("slot").type(PAR_INTEGER).build())
+            .parameter(ParameterDescription.builder().name("slot").type(PAR_INTEGER).description("internal (processor) slot").build())
             .icon(2, 1)
             .runnable(((processor, program, opcode) -> {
                 int slot = processor.evaluateIntParameter(opcode, program, 0);
@@ -344,11 +305,9 @@ public class Opcodes {
             .description(
                     TextFormatting.GREEN + "Operation: set variable",
                     "copy the last returned value to",
-                    "the specified variable",
-                    TextFormatting.BLUE + "Par 'var': variable index",
-                    TextFormatting.YELLOW + "No result")
+                    "the specified variable")
             .opcodeOutput(SINGLE)
-            .parameter(ParameterDescription.builder().name("var").type(PAR_INTEGER).build())
+            .parameter(ParameterDescription.builder().name("var").type(PAR_INTEGER).description("index of the variable").build())
             .icon(3, 1)
             .runnable(((processor, program, opcode) -> {
                 int var = processor.evaluateIntParameter(opcode, program, 0);
@@ -361,13 +320,11 @@ public class Opcodes {
             .id("do_add")
             .description(
                     TextFormatting.GREEN + "Operation: add integers",
-                    "add the two given integers",
-                    TextFormatting.BLUE + "Par 'v1': first value",
-                    TextFormatting.BLUE + "Par 'v2': second value",
-                    TextFormatting.YELLOW + "Result: v1 + v2 (integer)")
+                    "add the two given integers")
+            .outputDescription("v1 + v2 (integer)")
             .opcodeOutput(SINGLE)
-            .parameter(ParameterDescription.builder().name("v1").type(PAR_INTEGER).build())
-            .parameter(ParameterDescription.builder().name("v2").type(PAR_INTEGER).build())
+            .parameter(ParameterDescription.builder().name("v1").type(PAR_INTEGER).description("first value").build())
+            .parameter(ParameterDescription.builder().name("v2").type(PAR_INTEGER).description("second value").build())
             .icon(4, 1)
             .runnable(((processor, program, opcode) -> {
                 int v1 = processor.evaluateIntParameter(opcode, program, 0);
@@ -381,13 +338,11 @@ public class Opcodes {
             .id("do_subtract")
             .description(
                     TextFormatting.GREEN + "Operation: subtract integers",
-                    "subtract the two given integers",
-                    TextFormatting.BLUE + "Par 'v1': first value",
-                    TextFormatting.BLUE + "Par 'v2': second value",
-                    TextFormatting.YELLOW + "Result: v1 - v2 (integer)")
+                    "subtract the two given integers")
+            .outputDescription("v1 - v2 (integer)")
             .opcodeOutput(SINGLE)
-            .parameter(ParameterDescription.builder().name("v1").type(PAR_INTEGER).build())
-            .parameter(ParameterDescription.builder().name("v2").type(PAR_INTEGER).build())
+            .parameter(ParameterDescription.builder().name("v1").type(PAR_INTEGER).description("first value").build())
+            .parameter(ParameterDescription.builder().name("v2").type(PAR_INTEGER).description("second value").build())
             .icon(5, 1)
             .runnable(((processor, program, opcode) -> {
                 int v1 = processor.evaluateIntParameter(opcode, program, 0);
@@ -401,13 +356,11 @@ public class Opcodes {
             .id("do_divide")
             .description(
                     TextFormatting.GREEN + "Operation: divide integers",
-                    "divide the two given integers",
-                    TextFormatting.BLUE + "Par 'v1': first value",
-                    TextFormatting.BLUE + "Par 'v2': second value",
-                    TextFormatting.YELLOW + "Result: v1 / v2 (integer)")
+                    "divide the two given integers")
+            .outputDescription("v1 / v2 (integer)")
             .opcodeOutput(SINGLE)
-            .parameter(ParameterDescription.builder().name("v1").type(PAR_INTEGER).build())
-            .parameter(ParameterDescription.builder().name("v2").type(PAR_INTEGER).build())
+            .parameter(ParameterDescription.builder().name("v1").type(PAR_INTEGER).description("first value").build())
+            .parameter(ParameterDescription.builder().name("v2").type(PAR_INTEGER).description("second value").build())
             .icon(6, 1)
             .runnable(((processor, program, opcode) -> {
                 int v1 = processor.evaluateIntParameter(opcode, program, 0);
@@ -421,13 +374,11 @@ public class Opcodes {
             .id("do_multiply")
             .description(
                     TextFormatting.GREEN + "Operation: multiply integers",
-                    "multiply the two given integers",
-                    TextFormatting.BLUE + "Par 'v1': first value",
-                    TextFormatting.BLUE + "Par 'v2': second value",
-                    TextFormatting.YELLOW + "Result: v1 * v2 (integer)")
+                    "multiply the two given integers")
+            .outputDescription("v1 * v2 (integer)")
             .opcodeOutput(SINGLE)
-            .parameter(ParameterDescription.builder().name("v1").type(PAR_INTEGER).build())
-            .parameter(ParameterDescription.builder().name("v2").type(PAR_INTEGER).build())
+            .parameter(ParameterDescription.builder().name("v1").type(PAR_INTEGER).description("first value").build())
+            .parameter(ParameterDescription.builder().name("v2").type(PAR_INTEGER).description("second value").build())
             .icon(7, 1)
             .runnable(((processor, program, opcode) -> {
                 int v1 = processor.evaluateIntParameter(opcode, program, 0);
@@ -442,13 +393,11 @@ public class Opcodes {
             .description(
                     TextFormatting.GREEN + "Operation: modulo",
                     "calculate the modulo of two",
-                    "given integers",
-                    TextFormatting.BLUE + "Par 'v1': first value",
-                    TextFormatting.BLUE + "Par 'v2': second value",
-                    TextFormatting.YELLOW + "Result: v1 % v2 (integer)")
+                    "given integers")
+            .outputDescription("v1 % v2 (integer)")
             .opcodeOutput(SINGLE)
-            .parameter(ParameterDescription.builder().name("v1").type(PAR_INTEGER).build())
-            .parameter(ParameterDescription.builder().name("v2").type(PAR_INTEGER).build())
+            .parameter(ParameterDescription.builder().name("v1").type(PAR_INTEGER).description("first value").build())
+            .parameter(ParameterDescription.builder().name("v2").type(PAR_INTEGER).description("second value").build())
             .icon(8, 1)
             .runnable(((processor, program, opcode) -> {
                 int v1 = processor.evaluateIntParameter(opcode, program, 0);
@@ -462,13 +411,11 @@ public class Opcodes {
             .id("do_concat")
             .description(
                     TextFormatting.GREEN + "Operation: string concat",
-                    "concatenate the two given strings",
-                    TextFormatting.BLUE + "Par 'v1': first value",
-                    TextFormatting.BLUE + "Par 'v2': second value",
-                    TextFormatting.YELLOW + "Result: v1 + v2 (string)")
+                    "concatenate the two given strings")
+            .outputDescription("v1 + v2 (string)")
             .opcodeOutput(SINGLE)
-            .parameter(ParameterDescription.builder().name("v1").type(PAR_STRING).build())
-            .parameter(ParameterDescription.builder().name("v2").type(PAR_STRING).build())
+            .parameter(ParameterDescription.builder().name("v1").type(PAR_INTEGER).description("first value").build())
+            .parameter(ParameterDescription.builder().name("v2").type(PAR_INTEGER).description("second value").build())
             .icon(9, 1)
             .runnable(((processor, program, opcode) -> {
                 String v1 = processor.evaluateStringParameter(opcode, program, 0);
@@ -485,15 +432,12 @@ public class Opcodes {
                     "count the amount of items in a",
                     "stroage system (scanner) of a",
                     "certain type",
-                    TextFormatting.BLUE + "Par 'item': the item to count",
-                    TextFormatting.BLUE + "Par 'oredict': use oredict matching",
-                    TextFormatting.BLUE + "Par 'routable': only routable",
-                    TextFormatting.YELLOW + "Result: amount of items (integer)",
                     TextFormatting.RED + "Needs storage scanner module")
+            .outputDescription("amount of items (integer)")
             .opcodeOutput(SINGLE)
-            .parameter(ParameterDescription.builder().name("item").type(PAR_ITEM).build())
-            .parameter(ParameterDescription.builder().name("oredict").type(PAR_BOOLEAN).build())
-            .parameter(ParameterDescription.builder().name("routable").type(PAR_BOOLEAN).build())
+            .parameter(ParameterDescription.builder().name("item").type(PAR_ITEM).description("the item to count").build())
+            .parameter(ParameterDescription.builder().name("oredict").type(PAR_BOOLEAN).description("use oredict matching").build())
+            .parameter(ParameterDescription.builder().name("routable").type(PAR_BOOLEAN).description("count routable items").build())
             .icon(0, 2)
             .runnable(((processor, program, opcode) -> {
                 ItemStack item = processor.evaluateParameter(opcode, program, 0);
@@ -512,19 +456,14 @@ public class Opcodes {
                     "fetch items from a storage system",
                     "(scanner) and place the result",
                     "in the internal inventory",
-                    TextFormatting.BLUE + "Par 'item': the item to fetch",
-                    TextFormatting.BLUE + "Par 'oredict': use oredict matching",
-                    TextFormatting.BLUE + "Par 'routable': only routable",
-                    TextFormatting.BLUE + "Par 'amount': number of items",
-                    TextFormatting.BLUE + "Par 'slotOut': slot in processor",
-                    TextFormatting.YELLOW + "Result: amount of items fetched (integer)",
                     TextFormatting.RED + "Needs storage scanner module")
+            .outputDescription("amount of items fetched (integer)")
             .opcodeOutput(SINGLE)
-            .parameter(ParameterDescription.builder().name("item").type(PAR_ITEM).build())
-            .parameter(ParameterDescription.builder().name("oredict").type(PAR_BOOLEAN).build())
-            .parameter(ParameterDescription.builder().name("routable").type(PAR_BOOLEAN).build())
-            .parameter(ParameterDescription.builder().name("amount").type(PAR_INTEGER).build())
-            .parameter(ParameterDescription.builder().name("slotOut").type(PAR_INTEGER).build())
+            .parameter(ParameterDescription.builder().name("item").type(PAR_ITEM).description("the item to count").build())
+            .parameter(ParameterDescription.builder().name("oredict").type(PAR_BOOLEAN).description("use oredict matching").build())
+            .parameter(ParameterDescription.builder().name("routable").type(PAR_BOOLEAN).description("count routable items").build())
+            .parameter(ParameterDescription.builder().name("amount").type(PAR_INTEGER).description("amount of items to fetch").build())
+            .parameter(ParameterDescription.builder().name("slotOut").type(PAR_INTEGER).description("internal (processor) slot for result").build())
             .icon(1, 2)
             .runnable(((processor, program, opcode) -> {
                 ItemStack item = processor.evaluateParameter(opcode, program, 0);
@@ -544,17 +483,15 @@ public class Opcodes {
                     TextFormatting.GREEN + "Operation: push to storage",
                     "push items to a storage system",
                     "(scanner) from the internal inventory",
-                    TextFormatting.BLUE + "Par 'amount': number of items",
-                    TextFormatting.BLUE + "Par 'slotIn': slot in processor",
-                    TextFormatting.YELLOW + "Result: amount of items inserted (integer)",
                     TextFormatting.RED + "Needs storage scanner module")
+            .outputDescription("amount of items inserted (integer)")
             .opcodeOutput(SINGLE)
-            .parameter(ParameterDescription.builder().name("amount").type(PAR_INTEGER).build())
-            .parameter(ParameterDescription.builder().name("slotIn").type(PAR_INTEGER).build())
+            .parameter(ParameterDescription.builder().name("amount").type(PAR_INTEGER).description("amount of items to push").build())
+            .parameter(ParameterDescription.builder().name("slotIn").type(PAR_INTEGER).description("internal (processor) slot for input").build())
             .icon(2, 2)
             .runnable(((processor, program, opcode) -> {
-                int amount = processor.evaluateIntParameter(opcode, program, 2);
-                int slotIn = processor.evaluateIntParameter(opcode, program, 3);
+                int amount = processor.evaluateIntParameter(opcode, program, 0);
+                int slotIn = processor.evaluateIntParameter(opcode, program, 1);
                 int cnt = processor.pushItemsStorage(program, amount, slotIn);
                 program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(cnt)).build());
                 return true;
@@ -567,11 +504,10 @@ public class Opcodes {
                     TextFormatting.GREEN + "Eval: get RF in machine",
                     "get the amount of RF stored in a",
                     "specific machine adjacent to the",
-                    "processor or a connected node",
-                    TextFormatting.BLUE + "Par 'side': an adjacent block",
-                    TextFormatting.YELLOW + "Result: amount of RF (integer)")
+                    "processor or a connected node")
+            .outputDescription("amount of RF (integer)")
             .opcodeOutput(SINGLE)
-            .parameter(ParameterDescription.builder().name("side").type(PAR_INVENTORY).build())
+            .parameter(ParameterDescription.builder().name("side").type(PAR_INVENTORY).description("side of (networked) block").build())
             .icon(3, 2)
             .runnable(((processor, program, opcode) -> {
                 Inventory side = processor.evaluateParameter(opcode, program, 0);
@@ -586,11 +522,10 @@ public class Opcodes {
                     TextFormatting.GREEN + "Eval: get max RF in machine",
                     "get the maximum amount of RF stored",
                     "in a specific machine adjacent to the",
-                    "processor or a connected node",
-                    TextFormatting.BLUE + "Par 'side': an adjacent block",
-                    TextFormatting.YELLOW + "Result: max amount of RF (integer)")
+                    "processor or a connected node")
+            .outputDescription("max amount of RF (integer)")
             .opcodeOutput(SINGLE)
-            .parameter(ParameterDescription.builder().name("side").type(PAR_INVENTORY).build())
+            .parameter(ParameterDescription.builder().name("side").type(PAR_INVENTORY).description("side of (networked) block").build())
             .icon(4, 2)
             .runnable(((processor, program, opcode) -> {
                 Inventory side = processor.evaluateParameter(opcode, program, 0);
@@ -604,9 +539,7 @@ public class Opcodes {
             .description(
                     TextFormatting.GREEN + "Operation: wire",
                     "use this to connect opcodes that",
-                    "are not adjacent to each other",
-                    TextFormatting.BLUE + "No parameters",
-                    TextFormatting.YELLOW + "No result")
+                    "are not adjacent to each other")
             .opcodeOutput(SINGLE)
             .icon(11, 1)
             .runnable(((processor, program, opcode) -> {
@@ -620,12 +553,10 @@ public class Opcodes {
                     TextFormatting.GREEN + "Event: craft",
                     "execute program when a crafting",
                     "station requests a specific item",
-                    "This operation sets the crafting context",
-                    TextFormatting.BLUE + "Par 'item': the item to craft",
-                    TextFormatting.YELLOW + "No result")
+                    "This operation sets the crafting context")
             .opcodeOutput(SINGLE)
             .isEvent(true)
-            .parameter(ParameterDescription.builder().name("item").type(PAR_ITEM).build())
+            .parameter(ParameterDescription.builder().name("item").type(PAR_ITEM).description("the item to craft").build())
             .icon(5, 2)
             .build();
 
@@ -635,11 +566,9 @@ public class Opcodes {
                     TextFormatting.GREEN + "Operation: mark craft ok",
                     "as a result of a crafting event",
                     "you can use this opcode to mark",
-                    "the craft operation as ok",
-                    TextFormatting.BLUE + "Par 'slot': internal slot where craft result is",
-                    TextFormatting.YELLOW + "No result")
+                    "the craft operation as ok")
             .opcodeOutput(SINGLE)
-            .parameter(ParameterDescription.builder().name("slot").type(PAR_INTEGER).build())
+            .parameter(ParameterDescription.builder().name("slot").type(PAR_INTEGER).description("internal (processor) slot with craft result").build())
             .icon(6, 2)
             .runnable(((processor, program, opcode) -> {
                 Integer slot = processor.evaluateIntegerParameter(opcode, program, 0);
@@ -653,9 +582,7 @@ public class Opcodes {
                     TextFormatting.GREEN + "Operation: mark craft failure",
                     "as a result of a crafting event",
                     "you can use this opcode to mark",
-                    "the craft operation as failed",
-                    TextFormatting.BLUE + "No parameters",
-                    TextFormatting.YELLOW + "No result")
+                    "the craft operation as failed")
             .opcodeOutput(SINGLE)
             .icon(7, 2)
             .runnable(((processor, program, opcode) -> {
@@ -670,17 +597,12 @@ public class Opcodes {
                     TextFormatting.GREEN + "Operation: get ingredients",
                     "given a crafting card get the",
                     "needed and missing ingredients",
-                    "from a chest and insert in processor",
-                    TextFormatting.BLUE + "Par 'inv': an adjacent inventory",
-                    TextFormatting.BLUE + "Par 'cardSlot': internal slot for crafting card",
-                    TextFormatting.BLUE + "Par 'slot1': internal first slot for ingredients",
-                    TextFormatting.BLUE + "Par 'slot2': internal last slot for ingredients",
-                    TextFormatting.YELLOW + "No result")
+                    "from a chest and insert in processor")
             .opcodeOutput(SINGLE)
-            .parameter(ParameterDescription.builder().name("inv").type(PAR_INVENTORY).build())
-            .parameter(ParameterDescription.builder().name("cardSlot").type(PAR_INTEGER).build())
-            .parameter(ParameterDescription.builder().name("slot1").type(PAR_INTEGER).build())
-            .parameter(ParameterDescription.builder().name("slot2").type(PAR_INTEGER).build())
+            .parameter(ParameterDescription.builder().name("inv").type(PAR_INVENTORY).description("inventory adjacent to (networked) block").build())
+            .parameter(ParameterDescription.builder().name("cardSlot").type(PAR_INTEGER).description("internal (processor) slot for crafting card").build())
+            .parameter(ParameterDescription.builder().name("slot1").type(PAR_INTEGER).description("first internal slot for ingredients").build())
+            .parameter(ParameterDescription.builder().name("slot2").type(PAR_INTEGER).description("last internal slot for ingredients").build())
             .icon(8, 2)
             .runnable(((processor, program, opcode) -> {
                 Inventory inv = processor.evaluateParameter(opcode, program, 0);
@@ -700,15 +622,11 @@ public class Opcodes {
                     "needed and missing ingredients",
                     "from a storage scanner system",
                     "and insert in processor",
-                    TextFormatting.BLUE + "Par 'cardSlot': internal slot for crafting card",
-                    TextFormatting.BLUE + "Par 'slot1': internal first slot for ingredients",
-                    TextFormatting.BLUE + "Par 'slot2': internal last slot for ingredients",
-                    TextFormatting.YELLOW + "No result",
                     TextFormatting.RED + "Needs storage scanner module")
             .opcodeOutput(SINGLE)
-            .parameter(ParameterDescription.builder().name("cardSlot").type(PAR_INTEGER).build())
-            .parameter(ParameterDescription.builder().name("slot1").type(PAR_INTEGER).build())
-            .parameter(ParameterDescription.builder().name("slot2").type(PAR_INTEGER).build())
+            .parameter(ParameterDescription.builder().name("cardSlot").type(PAR_INTEGER).description("internal (processor) slot for crafting card").build())
+            .parameter(ParameterDescription.builder().name("slot1").type(PAR_INTEGER).description("first internal slot for ingredients").build())
+            .parameter(ParameterDescription.builder().name("slot2").type(PAR_INTEGER).description("last internal slot for ingredients").build())
             .icon(9, 2)
             .runnable(((processor, program, opcode) -> {
                 int cardSlot = processor.evaluateIntParameter(opcode, program, 0);
@@ -726,13 +644,10 @@ public class Opcodes {
                     "current card context) from an adjacent",
                     "inventory and place it in the processor.",
                     "Move the card that was already there back",
-                    "to that inventory",
-                    TextFormatting.BLUE + "Par 'inv': an adjacent inventory",
-                    TextFormatting.BLUE + "Par 'cardSlot': internal slot for crafting card",
-                    TextFormatting.YELLOW + "No result")
+                    "to that inventory")
             .opcodeOutput(SINGLE)
-            .parameter(ParameterDescription.builder().name("inv").type(PAR_INVENTORY).build())
-            .parameter(ParameterDescription.builder().name("cardSlot").type(PAR_INTEGER).build())
+            .parameter(ParameterDescription.builder().name("inv").type(PAR_INVENTORY).description("inventory adjacent to (networked) block").build())
+            .parameter(ParameterDescription.builder().name("cardSlot").type(PAR_INTEGER).description("internal (processor) slot for crafting card").build())
             .icon(10, 2)
             .runnable(((processor, program, opcode) -> {
                 Inventory inv = processor.evaluateParameter(opcode, program, 0);
@@ -749,15 +664,11 @@ public class Opcodes {
                     "push multiple items to an external",
                     "inventory adjacent to the processor",
                     "or a connected node from the",
-                    "internal inventory",
-                    TextFormatting.BLUE + "Par 'inv': an adjacent inventory",
-                    TextFormatting.BLUE + "Par 'slot1': first slot in processor",
-                    TextFormatting.BLUE + "Par 'slot2': last slot in processor",
-                    TextFormatting.YELLOW + "No result")
+                    "internal inventory")
             .opcodeOutput(SINGLE)
-            .parameter(ParameterDescription.builder().name("inv").type(PAR_INVENTORY).build())
-            .parameter(ParameterDescription.builder().name("slot1").type(PAR_INTEGER).build())
-            .parameter(ParameterDescription.builder().name("slot2").type(PAR_INTEGER).build())
+            .parameter(ParameterDescription.builder().name("inv").type(PAR_INVENTORY).description("inventory adjacent to (networked) block").build())
+            .parameter(ParameterDescription.builder().name("slot1").type(PAR_INTEGER).description("first internal slot for input").build())
+            .parameter(ParameterDescription.builder().name("slot2").type(PAR_INTEGER).description("last internal slot for input").build())
             .icon(11, 2)
             .runnable(((processor, program, opcode) -> {
                 Inventory inv = processor.evaluateParameter(opcode, program, 0);
@@ -773,11 +684,9 @@ public class Opcodes {
             .description(
                     TextFormatting.GREEN + "Operation: resume craft operation",
                     "resume a previously stored",
-                    "crafting operation",
-                    TextFormatting.BLUE + "Par 'craftid': the craft identification",
-                    TextFormatting.YELLOW + "No result")
+                    "crafting operation")
             .opcodeOutput(SINGLE)
-            .parameter(ParameterDescription.builder().name("craftid").type(PAR_STRING).build())
+            .parameter(ParameterDescription.builder().name("craftid").type(PAR_STRING).description("crafting identification").build())
             .icon(0, 3)
             .runnable(((processor, program, opcode) -> {
                 String craftId = processor.evaluateStringParameter(opcode, program, 0);
@@ -791,11 +700,9 @@ public class Opcodes {
             .description(
                     TextFormatting.GREEN + "Test: is value set/true",
                     "check if the boolean value",
-                    "is true",
-                    TextFormatting.BLUE + "Par 'v': value",
-                    TextFormatting.YELLOW + "Result: v is true (boolean)")
+                    "is true")
             .opcodeOutput(YESNO)
-            .parameter(ParameterDescription.builder().name("v").type(PAR_BOOLEAN).build())
+            .parameter(ParameterDescription.builder().name("v").type(PAR_BOOLEAN).description("value to test").build())
             .icon(1, 3)
             .runnable(((processor, program, opcode) -> {
                 return processor.evaluateBoolParameter(opcode, program, 0);
@@ -807,10 +714,8 @@ public class Opcodes {
             .description(
                     TextFormatting.GREEN + "Event: craft resume",
                     "resume crafting operation",
-                    "This operation sets the crafting context",
-                    TextFormatting.BLUE + "Par 'ticks': ticks to wait between checks",
-                    TextFormatting.YELLOW + "No result")
-            .parameter(ParameterDescription.builder().name("ticks").type(PAR_INTEGER).build())
+                    "This operation sets the crafting context")
+            .parameter(ParameterDescription.builder().name("ticks").type(PAR_INTEGER).description("ticks between each check").build())
             .opcodeOutput(SINGLE)
             .isEvent(true)
             .icon(2, 3)
@@ -822,13 +727,10 @@ public class Opcodes {
                     TextFormatting.GREEN + "Operation: wait for finished craft",
                     "suspend the crafting operation",
                     "and resume it as soon as a certain",
-                    "item appears in an inventory",
-                    TextFormatting.BLUE + "Par 'inv': the inventory where the item will appear",
-                    TextFormatting.BLUE + "Par 'item': the item to wait for (optional)",
-                    TextFormatting.YELLOW + "No result")
+                    "item appears in an inventory")
             .opcodeOutput(SINGLE)
-            .parameter(ParameterDescription.builder().name("inv").type(PAR_INVENTORY).build())
-            .parameter(ParameterDescription.builder().name("item").type(PAR_ITEM).build())
+            .parameter(ParameterDescription.builder().name("inv").type(PAR_INVENTORY).description("inventory adjacent to (networked) block").build())
+            .parameter(ParameterDescription.builder().name("item").type(PAR_ITEM).description("optional item to wait for", "if not given it will use", "current craft result").build())
             .icon(3, 3)
             .runnable(((processor, program, opcode) -> {
                 Inventory inv = processor.evaluateParameter(opcode, program, 0);
@@ -842,10 +744,8 @@ public class Opcodes {
             .id("ev_exception")
             .description(
                     TextFormatting.GREEN + "Event: exception",
-                    "execute program on exception",
-                    TextFormatting.BLUE + "Par 'exception': the exception to check for",
-                    TextFormatting.YELLOW + "No result")
-            .parameter(ParameterDescription.builder().name("exception").type(PAR_EXCEPTION).build())
+                    "execute program on exception")
+            .parameter(ParameterDescription.builder().name("exception").type(PAR_EXCEPTION).description("the exception code to catch").build())
             .opcodeOutput(SINGLE)
             .isEvent(true)
             .icon(4, 3)
