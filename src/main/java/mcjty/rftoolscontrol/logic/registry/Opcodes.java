@@ -29,7 +29,7 @@ public class Opcodes {
             .parameter(ParameterDescription.builder().name("side").type(PAR_SIDE).build())
             .parameter(ParameterDescription.builder().name("level").type(PAR_INTEGER).build())
             .runnable(((processor, program, opcode) -> {
-                BlockSide side = processor.evalulateParameter(opcode, program, 0);
+                BlockSide side = processor.evaluateParameter(opcode, program, 0);
                 int level = processor.evaluateIntParameter(opcode, program, 1);
                 processor.setPowerOut(side, level, program);
                 return true;
@@ -116,9 +116,9 @@ public class Opcodes {
             .parameter(ParameterDescription.builder().name("item").type(PAR_ITEM).build())
             .icon(2, 0)
             .runnable(((processor, program, opcode) -> {
-                Inventory inv = processor.evalulateParameter(opcode, program, 0);
+                Inventory inv = processor.evaluateParameter(opcode, program, 0);
                 Integer slot = processor.evaluateIntegerParameter(opcode, program, 1);
-                ItemStack item = processor.evalulateParameter(opcode, program, 2);
+                ItemStack item = processor.evaluateParameter(opcode, program, 2);
                 int cnt = processor.countItem(inv, slot, item, program);
                 program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(cnt)).build());
                 return true;
@@ -140,7 +140,7 @@ public class Opcodes {
             .parameter(ParameterDescription.builder().name("slot").type(PAR_INTEGER).build())
             .icon(10, 1)
             .runnable(((processor, program, opcode) -> {
-                Inventory inv = processor.evalulateParameter(opcode, program, 0);
+                Inventory inv = processor.evaluateParameter(opcode, program, 0);
                 int slot = processor.evaluateIntParameter(opcode, program, 1);
                 IItemHandler handler = processor.getItemHandlerAt(inv, program);
                 if (handler != null) {
@@ -164,7 +164,7 @@ public class Opcodes {
             .parameter(ParameterDescription.builder().name("side").type(PAR_SIDE).build())
             .icon(1, 0)
             .runnable(((processor, program, opcode) -> {
-                BlockSide side = processor.evalulateParameter(opcode, program, 0);
+                BlockSide side = processor.evaluateParameter(opcode, program, 0);
                 int rs = processor.readRedstoneIn(side, program);
                 program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(rs)).build());
                 return true;
@@ -200,7 +200,7 @@ public class Opcodes {
             .parameter(ParameterDescription.builder().name("message").type(PAR_STRING).build())
             .icon(8, 0)
             .runnable(((processor, program, opcode) -> {
-                String message = processor.evalulateStringParameter(opcode, program, 0);
+                String message = processor.evaluateStringParameter(opcode, program, 0);
                 processor.log(message);
                 return true;
             }))
@@ -281,9 +281,9 @@ public class Opcodes {
             .parameter(ParameterDescription.builder().name("slotOut").type(PAR_INTEGER).build())
             .icon(0, 1)
             .runnable(((processor, program, opcode) -> {
-                Inventory inv = processor.evalulateParameter(opcode, program, 0);
+                Inventory inv = processor.evaluateParameter(opcode, program, 0);
                 Integer slot = processor.evaluateIntegerParameter(opcode, program, 1);
-                ItemStack item = processor.evalulateParameter(opcode, program, 2);
+                ItemStack item = processor.evaluateParameter(opcode, program, 2);
                 int amount = processor.evaluateIntParameter(opcode, program, 3);
                 int slotOut = processor.evaluateIntParameter(opcode, program, 4);
                 processor.fetchItems(program, inv, slot, item, amount, slotOut);
@@ -311,7 +311,7 @@ public class Opcodes {
             .parameter(ParameterDescription.builder().name("slotIn").type(PAR_INTEGER).build())
             .icon(1, 1)
             .runnable(((processor, program, opcode) -> {
-                Inventory inv = processor.evalulateParameter(opcode, program, 0);
+                Inventory inv = processor.evaluateParameter(opcode, program, 0);
                 Integer slot = processor.evaluateIntegerParameter(opcode, program, 1);
                 int amount = processor.evaluateIntParameter(opcode, program, 2);
                 int slotIn = processor.evaluateIntParameter(opcode, program, 3);
@@ -471,8 +471,8 @@ public class Opcodes {
             .parameter(ParameterDescription.builder().name("v2").type(PAR_STRING).build())
             .icon(9, 1)
             .runnable(((processor, program, opcode) -> {
-                String v1 = processor.evalulateStringParameter(opcode, program, 0);
-                String v2 = processor.evalulateStringParameter(opcode, program, 1);
+                String v1 = processor.evaluateStringParameter(opcode, program, 0);
+                String v2 = processor.evaluateStringParameter(opcode, program, 1);
                 program.setLastValue(Parameter.builder().type(PAR_STRING).value(ParameterValue.constant(v1+v2)).build());
                 return true;
             }))
@@ -496,9 +496,9 @@ public class Opcodes {
             .parameter(ParameterDescription.builder().name("routable").type(PAR_BOOLEAN).build())
             .icon(0, 2)
             .runnable(((processor, program, opcode) -> {
-                ItemStack item = processor.evalulateParameter(opcode, program, 0);
-                boolean oredict = processor.evalulateBoolParameter(opcode, program, 1);
-                boolean routable = processor.evalulateBoolParameter(opcode, program, 2);
+                ItemStack item = processor.evaluateParameter(opcode, program, 0);
+                boolean oredict = processor.evaluateBoolParameter(opcode, program, 1);
+                boolean routable = processor.evaluateBoolParameter(opcode, program, 2);
                 int cnt = processor.countItemStorage(item, routable, oredict, program);
                 program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(cnt)).build());
                 return true;
@@ -527,9 +527,9 @@ public class Opcodes {
             .parameter(ParameterDescription.builder().name("slotOut").type(PAR_INTEGER).build())
             .icon(1, 2)
             .runnable(((processor, program, opcode) -> {
-                ItemStack item = processor.evalulateParameter(opcode, program, 0);
-                boolean oredict = processor.evalulateBoolParameter(opcode, program, 1);
-                boolean routable = processor.evalulateBoolParameter(opcode, program, 2);
+                ItemStack item = processor.evaluateParameter(opcode, program, 0);
+                boolean oredict = processor.evaluateBoolParameter(opcode, program, 1);
+                boolean routable = processor.evaluateBoolParameter(opcode, program, 2);
                 int amount = processor.evaluateIntParameter(opcode, program, 3);
                 int slotOut = processor.evaluateIntParameter(opcode, program, 4);
                 int cnt = processor.fetchItemsStorage(program, item, routable, oredict, amount, slotOut);
@@ -574,7 +574,7 @@ public class Opcodes {
             .parameter(ParameterDescription.builder().name("side").type(PAR_INVENTORY).build())
             .icon(3, 2)
             .runnable(((processor, program, opcode) -> {
-                Inventory side = processor.evalulateParameter(opcode, program, 0);
+                Inventory side = processor.evaluateParameter(opcode, program, 0);
                 int rf = processor.getEnergy(side, program);
                 program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(rf)).build());
                 return true;
@@ -593,7 +593,7 @@ public class Opcodes {
             .parameter(ParameterDescription.builder().name("side").type(PAR_INVENTORY).build())
             .icon(4, 2)
             .runnable(((processor, program, opcode) -> {
-                Inventory side = processor.evalulateParameter(opcode, program, 0);
+                Inventory side = processor.evaluateParameter(opcode, program, 0);
                 int rf = processor.getMaxEnergy(side, program);
                 program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(rf)).build());
                 return true;
@@ -682,7 +682,7 @@ public class Opcodes {
             .parameter(ParameterDescription.builder().name("slot2").type(PAR_INTEGER).build())
             .icon(8, 2)
             .runnable(((processor, program, opcode) -> {
-                Inventory inv = processor.evalulateParameter(opcode, program, 0);
+                Inventory inv = processor.evaluateParameter(opcode, program, 0);
                 int cardSlot = processor.evaluateIntParameter(opcode, program, 1);
                 int slot1 = processor.evaluateIntParameter(opcode, program, 2);
                 int slot2 = processor.evaluateIntParameter(opcode, program, 3);
@@ -732,7 +732,7 @@ public class Opcodes {
             .parameter(ParameterDescription.builder().name("cardSlot").type(PAR_INTEGER).build())
             .icon(10, 2)
             .runnable(((processor, program, opcode) -> {
-                Inventory inv = processor.evalulateParameter(opcode, program, 0);
+                Inventory inv = processor.evaluateParameter(opcode, program, 0);
                 int cardSlot = processor.evaluateIntParameter(opcode, program, 1);
                 return true;
             }))
@@ -756,7 +756,7 @@ public class Opcodes {
             .parameter(ParameterDescription.builder().name("slot2").type(PAR_INTEGER).build())
             .icon(11, 2)
             .runnable(((processor, program, opcode) -> {
-                Inventory inv = processor.evalulateParameter(opcode, program, 0);
+                Inventory inv = processor.evaluateParameter(opcode, program, 0);
                 int slot1 = processor.evaluateIntParameter(opcode, program, 1);
                 int slot2 = processor.evaluateIntParameter(opcode, program, 2);
                 processor.pushItemsMulti(program, inv, slot1, slot2);
@@ -776,9 +776,25 @@ public class Opcodes {
             .parameter(ParameterDescription.builder().name("craftid").type(PAR_STRING).build())
             .icon(0, 3)
             .runnable(((processor, program, opcode) -> {
-                String craftId = processor.evalulateStringParameter(opcode, program, 0);
+                String craftId = processor.evaluateStringParameter(opcode, program, 0);
                 processor.setCraftId(program, craftId);
                 return true;
+            }))
+            .build();
+
+    public static final Opcode TEST_SET = Opcode.builder()
+            .id("test_set")
+            .description(
+                    TextFormatting.GREEN + "Test: is value set/true",
+                    "check if the boolean value",
+                    "is true",
+                    TextFormatting.BLUE + "Par 'v': value",
+                    TextFormatting.YELLOW + "Result: v is true (boolean)")
+            .opcodeOutput(YESNO)
+            .parameter(ParameterDescription.builder().name("v").type(PAR_BOOLEAN).build())
+            .icon(10, 0)
+            .runnable(((processor, program, opcode) -> {
+                return processor.evaluateBoolParameter(opcode, program, 0);
             }))
             .build();
 
@@ -802,6 +818,7 @@ public class Opcodes {
         register(EVAL_GETMAXRF);
         register(TEST_GT);
         register(TEST_EQ);
+        register(TEST_SET);
         register(DO_REDSTONE);
         register(DO_DELAY);
         register(DO_STOP);

@@ -228,7 +228,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                 for (CompiledEvent event : compiledCard.getEvents(Opcodes.EVENT_CRAFT)) {
                     int index = event.getIndex();
                     CompiledOpcode compiledOpcode = compiledCard.getOpcodes().get(index);
-                    ItemStack stack = evalulateParameter(compiledOpcode, null, 0);
+                    ItemStack stack = evaluateParameter(compiledOpcode, null, 0);
                     stacks.add(stack);
                 }
             }
@@ -388,7 +388,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                 for (CompiledEvent event : compiledCard.getEvents(Opcodes.EVENT_CRAFT)) {
                     int index = event.getIndex();
                     CompiledOpcode compiledOpcode = compiledCard.getOpcodes().get(index);
-                    ItemStack s = evalulateParameter(compiledOpcode, null, 0);
+                    ItemStack s = evaluateParameter(compiledOpcode, null, 0);
                     if (stack.isItemEqual(s)) {
                         runOrQueueEvent(i, event, craftID);
                     }
@@ -407,7 +407,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                     for (CompiledEvent event : compiledCard.getEvents(Opcodes.EVENT_REDSTONE_ON)) {
                         int index = event.getIndex();
                         CompiledOpcode compiledOpcode = compiledCard.getOpcodes().get(index);
-                        BlockSide side = evalulateParameter(compiledOpcode, null, 0);
+                        BlockSide side = evaluateParameter(compiledOpcode, null, 0);
                         EnumFacing facing = side == null ? null : side.getSide();
                         if (facing == null || ((redstoneOnMask >> facing.ordinal()) & 1) == 1) {
                             runOrQueueEvent(i, event, null);
@@ -419,7 +419,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                     for (CompiledEvent event : compiledCard.getEvents(Opcodes.EVENT_REDSTONE_OFF)) {
                         int index = event.getIndex();
                         CompiledOpcode compiledOpcode = compiledCard.getOpcodes().get(index);
-                        BlockSide side = evalulateParameter(compiledOpcode, null, 0);
+                        BlockSide side = evaluateParameter(compiledOpcode, null, 0);
                         EnumFacing facing = side == null ? null : side.getSide();
                         if (facing == null || ((redstoneOffMask >> facing.ordinal()) & 1) == 1) {
                             runOrQueueEvent(i, event, null);
@@ -430,7 +430,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                 for (CompiledEvent event : compiledCard.getEvents(Opcodes.EVENT_TIMER)) {
                     int index = event.getIndex();
                     CompiledOpcode compiledOpcode = compiledCard.getOpcodes().get(index);
-                    int ticks = evalulateParameter(compiledOpcode, null, 0);
+                    int ticks = evaluateParameter(compiledOpcode, null, 0);
                     if (tickCount % ticks == 0) {
                         runOrQueueEvent(i, event, null);
                     }
@@ -460,7 +460,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                 for (CompiledEvent event : compiledCard.getEvents(Opcodes.EVENT_SIGNAL)) {
                     int index = event.getIndex();
                     CompiledOpcode compiledOpcode = compiledCard.getOpcodes().get(index);
-                    String sig = evalulateParameter(compiledOpcode, null, 0);
+                    String sig = evaluateParameter(compiledOpcode, null, 0);
                     if (signal.equals(sig)) {
                         runOrQueueEvent(i, event, null);
                     }
@@ -884,7 +884,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         variables[realVar] = program.getLastValue();
     }
 
-    public <T> T evalulateParameter(CompiledOpcode compiledOpcode, RunningProgram program, int parIndex) {
+    public <T> T evaluateParameter(CompiledOpcode compiledOpcode, RunningProgram program, int parIndex) {
         List<Parameter> parameters = compiledOpcode.getParameters();
         if (parIndex >= parameters.size()) {
             return null;
@@ -917,23 +917,23 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     }
 
     public int evaluateIntParameter(CompiledOpcode compiledOpcode, RunningProgram program, int parIndex) {
-        Object value = evalulateParameter(compiledOpcode, program, parIndex);
+        Object value = evaluateParameter(compiledOpcode, program, parIndex);
         return TypeConverters.convertToInt(value);
     }
 
     // This version allows returning null
     public Integer evaluateIntegerParameter(CompiledOpcode compiledOpcode, RunningProgram program, int parIndex) {
-        Object value = evalulateParameter(compiledOpcode, program, parIndex);
+        Object value = evaluateParameter(compiledOpcode, program, parIndex);
         return TypeConverters.convertToInteger(value);
     }
 
-    public String evalulateStringParameter(CompiledOpcode compiledOpcode, RunningProgram program, int parIndex) {
-        Object value = evalulateParameter(compiledOpcode, program, parIndex);
+    public String evaluateStringParameter(CompiledOpcode compiledOpcode, RunningProgram program, int parIndex) {
+        Object value = evaluateParameter(compiledOpcode, program, parIndex);
         return TypeConverters.convertToString(value);
     }
 
-    public boolean evalulateBoolParameter(CompiledOpcode compiledOpcode, RunningProgram program, int parIndex) {
-        Object value = evalulateParameter(compiledOpcode, program, parIndex);
+    public boolean evaluateBoolParameter(CompiledOpcode compiledOpcode, RunningProgram program, int parIndex) {
+        Object value = evaluateParameter(compiledOpcode, program, parIndex);
         return TypeConverters.convertToBool(value);
     }
 
