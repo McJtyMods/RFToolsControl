@@ -19,6 +19,7 @@ public class ParameterEditors {
         EDITORS.put(PAR_BOOLEAN, new BooleanEditor());
         EDITORS.put(PAR_INVENTORY, new InventoryEditor());
         EDITORS.put(PAR_ITEM, new ItemEditor());
+        EDITORS.put(PAR_EXCEPTION, new ExceptionEditor());
     }
 
     public static ParameterEditor getEditor(ParameterType type) {

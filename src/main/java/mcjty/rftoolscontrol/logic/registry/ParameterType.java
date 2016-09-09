@@ -1,5 +1,6 @@
 package mcjty.rftoolscontrol.logic.registry;
 
+import mcjty.rftoolscontrol.blocks.processor.ProgException;
 import mcjty.rftoolscontrol.logic.Parameter;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -154,6 +155,25 @@ public enum ParameterType {
                 return ParameterValue.constant(stack);
             }
             return ParameterValue.constant(null);
+        }
+    },
+    PAR_EXCEPTION() {
+        @Override
+        protected String stringRepresentationInternal(Object value) {
+            ProgException exception = (ProgException) value;
+            return exception.getCode();
+        }
+
+        @Override
+        protected void writeToNBTInternal(NBTTagCompound tag, Object value) {
+            ProgException exception = (ProgException) value;
+            tag.setString("code", exception.getCode());
+        }
+
+        @Override
+        protected ParameterValue readFromNBTInternal(NBTTagCompound tag) {
+            String code = tag.getString("code");
+            return ParameterValue.constant(ProgException.getExceptionForCode(code));
         }
     };
 

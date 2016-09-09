@@ -1,5 +1,8 @@
 package mcjty.rftoolscontrol.logic;
 
+import mcjty.rftoolscontrol.blocks.processor.ProgException;
+import mcjty.rftoolscontrol.logic.registry.BlockSide;
+import mcjty.rftoolscontrol.logic.registry.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 
@@ -18,6 +21,8 @@ public class TypeConverters {
             return ((Boolean) value) ? "true" : "false";
         } else if (value instanceof ItemStack) {
             return ((ItemStack) value).getDisplayName();
+        } else if (value instanceof ProgException) {
+            return ((ProgException) value).getCode();
         } else {
             return "";
         }
@@ -31,6 +36,12 @@ public class TypeConverters {
         } else if (value instanceof String) {
             return !((String) value).isEmpty();
         } else if (value instanceof EnumFacing) {
+            return true;
+        } else if (value instanceof ProgException) {
+            return true;
+        } else if (value instanceof Inventory) {
+            return true;
+        } else if (value instanceof BlockSide) {
             return true;
         } else {
             return false;

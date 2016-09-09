@@ -838,6 +838,19 @@ public class Opcodes {
             }))
             .build();
 
+    public static final Opcode EVENT_EXCEPTION = Opcode.builder()
+            .id("ev_exception")
+            .description(
+                    TextFormatting.GREEN + "Event: exception",
+                    "execute program on exception",
+                    TextFormatting.BLUE + "Par 'exception': the exception to check for",
+                    TextFormatting.YELLOW + "No result")
+            .parameter(ParameterDescription.builder().name("exception").type(PAR_EXCEPTION).build())
+            .opcodeOutput(SINGLE)
+            .isEvent(true)
+            .icon(4, 3)
+            .build();
+
 
     public static final Map<String, Opcode> OPCODES = new HashMap<>();
     public static final List<Opcode> SORTED_OPCODES = new ArrayList<>();
@@ -849,6 +862,7 @@ public class Opcodes {
         register(EVENT_SIGNAL);
         register(EVENT_CRAFT);
         register(EVENT_CRAFTRESUME);
+        register(EVENT_EXCEPTION);
         register(DO_WIRE);
         register(EVAL_COUNTINV);
         register(EVAL_COUNTINVINT);
