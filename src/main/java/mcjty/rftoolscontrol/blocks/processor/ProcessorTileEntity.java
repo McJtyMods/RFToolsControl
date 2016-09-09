@@ -775,6 +775,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         return result;
     }
 
+    // @todo: rewrite fetching items from an inventory, with exact/non-exact amounts and so on
     @Nonnull
     private static List<Integer> extractFromHandlerSimulate(IItemHandler handler, Integer slot, ItemStack itemMatcher, int amount) {
         List<Integer> result = new ArrayList<>();

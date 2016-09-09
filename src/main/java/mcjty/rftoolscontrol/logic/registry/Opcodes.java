@@ -284,7 +284,7 @@ public class Opcodes {
                 Inventory inv = processor.evaluateParameter(opcode, program, 0);
                 Integer slot = processor.evaluateIntegerParameter(opcode, program, 1);
                 ItemStack item = processor.evaluateParameter(opcode, program, 2);
-                int amount = processor.evaluateIntParameter(opcode, program, 3);
+                int amount = processor.evaluateIntegerParameter(opcode, program, 3);
                 int slotOut = processor.evaluateIntParameter(opcode, program, 4);
                 processor.fetchItems(program, inv, slot, item, amount, slotOut);
                 return true;
