@@ -597,9 +597,21 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         log("Waiting items: " + waitingForItems.size());
     }
 
+    public int stopPrograms() {
+        int n = 0;
+        for (CpuCore core : getCpuCores()) {
+            if (core.hasProgram()) {
+                n++;
+                core.stopProgram();
+            }
+        }
+        return n;
+    }
+
     public void reset() {
         waitingForItems.clear();
         eventQueue.clear();
+        stopPrograms();
         markDirty();
     }
 

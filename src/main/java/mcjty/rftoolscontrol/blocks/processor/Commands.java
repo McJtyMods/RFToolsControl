@@ -17,14 +17,8 @@ public class Commands {
         if ("clear".equals(cmd)) {
             processor.clearLog();
         } else if ("stop".equals(cmd)) {
-            int n = 0;
-            for (CpuCore core : processor.getCpuCores()) {
-                if (core.hasProgram()) {
-                    n++;
-                    core.stopProgram();
-                }
-            }
-            processor.log("Stopped " + n + " programs!");
+            int n = processor.stopPrograms();
+            processor.log(TextFormatting.YELLOW + "Stopped " + n + " programs!");
         } else if ("list".equals(cmd)) {
             processor.listStatus();
         } else if ("net".equals(cmd)) {
