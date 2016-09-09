@@ -792,7 +792,7 @@ public class Opcodes {
                     TextFormatting.YELLOW + "Result: v is true (boolean)")
             .opcodeOutput(YESNO)
             .parameter(ParameterDescription.builder().name("v").type(PAR_BOOLEAN).build())
-            .icon(10, 0)
+            .icon(1, 3)
             .runnable(((processor, program, opcode) -> {
                 return processor.evaluateBoolParameter(opcode, program, 0);
             }))
