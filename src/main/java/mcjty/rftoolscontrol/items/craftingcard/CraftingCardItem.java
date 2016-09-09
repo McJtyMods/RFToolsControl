@@ -9,6 +9,7 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.relauncher.Side;
@@ -29,10 +30,18 @@ public class CraftingCardItem extends GenericRFToolsItem {
     @Override
     public void addInformation(ItemStack stack, EntityPlayer playerIn, List<String> list, boolean advanced) {
         super.addInformation(stack, playerIn, list, advanced);
-        list.add("This item can be used to help");
-        list.add("with auto crafting. It stores");
-        list.add("ingredients and end results for");
-        list.add("a crafting recipe");
+        list.add("This item can be used for auto");
+        list.add("crafting. It stores ingredients");
+        list.add("and end result for a recipe");
+        ItemStack result = getResult(stack);
+        if (result != null) {
+            if (result.stackSize > 1) {
+                list.add(TextFormatting.BLUE + "Item: " + TextFormatting.WHITE + result.getDisplayName() + "(" +
+                        result.stackSize + ")");
+            } else {
+                list.add(TextFormatting.BLUE + "Item: " + TextFormatting.WHITE + result.getDisplayName());
+            }
+        }
     }
 
 
