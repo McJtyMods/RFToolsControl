@@ -275,8 +275,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
 
     public void craftFail(RunningProgram program) {
         if (!program.hasCraftId()) {
-            exception(EXCEPT_MISSINGCRAFTCONTEXT, program);
-            return;
+            throw new ProgException(EXCEPT_MISSINGCRAFTCONTEXT);
         }
         String craftId = program.getCraftId();
 
@@ -292,16 +291,14 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     public void pushItemsMulti(RunningProgram program, Inventory inv, int slot1, int slot2) {
         IItemHandler handler = getItemHandlerAt(inv, program);
         if (handler == null) {
-            exception(EXCEPT_INVALIDINVENTORY, program);
-            return;
+            throw new ProgException(EXCEPT_INVALIDINVENTORY);
         }
         CardInfo info = this.cardInfo[program.getCardIndex()];
         IItemHandler itemHandler = getItemHandler();
         for (int slot = slot1 ; slot <= slot2 ; slot++) {
             int realSlot = info.getRealSlot(slot);
             if (realSlot == -1) {
-                exception(EXCEPT_NOINTERNALSLOT, program);
-                return;
+                throw new ProgException(EXCEPT_NOINTERNALSLOT);
             }
             ItemStack stack = itemHandler.getStackInSlot(realSlot);
             if (stack != null) {
@@ -323,22 +320,19 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         } else {
             handler = getItemHandlerAt(inv, program);
             if (handler == null) {
-                exception(EXCEPT_INVALIDINVENTORY, program);
-                return;
+                throw new ProgException(EXCEPT_INVALIDINVENTORY);
             }
         }
 
         CardInfo info = this.cardInfo[program.getCardIndex()];
         int realCardSlot = info.getRealSlot(cardSlot);
         if (realCardSlot == -1) {
-            exception(EXCEPT_NOINTERNALSLOT, program);
-            return;
+            throw new ProgException(EXCEPT_NOINTERNALSLOT);
         }
         IItemHandler itemHandler = getItemHandler();
         ItemStack card = itemHandler.getStackInSlot(realCardSlot);
         if (card == null) {
-            exception(EXCEPT_MISSINGCRAFTINGCARD, program);
-            return;
+            throw new ProgException(EXCEPT_MISSINGCRAFTINGCARD);
         }
 
         int slot = slot1;
@@ -346,8 +340,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         for (ItemStack ingredient : ingredients) {
             int realSlot = info.getRealSlot(slot);
             if (realSlot == -1) {
-                exception(EXCEPT_NOINTERNALSLOT, program);
-                return;
+                throw new ProgException(EXCEPT_NOINTERNALSLOT);
             }
             ItemStack stack = InventoryTools.extractItem(handler, scanner, ingredient.stackSize, true, false, ingredient, null);
             if (stack != null) {
@@ -367,14 +360,12 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
 
     public void craftWait(RunningProgram program, Inventory inv, ItemStack stack) {
         if (!program.hasCraftId()) {
-            exception(EXCEPT_MISSINGCRAFTCONTEXT, program);
-            return;
+            throw new ProgException(EXCEPT_MISSINGCRAFTCONTEXT);
         }
         if (stack == null) {
             stack = getCraftResult(program);
             if (stack == null) {
-                exception(EXCEPT_MISSINGCRAFTRESULT, program);
-                return;
+                throw new ProgException(EXCEPT_MISSINGCRAFTRESULT);
             }
         }
         WaitForItem waitForItem = new WaitForItem(program.getCraftId(), stack, inv);
@@ -386,20 +377,17 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         CardInfo info = this.cardInfo[program.getCardIndex()];
         int realSlot = info.getRealSlot(cardSlot);
         if (realSlot == -1) {
-            exception(EXCEPT_NOINTERNALSLOT, program);
-            return;
+            throw new ProgException(EXCEPT_NOINTERNALSLOT);
         }
 
         IItemHandler handler = getItemHandlerAt(inv, program);
         if (handler == null) {
-            exception(EXCEPT_INVALIDINVENTORY, program);
-            return;
+            throw new ProgException(EXCEPT_INVALIDINVENTORY);
         }
 
         ItemStack craftResult = getCraftResult(program);
         if (craftResult == null) {
-            exception(EXCEPT_MISSINGCRAFTRESULT, program);
-            return;
+            throw new ProgException(EXCEPT_MISSINGCRAFTRESULT);
         }
 
         IItemHandler itemHandler = getItemHandler();
@@ -429,7 +417,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                 }
             }
         }
-        exception(EXCEPT_MISSINGCRAFTINGCARD, program);
+        throw new ProgException(EXCEPT_MISSINGCRAFTINGCARD);
     }
 
     public void setCraftId(RunningProgram program, String craftId) {
@@ -740,8 +728,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             IEnergyHandler handler = (IEnergyHandler) te;
             return handler.getEnergyStored(side.getIntSide() == null ? EnumFacing.DOWN : side.getIntSide());
         }
-        exception(EXCEPT_NORF, program);
-        return 0;
+        throw new ProgException(EXCEPT_NORF);
     }
 
     public int getMaxEnergy(Inventory side, RunningProgram program) {
@@ -750,8 +737,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             IEnergyHandler handler = (IEnergyHandler) te;
             return handler.getMaxEnergyStored(side.getIntSide() == null ? EnumFacing.DOWN : side.getIntSide());
         }
-        exception(EXCEPT_NORF, program);
-        return 0;
+        throw new ProgException(EXCEPT_NORF);
     }
 
     public int fetchItems(RunningProgram program, Inventory inv, Integer slot, @Nullable ItemStack itemMatcher, boolean routable, boolean oredict, int amount, int virtualSlot) {
@@ -765,16 +751,14 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         } else {
             handler = getItemHandlerAt(inv, program);
             if (handler == null) {
-                exception(EXCEPT_INVALIDINVENTORY, program);
-                return 0;
+                throw new ProgException(EXCEPT_INVALIDINVENTORY);
             }
         }
 
         CardInfo info = this.cardInfo[program.getCardIndex()];
         int realSlot = info.getRealSlot(virtualSlot);
         if (realSlot == -1) {
-            exception(EXCEPT_NOINTERNALSLOT, program);
-            return 0;
+            throw new ProgException(EXCEPT_NOINTERNALSLOT);
         }
 
         ItemStack stack = InventoryTools.tryExtractItem(handler, scanner, amount, routable, oredict, itemMatcher, slot);
@@ -797,8 +781,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         CardInfo info = this.cardInfo[program.getCardIndex()];
         int realSlot = info.getRealSlot(virtualSlot);
         if (realSlot == -1) {
-            exception(EXCEPT_NOINTERNALSLOT, program);
-            return null;
+            throw new ProgException(EXCEPT_NOINTERNALSLOT);
         }
         IItemHandler capability = getItemHandler();
         return capability.getStackInSlot(realSlot);
@@ -815,16 +798,14 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         } else {
             handler = getItemHandlerAt(inv, program);
             if (handler == null) {
-                exception(EXCEPT_INVALIDINVENTORY, program);
-                return 0;
+                throw new ProgException(EXCEPT_INVALIDINVENTORY);
             }
         }
 
         CardInfo info = this.cardInfo[program.getCardIndex()];
         int realSlot = info.getRealSlot(virtualSlot);
         if (realSlot == -1) {
-            exception(EXCEPT_NOINTERNALSLOT, program);
-            return 0;
+            throw new ProgException(EXCEPT_NOINTERNALSLOT);
         }
         IItemHandler itemHandler = getItemHandler();
         ItemStack extracted = itemHandler.extractItem(realSlot, amount, false);
@@ -892,12 +873,10 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         CardInfo info = this.cardInfo[program.getCardIndex()];
         int realVar = info.getRealVar(var);
         if (realVar == -1) {
-            exception(EXCEPT_MISSINGVARIABLE, program);
-            return;
+            throw new ProgException(EXCEPT_MISSINGVARIABLE);
         }
         if (realVar >= getMaxvars()) {
-            exception(EXCEPT_NOTENOUGHVARIABLES, program);
-            return;
+            throw new ProgException(EXCEPT_NOTENOUGHVARIABLES);
         }
         variables[realVar] = program.getLastValue();
     }
@@ -918,12 +897,10 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             CardInfo info = this.cardInfo[program.getCardIndex()];
             int realVar = info.getRealVar(value.getVariableIndex());
             if (realVar == -1) {
-                exception(EXCEPT_MISSINGVARIABLE, program);
-                return null;
+                throw new ProgException(EXCEPT_MISSINGVARIABLE);
             }
             if (realVar >= getMaxvars()) {
-                exception(EXCEPT_NOTENOUGHVARIABLES, program);
-                return null;
+                throw new ProgException(EXCEPT_NOTENOUGHVARIABLES);
             }
             // @todo  What if the variable does not return a constant? Do we support that?
             Parameter par = variables[realVar];
@@ -966,37 +943,31 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     private IStorageScanner getStorageScanner(RunningProgram program) {
         int card = getStorageCard();
         if (card == -1) {
-            exception(EXCEPT_MISSINGSTORAGECARD, program);
-            return null;
+            throw new ProgException(EXCEPT_MISSINGSTORAGECARD);
         }
         ItemStack storageStack = getStackInSlot(card);
         if (!storageStack.hasTagCompound()) {
-            exception(EXCEPT_MISSINGSTORAGECARD, program);
-            return null;
+            throw new ProgException(EXCEPT_MISSINGSTORAGECARD);
         }
         NBTTagCompound tagCompound = storageStack.getTagCompound();
         BlockPos c = new BlockPos(tagCompound.getInteger("monitorx"), tagCompound.getInteger("monitory"), tagCompound.getInteger("monitorz"));
         int dim = tagCompound.getInteger("monitordim");
         World world = DimensionManager.getWorld(dim);
         if (world == null) {
-            exception(EXCEPT_MISSINGSTORAGE, program);
-            return null;
+            throw new ProgException(EXCEPT_MISSINGSTORAGE);
         }
 
         if (!WorldTools.chunkLoaded(world, c)) {
-            exception(EXCEPT_MISSINGSTORAGE, program);
-            return null;
+            throw new ProgException(EXCEPT_MISSINGSTORAGE);
         }
 
         TileEntity te = world.getTileEntity(c);
         if (te == null) {
-            exception(EXCEPT_MISSINGSTORAGE, program);
-            return null;
+            throw new ProgException(EXCEPT_MISSINGSTORAGE);
         }
 
         if (!(te instanceof IStorageScanner)) {
-            exception(EXCEPT_MISSINGSTORAGE, program);
-            return null;
+            throw new ProgException(EXCEPT_MISSINGSTORAGE);
         }
         return (IStorageScanner) te;
     }
@@ -1025,9 +996,8 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                 return cnt;
             }
         } else {
-            exception(EXCEPT_INVALIDINVENTORY, program);
+            throw new ProgException(EXCEPT_INVALIDINVENTORY);
         }
-        return 0;
     }
 
     private int countItemInHandler(ItemStack itemMatcher, IItemHandler handler) {
@@ -1048,13 +1018,11 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         BlockPos p = pos;
         if (inv.hasNodeName()) {
             if (!hasNetworkCard()) {
-                exception(EXCEPT_MISSINGNETWORKCARD, program);
-                return null;
+                throw new ProgException(EXCEPT_MISSINGNETWORKCARD);
             }
             p = networkNodes.get(inv.getNodeName());
             if (p == null) {
-                exception(EXCEPT_MISSINGNODE, program);
-                return null;
+                throw new ProgException(EXCEPT_MISSINGNODE);
             }
         }
         BlockPos np = p.offset(inv.getSide());

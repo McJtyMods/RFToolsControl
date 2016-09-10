@@ -103,6 +103,7 @@ public class RunningProgram {
         } catch (ProgException e) {
             throw e;
         } catch (Exception e) {
+            e.printStackTrace();
             throw new ProgException(ExceptionType.EXCEPT_INTERNALERROR);
         }
         return true;
