@@ -26,6 +26,8 @@ import mcjty.rftoolscontrol.logic.registry.Inventory;
 import mcjty.rftoolscontrol.logic.registry.Opcodes;
 import mcjty.rftoolscontrol.logic.registry.ParameterValue;
 import mcjty.rftoolscontrol.logic.running.CpuCore;
+import mcjty.rftoolscontrol.logic.running.ExceptionType;
+import mcjty.rftoolscontrol.logic.running.ProgException;
 import mcjty.rftoolscontrol.logic.running.RunningProgram;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -55,7 +57,7 @@ import javax.annotation.Nullable;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static mcjty.rftoolscontrol.blocks.processor.ProgException.*;
+import static mcjty.rftoolscontrol.logic.running.ExceptionType.*;
 
 public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity implements DefaultSidedInventory, ITickable {
 
@@ -134,13 +136,11 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         if (side.getNodeName() != null && !side.getNodeName().isEmpty()) {
             p = networkNodes.get(side.getNodeName());
             if (p == null) {
-                exception(EXCEPT_MISSINGNODE, program);
-                return null;
+                throw new ProgException(EXCEPT_MISSINGNODE);
             }
             TileEntity te = worldObj.getTileEntity(p);
             if (!(te instanceof NodeTileEntity)) {
-                exception(EXCEPT_MISSINGNODE, program);
-                return null;
+                throw new ProgException(EXCEPT_MISSINGNODE);
             }
         } else {
             p = pos;
@@ -242,8 +242,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
 
     public void craftOk(RunningProgram program, Integer slot) {
         if (!program.hasCraftId()) {
-            exception(EXCEPT_MISSINGCRAFTCONTEXT, program);
-            return;
+            throw new ProgException(EXCEPT_MISSINGCRAFTCONTEXT);
         }
         String craftId = program.getCraftId();
 
@@ -252,8 +251,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         if (slot != null) {
             realSlot = info.getRealSlot(slot);
             if (realSlot == -1) {
-                exception(EXCEPT_NOINTERNALSLOT, program);
-                return;
+                throw new ProgException(EXCEPT_NOINTERNALSLOT);
             }
         }
         ItemStack craftedItem = null;
@@ -622,7 +620,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         logMessages.clear();
     }
 
-    public void exception(ProgException exception, RunningProgram program) {
+    public void exception(ExceptionType exception, RunningProgram program) {
 
         for (int i = 0 ; i < cardInfo.length ; i++) {
             CardInfo info = cardInfo[i];

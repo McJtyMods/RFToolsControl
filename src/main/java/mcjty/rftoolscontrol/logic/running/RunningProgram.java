@@ -100,10 +100,10 @@ public class RunningProgram {
             } else {
                 current = opcode.getSecondaryIndex();
             }
+        } catch (ProgException e) {
+            throw e;
         } catch (Exception e) {
-            processor.log("[ERROR]");
-            e.printStackTrace();
-            killMe();
+            throw new ProgException(ExceptionType.EXCEPT_INTERNALERROR);
         }
         return true;
     }

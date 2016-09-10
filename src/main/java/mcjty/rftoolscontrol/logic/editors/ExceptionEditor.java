@@ -3,7 +3,7 @@ package mcjty.rftoolscontrol.logic.editors;
 import mcjty.lib.gui.layout.HorizontalLayout;
 import mcjty.lib.gui.widgets.ChoiceLabel;
 import mcjty.lib.gui.widgets.Panel;
-import mcjty.rftoolscontrol.blocks.processor.ProgException;
+import mcjty.rftoolscontrol.logic.running.ExceptionType;
 import mcjty.rftoolscontrol.logic.registry.ParameterType;
 import mcjty.rftoolscontrol.logic.registry.ParameterValue;
 import net.minecraft.client.Minecraft;
@@ -13,11 +13,11 @@ public class ExceptionEditor extends AbstractParameterEditor {
 
     private ChoiceLabel label;
 
-    private static ProgException parseFacingSafe(String t) {
+    private static ExceptionType parseFacingSafe(String t) {
         if ("*".equals(t)) {
             return null;
         }
-        return ProgException.getExceptionForCode(t);
+        return ExceptionType.getExceptionForCode(t);
     }
 
     @Override
@@ -27,7 +27,7 @@ public class ExceptionEditor extends AbstractParameterEditor {
         label = new ChoiceLabel(mc, gui)
                 .setDesiredWidth(160);
         label.addChoices("*");
-        for (ProgException exception : ProgException.values()) {
+        for (ExceptionType exception : ExceptionType.values()) {
             label.addChoices(exception.getCode());
         }
         label.addChoiceEvent((parent, newChoice) -> callback.valueChanged(readValue()));
@@ -47,7 +47,7 @@ public class ExceptionEditor extends AbstractParameterEditor {
         if (value == null || value.getValue() == null) {
             label.setChoice("*");
         } else {
-            ProgException exception = (ProgException) value.getValue();
+            ExceptionType exception = (ExceptionType) value.getValue();
             label.setChoice(exception.getCode());
         }
     }

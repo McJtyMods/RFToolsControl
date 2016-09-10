@@ -1,9 +1,9 @@
-package mcjty.rftoolscontrol.blocks.processor;
+package mcjty.rftoolscontrol.logic.running;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public enum ProgException {
+public enum ExceptionType {
     EXCEPT_NORF("no_rf", "No RF support"),
     EXCEPT_NOINTERNALSLOT("no_internal_slot", "Missing internal slot"),
     EXCEPT_MISSINGNODE("missing_node", "Missing node"),
@@ -15,21 +15,22 @@ public enum ProgException {
     EXCEPT_MISSINGCRAFTCONTEXT("missing_craft_context", "Missing crafting context"),
     EXCEPT_MISSINGCRAFTRESULT("missing_craft_result", "Missing craft result"),
     EXCEPT_MISSINGVARIABLE("missing_variable", "Missing variable"),
-    EXCEPT_NOTENOUGHVARIABLES("not_enough_variables", "Not enough variables")
+    EXCEPT_NOTENOUGHVARIABLES("not_enough_variables", "Not enough variables"),
+    EXCEPT_INTERNALERROR("internal_error", "Internal error")
     ;
 
     private final String code;
     private final String description;
 
-    private static final Map<String, ProgException> EXCEPTION_MAP = new HashMap<>();
+    private static final Map<String, ExceptionType> EXCEPTION_MAP = new HashMap<>();
 
     static {
-        for (ProgException exception : ProgException.values()) {
+        for (ExceptionType exception : ExceptionType.values()) {
             EXCEPTION_MAP.put(exception.getCode(), exception);
         }
     }
 
-    ProgException(String code, String description) {
+    ExceptionType(String code, String description) {
         this.code = code;
         this.description = description;
     }
@@ -42,7 +43,7 @@ public enum ProgException {
         return code;
     }
 
-    public static ProgException getExceptionForCode(String code) {
+    public static ExceptionType getExceptionForCode(String code) {
         return EXCEPTION_MAP.get(code);
     }
 }
