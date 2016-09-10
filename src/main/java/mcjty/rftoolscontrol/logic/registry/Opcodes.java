@@ -133,10 +133,8 @@ public class Opcodes {
                 Inventory inv = processor.evaluateParameter(opcode, program, 0);
                 int slot = processor.evaluateIntParameter(opcode, program, 1);
                 IItemHandler handler = processor.getItemHandlerAt(inv, program);
-                if (handler != null) {
-                    ItemStack item = handler.getStackInSlot(slot);
-                    program.setLastValue(Parameter.builder().type(PAR_ITEM).value(ParameterValue.constant(item)).build());
-                }
+                ItemStack item = handler.getStackInSlot(slot);
+                program.setLastValue(Parameter.builder().type(PAR_ITEM).value(ParameterValue.constant(item)).build());
                 return true;
             }))
             .build();

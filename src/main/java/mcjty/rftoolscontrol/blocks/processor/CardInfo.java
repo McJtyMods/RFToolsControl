@@ -1,7 +1,10 @@
 package mcjty.rftoolscontrol.blocks.processor;
 
 import mcjty.rftoolscontrol.logic.compiled.CompiledCard;
+import mcjty.rftoolscontrol.logic.running.ProgException;
 import net.minecraft.nbt.NBTTagCompound;
+
+import static mcjty.rftoolscontrol.logic.running.ExceptionType.EXCEPT_NOINTERNALSLOT;
 
 public class CardInfo {
 
@@ -41,6 +44,13 @@ public class CardInfo {
         return compiledCard;
     }
 
+    public Integer getRealSlot(Integer virtualSlot) {
+        if (virtualSlot == null) {
+            return null;
+        }
+        return getRealSlot((int)virtualSlot);
+    }
+
     public int getRealSlot(int virtualSlot) {
         if (slotCache == null) {
             slotCache = new int[ProcessorTileEntity.ITEM_SLOTS];
@@ -56,10 +66,14 @@ public class CardInfo {
             }
         }
         if (virtualSlot < 0 && virtualSlot >= ProcessorTileEntity.ITEM_SLOTS) {
-            return -1;
+            throw new ProgException(EXCEPT_NOINTERNALSLOT);
         }
         int realSlot = slotCache[virtualSlot];
-        return realSlot == -1 ? -1 : (realSlot + ProcessorContainer.SLOT_BUFFER);
+        if (realSlot == -1) {
+            throw new ProgException(EXCEPT_NOINTERNALSLOT);
+        }
+
+        return realSlot + ProcessorContainer.SLOT_BUFFER;
     }
 
     public int getRealVar(int virtualVar) {

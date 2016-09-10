@@ -247,13 +247,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         String craftId = program.getCraftId();
 
         CardInfo info = this.cardInfo[program.getCardIndex()];
-        Integer realSlot = null;
-        if (slot != null) {
-            realSlot = info.getRealSlot(slot);
-            if (realSlot == -1) {
-                throw new ProgException(EXCEPT_NOINTERNALSLOT);
-            }
-        }
+        Integer realSlot = info.getRealSlot(slot);
         ItemStack craftedItem = null;
         if (realSlot != null) {
             craftedItem = getItemHandler().getStackInSlot(realSlot);
@@ -290,16 +284,10 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
 
     public void pushItemsMulti(RunningProgram program, Inventory inv, int slot1, int slot2) {
         IItemHandler handler = getItemHandlerAt(inv, program);
-        if (handler == null) {
-            throw new ProgException(EXCEPT_INVALIDINVENTORY);
-        }
         CardInfo info = this.cardInfo[program.getCardIndex()];
         IItemHandler itemHandler = getItemHandler();
         for (int slot = slot1 ; slot <= slot2 ; slot++) {
             int realSlot = info.getRealSlot(slot);
-            if (realSlot == -1) {
-                throw new ProgException(EXCEPT_NOINTERNALSLOT);
-            }
             ItemStack stack = itemHandler.getStackInSlot(realSlot);
             if (stack != null) {
                 ItemStack remaining = ItemHandlerHelper.insertItem(handler, stack, false);
@@ -310,25 +298,11 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
 
 
     public void getIngredients(RunningProgram program, Inventory inv, int cardSlot, int slot1) {
-        IStorageScanner scanner = null;
-        IItemHandler handler = null;
-        if (inv == null) {
-            scanner = getStorageScanner(program);
-            if (scanner == null) {
-                return;
-            }
-        } else {
-            handler = getItemHandlerAt(inv, program);
-            if (handler == null) {
-                throw new ProgException(EXCEPT_INVALIDINVENTORY);
-            }
-        }
+        IStorageScanner scanner = getScannerForInv(program, inv);
+        IItemHandler handler = getHandlerForInv(program, inv);
 
         CardInfo info = this.cardInfo[program.getCardIndex()];
         int realCardSlot = info.getRealSlot(cardSlot);
-        if (realCardSlot == -1) {
-            throw new ProgException(EXCEPT_NOINTERNALSLOT);
-        }
         IItemHandler itemHandler = getItemHandler();
         ItemStack card = itemHandler.getStackInSlot(realCardSlot);
         if (card == null) {
@@ -339,9 +313,6 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         List<ItemStack> ingredients = CraftingCardItem.getIngredients(card);
         for (ItemStack ingredient : ingredients) {
             int realSlot = info.getRealSlot(slot);
-            if (realSlot == -1) {
-                throw new ProgException(EXCEPT_NOINTERNALSLOT);
-            }
             ItemStack stack = InventoryTools.extractItem(handler, scanner, ingredient.stackSize, true, false, ingredient, null);
             if (stack != null) {
                 ItemStack remainder = itemHandler.insertItem(realSlot, stack, false);
@@ -376,14 +347,8 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     public void fetchCard(RunningProgram program, Inventory inv, int cardSlot) {
         CardInfo info = this.cardInfo[program.getCardIndex()];
         int realSlot = info.getRealSlot(cardSlot);
-        if (realSlot == -1) {
-            throw new ProgException(EXCEPT_NOINTERNALSLOT);
-        }
 
         IItemHandler handler = getItemHandlerAt(inv, program);
-        if (handler == null) {
-            throw new ProgException(EXCEPT_INVALIDINVENTORY);
-        }
 
         ItemStack craftResult = getCraftResult(program);
         if (craftResult == null) {
@@ -484,13 +449,11 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                     for (int i = 0 ; i < waitingForItems.size() ; i++) {
                         WaitForItem wfi = waitingForItems.get(i);
                         IItemHandler handler = getItemHandlerAt(wfi.getInventory(), null);
-                        if (handler != null) {
-                            int cnt = countItemInHandler(wfi.getItemStack(), handler);
-                            if (cnt >= wfi.getItemStack().stackSize) {
-                                foundIdx = i;
-                                found = wfi;
-                                break;
-                            }
+                        int cnt = countItemInHandler(wfi.getItemStack(), handler);
+                        if (cnt >= wfi.getItemStack().stackSize) {
+                            foundIdx = i;
+                            found = wfi;
+                            break;
                         }
                     }
                     if (found != null) {
@@ -740,26 +703,29 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         throw new ProgException(EXCEPT_NORF);
     }
 
-    public int fetchItems(RunningProgram program, Inventory inv, Integer slot, @Nullable ItemStack itemMatcher, boolean routable, boolean oredict, int amount, int virtualSlot) {
-        IStorageScanner scanner = null;
-        IItemHandler handler = null;
+    private IStorageScanner getScannerForInv(RunningProgram program, Inventory inv) {
         if (inv == null) {
-            scanner = getStorageScanner(program);
-            if (scanner == null) {
-                return 0;
-            }
+            return getStorageScanner(program);
         } else {
-            handler = getItemHandlerAt(inv, program);
-            if (handler == null) {
-                throw new ProgException(EXCEPT_INVALIDINVENTORY);
-            }
+            return null;
         }
+    }
+
+    private IItemHandler getHandlerForInv(RunningProgram program, Inventory inv) {
+        if (inv == null) {
+            return null;
+        } else {
+            return getItemHandlerAt(inv, program);
+        }
+    }
+
+
+    public int fetchItems(RunningProgram program, Inventory inv, Integer slot, @Nullable ItemStack itemMatcher, boolean routable, boolean oredict, int amount, int virtualSlot) {
+        IStorageScanner scanner = getScannerForInv(program, inv);
+        IItemHandler handler = getHandlerForInv(program, inv);
 
         CardInfo info = this.cardInfo[program.getCardIndex()];
         int realSlot = info.getRealSlot(virtualSlot);
-        if (realSlot == -1) {
-            throw new ProgException(EXCEPT_NOINTERNALSLOT);
-        }
 
         ItemStack stack = InventoryTools.tryExtractItem(handler, scanner, amount, routable, oredict, itemMatcher, slot);
         if (stack == null) {
@@ -780,33 +746,16 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     public ItemStack getItemInternal(RunningProgram program, int virtualSlot) {
         CardInfo info = this.cardInfo[program.getCardIndex()];
         int realSlot = info.getRealSlot(virtualSlot);
-        if (realSlot == -1) {
-            throw new ProgException(EXCEPT_NOINTERNALSLOT);
-        }
         IItemHandler capability = getItemHandler();
         return capability.getStackInSlot(realSlot);
     }
 
     public int pushItems(RunningProgram program, Inventory inv, Integer slot, int amount, int virtualSlot) {
-        IStorageScanner scanner = null;
-        IItemHandler handler = null;
-        if (inv == null) {
-            scanner = getStorageScanner(program);
-            if (scanner == null) {
-                return 0;
-            }
-        } else {
-            handler = getItemHandlerAt(inv, program);
-            if (handler == null) {
-                throw new ProgException(EXCEPT_INVALIDINVENTORY);
-            }
-        }
+        IStorageScanner scanner = getScannerForInv(program, inv);
+        IItemHandler handler = getHandlerForInv(program, inv);
 
         CardInfo info = this.cardInfo[program.getCardIndex()];
         int realSlot = info.getRealSlot(virtualSlot);
-        if (realSlot == -1) {
-            throw new ProgException(EXCEPT_NOINTERNALSLOT);
-        }
         IItemHandler itemHandler = getItemHandler();
         ItemStack extracted = itemHandler.extractItem(realSlot, amount, false);
         if (extracted == null) {
@@ -978,25 +927,21 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         }
         // @todo support oredict here?
         IItemHandler handler = getItemHandlerAt(inv, program);
-        if (handler != null) {
-            if (slot != null) {
-                ItemStack stackInSlot = handler.getStackInSlot(slot);
-                return stackInSlot == null ? 0 : stackInSlot.stackSize;
-            } else if (itemMatcher != null) {
-                return countItemInHandler(itemMatcher, handler);
-            } else {
-                // Just count all items
-                int cnt = 0;
-                for (int i = 0 ; i < handler.getSlots() ; i++) {
-                    ItemStack stack = handler.getStackInSlot(i);
-                    if (stack != null) {
-                        cnt += stack.stackSize;
-                    }
-                }
-                return cnt;
-            }
+        if (slot != null) {
+            ItemStack stackInSlot = handler.getStackInSlot(slot);
+            return stackInSlot == null ? 0 : stackInSlot.stackSize;
+        } else if (itemMatcher != null) {
+            return countItemInHandler(itemMatcher, handler);
         } else {
-            throw new ProgException(EXCEPT_INVALIDINVENTORY);
+            // Just count all items
+            int cnt = 0;
+            for (int i = 0 ; i < handler.getSlots() ; i++) {
+                ItemStack stack = handler.getStackInSlot(i);
+                if (stack != null) {
+                    cnt += stack.stackSize;
+                }
+            }
+            return cnt;
         }
     }
 
@@ -1032,9 +977,12 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     public IItemHandler getItemHandlerAt(Inventory inv, RunningProgram program) {
         TileEntity te = getTileEntityAt(inv, program);
         if (te != null && te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, inv.getIntSide())) {
-            return te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, inv.getIntSide());
+            IItemHandler handler = te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, inv.getIntSide());
+            if (handler == null) {
+                throw new ProgException(EXCEPT_INVALIDINVENTORY);
+            }
         }
-        return null;
+        throw new ProgException(EXCEPT_INVALIDINVENTORY);
     }
 
     private boolean isExpansionSlot(int index) {
