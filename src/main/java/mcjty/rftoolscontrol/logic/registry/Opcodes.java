@@ -247,6 +247,7 @@ public class Opcodes {
                     "or a connected node and place the",
                     "result in the internal inventory",
                     "Also works for a storage scanner system")
+            .outputDescription("amount of items fetched (integer)")
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("inv").type(PAR_INVENTORY).description("inventory adjacent to (networked) block", "or empty to access storage").build())
             .parameter(ParameterDescription.builder().name("slot").type(PAR_INTEGER).description("optional slot in inventory", "(not used for storage)").build())
@@ -264,7 +265,8 @@ public class Opcodes {
                 int slotOut = processor.evaluateIntParameter(opcode, program, 4);
                 boolean oredict = processor.evaluateBoolParameter(opcode, program, 5);
                 boolean routable = processor.evaluateBoolParameter(opcode, program, 6);
-                processor.fetchItems(program, inv, slot, item, routable, oredict, amount, slotOut);
+                int cnt = processor.fetchItems(program, inv, slot, item, routable, oredict, amount, slotOut);
+                program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(cnt)).build());
                 return true;
             }))
             .build();
@@ -279,6 +281,7 @@ public class Opcodes {
                     "internal inventory",
                     "Can also be used for modular",
                     "storage systems")
+            .outputDescription("amount of items inserted (integer)")
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("inv").type(PAR_INVENTORY).description("inventory adjacent to (networked) block", "or empty to access storage").build())
             .parameter(ParameterDescription.builder().name("slot").type(PAR_INTEGER).description("optional slot in inventory", "(not used for storage)").build())
@@ -290,7 +293,8 @@ public class Opcodes {
                 Integer slot = processor.evaluateIntegerParameter(opcode, program, 1);
                 int amount = processor.evaluateIntParameter(opcode, program, 2);
                 int slotIn = processor.evaluateIntParameter(opcode, program, 3);
-                processor.pushItems(program, inv, slot, amount, slotIn);
+                int cnt = processor.pushItems(program, inv, slot, amount, slotIn);
+                program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(cnt)).build());
                 return true;
             }))
             .build();
@@ -486,7 +490,7 @@ public class Opcodes {
                 boolean routable = processor.evaluateBoolParameter(opcode, program, 2);
                 int amount = processor.evaluateIntParameter(opcode, program, 3);
                 int slotOut = processor.evaluateIntParameter(opcode, program, 4);
-                int cnt = processor.fetchItemsStorage(program, item, routable, oredict, amount, slotOut);
+                int cnt = processor.fetchItems(program, null, null, item, routable, oredict, amount, slotOut);
                 program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(cnt)).build());
                 return true;
             }))
@@ -508,7 +512,7 @@ public class Opcodes {
             .runnable(((processor, program, opcode) -> {
                 int amount = processor.evaluateIntParameter(opcode, program, 0);
                 int slotIn = processor.evaluateIntParameter(opcode, program, 1);
-                int cnt = processor.pushItemsStorage(program, amount, slotIn);
+                int cnt = processor.pushItems(program, null, null, amount, slotIn);
                 program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(cnt)).build());
                 return true;
             }))
