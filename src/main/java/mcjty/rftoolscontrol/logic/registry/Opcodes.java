@@ -571,10 +571,12 @@ public class Opcodes {
                     TextFormatting.GREEN + "Event: craft",
                     "execute program when a crafting",
                     "station requests a specific item",
+                    "or for an inventory with crafting cards",
                     "This operation sets the crafting context")
             .opcodeOutput(SINGLE)
             .isEvent(true)
-            .parameter(ParameterDescription.builder().name("item").type(PAR_ITEM).description("the item to craft").build())
+            .parameter(ParameterDescription.builder().name("item").type(PAR_ITEM).description("the item to craft (optional)").build())
+            .parameter(ParameterDescription.builder().name("item").type(PAR_INVENTORY).description("the inventory with crafting cards (optional)").build())
             .icon(5, 2)
             .build();
 

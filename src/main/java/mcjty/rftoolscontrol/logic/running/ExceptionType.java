@@ -16,7 +16,8 @@ public enum ExceptionType {
     EXCEPT_MISSINGCRAFTRESULT("missing_craft_result", "Missing craft result"),
     EXCEPT_MISSINGVARIABLE("missing_variable", "Missing variable"),
     EXCEPT_NOTENOUGHVARIABLES("not_enough_variables", "Not enough variables"),
-    EXCEPT_INTERNALERROR("internal_error", "Internal error")
+    EXCEPT_INTERNALERROR("internal_error", "Internal error"),
+    EXCEPT_BADPARAMETERS("bad_parameters", "Bad parameters")
     ;
 
     private final String code;

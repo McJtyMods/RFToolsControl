@@ -227,16 +227,31 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     }
 
     public void getCraftableItems(List<ItemStack> stacks) {
-        for (CardInfo info : cardInfo) {
-            CompiledCard compiledCard = info.getCompiledCard();
-            if (compiledCard != null) {
-                for (CompiledEvent event : compiledCard.getEvents(Opcodes.EVENT_CRAFT)) {
-                    int index = event.getIndex();
-                    CompiledOpcode compiledOpcode = compiledCard.getOpcodes().get(index);
-                    ItemStack stack = evaluateParameter(compiledOpcode, null, 0);
-                    stacks.add(stack);
+        try {
+            for (CardInfo info : cardInfo) {
+                CompiledCard compiledCard = info.getCompiledCard();
+                if (compiledCard != null) {
+                    for (CompiledEvent event : compiledCard.getEvents(Opcodes.EVENT_CRAFT)) {
+                        int index = event.getIndex();
+                        CompiledOpcode compiledOpcode = compiledCard.getOpcodes().get(index);
+                        ItemStack stack = evaluateParameter(compiledOpcode, null, 0);
+                        Inventory inv = evaluateParameter(compiledOpcode, null, 1);
+                        if (stack != null && inv != null) {
+                            throw new ProgException(EXCEPT_BADPARAMETERS);
+                        }
+                        if (stack == null && inv == null) {
+                            throw new ProgException(EXCEPT_BADPARAMETERS);
+                        }
+                        if (inv != null) {
+                            // Find all crafting cards in the inventory
+                            // @todo
+                        }
+                        stacks.add(stack);
+                    }
                 }
             }
+        } catch (ProgException e) {
+            exception(e.getExceptionType(), null);
         }
     }
 
