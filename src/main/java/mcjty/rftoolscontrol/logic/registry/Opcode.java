@@ -14,6 +14,7 @@ public class Opcode {
     private final String outputDescription;
     private final OpcodeRunnable runnable;
     private final List<String> description;
+    private final boolean deprecated;
 
     private final int iconU;
     private final int iconV;
@@ -28,6 +29,7 @@ public class Opcode {
         this.runnable = builder.runnable;
         this.description = new ArrayList<>(builder.description);
         this.outputDescription = builder.outputDescription;
+        this.deprecated = builder.deprecated;
     }
 
     public String getId() {
@@ -44,6 +46,10 @@ public class Opcode {
 
     public List<ParameterDescription> getParameters() {
         return parameters;
+    }
+
+    public boolean isDeprecated() {
+        return deprecated;
     }
 
     @Nonnull
@@ -106,9 +112,15 @@ public class Opcode {
         private OpcodeRunnable runnable = NOOP;
         private List<String> description = Collections.emptyList();
         private String outputDescription = "No result";
+        private boolean deprecated = false;
 
         public Builder id(String id) {
             this.id = id;
+            return this;
+        }
+
+        public Builder deprecated(boolean deprecated) {
+            this.deprecated = deprecated;
             return this;
         }
 

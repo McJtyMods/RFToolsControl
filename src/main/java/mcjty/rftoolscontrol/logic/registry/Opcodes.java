@@ -94,18 +94,24 @@ public class Opcodes {
                     "count the amount of items in a",
                     "specific slot or of a certain type",
                     "in an external inventory adjacent to",
-                    "the processor or a connected node")
+                    "the processor or a connected node",
+                    "Can also be used to count items in",
+                    "in a storage scanner network")
             .outputDescription("amount of items (integer)")
             .opcodeOutput(SINGLE)
-            .parameter(ParameterDescription.builder().name("inv").type(PAR_INVENTORY).description("inventory adjacent to (networked) block").build())
-            .parameter(ParameterDescription.builder().name("slot").type(PAR_INTEGER).description("optional slot in inventory").build())
+            .parameter(ParameterDescription.builder().name("inv").type(PAR_INVENTORY).description("inventory adjacent to (networked) block", "or empty to access storage").build())
+            .parameter(ParameterDescription.builder().name("slot").type(PAR_INTEGER).description("optional slot in inventory", "(not for storage)").build())
             .parameter(ParameterDescription.builder().name("item").type(PAR_ITEM).description("optional item to count").build())
+            .parameter(ParameterDescription.builder().name("oredict").type(PAR_BOOLEAN).description("use oredict matching").build())
+            .parameter(ParameterDescription.builder().name("routable").type(PAR_BOOLEAN).description("count routable items", "(only for storage)").build())
             .icon(2, 0)
             .runnable(((processor, program, opcode) -> {
                 Inventory inv = processor.evaluateParameter(opcode, program, 0);
                 Integer slot = processor.evaluateIntegerParameter(opcode, program, 1);
                 ItemStack item = processor.evaluateParameter(opcode, program, 2);
-                int cnt = processor.countItem(inv, slot, item, program);
+                boolean oredict = processor.evaluateBoolParameter(opcode, program, 3);
+                boolean routable = processor.evaluateBoolParameter(opcode, program, 4);
+                int cnt = processor.countItem(inv, slot, item, oredict, routable, program);
                 program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(cnt)).build());
                 return true;
             }))
@@ -239,13 +245,16 @@ public class Opcodes {
                     "fetch items from an external",
                     "inventory adjacent to the processor",
                     "or a connected node and place the",
-                    "result in the internal inventory")
+                    "result in the internal inventory",
+                    "Also works for a storage scanner system")
             .opcodeOutput(SINGLE)
-            .parameter(ParameterDescription.builder().name("inv").type(PAR_INVENTORY).description("inventory adjacent to (networked) block").build())
-            .parameter(ParameterDescription.builder().name("slot").type(PAR_INTEGER).description("optional slot in inventory").build())
-            .parameter(ParameterDescription.builder().name("item").type(PAR_ITEM).description("optional item to fetch").build())
+            .parameter(ParameterDescription.builder().name("inv").type(PAR_INVENTORY).description("inventory adjacent to (networked) block", "or empty to access storage").build())
+            .parameter(ParameterDescription.builder().name("slot").type(PAR_INTEGER).description("optional slot in inventory", "(not used for storage)").build())
+            .parameter(ParameterDescription.builder().name("item").type(PAR_ITEM).description("optional item to fetch", "(not optional for storage)").build())
             .parameter(ParameterDescription.builder().name("amount").type(PAR_INTEGER).description("amount of items to fetch").build())
             .parameter(ParameterDescription.builder().name("slotOut").type(PAR_INTEGER).description("internal (processor) slot for result").build())
+            .parameter(ParameterDescription.builder().name("oredict").type(PAR_BOOLEAN).description("use oredict matching").build())
+            .parameter(ParameterDescription.builder().name("routable").type(PAR_BOOLEAN).description("only routable items", "(only for storage)").build())
             .icon(0, 1)
             .runnable(((processor, program, opcode) -> {
                 Inventory inv = processor.evaluateParameter(opcode, program, 0);
@@ -253,7 +262,9 @@ public class Opcodes {
                 ItemStack item = processor.evaluateParameter(opcode, program, 2);
                 int amount = processor.evaluateIntegerParameter(opcode, program, 3);
                 int slotOut = processor.evaluateIntParameter(opcode, program, 4);
-                processor.fetchItems(program, inv, slot, item, amount, slotOut);
+                boolean oredict = processor.evaluateBoolParameter(opcode, program, 5);
+                boolean routable = processor.evaluateBoolParameter(opcode, program, 6);
+                processor.fetchItems(program, inv, slot, item, routable, oredict, amount, slotOut);
                 return true;
             }))
             .build();
@@ -265,10 +276,12 @@ public class Opcodes {
                     "push items to an external",
                     "inventory adjacent to the processor",
                     "or a connected node from the",
-                    "internal inventory")
+                    "internal inventory",
+                    "Can also be used for modular",
+                    "storage systems")
             .opcodeOutput(SINGLE)
-            .parameter(ParameterDescription.builder().name("inv").type(PAR_INVENTORY).description("inventory adjacent to (networked) block").build())
-            .parameter(ParameterDescription.builder().name("slot").type(PAR_INTEGER).description("optional slot in inventory").build())
+            .parameter(ParameterDescription.builder().name("inv").type(PAR_INVENTORY).description("inventory adjacent to (networked) block", "or empty to access storage").build())
+            .parameter(ParameterDescription.builder().name("slot").type(PAR_INTEGER).description("optional slot in inventory", "(not used for storage)").build())
             .parameter(ParameterDescription.builder().name("amount").type(PAR_INTEGER).description("amount of items to push").build())
             .parameter(ParameterDescription.builder().name("slotIn").type(PAR_INTEGER).description("internal (processor) slot for input").build())
             .icon(1, 1)
@@ -433,6 +446,7 @@ public class Opcodes {
                     "stroage system (scanner) of a",
                     "certain type",
                     TextFormatting.RED + "Needs storage scanner module")
+            .deprecated(true)
             .outputDescription("amount of items (integer)")
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("item").type(PAR_ITEM).description("the item to count").build())
@@ -457,11 +471,12 @@ public class Opcodes {
                     "(scanner) and place the result",
                     "in the internal inventory",
                     TextFormatting.RED + "Needs storage scanner module")
+            .deprecated(true)
             .outputDescription("amount of items fetched (integer)")
             .opcodeOutput(SINGLE)
-            .parameter(ParameterDescription.builder().name("item").type(PAR_ITEM).description("the item to count").build())
+            .parameter(ParameterDescription.builder().name("item").type(PAR_ITEM).description("the item to fetch").build())
             .parameter(ParameterDescription.builder().name("oredict").type(PAR_BOOLEAN).description("use oredict matching").build())
-            .parameter(ParameterDescription.builder().name("routable").type(PAR_BOOLEAN).description("count routable items").build())
+            .parameter(ParameterDescription.builder().name("routable").type(PAR_BOOLEAN).description("only routable items").build())
             .parameter(ParameterDescription.builder().name("amount").type(PAR_INTEGER).description("amount of items to fetch").build())
             .parameter(ParameterDescription.builder().name("slotOut").type(PAR_INTEGER).description("internal (processor) slot for result").build())
             .icon(1, 2)
@@ -484,6 +499,7 @@ public class Opcodes {
                     "push items to a storage system",
                     "(scanner) from the internal inventory",
                     TextFormatting.RED + "Needs storage scanner module")
+            .deprecated(true)
             .outputDescription("amount of items inserted (integer)")
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("amount").type(PAR_INTEGER).description("amount of items to push").build())
@@ -597,45 +613,24 @@ public class Opcodes {
                     TextFormatting.GREEN + "Operation: get ingredients",
                     "given a crafting card get the",
                     "needed and missing ingredients",
-                    "from a chest and insert in processor")
+                    "from an adjacent inventory and",
+                    "insert in processor",
+                    "Can also bse used on a storage",
+                    "scanner system")
             .opcodeOutput(SINGLE)
-            .parameter(ParameterDescription.builder().name("inv").type(PAR_INVENTORY).description("inventory adjacent to (networked) block").build())
+            .parameter(ParameterDescription.builder().name("inv").type(PAR_INVENTORY).description("inventory adjacent to (networked) block", "or empty to access storage").build())
             .parameter(ParameterDescription.builder().name("cardSlot").type(PAR_INTEGER).description("internal (processor) slot for crafting card").build())
-            .parameter(ParameterDescription.builder().name("slot1").type(PAR_INTEGER).description("first internal slot for ingredients").build())
-            .parameter(ParameterDescription.builder().name("slot2").type(PAR_INTEGER).description("last internal slot for ingredients").build())
+            .parameter(ParameterDescription.builder().name("slot1").type(PAR_INTEGER).description("start of internal slot range for ingredients").build())
             .icon(8, 2)
             .runnable(((processor, program, opcode) -> {
                 Inventory inv = processor.evaluateParameter(opcode, program, 0);
                 int cardSlot = processor.evaluateIntParameter(opcode, program, 1);
                 int slot1 = processor.evaluateIntParameter(opcode, program, 2);
-                int slot2 = processor.evaluateIntParameter(opcode, program, 3);
-                processor.getIngredients(program, inv, cardSlot, slot1, slot2);
+                processor.getIngredients(program, inv, cardSlot, slot1);
                 return true;
             }))
             .build();
 
-    public static final Opcode DO_GETINGREDIENTS_STOR = Opcode.builder()
-            .id("do_getingredients_stor")
-            .description(
-                    TextFormatting.GREEN + "Operation: get ingredients (storage)",
-                    "given a crafting card get the",
-                    "needed and missing ingredients",
-                    "from a storage scanner system",
-                    "and insert in processor",
-                    TextFormatting.RED + "Needs storage scanner module")
-            .opcodeOutput(SINGLE)
-            .parameter(ParameterDescription.builder().name("cardSlot").type(PAR_INTEGER).description("internal (processor) slot for crafting card").build())
-            .parameter(ParameterDescription.builder().name("slot1").type(PAR_INTEGER).description("first internal slot for ingredients").build())
-            .parameter(ParameterDescription.builder().name("slot2").type(PAR_INTEGER).description("last internal slot for ingredients").build())
-            .icon(9, 2)
-            .runnable(((processor, program, opcode) -> {
-                int cardSlot = processor.evaluateIntParameter(opcode, program, 0);
-                int slot1 = processor.evaluateIntParameter(opcode, program, 1);
-                int slot2 = processor.evaluateIntParameter(opcode, program, 2);
-                // @todo
-                return true;
-            }))
-            .build();
     public static final Opcode DO_FETCH_CARD = Opcode.builder()
             .id("do_fetch_card")
             .description(
@@ -793,7 +788,6 @@ public class Opcodes {
         register(DO_CRAFTOK);
         register(DO_CRAFTFAIL);
         register(DO_GETINGREDIENTS);
-        register(DO_GETINGREDIENTS_STOR);
         register(DO_FETCH_CARD);
         register(DO_SETCRAFTID);
         register(DO_CRAFTWAIT);
@@ -801,6 +795,8 @@ public class Opcodes {
 
     private static void register(Opcode opcode) {
         OPCODES.put(opcode.getId(), opcode);
-        SORTED_OPCODES.add(opcode);
+        if (!opcode.isDeprecated()) {
+            SORTED_OPCODES.add(opcode);
+        }
     }
 }

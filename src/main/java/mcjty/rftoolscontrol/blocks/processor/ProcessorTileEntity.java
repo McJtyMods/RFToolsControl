@@ -314,7 +314,52 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     }
 
 
-    public void getIngredients(RunningProgram program, Inventory inv, int cardSlot, int slot1, int slot2) {
+    public void getIngredientsStorage(RunningProgram program, int cardSlot, int slot1) {
+
+        IStorageScanner scanner = getStorageScanner(program);
+        if (scanner == null) {
+            return;
+        }
+
+        CardInfo info = this.cardInfo[program.getCardIndex()];
+        int realCardSlot = info.getRealSlot(cardSlot);
+        if (realCardSlot == -1) {
+            exception(EXCEPT_NOINTERNALSLOT, program);
+            return;
+        }
+        IItemHandler itemHandler = getItemHandler();
+        ItemStack card = itemHandler.getStackInSlot(realCardSlot);
+        if (card == null) {
+            exception(EXCEPT_MISSINGCRAFTINGCARD, program);
+            return;
+        }
+
+        int slot = slot1;
+        List<ItemStack> ingredients = CraftingCardItem.getIngredients(card);
+        for (ItemStack ingredient : ingredients) {
+            int realSlot = info.getRealSlot(slot);
+            if (realSlot == -1) {
+                exception(EXCEPT_NOINTERNALSLOT, program);
+                return;
+            }
+
+            ItemStack stack = scanner.requestItem(ingredient, ingredient.stackSize, true, false);
+            if (stack != null) {
+                // Make a new itemstack as it would be inserted
+                IItemHandler capability = getItemHandler();
+                capability.insertItem(realSlot, stack, false);
+            }
+            slot++;
+        }
+
+    }
+
+    public void getIngredients(RunningProgram program, Inventory inv, int cardSlot, int slot1) {
+        if (inv == null) {
+            getIngredientsStorage(program, cardSlot, slot1);
+            return;
+        }
+
         CardInfo info = this.cardInfo[program.getCardIndex()];
         int realCardSlot = info.getRealSlot(cardSlot);
         if (realCardSlot == -1) {
@@ -874,7 +919,13 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         return result.stackSize;
     }
 
-    public void fetchItems(RunningProgram program, Inventory inv, Integer slot, @Nullable ItemStack itemMatcher, int amount, int virtualSlot) {
+    public void fetchItems(RunningProgram program, Inventory inv, Integer slot, @Nullable ItemStack itemMatcher, boolean routable, boolean oredict, int amount, int virtualSlot) {
+        if (inv == null) {
+            fetchItemsStorage(program, itemMatcher, routable, oredict, amount, virtualSlot);
+            return;
+        }
+
+        // @todo implement oredict
         CardInfo info = this.cardInfo[program.getCardIndex()];
         int realSlot = info.getRealSlot(virtualSlot);
         if (realSlot == -1) {
@@ -951,6 +1002,11 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
 
 
     public void pushItems(RunningProgram program, Inventory inv, Integer slot, int amount, int virtualSlot) {
+        if (inv == null) {
+            pushItemsStorage(program, amount, virtualSlot);
+            return;
+        }
+
         CardInfo info = this.cardInfo[program.getCardIndex()];
         int realSlot = info.getRealSlot(virtualSlot);
         if (realSlot == -1) {
@@ -1150,7 +1206,11 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         return (IStorageScanner) te;
     }
 
-    public int countItem(Inventory inv, Integer slot, ItemStack itemMatcher, RunningProgram program) {
+    public int countItem(Inventory inv, Integer slot, ItemStack itemMatcher, boolean oredict, boolean routable, RunningProgram program) {
+        if (inv == null) {
+            return countItemStorage(itemMatcher, routable, oredict, program);
+        }
+        // @todo support oredict here?
         IItemHandler handler = getItemHandlerAt(inv, program);
         if (handler != null) {
             if (slot != null) {
@@ -1170,7 +1230,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                 return cnt;
             }
         } else {
-            // @todo error?
+            exception(EXCEPT_INVALIDINVENTORY, program);
         }
         return 0;
     }
@@ -1187,6 +1247,9 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     }
 
     public TileEntity getTileEntityAt(Inventory inv, RunningProgram program) {
+        if (inv == null) {
+            return null;
+        }
         BlockPos p = pos;
         if (inv.hasNodeName()) {
             if (!hasNetworkCard()) {
