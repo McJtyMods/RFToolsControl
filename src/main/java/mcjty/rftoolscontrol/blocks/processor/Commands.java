@@ -1,8 +1,12 @@
 package mcjty.rftoolscontrol.blocks.processor;
 
+import mcjty.rftoolscontrol.logic.compiled.CompiledOpcode;
 import mcjty.rftoolscontrol.logic.running.CpuCore;
+import mcjty.rftoolscontrol.logic.running.RunningProgram;
 import net.minecraft.util.text.TextFormatting;
 import org.apache.commons.lang3.StringUtils;
+
+import java.util.List;
 
 public class Commands {
 
@@ -27,14 +31,107 @@ public class Commands {
             processor.log(TextFormatting.YELLOW + "Reset the processor!");
             processor.reset();
         } else if ("help".equals(cmd)) {
-            processor.log("Commands: clear/stop/list/net/help/reset");
+            processor.log("Commands: clear/stop/list/net/help");
+            processor.log("    reset/db");
+        } else if ("db".equals(cmd)) {
+            handleDebugCommand(processor, splitted);
         } else {
             processor.log("Unknown command!");
         }
     }
 
+    private static void handleDebugCommand(ProcessorTileEntity processor, String[] splitted) {
+        List<CpuCore> cores = processor.getCpuCores();
+        String sub = splitted[1].toLowerCase();
+        if ("debug".equals(sub)) {
+            if (splitted.length > 2) {
+                try {
+                    int core = Integer.parseInt(splitted[2]);
+                    cores.get(core).setDebug(true);
+                    processor.log(TextFormatting.YELLOW + "Debug mode for core: " + core);
+                } catch (Exception e) {
+                    processor.log(TextFormatting.RED + "Bad core number");
+                    return;
+                }
+            } else {
+                for (CpuCore core : cores) {
+                    core.setDebug(true);
+                }
+                processor.log(TextFormatting.YELLOW + "Debug mode for all cores");
+            }
+        } else if ("resume".equals(sub)) {
+            if (splitted.length > 2) {
+                try {
+                    int core = Integer.parseInt(splitted[2]);
+                    cores.get(core).setDebug(false);
+                    processor.log(TextFormatting.YELLOW + "Resume core: " + core);
+                } catch (Exception e) {
+                    processor.log(TextFormatting.RED + "Bad core number");
+                    return;
+                }
+            } else {
+                for (CpuCore core : cores) {
+                    core.setDebug(false);
+                }
+                processor.log(TextFormatting.YELLOW + "Resume all cores");
+            }
+        } else if ("info".equals(sub)) {
+            for (int i = 0; i < cores.size(); i++) {
+                CpuCore core = cores.get(i);
+                if (core.isDebug()) {
+                    RunningProgram program = core.getProgram();
+                    if (program == null) {
+                        processor.log("Core " + i + ": " + "not running");
+                    } else {
+                        showCurrent(processor, i, program);
+                    }
+                }
+            }
+        } else if ("step".equals(sub)) {
+            int cnt = 0;
+            for (CpuCore core : cores) {
+                if (core.isDebug()) {
+                    cnt++;
+                }
+            }
+            int c = 0;
+            if (cnt == 0) {
+                processor.log(TextFormatting.RED + "Not debugging");
+                return;
+            } else if (cnt > 1) {
+                if (splitted.length <= 2) {
+                    processor.log(TextFormatting.RED + "Missing core number");
+                    return;
+                }
+                try {
+                    c = Integer.parseInt(splitted[2]);
+                } catch (Exception e) {
+                    processor.log(TextFormatting.RED + "Bad core number");
+                    return;
+                }
+            }
+            CpuCore core = cores.get(c);
+            RunningProgram program = core.getProgram();
+            if (program == null) {
+                processor.log(TextFormatting.RED + "Core " + c + ": " + "not running");
+                return;
+            }
+            core.step(processor);
+            showCurrent(processor, c, program);
+        } else {
+            processor.log("Unknown 'db' command!");
+        }
+    }
+
+    private static void showCurrent(ProcessorTileEntity processor, int i, RunningProgram program) {
+        CompiledOpcode currentOpcode = program.getCurrentOpcode(processor);
+        int x = currentOpcode.getGridX();
+        int y = currentOpcode.getGridY();
+        String id = currentOpcode.getOpcode().getId();
+        processor.log("Core " + i + ": [" + x + "," + y + "] " + id);
+    }
+
     private static void handleNetworkCommand(ProcessorTileEntity processor, String[] splitted) {
-        System.out.println("splitted = " + splitted);
         if (processor.hasNetworkCard()) {
             if (splitted.length < 1) {
                 processor.log("Use: net setup/net/list scan");

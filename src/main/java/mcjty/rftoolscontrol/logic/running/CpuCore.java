@@ -8,6 +8,7 @@ public class CpuCore {
 
     private RunningProgram program = null;
     private int tier;
+    private boolean debug = false;
 
     public CpuCore() {
     }
@@ -16,7 +17,18 @@ public class CpuCore {
         this.tier = tier;
     }
 
+    public boolean isDebug() {
+        return debug;
+    }
+
+    public void setDebug(boolean debug) {
+        this.debug = debug;
+    }
+
     public void run(ProcessorTileEntity processor) {
+        if (debug) {
+            return;
+        }
         for (int i = 0; i < GeneralConfiguration.coreSpeed[tier]; i++) {
             boolean rc = false;
             try {
@@ -35,6 +47,21 @@ public class CpuCore {
             if (!rc) {
                 return;
             }
+        }
+    }
+
+    public void step(ProcessorTileEntity processor) {
+        try {
+            program.run(processor);
+        } catch (ProgException e) {
+            processor.exception(e.getExceptionType(), program);
+            program.killMe();
+        }
+        if (program.isDead()) {
+            if (RunningProgram.DEBUG) {
+                System.out.println("Core: stopping program");
+            }
+            program = null;
         }
     }
 
@@ -67,11 +94,13 @@ public class CpuCore {
             program.writeToNBT(tag);
         }
         tag.setInteger("tier", tier);
+        tag.setBoolean("debug", debug);
         return tag;
     }
 
     public void readFromNBT(NBTTagCompound tag) {
         program = RunningProgram.readFromNBT(tag);
         tier = tag.getInteger("tier");
+        debug = tag.getBoolean("debug");
     }
 }

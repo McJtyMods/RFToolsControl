@@ -128,6 +128,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
     private void executeCommand(String text) {
         sendServerCommand(RFToolsCtrlMessages.INSTANCE, ProcessorTileEntity.CMD_CLEARLOG, new Argument("cmd", text));
         command.setText("");
+        window.setTextFocus(command);
     }
 
     private void requestLists() {
