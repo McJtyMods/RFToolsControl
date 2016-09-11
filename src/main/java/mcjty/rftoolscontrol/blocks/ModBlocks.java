@@ -4,6 +4,7 @@ import mcjty.rftoolscontrol.blocks.craftingstation.CraftingStationBlock;
 import mcjty.rftoolscontrol.blocks.node.NodeBlock;
 import mcjty.rftoolscontrol.blocks.processor.ProcessorBlock;
 import mcjty.rftoolscontrol.blocks.programmer.ProgrammerBlock;
+import mcjty.rftoolscontrol.blocks.workbench.WorkbenchBlock;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -13,12 +14,14 @@ public final class ModBlocks {
     public static ProcessorBlock processorBlock;
     public static NodeBlock nodeBlock;
     public static CraftingStationBlock craftingStationBlock;
+    public static WorkbenchBlock workbenchBlock;
 
     public static void init() {
         programmerBlock = new ProgrammerBlock();
         processorBlock = new ProcessorBlock();
         nodeBlock = new NodeBlock();
         craftingStationBlock = new CraftingStationBlock();
+        workbenchBlock = new WorkbenchBlock();
     }
 
     @SideOnly(Side.CLIENT)
@@ -27,5 +30,6 @@ public final class ModBlocks {
         processorBlock.initModel();
         nodeBlock.initModel();
         craftingStationBlock.initModel();
+        workbenchBlock.initModel();
     }
 }

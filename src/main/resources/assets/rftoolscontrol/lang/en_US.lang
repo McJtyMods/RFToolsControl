@@ -18,6 +18,7 @@ tile.rftoolscontrol.programmer.name=Programmer
 tile.rftoolscontrol.processor.name=Processor
 tile.rftoolscontrol.craftingstation.name=Crafting Station
 tile.rftoolscontrol.node.name=Node
+tile.rftoolscontrol.workbench.name=Workbench
 
 # Creative Tabs
 itemGroup.RFToolsControl=RFTools Control
