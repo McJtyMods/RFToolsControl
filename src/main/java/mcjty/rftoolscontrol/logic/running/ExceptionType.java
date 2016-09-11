@@ -12,7 +12,7 @@ public enum ExceptionType {
     EXCEPT_MISSINGSTORAGECARD("missing_storage_card", "Missing storage card"),
     EXCEPT_MISSINGSTORAGE("missing_storage", "Missing or invalid storage"),
     EXCEPT_INVALIDINVENTORY("invalid_inventory", "Invalid inventory"),
-    EXCEPT_MISSINGCRAFTCONTEXT("missing_craft_context", "Missing crafting context"),
+    EXCEPT_MISSINGCRAFTTICKET("missing_craft_ticket", "Missing crafting ticket"),
     EXCEPT_MISSINGCRAFTRESULT("missing_craft_result", "Missing craft result"),
     EXCEPT_MISSINGVARIABLE("missing_variable", "Missing variable"),
     EXCEPT_NOTENOUGHVARIABLES("not_enough_variables", "Not enough variables"),

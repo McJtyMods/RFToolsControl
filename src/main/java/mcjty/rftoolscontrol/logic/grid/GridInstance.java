@@ -2,6 +2,10 @@ package mcjty.rftoolscontrol.logic.grid;
 
 import mcjty.rftoolscontrol.logic.Connection;
 import mcjty.rftoolscontrol.logic.Parameter;
+import mcjty.rftoolscontrol.logic.registry.Opcode;
+import mcjty.rftoolscontrol.logic.registry.Opcodes;
+import mcjty.rftoolscontrol.logic.registry.ParameterDescription;
+import mcjty.rftoolscontrol.logic.registry.ParameterValue;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraftforge.common.util.Constants;
@@ -64,17 +68,32 @@ public class GridInstance {
     }
 
     public static GridInstance readFromNBT(NBTTagCompound tag) {
-        GridInstance.Builder builder = GridInstance.builder(tag.getString("id"));
+        String opcodeid = tag.getString("id");
+        GridInstance.Builder builder = GridInstance.builder(opcodeid);
         if (tag.hasKey("prim")) {
             builder.primaryConnection(Connection.getConnection(tag.getString("prim")));
         }
         if (tag.hasKey("sec")) {
             builder.secondaryConnection(Connection.getConnection(tag.getString("sec")));
         }
+
+        Opcode opcode = Opcodes.OPCODES.get(opcodeid);
+        if (opcode == null) {
+            // Sanity check in case an opcode got removed
+            return null;
+        }
+        List<ParameterDescription> parameters = opcode.getParameters();
+
         NBTTagList parList = tag.getTagList("pars", Constants.NBT.TAG_COMPOUND);
         for (int i = 0 ; i < parList.tagCount() ; i++) {
             NBTTagCompound parTag = (NBTTagCompound) parList.get(i);
-            builder.parameter(Parameter.readFromNBT(parTag));
+            Parameter parameter = Parameter.readFromNBT(parTag);
+            if (parameter.getParameterType() != parameters.get(i).getType()) {
+                // Sanity check
+                builder.parameter(Parameter.builder().type(parameters.get(i).getType()).value(ParameterValue.constant(null)).build());
+            } else {
+                builder.parameter(parameter);
+            }
         }
 
         return builder.build();

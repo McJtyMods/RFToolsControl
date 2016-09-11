@@ -6,19 +6,19 @@ import net.minecraft.item.ItemStack;
 import javax.annotation.Nonnull;
 
 public class WaitForItem {
-    private final String craftId;
+    private final String ticket;
     private final ItemStack itemStack;
     private final Inventory inventory;
 
-    public WaitForItem(@Nonnull String craftId, @Nonnull ItemStack itemStack, @Nonnull Inventory inventory) {
-        this.craftId = craftId;
+    public WaitForItem(@Nonnull String ticket, @Nonnull ItemStack itemStack, @Nonnull Inventory inventory) {
+        this.ticket = ticket;
         this.itemStack = itemStack;
         this.inventory = inventory;
     }
 
     @Nonnull
-    public String getCraftId() {
-        return craftId;
+    public String getTicket() {
+        return ticket;
     }
 
     @Nonnull

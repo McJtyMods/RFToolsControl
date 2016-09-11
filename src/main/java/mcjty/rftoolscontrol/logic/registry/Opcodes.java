@@ -132,7 +132,7 @@ public class Opcodes {
             .runnable(((processor, program, opcode) -> {
                 Inventory inv = processor.evaluateParameter(opcode, program, 0);
                 int slot = processor.evaluateIntParameter(opcode, program, 1);
-                IItemHandler handler = processor.getItemHandlerAt(inv, program);
+                IItemHandler handler = processor.getItemHandlerAt(inv);
                 ItemStack item = handler.getStackInSlot(slot);
                 program.setLastValue(Parameter.builder().type(PAR_ITEM).value(ParameterValue.constant(item)).build());
                 return true;
@@ -459,7 +459,7 @@ public class Opcodes {
                 ItemStack item = processor.evaluateParameter(opcode, program, 0);
                 boolean oredict = processor.evaluateBoolParameter(opcode, program, 1);
                 boolean routable = processor.evaluateBoolParameter(opcode, program, 2);
-                int cnt = processor.countItemStorage(item, routable, oredict, program);
+                int cnt = processor.countItemStorage(item, routable, oredict);
                 program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(cnt)).build());
                 return true;
             }))
@@ -572,7 +572,7 @@ public class Opcodes {
                     "execute program when a crafting",
                     "station requests a specific item",
                     "or for an inventory with crafting cards",
-                    "This operation sets the crafting context")
+                    "This operation sets the crafting ticket")
             .opcodeOutput(SINGLE)
             .isEvent(true)
             .parameter(ParameterDescription.builder().name("item").type(PAR_ITEM).description("the item to craft (optional)").build())
@@ -615,43 +615,24 @@ public class Opcodes {
             .id("do_getingredients")
             .description(
                     TextFormatting.GREEN + "Operation: get ingredients",
-                    "given a crafting card get the",
-                    "needed and missing ingredients",
-                    "from an adjacent inventory and",
+                    "given a crafting card inventory",
+                    "get the needed and missing ingredients",
+                    "from another inventory and",
                     "insert in processor",
                     "Can also bse used on a storage",
                     "scanner system")
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("inv").type(PAR_INVENTORY).description("inventory adjacent to (networked) block", "or empty to access storage").build())
-            .parameter(ParameterDescription.builder().name("cardSlot").type(PAR_INTEGER).description("internal (processor) slot for crafting card").build())
+            .parameter(ParameterDescription.builder().name("cardInv").type(PAR_INVENTORY).description("inventory adjacent to (networked) block", "with crafting cards").build())
+            .parameter(ParameterDescription.builder().name("item").type(PAR_ITEM).description("the item to craft or empty", "for default from ticket").build())
             .parameter(ParameterDescription.builder().name("slot1").type(PAR_INTEGER).description("start of internal slot range for ingredients").build())
             .icon(8, 2)
             .runnable(((processor, program, opcode) -> {
                 Inventory inv = processor.evaluateParameter(opcode, program, 0);
-                int cardSlot = processor.evaluateIntParameter(opcode, program, 1);
-                int slot1 = processor.evaluateIntParameter(opcode, program, 2);
-                processor.getIngredients(program, inv, cardSlot, slot1);
-                return true;
-            }))
-            .build();
-
-    public static final Opcode DO_FETCH_CARD = Opcode.builder()
-            .id("do_fetch_card")
-            .description(
-                    TextFormatting.GREEN + "Operation: fetch crafting card",
-                    "fetch the right crafting card (from",
-                    "current card context) from an adjacent",
-                    "inventory and place it in the processor.",
-                    "Move the card that was already there back",
-                    "to that inventory")
-            .opcodeOutput(SINGLE)
-            .parameter(ParameterDescription.builder().name("inv").type(PAR_INVENTORY).description("inventory adjacent to (networked) block").build())
-            .parameter(ParameterDescription.builder().name("cardSlot").type(PAR_INTEGER).description("internal (processor) slot for crafting card").build())
-            .icon(10, 2)
-            .runnable(((processor, program, opcode) -> {
-                Inventory inv = processor.evaluateParameter(opcode, program, 0);
-                int cardSlot = processor.evaluateIntParameter(opcode, program, 1);
-                processor.fetchCard(program, inv, cardSlot);
+                Inventory cardInv = processor.evaluateParameter(opcode, program, 1);
+                ItemStack item = processor.evaluateParameter(opcode, program, 2);
+                int slot1 = processor.evaluateIntParameter(opcode, program, 3);
+                processor.getIngredients(program, inv, cardInv, item, slot1);
                 return true;
             }))
             .build();
@@ -678,18 +659,18 @@ public class Opcodes {
             }))
             .build();
 
-    public static final Opcode DO_SETCRAFTID = Opcode.builder()
-            .id("do_setcraftid")
+    public static final Opcode DO_SETCRAFTTICKET = Opcode.builder()
+            .id("do_setticket")
             .description(
                     TextFormatting.GREEN + "Operation: resume craft operation",
                     "resume a previously stored",
                     "crafting operation")
             .opcodeOutput(SINGLE)
-            .parameter(ParameterDescription.builder().name("craftid").type(PAR_STRING).description("crafting identification").build())
+            .parameter(ParameterDescription.builder().name("ticket").type(PAR_STRING).description("crafting ticket").build())
             .icon(0, 3)
             .runnable(((processor, program, opcode) -> {
-                String craftId = processor.evaluateStringParameter(opcode, program, 0);
-                processor.setCraftId(program, craftId);
+                String ticket = processor.evaluateStringParameter(opcode, program, 0);
+                processor.setCraftTicket(program, ticket);
                 return true;
             }))
             .build();
@@ -713,7 +694,7 @@ public class Opcodes {
             .description(
                     TextFormatting.GREEN + "Event: craft resume",
                     "resume crafting operation",
-                    "This operation sets the crafting context")
+                    "This operation sets the crafting ticket")
             .parameter(ParameterDescription.builder().name("ticks").type(PAR_INTEGER).description("ticks between each check").build())
             .opcodeOutput(SINGLE)
             .isEvent(true)
@@ -729,7 +710,7 @@ public class Opcodes {
                     "item appears in an inventory")
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("inv").type(PAR_INVENTORY).description("inventory adjacent to (networked) block").build())
-            .parameter(ParameterDescription.builder().name("item").type(PAR_ITEM).description("optional item to wait for", "if not given it will use", "current craft result").build())
+            .parameter(ParameterDescription.builder().name("item").type(PAR_ITEM).description("optional item to wait for", "if not given it will use current craft result").build())
             .icon(3, 3)
             .runnable(((processor, program, opcode) -> {
                 Inventory inv = processor.evaluateParameter(opcode, program, 0);
@@ -792,8 +773,7 @@ public class Opcodes {
         register(DO_CRAFTOK);
         register(DO_CRAFTFAIL);
         register(DO_GETINGREDIENTS);
-        register(DO_FETCH_CARD);
-        register(DO_SETCRAFTID);
+        register(DO_SETCRAFTTICKET);
         register(DO_CRAFTWAIT);
     }
 

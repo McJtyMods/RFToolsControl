@@ -5,12 +5,12 @@ import mcjty.rftoolscontrol.logic.compiled.CompiledEvent;
 public class QueuedEvent {
     private final int cardIndex;
     private final CompiledEvent compiledEvent;
-    private final String craftId;
+    private final String ticket;
 
-    public QueuedEvent(int cardIndex, CompiledEvent compiledEvent, String craftId) {
+    public QueuedEvent(int cardIndex, CompiledEvent compiledEvent, String ticket) {
         this.cardIndex = cardIndex;
         this.compiledEvent = compiledEvent;
-        this.craftId = craftId;
+        this.ticket = ticket;
     }
 
     public int getCardIndex() {
@@ -21,7 +21,7 @@ public class QueuedEvent {
         return compiledEvent;
     }
 
-    public String getCraftId() {
-        return craftId;
+    public String getTicket() {
+        return ticket;
     }
 }

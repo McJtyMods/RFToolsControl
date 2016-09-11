@@ -20,8 +20,8 @@ public class RunningProgram {
     // Current opcode
     private int current = 0;
 
-    // Current craftId
-    private String craftId = null;
+    // Current ticket
+    private String ticket = null;
 
     // If we need to wait a few ticks
     private int delay = 0;
@@ -43,17 +43,17 @@ public class RunningProgram {
         this.current = current;
     }
 
-    public void setCraftId(@Nullable String craftId) {
-        this.craftId = craftId;
+    public void setCraftTicket(@Nullable String craftId) {
+        this.ticket = craftId;
     }
 
     @Nullable
-    public String getCraftId() {
-        return craftId;
+    public String getCraftTicket() {
+        return ticket;
     }
 
-    public boolean hasCraftId() {
-        return craftId != null && !craftId.isEmpty();
+    public boolean hasCraftTicket() {
+        return ticket != null && !ticket.isEmpty();
     }
 
     public void setDelay(int delay) {
@@ -122,6 +122,9 @@ public class RunningProgram {
         tag.setInteger("current", current);
         tag.setInteger("delay", delay);
         tag.setBoolean("dead", dead);
+        if (ticket != null) {
+            tag.setString("ticket", ticket);
+        }
         if (lastValue != null) {
             NBTTagCompound varTag = new NBTTagCompound();
             varTag.setInteger("type", lastValue.getParameterType().ordinal());
@@ -139,6 +142,9 @@ public class RunningProgram {
         program.setCurrent(tag.getInteger("current"));
         program.setDelay(tag.getInteger("delay"));
         program.dead = tag.getBoolean("dead");
+        if (tag.hasKey("ticket")) {
+            program.ticket = tag.getString("ticket");
+        }
         if (tag.hasKey("lastvar")) {
             NBTTagCompound varTag = tag.getCompoundTag("lastvar");
             int t = varTag.getInteger("type");

@@ -57,7 +57,10 @@ public class ProgramCardInstance {
     private static void parseElement(NBTTagCompound tag, ProgramCardInstance instance) {
         int x = tag.getInteger("x");
         int y = tag.getInteger("y");
-        instance.putGridInstance(x, y, GridInstance.readFromNBT(tag));
+        GridInstance gi = GridInstance.readFromNBT(tag);
+        if (gi != null) {
+            instance.putGridInstance(x, y, gi);
+        }
     }
 
     public void putGridInstance(int x, int y, GridInstance gridInstance) {

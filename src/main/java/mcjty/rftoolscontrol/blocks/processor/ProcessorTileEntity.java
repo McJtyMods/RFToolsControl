@@ -220,7 +220,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                 eventQueue.remove();
                 RunningProgram program = new RunningProgram(queuedEvent.getCardIndex());
                 program.setCurrent(queuedEvent.getCompiledEvent().getIndex());
-                program.setCraftId(queuedEvent.getCraftId());
+                program.setCraftTicket(queuedEvent.getTicket());
                 core.startProgram(program);
             }
         }
@@ -242,11 +242,21 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                         if (stack == null && inv == null) {
                             throw new ProgException(EXCEPT_BADPARAMETERS);
                         }
-                        if (inv != null) {
+                        if (stack != null) {
+                            stacks.add(stack);
+                        } else {
                             // Find all crafting cards in the inventory
-                            // @todo
+                            IItemHandler handler = getItemHandlerAt(inv);
+                            for (int i = 0 ; i < handler.getSlots() ; i++) {
+                                ItemStack s = handler.getStackInSlot(i);
+                                if (s != null && s.getItem() == ModItems.craftingCardItem) {
+                                    ItemStack result = CraftingCardItem.getResult(s);
+                                    if (result != null) {
+                                        stacks.add(result);
+                                    }
+                                }
+                            }
                         }
-                        stacks.add(stack);
                     }
                 }
             }
@@ -256,10 +266,10 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     }
 
     public void craftOk(RunningProgram program, Integer slot) {
-        if (!program.hasCraftId()) {
-            throw new ProgException(EXCEPT_MISSINGCRAFTCONTEXT);
+        if (!program.hasCraftTicket()) {
+            throw new ProgException(EXCEPT_MISSINGCRAFTTICKET);
         }
-        String craftId = program.getCraftId();
+        String ticket = program.getCraftTicket();
 
         CardInfo info = this.cardInfo[program.getCardIndex()];
         Integer realSlot = info.getRealSlot(slot);
@@ -272,7 +282,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             TileEntity te = worldObj.getTileEntity(p);
             if (te instanceof CraftingStationTileEntity) {
                 CraftingStationTileEntity craftingStation = (CraftingStationTileEntity) te;
-                craftedItem = craftingStation.craftOk(craftId, craftedItem);
+                craftedItem = craftingStation.craftOk(ticket, craftedItem);
             }
         }
 
@@ -283,22 +293,22 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     }
 
     public void craftFail(RunningProgram program) {
-        if (!program.hasCraftId()) {
-            throw new ProgException(EXCEPT_MISSINGCRAFTCONTEXT);
+        if (!program.hasCraftTicket()) {
+            throw new ProgException(EXCEPT_MISSINGCRAFTTICKET);
         }
-        String craftId = program.getCraftId();
+        String ticket = program.getCraftTicket();
 
         for (BlockPos p : craftingStations) {
             TileEntity te = worldObj.getTileEntity(p);
             if (te instanceof CraftingStationTileEntity) {
                 CraftingStationTileEntity craftingStation = (CraftingStationTileEntity) te;
-                craftingStation.craftFail(craftId);
+                craftingStation.craftFail(ticket);
             }
         }
     }
 
     public void pushItemsMulti(RunningProgram program, Inventory inv, int slot1, int slot2) {
-        IItemHandler handler = getItemHandlerAt(inv, program);
+        IItemHandler handler = getItemHandlerAt(inv);
         CardInfo info = this.cardInfo[program.getCardIndex()];
         IItemHandler itemHandler = getItemHandler();
         for (int slot = slot1 ; slot <= slot2 ; slot++) {
@@ -312,17 +322,25 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     }
 
 
-    public void getIngredients(RunningProgram program, Inventory inv, int cardSlot, int slot1) {
-        IStorageScanner scanner = getScannerForInv(program, inv);
-        IItemHandler handler = getHandlerForInv(program, inv);
+    public void getIngredients(RunningProgram program, Inventory inv, Inventory cardInv, @Nullable ItemStack item, int slot1) {
+        IStorageScanner scanner = getScannerForInv(inv);
+        IItemHandler handler = getHandlerForInv(inv);
 
-        CardInfo info = this.cardInfo[program.getCardIndex()];
-        int realCardSlot = info.getRealSlot(cardSlot);
-        IItemHandler itemHandler = getItemHandler();
-        ItemStack card = itemHandler.getStackInSlot(realCardSlot);
+        if (item == null) {
+            item = getCraftResult(program);
+        }
+        if (item == null) {
+            throw new ProgException(EXCEPT_MISSINGCRAFTRESULT);
+        }
+
+        IItemHandler cardHandler = getItemHandlerAt(cardInv);
+        ItemStack card = findCraftingCard(cardHandler, item);
         if (card == null) {
             throw new ProgException(EXCEPT_MISSINGCRAFTINGCARD);
         }
+        CardInfo info = this.cardInfo[program.getCardIndex()];
+
+        IItemHandler itemHandler = getItemHandler();
 
         int slot = slot1;
         List<ItemStack> ingredients = CraftingCardItem.getIngredients(card);
@@ -345,8 +363,8 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     }
 
     public void craftWait(RunningProgram program, Inventory inv, ItemStack stack) {
-        if (!program.hasCraftId()) {
-            throw new ProgException(EXCEPT_MISSINGCRAFTCONTEXT);
+        if (!program.hasCraftTicket()) {
+            throw new ProgException(EXCEPT_MISSINGCRAFTTICKET);
         }
         if (stack == null) {
             stack = getCraftResult(program);
@@ -354,58 +372,17 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                 throw new ProgException(EXCEPT_MISSINGCRAFTRESULT);
             }
         }
-        WaitForItem waitForItem = new WaitForItem(program.getCraftId(), stack, inv);
+        WaitForItem waitForItem = new WaitForItem(program.getCraftTicket(), stack, inv);
         waitingForItems.add(waitForItem);
         markDirty();
     }
 
-    public void fetchCard(RunningProgram program, Inventory inv, int cardSlot) {
-        CardInfo info = this.cardInfo[program.getCardIndex()];
-        int realSlot = info.getRealSlot(cardSlot);
-
-        IItemHandler handler = getItemHandlerAt(inv, program);
-
-        ItemStack craftResult = getCraftResult(program);
-        if (craftResult == null) {
-            throw new ProgException(EXCEPT_MISSINGCRAFTRESULT);
-        }
-
-        IItemHandler itemHandler = getItemHandler();
-        ItemStack oldStack = itemHandler.getStackInSlot(realSlot);
-        if (oldStack != null && oldStack.getItem() == ModItems.craftingCardItem) {
-            ItemStack result = CraftingCardItem.getResult(oldStack);
-            if (craftResult.isItemEqual(result)) {
-                // Card is already ok
-                return;
-            }
-        }
-
-        for (int i = 0 ; i < handler.getSlots() ; i++) {
-            ItemStack stack = handler.getStackInSlot(i);
-            if (stack != null && stack.getItem() == ModItems.craftingCardItem) {
-                ItemStack result = CraftingCardItem.getResult(stack);
-                if (craftResult.isItemEqual(result)) {
-                    ItemStack craftingCard = handler.extractItem(i, 1, false);
-                    if (oldStack != null) {
-                        oldStack = itemHandler.extractItem(realSlot, oldStack.stackSize, false);
-                    }
-                    itemHandler.insertItem(realSlot, craftingCard, false);
-                    if (oldStack != null) {
-                        handler.insertItem(i, oldStack, false);
-                    }
-                    return;
-                }
-            }
-        }
-        throw new ProgException(EXCEPT_MISSINGCRAFTINGCARD);
-    }
-
-    public void setCraftId(RunningProgram program, String craftId) {
-        program.setCraftId(craftId);
+    public void setCraftTicket(RunningProgram program, String ticket) {
+        program.setCraftTicket(ticket);
     }
 
     public ItemStack getCraftResult(RunningProgram program) {
-        if (!program.hasCraftId()) {
+        if (!program.hasCraftTicket()) {
             // @todo ? exception?
             return null;
         }
@@ -413,7 +390,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             TileEntity te = worldObj.getTileEntity(p);
             if (te instanceof CraftingStationTileEntity) {
                 CraftingStationTileEntity craftingStation = (CraftingStationTileEntity) te;
-                ItemStack stack = craftingStation.getCraftResult(program.getCraftId());
+                ItemStack stack = craftingStation.getCraftResult(program.getCraftTicket());
                 if (stack != null) {
                     return stack;
                 }
@@ -422,7 +399,20 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         return null;
     }
 
-    public void fireCraftEvent(String craftID, ItemStack stack, int amount) {
+    private ItemStack findCraftingCard(IItemHandler handler, ItemStack craftResult) {
+        for (int j = 0 ; j < handler.getSlots() ; j++) {
+            ItemStack s = handler.getStackInSlot(j);
+            if (s != null && s.getItem() == ModItems.craftingCardItem) {
+                ItemStack result = CraftingCardItem.getResult(s);
+                if (result != null && result.isItemEqual(craftResult)) {
+                    return s;
+                }
+            }
+        }
+        return null;
+    }
+
+    public void fireCraftEvent(String ticket, ItemStack stackToCraft, int amount) {
         for (int i = 0 ; i < cardInfo.length ; i++) {
             CardInfo info = cardInfo[i];
             CompiledCard compiledCard = info.getCompiledCard();
@@ -430,9 +420,20 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                 for (CompiledEvent event : compiledCard.getEvents(Opcodes.EVENT_CRAFT)) {
                     int index = event.getIndex();
                     CompiledOpcode compiledOpcode = compiledCard.getOpcodes().get(index);
-                    ItemStack s = evaluateParameter(compiledOpcode, null, 0);
-                    if (stack.isItemEqual(s)) {
-                        runOrQueueEvent(i, event, craftID);
+                    ItemStack stack = evaluateParameter(compiledOpcode, null, 0);
+                    Inventory inv = evaluateParameter(compiledOpcode, null, 1);
+                    if (stack != null) {
+                        if (stack.isItemEqual(stackToCraft)) {
+                            runOrQueueEvent(i, event, ticket);
+                            return;
+                        }
+                    } else if (inv != null) {
+                        IItemHandler handler = getItemHandlerAt(inv);
+                        ItemStack craftingCard = findCraftingCard(handler, stackToCraft);
+                        if (craftingCard != null) {
+                            runOrQueueEvent(i, event, ticket);
+                            return;
+                        }
                     }
                 }
             }
@@ -463,7 +464,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                     int foundIdx = -1;
                     for (int i = 0 ; i < waitingForItems.size() ; i++) {
                         WaitForItem wfi = waitingForItems.get(i);
-                        IItemHandler handler = getItemHandlerAt(wfi.getInventory(), null);
+                        IItemHandler handler = getItemHandlerAt(wfi.getInventory());
                         int cnt = countItemInHandler(wfi.getItemStack(), handler);
                         if (cnt >= wfi.getItemStack().stackSize) {
                             foundIdx = i;
@@ -473,7 +474,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                     }
                     if (found != null) {
                         waitingForItems.remove(foundIdx);
-                        runOrQueueEvent(cardIndex, event, found.getCraftId());
+                        runOrQueueEvent(cardIndex, event, found.getTicket());
                     }
                 }
             }
@@ -521,15 +522,15 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         }
     }
 
-    private void runOrQueueEvent(int cardIndex, CompiledEvent event, @Nullable String craftId) {
+    private void runOrQueueEvent(int cardIndex, CompiledEvent event, @Nullable String ticket) {
         CpuCore core = findAvailableCore();
         if (core == null) {
             // No available core
-            eventQueue.add(new QueuedEvent(cardIndex, event, craftId));
+            eventQueue.add(new QueuedEvent(cardIndex, event, ticket));
         } else {
             RunningProgram program = new RunningProgram(cardIndex);
             program.setCurrent(event.getIndex());
-            program.setCraftId(craftId);
+            program.setCraftTicket(ticket);
             core.startProgram(program);
         }
     }
@@ -597,7 +598,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                     CompiledOpcode compiledOpcode = compiledCard.getOpcodes().get(index);
                     String code = evaluateStringParameter(compiledOpcode, null, 0);
                     if (exception.getCode().equals(code)) {
-                        runOrQueueEvent(i, event, program.getCraftId());
+                        runOrQueueEvent(i, event, program.getCraftTicket());
                         return;
                     }
                 }
@@ -701,7 +702,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     }
 
     public int getEnergy(Inventory side, RunningProgram program) {
-        TileEntity te = getTileEntityAt(side, program);
+        TileEntity te = getTileEntityAt(side);
         if (te instanceof IEnergyHandler) {
             IEnergyHandler handler = (IEnergyHandler) te;
             return handler.getEnergyStored(side.getIntSide() == null ? EnumFacing.DOWN : side.getIntSide());
@@ -710,7 +711,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     }
 
     public int getMaxEnergy(Inventory side, RunningProgram program) {
-        TileEntity te = getTileEntityAt(side, program);
+        TileEntity te = getTileEntityAt(side);
         if (te instanceof IEnergyHandler) {
             IEnergyHandler handler = (IEnergyHandler) te;
             return handler.getMaxEnergyStored(side.getIntSide() == null ? EnumFacing.DOWN : side.getIntSide());
@@ -718,26 +719,26 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         throw new ProgException(EXCEPT_NORF);
     }
 
-    private IStorageScanner getScannerForInv(RunningProgram program, Inventory inv) {
+    private IStorageScanner getScannerForInv(Inventory inv) {
         if (inv == null) {
-            return getStorageScanner(program);
+            return getStorageScanner();
         } else {
             return null;
         }
     }
 
-    private IItemHandler getHandlerForInv(RunningProgram program, Inventory inv) {
+    private IItemHandler getHandlerForInv(Inventory inv) {
         if (inv == null) {
             return null;
         } else {
-            return getItemHandlerAt(inv, program);
+            return getItemHandlerAt(inv);
         }
     }
 
 
     public int fetchItems(RunningProgram program, Inventory inv, Integer slot, @Nullable ItemStack itemMatcher, boolean routable, boolean oredict, int amount, int virtualSlot) {
-        IStorageScanner scanner = getScannerForInv(program, inv);
-        IItemHandler handler = getHandlerForInv(program, inv);
+        IStorageScanner scanner = getScannerForInv(inv);
+        IItemHandler handler = getHandlerForInv(inv);
 
         CardInfo info = this.cardInfo[program.getCardIndex()];
         int realSlot = info.getRealSlot(virtualSlot);
@@ -766,8 +767,8 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     }
 
     public int pushItems(RunningProgram program, Inventory inv, Integer slot, int amount, int virtualSlot) {
-        IStorageScanner scanner = getScannerForInv(program, inv);
-        IItemHandler handler = getHandlerForInv(program, inv);
+        IStorageScanner scanner = getScannerForInv(inv);
+        IItemHandler handler = getHandlerForInv(inv);
 
         CardInfo info = this.cardInfo[program.getCardIndex()];
         int realSlot = info.getRealSlot(virtualSlot);
@@ -896,15 +897,15 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         return TypeConverters.convertToBool(value);
     }
 
-    public int countItemStorage(ItemStack stack, boolean routable, boolean oredict, RunningProgram program) {
-        IStorageScanner scanner = getStorageScanner(program);
+    public int countItemStorage(ItemStack stack, boolean routable, boolean oredict) {
+        IStorageScanner scanner = getStorageScanner();
         if (scanner == null) {
             return 0;
         }
         return scanner.countItems(stack, routable, oredict);
     }
 
-    private IStorageScanner getStorageScanner(RunningProgram program) {
+    private IStorageScanner getStorageScanner() {
         int card = getStorageCard();
         if (card == -1) {
             throw new ProgException(EXCEPT_MISSINGSTORAGECARD);
@@ -938,10 +939,10 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
 
     public int countItem(Inventory inv, Integer slot, ItemStack itemMatcher, boolean oredict, boolean routable, RunningProgram program) {
         if (inv == null) {
-            return countItemStorage(itemMatcher, routable, oredict, program);
+            return countItemStorage(itemMatcher, routable, oredict);
         }
         // @todo support oredict here?
-        IItemHandler handler = getItemHandlerAt(inv, program);
+        IItemHandler handler = getItemHandlerAt(inv);
         if (slot != null) {
             ItemStack stackInSlot = handler.getStackInSlot(slot);
             return stackInSlot == null ? 0 : stackInSlot.stackSize;
@@ -971,7 +972,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         return cnt;
     }
 
-    public TileEntity getTileEntityAt(Inventory inv, RunningProgram program) {
+    public TileEntity getTileEntityAt(Inventory inv) {
         if (inv == null) {
             return null;
         }
@@ -989,8 +990,8 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         return worldObj.getTileEntity(np);
     }
 
-    public IItemHandler getItemHandlerAt(Inventory inv, RunningProgram program) {
-        TileEntity te = getTileEntityAt(inv, program);
+    public IItemHandler getItemHandlerAt(Inventory inv) {
+        TileEntity te = getTileEntityAt(inv);
         if (te != null && te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, inv.getIntSide())) {
             IItemHandler handler = te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, inv.getIntSide());
             if (handler == null) {
@@ -1097,10 +1098,10 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         NBTTagList waitingList = tagCompound.getTagList("waiting", Constants.NBT.TAG_COMPOUND);
         for (int i = 0 ; i < waitingList.tagCount() ; i++) {
             NBTTagCompound tag = waitingList.getCompoundTagAt(i);
-            String craftId = tag.getString("craftId");
+            String ticket = tag.getString("ticket");
             ItemStack stack = ItemStack.loadItemStackFromNBT(tag.getCompoundTag("item"));
             Inventory inventory = Inventory.readFromNBT(tag.getCompoundTag("inv"));
-            WaitForItem waitForItem = new WaitForItem(craftId, stack, inventory);
+            WaitForItem waitForItem = new WaitForItem(ticket, stack, inventory);
             waitingForItems.add(waitForItem);
         }
     }
@@ -1168,8 +1169,8 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             NBTTagCompound tag = eventQueueList.getCompoundTagAt(i);
             int card = tag.getInteger("card");
             int index = tag.getInteger("index");
-            String craftId = tag.hasKey("craftId") ? tag.getString("craftId") : null;
-            eventQueue.add(new QueuedEvent(card, new CompiledEvent(index), craftId));
+            String ticket = tag.hasKey("ticket") ? tag.getString("ticket") : null;
+            eventQueue.add(new QueuedEvent(card, new CompiledEvent(index), ticket));
         }
     }
 
@@ -1202,7 +1203,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         NBTTagList waitingList = new NBTTagList();
         for (WaitForItem waitingForItem : waitingForItems) {
             NBTTagCompound tag = new NBTTagCompound();
-            tag.setString("craftId", waitingForItem.getCraftId());
+            tag.setString("ticket", waitingForItem.getTicket());
             tag.setTag("item", waitingForItem.getItemStack().serializeNBT());
             tag.setTag("inv", waitingForItem.getInventory().writeToNBT());
             waitingList.appendTag(tag);
@@ -1270,8 +1271,8 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             NBTTagCompound tag = new NBTTagCompound();
             tag.setInteger("card", queuedEvent.getCardIndex());
             tag.setInteger("index", queuedEvent.getCompiledEvent().getIndex());
-            if (queuedEvent.getCraftId() != null) {
-                tag.setString("craftId", queuedEvent.getCraftId());
+            if (queuedEvent.getTicket() != null) {
+                tag.setString("ticket", queuedEvent.getTicket());
             }
             eventQueueList.appendTag(tag);
         }

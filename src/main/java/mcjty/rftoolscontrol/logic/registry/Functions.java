@@ -2,7 +2,6 @@ package mcjty.rftoolscontrol.logic.registry;
 
 import mcjty.rftoolscontrol.logic.Parameter;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumFacing;
 
 import javax.annotation.Nonnull;
 import java.util.*;
@@ -40,7 +39,7 @@ public class Functions {
             .name("craftid")
             .type(PAR_STRING)
             .runnable((processor, program, function) -> {
-                return ParameterValue.constant(program.getCraftId());
+                return ParameterValue.constant(program.getCraftTicket());
             })
             .build();
     public static final Function CRAFTRESULT = Function.builder()
