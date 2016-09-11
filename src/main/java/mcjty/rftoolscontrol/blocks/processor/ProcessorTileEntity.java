@@ -994,8 +994,8 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         TileEntity te = getTileEntityAt(inv);
         if (te != null && te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, inv.getIntSide())) {
             IItemHandler handler = te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, inv.getIntSide());
-            if (handler == null) {
-                throw new ProgException(EXCEPT_INVALIDINVENTORY);
+            if (handler != null) {
+                return handler;
             }
         }
         throw new ProgException(EXCEPT_INVALIDINVENTORY);
