@@ -617,12 +617,12 @@ public class Opcodes {
             .id("do_getingredients")
             .description(
                     TextFormatting.GREEN + "Operation: get ingredients",
-                    "given a crafting card inventory",
-                    "get the needed and missing ingredients",
-                    "from another inventory and",
-                    "insert in processor",
-                    "Can also bse used on a storage",
-                    "scanner system")
+                    "given a crafting card inventory get the",
+                    "needed and missing ingredients from",
+                    "another inventory and insert in processor",
+                    "Can also be used with a storage scanner",
+                    "Returns number of items that it could not find")
+            .outputDescription("amount of failed items (integer)")
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("inv").type(PAR_INVENTORY).description("inventory adjacent to (networked) block", "or empty to access storage").build())
             .parameter(ParameterDescription.builder().name("cardInv").type(PAR_INVENTORY).description("inventory adjacent to (networked) block", "with crafting cards").build())
@@ -636,7 +636,8 @@ public class Opcodes {
                 ItemStack item = processor.evaluateParameter(opcode, program, 2);
                 int slot1 = processor.evaluateIntParameter(opcode, program, 3);
                 int slot2 = processor.evaluateIntParameter(opcode, program, 4);
-                processor.getIngredients(program, inv, cardInv, item, slot1, slot2);
+                int failed = processor.getIngredients(program, inv, cardInv, item, slot1, slot2);
+                program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(failed)).build());
                 return POSITIVE;
             }))
             .build();
@@ -649,6 +650,7 @@ public class Opcodes {
                     "inventory adjacent to the processor",
                     "or a connected node from the",
                     "internal inventory")
+            .outputDescription("amount of failed items (integer)")
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("inv").type(PAR_INVENTORY).description("inventory adjacent to (networked) block").build())
             .parameter(ParameterDescription.builder().name("slot1").type(PAR_INTEGER).description("first internal slot for input").build())
@@ -660,7 +662,8 @@ public class Opcodes {
                 int slot1 = processor.evaluateIntParameter(opcode, program, 1);
                 int slot2 = processor.evaluateIntParameter(opcode, program, 2);
                 Integer extSlot = processor.evaluateIntegerParameter(opcode, program, 3);
-                processor.pushItemsMulti(program, inv, slot1, slot2, extSlot);
+                int failed = processor.pushItemsMulti(program, inv, slot1, slot2, extSlot);
+                program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(failed)).build());
                 return POSITIVE;
             }))
             .build();

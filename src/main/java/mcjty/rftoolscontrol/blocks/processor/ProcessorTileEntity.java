@@ -306,7 +306,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         }
     }
 
-    public void pushItemsMulti(RunningProgram program, Inventory inv, int slot1, int slot2, @Nullable Integer extSlot) {
+    public int pushItemsMulti(RunningProgram program, Inventory inv, int slot1, int slot2, @Nullable Integer extSlot) {
         IItemHandler handler = getItemHandlerAt(inv);
         CardInfo info = this.cardInfo[program.getCardIndex()];
         IItemHandler itemHandler = getItemHandler();
@@ -315,6 +315,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             e = extSlot;
         }
 
+        int failed = 0;
         for (int slot = slot1 ; slot <= slot2 ; slot++) {
             int realSlot = info.getRealSlot(slot);
             ItemStack stack = itemHandler.getStackInSlot(realSlot);
@@ -325,14 +326,18 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                 } else {
                     remaining = ItemHandlerHelper.insertItem(handler, stack, false);
                 }
+                if (remaining != null) {
+                    failed++;
+                }
                 inventoryHelper.setStackInSlot(realSlot, remaining);
             }
             e++;
         }
+        return failed;
     }
 
 
-    public void getIngredients(RunningProgram program, Inventory inv, Inventory cardInv, @Nullable ItemStack item, int slot1, int slot2) {
+    public int getIngredients(RunningProgram program, Inventory inv, Inventory cardInv, @Nullable ItemStack item, int slot1, int slot2) {
         IStorageScanner scanner = getScannerForInv(inv);
         IItemHandler handler = getHandlerForInv(inv);
 
@@ -361,6 +366,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             ingredients = CraftingCardItem.getIngredients(card);
         }
 
+        int failed = 0;
         for (ItemStack ingredient : ingredients) {
             int realSlot = info.getRealSlot(slot);
             if (ingredient != null) {
@@ -370,10 +376,13 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                     if (remainder != null) {
                         InventoryTools.insertItem(handler, scanner, remainder, null);
                     }
+                } else {
+                    failed++;
                 }
             }
             slot++;
         }
+        return failed;
     }
 
     private IItemHandler getItemHandler() {
