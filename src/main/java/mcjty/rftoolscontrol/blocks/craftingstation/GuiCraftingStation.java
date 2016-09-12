@@ -25,7 +25,7 @@ import java.util.List;
 
 public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileEntity> {
 
-    public static final int WIDTH = 221;
+    public static final int WIDTH = 231;
     public static final int HEIGHT = 236;
 
     private static final ResourceLocation mainBackground = new ResourceLocation(RFToolsControl.MODID, "textures/gui/craftingstation.png");
@@ -69,7 +69,7 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
 
     private void initButtons(Panel toplevel) {
         cancelButton = new Button(mc, this)
-                .setLayoutHint(new PositionalLayout.PositionalHint(170, 5, 46, 16))
+                .setLayoutHint(new PositionalLayout.PositionalHint(180, 5, 46, 16))
                 .setText("Cancel")
                 .setTooltips("Cancel the currently selected", "crafting request")
                 .addButtonEvent((widget -> cancelRequest()));
@@ -86,15 +86,15 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
     }
 
     private void initRecipeList(Panel toplevel) {
-        recipeList = new WidgetList(mc, this).setLayoutHint(new PositionalLayout.PositionalHint(5, 5, 70, 128)).setPropagateEventsToChildren(true)
+        recipeList = new WidgetList(mc, this).setLayoutHint(new PositionalLayout.PositionalHint(5, 5, 70, 146)).setPropagateEventsToChildren(true)
                 .setInvisibleSelection(true);
-        Slider slider = new Slider(mc, this).setScrollable(recipeList).setLayoutHint(new PositionalLayout.PositionalHint(76, 5, 9, 128));
+        Slider slider = new Slider(mc, this).setScrollable(recipeList).setLayoutHint(new PositionalLayout.PositionalHint(76, 5, 9, 146));
         toplevel.addChild(recipeList).addChild(slider);
     }
 
     private void initProgressList(Panel toplevel) {
-        requestList = new WidgetList(mc, this).setLayoutHint(new PositionalLayout.PositionalHint(86, 5, 70, 128));
-        Slider slider = new Slider(mc, this).setScrollable(requestList).setLayoutHint(new PositionalLayout.PositionalHint(86+70+1, 5, 9, 128));
+        requestList = new WidgetList(mc, this).setLayoutHint(new PositionalLayout.PositionalHint(86, 5, 80, 146));
+        Slider slider = new Slider(mc, this).setScrollable(requestList).setLayoutHint(new PositionalLayout.PositionalHint(86+80+1, 5, 9, 146));
         toplevel.addChild(requestList).addChild(slider);
     }
 
@@ -209,6 +209,9 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
         requestListsIfNeeded();
         updateRecipeList();
         updateRequestList();
+        if (requestList.getSelected() >= requestList.getChildCount()) {
+            requestList.setSelected(-1);
+        }
         cancelButton.setEnabled(requestList.getSelected() != -1);
         drawWindow();
     }
