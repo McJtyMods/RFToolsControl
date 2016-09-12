@@ -181,7 +181,6 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
                             } else if (dx >= ICONSIZE-3 && dy >= 7 && dy <= 14) {
                                 handleIconOverlay(icon, Connection.RIGHT);
                             }
-                            System.out.println("dx = " + dx + "," + dy);
                             return true;
                         });
                 rowPanel.addChild(holder);
@@ -569,19 +568,19 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
                 .setText(StringUtils.capitalize(parameter.getName()) + ":")
                 .setHorizontalAlignment(HorizontalAlignment.ALIGH_LEFT)
                 .setDesiredHeight(13)
-                .setLayoutHint(new PositionalLayout.PositionalHint(0, 0, 60, 13));
+                .setLayoutHint(new PositionalLayout.PositionalHint(0, 0, 53, 13));
         TextField field = new TextField(mc, this)
-                .setText("<" + tempDefault + ">")
+                .setText(tempDefault)
                 .setTooltips(parameter.getDescription().toArray(new String[parameter.getDescription().size()]))
                 .setDesiredHeight(13)
-                .setEnabled(false)
-                .setLayoutHint(new PositionalLayout.PositionalHint(0, 12, 54, 13));
+                .setEditable(false)
+                .setLayoutHint(new PositionalLayout.PositionalHint(0, 12, 68, 13));
         Button button = new Button(mc, this)
                 .setText("...")
                 .setDesiredHeight(13)
                 .setTooltips(parameter.getDescription().toArray(new String[parameter.getDescription().size()]))
                 .addButtonEvent(w -> openValueEditor(icon, iconHolder, parameter, field))
-                .setLayoutHint(new PositionalLayout.PositionalHint(55, 12, 11, 13));
+                .setLayoutHint(new PositionalLayout.PositionalHint(58, 0, 11, 13));
 
         return new Panel(mc, this).setLayout(new PositionalLayout())
                 .addChild(label)
@@ -599,7 +598,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
             Map<String, Object> data = icon.getData() == null ? Collections.emptyMap() : icon.getData();
             editor.build(mc, this, editPanel, o -> {
                 icon.addData(parameter.getName(), o);
-                field.setText("<" + parameter.getType().stringRepresentation(o) + ">");
+                field.setText(parameter.getType().stringRepresentation(o));
             });
             editor.writeValue((ParameterValue)data.get(parameter.getName()));
         } else {

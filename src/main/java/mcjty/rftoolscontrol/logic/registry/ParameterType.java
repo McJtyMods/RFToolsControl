@@ -1,7 +1,7 @@
 package mcjty.rftoolscontrol.logic.registry;
 
-import mcjty.rftoolscontrol.logic.running.ExceptionType;
 import mcjty.rftoolscontrol.logic.Parameter;
+import mcjty.rftoolscontrol.logic.running.ExceptionType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -66,7 +66,13 @@ public enum ParameterType {
         protected String stringRepresentationInternal(Object value) {
             BlockSide side = (BlockSide) value;
             EnumFacing facing = side.getSide();
-            return StringUtils.capitalize(facing == null ? "*" : facing.getName());
+
+            String s = facing == null ? "" : StringUtils.left(facing.getName().toUpperCase(), 1);
+            if (side.getNodeName() == null) {
+                return s;
+            } else {
+                return StringUtils.left(side.getNodeName(), 7) + " " + s;
+            }
         }
 
         @Override
@@ -103,7 +109,19 @@ public enum ParameterType {
     PAR_INVENTORY() {
         @Override
         protected String stringRepresentationInternal(Object value) {
-            return "inv";
+            Inventory inv = (Inventory) value;
+            String s = StringUtils.left(inv.getSide().getName().toUpperCase(), 1);
+            if (inv.getIntSide() == null) {
+                s += "/*";
+            } else {
+                String is = StringUtils.left(inv.getIntSide().getName().toUpperCase(), 1);
+                s += "/" + is;
+            }
+            if (inv.getNodeName() == null) {
+                return s;
+            } else {
+                return StringUtils.left(inv.getNodeName(), 6) + " " + s;
+            }
         }
 
         @Override
@@ -135,8 +153,8 @@ public enum ParameterType {
     PAR_ITEM() {
         @Override
         protected String stringRepresentationInternal(Object value) {
-            // @todo, nicer
-            return "item";
+            ItemStack inv = (ItemStack) value;
+            return StringUtils.left(inv.getDisplayName(), 10);
         }
 
         @Override
