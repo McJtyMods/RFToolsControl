@@ -1057,6 +1057,19 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         return index >= ProcessorContainer.SLOT_CARD && index < ProcessorContainer.SLOT_CARD + CARD_SLOTS;
     }
 
+    private void removeCard(int index) {
+        cardInfo[index].setCompiledCard(null);
+        stopPrograms(index);
+
+        Queue<QueuedEvent> newQueue = new ArrayDeque<>();
+        for (QueuedEvent event : eventQueue) {
+            if (event.getCardIndex() != index) {
+                newQueue.add(event);
+            }
+        }
+        eventQueue = newQueue;
+    }
+
     private void stopPrograms(int cardIndex) {
         for (CpuCore core : cpuCores) {
             if (core.hasProgram() && core.getProgram().getCardIndex() == cardIndex) {
@@ -1068,8 +1081,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     @Override
     public void setInventorySlotContents(int index, ItemStack stack) {
         if (isCardSlot(index)) {
-            cardInfo[index-ProcessorContainer.SLOT_CARD].setCompiledCard(null);
-            stopPrograms(index-ProcessorContainer.SLOT_CARD);
+            removeCard(index-ProcessorContainer.SLOT_CARD);
             cardsDirty = true;
         } else if (isExpansionSlot(index)) {
             coresDirty = true;
@@ -1081,8 +1093,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     @Override
     public ItemStack decrStackSize(int index, int count) {
         if (isCardSlot(index)) {
-            cardInfo[index-ProcessorContainer.SLOT_CARD].setCompiledCard(null);
-            stopPrograms(index-ProcessorContainer.SLOT_CARD);
+            removeCard(index-ProcessorContainer.SLOT_CARD);
             cardsDirty = true;
         } else if (isExpansionSlot(index)) {
             coresDirty = true;
