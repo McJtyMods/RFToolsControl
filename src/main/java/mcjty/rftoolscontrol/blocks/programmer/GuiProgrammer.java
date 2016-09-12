@@ -578,6 +578,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
         Button button = new Button(mc, this)
                 .setText("...")
                 .setDesiredHeight(13)
+                .setTooltips(parameter.getDescription().toArray(new String[parameter.getDescription().size()]))
                 .addButtonEvent(w -> openValueEditor(icon, iconHolder, parameter, field))
                 .setLayoutHint(new PositionalLayout.PositionalHint(55, 12, 11, 13));
 
