@@ -152,7 +152,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
                 IconHolder holder = new IconHolder(mc, this) {
                     @Override
                     public List<String> getTooltips() {
-                        return getIconTooltip(getIcon());
+                        return getIconTooltipGrid(finalX, finalY);
                     }
                 }
                         .setDesiredWidth(ICONSIZE+2)
@@ -523,6 +523,34 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
                 .addChild(slider);
     }
 
+    private List<String> getIconTooltipGrid(int x, int y) {
+        IconHolder holder = getHolder(x, y);
+        IIcon icon = holder.getIcon();
+        if (icon != null) {
+            Opcode opcode = Opcodes.OPCODES.get(icon.getID());
+            List<String> description = opcode.getDescription();
+            List<String> tooltips = new ArrayList<>();
+            if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT)) {
+                tooltips.add(description.get(0));
+                Map<String, Object> data = icon.getData() == null ? Collections.emptyMap() : icon.getData();
+                for (ParameterDescription parameter : opcode.getParameters()) {
+                    String name = parameter.getName();
+                    ParameterValue value = (ParameterValue) data.get(name);
+                    if (value != null) {
+                        tooltips.add(TextFormatting.BLUE + "Par " + name + ": " + parameter.getType().stringRepresentation(value));
+                    } else {
+                        tooltips.add(TextFormatting.BLUE + "Par " + name + ": NULL");
+                    }
+                }
+            } else {
+                tooltips.add(description.get(0));
+                tooltips.add("<Shift for more info>");
+            }
+            return tooltips;
+        }
+        return Collections.emptyList();
+    }
+
     private List<String> getIconTooltip(IIcon icon) {
         if (icon != null) {
             Opcode opcode = Opcodes.OPCODES.get(icon.getID());
@@ -542,12 +570,11 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
                     }
                 }
                 tooltips.add(TextFormatting.YELLOW + "Result: " + opcode.getOutputDescription());
-                return tooltips;
             } else {
                 tooltips.add(description.get(0));
                 tooltips.add("<Shift for more info>");
-                return tooltips;
             }
+            return tooltips;
         }
         return Collections.emptyList();
     }
