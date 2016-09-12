@@ -1,9 +1,8 @@
 package mcjty.rftoolscontrol.logic.editors;
 
 import mcjty.lib.gui.layout.HorizontalLayout;
-import mcjty.lib.gui.widgets.ChoiceLabel;
-import mcjty.lib.gui.widgets.Panel;
-import mcjty.lib.gui.widgets.TextField;
+import mcjty.lib.gui.layout.VerticalLayout;
+import mcjty.lib.gui.widgets.*;
 import mcjty.rftoolscontrol.logic.registry.Inventory;
 import mcjty.rftoolscontrol.logic.registry.ParameterType;
 import mcjty.rftoolscontrol.logic.registry.ParameterValue;
@@ -35,20 +34,25 @@ public class InventoryEditor extends AbstractParameterEditor {
     }
 
     @Override
+    public int getHeight() {
+        return 50;
+    }
+
+    @Override
     public void build(Minecraft mc, Gui gui, Panel panel, ParameterEditorCallback callback) {
-        Panel constantPanel = new Panel(mc, gui).setLayout(new HorizontalLayout());
+        Panel constantPanel = new Panel(mc, gui).setLayout(new VerticalLayout());
         nameLabel = new TextField(mc, gui)
                 .addTextEvent((o,text) -> callback.valueChanged(readValue()))
-                .setDesiredWidth(40);
-        constantPanel.addChild(nameLabel);
+                .setDesiredWidth(50).setDesiredHeight(14);
+        constantPanel.addChild(createLabeledPanel(mc, gui, "Node name:", nameLabel, "Optional name of a node in the network"));
         sideLabel = new ChoiceLabel(mc, gui).addChoices("*", "Down", "Up", "North", "South", "West", "East")
                 .addChoiceEvent((parent, newChoice) -> callback.valueChanged(readValue()))
                 .setDesiredWidth(60);
-        constantPanel.addChild(sideLabel);
+        constantPanel.addChild(createLabeledPanel(mc, gui, "Side:", sideLabel, "Side relative to processor or node", "for the desired inventory"));
         intSideLabel = new ChoiceLabel(mc, gui).addChoices("*", "Down", "Up", "North", "South", "West", "East")
                 .addChoiceEvent((parent, newChoice) -> callback.valueChanged(readValue()))
                 .setDesiredWidth(60);
-        constantPanel.addChild(intSideLabel);
+        constantPanel.addChild(createLabeledPanel(mc, gui, "Access:", intSideLabel, "Optional side from which we want to", "access the given inventory"));
 
         createEditorPanel(mc, gui, panel, callback, constantPanel, ParameterType.PAR_INVENTORY);
     }

@@ -310,7 +310,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
         ParameterEditor editor = ParameterEditors.getEditor(parameter.getParameterType());
         Panel editPanel;
         if (editor != null) {
-            editPanel = new Panel(mc, this).setLayout(new VerticalLayout())
+            editPanel = new Panel(mc, this).setLayout(new PositionalLayout())
                     .setFilledRectThickness(1);
             editor.build(mc, this, editPanel, o -> { });
             editor.writeValue(parameter.getParameterValue());
@@ -322,7 +322,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
                 .setLayout(new VerticalLayout())
                 .setFilledBackground(0xff666666, 0xffaaaaaa)
                 .setFilledRectThickness(1);
-        panel.setBounds(new Rectangle(50, 50, 200, 80));
+        panel.setBounds(new Rectangle(50, 50, 200, 60 + editor.getHeight()));
         Window modalWindow = getWindowManager().createModalWindow(panel);
         panel.addChild(new Label(mc, this).setText("Var " + varIdx + ":"));
         panel.addChild(editPanel);

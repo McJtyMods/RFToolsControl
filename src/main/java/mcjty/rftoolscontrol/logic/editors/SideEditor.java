@@ -1,6 +1,6 @@
 package mcjty.rftoolscontrol.logic.editors;
 
-import mcjty.lib.gui.layout.HorizontalLayout;
+import mcjty.lib.gui.layout.VerticalLayout;
 import mcjty.lib.gui.widgets.ChoiceLabel;
 import mcjty.lib.gui.widgets.Panel;
 import mcjty.lib.gui.widgets.TextField;
@@ -25,18 +25,23 @@ public class SideEditor extends AbstractParameterEditor {
     }
 
     @Override
+    public int getHeight() {
+        return 35;
+    }
+
+    @Override
     public void build(Minecraft mc, Gui gui, Panel panel, ParameterEditorCallback callback) {
-        Panel constantPanel = new Panel(mc, gui).setLayout(new HorizontalLayout());
+        Panel constantPanel = new Panel(mc, gui).setLayout(new VerticalLayout());
 
         nameLabel = new TextField(mc, gui)
                 .addTextEvent((o,text) -> callback.valueChanged(readValue()))
-                .setDesiredWidth(40);
-        constantPanel.addChild(nameLabel);
+                .setDesiredWidth(50).setDesiredHeight(14);
+        constantPanel.addChild(createLabeledPanel(mc, gui, "Node name:", nameLabel, "Optional name of a node in the network"));
 
         label = new ChoiceLabel(mc, gui).addChoices("*", "Down", "Up", "North", "South", "West", "East")
                 .addChoiceEvent((parent, newChoice) -> callback.valueChanged(readValue()))
                 .setDesiredWidth(60);
-        constantPanel.addChild(label);
+        constantPanel.addChild(createLabeledPanel(mc, gui, "Side:", label, "Side relative to processor or node", "for the desired block"));
 
         createEditorPanel(mc, gui, panel, callback, constantPanel, ParameterType.PAR_SIDE);
     }

@@ -472,7 +472,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
                 .setBorderColor(0xffff0000)
                 .setTooltips("Drop opcodes here to", "delete them")
                 .setSelectable(false);
-        return new Panel(mc, this).setLayout(new HorizontalLayout().setSpacing(2).setHorizontalMargin(1)).setLayoutHint(new PositionalLayout.PositionalHint(106, 136, 145, 18))
+        return new Panel(mc, this).setLayout(new HorizontalLayout().setSpacing(2).setHorizontalMargin(1)).setLayoutHint(new PositionalLayout.PositionalHint(108, 136, 145, 18))
                 .addChild(new Button(mc, this).setText("Load").setDesiredHeight(15).addButtonEvent(w -> loadProgram(ProgrammerContainer.SLOT_CARD)))
                 .addChild(new Button(mc, this).setText("Save").setDesiredHeight(15).addButtonEvent(w -> saveProgram(ProgrammerContainer.SLOT_CARD)))
                 .addChild(new Button(mc, this).setText("Clear").setDesiredHeight(15).addButtonEvent(w -> clearProgram()))
@@ -594,7 +594,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
         ParameterEditor editor = ParameterEditors.getEditor(parameter.getType());
         Panel editPanel;
         if (editor != null) {
-            editPanel = new Panel(mc, this).setLayout(new VerticalLayout())
+            editPanel = new Panel(mc, this).setLayout(new PositionalLayout())
                     .setFilledRectThickness(1);
             Map<String, Object> data = icon.getData() == null ? Collections.emptyMap() : icon.getData();
             editor.build(mc, this, editPanel, o -> {
@@ -610,7 +610,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
                 .setLayout(new VerticalLayout())
                 .setFilledBackground(0xff666666, 0xffaaaaaa)
                 .setFilledRectThickness(1);
-        panel.setBounds(new Rectangle(50, 50, 200, 80));
+        panel.setBounds(new Rectangle(50, 50, 200, 60 + editor.getHeight()));
         Window modalWindow = getWindowManager().createModalWindow(panel);
         panel.addChild(new Label(mc, this).setText(StringUtils.capitalize(parameter.getName()) + ":"));
         panel.addChild(editPanel);

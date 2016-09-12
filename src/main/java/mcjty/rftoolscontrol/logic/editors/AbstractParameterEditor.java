@@ -1,6 +1,8 @@
 package mcjty.rftoolscontrol.logic.editors;
 
+import mcjty.lib.gui.layout.HorizontalAlignment;
 import mcjty.lib.gui.layout.HorizontalLayout;
+import mcjty.lib.gui.layout.PositionalLayout;
 import mcjty.lib.gui.widgets.*;
 import mcjty.rftoolscontrol.logic.Parameter;
 import mcjty.rftoolscontrol.logic.registry.Function;
@@ -73,12 +75,29 @@ public abstract class AbstractParameterEditor implements ParameterEditor {
         }
     }
 
+    protected Panel createLabeledPanel(Minecraft mc, Gui gui, String label, Widget object, String... tooltips) {
+        object.setTooltips(tooltips);
+        return new Panel(mc, gui).setLayout(new HorizontalLayout())
+                .addChild(new Label(mc, gui)
+                        .setHorizontalAlignment(HorizontalAlignment.ALIGH_LEFT)
+                        .setText(label)
+                        .setTooltips(tooltips)
+                        .setDesiredWidth(60))
+                .addChild(object);
+    }
+
     void createEditorPanel(Minecraft mc, Gui gui, Panel panel, ParameterEditorCallback callback, Panel constantPanel,
                            ParameterType type) {
-        Panel variablePanel = new Panel(mc, gui).setLayout(new HorizontalLayout());
+        Panel variablePanel = new Panel(mc, gui).setLayout(new HorizontalLayout()).setDesiredHeight(18);
         variableIndex = new TextField(mc, gui)
-            .addTextEvent((parent,newText) -> callback.valueChanged(readValue()));
-        variablePanel.addChild(new Label(mc, gui).setText("Index:")).addChild(variableIndex);
+                .setDesiredHeight(14)
+                .setTooltips("Index (in the processor)", "of the variable")
+                .addTextEvent((parent,newText) -> callback.valueChanged(readValue()));
+        variablePanel.addChild(new Label(mc, gui)
+                .setText("Index:"))
+                .setTooltips("Index (in the processor)", "of the variable")
+                .setDesiredHeight(14)
+                .addChild(variableIndex);
 
         Panel functionPanel = new Panel(mc, gui).setLayout(new HorizontalLayout());
         functionLabel = new ChoiceLabel(mc, gui)
@@ -94,8 +113,11 @@ public abstract class AbstractParameterEditor implements ParameterEditor {
                 .addPage(PAGE_CONSTANT, constantPanel)
                 .addPage(PAGE_VARIABLE, variablePanel)
                 .addPage(PAGE_FUNCTION, functionPanel);
+        tabbedPanel.setLayoutHint(new PositionalLayout.PositionalHint(5, 5 + 18, 190-10, 60 + getHeight() -5-18 -40));
 
-        buttonPanel = new Panel(mc, gui).setLayout(new HorizontalLayout());
+
+        buttonPanel = new Panel(mc, gui).setLayout(new HorizontalLayout())
+            .setLayoutHint(new PositionalLayout.PositionalHint(5, 5, 190-10, 18));
         ToggleButton constantButton = new ToggleButton(mc, gui).setText(PAGE_CONSTANT)
                 .addButtonEvent(w -> switchPage(PAGE_CONSTANT, callback));
         ToggleButton variableButton = new ToggleButton(mc, gui).setText(PAGE_VARIABLE)

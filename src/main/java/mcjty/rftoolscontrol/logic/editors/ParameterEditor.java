@@ -12,4 +12,6 @@ public interface ParameterEditor {
     ParameterValue readValue();
 
     void writeValue(ParameterValue value);
+
+    default int getHeight() { return 20; }
 }
