@@ -5,6 +5,9 @@ import net.minecraft.item.ItemStack;
 public class CraftingRequest {
     private final String craftId;
     private final ItemStack stack;
+    private long failed = -1;             // If != -1 we failed but show for a while longer
+    private long ok = -1;                 // If != -1we are ok but show for a while longer
+
 
     public CraftingRequest(String craftId, ItemStack stack) {
         this.craftId = craftId;
@@ -17,6 +20,22 @@ public class CraftingRequest {
 
     public ItemStack getStack() {
         return stack;
+    }
+
+    public long getFailed() {
+        return failed;
+    }
+
+    public void setFailed(long failed) {
+        this.failed = failed;
+    }
+
+    public long getOk() {
+        return ok;
+    }
+
+    public void setOk(long ok) {
+        this.ok = ok;
     }
 
     @Override

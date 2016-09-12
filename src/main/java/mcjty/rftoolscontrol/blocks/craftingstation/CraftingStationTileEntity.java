@@ -12,7 +12,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ITickable;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.items.CapabilityItemHandler;
@@ -20,9 +19,11 @@ import net.minecraftforge.items.ItemHandlerHelper;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
-public class CraftingStationTileEntity extends GenericTileEntity implements DefaultSidedInventory, ITickable {
+public class CraftingStationTileEntity extends GenericTileEntity implements DefaultSidedInventory {
 
     public static final String CMD_GETCRAFTABLE = "getCraftable";
     public static final String CLIENTCMD_GETCRAFTABLE = "getCraftable";
@@ -36,14 +37,11 @@ public class CraftingStationTileEntity extends GenericTileEntity implements Defa
     private List<BlockPos> processorList = new ArrayList<>();
     private int craftId = 0;
     private List<CraftingRequest> activeCraftingRequests = new ArrayList<>();
+    private int cleanupCounter = 50;
 
     @Override
     protected boolean needsCustomInvWrapper() {
         return true;
-    }
-
-    @Override
-    public void update() {
     }
 
     public void registerProcessor(BlockPos pos) {
@@ -93,7 +91,7 @@ public class CraftingStationTileEntity extends GenericTileEntity implements Defa
             }
         }
         if (foundRequest != null) {
-            activeCraftingRequests.remove(foundRequest);
+            foundRequest.setOk(System.currentTimeMillis()+1000);
             markDirty();
             if (stack != null) {
                 return ItemHandlerHelper.insertItem(getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null), stack, false);
@@ -103,16 +101,11 @@ public class CraftingStationTileEntity extends GenericTileEntity implements Defa
     }
 
     public void craftFail(String craftId) {
-        CraftingRequest foundRequest = null;
         for (CraftingRequest request : activeCraftingRequests) {
             if (craftId.equals(request.getCraftId())) {
-                foundRequest = request;
-                break;
+                request.setFailed(System.currentTimeMillis()+2000);
+                markDirty();
             }
-        }
-        if (foundRequest != null) {
-            activeCraftingRequests.remove(foundRequest);
-            markDirty();
         }
     }
 
@@ -134,6 +127,12 @@ public class CraftingStationTileEntity extends GenericTileEntity implements Defa
         String craftID = getCraftID();
         activeCraftingRequests.add(new CraftingRequest(craftID, pair.getValue()));
         pair.getKey().fireCraftEvent(craftID, pair.getValue(), amount);
+
+        cleanupCounter--;
+        if (cleanupCounter <= 0) {
+            cleanupCounter = 50;
+            cleanupStaleRequests();
+        }
     }
 
     public boolean request(ItemStack item) {
@@ -175,7 +174,22 @@ public class CraftingStationTileEntity extends GenericTileEntity implements Defa
         return items;
     }
 
+    private void cleanupStaleRequests() {
+        long time = System.currentTimeMillis();
+        List<CraftingRequest> oldRequests = this.activeCraftingRequests;
+        activeCraftingRequests = new ArrayList<>();
+        for (CraftingRequest request : oldRequests) {
+            long failed = request.getFailed();
+            long ok = request.getOk();
+            if ((failed == -1 || time <= failed) && (ok == -1 || time <= ok)) {
+                activeCraftingRequests.add(request);
+            }
+        }
+
+    }
+
     public List<CraftingRequest> getRequests() {
+        cleanupStaleRequests();
         return new ArrayList<>(activeCraftingRequests);
     }
 

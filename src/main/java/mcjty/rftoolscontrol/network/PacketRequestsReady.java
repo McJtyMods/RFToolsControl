@@ -49,12 +49,17 @@ public class PacketRequestsReady extends PacketListToClient<CraftingRequest> {
     protected CraftingRequest createItem(ByteBuf buf) {
         String id = NetworkTools.readString(buf);
         ItemStack stack = NetworkTools.readItemStack(buf);
-        return new CraftingRequest(id, stack);
+        CraftingRequest request = new CraftingRequest(id, stack);
+        request.setOk(buf.readLong());
+        request.setFailed(buf.readLong());
+        return request;
     }
 
     @Override
     protected void writeItemToBuf(ByteBuf buf, CraftingRequest s) {
         NetworkTools.writeString(buf, s.getCraftId());
         NetworkTools.writeItemStack(buf, s.getStack());
+        buf.writeLong(s.getOk());
+        buf.writeLong(s.getFailed());
     }
 }

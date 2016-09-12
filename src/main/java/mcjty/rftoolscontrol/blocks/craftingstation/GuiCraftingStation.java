@@ -1,5 +1,6 @@
 package mcjty.rftoolscontrol.blocks.craftingstation;
 
+import mcjty.lib.base.StyleConfig;
 import mcjty.lib.container.GenericGuiContainer;
 import mcjty.lib.gui.Window;
 import mcjty.lib.gui.events.BlockRenderEvent;
@@ -137,7 +138,11 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
                     .setOffsetX(-1)
                     .setOffsetY(-1);
             panel.addChild(blockRender);
-            panel.addChild(new Label(mc, this).setText("Waiting..."));
+            boolean failed = request.getFailed() != -1;
+            boolean ok = request.getOk() != -1;
+            panel.addChild(new Label(mc, this)
+                    .setColor(failed ? 0xffff3030 : (ok ? 0xff30ff30 : StyleConfig.colorTextNormal))
+                    .setText(failed ? "Failed!" : (ok ? "Ok" : "Waiting...")));
         }
     }
 
