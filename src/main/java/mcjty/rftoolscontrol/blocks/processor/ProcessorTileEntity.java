@@ -453,6 +453,25 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     }
 
     public void fireCraftEvent(String ticket, ItemStack stackToCraft, int amount) {
+
+
+
+
+
+
+
+
+
+
+
+
+        //@todo
+
+
+
+
+
+
         for (int i = 0 ; i < cardInfo.length ; i++) {
             CardInfo info = cardInfo[i];
             CompiledCard compiledCard = info.getCompiledCard();
