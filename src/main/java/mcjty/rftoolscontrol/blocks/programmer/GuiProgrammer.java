@@ -572,6 +572,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
                 .setLayoutHint(new PositionalLayout.PositionalHint(0, 0, 60, 13));
         TextField field = new TextField(mc, this)
                 .setText("<" + tempDefault + ">")
+                .setTooltips(parameter.getDescription().toArray(new String[parameter.getDescription().size()]))
                 .setDesiredHeight(13)
                 .setEnabled(false)
                 .setLayoutHint(new PositionalLayout.PositionalHint(0, 12, 54, 13));
