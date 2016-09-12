@@ -5,6 +5,13 @@ Table of Contents:
 {l:programmer}Programmer
 {l:processor}Processor
 {l:networking}Networking
+{l:craftingstation}Crafting Station
+{l:workbench}Workbench
+{/}
+
+
+
+{l:concepts}Programming Concepts
 {-------------------------------------------------------------}
 {b}Introduction
 {n:intro}
@@ -97,9 +104,8 @@ them for each card.
 {-------------------------------------------------------------}
 {b}Networking
 {n:networking}
-Using a network card:
+Using a network card and several nodes:
 {ri:network_card}
-and several nodes:
 {rb:node}
 you can create an automation network. Without networking you can only
 access inventories and blocks adjacent to the processor. With a
@@ -111,5 +117,40 @@ console). The <name> will be the network name and is also used
 in all the nodes that want to connect to this network.
 
 After setting up the network card you can do 'net scan' to find
-all nodes that match the given channel name.
+all nodes that match the given channel name. Note that the network
+card is also needed to connect to crafting stations which 'net
+scan' will also pick up.
+{-------------------------------------------------------------}
+{b}Crafting Station
+{n:craftingstation}
+{rb:craftingstation}
+The Crafting Station is a device from which you can request items to
+be crafted through a program that you write yourselves and that runs
+on a nearby Processor. To have the Processor work with a Crafting
+Station it needs a network card.
+
+Crafting operations can sometimes take a long time and the gui of
+this station shows operations that are still in progress.
+{-------------------------------------------------------------}
+{b}Workbench
+{n:workbench}
+{rb:workbench}
+The Workbench is a normal crafting device with an internal buffer for
+items. It can be used just like that. However, it's main use is in
+automation as this workbench supports piping out the crafted result from
+the bottom. In addition a program running on a Processor can directly
+input ingredients for a recipe in the workbench from the top side.
+
+The internal buffer of the Workbench is often used for crafting
+cards to help with autocrafting setups.
+{-------------------------------------------------------------}
+{b}Programming Concepts
+{n:concepts}
+A program in RFTools Control is made out of 'opcodes' that
+are arranged on a grid. Opcodes connect to other opcodes (through
+a green arrow or a red arrow in case of a test opcode) and
+they have parameters that can influence what they can do.
+
+The tooltip on an opcode in the programmer will give more
+information (press shift for even more information)
 {-------------------------------------------------------------}
