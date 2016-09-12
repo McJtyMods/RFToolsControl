@@ -17,7 +17,6 @@ public class Commands {
             return;
         }
         cmd = splitted[0].toLowerCase();
-        System.out.println("cmd = " + cmd);
         if ("clear".equals(cmd)) {
             processor.clearLog();
         } else if ("stop".equals(cmd)) {
@@ -25,14 +24,15 @@ public class Commands {
             processor.log(TextFormatting.YELLOW + "Stopped " + n + " programs!");
         } else if ("list".equals(cmd)) {
             processor.listStatus();
-        } else if ("net".equals(cmd)) {
-            handleNetworkCommand(processor, splitted);
         } else if ("reset".equals(cmd)) {
             processor.log(TextFormatting.YELLOW + "Reset the processor!");
             processor.reset();
         } else if ("help".equals(cmd)) {
-            processor.log("Commands: clear/stop/list/net/help");
-            processor.log("    reset/db");
+            processor.log("Commands: clear/stop/reset/list/help");
+            processor.log("    net setup/scan/list/info");
+            processor.log("    db debug/step/info/resume");
+        } else if ("net".equals(cmd)) {
+            handleNetworkCommand(processor, splitted);
         } else if ("db".equals(cmd)) {
             handleDebugCommand(processor, splitted);
         } else {
