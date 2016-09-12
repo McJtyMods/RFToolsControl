@@ -21,7 +21,7 @@ public class InventoryEditor extends AbstractParameterEditor {
     private static Inventory parseInventorySafe(String name, String sideS, String intSideS) {
         EnumFacing side;
         if ("*".equals(sideS)) {
-            side = EnumFacing.UP;
+            return null;
         } else {
             side = EnumFacing.byName(StringUtils.lowerCase(sideS));
         }

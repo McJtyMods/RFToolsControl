@@ -17,7 +17,7 @@ public class Inventory {
     @Nullable private final EnumFacing intSide;   // The side at which we are accessing the inventory (can be null)
 
     public Inventory(@Nullable String name, @Nonnull EnumFacing side, @Nullable EnumFacing intSide) {
-        this.nodeName = name;
+        this.nodeName = (name == null || name.isEmpty()) ? null : name;
         this.side = side;
         this.intSide = intSide;
     }

@@ -13,7 +13,7 @@ public class BlockSide {
     @Nullable private final EnumFacing side;      // The side at which the inventory can be found
 
     public BlockSide(@Nullable String name, @Nullable EnumFacing side) {
-        this.nodeName = name;
+        this.nodeName = (name == null || name.isEmpty()) ? null : name;
         this.side = side;
     }
 
