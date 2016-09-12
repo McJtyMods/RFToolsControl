@@ -626,13 +626,15 @@ public class Opcodes {
             .parameter(ParameterDescription.builder().name("cardInv").type(PAR_INVENTORY).description("inventory adjacent to (networked) block", "with crafting cards").build())
             .parameter(ParameterDescription.builder().name("item").type(PAR_ITEM).description("the item to craft or empty", "for default from ticket").build())
             .parameter(ParameterDescription.builder().name("slot1").type(PAR_INTEGER).description("start of internal slot range for ingredients").build())
+            .parameter(ParameterDescription.builder().name("slot2").type(PAR_INTEGER).description("last slot of that range").build())
             .icon(8, 2)
             .runnable(((processor, program, opcode) -> {
                 Inventory inv = processor.evaluateParameter(opcode, program, 0);
                 Inventory cardInv = processor.evaluateParameter(opcode, program, 1);
                 ItemStack item = processor.evaluateParameter(opcode, program, 2);
                 int slot1 = processor.evaluateIntParameter(opcode, program, 3);
-                processor.getIngredients(program, inv, cardInv, item, slot1);
+                int slot2 = processor.evaluateIntParameter(opcode, program, 4);
+                processor.getIngredients(program, inv, cardInv, item, slot1, slot2);
                 return true;
             }))
             .build();
@@ -649,12 +651,14 @@ public class Opcodes {
             .parameter(ParameterDescription.builder().name("inv").type(PAR_INVENTORY).description("inventory adjacent to (networked) block").build())
             .parameter(ParameterDescription.builder().name("slot1").type(PAR_INTEGER).description("first internal slot for input").build())
             .parameter(ParameterDescription.builder().name("slot2").type(PAR_INTEGER).description("last internal slot for input").build())
+            .parameter(ParameterDescription.builder().name("extSlot").type(PAR_INTEGER).description("optional first external slot").build())
             .icon(11, 2)
             .runnable(((processor, program, opcode) -> {
                 Inventory inv = processor.evaluateParameter(opcode, program, 0);
                 int slot1 = processor.evaluateIntParameter(opcode, program, 1);
                 int slot2 = processor.evaluateIntParameter(opcode, program, 2);
-                processor.pushItemsMulti(program, inv, slot1, slot2);
+                Integer extSlot = processor.evaluateIntegerParameter(opcode, program, 3);
+                processor.pushItemsMulti(program, inv, slot1, slot2, extSlot);
                 return true;
             }))
             .build();

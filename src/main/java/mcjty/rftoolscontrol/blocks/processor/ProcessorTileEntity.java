@@ -307,22 +307,33 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         }
     }
 
-    public void pushItemsMulti(RunningProgram program, Inventory inv, int slot1, int slot2) {
+    public void pushItemsMulti(RunningProgram program, Inventory inv, int slot1, int slot2, @Nullable Integer extSlot) {
         IItemHandler handler = getItemHandlerAt(inv);
         CardInfo info = this.cardInfo[program.getCardIndex()];
         IItemHandler itemHandler = getItemHandler();
+        int e = 0;
+        if (extSlot != null) {
+            e = extSlot;
+        }
+
         for (int slot = slot1 ; slot <= slot2 ; slot++) {
             int realSlot = info.getRealSlot(slot);
             ItemStack stack = itemHandler.getStackInSlot(realSlot);
             if (stack != null) {
-                ItemStack remaining = ItemHandlerHelper.insertItem(handler, stack, false);
+                ItemStack remaining;
+                if (extSlot != null) {
+                    remaining = handler.insertItem(e, stack, false);
+                } else {
+                    remaining = ItemHandlerHelper.insertItem(handler, stack, false);
+                }
                 inventoryHelper.setStackInSlot(realSlot, remaining);
             }
+            e++;
         }
     }
 
 
-    public void getIngredients(RunningProgram program, Inventory inv, Inventory cardInv, @Nullable ItemStack item, int slot1) {
+    public void getIngredients(RunningProgram program, Inventory inv, Inventory cardInv, @Nullable ItemStack item, int slot1, int slot2) {
         IStorageScanner scanner = getScannerForInv(inv);
         IItemHandler handler = getHandlerForInv(inv);
 
@@ -341,21 +352,29 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         CardInfo info = this.cardInfo[program.getCardIndex()];
 
         IItemHandler itemHandler = getItemHandler();
-
         int slot = slot1;
-        List<ItemStack> ingredients = CraftingCardItem.getIngredients(card);
+
+        List<ItemStack> ingredients;
+        if (CraftingCardItem.fitsGrid(card) && (slot2-slot1 >= 8)) {
+            // We have something that fits a crafting grid and we have enough room for a 3x3 grid
+            ingredients = CraftingCardItem.getIngredientsGrid(card);
+        } else {
+            ingredients = CraftingCardItem.getIngredients(card);
+        }
+
         for (ItemStack ingredient : ingredients) {
             int realSlot = info.getRealSlot(slot);
-            ItemStack stack = InventoryTools.extractItem(handler, scanner, ingredient.stackSize, true, false, ingredient, null);
-            if (stack != null) {
-                ItemStack remainder = itemHandler.insertItem(realSlot, stack, false);
-                if (remainder != null) {
-                    InventoryTools.insertItem(handler, scanner, remainder, null);
+            if (ingredient != null) {
+                ItemStack stack = InventoryTools.extractItem(handler, scanner, ingredient.stackSize, true, false, ingredient, null);
+                if (stack != null) {
+                    ItemStack remainder = itemHandler.insertItem(realSlot, stack, false);
+                    if (remainder != null) {
+                        InventoryTools.insertItem(handler, scanner, remainder, null);
+                    }
                 }
             }
             slot++;
         }
-
     }
 
     private IItemHandler getItemHandler() {

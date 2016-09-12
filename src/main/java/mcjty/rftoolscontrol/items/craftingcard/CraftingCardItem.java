@@ -65,6 +65,52 @@ public class CraftingCardItem extends GenericRFToolsItem {
         return ItemStack.loadItemStackFromNBT(nbtTagCompound);
     }
 
+    private static boolean isInGrid(int index) {
+        int x = index % 5;
+        int y = index / 5;
+        return x <= 2 && y <= 2;
+    }
+
+    // Return true if this crafting card fits a 3x3 crafting grid nicely
+    public static boolean fitsGrid(ItemStack card) {
+        NBTTagCompound tagCompound = card.getTagCompound();
+        if (tagCompound == null) {
+            return false;
+        }
+        NBTTagList bufferTagList = tagCompound.getTagList("Items", Constants.NBT.TAG_COMPOUND);
+        for (int i = 0 ; i < bufferTagList.tagCount() ; i++) {
+            if (i < CraftingCardContainer.INPUT_SLOTS) {
+                NBTTagCompound nbtTagCompound = bufferTagList.getCompoundTagAt(i);
+                ItemStack s = ItemStack.loadItemStackFromNBT(nbtTagCompound);
+                if (s != null && s.stackSize > 0) {
+                    if (!isInGrid(i)) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
+    public static List<ItemStack> getIngredientsGrid(ItemStack card) {
+        NBTTagCompound tagCompound = card.getTagCompound();
+        if (tagCompound == null) {
+            return Collections.emptyList();
+        }
+        NBTTagList bufferTagList = tagCompound.getTagList("Items", Constants.NBT.TAG_COMPOUND);
+        List<ItemStack> stacks = new ArrayList<>();
+        for (int i = 0 ; i < bufferTagList.tagCount() ; i++) {
+            if (i < CraftingCardContainer.INPUT_SLOTS) {
+                NBTTagCompound nbtTagCompound = bufferTagList.getCompoundTagAt(i);
+                ItemStack s = ItemStack.loadItemStackFromNBT(nbtTagCompound);
+                if (isInGrid(i)) {
+                    stacks.add(s);
+                }
+            }
+        }
+        return stacks;
+    }
+
     public static List<ItemStack> getIngredients(ItemStack card) {
         NBTTagCompound tagCompound = card.getTagCompound();
         if (tagCompound == null) {
