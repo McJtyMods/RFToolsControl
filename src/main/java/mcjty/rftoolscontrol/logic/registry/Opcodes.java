@@ -759,7 +759,7 @@ public class Opcodes {
             .id("do_releaselock")
             .description(
                     TextFormatting.GREEN + "Operation: release lock",
-                    "released a named lock")
+                    "release a named lock")
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("name").type(PAR_STRING).description("name of the lock").build())
             .icon(10, 2)
@@ -788,6 +788,40 @@ public class Opcodes {
             }))
             .build();
 
+    public static final Opcode DO_REQUESTCRAFT = Opcode.builder()
+            .id("do_requestcraft")
+            .description(
+                    TextFormatting.GREEN + "Operation: request craft",
+                    "request crafting for a specific item",
+                    "from a connected crafting station")
+            .opcodeOutput(SINGLE)
+            .parameter(ParameterDescription.builder().name("item").type(PAR_ITEM).description("the item to request").build())
+            .icon(6, 3)
+            .runnable(((processor, program, opcode) -> {
+                ItemStack item = processor.evaluateParameter(opcode, program, 0);
+                processor.requestCraft(program, item);
+                return POSITIVE;
+            }))
+            .build();
+
+    public static final Opcode EVAL_GETITEMINT = Opcode.builder()
+            .id("eval_getitemint")
+            .description(
+                    TextFormatting.GREEN + "Eval: examine item internal",
+                    "examine an item in a specific slot",
+                    "in the processor")
+            .outputDescription("itemstack in target slot (stack)")
+            .opcodeOutput(SINGLE)
+            .parameter(ParameterDescription.builder().name("slot").type(PAR_INTEGER).description("internal slot in processor").build())
+            .icon(7, 3)
+            .runnable(((processor, program, opcode) -> {
+                int slot = processor.evaluateIntParameter(opcode, program, 0);
+                ItemStack item = processor.getItemInternal(program, slot);
+                program.setLastValue(Parameter.builder().type(PAR_ITEM).value(ParameterValue.constant(item)).build());
+                return POSITIVE;
+            }))
+            .build();
+
 
     public static final Map<String, Opcode> OPCODES = new HashMap<>();
     public static final List<Opcode> SORTED_OPCODES = new ArrayList<>();
@@ -805,6 +839,7 @@ public class Opcodes {
         register(EVAL_COUNTINVINT);
         register(EVAL_COUNTSTOR);
         register(EVAL_GETITEM);
+        register(EVAL_GETITEMINT);
         register(EVAL_REDSTONE);
         register(EVAL_GETRF);
         register(EVAL_GETMAXRF);
@@ -833,6 +868,7 @@ public class Opcodes {
         register(DO_GETINGREDIENTS);
         register(DO_SETCRAFTTICKET);
         register(DO_CRAFTWAIT);
+        register(DO_REQUESTCRAFT);
         register(DO_LOCK);
         register(DO_RELEASELOCK);
     }

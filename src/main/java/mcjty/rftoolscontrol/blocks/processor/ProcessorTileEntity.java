@@ -404,6 +404,19 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         markDirty();
     }
 
+    public void requestCraft(RunningProgram program, ItemStack stack) {
+        for (BlockPos p : craftingStations) {
+            TileEntity te = worldObj.getTileEntity(p);
+            if (te instanceof CraftingStationTileEntity) {
+                CraftingStationTileEntity craftingStation = (CraftingStationTileEntity) te;
+                if (craftingStation.request(stack)) {
+                    return;
+                }
+            }
+        }
+        throw new ProgException(EXCEPT_MISSINGCRAFTINGSTATION);
+    }
+
     public void setCraftTicket(RunningProgram program, String ticket) {
         program.setCraftTicket(ticket);
     }

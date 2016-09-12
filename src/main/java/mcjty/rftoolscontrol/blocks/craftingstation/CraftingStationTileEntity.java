@@ -127,6 +127,27 @@ public class CraftingStationTileEntity extends GenericTileEntity implements Defa
         pair.getKey().fireCraftEvent(craftID, pair.getValue(), amount);
     }
 
+    public boolean request(ItemStack item) {
+        for (BlockPos p : processorList) {
+            TileEntity te = worldObj.getTileEntity(p);
+            if (te instanceof ProcessorTileEntity) {
+                ProcessorTileEntity processor = (ProcessorTileEntity) te;
+                List<ItemStack> items = new ArrayList<>();
+                processor.getCraftableItems(items);
+                for (ItemStack i : items) {
+                    if (item.isItemEqual(i)) {
+                        String craftID = getCraftID();
+                        activeCraftingRequests.add(new CraftingRequest(craftID, i));
+                        processor.fireCraftEvent(craftID, i, item.stackSize);
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
     private String getCraftID() {
         craftId++;
         markDirty();
