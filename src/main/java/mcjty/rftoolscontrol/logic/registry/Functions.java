@@ -1,6 +1,7 @@
 package mcjty.rftoolscontrol.logic.registry;
 
 import mcjty.rftoolscontrol.logic.Parameter;
+import mcjty.rftoolscontrol.logic.TypeConverters;
 import net.minecraft.item.ItemStack;
 
 import javax.annotation.Nonnull;
@@ -9,6 +10,8 @@ import java.util.*;
 import static mcjty.rftoolscontrol.logic.registry.ParameterType.*;
 
 public class Functions {
+
+    public static Random random = new Random(System.currentTimeMillis());
 
     public static final Function LASTBOOL = Function.builder()
             .id("last_bool")
@@ -34,9 +37,9 @@ public class Functions {
                 return convertToString(program.getLastValue());
             })
             .build();
-    public static final Function CRAFTID = Function.builder()
-            .id("craftid")
-            .name("craftid")
+    public static final Function TICKET = Function.builder()
+            .id("ticket")
+            .name("ticket")
             .type(PAR_STRING)
             .runnable((processor, program, function) -> {
                 return ParameterValue.constant(program.getCraftTicket());
@@ -48,6 +51,24 @@ public class Functions {
             .type(PAR_ITEM)
             .runnable((processor, program, function) -> {
                 return ParameterValue.constant(processor.getCraftResult(program));
+            })
+            .build();
+    public static final Function RANDOMINT = Function.builder()
+            .id("random_int")
+            .name("random")
+            .type(PAR_INTEGER)
+            .runnable((processor, program, function) -> {
+                int i = TypeConverters.convertToInt(program.getLastValue());
+                return ParameterValue.constant(random.nextInt(i));
+            })
+            .build();
+    public static final Function RANDOMFLOAT = Function.builder()
+            .id("random_float")
+            .name("random")
+            .type(PAR_INTEGER)
+            .runnable((processor, program, function) -> {
+                float i = TypeConverters.convertToFloat(program.getLastValue());
+                return ParameterValue.constant(random.nextFloat() * i);
             })
             .build();
 
@@ -131,8 +152,10 @@ public class Functions {
         register(LASTBOOL);
         register(LASTINT);
         register(LASTSTRING);
-        register(CRAFTID);
+        register(TICKET);
         register(CRAFTRESULT);
+        register(RANDOMINT);
+        register(RANDOMFLOAT);
     }
 
     private static void register(Function function) {

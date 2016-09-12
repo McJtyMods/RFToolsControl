@@ -64,6 +64,22 @@ public class TypeConverters {
         }
     }
 
+    public static float convertToFloat(Object value) {
+        if (value instanceof Integer) {
+            return ((Integer) value).floatValue();
+        } else if (value instanceof String) {
+            return Float.parseFloat((String) value);
+        } else if (value instanceof Float) {
+            return (Float) value;
+        } else if (value instanceof Boolean) {
+            return ((Boolean) value) ? 1.0f : 0.0f;
+        } else if (value instanceof ItemStack) {
+            return ((ItemStack) value).stackSize;
+        } else {
+            return 0.0f;
+        }
+    }
+
     public static Integer convertToInteger(Object value) {
         if (value instanceof Integer) {
             return (Integer) value;
