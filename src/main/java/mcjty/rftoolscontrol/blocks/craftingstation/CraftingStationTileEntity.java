@@ -29,12 +29,13 @@ public class CraftingStationTileEntity extends GenericTileEntity implements Defa
     public static final String CMD_GETREQUESTS = "getRequests";
     public static final String CLIENTCMD_GETREQUESTS = "getRequests";
     public static final String CMD_REQUEST = "request";
+    public static final String CMD_CANCEL = "cancel";
 
     private InventoryHelper inventoryHelper = new InventoryHelper(this, CraftingStationContainer.factory, 9);
 
     private List<BlockPos> processorList = new ArrayList<>();
     private int craftId = 0;
-    private Set<CraftingRequest> activeCraftingRequests = new HashSet<>();
+    private List<CraftingRequest> activeCraftingRequests = new ArrayList<>();
 
     @Override
     protected boolean needsCustomInvWrapper() {
@@ -112,6 +113,14 @@ public class CraftingStationTileEntity extends GenericTileEntity implements Defa
         if (foundRequest != null) {
             activeCraftingRequests.remove(foundRequest);
             markDirty();
+        }
+    }
+
+    private void cancelCraft(int index) {
+        try {
+            activeCraftingRequests.remove(index);
+        } catch (Exception e) {
+
         }
     }
 
@@ -266,6 +275,10 @@ public class CraftingStationTileEntity extends GenericTileEntity implements Defa
             int index = args.get("index").getInteger();
             int amount = args.get("amount").getInteger();
             startCraft(index, amount);
+            return true;
+        } else if (CMD_CANCEL.equals(command)) {
+            int index = args.get("index").getInteger();
+            cancelCraft(index);
             return true;
         }
         return false;

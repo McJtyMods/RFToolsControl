@@ -6,6 +6,7 @@ import mcjty.lib.gui.events.BlockRenderEvent;
 import mcjty.lib.gui.layout.HorizontalLayout;
 import mcjty.lib.gui.layout.PositionalLayout;
 import mcjty.lib.gui.widgets.*;
+import mcjty.lib.gui.widgets.Button;
 import mcjty.lib.gui.widgets.Label;
 import mcjty.lib.gui.widgets.Panel;
 import mcjty.lib.network.Argument;
@@ -24,13 +25,14 @@ import java.util.List;
 
 public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileEntity> {
 
-    public static final int WIDTH = 171;
+    public static final int WIDTH = 221;
     public static final int HEIGHT = 236;
 
     private static final ResourceLocation mainBackground = new ResourceLocation(RFToolsControl.MODID, "textures/gui/craftingstation.png");
 
     private WidgetList recipeList;
     private WidgetList requestList;
+    private Button cancelButton;
 
     private static List<ItemStack> fromServer_craftables = new ArrayList<>();
     public static void storeCraftableForClient(List<ItemStack> items) {
@@ -59,9 +61,28 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
 
         initRecipeList(toplevel);
         initProgressList(toplevel);
+        initButtons(toplevel);
 
         toplevel.setBounds(new Rectangle(guiLeft, guiTop, WIDTH, HEIGHT));
         window = new Window(this, toplevel);
+    }
+
+    private void initButtons(Panel toplevel) {
+        cancelButton = new Button(mc, this)
+                .setLayoutHint(new PositionalLayout.PositionalHint(170, 5, 46, 16))
+                .setText("Cancel")
+                .setTooltips("Cancel the currently selected", "crafting request")
+                .addButtonEvent((widget -> cancelRequest()));
+        toplevel.addChild(cancelButton);
+    }
+
+    private void cancelRequest() {
+        int selected = requestList.getSelected();
+        if (selected == -1) {
+            return;
+        }
+        sendServerCommand(RFToolsCtrlMessages.INSTANCE, CraftingStationTileEntity.CMD_CANCEL,
+                new Argument("index", selected));
     }
 
     private void initRecipeList(Panel toplevel) {
@@ -109,12 +130,6 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
                         }
                     }
 
-//                    List<String> newlist = new ArrayList<>();
-//                    newlist.add(TextFormatting.GREEN + "Click: "+ TextFormatting.WHITE + "craft single");
-//                    newlist.add(TextFormatting.GREEN + "Shift + click: "+ TextFormatting.WHITE + "craft amount");
-//                    newlist.add("");
-//                    newlist.addAll(list);
-//                    return newlist;
                     return list;
                 }
             }
@@ -194,6 +209,7 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
         requestListsIfNeeded();
         updateRecipeList();
         updateRequestList();
+        cancelButton.setEnabled(requestList.getSelected() != -1);
         drawWindow();
     }
 }

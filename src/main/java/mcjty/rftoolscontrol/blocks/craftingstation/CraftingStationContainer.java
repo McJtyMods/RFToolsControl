@@ -19,8 +19,8 @@ public class CraftingStationContainer extends GenericContainer {
     public static final ContainerFactory factory = new ContainerFactory() {
         @Override
         protected void setup() {
-            addSlotBox(new SlotDefinition(SlotType.SLOT_CONTAINER), CONTAINER_INVENTORY, SLOT_OUTPUT, 6, 136, 9, 18, 1, 18);
-            layoutPlayerInventorySlots(6, 157);
+            addSlotBox(new SlotDefinition(SlotType.SLOT_CONTAINER), CONTAINER_INVENTORY, SLOT_OUTPUT, 56, 136, 9, 18, 1, 18);
+            layoutPlayerInventorySlots(56, 157);
         }
     };
 
