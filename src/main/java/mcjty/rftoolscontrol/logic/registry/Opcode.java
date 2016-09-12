@@ -101,7 +101,7 @@ public class Opcode {
 
     public static class Builder {
 
-        private static final OpcodeRunnable NOOP = ((processor, program, opcode) -> true);
+        private static final OpcodeRunnable NOOP = ((processor, program, opcode) -> OpcodeRunnable.OpcodeResult.POSITIVE);
 
         private String id;
         private OpcodeOutput opcodeOutput = OpcodeOutput.SINGLE;

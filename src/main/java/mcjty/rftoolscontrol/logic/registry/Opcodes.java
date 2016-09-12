@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Map;
 
 import static mcjty.rftoolscontrol.logic.registry.OpcodeOutput.*;
+import static mcjty.rftoolscontrol.logic.registry.OpcodeRunnable.OpcodeResult.NEGATIVE;
+import static mcjty.rftoolscontrol.logic.registry.OpcodeRunnable.OpcodeResult.POSITIVE;
 import static mcjty.rftoolscontrol.logic.registry.ParameterType.*;
 
 public class Opcodes {
@@ -29,7 +31,7 @@ public class Opcodes {
                 BlockSide side = processor.evaluateParameter(opcode, program, 0);
                 int level = processor.evaluateIntParameter(opcode, program, 1);
                 processor.setPowerOut(side, level, program);
-                return true;
+                return POSITIVE;
             }))
             .icon(0, 0)
             .build();
@@ -83,7 +85,7 @@ public class Opcodes {
             .runnable(((processor, program, opcode) -> {
                 int ticks = processor.evaluateIntParameter(opcode, program, 0);
                 program.setDelay(ticks);
-                return true;
+                return POSITIVE;
             }))
             .build();
 
@@ -113,7 +115,7 @@ public class Opcodes {
                 boolean routable = processor.evaluateBoolParameter(opcode, program, 4);
                 int cnt = processor.countItem(inv, slot, item, oredict, routable, program);
                 program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(cnt)).build());
-                return true;
+                return POSITIVE;
             }))
             .build();
 
@@ -135,7 +137,7 @@ public class Opcodes {
                 IItemHandler handler = processor.getItemHandlerAt(inv);
                 ItemStack item = handler.getStackInSlot(slot);
                 program.setLastValue(Parameter.builder().type(PAR_ITEM).value(ParameterValue.constant(item)).build());
-                return true;
+                return POSITIVE;
             }))
             .build();
 
@@ -154,7 +156,7 @@ public class Opcodes {
                 BlockSide side = processor.evaluateParameter(opcode, program, 0);
                 int rs = processor.readRedstoneIn(side, program);
                 program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(rs)).build());
-                return true;
+                return POSITIVE;
             }))
             .build();
 
@@ -169,7 +171,7 @@ public class Opcodes {
             .icon(7, 0)
             .runnable((processor, program, opcode) -> {
                 program.killMe();
-                return true;
+                return POSITIVE;
             })
             .build();
 
@@ -185,7 +187,7 @@ public class Opcodes {
             .runnable(((processor, program, opcode) -> {
                 String message = processor.evaluateStringParameter(opcode, program, 0);
                 processor.log(message);
-                return true;
+                return POSITIVE;
             }))
             .build();
 
@@ -214,7 +216,7 @@ public class Opcodes {
             .runnable(((processor, program, opcode) -> {
                 int v1 = processor.evaluateIntParameter(opcode, program, 0);
                 int v2 = processor.evaluateIntParameter(opcode, program, 1);
-                return v1 > v2;
+                return v1 > v2 ? POSITIVE : NEGATIVE;
             }))
             .build();
 
@@ -232,7 +234,7 @@ public class Opcodes {
             .runnable(((processor, program, opcode) -> {
                 int v1 = processor.evaluateIntParameter(opcode, program, 0);
                 int v2 = processor.evaluateIntParameter(opcode, program, 1);
-                return v1 == v2;
+                return v1 == v2 ? POSITIVE : NEGATIVE;
             }))
             .build();
 
@@ -265,7 +267,7 @@ public class Opcodes {
                 boolean routable = processor.evaluateBoolParameter(opcode, program, 6);
                 int cnt = processor.fetchItems(program, inv, slot, item, routable, oredict, amount, slotOut);
                 program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(cnt)).build());
-                return true;
+                return POSITIVE;
             }))
             .build();
 
@@ -293,7 +295,7 @@ public class Opcodes {
                 int slotIn = processor.evaluateIntParameter(opcode, program, 3);
                 int cnt = processor.pushItems(program, inv, slot, amount, slotIn);
                 program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(cnt)).build());
-                return true;
+                return POSITIVE;
             }))
             .build();
 
@@ -311,7 +313,7 @@ public class Opcodes {
                 int slot = processor.evaluateIntParameter(opcode, program, 0);
                 ItemStack stack = processor.getItemInternal(program, slot);
                 program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(stack == null ? 0 : stack.stackSize)).build());
-                return true;
+                return POSITIVE;
             }))
             .build();
 
@@ -327,7 +329,7 @@ public class Opcodes {
             .runnable(((processor, program, opcode) -> {
                 int var = processor.evaluateIntParameter(opcode, program, 0);
                 processor.setVariable(program, var);
-                return true;
+                return POSITIVE;
             }))
             .build();
 
@@ -345,7 +347,7 @@ public class Opcodes {
                 int v1 = processor.evaluateIntParameter(opcode, program, 0);
                 int v2 = processor.evaluateIntParameter(opcode, program, 1);
                 program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(v1+v2)).build());
-                return true;
+                return POSITIVE;
             }))
             .build();
 
@@ -363,7 +365,7 @@ public class Opcodes {
                 int v1 = processor.evaluateIntParameter(opcode, program, 0);
                 int v2 = processor.evaluateIntParameter(opcode, program, 1);
                 program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(v1-v2)).build());
-                return true;
+                return POSITIVE;
             }))
             .build();
 
@@ -381,7 +383,7 @@ public class Opcodes {
                 int v1 = processor.evaluateIntParameter(opcode, program, 0);
                 int v2 = processor.evaluateIntParameter(opcode, program, 1);
                 program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(v1/v2)).build());
-                return true;
+                return POSITIVE;
             }))
             .build();
 
@@ -399,7 +401,7 @@ public class Opcodes {
                 int v1 = processor.evaluateIntParameter(opcode, program, 0);
                 int v2 = processor.evaluateIntParameter(opcode, program, 1);
                 program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(v1*v2)).build());
-                return true;
+                return POSITIVE;
             }))
             .build();
 
@@ -418,7 +420,7 @@ public class Opcodes {
                 int v1 = processor.evaluateIntParameter(opcode, program, 0);
                 int v2 = processor.evaluateIntParameter(opcode, program, 1);
                 program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(v1%v2)).build());
-                return true;
+                return POSITIVE;
             }))
             .build();
 
@@ -436,7 +438,7 @@ public class Opcodes {
                 String v1 = processor.evaluateStringParameter(opcode, program, 0);
                 String v2 = processor.evaluateStringParameter(opcode, program, 1);
                 program.setLastValue(Parameter.builder().type(PAR_STRING).value(ParameterValue.constant(v1+v2)).build());
-                return true;
+                return POSITIVE;
             }))
             .build();
 
@@ -461,7 +463,7 @@ public class Opcodes {
                 boolean routable = processor.evaluateBoolParameter(opcode, program, 2);
                 int cnt = processor.countItemStorage(item, routable, oredict);
                 program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(cnt)).build());
-                return true;
+                return POSITIVE;
             }))
             .build();
 
@@ -490,7 +492,7 @@ public class Opcodes {
                 int slotOut = processor.evaluateIntParameter(opcode, program, 4);
                 int cnt = processor.fetchItems(program, null, null, item, routable, oredict, amount, slotOut);
                 program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(cnt)).build());
-                return true;
+                return POSITIVE;
             }))
             .build();
 
@@ -512,7 +514,7 @@ public class Opcodes {
                 int slotIn = processor.evaluateIntParameter(opcode, program, 1);
                 int cnt = processor.pushItems(program, null, null, amount, slotIn);
                 program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(cnt)).build());
-                return true;
+                return POSITIVE;
             }))
             .build();
 
@@ -531,7 +533,7 @@ public class Opcodes {
                 Inventory side = processor.evaluateParameter(opcode, program, 0);
                 int rf = processor.getEnergy(side, program);
                 program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(rf)).build());
-                return true;
+                return POSITIVE;
             }))
             .build();
     public static final Opcode EVAL_GETMAXRF = Opcode.builder()
@@ -549,7 +551,7 @@ public class Opcodes {
                 Inventory side = processor.evaluateParameter(opcode, program, 0);
                 int rf = processor.getMaxEnergy(side, program);
                 program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(rf)).build());
-                return true;
+                return POSITIVE;
             }))
             .build();
     public static final Opcode DO_WIRE = Opcode.builder()
@@ -561,7 +563,7 @@ public class Opcodes {
             .opcodeOutput(SINGLE)
             .icon(11, 1)
             .runnable(((processor, program, opcode) -> {
-                return true;
+                return POSITIVE;
             }))
             .build();
 
@@ -593,7 +595,7 @@ public class Opcodes {
             .runnable(((processor, program, opcode) -> {
                 Integer slot = processor.evaluateIntegerParameter(opcode, program, 0);
                 processor.craftOk(program, slot);
-                return true;
+                return POSITIVE;
             }))
             .build();
     public static final Opcode DO_CRAFTFAIL = Opcode.builder()
@@ -607,7 +609,7 @@ public class Opcodes {
             .icon(7, 2)
             .runnable(((processor, program, opcode) -> {
                 processor.craftFail(program);
-                return true;
+                return POSITIVE;
             }))
             .build();
 
@@ -635,7 +637,7 @@ public class Opcodes {
                 int slot1 = processor.evaluateIntParameter(opcode, program, 3);
                 int slot2 = processor.evaluateIntParameter(opcode, program, 4);
                 processor.getIngredients(program, inv, cardInv, item, slot1, slot2);
-                return true;
+                return POSITIVE;
             }))
             .build();
 
@@ -659,7 +661,7 @@ public class Opcodes {
                 int slot2 = processor.evaluateIntParameter(opcode, program, 2);
                 Integer extSlot = processor.evaluateIntegerParameter(opcode, program, 3);
                 processor.pushItemsMulti(program, inv, slot1, slot2, extSlot);
-                return true;
+                return POSITIVE;
             }))
             .build();
 
@@ -675,7 +677,7 @@ public class Opcodes {
             .runnable(((processor, program, opcode) -> {
                 String ticket = processor.evaluateStringParameter(opcode, program, 0);
                 processor.setCraftTicket(program, ticket);
-                return true;
+                return POSITIVE;
             }))
             .build();
 
@@ -689,7 +691,7 @@ public class Opcodes {
             .parameter(ParameterDescription.builder().name("v").type(PAR_BOOLEAN).description("value to test").build())
             .icon(1, 3)
             .runnable(((processor, program, opcode) -> {
-                return processor.evaluateBoolParameter(opcode, program, 0);
+                return processor.evaluateBoolParameter(opcode, program, 0) ? POSITIVE : NEGATIVE;
             }))
             .build();
 
@@ -720,7 +722,7 @@ public class Opcodes {
                 Inventory inv = processor.evaluateParameter(opcode, program, 0);
                 ItemStack item = processor.evaluateParameter(opcode, program, 1);
                 processor.craftWait(program, inv, item);
-                return true;
+                return POSITIVE;
             }))
             .build();
 
@@ -733,6 +735,54 @@ public class Opcodes {
             .opcodeOutput(SINGLE)
             .isEvent(true)
             .icon(4, 3)
+            .build();
+
+    public static final Opcode DO_LOCK = Opcode.builder()
+            .id("do_lock")
+            .description(
+                    TextFormatting.GREEN + "Operation: test and lock",
+                    "test if a named lock is free and if it",
+                    "is place the lock and continue. If the",
+                    "lock is not free wait until it is")
+            .opcodeOutput(SINGLE)
+            .parameter(ParameterDescription.builder().name("name").type(PAR_STRING).description("name of the lock").build())
+            .icon(9, 2)
+            .runnable(((processor, program, opcode) -> {
+                String name = processor.evaluateStringParameter(opcode, program, 0);
+                return processor.placeLock(program, name);
+            }))
+            .build();
+    public static final Opcode DO_RELEASELOCK = Opcode.builder()
+            .id("do_releaselock")
+            .description(
+                    TextFormatting.GREEN + "Operation: release lock",
+                    "released a named lock")
+            .opcodeOutput(SINGLE)
+            .parameter(ParameterDescription.builder().name("name").type(PAR_STRING).description("name of the lock").build())
+            .icon(10, 2)
+            .runnable(((processor, program, opcode) -> {
+                String name = processor.evaluateStringParameter(opcode, program, 0);
+                processor.releaseLock(program, name);
+                return POSITIVE;
+            }))
+            .build();
+
+    public static final Opcode EVAL_LOCK = Opcode.builder()
+            .id("eval_lock")
+            .description(
+                    TextFormatting.GREEN + "Eval: test lock",
+                    "test if the named lock is set and",
+                    "return true if it is")
+            .outputDescription("true if lock is set (boolean)")
+            .opcodeOutput(SINGLE)
+            .parameter(ParameterDescription.builder().name("name").type(PAR_STRING).description("name of the lock to test").build())
+            .icon(5, 3)
+            .runnable(((processor, program, opcode) -> {
+                String name = processor.evaluateStringParameter(opcode, program, 0);
+                boolean locked = processor.testLock(program, name);
+                program.setLastValue(Parameter.builder().type(PAR_BOOLEAN).value(ParameterValue.constant(locked)).build());
+                return POSITIVE;
+            }))
             .build();
 
 
@@ -755,6 +805,7 @@ public class Opcodes {
         register(EVAL_REDSTONE);
         register(EVAL_GETRF);
         register(EVAL_GETMAXRF);
+        register(EVAL_LOCK);
         register(TEST_GT);
         register(TEST_EQ);
         register(TEST_SET);
@@ -779,6 +830,8 @@ public class Opcodes {
         register(DO_GETINGREDIENTS);
         register(DO_SETCRAFTTICKET);
         register(DO_CRAFTWAIT);
+        register(DO_LOCK);
+        register(DO_RELEASELOCK);
     }
 
     private static void register(Opcode opcode) {

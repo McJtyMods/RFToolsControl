@@ -21,10 +21,7 @@ import mcjty.rftoolscontrol.logic.compiled.CompiledCard;
 import mcjty.rftoolscontrol.logic.compiled.CompiledEvent;
 import mcjty.rftoolscontrol.logic.compiled.CompiledOpcode;
 import mcjty.rftoolscontrol.logic.grid.ProgramCardInstance;
-import mcjty.rftoolscontrol.logic.registry.BlockSide;
-import mcjty.rftoolscontrol.logic.registry.Inventory;
-import mcjty.rftoolscontrol.logic.registry.Opcodes;
-import mcjty.rftoolscontrol.logic.registry.ParameterValue;
+import mcjty.rftoolscontrol.logic.registry.*;
 import mcjty.rftoolscontrol.logic.running.CpuCore;
 import mcjty.rftoolscontrol.logic.running.ExceptionType;
 import mcjty.rftoolscontrol.logic.running.ProgException;
@@ -106,6 +103,8 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     private List<WaitForItem> waitingForItems = new ArrayList<>();
 
     private Queue<String> logMessages = new ArrayDeque<>();
+
+    private Set<String> locks = new HashSet<>();
 
     public ProcessorTileEntity() {
         super(GeneralConfiguration.processorMaxenergy, GeneralConfiguration.processorReceivepertick);
@@ -574,7 +573,14 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         int n = 0;
         for (CpuCore core : getCpuCores()) {
             if (core.hasProgram()) {
-                log("Core: " + n + " -> <busy>");
+                RunningProgram program = core.getProgram();
+                if (program.getDelay() > 0) {
+                    log("Core: " + n + " -> <delayed: " + program.getDelay() + ">");
+                } else if (program.getLock() != null) {
+                    log("Core: " + n + " -> <locked: " + program.getLock() + ">");
+                } else {
+                    log("Core: " + n + " -> <busy>");
+                }
             } else {
                 log("Core: " + n + " -> <idle>");
             }
@@ -582,6 +588,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         }
         log("Event queue: " + eventQueue.size());
         log("Waiting items: " + waitingForItems.size());
+        log("Locks: " + locks.size());
     }
 
     public int stopPrograms() {
@@ -598,8 +605,25 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     public void reset() {
         waitingForItems.clear();
         eventQueue.clear();
+        locks.clear();
         stopPrograms();
         markDirty();
+    }
+
+    public OpcodeRunnable.OpcodeResult placeLock(RunningProgram program, String name) {
+        if (testLock(program, name)) {
+            return OpcodeRunnable.OpcodeResult.HOLD;
+        }
+        locks.add(name);
+        return OpcodeRunnable.OpcodeResult.POSITIVE;
+    }
+
+    public void releaseLock(RunningProgram program, String name) {
+        locks.remove(name);
+    }
+
+    public boolean testLock(RunningProgram program, String name) {
+        return locks.contains(name);
     }
 
     public void clearLog() {
@@ -626,12 +650,17 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
 
         String message;
         if (program != null) {
-            CompiledOpcode opcode = program.getCurrentOpcode(this);
-            int gridX = opcode.getGridX();
-            int gridY = opcode.getGridY();
-            message = TextFormatting.RED + "[" + gridX + "," + gridY + "] " + exception.getDescription();
+            CompiledCard card = getCompiledCard(program.getCardIndex());
+            if (card == null) {
+                message = TextFormatting.RED + "INTERNAL: " + exception.getDescription();
+            } else {
+                CompiledOpcode opcode = program.getCurrentOpcode(this);
+                int gridX = opcode.getGridX();
+                int gridY = opcode.getGridY();
+                message = TextFormatting.RED + "[" + gridX + "," + gridY + "] " + exception.getDescription();
+            }
         } else {
-            message = exception.getDescription();
+            message = TextFormatting.RED + exception.getDescription();
         }
         log(message);
     }
@@ -1109,8 +1138,17 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         readNetworkNodes(tagCompound);
         readCraftingStations(tagCompound);
         readWaitingForItems(tagCompound);
+        readLocks(tagCompound);
     }
 
+    private void readLocks(NBTTagCompound tagCompound) {
+        locks.clear();
+        NBTTagList lockList = tagCompound.getTagList("locks", Constants.NBT.TAG_STRING);
+        for (int i = 0 ; i < lockList.tagCount() ; i++) {
+            String name = lockList.getStringTagAt(i);
+            locks.add(name);
+        }
+    }
 
     private void readWaitingForItems(NBTTagCompound tagCompound) {
         waitingForItems.clear();
@@ -1216,6 +1254,15 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         writeNetworkNodes(tagCompound);
         writeCraftingStations(tagCompound);
         writeWaitingForItems(tagCompound);
+        writeLocks(tagCompound);
+    }
+
+    private void writeLocks(NBTTagCompound tagCompound) {
+        NBTTagList lockList = new NBTTagList();
+        for (String name : locks) {
+            lockList.appendTag(new NBTTagString(name));
+        }
+        tagCompound.setTag("locks", lockList);
     }
 
     private void writeWaitingForItems(NBTTagCompound tagCompound) {

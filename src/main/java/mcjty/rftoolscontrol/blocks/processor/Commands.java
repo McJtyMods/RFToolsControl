@@ -129,6 +129,9 @@ public class Commands {
         int y = currentOpcode.getGridY();
         String id = currentOpcode.getOpcode().getId();
         processor.log("Core " + i + ": [" + x + "," + y + "] " + id);
+        if (program.getLock() != null) {
+            processor.log(TextFormatting.YELLOW + "[LOCKED on " + program.getLock() + "]!");
+        }
     }
 
     private static void handleNetworkCommand(ProcessorTileEntity processor, String[] splitted) {

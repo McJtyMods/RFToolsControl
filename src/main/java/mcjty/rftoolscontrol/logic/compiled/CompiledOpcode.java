@@ -3,6 +3,7 @@ package mcjty.rftoolscontrol.logic.compiled;
 import mcjty.rftoolscontrol.blocks.processor.ProcessorTileEntity;
 import mcjty.rftoolscontrol.logic.Parameter;
 import mcjty.rftoolscontrol.logic.registry.Opcode;
+import mcjty.rftoolscontrol.logic.registry.OpcodeRunnable;
 import mcjty.rftoolscontrol.logic.running.ProgException;
 import mcjty.rftoolscontrol.logic.running.RunningProgram;
 
@@ -55,7 +56,7 @@ public class CompiledOpcode {
         return secondaryIndex;
     }
 
-    public boolean run(ProcessorTileEntity processor, RunningProgram program) throws ProgException {
+    public OpcodeRunnable.OpcodeResult run(ProcessorTileEntity processor, RunningProgram program) throws ProgException {
         return opcode.getRunnable().run(processor, program, this);
     }
 

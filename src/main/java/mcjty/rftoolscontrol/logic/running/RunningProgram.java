@@ -4,6 +4,7 @@ import mcjty.rftoolscontrol.blocks.processor.ProcessorTileEntity;
 import mcjty.rftoolscontrol.logic.Parameter;
 import mcjty.rftoolscontrol.logic.compiled.CompiledCard;
 import mcjty.rftoolscontrol.logic.compiled.CompiledOpcode;
+import mcjty.rftoolscontrol.logic.registry.OpcodeRunnable;
 import mcjty.rftoolscontrol.logic.registry.ParameterType;
 import net.minecraft.nbt.NBTTagCompound;
 
@@ -22,6 +23,9 @@ public class RunningProgram {
 
     // Current ticket
     private String ticket = null;
+
+    // Waiting for a lock
+    private String lock = null;
 
     // If we need to wait a few ticks
     private int delay = 0;
@@ -60,6 +64,18 @@ public class RunningProgram {
         this.delay = delay;
     }
 
+    public int getDelay() {
+        return delay;
+    }
+
+    public String getLock() {
+        return lock;
+    }
+
+    public void setLock(String lock) {
+        this.lock = lock;
+    }
+
     public void killMe() {
         dead = true;
     }
@@ -90,15 +106,25 @@ public class RunningProgram {
             return false;
         }
 
+        if (lock != null) {
+            if (processor.testLock(this, lock)) {
+                return false;
+            }
+            lock = null;
+        }
+
         try {
             CompiledOpcode opcode = opcodes(processor).get(current);
             if (DEBUG) {
                 System.out.println(opcode.getOpcode());
             }
-            if (opcode.run(processor, this)) {
+            OpcodeRunnable.OpcodeResult result = opcode.run(processor, this);
+            if (result == OpcodeRunnable.OpcodeResult.POSITIVE) {
                 current = opcode.getPrimaryIndex();
-            } else {
+            } else if (result == OpcodeRunnable.OpcodeResult.NEGATIVE){
                 current = opcode.getSecondaryIndex();
+            } else {
+                // Stay at this opcode
             }
         } catch (ProgException e) {
             throw e;
@@ -125,6 +151,9 @@ public class RunningProgram {
         if (ticket != null) {
             tag.setString("ticket", ticket);
         }
+        if (lock != null) {
+            tag.setString("lock", lock);
+        }
         if (lastValue != null) {
             NBTTagCompound varTag = new NBTTagCompound();
             varTag.setInteger("type", lastValue.getParameterType().ordinal());
@@ -144,6 +173,9 @@ public class RunningProgram {
         program.dead = tag.getBoolean("dead");
         if (tag.hasKey("ticket")) {
             program.ticket = tag.getString("ticket");
+        }
+        if (tag.hasKey("lock")) {
+            program.lock = tag.getString("lock");
         }
         if (tag.hasKey("lastvar")) {
             NBTTagCompound varTag = tag.getCompoundTag("lastvar");
