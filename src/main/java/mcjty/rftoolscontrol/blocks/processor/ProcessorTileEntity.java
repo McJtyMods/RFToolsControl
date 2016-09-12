@@ -505,7 +505,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             CompiledOpcode compiledOpcode = compiledCard.getOpcodes().get(index);
             int ticks = evaluateParameter(compiledOpcode, null, 0);
             if (tickCount % ticks == 0) {
-                runOrQueueEvent(i, event, null);
+                runOrDropEvent(i, event, null);
             }
         }
     }
@@ -537,6 +537,18 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                     runOrQueueEvent(i, event, null);
                 }
             }
+        }
+    }
+
+    private void runOrDropEvent(int cardIndex, CompiledEvent event, @Nullable String ticket) {
+        CpuCore core = findAvailableCore();
+        if (core == null) {
+            // No available core. We drop this event
+        } else {
+            RunningProgram program = new RunningProgram(cardIndex);
+            program.setCurrent(event.getIndex());
+            program.setCraftTicket(ticket);
+            core.startProgram(program);
         }
     }
 
