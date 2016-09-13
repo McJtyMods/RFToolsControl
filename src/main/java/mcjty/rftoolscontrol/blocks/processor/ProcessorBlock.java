@@ -65,6 +65,15 @@ public class ProcessorBlock extends GenericRFToolsBlock<ProcessorTileEntity, Pro
                 probeInfo.text(TextFormatting.GREEN + "Channel: " + processor.getChannelName());
                 probeInfo.text(TextFormatting.GREEN + "Nodes: " + processor.getNodeCount());
             }
+            if (mode == ProbeMode.EXTENDED) {
+                List<String> lastMessages = processor.getLastMessages(6);
+                if (!lastMessages.isEmpty()) {
+                    IProbeInfo v = probeInfo.vertical(probeInfo.defaultLayoutStyle().borderColor(0xffff0000));
+                    for (String s : lastMessages) {
+                        v.text("    " + s);
+                    }
+                }
+            }
         }
     }
 
