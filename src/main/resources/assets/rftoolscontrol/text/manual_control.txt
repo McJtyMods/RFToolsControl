@@ -12,6 +12,11 @@ Table of Contents:
 
 
 {l:concepts}Programming Concepts
+{l:types}Types
+{l:parameters}Parameters
+{l:variables}Variables
+{l:events}Events
+{l:opcodes}Opcode Types
 {-------------------------------------------------------------}
 {b}Introduction
 {n:intro}
@@ -107,9 +112,9 @@ them for each card.
 Using a network card and several nodes:
 {ri:network_card}
 {rb:node}
-you can create an automation network. Without networking you can only
-access inventories and blocks adjacent to the processor. With a
-network blocks around nodes are also available (17x17x17 area).
+you can create a network. A processor has only six sides but using
+a network you can extend this by also enabling access to the sides
+of all nodes that are connected to the network.
 {-------------------------------------------------------------}
 After installing a network card you need to set it up. This can be
 done with the 'net setup <name>' console command (in the Processor
@@ -117,9 +122,10 @@ console). The <name> will be the network name and is also used
 in all the nodes that want to connect to this network.
 
 Setting up the network card will also initiate the scan to find
-all nodes that match the given channel name. Note that the network
-card is also needed to connect to crafting stations which this
-scan will also pick up.
+all nodes that match the given channel name (in a 17x17x17 area
+with the processor at the center). Note that the network card is
+also needed to connect to crafting stations which this scan will
+also pick up.
 {-------------------------------------------------------------}
 {b}Crafting Station
 {n:craftingstation}
@@ -153,4 +159,74 @@ they have parameters that can influence what they can do.
 
 The tooltip on an opcode in the programmer will give more
 information (press shift for even more information)
+{-------------------------------------------------------------}
+{b}Types
+{n:types}
+Parameters and variables are typed. That means that they have a
+specific type (like integer, string, ...) and need to be converted
+to be used as something else. Many conversions are done
+automatically. For example, if you need a string but the last
+result was an integer then the integer will automatically be
+converted into a string.
+
+The following types are currently implemented: string, integer,
+float, boolean, side (represents a side of the processor or
+one of the connected nodes), inventory (represents an inventory
+adjacent to the processor or a connected node and an optional
+side from which to access the inventory), item (an itemstack),
+and exception.
+{-------------------------------------------------------------}
+{b}Parameters
+{n:parameters}
+As mentioned before opcodes can have multiple parameters which
+control how the opcode works. Parameters always have a specific
+type. Many parameters are optional.
+
+Every parameter can be either a constant value, a reference
+to a variable, or a function. If you open the parameter editor
+in the programmer (the ... button) you can select between these
+three options with the buttons at the top.
+
+The available list of functions depends on the type of the
+parameter. Some types have no functions defined for them (yet).
+{-------------------------------------------------------------}
+{b}Variables
+{n:variables}
+A processor can store up to 32 variables. These are also typed
+just like parameters. Make sure to allocate the variables to
+the card slot that you need them for. All programs that are on
+the same card slot will share those variables automatically.
+
+You can also share variables with programs on other slots because
+it is possible to allocate a given variable to multiple cards.
+{-------------------------------------------------------------}
+{b}Events
+{n:events}
+Programs written with RFTools Control are 'event driven'. That means they
+only start when there is some kind of event. An event can be a redstone
+pulse, a timer, a crafting request for some item and more.
+
+Most events have parameters that control when they are fired.
+
+Every program sequence (connected opcodes) on a card will need at least
+one event. Otherwise it can never run. It is possible to connect multiple
+events to the same program sequence.
+
+If an event fires it is executed on an available core. If no cores are
+available then it will be put in a waiting list. Except for the timer
+event. That one is discared if there are no cores available.
+{-------------------------------------------------------------}
+{b}Opcode Types
+{n:opcodes}
+The following types of opcodes are available:
+  * Events: at least one of them is needed for every program
+  * Operation: the standard operations
+  * Evaluate: an evaluation opcode. These typically do some
+    calculation or check and set the result for the next
+    opcode to use
+  * Test: these opcodes perform a boolean test and then do
+    a branch based on that test. Therefore these opcodes have
+    two outputs (a green and a red output)
+  * Wire: there is only one wire opcode. It is meant to connect
+    opcodes that are not adjacent
 {-------------------------------------------------------------}
