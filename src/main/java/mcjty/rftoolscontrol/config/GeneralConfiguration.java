@@ -15,6 +15,7 @@ public class GeneralConfiguration {
 
     public static int VARIABLEMODULE_RFPERTICK = 1;
     public static int INTERACTMODULE_RFPERTICK = 2;
+    public static int CONSOLEMODULE_RFPERTICK = 2;
 
     public static void init(Configuration cfg) {
         processorMaxenergy = cfg.get(CATEGORY_GENERAL, "processorMaxRF", processorMaxenergy,
@@ -39,6 +40,8 @@ public class GeneralConfiguration {
                 "RF per tick/per block for the variable screen module").getInt();
         INTERACTMODULE_RFPERTICK = cfg.get(CATEGORY_GENERAL, "interactionModuleRFPerTick", INTERACTMODULE_RFPERTICK,
                 "RF per tick/per block for the interaction screen module").getInt();
+        CONSOLEMODULE_RFPERTICK = cfg.get(CATEGORY_GENERAL, "consoleModuleRFPerTick", CONSOLEMODULE_RFPERTICK,
+                "RF per tick/per block for the console screen module").getInt();
     }
 
 }

@@ -1,5 +1,6 @@
 package mcjty.rftoolscontrol.items;
 
+import mcjty.rftoolscontrol.items.consolemodule.ConsoleModuleItem;
 import mcjty.rftoolscontrol.items.craftingcard.CraftingCardItem;
 import mcjty.rftoolscontrol.items.interactionmodule.InteractionModuleItem;
 import mcjty.rftoolscontrol.items.manual.RFToolsControlManualItem;
@@ -21,6 +22,7 @@ public class ModItems {
 
     public static VariableModuleItem variableModuleItem;
     public static InteractionModuleItem interactionModuleItem;
+    public static ConsoleModuleItem consoleModuleItem;
 
     public static void init() {
         rfToolsControlManualItem = new RFToolsControlManualItem();
@@ -34,6 +36,7 @@ public class ModItems {
         craftingCardItem = new CraftingCardItem();
         variableModuleItem = new VariableModuleItem();
         interactionModuleItem = new InteractionModuleItem();
+        consoleModuleItem = new ConsoleModuleItem();
     }
 
     @SideOnly(Side.CLIENT)
@@ -49,5 +52,6 @@ public class ModItems {
         craftingCardItem.initModel();
         variableModuleItem.initModel();
         interactionModuleItem.initModel();
+        consoleModuleItem.initModel();
     }
 }

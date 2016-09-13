@@ -714,6 +714,18 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         return logMessages.stream().collect(Collectors.toList());
     }
 
+    public List<String> getLastMessages(int n) {
+        List<String> rc = new ArrayList<>();
+        int i = 0;
+        for (String s : logMessages) {
+            if (i >= logMessages.size()-n) {
+                rc.add(s);
+            }
+            i++;
+        }
+        return rc;
+    }
+
     private List<Parameter> getVariables() {
         List<Parameter> pars = new ArrayList<>();
         Collections.addAll(pars, variables);
