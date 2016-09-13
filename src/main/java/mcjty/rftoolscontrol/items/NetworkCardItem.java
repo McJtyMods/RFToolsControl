@@ -22,5 +22,7 @@ public class NetworkCardItem extends GenericRFToolsItem {
         super.addInformation(stack, playerIn, list, advanced);
         list.add("Insert this item in the processor");
         list.add("to allow access to nearby nodes");
+        list.add("Use 'net setup <name>' in Processor");
+        list.add("console to setup the network");
     }
 }
