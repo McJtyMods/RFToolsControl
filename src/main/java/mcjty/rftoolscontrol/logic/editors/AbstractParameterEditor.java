@@ -101,10 +101,11 @@ public abstract class AbstractParameterEditor implements ParameterEditor {
 
         Panel functionPanel = new Panel(mc, gui).setLayout(new HorizontalLayout());
         functionLabel = new ChoiceLabel(mc, gui)
-                .setDesiredWidth(70);
+                .setDesiredWidth(120);
         List<Function> functions = Functions.getFunctionsByType(type);
         for (Function function : functions) {
             functionLabel.addChoices(function.getId());
+            functionLabel.setChoiceTooltip(function.getId(), function.getDescription().toArray(new String[function.getDescription().size()]));
         }
         functionPanel.addChild(functionLabel);
         functionLabel.addChoiceEvent(((parent, newChoice) -> callback.valueChanged(readValue())));

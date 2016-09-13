@@ -16,6 +16,7 @@ public class Functions {
     public static final Function LASTBOOL = Function.builder()
             .id("last_bool")
             .name("last")
+            .description("The last opcode result", "converted to a boolean")
             .type(PAR_BOOLEAN)
             .runnable((processor, program, function) -> {
                 return convertToBool(program.getLastValue());
@@ -24,6 +25,7 @@ public class Functions {
     public static final Function LASTINT = Function.builder()
             .id("last_int")
             .name("last")
+            .description("The last opcode result", "converted to an integer")
             .type(PAR_INTEGER)
             .runnable((processor, program, function) -> {
                 return convertToInt(program.getLastValue());
@@ -32,6 +34,7 @@ public class Functions {
     public static final Function LASTSTRING = Function.builder()
             .id("last_str")
             .name("last")
+            .description("The last opcode result", "converted to a string")
             .type(PAR_STRING)
             .runnable((processor, program, function) -> {
                 return convertToString(program.getLastValue());
@@ -40,6 +43,7 @@ public class Functions {
     public static final Function TICKET = Function.builder()
             .id("ticket")
             .name("ticket")
+            .description("The current crafting ticket")
             .type(PAR_STRING)
             .runnable((processor, program, function) -> {
                 return ParameterValue.constant(program.getCraftTicket());
@@ -48,6 +52,7 @@ public class Functions {
     public static final Function CRAFTRESULT = Function.builder()
             .id("craftresult")
             .name("craftresult")
+            .description("The current desired crafting result")
             .type(PAR_ITEM)
             .runnable((processor, program, function) -> {
                 return ParameterValue.constant(processor.getCraftResult(program));
@@ -56,6 +61,7 @@ public class Functions {
     public static final Function RANDOMINT = Function.builder()
             .id("random_int")
             .name("random")
+            .description("A random integer between 0", "and the last opcode result (exclusive)", "(converted to integer)")
             .type(PAR_INTEGER)
             .runnable((processor, program, function) -> {
                 int i = TypeConverters.convertToInt(program.getLastValue());
@@ -65,7 +71,8 @@ public class Functions {
     public static final Function RANDOMFLOAT = Function.builder()
             .id("random_float")
             .name("random")
-            .type(PAR_INTEGER)
+            .description("A random floating number between 0", "and the last opcode result (exclusive)", "(converted to float)")
+            .type(PAR_FLOAT)
             .runnable((processor, program, function) -> {
                 float i = TypeConverters.convertToFloat(program.getLastValue());
                 return ParameterValue.constant(random.nextFloat() * i);
