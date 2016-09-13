@@ -29,6 +29,8 @@ import mcjty.rftoolscontrol.logic.grid.GridPos;
 import mcjty.rftoolscontrol.logic.grid.ProgramCardInstance;
 import mcjty.rftoolscontrol.logic.registry.*;
 import mcjty.rftoolscontrol.network.RFToolsCtrlMessages;
+import net.minecraft.inventory.ClickType;
+import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextFormatting;
@@ -538,6 +540,14 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
         return new Panel(mc, this).setLayout(new PositionalLayout()).setLayoutHint(new PositionalLayout.PositionalHint(5, 5, 72, 226))
                 .addChild(list)
                 .addChild(slider);
+    }
+
+    @Override
+    protected void handleMouseClick(Slot slotIn, int slotId, int mouseButton, ClickType type) {
+        if (slotId == -999) {
+            return;
+        }
+        super.handleMouseClick(slotIn, slotId, mouseButton, type);
     }
 
     private List<String> getIconTooltipGrid(int x, int y) {
