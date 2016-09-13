@@ -1507,7 +1507,6 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     public void setupNetwork(String name) {
         channel = name;
         markDirty();
-        log("Ready to scan");
     }
 
     public void scanNodes() {

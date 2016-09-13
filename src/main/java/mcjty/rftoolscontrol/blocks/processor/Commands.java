@@ -29,7 +29,7 @@ public class Commands {
             processor.reset();
         } else if ("help".equals(cmd)) {
             processor.log("Commands: clear/stop/reset/list/help");
-            processor.log("    net setup/scan/list/info");
+            processor.log("    net setup/list/info");
             processor.log("    db debug/step/info/resume");
         } else if ("net".equals(cmd)) {
             handleNetworkCommand(processor, splitted);
@@ -137,7 +137,7 @@ public class Commands {
     private static void handleNetworkCommand(ProcessorTileEntity processor, String[] splitted) {
         if (processor.hasNetworkCard()) {
             if (splitted.length < 1) {
-                processor.log("Use: net setup/net/list scan");
+                processor.log("Use: net setup/list/info");
             } else {
                 String sub = splitted[1].toLowerCase();
                 if ("setup".equals(sub)) {
@@ -151,7 +151,6 @@ public class Commands {
                     } else {
                         processor.log("Missing channel name!");
                     }
-                } else if ("scan".equals(sub)) {
                     processor.scanNodes();
                 } else if ("list".equals(sub)) {
                     processor.listNodes();

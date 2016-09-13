@@ -116,10 +116,10 @@ done with the 'net setup <name>' console command (in the Processor
 console). The <name> will be the network name and is also used
 in all the nodes that want to connect to this network.
 
-After setting up the network card you can do 'net scan' to find
+Setting up the network card will also initiate the scan to find
 all nodes that match the given channel name. Note that the network
-card is also needed to connect to crafting stations which 'net
-scan' will also pick up.
+card is also needed to connect to crafting stations which this
+scan will also pick up.
 {-------------------------------------------------------------}
 {b}Crafting Station
 {n:craftingstation}
