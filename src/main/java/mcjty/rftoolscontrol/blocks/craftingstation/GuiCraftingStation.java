@@ -144,7 +144,7 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
             boolean ok = request.getOk() != -1;
             panel.addChild(new Label(mc, this)
                     .setColor(failed ? 0xffff3030 : (ok ? 0xff30ff30 : StyleConfig.colorTextNormal))
-                    .setText(failed ? "Failed!" : (ok ? "Ok" : "Waiting...")));
+                    .setText(failed ? "Failed!" : (ok ? "Ok" : "Wait (" + request.getTodo() + ")")));
         }
     }
 

@@ -281,7 +281,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             TileEntity te = worldObj.getTileEntity(p);
             if (te instanceof CraftingStationTileEntity) {
                 CraftingStationTileEntity craftingStation = (CraftingStationTileEntity) te;
-                craftedItem = craftingStation.craftOk(ticket, craftedItem);
+                craftedItem = craftingStation.craftOk(this, ticket, craftedItem);
             }
         }
 
@@ -452,26 +452,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         return null;
     }
 
-    public void fireCraftEvent(String ticket, ItemStack stackToCraft, int amount) {
-
-
-
-
-
-
-
-
-
-
-
-
-        //@todo
-
-
-
-
-
-
+    public void fireCraftEvent(String ticket, ItemStack stackToCraft) {
         for (int i = 0 ; i < cardInfo.length ; i++) {
             CardInfo info = cardInfo[i];
             CompiledCard compiledCard = info.getCompiledCard();

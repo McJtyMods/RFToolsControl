@@ -35,7 +35,7 @@ public class CraftingStationTileEntity extends GenericTileEntity implements Defa
     private InventoryHelper inventoryHelper = new InventoryHelper(this, CraftingStationContainer.factory, 9);
 
     private List<BlockPos> processorList = new ArrayList<>();
-    private int craftId = 0;
+    private int currentTicket = 0;
     private List<CraftingRequest> activeCraftingRequests = new ArrayList<>();
     private int cleanupCounter = 50;
 
@@ -56,7 +56,7 @@ public class CraftingStationTileEntity extends GenericTileEntity implements Defa
 
     public ItemStack getCraftResult(String craftId) {
         for (CraftingRequest request : activeCraftingRequests) {
-            if (craftId.equals(request.getCraftId())) {
+            if (craftId.equals(request.getTicket())) {
                 return request.getStack();
             }
         }
@@ -82,17 +82,22 @@ public class CraftingStationTileEntity extends GenericTileEntity implements Defa
         return null;
     }
 
-    public ItemStack craftOk(String craftId, @Nullable ItemStack stack) {
+    public ItemStack craftOk(ProcessorTileEntity processor, String ticket, @Nullable ItemStack stack) {
         CraftingRequest foundRequest = null;
         for (CraftingRequest request : activeCraftingRequests) {
-            if (craftId.equals(request.getCraftId())) {
+            if (ticket.equals(request.getTicket())) {
                 foundRequest = request;
                 break;
             }
         }
         if (foundRequest != null) {
-            foundRequest.setOk(System.currentTimeMillis()+1000);
             markDirty();
+            foundRequest.decrTodo();
+            if (foundRequest.getTodo() <= 0) {
+                foundRequest.setOk(System.currentTimeMillis() + 1000);
+            } else {
+                processor.fireCraftEvent(ticket, stack);
+            }
             if (stack != null) {
                 return ItemHandlerHelper.insertItem(getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null), stack, false);
             }
@@ -100,9 +105,9 @@ public class CraftingStationTileEntity extends GenericTileEntity implements Defa
         return stack;
     }
 
-    public void craftFail(String craftId) {
+    public void craftFail(String ticket) {
         for (CraftingRequest request : activeCraftingRequests) {
-            if (craftId.equals(request.getCraftId())) {
+            if (ticket.equals(request.getTicket())) {
                 request.setFailed(System.currentTimeMillis()+2000);
                 markDirty();
             }
@@ -124,9 +129,13 @@ public class CraftingStationTileEntity extends GenericTileEntity implements Defa
             System.out.println("What? Can't happen");
             return;
         }
-        String craftID = getCraftID();
-        activeCraftingRequests.add(new CraftingRequest(craftID, pair.getValue()));
-        pair.getKey().fireCraftEvent(craftID, pair.getValue(), amount);
+        String craftID = getNewTicket();
+        ItemStack stack = pair.getValue();
+        int count = (amount + stack.stackSize-1) / stack.stackSize;
+        CraftingRequest request = new CraftingRequest(craftID, stack, count);
+
+        activeCraftingRequests.add(request);
+        pair.getKey().fireCraftEvent(craftID, stack);
 
         cleanupCounter--;
         if (cleanupCounter <= 0) {
@@ -144,9 +153,9 @@ public class CraftingStationTileEntity extends GenericTileEntity implements Defa
                 processor.getCraftableItems(items);
                 for (ItemStack i : items) {
                     if (item.isItemEqual(i)) {
-                        String craftID = getCraftID();
-                        activeCraftingRequests.add(new CraftingRequest(craftID, i));
-                        processor.fireCraftEvent(craftID, i, item.stackSize);
+                        String craftID = getNewTicket();
+                        activeCraftingRequests.add(new CraftingRequest(craftID, i, 1));
+                        processor.fireCraftEvent(craftID, i);
                         return true;
                     }
                 }
@@ -156,10 +165,10 @@ public class CraftingStationTileEntity extends GenericTileEntity implements Defa
         return false;
     }
 
-    private String getCraftID() {
-        craftId++;
+    private String getNewTicket() {
+        currentTicket++;
         markDirty();
-        return BlockPosTools.toString(pos) + ":" + craftId;
+        return BlockPosTools.toString(pos) + ":" + currentTicket;
     }
 
     public List<ItemStack> getCraftableItems() {
@@ -207,7 +216,11 @@ public class CraftingStationTileEntity extends GenericTileEntity implements Defa
             NBTTagCompound requestTag = list.getCompoundTagAt(i);
             String craftId = requestTag.getString("craftId");
             ItemStack stack = ItemStack.loadItemStackFromNBT(requestTag.getCompoundTag("stack"));
-            activeCraftingRequests.add(new CraftingRequest(craftId, stack));
+            int count = requestTag.getInteger("count");
+            CraftingRequest request = new CraftingRequest(craftId, stack, count);
+            request.setFailed(requestTag.getLong("failed"));
+            request.setOk(requestTag.getLong("ok"));
+            activeCraftingRequests.add(request);
         }
     }
 
@@ -232,10 +245,13 @@ public class CraftingStationTileEntity extends GenericTileEntity implements Defa
         NBTTagList list = new NBTTagList();
         for (CraftingRequest request : activeCraftingRequests) {
             NBTTagCompound requestTag = new NBTTagCompound();
-            requestTag.setString("craftId", request.getCraftId());
+            requestTag.setString("craftId", request.getTicket());
             NBTTagCompound stackNbt = new NBTTagCompound();
             request.getStack().writeToNBT(stackNbt);
             requestTag.setTag("stack", stackNbt);
+            requestTag.setInteger("count", request.getTodo());
+            requestTag.setLong("failed", request.getFailed());
+            requestTag.setLong("ok", request.getOk());
             list.appendTag(requestTag);
         }
 
@@ -258,14 +274,14 @@ public class CraftingStationTileEntity extends GenericTileEntity implements Defa
     public void readRestorableFromNBT(NBTTagCompound tagCompound) {
         super.readRestorableFromNBT(tagCompound);
         readBufferFromNBT(tagCompound, inventoryHelper);
-        craftId = tagCompound.getInteger("craftId");
+        currentTicket = tagCompound.getInteger("craftId");
     }
 
     @Override
     public void writeRestorableToNBT(NBTTagCompound tagCompound) {
         super.writeRestorableToNBT(tagCompound);
         writeBufferToNBT(tagCompound, inventoryHelper);
-        tagCompound.setInteger("craftId", craftId);
+        tagCompound.setInteger("craftId", currentTicket);
     }
 
     @Override

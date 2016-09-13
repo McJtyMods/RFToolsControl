@@ -3,19 +3,20 @@ package mcjty.rftoolscontrol.blocks.craftingstation;
 import net.minecraft.item.ItemStack;
 
 public class CraftingRequest {
-    private final String craftId;
+    private final String ticket;
     private final ItemStack stack;
     private long failed = -1;             // If != -1 we failed but show for a while longer
     private long ok = -1;                 // If != -1we are ok but show for a while longer
+    private int todo = 0;                 // Todo counter
 
-
-    public CraftingRequest(String craftId, ItemStack stack) {
-        this.craftId = craftId;
+    public CraftingRequest(String ticket, ItemStack stack, int todo) {
+        this.ticket = ticket;
         this.stack = stack;
+        this.todo = todo;
     }
 
-    public String getCraftId() {
-        return craftId;
+    public String getTicket() {
+        return ticket;
     }
 
     public ItemStack getStack() {
@@ -38,6 +39,18 @@ public class CraftingRequest {
         this.ok = ok;
     }
 
+    public int getTodo() {
+        return todo;
+    }
+
+    public void setTodo(int todo) {
+        this.todo = todo;
+    }
+
+    public void decrTodo() {
+        this.todo--;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -45,13 +58,13 @@ public class CraftingRequest {
 
         CraftingRequest that = (CraftingRequest) o;
 
-        if (!craftId.equals(that.craftId)) return false;
+        if (!ticket.equals(that.ticket)) return false;
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        return craftId.hashCode();
+        return ticket.hashCode();
     }
 }
