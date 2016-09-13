@@ -3,7 +3,6 @@ package mcjty.rftoolscontrol.blocks.workbench;
 import mcjty.lib.container.*;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.Slot;
 
 public class WorkbenchContainer extends GenericContainer {
     public static final String CONTAINER_INVENTORY = "container";
@@ -24,11 +23,20 @@ public class WorkbenchContainer extends GenericContainer {
     };
 
 //    @Override
-//    protected Slot createSlot(SlotFactory slotFactory, IInventory inventory, int index, int x, int y, SlotType slotType) {
+//    public ItemStack transferStackInSlot(EntityPlayer player, int index) {
 //        if (index == SLOT_CRAFTOUTPUT) {
-//            return
+//            Slot slot = this.inventorySlots.get(index);
+//            if (slot != null && slot.getHasStack()) {
+//                ItemStack origStack = slot.getStack();
+//                ItemStack copy = origStack.copy();
+//                if (!this.mergeItemStacks(origStack, index, SlotType.SLOT_SPECIFICITEM, false) && !this.mergeItemStacks(origStack, index, SlotType.SLOT_PLAYERINV, true) && !this.mergeItemStacks(origStack, index, SlotType.SLOT_PLAYERHOTBAR, false)) {
+//                    return null;
+//                }
+//
+//                slot.onSlotChange(origStack, copy);
+//            }
 //        }
-//        return super.createSlot(slotFactory, inventory, index, x, y, slotType);
+//        return super.transferStackInSlot(player, index);
 //    }
 
     public WorkbenchContainer(EntityPlayer player, IInventory containerInventory) {

@@ -157,6 +157,8 @@ public class WorkbenchTileEntity extends GenericTileEntity implements DefaultSid
         }
     }
 
+
+
     @Override
     public ItemStack decrStackSize(int index, int count) {
         if (isCraftOutput(index) && realItems == 0) {

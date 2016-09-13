@@ -43,7 +43,7 @@ public class RFToolsControlJeiPlugin extends BlankModPlugin {
         IRecipeTransferRegistry transferRegistry = registry.getRecipeTransferRegistry();
         transferRegistry.addRecipeTransferHandler(new CraftingCardRecipeTransferHandler());
 
-        transferRegistry.addRecipeTransferHandler(WorkbenchContainer.class, VanillaRecipeCategoryUid.CRAFTING, WorkbenchContainer.SLOT_CRAFTINPUT, 9, WorkbenchContainer.SLOT_BUFFER, WorkbenchContainer.BUFFER_SIZE);
+        transferRegistry.addRecipeTransferHandler(WorkbenchContainer.class, VanillaRecipeCategoryUid.CRAFTING, WorkbenchContainer.SLOT_CRAFTINPUT, 9, WorkbenchContainer.SLOT_BUFFER, WorkbenchContainer.BUFFER_SIZE + 9*4);
         registry.addRecipeCategoryCraftingItem(new ItemStack(ModBlocks.workbenchBlock), VanillaRecipeCategoryUid.CRAFTING);
     }
 }
