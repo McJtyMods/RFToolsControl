@@ -6,14 +6,13 @@ import mcjty.lib.gui.Window;
 import mcjty.lib.gui.events.BlockRenderEvent;
 import mcjty.lib.gui.layout.HorizontalLayout;
 import mcjty.lib.gui.layout.PositionalLayout;
-import mcjty.lib.gui.layout.VerticalLayout;
 import mcjty.lib.gui.widgets.*;
 import mcjty.lib.gui.widgets.Button;
 import mcjty.lib.gui.widgets.Label;
 import mcjty.lib.gui.widgets.Panel;
-import mcjty.lib.gui.widgets.TextField;
 import mcjty.lib.network.Argument;
 import mcjty.rftoolscontrol.RFToolsControl;
+import mcjty.rftoolscontrol.gui.GuiTools;
 import mcjty.rftoolscontrol.network.PacketGetCraftableItems;
 import mcjty.rftoolscontrol.network.PacketGetRequests;
 import mcjty.rftoolscontrol.network.RFToolsCtrlMessages;
@@ -218,33 +217,12 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
     }
 
     private void askAmountToCraft(Integer index) {
-        Panel ask = new Panel(mc, this)
-                .setLayout(new VerticalLayout())
-                .setFilledBackground(0xff666666, 0xffaaaaaa)
-                .setFilledRectThickness(1);
-        ask.setBounds(new Rectangle(220, 50, 100, 60));
-        Window askWindow = getWindowManager().createModalWindow(ask);
-        ask.addChild(new Label(mc, this).setText("Craft number:"));
-        TextField number = new TextField(mc, this).addTextEnterEvent(((parent, newText) -> {
-            getWindowManager().closeWindow(askWindow);
-            Integer a = safeParse(newText);
+        GuiTools.askSomething(mc, this, getWindowManager(), 220, 50, "Craft amount:", "", s -> {
+            Integer a = safeParse(s);
             if (a != null) {
                 requestItem(index, a);
             }
-        }));
-        ask.addChild(number);
-        Panel buttons = new Panel(mc, this).setLayout(new HorizontalLayout()).setDesiredWidth(100).setDesiredHeight(18);
-        buttons.addChild(new Button(mc, this).setText("Ok").addButtonEvent((parent -> {
-            getWindowManager().closeWindow(askWindow);
-            Integer a = safeParse(number.getText());
-            if (a != null) {
-                requestItem(index, a);
-            }
-        })));
-        buttons.addChild(new Button(mc, this).setText("Cancel").addButtonEvent((parent -> {
-            getWindowManager().closeWindow(askWindow);
-        })));
-        ask.addChild(buttons);
+        });
     }
 
     private void requestItem(int index, int amount) {

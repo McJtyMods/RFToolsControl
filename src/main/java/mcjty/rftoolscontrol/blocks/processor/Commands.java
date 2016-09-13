@@ -27,16 +27,14 @@ public class Commands {
         } else if ("reset".equals(cmd)) {
             processor.log(TextFormatting.YELLOW + "Reset the processor!");
             processor.reset();
-        } else if ("help".equals(cmd)) {
-            processor.log("Commands: clear/stop/reset/list/help");
-            processor.log("    net setup/list/info");
-            processor.log("    db debug/step/info/resume");
         } else if ("net".equals(cmd)) {
             handleNetworkCommand(processor, splitted);
         } else if ("db".equals(cmd)) {
             handleDebugCommand(processor, splitted);
         } else {
-            processor.log("Unknown command!");
+            processor.log("Commands: clear/stop/reset/list");
+            processor.log("    net setup/list/info");
+            processor.log("    db debug/step/info/resume");
         }
     }
 

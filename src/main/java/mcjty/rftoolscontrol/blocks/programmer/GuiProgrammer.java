@@ -18,6 +18,8 @@ import mcjty.lib.gui.widgets.TextField;
 import mcjty.lib.network.PacketUpdateNBTItemInventory;
 import mcjty.lib.varia.Logging;
 import mcjty.rftoolscontrol.RFToolsControl;
+import mcjty.rftoolscontrol.gui.GuiTools;
+import mcjty.rftoolscontrol.items.ProgramCardItem;
 import mcjty.rftoolscontrol.logic.Connection;
 import mcjty.rftoolscontrol.logic.Parameter;
 import mcjty.rftoolscontrol.logic.editors.ParameterEditor;
@@ -366,10 +368,25 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
 
     }
 
-    private void saveProgram(int slot) {
+    private void askNameAndSave(int slot) {
+        ItemStack card = tileEntity.getStackInSlot(slot);
+        if (card == null) {
+            GuiTools.showMessage(mc, this, getWindowManager(), 50, 50, "No card!");
+            return;
+        }
+        GuiTools.askSomething(mc, this, getWindowManager(), 50, 50, "Card name:", ProgramCardItem.getCardName(card), s -> {
+            saveProgram(slot, s);
+        });
+
+    }
+
+    private void saveProgram(int slot, String name) {
         ItemStack card = tileEntity.getStackInSlot(slot);
         if (card == null) {
             return;
+        }
+        if (name != null) {
+            ProgramCardItem.setCardName(card, name);
         }
         ProgramCardInstance instance = makeGridInstance();
         instance.writeToNBT(card);
@@ -473,7 +490,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
                 .setSelectable(false);
         return new Panel(mc, this).setLayout(new HorizontalLayout().setSpacing(2).setHorizontalMargin(1)).setLayoutHint(new PositionalLayout.PositionalHint(108, 136, 145, 18))
                 .addChild(new Button(mc, this).setText("Load").setDesiredHeight(15).addButtonEvent(w -> loadProgram(ProgrammerContainer.SLOT_CARD)))
-                .addChild(new Button(mc, this).setText("Save").setDesiredHeight(15).addButtonEvent(w -> saveProgram(ProgrammerContainer.SLOT_CARD)))
+                .addChild(new Button(mc, this).setText("Save").setDesiredHeight(15).addButtonEvent(w -> askNameAndSave(ProgrammerContainer.SLOT_CARD)))
                 .addChild(new Button(mc, this).setText("Clear").setDesiredHeight(15).addButtonEvent(w -> clearProgram()))
                 .addChild(new Button(mc, this).setText("Val").setDesiredHeight(15).addButtonEvent(w -> validateProgram()))
                 .addChild(trashcan);
@@ -636,7 +653,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
                 .setLayout(new VerticalLayout())
                 .setFilledBackground(0xff666666, 0xffaaaaaa)
                 .setFilledRectThickness(1);
-        panel.setBounds(new Rectangle(50, 50, 200, 60 + editor.getHeight()));
+        panel.setBounds(new Rectangle(50, 25, 200, 60 + editor.getHeight()));
         Window modalWindow = getWindowManager().createModalWindow(panel);
         panel.addChild(new Label(mc, this).setText(StringUtils.capitalize(parameter.getName()) + ":"));
         panel.addChild(editPanel);
@@ -693,7 +710,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
         saveCounter--;
         if (saveCounter < 0) {
             saveCounter = 10;
-            saveProgram(ProgrammerContainer.SLOT_DUMMY);
+            saveProgram(ProgrammerContainer.SLOT_DUMMY, null);
         }
     }
 }
