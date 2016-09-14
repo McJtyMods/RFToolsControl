@@ -666,7 +666,8 @@ public class Opcodes {
                     "storage scanner) and insert in processor",
                     "Will fire craft requests for missing items",
                     "Returns number of items that it could not find",
-                    "and for which it could not fire a craft request")
+                    "and for which it could not fire a craft request",
+                    "End result of requested crafts will be put in destInv")
             .outputDescription("amount of failed items (integer)")
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("inv").type(PAR_INVENTORY).description("inventory adjacent to (networked) block", "or empty to access storage").build())
@@ -674,6 +675,7 @@ public class Opcodes {
             .parameter(ParameterDescription.builder().name("item").type(PAR_ITEM).description("the item to craft or empty", "for default from ticket").build())
             .parameter(ParameterDescription.builder().name("slot1").type(PAR_INTEGER).description("start of internal slot range for ingredients").build())
             .parameter(ParameterDescription.builder().name("slot2").type(PAR_INTEGER).description("last slot of that range").build())
+            .parameter(ParameterDescription.builder().name("destInv").type(PAR_INVENTORY).description("inventory adjacent to (networked) block", "for end result of requests").build())
             .icon(11, 3)
             .runnable(((processor, program, opcode) -> {
                 Inventory inv = processor.evaluateParameter(opcode, program, 0);
@@ -681,7 +683,8 @@ public class Opcodes {
                 ItemStack item = processor.evaluateParameter(opcode, program, 2);
                 int slot1 = processor.evaluateIntParameter(opcode, program, 3);
                 int slot2 = processor.evaluateIntParameter(opcode, program, 4);
-                int failed = processor.getIngredientsSmart(program, inv, cardInv, item, slot1, slot2);
+                Inventory destInv = processor.evaluateParameter(opcode, program, 5);
+                int failed = processor.getIngredientsSmart(program, inv, cardInv, item, slot1, slot2, destInv);
                 program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(failed)).build());
                 return POSITIVE;
             }))
@@ -839,13 +842,18 @@ public class Opcodes {
             .description(
                     TextFormatting.GREEN + "Operation: request craft",
                     "request crafting for a specific item",
-                    "from a connected crafting station")
+                    "from a connected crafting station",
+                    "If the optional inventory is given",
+                    "the craft result will be directed there",
+                    "Otherwise it goes to the crafting station")
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("item").type(PAR_ITEM).description("the item to request").build())
+            .parameter(ParameterDescription.builder().name("inv").type(PAR_INVENTORY).description("optional inventory for the end result").build())
             .icon(6, 3)
             .runnable(((processor, program, opcode) -> {
                 ItemStack item = processor.evaluateParameter(opcode, program, 0);
-                processor.requestCraft(item);
+                Inventory inv = processor.evaluateParameter(opcode, program, 1);
+                processor.requestCraft(item, inv);
                 return POSITIVE;
             }))
             .build();

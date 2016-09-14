@@ -4,6 +4,7 @@ import io.netty.buffer.ByteBuf;
 import mcjty.lib.network.NetworkTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -29,6 +30,16 @@ public class Inventory {
 
     public boolean hasNodeName() {
         return nodeName != null && !nodeName.isEmpty();
+    }
+
+    public String serialize() {
+        return "#" + (hasNodeName() ? nodeName : "-") + "#" + side.getName() + "#" + (intSide == null ? "-" : intSide.getName()) + "#";
+    }
+
+    public static Inventory deserialize(String s) {
+        String[] splitted = StringUtils.split(s, '#');
+        return new Inventory("-".equals(splitted[1]) ? null : splitted[1], EnumFacing.byName(splitted[1]),
+                "-".equals(splitted[2]) ? null : EnumFacing.byName(splitted[2]));
     }
 
     @Nonnull

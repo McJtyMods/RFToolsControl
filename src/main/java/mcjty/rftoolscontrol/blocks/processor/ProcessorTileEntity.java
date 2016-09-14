@@ -384,7 +384,8 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         return true;
     }
 
-    public int getIngredientsSmart(RunningProgram program, Inventory inv, Inventory cardInv, @Nullable ItemStack item, int slot1, int slot2) {
+    public int getIngredientsSmart(RunningProgram program, Inventory inv, Inventory cardInv,
+                                   @Nullable ItemStack item, int slot1, int slot2, Inventory destInv) {
         IStorageScanner scanner = getScannerForInv(inv);
         IItemHandler handler = getHandlerForInv(inv);
 
@@ -393,6 +394,11 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         }
         if (item == null) {
             throw new ProgException(EXCEPT_MISSINGCRAFTRESULT);
+        }
+
+        IItemHandler destHandler = getHandlerForInv(destInv);
+        if (destHandler == null) {
+            throw new ProgException(EXCEPT_INVALIDINVENTORY);
         }
 
         IItemHandler cardHandler = getItemHandlerAt(cardInv);
@@ -432,7 +438,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                         ItemStack requestedItem = ingredient.copy();
                         requestedItem.stackSize = ingredient.stackSize - fetchedStackSize-localStackSize;
                         if (!isRequested(requestedItem)) {
-                            requestCraft(requestedItem);
+                            requestCraft(requestedItem, destInv);
                         }
                     }
                     if (stack != null) {
@@ -530,12 +536,12 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
 
     }
 
-    public boolean requestCraft(ItemStack stack) {
+    public boolean requestCraft(ItemStack stack, @Nullable Inventory inventory) {
         for (BlockPos p : craftingStations) {
             TileEntity te = worldObj.getTileEntity(p);
             if (te instanceof CraftingStationTileEntity) {
                 CraftingStationTileEntity craftingStation = (CraftingStationTileEntity) te;
-                if (craftingStation.request(stack)) {
+                if (craftingStation.request(stack, inventory)) {
                     return true;
                 }
                 return false;

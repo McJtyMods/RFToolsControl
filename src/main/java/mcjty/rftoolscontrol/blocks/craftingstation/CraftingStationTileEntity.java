@@ -6,6 +6,9 @@ import mcjty.lib.entity.GenericTileEntity;
 import mcjty.lib.network.Argument;
 import mcjty.lib.varia.BlockPosTools;
 import mcjty.rftoolscontrol.blocks.processor.ProcessorTileEntity;
+import mcjty.rftoolscontrol.logic.registry.Inventory;
+import mcjty.rftoolscontrol.logic.running.ExceptionType;
+import mcjty.rftoolscontrol.logic.running.ProgException;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
@@ -15,7 +18,9 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.items.CapabilityItemHandler;
+import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nullable;
@@ -99,7 +104,16 @@ public class CraftingStationTileEntity extends GenericTileEntity implements Defa
                 processor.fireCraftEvent(ticket, stack);
             }
             if (stack != null) {
-                return ItemHandlerHelper.insertItem(getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null), stack, false);
+                Inventory inventory = getInventoryFromTicket(ticket);
+                if (inventory != null) {
+                    IItemHandler handlerAt = processor.getItemHandlerAt(inventory);
+                    if (handlerAt == null) {
+                        throw new ProgException(ExceptionType.EXCEPT_INVALIDINVENTORY);
+                    }
+                    return ItemHandlerHelper.insertItem(handlerAt, stack, false);
+                } else {
+                    return ItemHandlerHelper.insertItem(getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null), stack, false);
+                }
             }
         }
         return stack;
@@ -129,13 +143,13 @@ public class CraftingStationTileEntity extends GenericTileEntity implements Defa
             System.out.println("What? Can't happen");
             return;
         }
-        String craftID = getNewTicket();
+        String ticket = getNewTicket(null);
         ItemStack stack = pair.getValue();
         int count = (amount + stack.stackSize-1) / stack.stackSize;
-        CraftingRequest request = new CraftingRequest(craftID, stack, count);
+        CraftingRequest request = new CraftingRequest(ticket, stack, count);
 
         activeCraftingRequests.add(request);
-        pair.getKey().fireCraftEvent(craftID, stack);
+        pair.getKey().fireCraftEvent(ticket, stack);
 
         cleanupCounter--;
         if (cleanupCounter <= 0) {
@@ -155,7 +169,7 @@ public class CraftingStationTileEntity extends GenericTileEntity implements Defa
         return false;
     }
 
-    public boolean request(ItemStack item) {
+    public boolean request(ItemStack item, @Nullable Inventory destination) {
         for (BlockPos p : processorList) {
             TileEntity te = worldObj.getTileEntity(p);
             if (te instanceof ProcessorTileEntity) {
@@ -164,9 +178,9 @@ public class CraftingStationTileEntity extends GenericTileEntity implements Defa
                 processor.getCraftableItems(items);
                 for (ItemStack i : items) {
                     if (item.isItemEqual(i)) {
-                        String craftID = getNewTicket();
-                        activeCraftingRequests.add(new CraftingRequest(craftID, i, 1));
-                        processor.fireCraftEvent(craftID, i);
+                        String ticket = getNewTicket(destination);
+                        activeCraftingRequests.add(new CraftingRequest(ticket, i, 1));
+                        processor.fireCraftEvent(ticket, i);
                         return true;
                     }
                 }
@@ -176,10 +190,34 @@ public class CraftingStationTileEntity extends GenericTileEntity implements Defa
         return false;
     }
 
-    private String getNewTicket() {
+    private String getNewTicket(@Nullable Inventory destInv) {
         currentTicket++;
         markDirty();
-        return BlockPosTools.toString(pos) + ":" + currentTicket;
+        if (destInv != null) {
+            return destInv.serialize() + "#" + currentTicket;
+        } else {
+            return BlockPosTools.toString(pos) + ":" + currentTicket;
+        }
+    }
+
+    /// Returns null if the ticket represents a crafting station instead
+    @Nullable
+    private Inventory getInventoryFromTicket(String ticket) {
+        if (ticket.startsWith("#")) {
+            return Inventory.deserialize(ticket);
+        }
+        return null;
+    }
+
+    /// Returns null if the ticket represents an inventory
+    @Nullable
+    private BlockPos getPositionFromTicket(String ticket) {
+        if (ticket.startsWith("#")) {
+            return null;
+        }
+        String[] splitted = StringUtils.split(ticket, ';');
+        String[] poss = StringUtils.split(splitted[0], ',');
+        return new BlockPos(Integer.parseInt(poss[0]), Integer.parseInt(poss[1]), Integer.parseInt(poss[2]));
     }
 
     public List<ItemStack> getCraftableItems() {
