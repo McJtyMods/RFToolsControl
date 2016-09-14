@@ -950,6 +950,17 @@ public class Opcodes {
                 return POSITIVE;
             }))
             .build();
+    public static final Opcode EVENT_RUN = Opcode.builder()
+            .id("ev_run")
+            .description(
+                    TextFormatting.GREEN + "Event: always run",
+                    "this event fires if it is not",
+                    "already running. Only one such event",
+                    "can run per card")
+            .opcodeOutput(SINGLE)
+            .isEvent(true)
+            .icon(1, 4)
+            .build();
 
 
     public static final Map<String, Opcode> OPCODES = new HashMap<>();
@@ -959,6 +970,7 @@ public class Opcodes {
         register(EVENT_REDSTONE_ON);
         register(EVENT_REDSTONE_OFF);
         register(EVENT_TIMER);
+        register(EVENT_RUN);
         register(EVENT_SIGNAL);
         register(EVENT_CRAFT);
         register(EVENT_CRAFTRESUME);
