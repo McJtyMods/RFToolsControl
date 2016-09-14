@@ -657,6 +657,36 @@ public class Opcodes {
             }))
             .build();
 
+    public static final Opcode DO_GETINGREDIENTS_SMART = Opcode.builder()
+            .id("do_getingredients_smart")
+            .description(
+                    TextFormatting.GREEN + "Operation: get ingredients smart",
+                    "given a crafting card inventory get the needed",
+                    "and missing ingredients from another inventory (or",
+                    "storage scanner) and insert in processor",
+                    "Will fire craft requests for missing items",
+                    "Returns number of items that it could not find",
+                    "and for which it could not fire a craft request")
+            .outputDescription("amount of failed items (integer)")
+            .opcodeOutput(SINGLE)
+            .parameter(ParameterDescription.builder().name("inv").type(PAR_INVENTORY).description("inventory adjacent to (networked) block", "or empty to access storage").build())
+            .parameter(ParameterDescription.builder().name("cardInv").type(PAR_INVENTORY).description("inventory adjacent to (networked) block", "with crafting cards").build())
+            .parameter(ParameterDescription.builder().name("item").type(PAR_ITEM).description("the item to craft or empty", "for default from ticket").build())
+            .parameter(ParameterDescription.builder().name("slot1").type(PAR_INTEGER).description("start of internal slot range for ingredients").build())
+            .parameter(ParameterDescription.builder().name("slot2").type(PAR_INTEGER).description("last slot of that range").build())
+            .icon(11, 3)
+            .runnable(((processor, program, opcode) -> {
+                Inventory inv = processor.evaluateParameter(opcode, program, 0);
+                Inventory cardInv = processor.evaluateParameter(opcode, program, 1);
+                ItemStack item = processor.evaluateParameter(opcode, program, 2);
+                int slot1 = processor.evaluateIntParameter(opcode, program, 3);
+                int slot2 = processor.evaluateIntParameter(opcode, program, 4);
+                int failed = processor.getIngredientsSmart(program, inv, cardInv, item, slot1, slot2);
+                program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(failed)).build());
+                return POSITIVE;
+            }))
+            .build();
+
     public static final Opcode DO_PUSHMULTI = Opcode.builder()
             .id("do_pushmulti")
             .description(
@@ -664,10 +694,11 @@ public class Opcodes {
                     "push multiple items to an external",
                     "inventory adjacent to the processor",
                     "or a connected node from the",
-                    "internal inventory")
+                    "internal inventory",
+                    "Also works on storage system")
             .outputDescription("amount of failed items (integer)")
             .opcodeOutput(SINGLE)
-            .parameter(ParameterDescription.builder().name("inv").type(PAR_INVENTORY).description("inventory adjacent to (networked) block").build())
+            .parameter(ParameterDescription.builder().name("inv").type(PAR_INVENTORY).description("inventory adjacent to (networked) block", "or empty to access storage").build())
             .parameter(ParameterDescription.builder().name("slot1").type(PAR_INTEGER).description("first internal slot for input").build())
             .parameter(ParameterDescription.builder().name("slot2").type(PAR_INTEGER).description("last internal slot for input").build())
             .parameter(ParameterDescription.builder().name("extSlot").type(PAR_INTEGER).description("optional first external slot").build())
@@ -814,7 +845,7 @@ public class Opcodes {
             .icon(6, 3)
             .runnable(((processor, program, opcode) -> {
                 ItemStack item = processor.evaluateParameter(opcode, program, 0);
-                processor.requestCraft(program, item);
+                processor.requestCraft(item);
                 return POSITIVE;
             }))
             .build();
@@ -887,6 +918,31 @@ public class Opcodes {
             }))
             .build();
 
+    public static final Opcode EVAL_INGREDIENTS = Opcode.builder()
+            .id("eval_ingredients")
+            .description(
+                    TextFormatting.GREEN + "Eval: check ingredients",
+                    "given a crafting card inventory check if all",
+                    "the ingredients for the given recipe are present",
+                    "at exactly the right amount and right spot")
+            .outputDescription("if the ingredients are complete (boolean)")
+            .opcodeOutput(SINGLE)
+            .parameter(ParameterDescription.builder().name("cardInv").type(PAR_INVENTORY).description("inventory adjacent to (networked) block", "with crafting cards").build())
+            .parameter(ParameterDescription.builder().name("item").type(PAR_ITEM).description("the item to craft or empty", "for default from ticket").build())
+            .parameter(ParameterDescription.builder().name("slot1").type(PAR_INTEGER).description("start of internal slot range for ingredients").build())
+            .parameter(ParameterDescription.builder().name("slot2").type(PAR_INTEGER).description("last slot of that range").build())
+            .icon(0, 4)
+            .runnable(((processor, program, opcode) -> {
+                Inventory cardInv = processor.evaluateParameter(opcode, program, 0);
+                ItemStack item = processor.evaluateParameter(opcode, program, 1);
+                int slot1 = processor.evaluateIntParameter(opcode, program, 2);
+                int slot2 = processor.evaluateIntParameter(opcode, program, 3);
+                boolean ok = processor.checkIngredients(program, cardInv, item, slot1, slot2);
+                program.setLastValue(Parameter.builder().type(PAR_BOOLEAN).value(ParameterValue.constant(ok)).build());
+                return POSITIVE;
+            }))
+            .build();
+
 
     public static final Map<String, Opcode> OPCODES = new HashMap<>();
     public static final List<Opcode> SORTED_OPCODES = new ArrayList<>();
@@ -905,6 +961,7 @@ public class Opcodes {
         register(EVAL_COUNTSTOR);
         register(EVAL_GETITEM);
         register(EVAL_GETITEMINT);
+        register(EVAL_INGREDIENTS);
         register(EVAL_REDSTONE);
         register(EVAL_GETRF);
         register(EVAL_GETMAXRF);
@@ -935,6 +992,7 @@ public class Opcodes {
         register(DO_CRAFTOK);
         register(DO_CRAFTFAIL);
         register(DO_GETINGREDIENTS);
+        register(DO_GETINGREDIENTS_SMART);
         register(DO_SETCRAFTTICKET);
         register(DO_CRAFTWAIT);
         register(DO_REQUESTCRAFT);

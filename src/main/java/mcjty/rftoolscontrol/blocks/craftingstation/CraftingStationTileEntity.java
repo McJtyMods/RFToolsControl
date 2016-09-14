@@ -144,6 +144,17 @@ public class CraftingStationTileEntity extends GenericTileEntity implements Defa
         }
     }
 
+
+
+    public boolean isRequested(ItemStack item) {
+        for (CraftingRequest request : activeCraftingRequests) {
+            if (request.getStack().isItemEqual(item)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public boolean request(ItemStack item) {
         for (BlockPos p : processorList) {
             TileEntity te = worldObj.getTileEntity(p);

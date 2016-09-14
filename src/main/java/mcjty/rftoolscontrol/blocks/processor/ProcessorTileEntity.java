@@ -312,6 +312,8 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
 
     public int pushItemsMulti(RunningProgram program, Inventory inv, int slot1, int slot2, @Nullable Integer extSlot) {
         IItemHandler handler = getItemHandlerAt(inv);
+        IStorageScanner scanner = getScannerForInv(inv);
+
         CardInfo info = this.cardInfo[program.getCardIndex()];
         IItemHandler itemHandler = getItemHandler();
         int e = 0;
@@ -324,12 +326,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             int realSlot = info.getRealSlot(slot);
             ItemStack stack = itemHandler.getStackInSlot(realSlot);
             if (stack != null) {
-                ItemStack remaining;
-                if (extSlot != null) {
-                    remaining = handler.insertItem(e, stack, false);
-                } else {
-                    remaining = ItemHandlerHelper.insertItem(handler, stack, false);
-                }
+                ItemStack remaining = InventoryTools.insertItem(handler, scanner, stack, extSlot);
                 if (remaining != null) {
                     failed++;
                 }
@@ -340,6 +337,116 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         return failed;
     }
 
+    public boolean checkIngredients(RunningProgram program, Inventory cardInv, @Nullable ItemStack item, int slot1, int slot2) {
+        if (item == null) {
+            item = getCraftResult(program);
+        }
+        if (item == null) {
+            throw new ProgException(EXCEPT_MISSINGCRAFTRESULT);
+        }
+        IItemHandler cardHandler = getItemHandlerAt(cardInv);
+        ItemStack card = findCraftingCard(cardHandler, item);
+        if (card == null) {
+            throw new ProgException(EXCEPT_MISSINGCRAFTINGCARD);
+        }
+
+        CardInfo info = this.cardInfo[program.getCardIndex()];
+
+        IItemHandler itemHandler = getItemHandler();
+        int slot = slot1;
+
+        List<ItemStack> ingredients;
+        if (CraftingCardItem.fitsGrid(card) && (slot2-slot1 >= 8)) {
+            // We have something that fits a crafting grid and we have enough room for a 3x3 grid
+            ingredients = CraftingCardItem.getIngredientsGrid(card);
+        } else {
+            ingredients = CraftingCardItem.getIngredients(card);
+        }
+
+        int failed = 0;
+        for (ItemStack ingredient : ingredients) {
+            int realSlot = info.getRealSlot(slot);
+            ItemStack localStack = itemHandler.getStackInSlot(realSlot);
+            if (ingredient != null) {
+                if (!ingredient.isItemEqual(localStack)) {
+                    return false;
+                }
+                if (ingredient.stackSize != localStack.stackSize) {
+                    return false;
+                }
+            } else {
+                if (localStack != null) {
+                    return false;
+                }
+            }
+            slot++;
+        }
+        return true;
+    }
+
+    public int getIngredientsSmart(RunningProgram program, Inventory inv, Inventory cardInv, @Nullable ItemStack item, int slot1, int slot2) {
+        IStorageScanner scanner = getScannerForInv(inv);
+        IItemHandler handler = getHandlerForInv(inv);
+
+        if (item == null) {
+            item = getCraftResult(program);
+        }
+        if (item == null) {
+            throw new ProgException(EXCEPT_MISSINGCRAFTRESULT);
+        }
+
+        IItemHandler cardHandler = getItemHandlerAt(cardInv);
+        ItemStack card = findCraftingCard(cardHandler, item);
+        if (card == null) {
+            throw new ProgException(EXCEPT_MISSINGCRAFTINGCARD);
+        }
+        CardInfo info = this.cardInfo[program.getCardIndex()];
+
+        IItemHandler itemHandler = getItemHandler();
+        int slot = slot1;
+
+        List<ItemStack> ingredients;
+        if (CraftingCardItem.fitsGrid(card) && (slot2-slot1 >= 8)) {
+            // We have something that fits a crafting grid and we have enough room for a 3x3 grid
+            ingredients = CraftingCardItem.getIngredientsGrid(card);
+        } else {
+            ingredients = CraftingCardItem.getIngredients(card);
+        }
+
+        int failed = 0;
+        for (ItemStack ingredient : ingredients) {
+            int realSlot = info.getRealSlot(slot);
+            if (ingredient != null) {
+                ItemStack localStack = itemHandler.getStackInSlot(realSlot);
+                int fetchedStackSize = 0;
+                int localStackSize = localStack == null ? 0 : localStack.stackSize;
+                if (localStack == null || (ingredient.isItemEqual(localStack) && ingredient.stackSize > localStackSize)) {
+                    // We don't have anything yet or it is the same item and we don't have enough
+                    ItemStack stack = InventoryTools.extractItem(handler, scanner, ingredient.stackSize-localStackSize, true, false, ingredient, null);
+                    if (stack != null) {
+                        fetchedStackSize = stack.stackSize;
+                    }
+
+                    if (fetchedStackSize+localStackSize < ingredient.stackSize) {
+                        failed++;
+                        ItemStack requestedItem = ingredient.copy();
+                        requestedItem.stackSize = ingredient.stackSize - fetchedStackSize-localStackSize;
+                        if (!isRequested(requestedItem)) {
+                            requestCraft(requestedItem);
+                        }
+                    }
+                    if (stack != null) {
+                        itemHandler.insertItem(realSlot, stack, false);
+                    }
+                } else if (!ingredient.isItemEqual(localStack)) {
+                    // This is not the same item, cannot work
+                    failed++;
+                }
+            }
+            slot++;
+        }
+        return failed;
+    }
 
     public int getIngredients(RunningProgram program, Inventory inv, Inventory cardInv, @Nullable ItemStack item, int slot1, int slot2) {
         IStorageScanner scanner = getScannerForInv(inv);
@@ -408,14 +515,30 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         markDirty();
     }
 
-    public void requestCraft(RunningProgram program, ItemStack stack) {
+    public boolean isRequested(ItemStack stack) {
+        for (BlockPos p : craftingStations) {
+            TileEntity te = worldObj.getTileEntity(p);
+            if (te instanceof CraftingStationTileEntity) {
+                CraftingStationTileEntity craftingStation = (CraftingStationTileEntity) te;
+                if (craftingStation.isRequested(stack)) {
+                    return true;
+                }
+                return false;
+            }
+        }
+        throw new ProgException(EXCEPT_MISSINGCRAFTINGSTATION);
+
+    }
+
+    public boolean requestCraft(ItemStack stack) {
         for (BlockPos p : craftingStations) {
             TileEntity te = worldObj.getTileEntity(p);
             if (te instanceof CraftingStationTileEntity) {
                 CraftingStationTileEntity craftingStation = (CraftingStationTileEntity) te;
                 if (craftingStation.request(stack)) {
-                    return;
+                    return true;
                 }
+                return false;
             }
         }
         throw new ProgException(EXCEPT_MISSINGCRAFTINGSTATION);
