@@ -730,7 +730,11 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         return rc;
     }
 
-    private List<Parameter> getVariables() {
+    public Parameter[] getVariableArray() {
+        return variables;
+    }
+
+    public List<Parameter> getVariables() {
         List<Parameter> pars = new ArrayList<>();
         Collections.addAll(pars, variables);
         return pars;
@@ -937,6 +941,28 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         return networkNodes.size();
     }
 
+    public void stopOrResume(RunningProgram program) {
+        program.popLoopStack(this);
+    }
+
+    public OpcodeRunnable.OpcodeResult handleLoop(RunningProgram program, int varIdx, int end) {
+        CardInfo info = this.cardInfo[program.getCardIndex()];
+        int realVar = info.getRealVar(varIdx);
+        if (realVar == -1) {
+            throw new ProgException(EXCEPT_MISSINGVARIABLE);
+        }
+        if (realVar >= getMaxvars()) {
+            throw new ProgException(EXCEPT_NOTENOUGHVARIABLES);
+        }
+
+        int i = TypeConverters.convertToInt(getVariableArray()[realVar].getParameterValue().getValue());
+        if (i > end) {
+            return OpcodeRunnable.OpcodeResult.NEGATIVE;
+        } else {
+            program.pushLoopStack(realVar);
+            return OpcodeRunnable.OpcodeResult.POSITIVE;
+        }
+    }
 
     public void setVariable(RunningProgram program, int var) {
         CardInfo info = this.cardInfo[program.getCardIndex()];

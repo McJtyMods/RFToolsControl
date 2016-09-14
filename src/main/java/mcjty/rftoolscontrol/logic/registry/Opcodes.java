@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 import static mcjty.rftoolscontrol.logic.registry.OpcodeOutput.*;
+import static mcjty.rftoolscontrol.logic.registry.OpcodeRunnable.OpcodeResult.HOLD;
 import static mcjty.rftoolscontrol.logic.registry.OpcodeRunnable.OpcodeResult.NEGATIVE;
 import static mcjty.rftoolscontrol.logic.registry.OpcodeRunnable.OpcodeResult.POSITIVE;
 import static mcjty.rftoolscontrol.logic.registry.ParameterType.*;
@@ -172,6 +173,20 @@ public class Opcodes {
             .runnable((processor, program, opcode) -> {
                 program.killMe();
                 return POSITIVE;
+            })
+            .build();
+
+    // Internal opcode that will stop the program or resume a loop
+    public static final Opcode DO_STOP_OR_RESUME = Opcode.builder()
+            .id("do_stop_or_resume")
+            .description(
+                    TextFormatting.GREEN + "Operation: stop/resume")
+            .deprecated(true)   // Not really deprecated but this prevents it being in the list
+            .opcodeOutput(NONE)
+            .icon(7, 0)
+            .runnable((processor, program, opcode) -> {
+                processor.stopOrResume(program);
+                return HOLD;
             })
             .build();
 
@@ -822,6 +837,24 @@ public class Opcodes {
             }))
             .build();
 
+    public static final Opcode TEST_LOOP = Opcode.builder()
+            .id("test_loop")
+            .description(
+                    TextFormatting.GREEN + "Test: loop",
+                    "loop a variable until it reaches",
+                    "a specific value")
+            .opcodeOutput(YESNO)
+            .parameter(ParameterDescription.builder().name("var").type(PAR_INTEGER).description("variable index").build())
+            .parameter(ParameterDescription.builder().name("end").type(PAR_INTEGER).description("end index (inclusive)").build())
+            .icon(8, 3)
+            .runnable(((processor, program, opcode) -> {
+                int varIdx = processor.evaluateIntParameter(opcode, program, 0);
+                int end = processor.evaluateIntParameter(opcode, program, 1);
+                return processor.handleLoop(program, varIdx, end);
+            }))
+            .build();
+
+
 
     public static final Map<String, Opcode> OPCODES = new HashMap<>();
     public static final List<Opcode> SORTED_OPCODES = new ArrayList<>();
@@ -847,9 +880,11 @@ public class Opcodes {
         register(TEST_GT);
         register(TEST_EQ);
         register(TEST_SET);
+        register(TEST_LOOP);
         register(DO_REDSTONE);
         register(DO_DELAY);
         register(DO_STOP);
+        register(DO_STOP_OR_RESUME);
         register(DO_LOG);
         register(DO_FETCHITEMS);
         register(DO_PUSHITEMS);

@@ -2,13 +2,19 @@ package mcjty.rftoolscontrol.logic.running;
 
 import mcjty.rftoolscontrol.blocks.processor.ProcessorTileEntity;
 import mcjty.rftoolscontrol.logic.Parameter;
+import mcjty.rftoolscontrol.logic.TypeConverters;
 import mcjty.rftoolscontrol.logic.compiled.CompiledCard;
 import mcjty.rftoolscontrol.logic.compiled.CompiledOpcode;
 import mcjty.rftoolscontrol.logic.registry.OpcodeRunnable;
 import mcjty.rftoolscontrol.logic.registry.ParameterType;
+import mcjty.rftoolscontrol.logic.registry.ParameterValue;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraftforge.common.util.Constants;
+import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.List;
 
 public class RunningProgram {
@@ -35,6 +41,9 @@ public class RunningProgram {
 
     // Last value result
     private Parameter lastValue;
+
+    // Opcode index, variable index
+    private List<Pair<Integer,Integer>> loopStack = new ArrayList<>();
 
     // Cache for the opcodes
     private List<CompiledOpcode> opcodeCache = null;
@@ -100,6 +109,24 @@ public class RunningProgram {
         return opcodes(processor).get(current);
     }
 
+    public void pushLoopStack(int varIndex) {
+        loopStack.add(Pair.of(current, varIndex));
+    }
+
+    public void popLoopStack(ProcessorTileEntity processor) {
+        if (loopStack.isEmpty()) {
+            killMe();
+        } else {
+            Pair<Integer, Integer> pair = loopStack.get(loopStack.size() - 1);
+            current = pair.getLeft();
+            int varIdx = pair.getRight();
+            loopStack.remove(loopStack.size()-1);
+            int i = TypeConverters.convertToInt(processor.getVariableArray()[varIdx].getParameterValue().getValue());
+            i++;
+            processor.getVariableArray()[varIdx] = Parameter.builder().type(ParameterType.PAR_INTEGER).value(ParameterValue.constant(i)).build();
+        }
+    }
+
     public boolean run(ProcessorTileEntity processor) {
         if (delay > 0) {
             delay--;
@@ -160,6 +187,16 @@ public class RunningProgram {
             lastValue.getParameterType().writeToNBT(varTag, lastValue.getParameterValue());
             tag.setTag("lastvar", varTag);
         }
+        if (!loopStack.isEmpty()) {
+            NBTTagList loopList = new NBTTagList();
+            for (Pair<Integer, Integer> pair : loopStack) {
+                NBTTagCompound t = new NBTTagCompound();
+                t.setInteger("index", pair.getLeft());
+                t.setInteger("var", pair.getRight());
+                loopList.appendTag(t);
+            }
+            tag.setTag("loopStack", loopList);
+        }
     }
 
     public static RunningProgram readFromNBT(NBTTagCompound tag) {
@@ -182,6 +219,14 @@ public class RunningProgram {
             int t = varTag.getInteger("type");
             ParameterType type = ParameterType.values()[t];
             program.lastValue = Parameter.builder().type(type).value(type.readFromNBT(varTag)).build();
+        }
+        if (tag.hasKey("loopStack")) {
+            program.loopStack.clear();
+            NBTTagList loopList = tag.getTagList("loopStack", Constants.NBT.TAG_COMPOUND);
+            for (int i = 0 ; i < loopList.tagCount() ; i++) {
+                NBTTagCompound t = loopList.getCompoundTagAt(i);
+                program.loopStack.add(Pair.of(tag.getInteger("index"), tag.getInteger("var")));
+            }
         }
         return program;
     }

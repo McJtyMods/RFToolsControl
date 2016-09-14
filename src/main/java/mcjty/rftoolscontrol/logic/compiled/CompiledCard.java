@@ -64,7 +64,7 @@ public class CompiledCard {
             }
             card.opcodes.add(opcodeBuilder.build());
         }
-        card.opcodes.add(CompiledOpcode.builder().opcode(Opcodes.DO_STOP).build());
+        card.opcodes.add(CompiledOpcode.builder().opcode(Opcodes.DO_STOP_OR_RESUME).build());
 
         for (Opcode opcode : Opcodes.OPCODES.values()) {
             if (!card.events.containsKey(opcode)) {
