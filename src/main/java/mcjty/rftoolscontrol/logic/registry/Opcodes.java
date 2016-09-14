@@ -854,6 +854,38 @@ public class Opcodes {
             }))
             .build();
 
+    public static final Opcode EVAL_INTEGER = Opcode.builder()
+            .id("eval_integer")
+            .description(
+                    TextFormatting.GREEN + "Eval: integer",
+                    "evaluate an integer and set it as",
+                    "the result for future opcodes to use")
+            .outputDescription("integer result (integer)")
+            .opcodeOutput(SINGLE)
+            .parameter(ParameterDescription.builder().name("value").type(PAR_INTEGER).description("integer value to set as result").build())
+            .icon(9, 3)
+            .runnable(((processor, program, opcode) -> {
+                int value = processor.evaluateIntParameter(opcode, program, 0);
+                program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(value)).build());
+                return POSITIVE;
+            }))
+            .build();
+    public static final Opcode EVAL_STRING = Opcode.builder()
+            .id("eval_string")
+            .description(
+                    TextFormatting.GREEN + "Eval: string",
+                    "evaluate a string and set it as",
+                    "the result for future opcodes to use")
+            .outputDescription("string result (string)")
+            .opcodeOutput(SINGLE)
+            .parameter(ParameterDescription.builder().name("value").type(PAR_STRING).description("string value to set as result").build())
+            .icon(10, 3)
+            .runnable(((processor, program, opcode) -> {
+                String value = processor.evaluateStringParameter(opcode, program, 0);
+                program.setLastValue(Parameter.builder().type(PAR_STRING).value(ParameterValue.constant(value)).build());
+                return POSITIVE;
+            }))
+            .build();
 
 
     public static final Map<String, Opcode> OPCODES = new HashMap<>();
@@ -876,6 +908,8 @@ public class Opcodes {
         register(EVAL_REDSTONE);
         register(EVAL_GETRF);
         register(EVAL_GETMAXRF);
+        register(EVAL_INTEGER);
+        register(EVAL_STRING);
         register(EVAL_LOCK);
         register(TEST_GT);
         register(TEST_EQ);
