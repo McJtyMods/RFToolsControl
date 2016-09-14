@@ -28,6 +28,8 @@ import mcjty.rftoolscontrol.logic.running.ProgException;
 import mcjty.rftoolscontrol.logic.running.RunningProgram;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -48,6 +50,8 @@ import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
+import net.minecraftforge.items.wrapper.InvWrapper;
+import net.minecraftforge.items.wrapper.SidedInvWrapper;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -1091,6 +1095,14 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             if (handler != null) {
                 return handler;
             }
+        } else if (te instanceof ISidedInventory) {
+            // Support for old inventory
+            ISidedInventory sidedInventory = (ISidedInventory) te;
+            return new SidedInvWrapper(sidedInventory, inv.getIntSide());
+        } else if (te instanceof IInventory) {
+            // Support for old inventory
+            IInventory inventory = (IInventory) te;
+            return new InvWrapper(inventory);
         }
         throw new ProgException(EXCEPT_INVALIDINVENTORY);
     }
