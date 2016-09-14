@@ -23,7 +23,6 @@ public class CraftingCardItem extends GenericRFToolsItem {
 
     public CraftingCardItem() {
         super("crafting_card");
-        setMaxStackSize(1);
     }
 
     @SideOnly(Side.CLIENT)
