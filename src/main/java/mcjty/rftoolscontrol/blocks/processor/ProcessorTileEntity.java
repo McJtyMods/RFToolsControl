@@ -835,6 +835,9 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
 
 
     public int fetchItems(RunningProgram program, Inventory inv, Integer slot, @Nullable ItemStack itemMatcher, boolean routable, boolean oredict, int amount, int virtualSlot) {
+        if (amount == 0) {
+            amount = 1;
+        }
         IStorageScanner scanner = getScannerForInv(inv);
         IItemHandler handler = getHandlerForInv(inv);
 
@@ -865,6 +868,9 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     }
 
     public int pushItems(RunningProgram program, Inventory inv, Integer slot, int amount, int virtualSlot) {
+        if (amount == 0) {
+            amount = 1;
+        }
         IStorageScanner scanner = getScannerForInv(inv);
         IItemHandler handler = getHandlerForInv(inv);
 
