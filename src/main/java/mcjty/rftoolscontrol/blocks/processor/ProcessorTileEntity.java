@@ -49,7 +49,6 @@ import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.ItemHandlerHelper;
 import net.minecraftforge.items.wrapper.InvWrapper;
 import net.minecraftforge.items.wrapper.SidedInvWrapper;
 
@@ -416,40 +415,8 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             ingredients = CraftingCardItem.getIngredients(card);
         }
 
-        List<ItemStack> needed = new ArrayList<>();
-        for (ItemStack ingredient : ingredients) {
-            if (ingredient != null) {
-                boolean found = false;
-                for (ItemStack neededStack : needed) {
-                    if (neededStack.isItemEqual(ingredient)) {
-                        neededStack.stackSize += ingredient.stackSize;
-                        found = true;
-                        break;
-                    }
-                }
-                if (!found) {
-                    needed.add(ingredient.copy());
-                }
-            }
-        }
-
-        int requested = 0;
-        for (ItemStack ingredient : needed) {
-            if (ingredient != null) {
-                int cnt = InventoryTools.countItem(handler, scanner, ingredient, false, ingredient.stackSize);
-                if (cnt < ingredient.stackSize) {
-                    requested++;
-                    ItemStack requestedItem = ingredient.copy();
-                    requestedItem.stackSize = ingredient.stackSize - cnt;
-                    if (!isRequested(requestedItem)) {
-                        if (!requestCraft(requestedItem, destInv)) {
-                            // It can't be requested, total failure
-                            return -1;
-                        }
-                    }
-                }
-            }
-        }
+        List<ItemStack> needed = combineIngredients(ingredients);
+        int requested = checkAvailableItemsAndRequestMissing(destInv, scanner, handler, needed);
         if (requested > 0) {
             return requested;
         }
@@ -468,6 +435,53 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             slot++;
         }
         return 0;
+    }
+
+    // Check the storage scanner or handler for a list of ingredients. Any missing
+    // ingredient is requested if possible. Returns -1 if there were ingredients that
+    // could not be requested. Returns 0 if nothing had to be requested and otherwise
+    // returns the amount of requested items
+    private int checkAvailableItemsAndRequestMissing(Inventory destInv, IStorageScanner scanner, IItemHandler handler, List<ItemStack> needed) {
+        int requested = 0;
+        for (ItemStack ingredient : needed) {
+            if (ingredient != null) {
+                int cnt = InventoryTools.countItem(handler, scanner, ingredient, false, ingredient.stackSize);
+                if (cnt < ingredient.stackSize) {
+                    requested++;
+                    ItemStack requestedItem = ingredient.copy();
+                    requestedItem.stackSize = ingredient.stackSize - cnt;
+                    if (!isRequested(requestedItem)) {
+                        if (!requestCraft(requestedItem, destInv)) {
+                            // It can't be requested, total failure
+                            return -1;
+                        }
+                    }
+                }
+            }
+        }
+        return requested;
+    }
+
+    // Given a list of ingredients make a combined list where all identical
+    // items are grouped
+    private List<ItemStack> combineIngredients(List<ItemStack> ingredients) {
+        List<ItemStack> needed = new ArrayList<>();
+        for (ItemStack ingredient : ingredients) {
+            if (ingredient != null) {
+                boolean found = false;
+                for (ItemStack neededStack : needed) {
+                    if (neededStack.isItemEqual(ingredient)) {
+                        neededStack.stackSize += ingredient.stackSize;
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    needed.add(ingredient.copy());
+                }
+            }
+        }
+        return needed;
     }
 
     public int getIngredients(RunningProgram program, Inventory inv, Inventory cardInv, @Nullable ItemStack item, int slot1, int slot2) {
@@ -983,10 +997,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     }
 
 
-    public int fetchItems(RunningProgram program, Inventory inv, Integer slot, @Nullable ItemStack itemMatcher, boolean routable, boolean oredict, int amount, int virtualSlot) {
-        if (amount == 0) {
-            amount = 1;
-        }
+    public int fetchItems(RunningProgram program, Inventory inv, Integer slot, @Nullable ItemStack itemMatcher, boolean routable, boolean oredict, @Nullable Integer amount, int virtualSlot) {
         IStorageScanner scanner = getScannerForInv(inv);
         IItemHandler handler = getHandlerForInv(inv);
 

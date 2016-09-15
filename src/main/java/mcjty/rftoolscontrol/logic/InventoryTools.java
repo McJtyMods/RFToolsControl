@@ -7,7 +7,6 @@ import net.minecraftforge.items.ItemHandlerHelper;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Collections;
 
 public class InventoryTools {
 
@@ -36,7 +35,8 @@ public class InventoryTools {
     }
 
     @Nullable
-    public static ItemStack extractItem(@Nullable IItemHandler itemHandler, @Nullable IStorageScanner scanner, int amount, boolean routable, boolean oredict, @Nullable ItemStack itemMatcher,
+    public static ItemStack extractItem(@Nullable IItemHandler itemHandler, @Nullable IStorageScanner scanner,
+                                        @Nullable Integer amount, boolean routable, boolean oredict, @Nullable ItemStack itemMatcher,
                                         @Nullable Integer slot) {
         if (itemHandler != null) {
             // @todo implement oredict here
@@ -45,30 +45,39 @@ public class InventoryTools {
                     // Just find the first available stack
                     for (int i = 0 ; i < itemHandler.getSlots() ; i++) {
                         ItemStack stack = itemHandler.getStackInSlot(i);
-                        if (stack != null) {
-                            return itemHandler.extractItem(i, amount, false);
+                        if (stack != null && (amount == null || amount <= stack.stackSize)) {
+                            return itemHandler.extractItem(i, amount == null ? 64 : amount, false);
                         }
                     }
                 } else {
                     for (int i = 0; i < itemHandler.getSlots(); i++) {
                         ItemStack stack = itemHandler.getStackInSlot(i);
                         if (stack != null && ItemStack.areItemsEqual(stack, itemMatcher)) {
-                            return itemHandler.extractItem(i, amount, false);
+                            return itemHandler.extractItem(i, amount == null ? itemMatcher.getMaxStackSize() : amount, false);
                         }
                     }
                 }
             } else {
-                return itemHandler.extractItem(slot, amount, false);
+                if (itemMatcher == null) {
+                    return itemHandler.extractItem(slot, amount == null ? 64 : amount, false);
+                } else {
+                    if (!ItemStack.areItemsEqual(itemMatcher, itemHandler.getStackInSlot(slot))) {
+                        return null;
+                    }
+                    return itemHandler.extractItem(slot, amount == null ? itemMatcher.getMaxStackSize() : amount, false);
+                }
             }
         } else if (scanner != null) {
-            return scanner.requestItem(itemMatcher, amount, routable, oredict);
+            return scanner.requestItem(itemMatcher, amount == null ? itemMatcher.getMaxStackSize() : amount, routable, oredict);
         }
         return null;
     }
 
     @Nullable
-    public static ItemStack tryExtractItem(@Nullable IItemHandler itemHandler, @Nullable IStorageScanner scanner, int amount, boolean routable, boolean oredict, @Nullable ItemStack itemMatcher,
-                                        @Nullable Integer slot) {
+    public static ItemStack tryExtractItem(@Nullable IItemHandler itemHandler, @Nullable IStorageScanner scanner,
+                                           @Nullable Integer amount, boolean routable, boolean oredict,
+                                           @Nullable ItemStack itemMatcher,
+                                           @Nullable Integer slot) {
 
         if (itemHandler != null) {
             if (slot == null) {
@@ -76,27 +85,34 @@ public class InventoryTools {
                     // Just find the first available stack
                     for (int i = 0 ; i < itemHandler.getSlots() ; i++) {
                         ItemStack stack = itemHandler.getStackInSlot(i);
-                        if (stack != null) {
-                            return itemHandler.extractItem(i, amount, true);
+                        if (stack != null && (amount == null || amount <= stack.stackSize)) {
+                            return itemHandler.extractItem(i, amount == null ? 64 : amount, true);
                         }
                     }
                 } else {
                     for (int i = 0; i < itemHandler.getSlots(); i++) {
                         ItemStack stack = itemHandler.getStackInSlot(i);
                         if (stack != null && ItemStack.areItemsEqual(stack, itemMatcher)) {
-                            return itemHandler.extractItem(i, amount, true);
+                            return itemHandler.extractItem(i, amount == null ? itemMatcher.getMaxStackSize() : amount, true);
                         }
                     }
                 }
             } else {
-                return itemHandler.extractItem(slot, amount, true);
+                if (itemMatcher == null) {
+                    return itemHandler.extractItem(slot, amount == null ? 64 : amount, true);
+                } else {
+                    if (!ItemStack.areItemsEqual(itemMatcher, itemHandler.getStackInSlot(slot))) {
+                        return null;
+                    }
+                    return itemHandler.extractItem(slot, amount == null ? itemMatcher.getMaxStackSize() : amount, true);
+                }
             }
         }
         if (scanner != null) {
             int cnt = scanner.countItems(itemMatcher, routable, oredict);
             if (cnt > 0) {
                 ItemStack copy = itemMatcher.copy();
-                copy.stackSize = Math.min(cnt, amount);
+                copy.stackSize = Math.min(cnt, amount == null ? itemMatcher.getMaxStackSize() : amount);
                 return copy;
             }
         }
