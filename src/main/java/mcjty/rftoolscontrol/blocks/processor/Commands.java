@@ -2,6 +2,7 @@ package mcjty.rftoolscontrol.blocks.processor;
 
 import mcjty.rftoolscontrol.logic.compiled.CompiledOpcode;
 import mcjty.rftoolscontrol.logic.running.CpuCore;
+import mcjty.rftoolscontrol.logic.running.ExceptionType;
 import mcjty.rftoolscontrol.logic.running.RunningProgram;
 import net.minecraft.util.text.TextFormatting;
 import org.apache.commons.lang3.StringUtils;
@@ -11,6 +12,14 @@ import java.util.List;
 public class Commands {
 
     static void executeCommand(ProcessorTileEntity processor, String cmd) {
+        try {
+            exec(processor, cmd);
+        } catch (ArrayIndexOutOfBoundsException e) {
+            processor.exception(ExceptionType.EXCEPT_BADCOMMAND, null);
+        }
+    }
+
+    private static void exec(ProcessorTileEntity processor, String cmd) {
         processor.markDirty();
         String[] splitted = StringUtils.split(cmd, ' ');
         if (splitted.length == 0) {
@@ -27,12 +36,17 @@ public class Commands {
         } else if ("reset".equals(cmd)) {
             processor.log(TextFormatting.YELLOW + "Reset the processor!");
             processor.reset();
+        } else if ("signal".equals(cmd)) {
+            String signal = splitted[1].toLowerCase();
+            int cnt = processor.signal(signal);
+            processor.log("Signal was handled " + cnt + " time(s)");
         } else if ("net".equals(cmd)) {
             handleNetworkCommand(processor, splitted);
         } else if ("db".equals(cmd)) {
             handleDebugCommand(processor, splitted);
         } else {
             processor.log("Commands: clear/stop/reset/list");
+            processor.log("    signal <name>");
             processor.log("    net setup/list/info");
             processor.log("    db debug/step/info/resume");
         }

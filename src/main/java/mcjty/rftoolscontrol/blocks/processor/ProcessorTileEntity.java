@@ -750,7 +750,8 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         }
     }
 
-    public void signal(String signal) {
+    public int signal(String signal) {
+        int cnt = 0;
         for (int i = 0 ; i < cardInfo.length ; i++) {
             CardInfo info = cardInfo[i];
             CompiledCard compiledCard = info.getCompiledCard();
@@ -761,10 +762,12 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                     String sig = evaluateParameter(compiledOpcode, null, 0);
                     if (signal.equals(sig)) {
                         runOrQueueEvent(i, event, null);
+                        cnt++;
                     }
                 }
             }
         }
+        return cnt;
     }
     public void listStatus() {
         int n = 0;
