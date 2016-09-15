@@ -449,9 +449,6 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
             return;
         }
 
-        String json = instance.writeToJson();
-        System.out.println("json = " + json);
-
         for (Map.Entry<GridPos, GridInstance> entry : instance.getGridInstances().entrySet()) {
             int x = entry.getKey().getX();
             int y = entry.getKey().getY();
@@ -475,10 +472,6 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
                 String name = opcode.getParameters().get(i).getName();
                 icon.addData(name, parameters.get(i).getParameterValue());
             }
-//            for (Parameter parameter : parameters) {
-//                String name = parameter.getParameterDescription().getName();
-//                icon.addData(name, parameter.getParameterValue());
-//            }
 
             loading = true;
             getHolder(x, y).setIcon(icon);

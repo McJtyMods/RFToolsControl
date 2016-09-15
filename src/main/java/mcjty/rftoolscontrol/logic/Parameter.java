@@ -33,7 +33,7 @@ public class Parameter {
 
     public static Parameter readFromJson(JsonObject object) {
         ParameterType type = ParameterType.getByName(object.get("type").getAsString());
-        ParameterValue value = type.readFromJson(object);
+        ParameterValue value = type.readFromJson(object.get("value").getAsJsonObject());
         return builder().type(type).value(value).build();
     }
 
