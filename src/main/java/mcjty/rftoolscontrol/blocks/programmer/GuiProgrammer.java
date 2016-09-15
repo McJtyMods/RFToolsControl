@@ -448,6 +448,10 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
         if (instance == null) {
             return;
         }
+
+        String json = instance.writeToJson();
+        System.out.println("json = " + json);
+
         for (Map.Entry<GridPos, GridInstance> entry : instance.getGridInstances().entrySet()) {
             int x = entry.getKey().getX();
             int y = entry.getKey().getY();

@@ -1,5 +1,9 @@
 package mcjty.rftoolscontrol.logic.grid;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import mcjty.rftoolscontrol.logic.Connection;
 import mcjty.rftoolscontrol.logic.Parameter;
 import mcjty.rftoolscontrol.logic.registry.Opcode;
@@ -47,6 +51,59 @@ public class GridInstance {
         return new Builder(id);
     }
 
+    public JsonElement getJsonElement() {
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.add("id", new JsonPrimitive(getId()));
+        if (primaryConnection != null) {
+            jsonObject.add("primary", new JsonPrimitive(primaryConnection.getId()));
+        }
+        if (secondaryConnection != null) {
+            jsonObject.add("secondary", new JsonPrimitive(secondaryConnection.getId()));
+        }
+        JsonArray array = new JsonArray();
+        for (Parameter parameter : getParameters()) {
+            array.add(parameter.getJsonElement());
+        }
+        jsonObject.add("parameters", array);
+
+        return jsonObject;
+    }
+
+    public static GridInstance readFromJson(JsonElement element) {
+        JsonObject gridObject = element.getAsJsonObject();
+        String id = gridObject.get("id").getAsString();
+        GridInstance.Builder builder = GridInstance.builder(id);
+        if (gridObject.has("primary")) {
+            String primary = gridObject.get("primary").getAsString();
+            builder.primaryConnection(Connection.getConnection(primary));
+        }
+        if (gridObject.has("secondary")) {
+            String secondary = gridObject.get("secondary").getAsString();
+            builder.secondaryConnection(Connection.getConnection(secondary));
+        }
+
+        Opcode opcode = Opcodes.OPCODES.get(id);
+        if (opcode == null) {
+            // Sanity check in case an opcode got removed
+            return null;
+        }
+        List<ParameterDescription> parameters = opcode.getParameters();
+
+        JsonArray parameterArray = gridObject.get("parameters").getAsJsonArray();
+        for (int i = 0 ; i < parameterArray.size() ; i++) {
+            JsonObject parObject = parameterArray.get(i).getAsJsonObject();
+            Parameter parameter = Parameter.readFromJson(parObject);
+            if (parameter.getParameterType() != parameters.get(i).getType()) {
+                // Sanity check
+                builder.parameter(Parameter.builder().type(parameters.get(i).getType()).value(ParameterValue.constant(null)).build());
+            } else {
+                builder.parameter(parameter);
+            }
+        }
+
+        return builder.build();
+    }
+
     public NBTTagCompound writeToNBT(int x, int y) {
         NBTTagCompound tag = new NBTTagCompound();
         tag.setInteger("x", x);
@@ -61,7 +118,9 @@ public class GridInstance {
 
         NBTTagList parList = new NBTTagList();
         for (Parameter parameter : getParameters()) {
-            parList.appendTag(Parameter.writeToNBT(parameter));
+            NBTTagCompound nbt = Parameter.writeToNBT(parameter);
+
+            parList.appendTag(nbt);
         }
         tag.setTag("pars", parList);
         return tag;

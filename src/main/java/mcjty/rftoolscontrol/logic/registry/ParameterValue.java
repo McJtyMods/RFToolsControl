@@ -1,22 +1,15 @@
 package mcjty.rftoolscontrol.logic.registry;
 
-import mcjty.rftoolscontrol.logic.Parameter;
-
-import java.util.List;
-
 public class ParameterValue {
 
     private final int variableIndex;
     private final Object value;
     private final Function function;
-    private final List<Parameter> functionParameters;
 
-    private ParameterValue(int variableIndex, Object value, Function function,
-                           List<Parameter> functionParameters) {
+    private ParameterValue(int variableIndex, Object value, Function function) {
         this.variableIndex = variableIndex;
         this.value = value;
         this.function = function;
-        this.functionParameters = functionParameters;
     }
 
     public int getVariableIndex() {
@@ -29,10 +22,6 @@ public class ParameterValue {
 
     public Function getFunction() {
         return function;
-    }
-
-    public List<Parameter> getFunctionParameters() {
-        return functionParameters;
     }
 
     public boolean isConstant() {
@@ -48,14 +37,14 @@ public class ParameterValue {
     }
 
     public static ParameterValue constant(Object value) {
-        return new ParameterValue(-1, value, null, null);
+        return new ParameterValue(-1, value, null);
     }
 
     public static ParameterValue variable(int index) {
-        return new ParameterValue(index, null, null, null);
+        return new ParameterValue(index, null, null);
     }
 
-    public static ParameterValue function(Function function, List<Parameter> functionParameters) {
-        return new ParameterValue(-1, null, function, functionParameters);
+    public static ParameterValue function(Function function) {
+        return new ParameterValue(-1, null, function);
     }
 }

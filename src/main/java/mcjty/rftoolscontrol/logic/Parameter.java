@@ -1,11 +1,15 @@
 package mcjty.rftoolscontrol.logic;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import io.netty.buffer.ByteBuf;
 import mcjty.lib.network.NetworkTools;
 import mcjty.rftoolscontrol.logic.registry.BlockSide;
 import mcjty.rftoolscontrol.logic.registry.Inventory;
 import mcjty.rftoolscontrol.logic.registry.ParameterType;
 import mcjty.rftoolscontrol.logic.registry.ParameterValue;
+import mcjty.rftoolscontrol.logic.running.ExceptionType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
@@ -18,6 +22,19 @@ public class Parameter {
     private Parameter(Builder builder) {
         parameterType = builder.parameterType;
         parameterValue = builder.parameterValue;
+    }
+
+    public JsonElement getJsonElement() {
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.add("type", new JsonPrimitive(parameterType.getName()));
+        jsonObject.add("value", parameterType.writeToJson(parameterValue));
+        return jsonObject;
+    }
+
+    public static Parameter readFromJson(JsonObject object) {
+        ParameterType type = ParameterType.getByName(object.get("type").getAsString());
+        ParameterValue value = type.readFromJson(object);
+        return builder().type(type).value(value).build();
     }
 
     public static Parameter readFromNBT(NBTTagCompound parTag) {
@@ -42,33 +59,36 @@ public class Parameter {
         }
         ParameterType type = ParameterType.values()[b];
         Parameter.Builder builder = Parameter.builder().type(type);
-        switch (type) {
-            case PAR_STRING:
-                builder.value(ParameterValue.constant(NetworkTools.readString(buf)));
-                break;
-            case PAR_INTEGER:
-                builder.value(ParameterValue.constant(buf.readInt()));
-                break;
-            case PAR_FLOAT:
-                builder.value(ParameterValue.constant(buf.readFloat()));
-                break;
-            case PAR_SIDE:
-                String nodeName = NetworkTools.readString(buf);
-                int sideIdx = buf.readByte();
-                EnumFacing side = sideIdx == -1 ? null : EnumFacing.values()[sideIdx];
-                builder.value(ParameterValue.constant(new BlockSide(nodeName, side)));
-                break;
-            case PAR_BOOLEAN:
-                builder.value(ParameterValue.constant(buf.readBoolean()));
-                break;
-            case PAR_INVENTORY:
-                builder.value(ParameterValue.constant(Inventory.readBuf(buf)));
-                break;
-            case PAR_ITEM:
-                if (buf.readBoolean()) {
+        if (buf.readBoolean()) {
+            switch (type) {
+                case PAR_STRING:
+                    builder.value(ParameterValue.constant(NetworkTools.readString(buf)));
+                    break;
+                case PAR_INTEGER:
+                    builder.value(ParameterValue.constant(buf.readInt()));
+                    break;
+                case PAR_FLOAT:
+                    builder.value(ParameterValue.constant(buf.readFloat()));
+                    break;
+                case PAR_SIDE:
+                    String nodeName = NetworkTools.readString(buf);
+                    int sideIdx = buf.readByte();
+                    EnumFacing side = sideIdx == -1 ? null : EnumFacing.values()[sideIdx];
+                    builder.value(ParameterValue.constant(new BlockSide(nodeName, side)));
+                    break;
+                case PAR_BOOLEAN:
+                    builder.value(ParameterValue.constant(buf.readBoolean()));
+                    break;
+                case PAR_INVENTORY:
+                    builder.value(ParameterValue.constant(Inventory.readBuf(buf)));
+                    break;
+                case PAR_ITEM:
                     builder.value(ParameterValue.constant(NetworkTools.readItemStack(buf)));
-                }
-                break;
+                    break;
+                case PAR_EXCEPTION:
+                    builder.value(ParameterValue.constant(ExceptionType.getExceptionForCode(NetworkTools.readString(buf))));
+                    break;
+            }
         }
         return builder.build();
     }
@@ -76,6 +96,11 @@ public class Parameter {
     public void writeToBuf(ByteBuf buf) {
         buf.writeByte(getParameterType().ordinal());
         Object value = getParameterValue().getValue();
+        if (value == null) {
+            buf.writeBoolean(false);
+            return;
+        }
+        buf.writeBoolean(true);
         switch (getParameterType()) {
             case PAR_STRING:
                 NetworkTools.writeString(buf, (String) value);
@@ -99,12 +124,10 @@ public class Parameter {
                 inv.writeBuf(buf);
                 break;
             case PAR_ITEM:
-                if (value != null) {
-                    buf.writeBoolean(true);
-                    NetworkTools.writeItemStack(buf, (ItemStack) value);
-                } else {
-                    buf.writeBoolean(false);
-                }
+                NetworkTools.writeItemStack(buf, (ItemStack) value);
+                break;
+            case PAR_EXCEPTION:
+                NetworkTools.writeString(buf, ((ExceptionType)value).getCode());
                 break;
         }
     }
