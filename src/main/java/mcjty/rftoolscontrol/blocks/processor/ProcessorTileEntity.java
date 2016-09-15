@@ -551,6 +551,15 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         markDirty();
     }
 
+    public void craftWaitTimed(RunningProgram program) {
+        if (!program.hasCraftTicket()) {
+            throw new ProgException(EXCEPT_MISSINGCRAFTTICKET);
+        }
+        WaitForItem waitForItem = new WaitForItem(program.getCraftTicket(), null, null);
+        waitingForItems.add(waitForItem);
+        markDirty();
+    }
+
     public boolean isRequested(ItemStack stack) {
         for (BlockPos p : craftingStations) {
             TileEntity te = worldObj.getTileEntity(p);
@@ -667,12 +676,18 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                     int foundIdx = -1;
                     for (int i = 0 ; i < waitingForItems.size() ; i++) {
                         WaitForItem wfi = waitingForItems.get(i);
-                        IItemHandler handler = getItemHandlerAt(wfi.getInventory());
-                        int cnt = countItemInHandler(wfi.getItemStack(), handler);
-                        if (cnt >= wfi.getItemStack().stackSize) {
+                        if (wfi.getInventory() == null || wfi.getItemStack() == null) {
                             foundIdx = i;
                             found = wfi;
                             break;
+                        } else {
+                            IItemHandler handler = getItemHandlerAt(wfi.getInventory());
+                            int cnt = countItemInHandler(wfi.getItemStack(), handler);
+                            if (cnt >= wfi.getItemStack().stackSize) {
+                                foundIdx = i;
+                                found = wfi;
+                                break;
+                            }
                         }
                     }
                     if (found != null) {
@@ -1416,8 +1431,21 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         for (int i = 0 ; i < waitingList.tagCount() ; i++) {
             NBTTagCompound tag = waitingList.getCompoundTagAt(i);
             String ticket = tag.getString("ticket");
-            ItemStack stack = ItemStack.loadItemStackFromNBT(tag.getCompoundTag("item"));
-            Inventory inventory = Inventory.readFromNBT(tag.getCompoundTag("inv"));
+
+            ItemStack stack;
+            if (tag.hasKey("item")) {
+                stack = ItemStack.loadItemStackFromNBT(tag.getCompoundTag("item"));
+            } else {
+                stack = null;
+            }
+
+            Inventory inventory;
+            if (tag.hasKey("inv")) {
+                inventory = Inventory.readFromNBT(tag.getCompoundTag("inv"));
+            } else {
+                inventory = null;
+            }
+
             WaitForItem waitForItem = new WaitForItem(ticket, stack, inventory);
             waitingForItems.add(waitForItem);
         }
@@ -1530,8 +1558,12 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         for (WaitForItem waitingForItem : waitingForItems) {
             NBTTagCompound tag = new NBTTagCompound();
             tag.setString("ticket", waitingForItem.getTicket());
-            tag.setTag("item", waitingForItem.getItemStack().serializeNBT());
-            tag.setTag("inv", waitingForItem.getInventory().writeToNBT());
+            if (waitingForItem.getInventory() != null) {
+                tag.setTag("inv", waitingForItem.getInventory().writeToNBT());
+            }
+            if (waitingForItem.getItemStack() != null) {
+                tag.setTag("item", waitingForItem.getItemStack().serializeNBT());
+            }
             waitingList.appendTag(tag);
         }
         tagCompound.setTag("waiting", waitingList);

@@ -684,7 +684,7 @@ public class Opcodes {
     public static final Opcode DO_CRAFTWAIT = Opcode.builder()
             .id("do_craftwait")
             .description(
-                    TextFormatting.GREEN + "Operation: wait for finished craft",
+                    TextFormatting.GREEN + "Operation: wait for finished craft (item)",
                     "suspend the crafting operation",
                     "and resume it as soon as a certain",
                     "item appears in an inventory")
@@ -696,6 +696,20 @@ public class Opcodes {
                 Inventory inv = processor.evaluateParameter(opcode, program, 0);
                 ItemStack item = processor.evaluateParameter(opcode, program, 1);
                 processor.craftWait(program, inv, item);
+                return POSITIVE;
+            }))
+            .build();
+
+    public static final Opcode DO_CRAFTWAIT_TIMED = Opcode.builder()
+            .id("do_craftwait_ticked")
+            .description(
+                    TextFormatting.GREEN + "Operation: wait for finished craft (timed)",
+                    "suspend the crafting operation",
+                    "and resume it at regular times")
+            .opcodeOutput(SINGLE)
+            .icon(2, 4)
+            .runnable(((processor, program, opcode) -> {
+                processor.craftWaitTimed(program);
                 return POSITIVE;
             }))
             .build();
@@ -934,6 +948,7 @@ public class Opcodes {
         register(DO_GETINGREDIENTS_SMART);
         register(DO_SETCRAFTTICKET);
         register(DO_CRAFTWAIT);
+        register(DO_CRAFTWAIT_TIMED);
         register(DO_REQUESTCRAFT);
         register(DO_LOCK);
         register(DO_RELEASELOCK);

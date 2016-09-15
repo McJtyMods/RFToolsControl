@@ -4,13 +4,14 @@ import mcjty.rftoolscontrol.logic.registry.Inventory;
 import net.minecraft.item.ItemStack;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class WaitForItem {
     private final String ticket;
     private final ItemStack itemStack;
     private final Inventory inventory;
 
-    public WaitForItem(@Nonnull String ticket, @Nonnull ItemStack itemStack, @Nonnull Inventory inventory) {
+    public WaitForItem(@Nonnull String ticket, @Nullable ItemStack itemStack, @Nullable Inventory inventory) {
         this.ticket = ticket;
         this.itemStack = itemStack;
         this.inventory = inventory;
@@ -21,12 +22,12 @@ public class WaitForItem {
         return ticket;
     }
 
-    @Nonnull
+    @Nullable
     public ItemStack getItemStack() {
         return itemStack;
     }
 
-    @Nonnull
+    @Nullable
     public Inventory getInventory() {
         return inventory;
     }
