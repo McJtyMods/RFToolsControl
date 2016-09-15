@@ -416,8 +416,25 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             ingredients = CraftingCardItem.getIngredients(card);
         }
 
-        int requested = 0;
+        List<ItemStack> needed = new ArrayList<>();
         for (ItemStack ingredient : ingredients) {
+            if (ingredient != null) {
+                boolean found = false;
+                for (ItemStack neededStack : needed) {
+                    if (neededStack.isItemEqual(ingredient)) {
+                        neededStack.stackSize += ingredient.stackSize;
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    needed.add(ingredient.copy());
+                }
+            }
+        }
+
+        int requested = 0;
+        for (ItemStack ingredient : needed) {
             if (ingredient != null) {
                 int cnt = InventoryTools.countItem(handler, scanner, ingredient, false, ingredient.stackSize);
                 if (cnt < ingredient.stackSize) {
