@@ -38,7 +38,7 @@ public class Inventory {
 
     public static Inventory deserialize(String s) {
         String[] splitted = StringUtils.split(s, '#');
-        return new Inventory("-".equals(splitted[1]) ? null : splitted[1], EnumFacing.byName(splitted[1]),
+        return new Inventory("-".equals(splitted[0]) ? null : splitted[0], EnumFacing.byName(splitted[1]),
                 "-".equals(splitted[2]) ? null : EnumFacing.byName(splitted[2]));
     }
 

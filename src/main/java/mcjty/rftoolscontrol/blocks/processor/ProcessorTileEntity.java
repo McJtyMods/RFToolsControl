@@ -326,7 +326,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             int realSlot = info.getRealSlot(slot);
             ItemStack stack = itemHandler.getStackInSlot(realSlot);
             if (stack != null) {
-                ItemStack remaining = InventoryTools.insertItem(handler, scanner, stack, extSlot);
+                ItemStack remaining = InventoryTools.insertItem(handler, scanner, stack, extSlot == null ? null : e);
                 if (remaining != null) {
                     failed++;
                 }
@@ -408,50 +408,49 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         }
         CardInfo info = this.cardInfo[program.getCardIndex()];
 
-        IItemHandler itemHandler = getItemHandler();
-        int slot = slot1;
-
         List<ItemStack> ingredients;
-        if (CraftingCardItem.fitsGrid(card) && (slot2-slot1 >= 8)) {
+        if (CraftingCardItem.fitsGrid(card) && (slot2 - slot1 >= 8)) {
             // We have something that fits a crafting grid and we have enough room for a 3x3 grid
             ingredients = CraftingCardItem.getIngredientsGrid(card);
         } else {
             ingredients = CraftingCardItem.getIngredients(card);
         }
 
-        int failed = 0;
+        int requested = 0;
+        for (ItemStack ingredient : ingredients) {
+            if (ingredient != null) {
+                int cnt = InventoryTools.countItem(handler, scanner, ingredient, false, ingredient.stackSize);
+                if (cnt < ingredient.stackSize) {
+                    requested++;
+                    ItemStack requestedItem = ingredient.copy();
+                    requestedItem.stackSize = ingredient.stackSize - cnt;
+                    if (!isRequested(requestedItem)) {
+                        if (!requestCraft(requestedItem, destInv)) {
+                            // It can't be requested, total failure
+                            return -1;
+                        }
+                    }
+                }
+            }
+        }
+        if (requested > 0) {
+            return requested;
+        }
+        // We got everything;
+        IItemHandler itemHandler = getItemHandler();
+        int slot = slot1;
+
         for (ItemStack ingredient : ingredients) {
             int realSlot = info.getRealSlot(slot);
             if (ingredient != null) {
-                ItemStack localStack = itemHandler.getStackInSlot(realSlot);
-                int fetchedStackSize = 0;
-                int localStackSize = localStack == null ? 0 : localStack.stackSize;
-                if (localStack == null || (ingredient.isItemEqual(localStack) && ingredient.stackSize > localStackSize)) {
-                    // We don't have anything yet or it is the same item and we don't have enough
-                    ItemStack stack = InventoryTools.extractItem(handler, scanner, ingredient.stackSize-localStackSize, true, false, ingredient, null);
-                    if (stack != null) {
-                        fetchedStackSize = stack.stackSize;
-                    }
-
-                    if (fetchedStackSize+localStackSize < ingredient.stackSize) {
-                        failed++;
-                        ItemStack requestedItem = ingredient.copy();
-                        requestedItem.stackSize = ingredient.stackSize - fetchedStackSize-localStackSize;
-                        if (!isRequested(requestedItem)) {
-                            requestCraft(requestedItem, destInv);
-                        }
-                    }
-                    if (stack != null) {
-                        itemHandler.insertItem(realSlot, stack, false);
-                    }
-                } else if (!ingredient.isItemEqual(localStack)) {
-                    // This is not the same item, cannot work
-                    failed++;
+                ItemStack stack = InventoryTools.extractItem(handler, scanner, ingredient.stackSize, true, false, ingredient, null);
+                if (stack != null) {
+                    itemHandler.insertItem(realSlot, stack, false);
                 }
             }
             slot++;
         }
-        return failed;
+        return 0;
     }
 
     public int getIngredients(RunningProgram program, Inventory inv, Inventory cardInv, @Nullable ItemStack item, int slot1, int slot2) {

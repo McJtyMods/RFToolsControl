@@ -11,6 +11,30 @@ import java.util.Collections;
 
 public class InventoryTools {
 
+    public static int countItem(@Nullable IItemHandler itemHandler, @Nullable IStorageScanner scanner, ItemStack itemMatcher, boolean oredict, int maxToCount) {
+        if (itemHandler != null) {
+            // @todo implement oredict here
+            int cnt = 0;
+            for (int i = 0; i < itemHandler.getSlots(); i++) {
+                ItemStack stack = itemHandler.getStackInSlot(i);
+                if (stack != null && ItemStack.areItemsEqual(stack, itemMatcher)) {
+                    cnt += stack.stackSize;
+                    if (maxToCount != -1 && cnt >= maxToCount) {
+                        return maxToCount;
+                    }
+                }
+            }
+            return cnt;
+        } else if (scanner != null) {
+            int cnt = scanner.countItems(itemMatcher, true, oredict);
+            if (maxToCount != -1 && cnt >= maxToCount) {
+                return maxToCount;
+            }
+            return cnt;
+        }
+        return 0;
+    }
+
     @Nullable
     public static ItemStack extractItem(@Nullable IItemHandler itemHandler, @Nullable IStorageScanner scanner, int amount, boolean routable, boolean oredict, @Nullable ItemStack itemMatcher,
                                         @Nullable Integer slot) {
@@ -21,7 +45,7 @@ public class InventoryTools {
                     // Just find the first available stack
                     for (int i = 0 ; i < itemHandler.getSlots() ; i++) {
                         ItemStack stack = itemHandler.getStackInSlot(i);
-                        if (stack != null && amount <= stack.stackSize) {
+                        if (stack != null) {
                             return itemHandler.extractItem(i, amount, false);
                         }
                     }
@@ -52,7 +76,7 @@ public class InventoryTools {
                     // Just find the first available stack
                     for (int i = 0 ; i < itemHandler.getSlots() ; i++) {
                         ItemStack stack = itemHandler.getStackInSlot(i);
-                        if (stack != null && amount <= stack.stackSize) {
+                        if (stack != null) {
                             return itemHandler.extractItem(i, amount, true);
                         }
                     }

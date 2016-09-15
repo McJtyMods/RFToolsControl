@@ -661,14 +661,12 @@ public class Opcodes {
             .id("do_getingredients_smart")
             .description(
                     TextFormatting.GREEN + "Operation: get ingredients smart",
-                    "given a crafting card inventory get the needed",
-                    "and missing ingredients from another inventory (or",
-                    "storage scanner) and insert in processor",
-                    "Will fire craft requests for missing items",
-                    "Returns number of items that it could not find",
-                    "and for which it could not fire a craft request",
-                    "End result of requested crafts will be put in destInv")
-            .outputDescription("amount of failed items (integer)")
+                    "check if all ingredients are available in another",
+                    "inventory or storage system. If so fetch them in the",
+                    "processor. Otherwise try to request all missing items",
+                    "Returns 0 on success, -1 on failure and otherwise the",
+                    "number of items that are requested")
+            .outputDescription("0, -1, or requested items (integer)")
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("inv").type(PAR_INVENTORY).description("inventory adjacent to (networked) block", "or empty to access storage").build())
             .parameter(ParameterDescription.builder().name("cardInv").type(PAR_INVENTORY).description("inventory adjacent to (networked) block", "with crafting cards").build())
@@ -970,7 +968,7 @@ public class Opcodes {
         register(EVENT_REDSTONE_ON);
         register(EVENT_REDSTONE_OFF);
         register(EVENT_TIMER);
-        register(EVENT_RUN);
+//        register(EVENT_RUN);
         register(EVENT_SIGNAL);
         register(EVENT_CRAFT);
         register(EVENT_CRAFTRESUME);
