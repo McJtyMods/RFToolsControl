@@ -584,13 +584,18 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
                 tooltips.addAll(description);
                 for (ParameterDescription parameter : opcode.getParameters()) {
                     boolean first = true;
-                    for (String s : parameter.getDescription()) {
+                    for (int i = 0 ; i < parameter.getDescription().size() ; i++) {
+                        String s = parameter.getDescription().get(i);
                         if (first) {
-                            tooltips.add(TextFormatting.BLUE + "Par '" + parameter.getName() + "': " + s);
+                            s = TextFormatting.BLUE + "Par '" + parameter.getName() + "': " + s;
                             first = false;
                         } else {
-                            tooltips.add(TextFormatting.BLUE + "      " + s);
+                            s = TextFormatting.BLUE + "      " + s;
                         }
+                        if (parameter.isOptional() && i == parameter.getDescription().size()-1) {
+                            s += TextFormatting.GOLD + " [Optional]";
+                        }
+                        tooltips.add(s);
                     }
                 }
                 tooltips.add(TextFormatting.YELLOW + "Result: " + opcode.getOutputDescription());
@@ -620,16 +625,20 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
                 .setHorizontalAlignment(HorizontalAlignment.ALIGH_LEFT)
                 .setDesiredHeight(13)
                 .setLayoutHint(new PositionalLayout.PositionalHint(0, 0, 53, 13));
+        String[] tooltips = parameter.getDescription().toArray(new String[parameter.getDescription().size()]);
+        if (parameter.isOptional()) {
+            tooltips[tooltips.length-1] = tooltips[tooltips.length-1] + TextFormatting.GOLD + " [Optional]";
+        }
         TextField field = new TextField(mc, this)
                 .setText(tempDefault)
-                .setTooltips(parameter.getDescription().toArray(new String[parameter.getDescription().size()]))
+                .setTooltips(tooltips)
                 .setDesiredHeight(13)
                 .setEditable(false)
                 .setLayoutHint(new PositionalLayout.PositionalHint(0, 12, 68, 13));
         Button button = new Button(mc, this)
                 .setText("...")
                 .setDesiredHeight(13)
-                .setTooltips(parameter.getDescription().toArray(new String[parameter.getDescription().size()]))
+                .setTooltips(tooltips)
                 .addButtonEvent(w -> openValueEditor(icon, iconHolder, parameter, field))
                 .setLayoutHint(new PositionalLayout.PositionalHint(58, 0, 11, 13));
 
