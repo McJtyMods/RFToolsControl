@@ -896,6 +896,42 @@ public class Opcodes {
             .icon(1, 4)
             .build();
 
+    public static final Opcode EVAL_GETLIQUID = Opcode.builder()
+            .id("eval_getliquid")
+            .description(
+                    TextFormatting.GREEN + "Eval: get liquid in tank",
+                    "get the amount of liquid stored in a",
+                    "specific tank adjacent to the",
+                    "processor or a connected node")
+            .outputDescription("amount of mb (integer)")
+            .opcodeOutput(SINGLE)
+            .parameter(ParameterDescription.builder().name("side").type(PAR_INVENTORY).description("side of (networked) block").build())
+            .icon(3, 4)
+            .runnable(((processor, program, opcode) -> {
+                Inventory side = processor.evaluateParameter(opcode, program, 0);
+                int rf = processor.getLiquid(side, program);
+                program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(rf)).build());
+                return POSITIVE;
+            }))
+            .build();
+    public static final Opcode EVAL_GETMAXLIQUID = Opcode.builder()
+            .id("eval_getmaxliquid")
+            .description(
+                    TextFormatting.GREEN + "Eval: get max liquid in tank",
+                    "get the maximum amount of liquid stored",
+                    "in a specific tank adjacent to the",
+                    "processor or a connected node")
+            .outputDescription("max amount of mb (integer)")
+            .opcodeOutput(SINGLE)
+            .parameter(ParameterDescription.builder().name("side").type(PAR_INVENTORY).description("side of (networked) block").build())
+            .icon(4, 4)
+            .runnable(((processor, program, opcode) -> {
+                Inventory side = processor.evaluateParameter(opcode, program, 0);
+                int rf = processor.getMaxLiquid(side, program);
+                program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(rf)).build());
+                return POSITIVE;
+            }))
+            .build();
 
     public static final Map<String, Opcode> OPCODES = new HashMap<>();
     public static final List<Opcode> SORTED_OPCODES = new ArrayList<>();
@@ -918,6 +954,8 @@ public class Opcodes {
         register(EVAL_REDSTONE);
         register(EVAL_GETRF);
         register(EVAL_GETMAXRF);
+        register(EVAL_GETLIQUID);
+        register(EVAL_GETMAXLIQUID);
         register(EVAL_INTEGER);
         register(EVAL_STRING);
         register(EVAL_LOCK);

@@ -5,6 +5,7 @@ import java.util.Map;
 
 public enum ExceptionType {
     EXCEPT_NORF("no_rf", "No RF support"),
+    EXCEPT_NOLIQUID("no_liquid", "No liquid support"),
     EXCEPT_NOINTERNALSLOT("no_internal_slot", "Missing internal slot"),
     EXCEPT_MISSINGNODE("missing_node", "Missing node"),
     EXCEPT_MISSINGCRAFTINGCARD("missing_crafting_card", "Missing crafting card"),

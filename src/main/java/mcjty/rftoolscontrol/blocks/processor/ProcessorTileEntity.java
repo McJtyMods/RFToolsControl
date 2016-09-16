@@ -48,6 +48,9 @@ import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.energy.IEnergyStorage;
+import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
+import net.minecraftforge.fluids.capability.IFluidHandler;
+import net.minecraftforge.fluids.capability.IFluidTankProperties;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
@@ -974,7 +977,6 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                     if (cardInfo[cardIndex].getCompiledCard() == null) {
                         // @todo validation
                         CompiledCard compiled = CompiledCard.compile(ProgramCardInstance.parseInstance(cardStack));
-                        System.out.println("compiled = " + compiled);
                         cardInfo[cardIndex].setCompiledCard(compiled);
                     }
                 }
@@ -1004,6 +1006,34 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             return energy.getMaxEnergyStored();
         }
         throw new ProgException(EXCEPT_NORF);
+    }
+
+    public int getLiquid(Inventory side, RunningProgram program) {
+        TileEntity te = getTileEntityAt(side);
+        if (te != null && te.hasCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, side.getIntSide())) {
+            IFluidHandler handler = te.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, side.getIntSide());
+            IFluidTankProperties[] properties = handler.getTankProperties();
+            if (properties != null && properties.length > 0) {
+                if (properties[0].getContents() != null) {
+                    return properties[0].getContents().amount;
+                }
+            }
+            return 0;
+        }
+        throw new ProgException(EXCEPT_NOLIQUID);
+    }
+
+    public int getMaxLiquid(Inventory side, RunningProgram program) {
+        TileEntity te = getTileEntityAt(side);
+        if (te != null && te.hasCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, side.getIntSide())) {
+            IFluidHandler handler = te.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, side.getIntSide());
+            IFluidTankProperties[] properties = handler.getTankProperties();
+            if (properties != null && properties.length > 0) {
+                return properties[0].getCapacity();
+            }
+            return 0;
+        }
+        throw new ProgException(EXCEPT_NOLIQUID);
     }
 
     private IStorageScanner getScannerForInv(Inventory inv) {
