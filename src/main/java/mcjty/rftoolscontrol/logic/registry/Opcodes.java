@@ -290,23 +290,21 @@ public class Opcodes {
             .id("do_pushitems")
             .description(
                     TextFormatting.GREEN + "Operation: push items",
-                    "push items to an external",
-                    "inventory adjacent to the processor",
-                    "or a connected node from the",
-                    "internal inventory",
-                    "Can also be used for modular",
-                    "storage systems")
+                    "push items to an external inventory",
+                    "adjacent to the processor or a connected",
+                    "node from the internal inventory",
+                    "Can also be used for modular storage systems")
             .outputDescription("amount of items inserted (integer)")
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("inv").type(PAR_INVENTORY).description("inventory adjacent to (networked) block", "or empty to access storage").build())
             .parameter(ParameterDescription.builder().name("slot").type(PAR_INTEGER).description("optional slot in inventory", "(not used for storage)").build())
-            .parameter(ParameterDescription.builder().name("amount").type(PAR_INTEGER).description("amount of items to push").build())
+            .parameter(ParameterDescription.builder().name("amount").type(PAR_INTEGER).description("optional amount of items to push").build())
             .parameter(ParameterDescription.builder().name("slotIn").type(PAR_INTEGER).description("internal (processor) slot for input").build())
             .icon(1, 1)
             .runnable(((processor, program, opcode) -> {
                 Inventory inv = processor.evaluateParameter(opcode, program, 0);
                 Integer slot = processor.evaluateIntegerParameter(opcode, program, 1);
-                int amount = processor.evaluateIntParameter(opcode, program, 2);
+                Integer amount = processor.evaluateIntegerParameter(opcode, program, 2);
                 int slotIn = processor.evaluateIntParameter(opcode, program, 3);
                 int cnt = processor.pushItems(program, inv, slot, amount, slotIn);
                 program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(cnt)).build());

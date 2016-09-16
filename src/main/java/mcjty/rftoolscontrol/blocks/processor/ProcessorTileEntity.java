@@ -1045,17 +1045,14 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         return capability.getStackInSlot(realSlot);
     }
 
-    public int pushItems(RunningProgram program, Inventory inv, Integer slot, int amount, int virtualSlot) {
-        if (amount == 0) {
-            amount = 1;
-        }
+    public int pushItems(RunningProgram program, Inventory inv, Integer slot, @Nullable Integer amount, int virtualSlot) {
         IStorageScanner scanner = getScannerForInv(inv);
         IItemHandler handler = getHandlerForInv(inv);
 
         CardInfo info = this.cardInfo[program.getCardIndex()];
         int realSlot = info.getRealSlot(virtualSlot);
         IItemHandler itemHandler = getItemHandler();
-        ItemStack extracted = itemHandler.extractItem(realSlot, amount, false);
+        ItemStack extracted = itemHandler.extractItem(realSlot, amount == null ? 64 : amount, false);
         if (extracted == null) {
             // Nothing to do
             return 0;
@@ -1063,9 +1060,9 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         ItemStack remaining = InventoryTools.insertItem(handler, scanner, extracted, slot);
         if (remaining != null) {
             itemHandler.insertItem(realSlot, remaining, false);
-            return amount - remaining.stackSize;
+            return extracted.stackSize - remaining.stackSize;
         }
-        return amount;
+        return extracted.stackSize;
     }
 
     public int getMaxvars() {
