@@ -46,6 +46,8 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.energy.CapabilityEnergy;
+import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
@@ -985,6 +987,9 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         if (te instanceof IEnergyHandler) {
             IEnergyHandler handler = (IEnergyHandler) te;
             return handler.getEnergyStored(side.getIntSide() == null ? EnumFacing.DOWN : side.getIntSide());
+        } else if (te != null && te.hasCapability(CapabilityEnergy.ENERGY, side.getIntSide())) {
+            IEnergyStorage energy = te.getCapability(CapabilityEnergy.ENERGY, side.getIntSide());
+            return energy.getEnergyStored();
         }
         throw new ProgException(EXCEPT_NORF);
     }
@@ -994,6 +999,9 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         if (te instanceof IEnergyHandler) {
             IEnergyHandler handler = (IEnergyHandler) te;
             return handler.getMaxEnergyStored(side.getIntSide() == null ? EnumFacing.DOWN : side.getIntSide());
+        } else if (te != null && te.hasCapability(CapabilityEnergy.ENERGY, side.getIntSide())) {
+            IEnergyStorage energy = te.getCapability(CapabilityEnergy.ENERGY, side.getIntSide());
+            return energy.getMaxEnergyStored();
         }
         throw new ProgException(EXCEPT_NORF);
     }
