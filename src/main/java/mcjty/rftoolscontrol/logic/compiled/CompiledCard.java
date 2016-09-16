@@ -38,7 +38,6 @@ public class CompiledCard {
             GridInstance grid = entry.getValue();
             String id = grid.getId();
             Opcode opcode = Opcodes.OPCODES.get(id);
-            System.out.println(card.opcodes.size() + ": opcode = " + opcode + " at " + location);
 
             if (opcode.isEvent()) {
                 card.events.putIfAbsent(opcode, new ArrayList<>());
