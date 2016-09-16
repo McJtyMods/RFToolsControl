@@ -640,8 +640,9 @@ public class Opcodes {
     public static final Opcode DO_SETCRAFTTICKET = Opcode.builder()
             .id("do_setticket")
             .description(
-                    TextFormatting.GREEN + "Operation: resume craft operation",
-                    "resume a previously stored",
+                    TextFormatting.GREEN + "Operation: set craft ticket",
+                    "set a craft ticket so that you",
+                    "can resume a previously stored",
                     "crafting operation")
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("ticket").type(PAR_STRING).description("crafting ticket").build())
