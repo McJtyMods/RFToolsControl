@@ -17,6 +17,7 @@ Table of Contents:
 {l:variables}Variables
 {l:events}Events
 {l:opcodes}Opcode Types
+{l:items}Moving Items
 {-------------------------------------------------------------}
 {b}Introduction
 {n:intro}
@@ -49,6 +50,8 @@ by clicking a side. If that side turns green you have made a connection
 going from that opcode (the one with the green side) to the adjacent
 one. Some opcodes (tests) have two outputs. There is also a red output
 which indicates the negative path to follow (if the test fails)
+
+If a connector is missing a 'stop' opcode is automatically inserted.
 {-------------------------------------------------------------}
 Every program needs an event to start with. An event opcode describes
 what needs to happen before a program can start. Note that you can
@@ -56,8 +59,8 @@ have multiple events on the same card (and thus multiple programs) and
 the same program string (connected opcodes) can even have multiple
 events which indicate different entry points in the same program.
 
-There are currently four events: redstone pulse on, redstone pulse
-off, timer, and signal.
+There are currently seven events: redstone pulse on, redstone pulse
+off, timer, exception, signal, craft, and craft resume.
 {-------------------------------------------------------------}
 Many opcodes have parameters. When you select an opcode on the main
 grid you get a list of all possible parameters below the gui.
@@ -67,10 +70,10 @@ that is required).
 
 You can specify a parameter in three different ways: as a constant
 value, as a variable, or as a function. Variables are stored in
-the processor (more on that later). The only function available right
-now is 'last' which simply returns the last result of the previous
-opcode. This is important, many opcodes have a result which you
-can access with this function.
+the processor (more on that later). An important function is 'last'
+which simply returns the last result of the previous opcode. This
+is important, many opcodes have a result which you can access with
+this function.
 {-------------------------------------------------------------}
 {b}The Processor
 {n:processor}
@@ -138,6 +141,17 @@ Station it needs a network card.
 Crafting operations can sometimes take a long time and the gui of
 this station shows operations that are still in progress.
 {-------------------------------------------------------------}
+Note that what a crafting station essentially does is show you for
+which items a processor has 'craft' events enabled. As soon as you
+request the crafting of such an item the resulting program will be
+executed. But what you do in that program is fully up to you.
+In many cases you would probably make a program that actually crafts
+the desired result but you can also do other things so you can
+use the crafting station as a way to trigger various actions to
+happen. For example, you can have a 'craft redstone' event that
+actually just turns on processing of various items and then a
+'craft coal' event to turn it off again. It is up to you.
+{-------------------------------------------------------------}
 {b}Workbench
 {n:workbench}
 {rb:workbench}
@@ -180,7 +194,8 @@ and exception.
 {n:parameters}
 As mentioned before opcodes can have multiple parameters which
 control how the opcode works. Parameters always have a specific
-type. Many parameters are optional.
+type. Many parameters are optional which you can see in the
+tooltip.
 
 Every parameter can be either a constant value, a reference
 to a variable, or a function. If you open the parameter editor
@@ -229,4 +244,19 @@ The following types of opcodes are available:
     two outputs (a green and a red output)
   * Wire: there is only one wire opcode. It is meant to connect
     opcodes that are not adjacent
+{-------------------------------------------------------------}
+{b}Moving Items
+{n:items}
+Many programs will move items at some point. It is important to
+note that the processor cannot move items directly from one
+inventory to another. Items always have to go through the processor
+itself. That's why you typically need 'fetch' and 'push' items after
+each other.
+
+For many opcodes where you can access a normal inventory you can
+also access a storage system linked to a storage scanner. To do that
+you need to insert a storage screen module from RFTools into
+one of the 16 expansion slots of the Processor. Then to use this feature
+you just leave the 'inventory' parameter empty and it should access
+the storage where supported.
 {-------------------------------------------------------------}
