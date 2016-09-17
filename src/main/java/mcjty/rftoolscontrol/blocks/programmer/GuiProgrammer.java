@@ -305,11 +305,26 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
             }
         } else {
             if (icon.hasOverlay(connection.getId())) {
+                icon.removeOverlay(Connection.DOWN_NEG.getId());
+                icon.removeOverlay(Connection.UP_NEG.getId());
+                icon.removeOverlay(Connection.LEFT_NEG.getId());
+                icon.removeOverlay(Connection.RIGHT_NEG.getId());
                 icon.removeOverlay(connection.getId());
                 icon.addOverlay(CONNECTION_ICONS.get(connection.getOpposite()));
             } else if (icon.hasOverlay(connection.getOpposite().getId())) {
                 icon.removeOverlay(connection.getOpposite().getId());
             } else {
+                if (connection.isPrimary()) {
+                    icon.removeOverlay(Connection.DOWN.getId());
+                    icon.removeOverlay(Connection.UP.getId());
+                    icon.removeOverlay(Connection.LEFT.getId());
+                    icon.removeOverlay(Connection.RIGHT.getId());
+                } else {
+                    icon.removeOverlay(Connection.DOWN_NEG.getId());
+                    icon.removeOverlay(Connection.UP_NEG.getId());
+                    icon.removeOverlay(Connection.LEFT_NEG.getId());
+                    icon.removeOverlay(Connection.RIGHT_NEG.getId());
+                }
                 icon.addOverlay(CONNECTION_ICONS.get(connection));
             }
         }
