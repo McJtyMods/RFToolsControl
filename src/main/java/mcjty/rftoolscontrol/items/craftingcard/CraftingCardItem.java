@@ -47,6 +47,9 @@ public class CraftingCardItem extends GenericRFToolsItem {
     @SuppressWarnings("NullableProblems")
     @Override
     public ActionResult<ItemStack> onItemRightClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand) {
+        if (hand != EnumHand.MAIN_HAND) {
+            return new ActionResult<>(EnumActionResult.PASS, stack);
+        }
         if (!world.isRemote) {
             player.openGui(RFToolsControl.instance, RFToolsControl.GUI_CRAFTINGCARD, player.worldObj, (int) player.posX, (int) player.posY, (int) player.posZ);
             return new ActionResult<>(EnumActionResult.SUCCESS, stack);

@@ -15,7 +15,9 @@ public class CraftingCardContainer extends GenericContainer {
     public static final int INPUT_SLOTS = 5*4;
 	public static final int SLOT_OUT = INPUT_SLOTS;
 
-    public static final ContainerFactory factory = new ContainerFactory() {
+	private int cardIndex;
+
+	public static final ContainerFactory factory = new ContainerFactory() {
         @Override
         protected void setup() {
 			addSlotBox(new SlotDefinition(SlotType.SLOT_GHOST), CONTAINER_INVENTORY, SLOT_INPUT, 10, 27, 5, 18, 4, 18);
@@ -28,6 +30,7 @@ public class CraftingCardContainer extends GenericContainer {
         super(factory);
         addInventory(CONTAINER_INVENTORY, new CraftingCardInventory(player));
         addInventory(ContainerFactory.CONTAINER_PLAYER, player.inventory);
+		cardIndex = player.inventory.currentItem;
         generateSlots();
     }
 
@@ -55,6 +58,14 @@ public class CraftingCardContainer extends GenericContainer {
 					}
 					inventory.setInventorySlotContents(getSlotIndex(), stack);
 					onSlotChanged();
+				}
+			};
+		} else if (slotType == SlotType.SLOT_PLAYERHOTBAR && index == cardIndex) {
+			return new BaseSlot(inventories.get(slotFactory.getInventoryName()), slotFactory.getIndex(), slotFactory.getX(), slotFactory.getY()) {
+				@Override
+				public boolean canTakeStack(EntityPlayer player) {
+					// We don't want to take the stack from this slot.
+					return false;
 				}
 			};
 		} else {
