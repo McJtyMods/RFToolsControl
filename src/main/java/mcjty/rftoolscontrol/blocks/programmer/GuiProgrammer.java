@@ -4,6 +4,7 @@ import mcjty.lib.base.StyleConfig;
 import mcjty.lib.container.GenericGuiContainer;
 import mcjty.lib.gui.Window;
 import mcjty.lib.gui.WindowManager;
+import mcjty.lib.gui.events.SelectionEvent;
 import mcjty.lib.gui.icons.IIcon;
 import mcjty.lib.gui.icons.ImageIcon;
 import mcjty.lib.gui.layout.HorizontalAlignment;
@@ -22,6 +23,7 @@ import mcjty.rftoolscontrol.gui.GuiTools;
 import mcjty.rftoolscontrol.items.ProgramCardItem;
 import mcjty.rftoolscontrol.logic.Connection;
 import mcjty.rftoolscontrol.logic.Parameter;
+import mcjty.rftoolscontrol.logic.compiled.ProgramValidator;
 import mcjty.rftoolscontrol.logic.editors.ParameterEditor;
 import mcjty.rftoolscontrol.logic.editors.ParameterEditors;
 import mcjty.rftoolscontrol.logic.grid.GridInstance;
@@ -35,6 +37,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextFormatting;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.lwjgl.input.Keyboard;
 
 import java.awt.*;
@@ -332,8 +335,26 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
                 .setFilledRectThickness(1);
         panel.setBounds(new Rectangle(60, 10, 200, 130));
         Window modalWindow = getWindowManager().createModalWindow(panel);
-        WidgetList errors = new WidgetList(mc, this);
-        panel.addChild(errors);
+        WidgetList errorList = new WidgetList(mc, this);
+        errorList.addSelectionEvent(new SelectionEvent() {
+                    @Override
+                    public void select(Widget parent, int index) {
+
+                    }
+
+                    @Override
+                    public void doubleClick(Widget parent, int index) {
+                        if (errorList.getSelected() != -1) {
+                            Widget child = errorList.getChild(errorList.getSelected());
+                            GridPos pos = (GridPos) child.getUserObject();
+                            if (pos != null) {
+                                window.setTextFocus(getHolder(pos.getX(), pos.getY()));
+                            }
+                        }
+                        getWindowManager().closeWindow(modalWindow);
+                    }
+                });
+        panel.addChild(errorList);
         panel.addChild(new Button(mc, this)
                 .addButtonEvent(w ->  {
                     getWindowManager().closeWindow(modalWindow);
@@ -341,33 +362,15 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
                 .setText("Close"));
         ProgramCardInstance instance = makeGridInstance();
 
-        // @todo, move this code to a validator class
-
-        Map<GridPos, GridInstance> grid = instance.getGridInstances();
-
-        // Find all unreachable instances.
-        Set<GridPos> reachableLocations = new HashSet<>();
-        for (Map.Entry<GridPos, GridInstance> entry : grid.entrySet()) {
-            GridInstance g = entry.getValue();
-            if (g.getPrimaryConnection() != null) {
-                reachableLocations.add(g.getPrimaryConnection().offset(entry.getKey()));
-            }
-            if (g.getSecondaryConnection() != null) {
-                reachableLocations.add(g.getSecondaryConnection().offset(entry.getKey()));
-            }
-        }
-        for (Map.Entry<GridPos, GridInstance> entry : grid.entrySet()) {
-            GridInstance g = entry.getValue();
-            Opcode opcode = Opcodes.OPCODES.get(g.getId());
+        List<Pair<GridPos, String>> errors = ProgramValidator.validate(instance);
+        for (Pair<GridPos, String> entry : errors) {
             GridPos p = entry.getKey();
-            if (!opcode.isEvent() && !reachableLocations.contains(p)) {
-                errors.addChild(new Label(mc, this)
-                        .setColor(0xffff0000)
-                        .setHorizontalAlignment(HorizontalAlignment.ALIGH_LEFT)
-                        .setText("Unreachable: " + p.getX() + "," + p.getY()));
-            }
+            errorList.addChild(new Label(mc, this)
+                    .setColor(0xffff0000)
+                    .setHorizontalAlignment(HorizontalAlignment.ALIGH_LEFT)
+                    .setText(entry.getValue())
+                    .setUserObject(p));
         }
-
     }
 
     private void askNameAndSave(int slot) {

@@ -289,7 +289,7 @@ public class Opcodes {
                     "Can also be used for modular storage systems")
             .outputDescription("amount of items inserted (integer)")
             .opcodeOutput(SINGLE)
-            .parameter(ParameterDescription.builder().name("inv").type(PAR_INVENTORY).description("inventory adjacent to (networked)", "block or empty to access storage").build())
+            .parameter(ParameterDescription.builder().name("inv").type(PAR_INVENTORY).optional().description("inventory adjacent to (networked)", "block or empty to access storage").build())
             .parameter(ParameterDescription.builder().name("slot").type(PAR_INTEGER).optional().description("slot in inventory (not", "used for storage)").build())
             .parameter(ParameterDescription.builder().name("amount").type(PAR_INTEGER).optional().description("amount of items to push").build())
             .parameter(ParameterDescription.builder().name("slotIn").type(PAR_INTEGER).description("internal (processor) slot for input").build())
