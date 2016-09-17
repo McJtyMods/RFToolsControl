@@ -519,7 +519,7 @@ public class Opcodes {
                     "you can use this opcode to mark",
                     "the craft operation as ok")
             .opcodeOutput(SINGLE)
-            .parameter(ParameterDescription.builder().name("slot").type(PAR_INTEGER).description("internal (processor) slot with craft result").build())
+            .parameter(ParameterDescription.builder().name("slot").type(PAR_INTEGER).optional().description("internal (processor) slot", "with craft result").build())
             .icon(6, 2)
             .runnable(((processor, program, opcode) -> {
                 Integer slot = processor.evaluateIntegerParameter(opcode, program, 0);

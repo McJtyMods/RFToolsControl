@@ -272,7 +272,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         }
     }
 
-    public void craftOk(RunningProgram program, Integer slot) {
+    public void craftOk(RunningProgram program, @Nullable Integer slot) {
         if (!program.hasCraftTicket()) {
             throw new ProgException(EXCEPT_MISSINGCRAFTTICKET);
         }
