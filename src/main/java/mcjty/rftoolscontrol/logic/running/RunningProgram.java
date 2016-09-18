@@ -1,5 +1,6 @@
 package mcjty.rftoolscontrol.logic.running;
 
+import mcjty.lib.varia.Logging;
 import mcjty.rftoolscontrol.blocks.processor.ProcessorTileEntity;
 import mcjty.rftoolscontrol.logic.Parameter;
 import mcjty.rftoolscontrol.logic.TypeConverters;
@@ -12,6 +13,8 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraftforge.common.util.Constants;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -156,7 +159,7 @@ public class RunningProgram {
         } catch (ProgException e) {
             throw e;
         } catch (Exception e) {
-            e.printStackTrace();
+            LogManager.getLogger().log(Level.WARN, "Opcode failed with: ", e);
             throw new ProgException(ExceptionType.EXCEPT_INTERNALERROR);
         }
         return true;
