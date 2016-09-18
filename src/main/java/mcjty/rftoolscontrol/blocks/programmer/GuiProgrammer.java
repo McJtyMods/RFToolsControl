@@ -434,15 +434,13 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
                     }
                     Opcode opcode = Opcodes.OPCODES.get(operandId);
                     Map<String, Object> data = icon.getData();
-                    if (data != null) {
-                        for (ParameterDescription description : opcode.getParameters()) {
-                            ParameterValue value = (ParameterValue) data.get(description.getName());
-                            if (value == null) {
-                                value = ParameterValue.constant(null);
-                            }
-                            Parameter parameter = Parameter.builder().type(description.getType()).value(value).build();
-                            builder.parameter(parameter);
+                    for (ParameterDescription description : opcode.getParameters()) {
+                        ParameterValue value = data == null ? null : (ParameterValue) data.get(description.getName());
+                        if (value == null) {
+                            value = ParameterValue.constant(null);
                         }
+                        Parameter parameter = Parameter.builder().type(description.getType()).value(value).build();
+                        builder.parameter(parameter);
                     }
 
                     instance.putGridInstance(x, y, builder.build());
