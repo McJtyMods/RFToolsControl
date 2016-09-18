@@ -422,7 +422,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
 
         List<ItemStack> needed = combineIngredients(ingredients);
         int requested = checkAvailableItemsAndRequestMissing(destInv, scanner, handler, needed);
-        if (requested > 0) {
+        if (requested != 0) {
             return requested;
         }
         // We got everything;
