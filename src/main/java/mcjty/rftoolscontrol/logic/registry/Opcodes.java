@@ -45,6 +45,7 @@ public class Opcodes {
             .opcodeOutput(SINGLE)
             .isEvent(true)
             .parameter(ParameterDescription.builder().name("side").type(PAR_SIDE).description("side of (networked) block").build())
+            .parameter(ParameterDescription.builder().name("single").type(PAR_BOOLEAN).optional().description("only one simultaneous run").build())
             .icon(3, 0)
             .build();
     public static final Opcode EVENT_REDSTONE_OFF = Opcode.builder()
@@ -57,6 +58,7 @@ public class Opcodes {
             .opcodeOutput(SINGLE)
             .isEvent(true)
             .parameter(ParameterDescription.builder().name("side").type(PAR_SIDE).description("side of (networked) block").build())
+            .parameter(ParameterDescription.builder().name("single").type(PAR_BOOLEAN).optional().description("only one simultaneous run").build())
             .icon(4, 0)
             .build();
 
@@ -70,6 +72,7 @@ public class Opcodes {
             .opcodeOutput(SINGLE)
             .isEvent(true)
             .parameter(ParameterDescription.builder().name("signal").type(PAR_STRING).description("matching signal").build())
+            .parameter(ParameterDescription.builder().name("single").type(PAR_BOOLEAN).optional().description("only one simultaneous run").build())
             .icon(5, 0)
             .build();
 
@@ -208,6 +211,7 @@ public class Opcodes {
             .opcodeOutput(SINGLE)
             .isEvent(true)
             .parameter(ParameterDescription.builder().name("ticks").type(PAR_INTEGER).description("ticks between each execution").build())
+            .parameter(ParameterDescription.builder().name("single").type(PAR_BOOLEAN).optional().description("only one simultaneous run").build())
             .icon(9, 0)
             .build();
 
@@ -508,6 +512,7 @@ public class Opcodes {
             .isEvent(true)
             .parameter(ParameterDescription.builder().name("item").type(PAR_ITEM).optional().description("the item to craft").build())
             .parameter(ParameterDescription.builder().name("inv").type(PAR_INVENTORY).optional().description("inventory with crafting cards").build())
+            .parameter(ParameterDescription.builder().name("single").type(PAR_BOOLEAN).optional().description("only one simultaneous run").build())
             .icon(5, 2)
             .build();
 
@@ -662,6 +667,7 @@ public class Opcodes {
                     "resume crafting operation",
                     "This operation sets the crafting ticket")
             .parameter(ParameterDescription.builder().name("ticks").type(PAR_INTEGER).description("ticks between each check").build())
+            .parameter(ParameterDescription.builder().name("single").type(PAR_BOOLEAN).optional().description("only one simultaneous run").build())
             .opcodeOutput(SINGLE)
             .isEvent(true)
             .icon(2, 3)
@@ -705,6 +711,7 @@ public class Opcodes {
                     TextFormatting.GREEN + "Event: exception",
                     "execute program on exception")
             .parameter(ParameterDescription.builder().name("exception").type(PAR_EXCEPTION).description("the exception code to catch").build())
+            .parameter(ParameterDescription.builder().name("single").type(PAR_BOOLEAN).optional().description("only one simultaneous run").build())
             .opcodeOutput(SINGLE)
             .isEvent(true)
             .icon(4, 3)

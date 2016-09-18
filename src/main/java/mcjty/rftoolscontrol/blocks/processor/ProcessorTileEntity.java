@@ -639,16 +639,17 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                     CompiledOpcode compiledOpcode = compiledCard.getOpcodes().get(index);
                     ItemStack stack = evaluateParameter(compiledOpcode, null, 0);
                     Inventory inv = evaluateParameter(compiledOpcode, null, 1);
+                    boolean single = evaluateBoolParameter(compiledOpcode, null, 2);
                     if (stack != null) {
                         if (stack.isItemEqual(stackToCraft)) {
-                            runOrQueueEvent(i, event, ticket);
+                            runOrQueueEvent(i, event, ticket, single);
                             return;
                         }
                     } else if (inv != null) {
                         IItemHandler handler = getItemHandlerAt(inv);
                         ItemStack craftingCard = findCraftingCard(handler, stackToCraft);
                         if (craftingCard != null) {
-                            runOrQueueEvent(i, event, ticket);
+                            runOrQueueEvent(i, event, ticket, single);
                             return;
                         }
                     }
@@ -697,7 +698,8 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                     }
                     if (found != null) {
                         waitingForItems.remove(foundIdx);
-                        runOrQueueEvent(cardIndex, event, found.getTicket());
+                        boolean single = evaluateBoolParameter(compiledOpcode, null, 1);
+                        runOrQueueEvent(cardIndex, event, found.getTicket(), single);
                     }
                 }
             }
@@ -710,7 +712,8 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             CompiledOpcode compiledOpcode = compiledCard.getOpcodes().get(index);
             int ticks = evaluateParameter(compiledOpcode, null, 0);
             if (tickCount % ticks == 0) {
-                runOrDropEvent(i, event, null);
+                boolean single = evaluateBoolParameter(compiledOpcode, null, 1);
+                runOrDropEvent(i, event, null, single);
             }
         }
     }
@@ -724,7 +727,8 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                 BlockSide side = evaluateParameter(compiledOpcode, null, 0);
                 EnumFacing facing = side == null ? null : side.getSide();
                 if (facing == null || ((redstoneOffMask >> facing.ordinal()) & 1) == 1) {
-                    runOrQueueEvent(i, event, null);
+                    boolean single = evaluateBoolParameter(compiledOpcode, null, 1);
+                    runOrQueueEvent(i, event, null, single);
                 }
             }
         }
@@ -739,13 +743,14 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                 BlockSide side = evaluateParameter(compiledOpcode, null, 0);
                 EnumFacing facing = side == null ? null : side.getSide();
                 if (facing == null || ((redstoneOnMask >> facing.ordinal()) & 1) == 1) {
-                    runOrQueueEvent(i, event, null);
+                    boolean single = evaluateBoolParameter(compiledOpcode, null, 1);
+                    runOrQueueEvent(i, event, null, single);
                 }
             }
         }
     }
 
-    private void runOrDropEvent(int cardIndex, CompiledEvent event, @Nullable String ticket) {
+    private void runOrDropEvent(int cardIndex, CompiledEvent event, @Nullable String ticket, boolean single) {
         CpuCore core = findAvailableCore();
         if (core == null) {
             // No available core. We drop this event
@@ -757,7 +762,12 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         }
     }
 
-    private void runOrQueueEvent(int cardIndex, CompiledEvent event, @Nullable String ticket) {
+    private void runOrQueueEvent(int cardIndex, CompiledEvent event, @Nullable String ticket, boolean single) {
+
+
+
+
+
         CpuCore core = findAvailableCore();
         if (core == null) {
             // No available core
@@ -781,7 +791,8 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                     CompiledOpcode compiledOpcode = compiledCard.getOpcodes().get(index);
                     String sig = evaluateParameter(compiledOpcode, null, 0);
                     if (signal.equals(sig)) {
-                        runOrQueueEvent(i, event, null);
+                        boolean single = evaluateBoolParameter(compiledOpcode, null, 1);
+                        runOrQueueEvent(i, event, null, single);
                         cnt++;
                     }
                 }
@@ -861,7 +872,8 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                     CompiledOpcode compiledOpcode = compiledCard.getOpcodes().get(index);
                     String code = evaluateStringParameter(compiledOpcode, null, 0);
                     if (exception.getCode().equals(code)) {
-                        runOrQueueEvent(i, event, program.getCraftTicket());
+                        boolean single = evaluateBoolParameter(compiledOpcode, null, 1);
+                        runOrQueueEvent(i, event, program.getCraftTicket(), single);
                         return;
                     }
                 }
