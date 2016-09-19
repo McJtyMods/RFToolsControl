@@ -695,7 +695,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
         }
     }
 
-    private Panel createValuePanel(ParameterDescription parameter, IIcon icon, IconHolder iconHolder, String tempDefault) {
+    private Panel createValuePanel(ParameterDescription parameter, IIcon icon, IconHolder iconHolder, String tempDefault, boolean constantOnly) {
         Label label = (Label) new Label(mc, this)
                 .setText(StringUtils.capitalize(parameter.getName()) + ":")
                 .setHorizontalAlignment(HorizontalAlignment.ALIGH_LEFT)
@@ -715,7 +715,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
                 .setText("...")
                 .setDesiredHeight(13)
                 .setTooltips(tooltips)
-                .addButtonEvent(w -> openValueEditor(icon, iconHolder, parameter, field))
+                .addButtonEvent(w -> openValueEditor(icon, iconHolder, parameter, field, constantOnly))
                 .setLayoutHint(new PositionalLayout.PositionalHint(58, 0, 11, 13));
 
         return new Panel(mc, this).setLayout(new PositionalLayout())
@@ -725,7 +725,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
                 .setDesiredWidth(68);
     }
 
-    private void openValueEditor(IIcon icon, IconHolder iconHolder, ParameterDescription parameter, TextField field) {
+    private void openValueEditor(IIcon icon, IconHolder iconHolder, ParameterDescription parameter, TextField field, boolean constantOnly) {
         ParameterEditor editor = ParameterEditors.getEditor(parameter.getType());
         Panel editPanel;
         if (editor != null) {
@@ -737,6 +737,9 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
                 field.setText(parameter.getType().stringRepresentation(o));
             });
             editor.writeValue((ParameterValue)data.get(parameter.getName()));
+            if (constantOnly) {
+                editor.constantOnly();
+            }
         } else {
             return;
         }
@@ -771,9 +774,9 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
             ParameterValue value = (ParameterValue) data.get(name);
             Panel panel;
             if (value != null) {
-                panel = createValuePanel(parameter, icon, iconHolder, parameter.getType().stringRepresentation(value));
+                panel = createValuePanel(parameter, icon, iconHolder, parameter.getType().stringRepresentation(value), opcode.isEvent());
             } else {
-                panel = createValuePanel(parameter, icon, iconHolder, "");
+                panel = createValuePanel(parameter, icon, iconHolder, "", opcode.isEvent());
             }
             editorList.addChild(panel);
         }
