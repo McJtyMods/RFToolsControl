@@ -14,4 +14,7 @@ public interface ParameterEditor {
     void writeValue(ParameterValue value);
 
     default int getHeight() { return 20; }
+
+    // Call this to set the editor in 'constant only' mode
+    void constantOnly();
 }

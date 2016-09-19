@@ -18,6 +18,7 @@ import mcjty.lib.gui.widgets.Panel;
 import mcjty.lib.gui.widgets.TextField;
 import mcjty.lib.network.Argument;
 import mcjty.rftoolscontrol.RFToolsControl;
+import mcjty.rftoolscontrol.gui.GuiTools;
 import mcjty.rftoolscontrol.logic.Parameter;
 import mcjty.rftoolscontrol.logic.editors.ParameterEditor;
 import mcjty.rftoolscontrol.logic.editors.ParameterEditors;
@@ -363,10 +364,12 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
             return;
         }
         if (fromServer_vars.get(varIdx) == null) {
+            GuiTools.showMessage(mc, this, getWindowManager(), 50, 50, "Variable is not defined!");
             return;
         }
         Parameter parameter = fromServer_vars.get(varIdx);
         if (parameter == null) {
+            GuiTools.showMessage(mc, this, getWindowManager(), 50, 50, "Variable is not defined!");
             return;
         }
         ParameterType type = parameter.getParameterType();
@@ -381,6 +384,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
                 RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketVariableToServer(tileEntity.getPos(), varIdx, tag));
             });
             editor.writeValue(parameter.getParameterValue());
+            editor.constantOnly();
         } else {
             return;
         }

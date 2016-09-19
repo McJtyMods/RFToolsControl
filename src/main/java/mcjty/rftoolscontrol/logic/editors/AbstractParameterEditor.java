@@ -23,6 +23,14 @@ public abstract class AbstractParameterEditor implements ParameterEditor {
     private TabbedPanel tabbedPanel;
     private Panel buttonPanel;
     private ChoiceLabel functionLabel;
+    private ToggleButton variableButton;
+    private ToggleButton functionButton;
+
+    @Override
+    public void constantOnly() {
+        variableButton.setEnabled(false);
+        functionButton.setEnabled(false);
+    }
 
     public static Integer parseIntSafe(String newText) {
         Integer f;
@@ -117,9 +125,9 @@ public abstract class AbstractParameterEditor implements ParameterEditor {
             .setLayoutHint(new PositionalLayout.PositionalHint(5, 5, 190-10, 18));
         ToggleButton constantButton = new ToggleButton(mc, gui).setText(PAGE_CONSTANT)
                 .addButtonEvent(w -> switchPage(PAGE_CONSTANT, callback));
-        ToggleButton variableButton = new ToggleButton(mc, gui).setText(PAGE_VARIABLE)
+        variableButton = new ToggleButton(mc, gui).setText(PAGE_VARIABLE)
                 .addButtonEvent(w -> switchPage(PAGE_VARIABLE, callback));
-        ToggleButton functionButton = new ToggleButton(mc, gui).setText(PAGE_FUNCTION)
+        functionButton = new ToggleButton(mc, gui).setText(PAGE_FUNCTION)
                 .addButtonEvent(w -> switchPage(PAGE_FUNCTION, callback));
         buttonPanel.addChild(constantButton).addChild(variableButton).addChild(functionButton);
 
