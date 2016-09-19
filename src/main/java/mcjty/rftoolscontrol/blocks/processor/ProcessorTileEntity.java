@@ -683,7 +683,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             int index = event.getIndex();
             CompiledOpcode compiledOpcode = compiledCard.getOpcodes().get(index);
             int ticks = evaluateParameter(compiledOpcode, null, 0);
-            if (tickCount % ticks == 0) {
+            if (ticks > 0 && tickCount % ticks == 0) {
                 if (!waitingForItems.isEmpty()) {
                     WaitForItem found = null;
                     int foundIdx = -1;
@@ -717,7 +717,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             int index = event.getIndex();
             CompiledOpcode compiledOpcode = compiledCard.getOpcodes().get(index);
             int ticks = evaluateParameter(compiledOpcode, null, 0);
-            if (tickCount % ticks == 0) {
+            if (ticks > 0 && tickCount % ticks == 0) {
                 runOrDropEvent(i, event, null);
             }
         }
