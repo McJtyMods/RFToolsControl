@@ -27,6 +27,7 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.inventory.Slot;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
+import org.lwjgl.input.Keyboard;
 
 import java.awt.*;
 import java.io.IOException;
@@ -49,6 +50,9 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
     private WidgetList log;
     private WidgetList variableList;
     private TextField command;
+
+    private static List<String> commandHistory = new ArrayList<>();
+    private static int commandHistoryIndex = -1;
 
     private static List<String> fromServer_log = new ArrayList<>();
     public static void storeLogForClient(List<String> messages) {
@@ -115,20 +119,40 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
         command = new TextField(mc, this)
                 .setLayoutHint(new PositionalLayout.PositionalHint(9, 35+99, 180, 15))
                 .addTextEnterEvent((e, text) -> executeCommand(text));
-//        log.addChild(new Label(mc, this).setColor(0xff008800).setText("Processor booting...").setHorizontalAlignment(HorizontalAlignment.ALIGH_LEFT));
-//        log.addChild(new Label(mc, this).setColor(0xff008800).setText("Initializing memory... [OK]").setHorizontalAlignment(HorizontalAlignment.ALIGH_LEFT));
-//        log.addChild(new Label(mc, this).setColor(0xff008800).setText("Initializing items... [OK]").setHorizontalAlignment(HorizontalAlignment.ALIGH_LEFT));
-//        log.addChild(new Label(mc, this).setColor(0xff008800).setText("Entering card setup mode: 3").setHorizontalAlignment(HorizontalAlignment.ALIGH_LEFT));
-//        log.addChild(new Label(mc, this).setColor(0xff008800).setText("    Needed: 4 variables").setHorizontalAlignment(HorizontalAlignment.ALIGH_LEFT));
-//        log.addChild(new Label(mc, this).setColor(0xff008800).setText("    Needed: 6 item slots").setHorizontalAlignment(HorizontalAlignment.ALIGH_LEFT));
 
         toplevel.addChild(log).addChild(slider).addChild(command);
     }
 
     private void executeCommand(String text) {
+        dumpHistory();
         sendServerCommand(RFToolsCtrlMessages.INSTANCE, ProcessorTileEntity.CMD_CLEARLOG, new Argument("cmd", text));
+
+        if (commandHistoryIndex >= 0 && commandHistoryIndex < commandHistory.size() && text.equals(commandHistory.get(commandHistoryIndex))) {
+            // History command that didn't change
+        } else if (!text.isEmpty()) {
+            if (commandHistory.isEmpty() || !text.equals(commandHistory.get(commandHistory.size()-1))) {
+                commandHistory.add(text);
+            }
+            while (commandHistory.size() > 50) {
+                commandHistory.remove(0);
+            }
+            commandHistoryIndex = -1;
+        }
         command.setText("");
         window.setTextFocus(command);
+    }
+
+    private void dumpHistory() {
+//        System.out.println("##############");
+//        int i = 0;
+//        for (String s : commandHistory) {
+//            if (i == commandHistoryIndex) {
+//                System.out.println("* " + i + ": " + s + " *");
+//            } else {
+//                System.out.println("" + i + ": " + s);
+//            }
+//            i++;
+//        }
     }
 
     private void requestLists() {
@@ -174,6 +198,53 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
             }
         }
         return -1;
+    }
+
+    @Override
+    public void keyTypedFromEvent(char typedChar, int keyCode) {
+        if (handleCommandHistoryKeys(keyCode)) return;
+        super.keyTypedFromEvent(typedChar, keyCode);
+    }
+
+    private boolean handleCommandHistoryKeys(int keyCode) {
+        if (window.getTextFocus() == command) {
+            if (keyCode == Keyboard.KEY_UP) {
+                dumpHistory();
+                if (commandHistoryIndex == -1) {
+                    commandHistoryIndex = commandHistory.size()-1;
+                } else {
+                    commandHistoryIndex--;
+                    if (commandHistoryIndex < 0) {
+                        commandHistoryIndex = 0;
+                    }
+                }
+                if (commandHistoryIndex >= 0 && commandHistoryIndex < commandHistory.size()) {
+                    command.setText(commandHistory.get(commandHistoryIndex));
+                }
+                dumpHistory();
+                return true;
+            } else if (keyCode == Keyboard.KEY_DOWN) {
+                dumpHistory();
+                if (commandHistoryIndex != -1) {
+                    commandHistoryIndex++;
+                    if (commandHistoryIndex >= commandHistory.size()) {
+                        commandHistoryIndex = -1;
+                        command.setText("");
+                    } else {
+                        command.setText(commandHistory.get(commandHistoryIndex));
+                    }
+                }
+                dumpHistory();
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    protected void keyTyped(char typedChar, int keyCode) throws IOException {
+        if (handleCommandHistoryKeys(keyCode)) return;
+        super.keyTyped(typedChar, keyCode);
     }
 
     @Override
