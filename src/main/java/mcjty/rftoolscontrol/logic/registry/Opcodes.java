@@ -11,9 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 import static mcjty.rftoolscontrol.logic.registry.OpcodeOutput.*;
-import static mcjty.rftoolscontrol.logic.registry.OpcodeRunnable.OpcodeResult.HOLD;
-import static mcjty.rftoolscontrol.logic.registry.OpcodeRunnable.OpcodeResult.NEGATIVE;
-import static mcjty.rftoolscontrol.logic.registry.OpcodeRunnable.OpcodeResult.POSITIVE;
+import static mcjty.rftoolscontrol.logic.registry.OpcodeRunnable.OpcodeResult.*;
 import static mcjty.rftoolscontrol.logic.registry.ParameterType.*;
 
 public class Opcodes {
@@ -101,7 +99,7 @@ public class Opcodes {
                     "Can also be used to count items in storage system")
             .outputDescription("amount of items (integer)")
             .opcodeOutput(SINGLE)
-            .parameter(ParameterDescription.builder().name("inv").type(PAR_INVENTORY).description("inventory adjacent to (networked)", "block or empty to access storage").build())
+            .parameter(ParameterDescription.builder().name("inv").type(PAR_INVENTORY).optional().description("inventory adjacent to (networked)", "block or empty to access storage").build())
             .parameter(ParameterDescription.builder().name("slot").type(PAR_INTEGER).optional().description("slot in inventory", "(not for storage)").build())
             .parameter(ParameterDescription.builder().name("item").type(PAR_ITEM).optional().description("item to count").build())
             .parameter(ParameterDescription.builder().name("oredict").type(PAR_BOOLEAN).optional().description("use oredict matching").build())
@@ -876,15 +874,25 @@ public class Opcodes {
                 return POSITIVE;
             }))
             .build();
-    public static final Opcode EVENT_RUN = Opcode.builder()
-            .id("ev_run")
+
+    public static final Opcode EVAL_INVENTORY = Opcode.builder()
+            .id("eval_inventory")
             .description(
-                    TextFormatting.GREEN + "Event: always run",
-                    "this event fires if it is not already running",
-                    "Only one such event can run per card")
+                    TextFormatting.GREEN + "Eval: inventory",
+                    "get an inventory adjacent to the processor",
+                    "or a connected node and put it as the last",
+                    "result (useful for storing in variables)",
+                    "If inventory is kept empty then this can",
+                    "indicate a storage system as well")
+            .outputDescription("inventory result (inventory)")
             .opcodeOutput(SINGLE)
-            .isEvent(true)
+            .parameter(ParameterDescription.builder().name("inv").type(PAR_INVENTORY).optional().description("inventory adjacent to (networked)", "block or empty for storage").build())
             .icon(1, 4)
+            .runnable(((processor, program, opcode) -> {
+                Inventory inv = processor.evaluateParameter(opcode, program, 0);
+                program.setLastValue(Parameter.builder().type(PAR_INVENTORY).value(ParameterValue.constant(inv)).build());
+                return POSITIVE;
+            }))
             .build();
 
     public static final Opcode EVAL_GETLIQUID = Opcode.builder()
@@ -949,6 +957,7 @@ public class Opcodes {
         register(EVAL_GETMAXLIQUID);
         register(EVAL_INTEGER);
         register(EVAL_STRING);
+        register(EVAL_INVENTORY);
         register(EVAL_LOCK);
         register(TEST_GT);
         register(TEST_EQ);
