@@ -913,6 +913,7 @@ public class Opcodes {
                 return POSITIVE;
             }))
             .build();
+
     public static final Opcode EVAL_GETMAXLIQUID = Opcode.builder()
             .id("eval_getmaxliquid")
             .description(
@@ -932,6 +933,27 @@ public class Opcodes {
             }))
             .build();
 
+    public static final Opcode DO_SIGNAL = Opcode.builder()
+            .id("do_signal")
+            .description(
+                    TextFormatting.GREEN + "Operation: send signal",
+                    "send a signal to a program that has a signal event",
+                    "installed on this processor. That program will",
+                    "start as soon as a core is available to do so",
+                    "This operation returns the amount of event handlers",
+                    "that reacted to this signal")
+            .outputDescription("event handlers that reacted (integer)")
+            .opcodeOutput(SINGLE)
+            .parameter(ParameterDescription.builder().name("signal").type(PAR_STRING).description("signal name").build())
+            .icon(5, 4)
+            .runnable(((processor, program, opcode) -> {
+                String signal = processor.evaluateStringParameter(opcode, program, 0);
+                int cnt = processor.signal(signal);
+                program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(cnt)).build());
+                return POSITIVE;
+            }))
+            .build();
+
     public static final Map<String, Opcode> OPCODES = new HashMap<>();
     public static final List<Opcode> SORTED_OPCODES = new ArrayList<>();
 
@@ -939,7 +961,6 @@ public class Opcodes {
         register(EVENT_REDSTONE_ON);
         register(EVENT_REDSTONE_OFF);
         register(EVENT_TIMER);
-//        register(EVENT_RUN);
         register(EVENT_SIGNAL);
         register(EVENT_CRAFT);
         register(EVENT_CRAFTRESUME);
@@ -967,6 +988,7 @@ public class Opcodes {
         register(DO_DELAY);
         register(DO_STOP);
         register(DO_STOP_OR_RESUME);
+        register(DO_SIGNAL);
         register(DO_LOG);
         register(DO_FETCHITEMS);
         register(DO_PUSHITEMS);
