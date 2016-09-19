@@ -19,6 +19,7 @@ import mcjty.lib.gui.widgets.TextField;
 import mcjty.lib.network.PacketUpdateNBTItemInventory;
 import mcjty.lib.varia.Logging;
 import mcjty.rftoolscontrol.RFToolsControl;
+import mcjty.rftoolscontrol.config.GeneralConfiguration;
 import mcjty.rftoolscontrol.gui.GuiTools;
 import mcjty.rftoolscontrol.items.ProgramCardItem;
 import mcjty.rftoolscontrol.logic.Connection;
@@ -69,6 +70,9 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
 
     private static final Map<String, IIcon> ICONS = new HashMap<>();
     private static final Map<Connection, IIcon> CONNECTION_ICONS = new HashMap<>();
+    private static final Map<Connection, IIcon> HIGHLIGHT_ICONS = new HashMap<>();
+
+    private GridPos prevHighlightConnector = null;
 
     static {
         CONNECTION_ICONS.put(Connection.UP, new ImageIcon(Connection.UP.getId()).setImage(icons, 0*ICONSIZE, 5*ICONSIZE));
@@ -79,7 +83,16 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
         CONNECTION_ICONS.put(Connection.DOWN_NEG, new ImageIcon(Connection.DOWN_NEG.getId()).setImage(icons, 2*ICONSIZE, 6*ICONSIZE));
         CONNECTION_ICONS.put(Connection.LEFT, new ImageIcon(Connection.LEFT.getId()).setImage(icons, 3*ICONSIZE, 5*ICONSIZE));
         CONNECTION_ICONS.put(Connection.LEFT_NEG, new ImageIcon(Connection.LEFT_NEG.getId()).setImage(icons, 3*ICONSIZE, 6*ICONSIZE));
+
+        HIGHLIGHT_ICONS.put(Connection.UP, new ImageIcon("H").setImage(icons, 0*ICONSIZE, 7*ICONSIZE));
+        HIGHLIGHT_ICONS.put(Connection.RIGHT, new ImageIcon("H").setImage(icons, 1*ICONSIZE, 7*ICONSIZE));
+        HIGHLIGHT_ICONS.put(Connection.DOWN, new ImageIcon("H").setImage(icons, 2*ICONSIZE, 7*ICONSIZE));
+        HIGHLIGHT_ICONS.put(Connection.LEFT, new ImageIcon("H").setImage(icons, 3*ICONSIZE, 7*ICONSIZE));
+
         for (IIcon icon : CONNECTION_ICONS.values()) {
+            ((ImageIcon)icon).setDimensions(ICONSIZE, ICONSIZE);
+        }
+        for (IIcon icon : HIGHLIGHT_ICONS.values()) {
             ((ImageIcon)icon).setDimensions(ICONSIZE, ICONSIZE);
         }
     }
@@ -135,6 +148,8 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
         mgr.getIconManager().setClickHoldToDrag(true);
     }
 
+    private long prevTime = -1L;
+
     private Panel setupGridPanel() {
 
         Panel panel = new Panel(mc, this).setLayout(new PositionalLayout())
@@ -159,7 +174,17 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
                 IconHolder holder = new IconHolder(mc, this) {
                     @Override
                     public List<String> getTooltips() {
-                        return getIconTooltipGrid(finalX, finalY);
+                        if (prevHighlightConnector != null) {
+                            List<String> tooltips = new ArrayList<>();
+                            if (GeneralConfiguration.doubleClickToChangeConnector) {
+                                tooltips.add(TextFormatting.GREEN + "Double click to change connector");
+                            } else {
+                                tooltips.add(TextFormatting.GREEN + "Click to change connector");
+                            }
+                            return tooltips;
+                        } else {
+                            return getIconTooltipGrid(finalX, finalY);
+                        }
                     }
                 }
                         .setDesiredWidth(ICONSIZE+2)
@@ -167,6 +192,9 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
                         .setBorder(1)
                         .setBorderColor(0xff777777)
                         .setSelectable(true)
+                        .addIconHoverEvent(((iconHolder, iIcon, dx, dy) -> {
+                            handleConnectorHighlight(finalX, finalY, iIcon, dx, dy);
+                        }))
                         .addIconLeavesEvent(((parent, icon) -> {
                             iconLeavesFromX = finalX;
                             iconLeavesFromY = finalY;
@@ -179,34 +207,66 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
                             return true;
                         }))
                         .addIconClickedEvent((parent, icon, dx, dy) -> {
-                            if (dy <= 5 && dx >= 7 && dx <= 14) {
-                                handleIconOverlay(icon, Connection.UP);
-                            } else if (dy >= ICONSIZE-3 && dx >= 7 && dx <= 14) {
-                                handleIconOverlay(icon, Connection.DOWN);
-                            } else if (dx <= 5 && dy >= 7 && dy <= 14) {
-                                handleIconOverlay(icon, Connection.LEFT);
-                            } else if (dx >= ICONSIZE-3 && dy >= 7 && dy <= 14) {
-                                handleIconOverlay(icon, Connection.RIGHT);
+                            if (GeneralConfiguration.doubleClickToChangeConnector) {
+                                long time = System.currentTimeMillis();
+                                if (prevTime != -1L && time - prevTime < 250L) {
+                                    Connection connection = getConnectionHandle(dx, dy);
+                                    if (connection != null) {
+                                        handleIconOverlay(icon, connection);
+                                    }
+                                }
+                                prevTime = time;
+                            } else {
+                                Connection connection = getConnectionHandle(dx, dy);
+                                if (connection != null) {
+                                    handleIconOverlay(icon, connection);
+                                }
                             }
                             return true;
+
                         });
                 rowPanel.addChild(holder);
             }
             gridList.addChild(rowPanel);
         }
 
-//        int leftx = 0;
-//        int topy = 0;
-//        for (int x = 0 ; x < 13 ; x++) {
-//            for (int y = 0 ; y < 6 ; y++) {
-//                IconHolder holder = new IconHolder(mc, this).setLayoutHint(new PositionalLayout.PositionalHint(leftx + x*19, topy + y*19, 18, 18)).setBorder(1);
-//                panel.addChild(holder);
-//            }
-//        }
-
         panel.addChild(gridList).addChild(slider);
 
         return panel;
+    }
+
+    private void handleConnectorHighlight(int finalX, int finalY, IIcon iIcon, int dx, int dy) {
+        if (prevHighlightConnector != null) {
+            IconHolder h = getHolder(prevHighlightConnector.getX(), prevHighlightConnector.getY());
+            if (h.getIcon() != null) {
+                h.getIcon().removeOverlay("H");
+            }
+            prevHighlightConnector = null;
+        }
+
+        if (iIcon == null) {
+            return;
+        }
+
+        iIcon.removeOverlay("H");
+        Connection connection = getConnectionHandle(dx, dy);
+        if (connection != null) {
+            iIcon.addOverlay(HIGHLIGHT_ICONS.get(connection));
+            prevHighlightConnector = new GridPos(finalX, finalY);
+        }
+    }
+
+    private Connection getConnectionHandle(int dx, int dy) {
+        if (dy <= 5 && dx >= 8 && dx <= 15) {
+            return Connection.UP;
+        } else if (dy >= ICONSIZE - 3 && dx >= 8 && dx <= 15) {
+            return Connection.DOWN;
+        } else if (dx <= 5 && dy >= 7 && dy <= 14) {
+            return Connection.LEFT;
+        } else if (dx >= ICONSIZE - 3 && dy >= 7 && dy <= 14) {
+            return Connection.RIGHT;
+        }
+        return null;
     }
 
     // Try to make a connection to this one in case there are no connections yet
@@ -354,7 +414,6 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
         errorList.addSelectionEvent(new SelectionEvent() {
                     @Override
                     public void select(Widget parent, int index) {
-
                     }
 
                     @Override
@@ -555,6 +614,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
                 .addChild(slider);
     }
 
+    @SuppressWarnings("NullableProblems")
     @Override
     protected void handleMouseClick(Slot slotIn, int slotId, int mouseButton, ClickType type) {
         if (slotId == -999) {
@@ -738,6 +798,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
     @Override
     protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
         drawWindow();
+
         trashcan.setIcon(null);
         saveCounter--;
         if (saveCounter < 0) {

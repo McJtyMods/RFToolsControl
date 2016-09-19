@@ -17,6 +17,8 @@ public class GeneralConfiguration {
     public static int INTERACTMODULE_RFPERTICK = 2;
     public static int CONSOLEMODULE_RFPERTICK = 2;
 
+    public static boolean doubleClickToChangeConnector = true;
+
     public static void init(Configuration cfg) {
         processorMaxenergy = cfg.get(CATEGORY_GENERAL, "processorMaxRF", processorMaxenergy,
                 "Maximum RF storage that the processor can hold").getInt();
@@ -24,6 +26,8 @@ public class GeneralConfiguration {
                 "RF per tick that the processor can receive").getInt();
         processorMaxloglines = cfg.get(CATEGORY_GENERAL, "processorMaxLogLines", processorMaxloglines,
                 "Maximum number of lines to keep in the log").getInt();
+        doubleClickToChangeConnector = cfg.get(CATEGORY_GENERAL, "doubleClickToChangeConnector", doubleClickToChangeConnector,
+                "If true double click is needed in programmer to change connector. If false single click is sufficient").getBoolean();
         coreSpeed[0] = cfg.get(CATEGORY_GENERAL, "speedB500", coreSpeed[0],
                 "Amount of instructions per tick for the CPU Core B500").getInt();
         coreSpeed[1] = cfg.get(CATEGORY_GENERAL, "speedS1000", coreSpeed[1],
