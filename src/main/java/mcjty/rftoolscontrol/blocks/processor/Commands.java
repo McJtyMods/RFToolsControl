@@ -1,6 +1,9 @@
 package mcjty.rftoolscontrol.blocks.processor;
 
+import mcjty.rftoolscontrol.logic.Parameter;
+import mcjty.rftoolscontrol.logic.TypeConverters;
 import mcjty.rftoolscontrol.logic.compiled.CompiledOpcode;
+import mcjty.rftoolscontrol.logic.registry.ParameterType;
 import mcjty.rftoolscontrol.logic.running.CpuCore;
 import mcjty.rftoolscontrol.logic.running.ExceptionType;
 import mcjty.rftoolscontrol.logic.running.RunningProgram;
@@ -48,7 +51,7 @@ public class Commands {
             processor.log("Commands: clear/stop/reset/list");
             processor.log("    signal <name>");
             processor.log("    net setup/list/info");
-            processor.log("    db debug/step/info/resume");
+            processor.log("    db debug/s/info/last/resume");
         }
     }
 
@@ -99,7 +102,42 @@ public class Commands {
                     }
                 }
             }
-        } else if ("step".equals(sub)) {
+        } else if ("last".equals(sub)) {
+            if (splitted.length > 2) {
+                try {
+                    int i = Integer.parseInt(splitted[2]);
+                    CpuCore core = cores.get(i);
+                    if (core.hasProgram()) {
+                        Parameter value = core.getProgram().getLastValue();
+                        if (value == null || value.getParameterValue() == null) {
+                            processor.log(TextFormatting.YELLOW + "Last value not set");
+                        } else {
+                            ParameterType type = value.getParameterType();
+                            processor.log(TextFormatting.YELLOW + "Last " + type.getName() + ": " + TypeConverters.convertToString(value.getParameterValue().getValue()));
+                        }
+                    } else {
+                        processor.log(TextFormatting.YELLOW + "No program!");
+                    }
+                } catch (Exception e) {
+                    processor.log(TextFormatting.RED + "Bad core number");
+                    return;
+                }
+            } else {
+                int i = 0;
+                for (CpuCore core : cores) {
+                    if (core.hasProgram()) {
+                        Parameter value = core.getProgram().getLastValue();
+                        if (value == null || value.getParameterValue() == null) {
+                            processor.log(TextFormatting.YELLOW + "" + i + ": Last value not set");
+                        } else {
+                            ParameterType type = value.getParameterType();
+                            processor.log(TextFormatting.YELLOW + "" + i + ": Last " + type.getName() + ": " + TypeConverters.convertToString(value.getParameterValue().getValue()));
+                        }
+                    }
+                    i++;
+                }
+            }
+        } else if ("step".equals(sub) || "s".equals(sub)) {
             int cnt = 0;
             for (CpuCore core : cores) {
                 if (core.isDebug()) {
