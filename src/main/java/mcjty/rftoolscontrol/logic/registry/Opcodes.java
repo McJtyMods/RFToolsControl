@@ -518,9 +518,10 @@ public class Opcodes {
             .id("do_craftok")
             .description(
                     TextFormatting.GREEN + "Operation: mark craft ok",
-                    "as a result of a crafting event",
-                    "you can use this opcode to mark",
-                    "the craft operation as ok")
+                    "as a result of a crafting event you can use",
+                    "this opcode to mark the craft operation as ok",
+                    "The optional item in the slot will be sent back to",
+                    "whatever requested the item")
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("slot").type(PAR_INTEGER).optional().description("internal (processor) slot", "with craft result").build())
             .icon(6, 2)
