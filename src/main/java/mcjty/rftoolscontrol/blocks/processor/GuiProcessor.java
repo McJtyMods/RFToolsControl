@@ -6,6 +6,7 @@ import mcjty.lib.gui.RenderHelper;
 import mcjty.lib.gui.Window;
 import mcjty.lib.gui.WindowManager;
 import mcjty.lib.gui.events.SelectionEvent;
+import mcjty.lib.gui.events.TextSpecialKeyEvent;
 import mcjty.lib.gui.layout.HorizontalAlignment;
 import mcjty.lib.gui.layout.HorizontalLayout;
 import mcjty.lib.gui.layout.PositionalLayout;
@@ -27,7 +28,6 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.inventory.Slot;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
-import org.lwjgl.input.Keyboard;
 
 import java.awt.*;
 import java.io.IOException;
@@ -118,7 +118,45 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
 
         command = new TextField(mc, this)
                 .setLayoutHint(new PositionalLayout.PositionalHint(9, 35+99, 180, 15))
-                .addTextEnterEvent((e, text) -> executeCommand(text));
+                .addTextEnterEvent((e, text) -> executeCommand(text))
+                .addSpecialKeyEvent(new TextSpecialKeyEvent() {
+                    @Override
+                    public void arrowUp(Widget widget) {
+                        dumpHistory();
+                        if (commandHistoryIndex == -1) {
+                            commandHistoryIndex = commandHistory.size()-1;
+                        } else {
+                            commandHistoryIndex--;
+                            if (commandHistoryIndex < 0) {
+                                commandHistoryIndex = 0;
+                            }
+                        }
+                        if (commandHistoryIndex >= 0 && commandHistoryIndex < commandHistory.size()) {
+                            command.setText(commandHistory.get(commandHistoryIndex));
+                        }
+                        dumpHistory();
+                    }
+
+                    @Override
+                    public void arrowDown(Widget widget) {
+                        dumpHistory();
+                        if (commandHistoryIndex != -1) {
+                            commandHistoryIndex++;
+                            if (commandHistoryIndex >= commandHistory.size()) {
+                                commandHistoryIndex = -1;
+                                command.setText("");
+                            } else {
+                                command.setText(commandHistory.get(commandHistoryIndex));
+                            }
+                        }
+                        dumpHistory();
+                    }
+
+                    @Override
+                    public void tab(Widget widget) {
+
+                    }
+                });
 
         toplevel.addChild(log).addChild(slider).addChild(command);
     }
@@ -198,53 +236,6 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
             }
         }
         return -1;
-    }
-
-    @Override
-    public void keyTypedFromEvent(char typedChar, int keyCode) {
-        if (handleCommandHistoryKeys(keyCode)) return;
-        super.keyTypedFromEvent(typedChar, keyCode);
-    }
-
-    private boolean handleCommandHistoryKeys(int keyCode) {
-        if (window.getTextFocus() == command) {
-            if (keyCode == Keyboard.KEY_UP) {
-                dumpHistory();
-                if (commandHistoryIndex == -1) {
-                    commandHistoryIndex = commandHistory.size()-1;
-                } else {
-                    commandHistoryIndex--;
-                    if (commandHistoryIndex < 0) {
-                        commandHistoryIndex = 0;
-                    }
-                }
-                if (commandHistoryIndex >= 0 && commandHistoryIndex < commandHistory.size()) {
-                    command.setText(commandHistory.get(commandHistoryIndex));
-                }
-                dumpHistory();
-                return true;
-            } else if (keyCode == Keyboard.KEY_DOWN) {
-                dumpHistory();
-                if (commandHistoryIndex != -1) {
-                    commandHistoryIndex++;
-                    if (commandHistoryIndex >= commandHistory.size()) {
-                        commandHistoryIndex = -1;
-                        command.setText("");
-                    } else {
-                        command.setText(commandHistory.get(commandHistoryIndex));
-                    }
-                }
-                dumpHistory();
-                return true;
-            }
-        }
-        return false;
-    }
-
-    @Override
-    protected void keyTyped(char typedChar, int keyCode) throws IOException {
-        if (handleCommandHistoryKeys(keyCode)) return;
-        super.keyTyped(typedChar, keyCode);
     }
 
     @Override
