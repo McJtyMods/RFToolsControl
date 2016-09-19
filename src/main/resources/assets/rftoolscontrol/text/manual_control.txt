@@ -7,6 +7,7 @@ Table of Contents:
 {l:networking}Networking
 {l:craftingstation}Crafting Station
 {l:workbench}Workbench
+{l:items}Moving Items
 {/}
 
 
@@ -17,7 +18,8 @@ Table of Contents:
 {l:variables}Variables
 {l:events}Events
 {l:opcodes}Opcode Types
-{l:items}Moving Items
+{l:concurrency}Concurrency
+{l:debugging}Debugging
 {-------------------------------------------------------------}
 {b}Introduction
 {n:intro}
@@ -95,20 +97,22 @@ and the RF/t energy consumption.
 The Processor can store up to 32 variables. To do that it needs RAM chips.
 Every RAM chip adds 8 variables so maximum 4 RAM chips are supported.
 
-Variables can be used by programs but to do that you have to allocate
-the variables to the right card slot. To do that there are six small
-buttons above the card slots. Pressing such a button will switch the
-gui to 'allocation' mode. Then you can select the variables and mark
-them green. The first variable marked green will be index 0 for
-programs on that card. And so on.
+Variables can be used by programs but to do that you have to allocate the
+variables to the right card slot. To do that there are six small buttons
+above the card slots. Pressing such a button will switch the gui to
+'allocation' mode. Then you can select the variables and mark them green.
+The first variable marked green will be index 0 for programs on that card.
+And so on. Note that the variable index you use in programs is relative
+to how you allocated the variables!
 
-Note that you can allocate variables that are already used by other
-cards. That way it is possible to share information between programs
-on different cards.
+You can allocate variables that are already used by other cards. That way
+it is possible to share information between programs on different cards.
 {-------------------------------------------------------------}
 The Processor also has access to 24 internal item slots. These are
 always available but just like the variables you also have to allocate
-them for each card.
+them for each card. Again slot numbers used in programs are relative
+to how you allocated them. i.e. slot 0 will be the first slot you
+allocated for a program running in a specific program slot.
 {-------------------------------------------------------------}
 {b}Networking
 {n:networking}
@@ -156,64 +160,79 @@ actually just turns on processing of various items and then a
 {n:workbench}
 {rb:workbench}
 The Workbench is a normal crafting device with an internal buffer for
-items. It can be used just like that. However, it's main use is in
-automation as this workbench supports piping out the crafted result from
-the bottom. In addition a program running on a Processor can directly
-input ingredients for a recipe in the workbench from the top side.
+items. It can be used just like that. However, it's main use is in automation
+as this workbench supports piping out the crafted result from the bottom.
+In addition a program running on a Processor can directly input ingredients
+for a recipe in the workbench from the top side.
 
-The internal buffer of the Workbench is often used for crafting
-cards to help with autocrafting setups.
+The internal buffer of the Workbench is often used for crafting cards to
+help with autocrafting setups.
+{-------------------------------------------------------------}
+{b}Moving Items
+{n:items}
+Many programs will move items at some point. It is important to note that
+the processor cannot move items directly from one inventory to another.
+Items always have to go through the processor itself. That's why you
+typically need 'fetch' and 'push' items after each other.
+
+For many opcodes where you can access a normal inventory you can
+also access a storage system linked to a storage scanner. To do that
+you need to insert a storage screen module from RFTools into one of
+the 16 expansion slots of the Processor. Then to use this feature you
+just leave the 'inventory' parameter empty and it should access
+the storage where supported.
 {-------------------------------------------------------------}
 {b}Programming Concepts
 {n:concepts}
-A program in RFTools Control is made out of 'opcodes' that
-are arranged on a grid. Opcodes connect to other opcodes (through
-a green arrow or a red arrow in case of a test opcode) and
-they have parameters that can influence what they can do.
+A program in RFTools Control is made out of 'opcodes' that are
+arranged on a grid. Opcodes connect to other opcodes (through a
+green arrow or a red arrow in case of a test opcode) and they have
+parameters that can influence what they can do.
 
 The tooltip on an opcode in the programmer will give more
 information (press shift for even more information)
 {-------------------------------------------------------------}
 {b}Types
 {n:types}
-Parameters and variables are typed. That means that they have a
-specific type (like integer, string, ...) and need to be converted
-to be used as something else. Many conversions are done
-automatically. For example, if you need a string but the last
-result was an integer then the integer will automatically be
-converted into a string.
+Parameters and variables are typed. That means that they have a specific
+type (like integer, string, ...) and need to be converted to be used as
+something else. Many conversions are done automatically. For example,
+if you need a string but the last result was an integer then the integer
+will automatically be converted into a string.
 
-The following types are currently implemented: string, integer,
-float, boolean, side (represents a side of the processor or
-one of the connected nodes), inventory (represents an inventory
-adjacent to the processor or a connected node and an optional
-side from which to access the inventory), item (an itemstack),
-and exception.
+The following types are currently implemented: string, integer, float,
+boolean, side (represents a side of the processor or one of the connected
+nodes), inventory (represents an inventory adjacent to the processor or a
+connected node and an optional side from which to access the inventory),
+item (an itemstack), and exception.
 {-------------------------------------------------------------}
 {b}Parameters
 {n:parameters}
-As mentioned before opcodes can have multiple parameters which
-control how the opcode works. Parameters always have a specific
-type. Many parameters are optional which you can see in the
-tooltip.
+As mentioned before opcodes can have multiple parameters which control
+how the opcode works. Parameters always have a specific type. Many
+parameters are optional which you can see in the tooltip.
 
-Every parameter can be either a constant value, a reference
-to a variable, or a function. If you open the parameter editor
-in the programmer (the ... button) you can select between these
-three options with the buttons at the top.
+Every parameter can be either a constant value, a reference to a
+variable, or a function. If you open the parameter editor in the
+programmer (the ... button) you can select between these three options
+with the buttons at the top.
 
-The available list of functions depends on the type of the
-parameter. Some types have no functions defined for them (yet).
+The available list of functions depends on the type of the parameter.
+Some types have no functions defined for them (yet).
 {-------------------------------------------------------------}
 {b}Variables
 {n:variables}
-A processor can store up to 32 variables. These are also typed
-just like parameters. Make sure to allocate the variables to
-the card slot that you need them for. All programs that are on
-the same card slot will share those variables automatically.
+A processor can store up to 32 variables. These are also typed just
+like parameters. Make sure to allocate the variables to the card slot
+that you need them for. All programs that are on the same card slot
+will share those variables automatically.
 
 You can also share variables with programs on other slots because
 it is possible to allocate a given variable to multiple cards.
+
+Note that accessing variables in programs needs a relative index.
+So variable 0 in a program means the first allocated variable for
+that card.
 {-------------------------------------------------------------}
 {b}Events
 {n:events}
@@ -228,8 +247,8 @@ one event. Otherwise it can never run. It is possible to connect multiple
 events to the same program sequence.
 
 If an event fires it is executed on an available core. If no cores are
-available then it will be put in a waiting list. Except for the timer
-event. That one is discared if there are no cores available.
+available then it will be put in a waiting list. Except for the timer event.
+That one is discared if there are no cores available.
 {-------------------------------------------------------------}
 {b}Opcode Types
 {n:opcodes}
@@ -245,18 +264,66 @@ The following types of opcodes are available:
   * Wire: there is only one wire opcode. It is meant to connect
     opcodes that are not adjacent
 {-------------------------------------------------------------}
-{b}Moving Items
-{n:items}
-Many programs will move items at some point. It is important to
-note that the processor cannot move items directly from one
-inventory to another. Items always have to go through the processor
-itself. That's why you typically need 'fetch' and 'push' items after
-each other.
+{b}Concurrency
+{n:concurrency}
+As soon as you have multiple cores in your processor multiple programs
+can run at the same time. There are a few problems with this. First you
+must make sure that slots and variables are properly allocated in case
+where these programs don't share that info. This is the easy case.
 
-For many opcodes where you can access a normal inventory you can
-also access a storage system linked to a storage scanner. To do that
-you need to insert a storage screen module from RFTools into
-one of the 16 expansion slots of the Processor. Then to use this feature
-you just leave the 'inventory' parameter empty and it should access
-the storage where supported.
+But sometimes you want to share data. For example, if you have one
+program putting items in some internal slots and another program getting
+them out again. To handle this safely you might sometimes want to use
+locks. A lock is global to the processor (for all programs on that
+processor) and it has a name. Only one program can hold a lock with some
+name. Other programs that want that lock will wait until the lock is
+available again. Make sure to always restore locks! If you forget
+you can use 'reset' to reset your processor and clean everything.
+{-------------------------------------------------------------}
+Another problem with concurrency is preventing one program to use up
+all the cores. For example, if you have a program that needs some time
+to execute and executes whenever there is a redstone signal then if
+you give two signals very quickly there might be multiple instances of
+that program running (if there are sufficient cores available).
+
+Sometimes this is ok but in many cases you might want only one instance
+of a given program running at every time. To do that you can use the
+'single' parameter that you can set with every event. If you make that
+true then this event can only be fired once and it will be locked until
+the program that was attached to that event stops running.
+{-------------------------------------------------------------}
+{b}Debugging
+{n:debugging}
+You will make bugs. Repeat after me: you will make bugs! So what can you
+do to fix those bugs? There are a few techniques. First there is a 'log'
+opcode that you can use to dump messages on the console. It can show
+simple messages or even the contents of variables.
+
+But for more advanced debugging you might want to use the internal
+debugger. To use that you simply go to the processor and type:
+    db debug
+
+This will halt all programs that might currently be running and allow you
+to selectively singlestep them (i.e. execute them one instruction at a
+time).
+{-------------------------------------------------------------}
+To see where a specific program is at you can use:
+    db info
+
+To singlestep a program running on (for example) core 0 you would type:
+    db s 0
+
+This will execute the current instruction and show you the next
+instruction that is waiting for you to execute.
+You can also examine the last result with:
+    db last 0
+
+(or 'db last' to show all last results for all current programs)
+{-------------------------------------------------------------}
+While the program is being single stepped you can of course also
+examine variables by clicking the '...' button on the left (and
+change them).
+
+To resume all programs you do:
+    db resume
 {-------------------------------------------------------------}
