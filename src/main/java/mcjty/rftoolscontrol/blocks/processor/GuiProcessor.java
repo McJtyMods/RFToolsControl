@@ -21,11 +21,11 @@ import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.logic.Parameter;
 import mcjty.rftoolscontrol.logic.editors.ParameterEditor;
 import mcjty.rftoolscontrol.logic.editors.ParameterEditors;
-import mcjty.rftoolscontrol.network.PacketGetLog;
-import mcjty.rftoolscontrol.network.PacketGetVariables;
-import mcjty.rftoolscontrol.network.RFToolsCtrlMessages;
+import mcjty.rftoolscontrol.logic.registry.ParameterType;
+import mcjty.rftoolscontrol.network.*;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.inventory.Slot;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 
@@ -369,12 +369,17 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
         if (parameter == null) {
             return;
         }
-        ParameterEditor editor = ParameterEditors.getEditor(parameter.getParameterType());
+        ParameterType type = parameter.getParameterType();
+        ParameterEditor editor = ParameterEditors.getEditor(type);
         Panel editPanel;
         if (editor != null) {
             editPanel = new Panel(mc, this).setLayout(new PositionalLayout())
                     .setFilledRectThickness(1);
-            editor.build(mc, this, editPanel, o -> { });
+            editor.build(mc, this, editPanel, o -> {
+                NBTTagCompound tag = new NBTTagCompound();
+                type.writeToNBT(tag, o);
+                RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketVariableToServer(tileEntity.getPos(), varIdx, tag));
+            });
             editor.writeValue(parameter.getParameterValue());
         } else {
             return;
