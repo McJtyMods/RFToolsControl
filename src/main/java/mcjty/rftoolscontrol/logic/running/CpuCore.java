@@ -38,10 +38,7 @@ public class CpuCore {
                 program.killMe();
             }
             if (program.isDead()) {
-                if (RunningProgram.DEBUG) {
-                    System.out.println("Core: stopping program");
-                }
-                program = null;
+                stopProgram(processor);
                 return;
             }
             if (!rc) {
@@ -58,10 +55,7 @@ public class CpuCore {
             program.killMe();
         }
         if (program.isDead()) {
-            if (RunningProgram.DEBUG) {
-                System.out.println("Core: stopping program");
-            }
-            program = null;
+            stopProgram(processor);
         }
     }
 
@@ -78,6 +72,14 @@ public class CpuCore {
     }
 
     public void stopProgram() {
+        program = null;
+    }
+
+    private void stopProgram(ProcessorTileEntity processor) {
+        if (RunningProgram.DEBUG) {
+            System.out.println("Core: stopping program");
+        }
+        processor.clearRunningEvent(program.getCardIndex(), program.getEventIndex());
         program = null;
     }
 

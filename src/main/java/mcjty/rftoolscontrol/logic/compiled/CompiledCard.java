@@ -1,11 +1,13 @@
 package mcjty.rftoolscontrol.logic.compiled;
 
 import mcjty.rftoolscontrol.logic.Parameter;
+import mcjty.rftoolscontrol.logic.TypeConverters;
 import mcjty.rftoolscontrol.logic.grid.GridInstance;
 import mcjty.rftoolscontrol.logic.grid.GridPos;
 import mcjty.rftoolscontrol.logic.grid.ProgramCardInstance;
 import mcjty.rftoolscontrol.logic.registry.Opcode;
 import mcjty.rftoolscontrol.logic.registry.Opcodes;
+import mcjty.rftoolscontrol.logic.registry.ParameterDescription;
 
 import javax.annotation.Nonnull;
 import java.util.*;
@@ -39,11 +41,6 @@ public class CompiledCard {
             String id = grid.getId();
             Opcode opcode = Opcodes.OPCODES.get(id);
 
-            if (opcode.isEvent()) {
-                card.events.putIfAbsent(opcode, new ArrayList<>());
-                card.events.get(opcode).add(new CompiledEvent(card.opcodes.size()));
-            }
-
             GridPos primaryOutput = grid.getPrimaryConnection() != null ? grid.getPrimaryConnection().offset(location) : null;
             GridPos secondaryOutput = grid.getSecondaryConnection() != null ? grid.getSecondaryConnection().offset(location) : null;
             CompiledOpcode.Builder opcodeBuilder = CompiledOpcode.builder().opcode(opcode);
@@ -58,9 +55,21 @@ public class CompiledCard {
             } else {
                 opcodeBuilder.secondaryIndex(stopIdx);
             }
-            for (Parameter parameter : grid.getParameters()) {
+            List<ParameterDescription> parameters = opcode.getParameters();
+            boolean single = false;
+            for (int i = 0 ; i < grid.getParameters().size() ; i++) {
+                Parameter parameter = grid.getParameters().get(i);
+                if (i < parameters.size() && "single".equals(parameters.get(i).getName())) {
+                    single = TypeConverters.convertToBool(parameter.getParameterValue().getValue());
+                }
                 opcodeBuilder.parameter(parameter);
             }
+
+            if (opcode.isEvent()) {
+                card.events.putIfAbsent(opcode, new ArrayList<>());
+                card.events.get(opcode).add(new CompiledEvent(card.opcodes.size(), single));
+            }
+
             card.opcodes.add(opcodeBuilder.build());
         }
         card.opcodes.add(CompiledOpcode.builder().opcode(Opcodes.DO_STOP_OR_RESUME).build());

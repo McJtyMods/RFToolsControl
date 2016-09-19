@@ -5,6 +5,7 @@ import mcjty.rftoolscontrol.blocks.processor.ProcessorTileEntity;
 import mcjty.rftoolscontrol.logic.Parameter;
 import mcjty.rftoolscontrol.logic.TypeConverters;
 import mcjty.rftoolscontrol.logic.compiled.CompiledCard;
+import mcjty.rftoolscontrol.logic.compiled.CompiledEvent;
 import mcjty.rftoolscontrol.logic.compiled.CompiledOpcode;
 import mcjty.rftoolscontrol.logic.registry.OpcodeRunnable;
 import mcjty.rftoolscontrol.logic.registry.ParameterType;
@@ -29,6 +30,9 @@ public class RunningProgram {
 
     // Current opcode
     private int current = 0;
+
+    // Event index that caused this program to run
+    private int eventIndex = 0;
 
     // Current ticket
     private String ticket = null;
@@ -55,8 +59,17 @@ public class RunningProgram {
         this.cardIndex = cardIndex;
     }
 
+    public void startFromEvent(CompiledEvent event) {
+        this.current = event.getIndex();
+        this.eventIndex = event.getIndex();
+    }
+
     public void setCurrent(int current) {
         this.current = current;
+    }
+
+    public int getEventIndex() {
+        return eventIndex;
     }
 
     public void setCraftTicket(@Nullable String craftId) {
@@ -176,6 +189,7 @@ public class RunningProgram {
     public void writeToNBT(NBTTagCompound tag) {
         tag.setInteger("card", cardIndex);
         tag.setInteger("current", current);
+        tag.setInteger("event", eventIndex);
         tag.setInteger("delay", delay);
         tag.setBoolean("dead", dead);
         if (ticket != null) {
@@ -209,6 +223,7 @@ public class RunningProgram {
         int cardIndex = tag.getInteger("card");
         RunningProgram program = new RunningProgram(cardIndex);
         program.setCurrent(tag.getInteger("current"));
+        program.eventIndex = tag.getInteger("event");
         program.setDelay(tag.getInteger("delay"));
         program.dead = tag.getBoolean("dead");
         if (tag.hasKey("ticket")) {

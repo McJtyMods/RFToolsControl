@@ -56,6 +56,7 @@ import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.wrapper.InvWrapper;
 import net.minecraftforge.items.wrapper.SidedInvWrapper;
+import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -111,6 +112,9 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     private List<WaitForItem> waitingForItems = new ArrayList<>();
 
     private Queue<String> logMessages = new ArrayDeque<>();
+
+    // Card index, Opcode index
+    private Set<Pair<Integer,Integer>> runningEvents = new HashSet<>();
 
     private Set<String> locks = new HashSet<>();
 
@@ -222,11 +226,15 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     private void processEventQueue() {
         QueuedEvent queuedEvent = eventQueue.peek();
         if (queuedEvent != null) {
+            CompiledEvent compiledEvent = queuedEvent.getCompiledEvent();
+            if (compiledEvent.isSingle() && runningEvents.contains(Pair.of(queuedEvent.getCardIndex(), compiledEvent.getIndex()))) {
+                return;
+            }
             CpuCore core = findAvailableCore();
             if (core != null) {
                 eventQueue.remove();
                 RunningProgram program = new RunningProgram(queuedEvent.getCardIndex());
-                program.setCurrent(queuedEvent.getCompiledEvent().getIndex());
+                program.startFromEvent(compiledEvent);
                 program.setCraftTicket(queuedEvent.getTicket());
                 core.startProgram(program);
             }
@@ -639,17 +647,16 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                     CompiledOpcode compiledOpcode = compiledCard.getOpcodes().get(index);
                     ItemStack stack = evaluateParameter(compiledOpcode, null, 0);
                     Inventory inv = evaluateParameter(compiledOpcode, null, 1);
-                    boolean single = evaluateBoolParameter(compiledOpcode, null, 2);
                     if (stack != null) {
                         if (stack.isItemEqual(stackToCraft)) {
-                            runOrQueueEvent(i, event, ticket, single);
+                            runOrQueueEvent(i, event, ticket);
                             return;
                         }
                     } else if (inv != null) {
                         IItemHandler handler = getItemHandlerAt(inv);
                         ItemStack craftingCard = findCraftingCard(handler, stackToCraft);
                         if (craftingCard != null) {
-                            runOrQueueEvent(i, event, ticket, single);
+                            runOrQueueEvent(i, event, ticket);
                             return;
                         }
                     }
@@ -698,8 +705,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                     }
                     if (found != null) {
                         waitingForItems.remove(foundIdx);
-                        boolean single = evaluateBoolParameter(compiledOpcode, null, 1);
-                        runOrQueueEvent(cardIndex, event, found.getTicket(), single);
+                        runOrQueueEvent(cardIndex, event, found.getTicket());
                     }
                 }
             }
@@ -712,8 +718,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             CompiledOpcode compiledOpcode = compiledCard.getOpcodes().get(index);
             int ticks = evaluateParameter(compiledOpcode, null, 0);
             if (tickCount % ticks == 0) {
-                boolean single = evaluateBoolParameter(compiledOpcode, null, 1);
-                runOrDropEvent(i, event, null, single);
+                runOrDropEvent(i, event, null);
             }
         }
     }
@@ -727,8 +732,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                 BlockSide side = evaluateParameter(compiledOpcode, null, 0);
                 EnumFacing facing = side == null ? null : side.getSide();
                 if (facing == null || ((redstoneOffMask >> facing.ordinal()) & 1) == 1) {
-                    boolean single = evaluateBoolParameter(compiledOpcode, null, 1);
-                    runOrQueueEvent(i, event, null, single);
+                    runOrQueueEvent(i, event, null);
                 }
             }
         }
@@ -743,40 +747,53 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                 BlockSide side = evaluateParameter(compiledOpcode, null, 0);
                 EnumFacing facing = side == null ? null : side.getSide();
                 if (facing == null || ((redstoneOnMask >> facing.ordinal()) & 1) == 1) {
-                    boolean single = evaluateBoolParameter(compiledOpcode, null, 1);
-                    runOrQueueEvent(i, event, null, single);
+                    runOrQueueEvent(i, event, null);
                 }
             }
         }
     }
 
-    private void runOrDropEvent(int cardIndex, CompiledEvent event, @Nullable String ticket, boolean single) {
+    public void clearRunningEvent(int cardIndex, int eventIndex) {
+        runningEvents.remove(Pair.of(cardIndex, eventIndex));
+    }
+
+    private void runOrDropEvent(int cardIndex, CompiledEvent event, @Nullable String ticket) {
+        if (event.isSingle() && runningEvents.contains(Pair.of(cardIndex, event.getIndex()))) {
+            // Already running and single
+            return;
+        }
         CpuCore core = findAvailableCore();
         if (core == null) {
             // No available core. We drop this event
         } else {
             RunningProgram program = new RunningProgram(cardIndex);
-            program.setCurrent(event.getIndex());
+            program.startFromEvent(event);
             program.setCraftTicket(ticket);
             core.startProgram(program);
+            if (event.isSingle()) {
+                runningEvents.add(Pair.of(cardIndex, event.getIndex()));
+            }
         }
     }
 
-    private void runOrQueueEvent(int cardIndex, CompiledEvent event, @Nullable String ticket, boolean single) {
-
-
-
-
-
+    private void runOrQueueEvent(int cardIndex, CompiledEvent event, @Nullable String ticket) {
+        if (event.isSingle() && runningEvents.contains(Pair.of(cardIndex, event.getIndex()))) {
+            // Already running and single
+            eventQueue.add(new QueuedEvent(cardIndex, event, ticket));
+            return;
+        }
         CpuCore core = findAvailableCore();
         if (core == null) {
             // No available core
             eventQueue.add(new QueuedEvent(cardIndex, event, ticket));
         } else {
             RunningProgram program = new RunningProgram(cardIndex);
-            program.setCurrent(event.getIndex());
+            program.startFromEvent(event);
             program.setCraftTicket(ticket);
             core.startProgram(program);
+            if (event.isSingle()) {
+                runningEvents.add(Pair.of(cardIndex, event.getIndex()));
+            }
         }
     }
 
@@ -791,8 +808,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                     CompiledOpcode compiledOpcode = compiledCard.getOpcodes().get(index);
                     String sig = evaluateParameter(compiledOpcode, null, 0);
                     if (signal.equals(sig)) {
-                        boolean single = evaluateBoolParameter(compiledOpcode, null, 1);
-                        runOrQueueEvent(i, event, null, single);
+                        runOrQueueEvent(i, event, null);
                         cnt++;
                     }
                 }
@@ -830,13 +846,14 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                 core.stopProgram();
             }
         }
+        locks.clear();
+        runningEvents.clear();
         return n;
     }
 
     public void reset() {
         waitingForItems.clear();
         eventQueue.clear();
-        locks.clear();
         stopPrograms();
         markDirty();
     }
@@ -872,8 +889,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                     CompiledOpcode compiledOpcode = compiledCard.getOpcodes().get(index);
                     String code = evaluateStringParameter(compiledOpcode, null, 0);
                     if (exception.getCode().equals(code)) {
-                        boolean single = evaluateBoolParameter(compiledOpcode, null, 1);
-                        runOrQueueEvent(i, event, program.getCraftTicket(), single);
+                        runOrQueueEvent(i, event, program.getCraftTicket());
                         return;
                     }
                 }
@@ -1387,6 +1403,14 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                 core.stopProgram();
             }
         }
+
+        Set<Pair<Integer, Integer>> newRunningEvents = new HashSet<>();
+        for (Pair<Integer, Integer> pair : runningEvents) {
+            if (pair.getLeft() != cardIndex) {
+                newRunningEvents.add(pair);
+            }
+        }
+        runningEvents = newRunningEvents;
     }
 
     @Override
@@ -1461,6 +1485,18 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         readCraftingStations(tagCompound);
         readWaitingForItems(tagCompound);
         readLocks(tagCompound);
+        readRunningEvents(tagCompound);
+    }
+
+    private void readRunningEvents(NBTTagCompound tagCompound) {
+        runningEvents.clear();
+        NBTTagList evList = tagCompound.getTagList("singev", Constants.NBT.TAG_COMPOUND);
+        for (int i = 0 ; i < evList.tagCount() ; i++) {
+            NBTTagCompound tag = evList.getCompoundTagAt(i);
+            int cardIndex = tag.getInteger("card");
+            int eventIndex = tag.getInteger("event");
+            runningEvents.add(Pair.of(cardIndex, eventIndex));
+        }
     }
 
     private void readLocks(NBTTagCompound tagCompound) {
@@ -1561,8 +1597,9 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             NBTTagCompound tag = eventQueueList.getCompoundTagAt(i);
             int card = tag.getInteger("card");
             int index = tag.getInteger("index");
+            boolean single = tag.getBoolean("single");
             String ticket = tag.hasKey("ticket") ? tag.getString("ticket") : null;
-            eventQueue.add(new QueuedEvent(card, new CompiledEvent(index), ticket));
+            eventQueue.add(new QueuedEvent(card, new CompiledEvent(index, single), ticket));
         }
     }
 
@@ -1590,6 +1627,18 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         writeCraftingStations(tagCompound);
         writeWaitingForItems(tagCompound);
         writeLocks(tagCompound);
+        writeRunningEvents(tagCompound);
+    }
+
+    private void writeRunningEvents(NBTTagCompound tagCompound) {
+        NBTTagList evList = new NBTTagList();
+        for (Pair<Integer, Integer> pair : runningEvents) {
+            NBTTagCompound tag = new NBTTagCompound();
+            tag.setInteger("card", pair.getLeft());
+            tag.setInteger("event", pair.getRight());
+            evList.appendTag(tag);
+        }
+        tagCompound.setTag("singev", evList);
     }
 
     private void writeLocks(NBTTagCompound tagCompound) {
@@ -1676,6 +1725,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             NBTTagCompound tag = new NBTTagCompound();
             tag.setInteger("card", queuedEvent.getCardIndex());
             tag.setInteger("index", queuedEvent.getCompiledEvent().getIndex());
+            tag.setBoolean("single", queuedEvent.getCompiledEvent().isSingle());
             if (queuedEvent.getTicket() != null) {
                 tag.setString("ticket", queuedEvent.getTicket());
             }
