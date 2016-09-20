@@ -42,6 +42,11 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.lwjgl.input.Keyboard;
 
 import java.awt.*;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.StringSelection;
+import java.awt.datatransfer.UnsupportedFlavorException;
+import java.io.IOException;
 import java.util.*;
 import java.util.List;
 
@@ -524,6 +529,10 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
             return;
         }
 
+        loadProgram(instance);
+    }
+
+    private void loadProgram(ProgramCardInstance instance) {
         for (Map.Entry<GridPos, GridInstance> entry : instance.getGridInstances().entrySet()) {
             int x = entry.getKey().getX();
             int y = entry.getKey().getY();
@@ -612,6 +621,51 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
         return new Panel(mc, this).setLayout(new PositionalLayout()).setLayoutHint(new PositionalLayout.PositionalHint(5, 5, 72, 226))
                 .addChild(list)
                 .addChild(slider);
+    }
+
+    @Override
+    protected void keyTyped(char typedChar, int keyCode) throws IOException {
+        if (handleClipboard(keyCode)) return;
+        super.keyTyped(typedChar, keyCode);
+    }
+
+    @Override
+    public void keyTypedFromEvent(char typedChar, int keyCode) {
+        if (handleClipboard(keyCode)) return;
+        super.keyTypedFromEvent(typedChar, keyCode);
+    }
+
+    private boolean handleClipboard(int keyCode) {
+        if (keyCode == Keyboard.KEY_C) {
+            if (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL)) {
+                ProgramCardInstance instance = makeGridInstance();
+                String json = instance.writeToJson();
+                try {
+                    StringSelection selection = new StringSelection(json);
+                    Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+                    clipboard.setContents(selection, selection);
+                    GuiTools.showMessage(mc, this, getWindowManager(), 50, 50, "Copied program to clipboard");
+                } catch (Exception e) {
+                    GuiTools.showMessage(mc, this, getWindowManager(), 50, 50, TextFormatting.RED + "Error copying to clipboard!");
+                }
+                return true;
+            }
+        }
+        if (keyCode == Keyboard.KEY_V) {
+            if (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL)) {
+                try {
+                    Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+                    String data = (String) clipboard.getData(DataFlavor.stringFlavor);
+                    ProgramCardInstance program = ProgramCardInstance.readFromJson(data);
+                    loadProgram(program);
+                } catch (UnsupportedFlavorException e) {
+                    GuiTools.showMessage(mc, this, getWindowManager(), 50, 50, TextFormatting.RED + "Clipboard does not contain program!");
+                } catch (Exception e) {
+                    GuiTools.showMessage(mc, this, getWindowManager(), 50, 50, TextFormatting.RED + "Error reading from clipboard!");
+                }
+            }
+        }
+        return false;
     }
 
     @SuppressWarnings("NullableProblems")
