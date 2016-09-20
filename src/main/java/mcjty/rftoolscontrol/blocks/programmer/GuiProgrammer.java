@@ -76,6 +76,9 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
     private static final Map<String, IIcon> ICONS = new HashMap<>();
     private static final Map<Connection, IIcon> CONNECTION_ICONS = new HashMap<>();
     private static final Map<Connection, IIcon> HIGHLIGHT_ICONS = new HashMap<>();
+    private static final IIcon selectionIcon;
+
+    private static ProgramCardInstance undoProgram = null;
 
     private GridPos prevHighlightConnector = null;
 
@@ -100,6 +103,8 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
         for (IIcon icon : HIGHLIGHT_ICONS.values()) {
             ((ImageIcon)icon).setDimensions(ICONSIZE, ICONSIZE);
         }
+
+        selectionIcon = new ImageIcon("S").setDimensions(ICONSIZE, ICONSIZE).setImage(icons, 0*ICONSIZE, 8*ICONSIZE);
     }
 
     public GuiProgrammer(ProgrammerTileEntity tileEntity, ProgrammerContainer container) {
@@ -179,17 +184,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
                 IconHolder holder = new IconHolder(mc, this) {
                     @Override
                     public List<String> getTooltips() {
-                        if (prevHighlightConnector != null) {
-                            List<String> tooltips = new ArrayList<>();
-                            if (GeneralConfiguration.doubleClickToChangeConnector) {
-                                tooltips.add(TextFormatting.GREEN + "Double click to change connector");
-                            } else {
-                                tooltips.add(TextFormatting.GREEN + "Click to change connector");
-                            }
-                            return tooltips;
-                        } else {
-                            return getIconTooltipGrid(finalX, finalY);
-                        }
+                        return getGridIconTooltips(finalX, finalY);
                     }
                 }
                         .setDesiredWidth(ICONSIZE+2)
@@ -197,6 +192,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
                         .setBorder(1)
                         .setBorderColor(0xff777777)
                         .setSelectable(true)
+                        .setUserObject(new GridPos(finalX, finalY))
                         .addIconHoverEvent(((iconHolder, iIcon, dx, dy) -> {
                             handleConnectorHighlight(finalX, finalY, iIcon, dx, dy);
                         }))
@@ -212,23 +208,8 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
                             return true;
                         }))
                         .addIconClickedEvent((parent, icon, dx, dy) -> {
-                            if (GeneralConfiguration.doubleClickToChangeConnector) {
-                                long time = System.currentTimeMillis();
-                                if (prevTime != -1L && time - prevTime < 250L) {
-                                    Connection connection = getConnectionHandle(dx, dy);
-                                    if (connection != null) {
-                                        handleIconOverlay(icon, connection);
-                                    }
-                                }
-                                prevTime = time;
-                            } else {
-                                Connection connection = getConnectionHandle(dx, dy);
-                                if (connection != null) {
-                                    handleIconOverlay(icon, connection);
-                                }
-                            }
+                            gridIconClicked(icon, finalX, finalY, dx, dy);
                             return true;
-
                         });
                 rowPanel.addChild(holder);
             }
@@ -238,6 +219,127 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
         panel.addChild(gridList).addChild(slider);
 
         return panel;
+    }
+
+    private List<String> getGridIconTooltips(int finalX, int finalY) {
+        if (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) || Keyboard.isKeyDown(Keyboard.KEY_RCONTROL)) {
+            List<String> tooltips = new ArrayList<>();
+            tooltips.add(TextFormatting.GREEN + "Ctrl-Click to add or remove selection");
+            tooltips.add(TextFormatting.GREEN + "Ctrl-Double click to (de)select sequence");
+            tooltips.add(TextFormatting.YELLOW + "Ctrl-C to copy selected or entire grid");
+            tooltips.add(TextFormatting.YELLOW + "Ctrl-X to cut selected or entire grid");
+            tooltips.add(TextFormatting.YELLOW + "Ctrl-V to paste to selected or entire grid");
+            tooltips.add(TextFormatting.YELLOW + "Ctrl-Z undo last paste operation");
+            return tooltips;
+        } else if (prevHighlightConnector != null) {
+            List<String> tooltips = new ArrayList<>();
+            if (GeneralConfiguration.doubleClickToChangeConnector) {
+                tooltips.add(TextFormatting.GREEN + "Double click to change connector");
+            } else {
+                tooltips.add(TextFormatting.GREEN + "Click to change connector");
+            }
+            return tooltips;
+        } else {
+            return getIconTooltipGrid(finalX, finalY);
+        }
+    }
+
+    private void selectSequence(GridPos pos, Set<GridPos> done, boolean select) {
+        if (!checkValidGridPos(pos)) {
+            return;
+        }
+        if (done.contains(pos)) {
+            return;
+        }
+        IIcon icon = getHolder(pos.getX(), pos.getY()).getIcon();
+        if (icon == null) {
+            return;
+        }
+        icon.removeOverlay("S");
+        if (select) {
+            icon.addOverlay(selectionIcon);
+        }
+        done.add(pos);
+        selectSequence(pos.up(), done, select);
+        selectSequence(pos.down(), done, select);
+        selectSequence(pos.left(), done, select);
+        selectSequence(pos.right(), done, select);
+    }
+
+    private boolean checkValidGridPos(GridPos pos) {
+        if (pos.getX() < 0 || pos.getX() >= GRID_WIDTH) {
+            return false;
+        }
+        if (pos.getY() < 0 || pos.getY() >= GRID_HEIGHT) {
+            return false;
+        }
+        return true;
+    }
+
+    private void gridIconClicked(IIcon icon, int x, int y, int dx, int dy) {
+        if (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) || Keyboard.isKeyDown(Keyboard.KEY_RCONTROL)) {
+            long time = System.currentTimeMillis();
+            boolean doubleclick = false;
+            if (prevTime != -1L && time - prevTime < 250L) {
+                doubleclick = true;
+            }
+            prevTime = time;
+
+            if (icon.hasOverlay("S")) {
+                if (doubleclick) {
+                    selectSequence(new GridPos(x, y), new HashSet<>(), true);  // Reverse because first click also did something
+                } else {
+                    icon.removeOverlay("S");
+                }
+            } else {
+                if (doubleclick) {
+                    selectSequence(new GridPos(x, y), new HashSet<>(), false);  // Reverse because first click also did something
+                } else {
+                    icon.addOverlay(selectionIcon);
+                }
+            }
+            return;
+        }
+
+        clearSelection();
+
+        long time = System.currentTimeMillis();
+        boolean doubleclick = !GeneralConfiguration.doubleClickToChangeConnector;
+        if (prevTime != -1L && time - prevTime < 250L) {
+            doubleclick = true;
+        }
+        prevTime = time;
+        if (doubleclick) {
+            Connection connection = getConnectionHandle(dx, dy);
+            if (connection != null) {
+                handleIconOverlay(icon, connection);
+            }
+        }
+    }
+
+    private void clearSelection() {
+        for (int ix = 0 ; ix < GRID_WIDTH ; ix++) {
+            for (int iy = 0 ; iy < GRID_HEIGHT ; iy++) {
+                IIcon i = getHolder(ix, iy).getIcon();
+                if (i != null) {
+                    i.removeOverlay("S");
+                }
+            }
+        }
+    }
+
+    private boolean checkSelection() {
+        for (int ix = 0 ; ix < GRID_WIDTH ; ix++) {
+            for (int iy = 0 ; iy < GRID_HEIGHT ; iy++) {
+                IIcon i = getHolder(ix, iy).getIcon();
+                if (i != null) {
+                    if (i.hasOverlay("S")) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     private void handleConnectorHighlight(int finalX, int finalY, IIcon iIcon, int dx, int dy) {
@@ -362,10 +464,11 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
             return;
         }
         if (opcode.getOpcodeOutput() == OpcodeOutput.SINGLE) {
-            if (icon.hasOverlay(connection.getId())) {
-                icon.clearOverlays();
-            } else {
-                icon.clearOverlays();
+            for (Connection c : Connection.values()) {
+                icon.removeOverlay(c.getId());
+            }
+//            icon.clearOverlays();
+            if (!icon.hasOverlay(connection.getId())) {
                 icon.addOverlay(CONNECTION_ICONS.get(connection));
             }
         } else {
@@ -395,10 +498,13 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
         }
     }
 
-    private void clearGrid() {
+    private void clearGrid(boolean selection) {
         for (int x = 0 ; x < GRID_WIDTH ; x++) {
             for (int y = 0 ; y < GRID_HEIGHT ; y++) {
-                getHolder(x, y).setIcon(null);
+                IconHolder h = getHolder(x, y);
+                if ((!selection) || (h.getIcon() != null && h.getIcon().hasOverlay("S"))) {
+                    h.setIcon(null);
+                }
             }
         }
     }
@@ -439,7 +545,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
                     getWindowManager().closeWindow(modalWindow);
                 })
                 .setText("Close"));
-        ProgramCardInstance instance = makeGridInstance();
+        ProgramCardInstance instance = makeGridInstance(false);
 
         List<Pair<GridPos, String>> errors = ProgramValidator.validate(instance);
         for (Pair<GridPos, String> entry : errors) {
@@ -472,19 +578,22 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
         if (name != null) {
             ProgramCardItem.setCardName(card, name);
         }
-        ProgramCardInstance instance = makeGridInstance();
+        ProgramCardInstance instance = makeGridInstance(false);
         instance.writeToNBT(card);
         RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketUpdateNBTItemInventory(tileEntity.getPos(),
                 slot, card.getTagCompound()));
     }
 
-    private ProgramCardInstance makeGridInstance() {
+    private ProgramCardInstance makeGridInstance(boolean selectionOnly) {
         ProgramCardInstance instance = ProgramCardInstance.newInstance();
         for (int x = 0 ; x < GRID_WIDTH ; x++) {
             for (int y = 0 ; y < GRID_HEIGHT ; y++) {
                 IconHolder holder = getHolder(x, y);
                 IIcon icon = holder.getIcon();
                 if (icon != null) {
+                    if (selectionOnly && !icon.hasOverlay("S")) {
+                        continue;
+                    }
                     String operandId = icon.getID();
                     GridInstance.Builder builder = GridInstance.builder(operandId);
                     for (Connection connection : Connection.values()) {
@@ -515,7 +624,8 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
     }
 
     private void clearProgram() {
-        clearGrid();
+        undoProgram = makeGridInstance(false);
+        clearGrid(false);
     }
 
     private void loadProgram(int slot) {
@@ -523,7 +633,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
         if (card == null) {
             return;
         }
-        clearGrid();
+        clearGrid(false);
         ProgramCardInstance instance = ProgramCardInstance.parseInstance(card);
         if (instance == null) {
             return;
@@ -532,35 +642,87 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
         loadProgram(instance);
     }
 
+    private GridPos getSelectedGridHolder() {
+        if (window.getTextFocus() instanceof IconHolder) {
+            IconHolder holder = (IconHolder) window.getTextFocus();
+            if (holder.getUserObject() instanceof GridPos) {
+                return (GridPos) holder.getUserObject();
+            }
+        }
+        return null;
+    }
+
+    private void mergeProgram(ProgramCardInstance instance, GridPos pos) {
+        // Find the left-most/top-most icon in this program
+        GridPos leftTop = new GridPos(10000, 10000);
+        for (Map.Entry<GridPos, GridInstance> entry : instance.getGridInstances().entrySet()) {
+            int x = entry.getKey().getX();
+            int y = entry.getKey().getY();
+            if (x < leftTop.getX()) {
+                leftTop = entry.getKey();
+            } else if (x == leftTop.getX() && y < leftTop.getY()) {
+                leftTop = entry.getKey();
+            }
+        }
+        if (leftTop.getX() > 1000) {
+            return; // Nothing to do
+        }
+
+        // Check if the program fits in the grid
+        for (Map.Entry<GridPos, GridInstance> entry : instance.getGridInstances().entrySet()) {
+            int x = entry.getKey().getX() - leftTop.getX() + pos.getX();
+            int y = entry.getKey().getY() - leftTop.getY() + pos.getY();
+            if (!checkValidGridPos(new GridPos(x, y))) {
+                GuiTools.showMessage(mc, this, getWindowManager(), 50, 50, TextFormatting.RED + "No room for clipboard here!");
+                return;
+            }
+            if (getHolder(x, y).getIcon() != null) {
+                GuiTools.showMessage(mc, this, getWindowManager(), 50, 50, TextFormatting.RED + "No room for clipboard here!");
+                return;
+            }
+        }
+
+        // There is room
+        for (Map.Entry<GridPos, GridInstance> entry : instance.getGridInstances().entrySet()) {
+            int x = entry.getKey().getX() - leftTop.getX() + pos.getX();
+            int y = entry.getKey().getY() - leftTop.getY() + pos.getY();
+            loadGridInstance(entry, x, y);
+        }
+    }
+
     private void loadProgram(ProgramCardInstance instance) {
         for (Map.Entry<GridPos, GridInstance> entry : instance.getGridInstances().entrySet()) {
             int x = entry.getKey().getX();
             int y = entry.getKey().getY();
-            GridInstance gridInstance = entry.getValue();
-            IIcon icon = ICONS.get(gridInstance.getId());
-            if (icon == null) {
-                // Ignore missing icon
-                Logging.logError("Opcode with id '" + gridInstance.getId() + "' is missing!");
-                continue;
-            }
-            icon = icon.clone();
-            if (gridInstance.getPrimaryConnection() != null) {
-                icon.addOverlay(CONNECTION_ICONS.get(gridInstance.getPrimaryConnection()));
-            }
-            if (gridInstance.getSecondaryConnection() != null) {
-                icon.addOverlay(CONNECTION_ICONS.get(gridInstance.getSecondaryConnection()));
-            }
-            Opcode opcode = Opcodes.OPCODES.get(icon.getID());
-            List<Parameter> parameters = gridInstance.getParameters();
-            for (int i = 0 ; i < parameters.size() ; i++) {
-                String name = opcode.getParameters().get(i).getName();
-                icon.addData(name, parameters.get(i).getParameterValue());
-            }
-
-            loading = true;
-            getHolder(x, y).setIcon(icon);
-            loading = false;
+            loadGridInstance(entry, x, y);
         }
+    }
+
+    private void loadGridInstance(Map.Entry<GridPos, GridInstance> entry, int x, int y) {
+        GridInstance gridInstance = entry.getValue();
+        IIcon icon = ICONS.get(gridInstance.getId());
+        if (icon == null) {
+            // Ignore missing icon
+            Logging.logError("Opcode with id '" + gridInstance.getId() + "' is missing!");
+            return;
+        }
+        icon = icon.clone();
+        if (gridInstance.getPrimaryConnection() != null) {
+            icon.addOverlay(CONNECTION_ICONS.get(gridInstance.getPrimaryConnection()));
+        }
+        if (gridInstance.getSecondaryConnection() != null) {
+            icon.addOverlay(CONNECTION_ICONS.get(gridInstance.getSecondaryConnection()));
+        }
+        Opcode opcode = Opcodes.OPCODES.get(icon.getID());
+        List<Parameter> parameters = gridInstance.getParameters();
+        for (int i = 0 ; i < parameters.size() ; i++) {
+            String name = opcode.getParameters().get(i).getName();
+            icon.addData(name, parameters.get(i).getParameterValue());
+        }
+
+        loading = true;
+        getHolder(x, y).setIcon(icon);
+        loading = false;
     }
 
     private Panel setupControlPanel() {
@@ -636,28 +798,53 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
     }
 
     private boolean handleClipboard(int keyCode) {
-        if (keyCode == Keyboard.KEY_C) {
-            if (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL)) {
-                ProgramCardInstance instance = makeGridInstance();
+        if (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) || Keyboard.isKeyDown(Keyboard.KEY_RCONTROL)) {
+            if (keyCode == Keyboard.KEY_C) {
+                ProgramCardInstance instance = makeGridInstance(checkSelection());
                 String json = instance.writeToJson();
                 try {
                     StringSelection selection = new StringSelection(json);
                     Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
                     clipboard.setContents(selection, selection);
-                    GuiTools.showMessage(mc, this, getWindowManager(), 50, 50, "Copied program to clipboard");
                 } catch (Exception e) {
                     GuiTools.showMessage(mc, this, getWindowManager(), 50, 50, TextFormatting.RED + "Error copying to clipboard!");
                 }
                 return true;
             }
-        }
-        if (keyCode == Keyboard.KEY_V) {
-            if (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL)) {
+            if (keyCode == Keyboard.KEY_Z) {
+                if (undoProgram != null) {
+                    ProgramCardInstance curProgram = makeGridInstance(false);
+                    loadProgram(undoProgram);
+                    undoProgram = curProgram;
+                }
+                return true;
+            }
+            if (keyCode == Keyboard.KEY_X) {
+                ProgramCardInstance instance = makeGridInstance(checkSelection());
+                String json = instance.writeToJson();
+                try {
+                    StringSelection selection = new StringSelection(json);
+                    Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+                    clipboard.setContents(selection, selection);
+                    undoProgram = makeGridInstance(false);
+                    clearGrid(checkSelection());
+                } catch (Exception e) {
+                    GuiTools.showMessage(mc, this, getWindowManager(), 50, 50, TextFormatting.RED + "Error copying to clipboard!");
+                }
+                return true;
+            }
+            if (keyCode == Keyboard.KEY_V) {
                 try {
                     Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
                     String data = (String) clipboard.getData(DataFlavor.stringFlavor);
                     ProgramCardInstance program = ProgramCardInstance.readFromJson(data);
-                    loadProgram(program);
+                    GridPos holder = getSelectedGridHolder();
+                    undoProgram = makeGridInstance(false);
+                    if (holder != null) {
+                        mergeProgram(program, holder);
+                    } else {
+                        loadProgram(program);
+                    }
                 } catch (UnsupportedFlavorException e) {
                     GuiTools.showMessage(mc, this, getWindowManager(), 50, 50, TextFormatting.RED + "Clipboard does not contain program!");
                 } catch (Exception e) {

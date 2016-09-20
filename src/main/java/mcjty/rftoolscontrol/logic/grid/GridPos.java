@@ -18,6 +18,19 @@ public class GridPos {
         return y;
     }
 
+    public GridPos up() {
+        return new GridPos(x, y-1);
+    }
+    public GridPos down() {
+        return new GridPos(x, y+1);
+    }
+    public GridPos left() {
+        return new GridPos(x-1, y);
+    }
+    public GridPos right() {
+        return new GridPos(x+1, y);
+    }
+
     @Override
     public String toString() {
         return "GridPos{" + x + "," + y + '}';
