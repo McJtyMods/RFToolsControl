@@ -325,7 +325,7 @@ public enum ParameterType {
         } else if (value.isFunction()) {
             return "F:" + value.getFunction().getName();
         } else if (value.getValue() == null) {
-            return "NULL";
+            return "";
         } else {
             return stringRepresentationInternal(value.getValue());
         }
