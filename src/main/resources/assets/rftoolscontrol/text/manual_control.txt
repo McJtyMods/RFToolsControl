@@ -185,23 +185,19 @@ the storage where supported.
 {-------------------------------------------------------------}
 {b}Sharing Programs
 {n:sharing}
-The GUI of the programmer has support for the clipboard. If nothing is
-selected you can type Ctrl-C and the entire grid will be copied to the
-clipboard. This is a JSON file that you can post on the web to share
-with others. If you have such a program in your clipboard you can do
-Ctrl-V to paste it. If the program is small enough you can paste it
-in a section of your grid by clicking on the grid location where you
-want the left-top opcode to appear. If you select nothing the entire
-grid will be replaced.
+The programmer supports the clipboard. You select opcodes, you can type
+Ctrl-C and the selected grid will be copied to the clipboard. This is a
+JSON file that you can share on the web. If you have such a program in
+your clipboard you can do Ctrl-V to paste it. If the program is small
+enough you can paste it in a section of your grid by clicking on the
+grid location where you want the left-top opcode to appear. If you
+select nothing it will try to place from the top-left corner. Note that
+it will merge what is in the clipboard with what is already there.
 
 Note that you can always use Ctrl-Z to undo this.
-{-------------------------------------------------------------}
-It is also possible to copy and paste snippets of code. To do that
-you can use the ctrl key to select opcodes. If you double click (with
-control) an entire connected sequence will be selected or deselected.
 
-You can then use Ctrl-X or Ctrl-C to copy the selected opcodes
-and Ctrl-V to paste them elsewhere.
+To select opcodes you can use Ctrl-A for the entire grid or else
+ctrl-click for a single opcode and ctrl-double click for a sequence.
 {-------------------------------------------------------------}
 {b}Programming Concepts
 {n:concepts}

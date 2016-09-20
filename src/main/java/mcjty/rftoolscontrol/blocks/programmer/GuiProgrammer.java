@@ -226,9 +226,10 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
             List<String> tooltips = new ArrayList<>();
             tooltips.add(TextFormatting.GREEN + "Ctrl-Click to add or remove selection");
             tooltips.add(TextFormatting.GREEN + "Ctrl-Double click to (de)select sequence");
-            tooltips.add(TextFormatting.YELLOW + "Ctrl-C to copy selected or entire grid");
-            tooltips.add(TextFormatting.YELLOW + "Ctrl-X to cut selected or entire grid");
-            tooltips.add(TextFormatting.YELLOW + "Ctrl-V to paste to selected or entire grid");
+            tooltips.add(TextFormatting.YELLOW + "Ctrl-A to select entire grid");
+            tooltips.add(TextFormatting.YELLOW + "Ctrl-C to copy selected grid");
+            tooltips.add(TextFormatting.YELLOW + "Ctrl-X to cut selected grid");
+            tooltips.add(TextFormatting.YELLOW + "Ctrl-V to paste to selected grid");
             tooltips.add(TextFormatting.YELLOW + "Ctrl-Z undo last paste operation");
             return tooltips;
         } else if (prevHighlightConnector != null) {
@@ -313,6 +314,17 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
             Connection connection = getConnectionHandle(dx, dy);
             if (connection != null) {
                 handleIconOverlay(icon, connection);
+            }
+        }
+    }
+
+    private void selectAll() {
+        for (int ix = 0 ; ix < GRID_WIDTH ; ix++) {
+            for (int iy = 0 ; iy < GRID_HEIGHT ; iy++) {
+                IIcon i = getHolder(ix, iy).getIcon();
+                if (i != null) {
+                    i.addOverlay(selectionIcon);
+                }
             }
         }
     }
@@ -655,23 +667,35 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
     private void mergeProgram(ProgramCardInstance instance, GridPos pos) {
         // Find the left-most/top-most icon in this program
         GridPos leftTop = new GridPos(10000, 10000);
-        for (Map.Entry<GridPos, GridInstance> entry : instance.getGridInstances().entrySet()) {
-            int x = entry.getKey().getX();
-            int y = entry.getKey().getY();
-            if (x < leftTop.getX()) {
-                leftTop = entry.getKey();
-            } else if (x == leftTop.getX() && y < leftTop.getY()) {
-                leftTop = entry.getKey();
+        int posx;
+        int posy;
+
+        if (pos == null) {
+            posx = 0;
+            posy = 0;
+            leftTop = new GridPos(0, 0);
+        } else {
+            posx = pos.getX();
+            posy = pos.getY();
+
+            for (Map.Entry<GridPos, GridInstance> entry : instance.getGridInstances().entrySet()) {
+                int x = entry.getKey().getX();
+                int y = entry.getKey().getY();
+                if (x < leftTop.getX()) {
+                    leftTop = entry.getKey();
+                } else if (x == leftTop.getX() && y < leftTop.getY()) {
+                    leftTop = entry.getKey();
+                }
             }
-        }
-        if (leftTop.getX() > 1000) {
-            return; // Nothing to do
+            if (leftTop.getX() > 1000) {
+                return; // Nothing to do
+            }
         }
 
         // Check if the program fits in the grid
         for (Map.Entry<GridPos, GridInstance> entry : instance.getGridInstances().entrySet()) {
-            int x = entry.getKey().getX() - leftTop.getX() + pos.getX();
-            int y = entry.getKey().getY() - leftTop.getY() + pos.getY();
+            int x = entry.getKey().getX() - leftTop.getX() + posx;
+            int y = entry.getKey().getY() - leftTop.getY() + posy;
             if (!checkValidGridPos(new GridPos(x, y))) {
                 GuiTools.showMessage(mc, this, getWindowManager(), 50, 50, TextFormatting.RED + "No room for clipboard here!");
                 return;
@@ -684,8 +708,8 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
 
         // There is room
         for (Map.Entry<GridPos, GridInstance> entry : instance.getGridInstances().entrySet()) {
-            int x = entry.getKey().getX() - leftTop.getX() + pos.getX();
-            int y = entry.getKey().getY() - leftTop.getY() + pos.getY();
+            int x = entry.getKey().getX() - leftTop.getX() + posx;
+            int y = entry.getKey().getY() - leftTop.getY() + posy;
             loadGridInstance(entry, x, y);
         }
     }
@@ -799,52 +823,55 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
 
     private boolean handleClipboard(int keyCode) {
         if (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) || Keyboard.isKeyDown(Keyboard.KEY_RCONTROL)) {
-            if (keyCode == Keyboard.KEY_C) {
-                ProgramCardInstance instance = makeGridInstance(checkSelection());
-                String json = instance.writeToJson();
-                try {
-                    StringSelection selection = new StringSelection(json);
-                    Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-                    clipboard.setContents(selection, selection);
-                } catch (Exception e) {
-                    GuiTools.showMessage(mc, this, getWindowManager(), 50, 50, TextFormatting.RED + "Error copying to clipboard!");
+            if (keyCode == Keyboard.KEY_A) {
+                selectAll();
+            } else if (keyCode == Keyboard.KEY_C) {
+                if (!checkSelection()) {
+                    GuiTools.showMessage(mc, this, getWindowManager(), 50, 50, TextFormatting.RED + "Nothing is selected!");
+                } else {
+                    ProgramCardInstance instance = makeGridInstance(true);
+                    String json = instance.writeToJson();
+                    try {
+                        StringSelection selection = new StringSelection(json);
+                        Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+                        clipboard.setContents(selection, selection);
+                    } catch (Exception e) {
+                        GuiTools.showMessage(mc, this, getWindowManager(), 50, 50, TextFormatting.RED + "Error copying to clipboard!");
+                    }
                 }
                 return true;
-            }
-            if (keyCode == Keyboard.KEY_Z) {
+            } else if (keyCode == Keyboard.KEY_Z) {
                 if (undoProgram != null) {
                     ProgramCardInstance curProgram = makeGridInstance(false);
+                    clearGrid(false);
                     loadProgram(undoProgram);
                     undoProgram = curProgram;
                 }
                 return true;
-            }
-            if (keyCode == Keyboard.KEY_X) {
-                ProgramCardInstance instance = makeGridInstance(checkSelection());
-                String json = instance.writeToJson();
-                try {
-                    StringSelection selection = new StringSelection(json);
-                    Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-                    clipboard.setContents(selection, selection);
-                    undoProgram = makeGridInstance(false);
-                    clearGrid(checkSelection());
-                } catch (Exception e) {
-                    GuiTools.showMessage(mc, this, getWindowManager(), 50, 50, TextFormatting.RED + "Error copying to clipboard!");
+            } else if (keyCode == Keyboard.KEY_X) {
+                if (!checkSelection()) {
+                    GuiTools.showMessage(mc, this, getWindowManager(), 50, 50, TextFormatting.RED + "Nothing is selected!");
+                } else {
+                    ProgramCardInstance instance = makeGridInstance(true);
+                    String json = instance.writeToJson();
+                    try {
+                        StringSelection selection = new StringSelection(json);
+                        Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+                        clipboard.setContents(selection, selection);
+                        undoProgram = makeGridInstance(false);
+                        clearGrid(checkSelection());
+                    } catch (Exception e) {
+                        GuiTools.showMessage(mc, this, getWindowManager(), 50, 50, TextFormatting.RED + "Error copying to clipboard!");
+                    }
                 }
                 return true;
-            }
-            if (keyCode == Keyboard.KEY_V) {
+            } else if (keyCode == Keyboard.KEY_V) {
                 try {
                     Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
                     String data = (String) clipboard.getData(DataFlavor.stringFlavor);
                     ProgramCardInstance program = ProgramCardInstance.readFromJson(data);
-                    GridPos holder = getSelectedGridHolder();
                     undoProgram = makeGridInstance(false);
-                    if (holder != null) {
-                        mergeProgram(program, holder);
-                    } else {
-                        loadProgram(program);
-                    }
+                    mergeProgram(program, getSelectedGridHolder());
                 } catch (UnsupportedFlavorException e) {
                     GuiTools.showMessage(mc, this, getWindowManager(), 50, 50, TextFormatting.RED + "Clipboard does not contain program!");
                 } catch (Exception e) {
