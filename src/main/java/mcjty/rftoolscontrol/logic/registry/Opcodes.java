@@ -804,9 +804,11 @@ public class Opcodes {
             .id("test_loop")
             .description(
                     TextFormatting.GREEN + "Test: loop",
-                    "loop a variable until it reaches a specific value")
+                    "loop a variable until it reaches a specific value",
+                    "Make sure to set the variable to the starting value",
+                    "of the loop before this opcode")
             .opcodeOutput(YESNO)
-            .parameter(ParameterDescription.builder().name("var").type(PAR_INTEGER).description("variable index").build())
+            .parameter(ParameterDescription.builder().name("var").type(PAR_INTEGER).description("variable index (first var is 0)").build())
             .parameter(ParameterDescription.builder().name("end").type(PAR_INTEGER).description("end index (inclusive)").build())
             .icon(8, 3)
             .runnable(((processor, program, opcode) -> {

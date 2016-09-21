@@ -95,11 +95,11 @@ public abstract class AbstractParameterEditor implements ParameterEditor {
         Panel variablePanel = new Panel(mc, gui).setLayout(new HorizontalLayout()).setDesiredHeight(18);
         variableIndex = new TextField(mc, gui)
                 .setDesiredHeight(14)
-                .setTooltips("Index (in the processor)", "of the variable")
+                .setTooltips("Index (in the processor)", "of the variable", "(first variable has index 0)")
                 .addTextEvent((parent,newText) -> callback.valueChanged(readValue()));
         variablePanel.addChild(new Label(mc, gui)
                 .setText("Index:"))
-                .setTooltips("Index (in the processor)", "of the variable")
+                .setTooltips("Index (in the processor)", "of the variable", "(first variable has index 0)")
                 .setDesiredHeight(14)
                 .addChild(variableIndex);
 

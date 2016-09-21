@@ -480,12 +480,14 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
             return;
         }
         if (opcode.getOpcodeOutput() == OpcodeOutput.SINGLE) {
+            boolean has = icon.hasOverlay(connection.getId());
             for (Connection c : Connection.values()) {
                 icon.removeOverlay(c.getId());
             }
-//            icon.clearOverlays();
-            if (!icon.hasOverlay(connection.getId())) {
-                icon.addOverlay(CONNECTION_ICONS.get(connection));
+            if (!has) {
+                if (!icon.hasOverlay(connection.getId())) {
+                    icon.addOverlay(CONNECTION_ICONS.get(connection));
+                }
             }
         } else {
             if (icon.hasOverlay(connection.getId())) {
