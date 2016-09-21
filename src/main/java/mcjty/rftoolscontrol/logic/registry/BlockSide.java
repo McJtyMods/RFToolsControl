@@ -22,6 +22,10 @@ public class BlockSide {
         return nodeName;
     }
 
+    public boolean hasNodeName() {
+        return nodeName != null && !nodeName.isEmpty();
+    }
+
     @Nullable
     public EnumFacing getSide() {
         return side;

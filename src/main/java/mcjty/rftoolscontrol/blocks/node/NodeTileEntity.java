@@ -2,19 +2,25 @@ package mcjty.rftoolscontrol.blocks.node;
 
 import mcjty.lib.entity.GenericTileEntity;
 import mcjty.lib.network.Argument;
+import mcjty.lib.varia.BlockPosTools;
+import mcjty.rftoolscontrol.blocks.processor.ProcessorTileEntity;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
+import net.minecraft.util.math.BlockPos;
 
 import java.util.Map;
 
-public class NodeTileEntity extends GenericTileEntity implements ITickable {
+public class NodeTileEntity extends GenericTileEntity {
 
     public static final String CMD_UPDATE = "update";
 
     private String channel;
     private String node;
+
+    private BlockPos processor = null;
 
     // Bitmask for all six sides
     private int prevIn = 0;
@@ -28,11 +34,28 @@ public class NodeTileEntity extends GenericTileEntity implements ITickable {
         return channel;
     }
 
+    public BlockPos getProcessor() {
+        return processor;
+    }
+
+    public void setProcessor(BlockPos processor) {
+        this.processor = processor;
+        markDirty();
+    }
+
     @Override
-    public void update() {
-        if (!worldObj.isRemote) {
+    public void setPowerInput(int powered) {
+        if (powerLevel != powered) {
+            if (processor != null) {
+                TileEntity te = worldObj.getTileEntity(processor);
+                if (te instanceof ProcessorTileEntity) {
+                    ProcessorTileEntity processorTileEntity = (ProcessorTileEntity) te;
+                    processorTileEntity.redstoneNodeChange(prevIn, powered, node);
+                }
+            }
             prevIn = powerLevel;
         }
+        super.setPowerInput(powered);
     }
 
     public int getPowerOut(EnumFacing side) {
@@ -69,6 +92,7 @@ public class NodeTileEntity extends GenericTileEntity implements ITickable {
         super.readRestorableFromNBT(tagCompound);
         channel = tagCompound.getString("channel");
         node = tagCompound.getString("node");
+        processor = BlockPosTools.readFromNBT(tagCompound, "processor");
     }
 
     @Override
@@ -79,6 +103,9 @@ public class NodeTileEntity extends GenericTileEntity implements ITickable {
         }
         if (node != null) {
             tagCompound.setString("node", node);
+        }
+        if (processor != null) {
+            BlockPosTools.writeToNBT(tagCompound, "processor", processor);
         }
     }
 

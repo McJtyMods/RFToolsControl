@@ -730,9 +730,11 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                 int index = event.getIndex();
                 CompiledOpcode compiledOpcode = compiledCard.getOpcodes().get(index);
                 BlockSide side = evaluateParameter(compiledOpcode, null, 0);
-                EnumFacing facing = side == null ? null : side.getSide();
-                if (facing == null || ((redstoneOffMask >> facing.ordinal()) & 1) == 1) {
-                    runOrQueueEvent(i, event, null);
+                if (!side.hasNodeName()) {
+                    EnumFacing facing = side == null ? null : side.getSide();
+                    if (facing == null || ((redstoneOffMask >> facing.ordinal()) & 1) == 1) {
+                        runOrQueueEvent(i, event, null);
+                    }
                 }
             }
         }
@@ -745,14 +747,49 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                 int index = event.getIndex();
                 CompiledOpcode compiledOpcode = compiledCard.getOpcodes().get(index);
                 BlockSide side = evaluateParameter(compiledOpcode, null, 0);
-                EnumFacing facing = side == null ? null : side.getSide();
-                if (facing == null || ((redstoneOnMask >> facing.ordinal()) & 1) == 1) {
-                    runOrQueueEvent(i, event, null);
+                if (!side.hasNodeName()) {
+                    EnumFacing facing = side == null ? null : side.getSide();
+                    if (facing == null || ((redstoneOnMask >> facing.ordinal()) & 1) == 1) {
+                        runOrQueueEvent(i, event, null);
+                    }
                 }
             }
         }
     }
 
+    private void handleEventsRedstoneOff(int i, CompiledCard compiledCard, String node, int prevMask, int newMask) {
+        int redstoneOffMask = prevMask & ~newMask;
+        if (redstoneOffMask != 0) {
+            for (CompiledEvent event : compiledCard.getEvents(Opcodes.EVENT_REDSTONE_OFF)) {
+                int index = event.getIndex();
+                CompiledOpcode compiledOpcode = compiledCard.getOpcodes().get(index);
+                BlockSide side = evaluateParameter(compiledOpcode, null, 0);
+                if (node.equals(side.getNodeName())) {
+                    EnumFacing facing = side == null ? null : side.getSide();
+                    if (facing == null || ((redstoneOffMask >> facing.ordinal()) & 1) == 1) {
+                        runOrQueueEvent(i, event, null);
+                    }
+                }
+            }
+        }
+    }
+
+    private void handleEventsRedstoneOn(int i, CompiledCard compiledCard, String node, int prevMask, int newMask) {
+        int redstoneOnMask = newMask & ~prevMask;
+        if (redstoneOnMask != 0) {
+            for (CompiledEvent event : compiledCard.getEvents(Opcodes.EVENT_REDSTONE_ON)) {
+                int index = event.getIndex();
+                CompiledOpcode compiledOpcode = compiledCard.getOpcodes().get(index);
+                BlockSide side = evaluateParameter(compiledOpcode, null, 0);
+                if (node.equals(side.getNodeName())) {
+                    EnumFacing facing = side == null ? null : side.getSide();
+                    if (facing == null || ((redstoneOnMask >> facing.ordinal()) & 1) == 1) {
+                        runOrQueueEvent(i, event, null);
+                    }
+                }
+            }
+        }
+    }
     public void clearRunningEvent(int cardIndex, int eventIndex) {
         runningEvents.remove(Pair.of(cardIndex, eventIndex));
     }
@@ -1834,6 +1871,17 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         markDirty();
     }
 
+    public void redstoneNodeChange(int previousMask, int newMask, String node) {
+        for (int i = 0 ; i < cardInfo.length ; i++) {
+            CardInfo info = cardInfo[i];
+            CompiledCard compiledCard = info.getCompiledCard();
+            if (compiledCard != null) {
+                handleEventsRedstoneOn(i, compiledCard, node, previousMask, newMask);
+                handleEventsRedstoneOff(i, compiledCard, node, previousMask, newMask);
+            }
+        }
+    }
+
     public void scanNodes() {
         if (channel == null || channel.isEmpty()) {
             log("Setup a channel first!");
@@ -1853,6 +1901,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                                 log("Node is missing a name!");
                             } else {
                                 networkNodes.put(node.getNodeName(), n);
+                                node.setProcessor(getPos());
                             }
                         }
                     } else if (te instanceof CraftingStationTileEntity) {

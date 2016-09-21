@@ -38,8 +38,7 @@ public class Opcodes {
             .description(
                     TextFormatting.GREEN + "Event: redstone on",
                     "execute program when redstone signal at",
-                    "a specific side (or in general) goes on",
-                    "Note: not yet supported on nodes")
+                    "a specific side (or in general) goes on")
             .opcodeOutput(SINGLE)
             .isEvent(true)
             .parameter(ParameterDescription.builder().name("side").type(PAR_SIDE).description("side of (networked) block").build())
@@ -51,8 +50,7 @@ public class Opcodes {
             .description(
                     TextFormatting.GREEN + "Event: redstone off",
                     "execute program when redstone signal at",
-                    "a specific side (or in general) goes off",
-                    "Note: not yet supported on nodes")
+                    "a specific side (or in general) goes off")
             .opcodeOutput(SINGLE)
             .isEvent(true)
             .parameter(ParameterDescription.builder().name("side").type(PAR_SIDE).description("side of (networked) block").build())

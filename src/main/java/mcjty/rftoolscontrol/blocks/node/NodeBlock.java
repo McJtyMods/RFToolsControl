@@ -39,6 +39,11 @@ public class NodeBlock extends GenericRFToolsBlock<NodeTileEntity, EmptyContaine
         return RFToolsControl.GUI_NODE;
     }
 
+    @Override
+    public boolean needsRedstoneCheck() {
+        return true;
+    }
+
     @SideOnly(Side.CLIENT)
     @Override
     public void addInformation(ItemStack stack, EntityPlayer playerIn, List<String> list, boolean advanced) {
