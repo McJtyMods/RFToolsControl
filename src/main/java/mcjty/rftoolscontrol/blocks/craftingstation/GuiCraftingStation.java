@@ -10,6 +10,7 @@ import mcjty.lib.gui.widgets.*;
 import mcjty.lib.gui.widgets.Button;
 import mcjty.lib.gui.widgets.Label;
 import mcjty.lib.gui.widgets.Panel;
+import mcjty.lib.gui.widgets.TextField;
 import mcjty.lib.network.Argument;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.gui.GuiTools;
@@ -34,6 +35,7 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
 
     private WidgetList recipeList;
     private WidgetList requestList;
+    private TextField searchField;
     private Button cancelButton;
 
     private static List<ItemStack> fromServer_craftables = new ArrayList<>();
@@ -70,12 +72,15 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
     }
 
     private void initButtons(Panel toplevel) {
+        searchField = new TextField(mc, this)
+                .setLayoutHint(new PositionalLayout.PositionalHint(5, 5, WIDTH-46-10, 16));
         cancelButton = new Button(mc, this)
-                .setLayoutHint(new PositionalLayout.PositionalHint(180, 5, 46, 16))
+//                .setLayoutHint(new PositionalLayout.PositionalHint(180, 5, 46, 16))
+                .setLayoutHint(new PositionalLayout.PositionalHint(WIDTH-46-5, 5, 46, 16))
                 .setText("Cancel")
                 .setTooltips("Cancel the currently selected", "crafting request")
                 .addButtonEvent((widget -> cancelRequest()));
-        toplevel.addChild(cancelButton);
+        toplevel.addChild(cancelButton).addChild(searchField);
     }
 
     private void cancelRequest() {
@@ -88,15 +93,15 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
     }
 
     private void initRecipeList(Panel toplevel) {
-        recipeList = new WidgetList(mc, this).setLayoutHint(new PositionalLayout.PositionalHint(5, 5, 70, 146)).setPropagateEventsToChildren(true)
+        recipeList = new WidgetList(mc, this).setLayoutHint(new PositionalLayout.PositionalHint(5, 23, 120, 128)).setPropagateEventsToChildren(true)
                 .setInvisibleSelection(true);
-        Slider slider = new Slider(mc, this).setScrollable(recipeList).setLayoutHint(new PositionalLayout.PositionalHint(76, 5, 9, 146));
+        Slider slider = new Slider(mc, this).setScrollable(recipeList).setLayoutHint(new PositionalLayout.PositionalHint(126, 23, 9, 128));
         toplevel.addChild(recipeList).addChild(slider);
     }
 
     private void initProgressList(Panel toplevel) {
-        requestList = new WidgetList(mc, this).setLayoutHint(new PositionalLayout.PositionalHint(86, 5, 80, 146));
-        Slider slider = new Slider(mc, this).setScrollable(requestList).setLayoutHint(new PositionalLayout.PositionalHint(86+80+1, 5, 9, 146));
+        requestList = new WidgetList(mc, this).setLayoutHint(new PositionalLayout.PositionalHint(136, 23, 80, 128));
+        Slider slider = new Slider(mc, this).setScrollable(requestList).setLayoutHint(new PositionalLayout.PositionalHint(136+80+1, 23, 9, 128));
         toplevel.addChild(requestList).addChild(slider);
     }
 
@@ -115,13 +120,15 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
 
     private void updateRequestList() {
         requestList.removeChildren();
+
         for (CraftingRequest request : fromServer_requests) {
+            final ItemStack stack = request.getStack();
+
             Panel panel = new Panel(mc, this).setLayout(new HorizontalLayout()).setDesiredWidth(16);
             requestList.addChild(panel);
             BlockRender blockRender = new BlockRender(mc, this) {
                 @Override
                 public List<String> getTooltips() {
-                    ItemStack stack = request.getStack();
                     List<String> list = stack.getTooltip(this.mc.thePlayer, this.mc.gameSettings.advancedItemTooltips);
 
                     for (int i = 0; i < list.size(); ++i) {
@@ -135,7 +142,7 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
                     return list;
                 }
             }
-                    .setRenderItem(request.getStack())
+                    .setRenderItem(stack)
                     .setOffsetX(-1)
                     .setOffsetY(-1);
             panel.addChild(blockRender);
@@ -148,11 +155,22 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
     }
 
     private void updateRecipeList() {
+        String filterText = searchField.getText().toLowerCase().trim();
+
+        fromServer_craftables.sort((r1, r2) -> {
+            return r1.getDisplayName().compareTo(r2.getDisplayName());
+        });
+
         recipeList.removeChildren();
         Panel panel = null;
         int index = 0;
         for (ItemStack stack : fromServer_craftables) {
-            if (panel == null || panel.getChildCount() >= 3) {
+            String displayName = stack.getDisplayName();
+            if ((!filterText.isEmpty()) && !displayName.toLowerCase().contains(filterText)) {
+                continue;
+            }
+
+            if (panel == null || panel.getChildCount() >= 6) {
                 panel = new Panel(mc, this).setLayout(new HorizontalLayout().setSpacing(3).setHorizontalMargin(1))
                         .setDesiredHeight(16);
                 recipeList.addChild(panel);
@@ -193,9 +211,9 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
                         boolean shift = Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT);
                         Object index = br.getUserObject();
                         if (shift) {
-                            askAmountToCraft((Integer) index);
+                            askAmountToCraft(stack);
                         } else {
-                            requestItem((Integer) index, 1);
+                            requestItem(stack, 1);
                         }
                     }
                 }
@@ -216,18 +234,18 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
         }
     }
 
-    private void askAmountToCraft(Integer index) {
+    private void askAmountToCraft(ItemStack stack) {
         GuiTools.askSomething(mc, this, getWindowManager(), 220, 50, "Craft amount:", "", s -> {
             Integer a = safeParse(s);
             if (a != null) {
-                requestItem(index, a);
+                requestItem(stack, a);
             }
         });
     }
 
-    private void requestItem(int index, int amount) {
+    private void requestItem(ItemStack stack, int amount) {
         sendServerCommand(RFToolsCtrlMessages.INSTANCE, CraftingStationTileEntity.CMD_REQUEST,
-                new Argument("index", index),
+                new Argument("item", stack.getItem().getRegistryName().toString()),
                 new Argument("amount", amount));
     }
 
