@@ -53,7 +53,7 @@ public class NodeTileEntity extends GenericTileEntity {
                     processorTileEntity.redstoneNodeChange(prevIn, powered, node);
                 }
             }
-            prevIn = powerLevel;
+            prevIn = powered;
         }
         super.setPowerInput(powered);
     }
