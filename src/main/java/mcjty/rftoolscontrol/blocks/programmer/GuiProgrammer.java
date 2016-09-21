@@ -224,13 +224,17 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
     private List<String> getGridIconTooltips(int finalX, int finalY) {
         if (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) || Keyboard.isKeyDown(Keyboard.KEY_RCONTROL)) {
             List<String> tooltips = new ArrayList<>();
-            tooltips.add(TextFormatting.GREEN + "Ctrl-Click to add or remove selection");
-            tooltips.add(TextFormatting.GREEN + "Ctrl-Double click to (de)select sequence");
-            tooltips.add(TextFormatting.YELLOW + "Ctrl-A to select entire grid");
-            tooltips.add(TextFormatting.YELLOW + "Ctrl-C to copy selected grid");
-            tooltips.add(TextFormatting.YELLOW + "Ctrl-X to cut selected grid");
-            tooltips.add(TextFormatting.YELLOW + "Ctrl-V to paste to selected grid");
-            tooltips.add(TextFormatting.YELLOW + "Ctrl-Z undo last paste operation");
+            if (GeneralConfiguration.tooltipVerbosityLevel >= 2) {
+                tooltips.add(TextFormatting.GREEN + "Ctrl-Click to add or remove selection");
+                tooltips.add(TextFormatting.GREEN + "Ctrl-Double click to (de)select sequence");
+                tooltips.add(TextFormatting.YELLOW + "Ctrl-A to select entire grid");
+                tooltips.add(TextFormatting.YELLOW + "Ctrl-C to copy selected grid");
+                tooltips.add(TextFormatting.YELLOW + "Ctrl-X to cut selected grid");
+                tooltips.add(TextFormatting.YELLOW + "Ctrl-V to paste to selected grid");
+                tooltips.add(TextFormatting.YELLOW + "Ctrl-Z undo last paste operation");
+            } else if (GeneralConfiguration.tooltipVerbosityLevel >= 1) {
+                tooltips.add(TextFormatting.GREEN + "Use Ctrl with A, C, X, V or Z");
+            }
             return tooltips;
         } else if (prevHighlightConnector != null) {
             List<String> tooltips = new ArrayList<>();
