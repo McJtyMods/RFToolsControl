@@ -5,8 +5,9 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import mcjty.rftoolscontrol.logic.Connection;
-import mcjty.rftoolscontrol.logic.Parameter;
+import mcjty.rftoolscontrol.api.parameters.Parameter;
 import mcjty.rftoolscontrol.api.code.Opcode;
+import mcjty.rftoolscontrol.logic.ParameterTools;
 import mcjty.rftoolscontrol.logic.registry.Opcodes;
 import mcjty.rftoolscontrol.api.parameters.ParameterDescription;
 import mcjty.rftoolscontrol.api.parameters.ParameterValue;
@@ -62,7 +63,7 @@ public class GridInstance {
         }
         JsonArray array = new JsonArray();
         for (Parameter parameter : getParameters()) {
-            array.add(parameter.getJsonElement());
+            array.add(ParameterTools.getJsonElement(parameter));
         }
         jsonObject.add("parameters", array);
 
@@ -92,7 +93,7 @@ public class GridInstance {
         JsonArray parameterArray = gridObject.get("parameters").getAsJsonArray();
         for (int i = 0 ; i < parameterArray.size() ; i++) {
             JsonObject parObject = parameterArray.get(i).getAsJsonObject();
-            Parameter parameter = Parameter.readFromJson(parObject);
+            Parameter parameter = ParameterTools.readFromJson(parObject);
             if (parameter.getParameterType() != parameters.get(i).getType()) {
                 // Sanity check
                 builder.parameter(Parameter.builder().type(parameters.get(i).getType()).value(ParameterValue.constant(null)).build());
@@ -118,7 +119,7 @@ public class GridInstance {
 
         NBTTagList parList = new NBTTagList();
         for (Parameter parameter : getParameters()) {
-            NBTTagCompound nbt = Parameter.writeToNBT(parameter);
+            NBTTagCompound nbt = ParameterTools.writeToNBT(parameter);
 
             parList.appendTag(nbt);
         }
@@ -146,7 +147,7 @@ public class GridInstance {
         NBTTagList parList = tag.getTagList("pars", Constants.NBT.TAG_COMPOUND);
         for (int i = 0 ; i < parList.tagCount() ; i++) {
             NBTTagCompound parTag = (NBTTagCompound) parList.get(i);
-            Parameter parameter = Parameter.readFromNBT(parTag);
+            Parameter parameter = ParameterTools.readFromNBT(parTag);
             if (parameter.getParameterType() != parameters.get(i).getType()) {
                 // Sanity check
                 builder.parameter(Parameter.builder().type(parameters.get(i).getType()).value(ParameterValue.constant(null)).build());

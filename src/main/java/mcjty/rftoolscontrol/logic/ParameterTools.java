@@ -5,53 +5,15 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import io.netty.buffer.ByteBuf;
 import mcjty.lib.network.NetworkTools;
-import mcjty.rftoolscontrol.api.parameters.BlockSide;
-import mcjty.rftoolscontrol.api.parameters.Inventory;
-import mcjty.rftoolscontrol.api.parameters.ParameterType;
-import mcjty.rftoolscontrol.api.parameters.ParameterValue;
-import mcjty.rftoolscontrol.logic.registry.*;
+import mcjty.rftoolscontrol.api.parameters.*;
+import mcjty.rftoolscontrol.logic.registry.InventoryUtil;
+import mcjty.rftoolscontrol.logic.registry.ParameterTypeTools;
 import mcjty.rftoolscontrol.logic.running.ExceptionType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 
-public class Parameter {
-
-    private final ParameterType parameterType;
-    private final ParameterValue parameterValue;
-
-    private Parameter(Builder builder) {
-        parameterType = builder.parameterType;
-        parameterValue = builder.parameterValue;
-    }
-
-    public JsonElement getJsonElement() {
-        JsonObject jsonObject = new JsonObject();
-        jsonObject.add("type", new JsonPrimitive(parameterType.getName()));
-        jsonObject.add("value", ParameterTypeTools.writeToJson(parameterType, parameterValue));
-        return jsonObject;
-    }
-
-    public static Parameter readFromJson(JsonObject object) {
-        ParameterType type = ParameterType.getByName(object.get("type").getAsString());
-        ParameterValue value = ParameterTypeTools.readFromJson(type, object.get("value").getAsJsonObject());
-        return builder().type(type).value(value).build();
-    }
-
-    public static Parameter readFromNBT(NBTTagCompound parTag) {
-        ParameterType type = ParameterType.values()[parTag.getInteger("type")];
-        ParameterValue value = ParameterTypeTools.readFromNBT(parTag, type);
-        return builder().type(type).value(value).build();
-    }
-
-    public static NBTTagCompound writeToNBT(Parameter parameter) {
-        ParameterType type = parameter.getParameterType();
-        ParameterValue value = parameter.getParameterValue();
-        NBTTagCompound parTag = new NBTTagCompound();
-        parTag.setInteger("type", type.ordinal());
-        ParameterTypeTools.writeToNBT(parTag, type, value);
-        return parTag;
-    }
+public class ParameterTools {
 
     public static Parameter readFromBuf(ByteBuf buf) {
         byte b = buf.readByte();
@@ -94,15 +56,15 @@ public class Parameter {
         return builder.build();
     }
 
-    public void writeToBuf(ByteBuf buf) {
-        buf.writeByte(getParameterType().ordinal());
-        Object value = getParameterValue().getValue();
+    public static void writeToBuf(ByteBuf buf, Parameter parameter) {
+        buf.writeByte(parameter.getParameterType().ordinal());
+        Object value = parameter.getParameterValue().getValue();
         if (value == null) {
             buf.writeBoolean(false);
             return;
         }
         buf.writeBoolean(true);
-        switch (getParameterType()) {
+        switch (parameter.getParameterType()) {
             case PAR_STRING:
                 NetworkTools.writeString(buf, (String) value);
                 break;
@@ -133,39 +95,31 @@ public class Parameter {
         }
     }
 
-    public boolean isSet() {
-        return parameterValue != null && parameterValue.getValue() != null;
+    public static NBTTagCompound writeToNBT(Parameter parameter) {
+        ParameterType type = parameter.getParameterType();
+        ParameterValue value = parameter.getParameterValue();
+        NBTTagCompound parTag = new NBTTagCompound();
+        parTag.setInteger("type", type.ordinal());
+        ParameterTypeTools.writeToNBT(parTag, type, value);
+        return parTag;
     }
 
-    public ParameterType getParameterType() {
-        return parameterType;
+    public static Parameter readFromNBT(NBTTagCompound parTag) {
+        ParameterType type = ParameterType.values()[parTag.getInteger("type")];
+        ParameterValue value = ParameterTypeTools.readFromNBT(parTag, type);
+        return Parameter.builder().type(type).value(value).build();
     }
 
-    public ParameterValue getParameterValue() {
-        return parameterValue;
+    public static Parameter readFromJson(JsonObject object) {
+        ParameterType type = ParameterType.getByName(object.get("type").getAsString());
+        ParameterValue value = ParameterTypeTools.readFromJson(type, object.get("value").getAsJsonObject());
+        return Parameter.builder().type(type).value(value).build();
     }
 
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    public static class Builder {
-        private ParameterType parameterType;
-        private ParameterValue parameterValue;
-
-        public Builder type(ParameterType parameterType) {
-            this.parameterType = parameterType;
-            return this;
-        }
-
-        public Builder value(ParameterValue value) {
-            this.parameterValue = value;
-            return this;
-        }
-
-        public Parameter build() {
-            return new Parameter(this);
-        }
-
+    public static JsonElement getJsonElement(Parameter parameter) {
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.add("type", new JsonPrimitive(parameter.getParameterType().getName()));
+        jsonObject.add("value", ParameterTypeTools.writeToJson(parameter.getParameterType(), parameter.getParameterValue()));
+        return jsonObject;
     }
 }

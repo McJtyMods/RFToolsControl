@@ -5,7 +5,8 @@ import mcjty.lib.network.ClientCommandHandler;
 import mcjty.lib.network.PacketListToClient;
 import mcjty.lib.varia.Logging;
 import mcjty.rftoolscontrol.RFToolsControl;
-import mcjty.rftoolscontrol.logic.Parameter;
+import mcjty.rftoolscontrol.api.parameters.Parameter;
+import mcjty.rftoolscontrol.logic.ParameterTools;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
@@ -45,7 +46,7 @@ public class PacketVariablesReady extends PacketListToClient<Parameter> {
 
     @Override
     protected Parameter createItem(ByteBuf buf) {
-        return Parameter.readFromBuf(buf);
+        return ParameterTools.readFromBuf(buf);
     }
 
     @Override
@@ -53,7 +54,7 @@ public class PacketVariablesReady extends PacketListToClient<Parameter> {
         if (item == null) {
             buf.writeByte(-1);
         } else {
-            item.writeToBuf(buf);
+            ParameterTools.writeToBuf(buf, item);
         }
     }
 }

@@ -2,7 +2,8 @@ package mcjty.rftoolscontrol.rftoolssupport;
 
 import io.netty.buffer.ByteBuf;
 import mcjty.rftoolscontrol.RFToolsControl;
-import mcjty.rftoolscontrol.logic.Parameter;
+import mcjty.rftoolscontrol.api.parameters.Parameter;
+import mcjty.rftoolscontrol.logic.ParameterTools;
 
 public class ModuleDataVariable implements mcjty.rftools.api.screens.data.IModuleData {
 
@@ -29,6 +30,6 @@ public class ModuleDataVariable implements mcjty.rftools.api.screens.data.IModul
             buf.writeByte(-1);
             return;
         }
-        parameter.writeToBuf(buf);
+        ParameterTools.writeToBuf(buf, parameter);
     }
 }

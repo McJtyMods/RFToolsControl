@@ -4,7 +4,7 @@ import com.google.common.base.Function;
 import io.netty.buffer.ByteBuf;
 import mcjty.lib.network.NetworkTools;
 import mcjty.rftools.api.screens.IScreenModuleRegistry;
-import mcjty.rftoolscontrol.logic.Parameter;
+import mcjty.rftoolscontrol.logic.ParameterTools;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -17,7 +17,7 @@ public class RFToolsSupport {
         @Override
         public Void apply(IScreenModuleRegistry manager) {
             manager.registerModuleDataFactory(ModuleDataVariable.ID, buf -> {
-                return new ModuleDataVariable(Parameter.readFromBuf(buf));
+                return new ModuleDataVariable(ParameterTools.readFromBuf(buf));
             });
             manager.registerModuleDataFactory(ModuleDataLog.ID, buf -> {
                 return new ModuleDataLog(readLog(buf));

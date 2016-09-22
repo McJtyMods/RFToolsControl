@@ -1,6 +1,6 @@
 package mcjty.rftoolscontrol.api.code;
 
-import mcjty.rftoolscontrol.logic.Parameter;
+import mcjty.rftoolscontrol.api.parameters.Parameter;
 
 import java.util.List;
 

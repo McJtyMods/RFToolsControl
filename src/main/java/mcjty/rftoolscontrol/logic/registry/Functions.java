@@ -3,7 +3,7 @@ package mcjty.rftoolscontrol.logic.registry;
 import mcjty.rftoolscontrol.api.code.Function;
 import mcjty.rftoolscontrol.api.parameters.ParameterType;
 import mcjty.rftoolscontrol.api.parameters.ParameterValue;
-import mcjty.rftoolscontrol.logic.Parameter;
+import mcjty.rftoolscontrol.api.parameters.Parameter;
 import mcjty.rftoolscontrol.logic.TypeConverters;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;

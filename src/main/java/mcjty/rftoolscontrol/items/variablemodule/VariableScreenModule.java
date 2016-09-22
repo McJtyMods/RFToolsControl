@@ -7,7 +7,7 @@ import mcjty.rftools.api.screens.IScreenModule;
 import mcjty.rftoolscontrol.blocks.ModBlocks;
 import mcjty.rftoolscontrol.blocks.processor.ProcessorTileEntity;
 import mcjty.rftoolscontrol.config.GeneralConfiguration;
-import mcjty.rftoolscontrol.logic.Parameter;
+import mcjty.rftoolscontrol.api.parameters.Parameter;
 import mcjty.rftoolscontrol.rftoolssupport.ModuleDataVariable;
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;

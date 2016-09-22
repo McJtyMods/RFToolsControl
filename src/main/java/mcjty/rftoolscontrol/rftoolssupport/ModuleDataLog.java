@@ -3,7 +3,6 @@ package mcjty.rftoolscontrol.rftoolssupport;
 import io.netty.buffer.ByteBuf;
 import mcjty.lib.network.NetworkTools;
 import mcjty.rftoolscontrol.RFToolsControl;
-import mcjty.rftoolscontrol.logic.Parameter;
 
 import java.util.List;
 

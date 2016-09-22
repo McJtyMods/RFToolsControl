@@ -22,7 +22,8 @@ import mcjty.rftoolscontrol.items.CPUCoreItem;
 import mcjty.rftoolscontrol.items.ModItems;
 import mcjty.rftoolscontrol.items.craftingcard.CraftingCardItem;
 import mcjty.rftoolscontrol.logic.InventoryTools;
-import mcjty.rftoolscontrol.logic.Parameter;
+import mcjty.rftoolscontrol.api.parameters.Parameter;
+import mcjty.rftoolscontrol.logic.ParameterTools;
 import mcjty.rftoolscontrol.logic.TypeConverters;
 import mcjty.rftoolscontrol.logic.compiled.CompiledCard;
 import mcjty.rftoolscontrol.logic.compiled.CompiledEvent;
@@ -1629,7 +1630,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         for (int i = 0 ; i < varList.tagCount() ; i++) {
             NBTTagCompound var = varList.getCompoundTagAt(i);
             int index = var.getInteger("varidx");
-            variables[index] = Parameter.readFromNBT(var);
+            variables[index] = ParameterTools.readFromNBT(var);
         }
     }
 
@@ -1760,7 +1761,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         NBTTagList varList = new NBTTagList();
         for (int i = 0 ; i < MAXVARS ; i++) {
             if (variables[i] != null) {
-                NBTTagCompound var = Parameter.writeToNBT(variables[i]);
+                NBTTagCompound var = ParameterTools.writeToNBT(variables[i]);
                 var.setInteger("varidx", i);
                 varList.appendTag(var);
             }
