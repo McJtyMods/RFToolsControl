@@ -3,6 +3,8 @@ package mcjty.rftoolscontrol.logic.registry;
 import mcjty.rftoolscontrol.logic.Parameter;
 import mcjty.rftoolscontrol.logic.TypeConverters;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fml.common.registry.ForgeRegistries;
 
 import javax.annotation.Nonnull;
 import java.util.*;
@@ -38,6 +40,15 @@ public class Functions {
             .type(PAR_STRING)
             .runnable((processor, program, function) -> {
                 return convertToString(program.getLastValue());
+            })
+            .build();
+    public static final Function LASTITEM = Function.builder()
+            .id("last_item")
+            .name("last")
+            .description("The last opcode result", "as an item", "Can also convert a string", "representing a registry name to an item")
+            .type(PAR_STRING)
+            .runnable((processor, program, function) -> {
+                return convertToItem(program.getLastValue());
             })
             .build();
     public static final Function TICKET = Function.builder()
@@ -152,6 +163,23 @@ public class Functions {
         return ParameterValue.constant("");
     }
 
+    private static ParameterValue convertToItem(Parameter value) {
+        if (value == null) {
+            return ParameterValue.constant(null);
+        }
+        if (!value.isSet()) {
+            return ParameterValue.constant(null);
+        }
+        Object v = value.getParameterValue().getValue();
+        switch (value.getParameterType()) {
+            case PAR_STRING:
+                return ParameterValue.constant(ForgeRegistries.ITEMS.getValue(new ResourceLocation((String) v)));
+            case PAR_ITEM:
+                return value.getParameterValue();
+        }
+        return ParameterValue.constant(null);
+    }
+
     public static final Map<String, Function> FUNCTIONS = new HashMap<>();
     private static final Map<ParameterType,List<Function>> FUNCTIONS_BY_TYPE = new HashMap<>();
 
@@ -159,6 +187,7 @@ public class Functions {
         register(LASTBOOL);
         register(LASTINT);
         register(LASTSTRING);
+        register(LASTITEM);
         register(TICKET);
         register(CRAFTRESULT);
         register(RANDOMINT);
