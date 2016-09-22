@@ -1,4 +1,7 @@
-package mcjty.rftoolscontrol.api;
+package mcjty.rftoolscontrol.api.code;
+
+import mcjty.rftoolscontrol.api.machines.IProcessor;
+import mcjty.rftoolscontrol.api.machines.IProgram;
 
 public interface IOpcodeRunnable {
     enum OpcodeResult {

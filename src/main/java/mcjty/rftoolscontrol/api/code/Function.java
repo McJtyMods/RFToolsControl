@@ -1,7 +1,6 @@
 package mcjty.rftoolscontrol.api.code;
 
-import mcjty.rftoolscontrol.api.IFunctionRunnable;
-import mcjty.rftoolscontrol.api.paremeters.ParameterType;
+import mcjty.rftoolscontrol.api.parameters.ParameterType;
 
 import java.util.ArrayList;
 import java.util.Collections;

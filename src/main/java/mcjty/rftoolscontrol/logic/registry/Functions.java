@@ -1,8 +1,8 @@
 package mcjty.rftoolscontrol.logic.registry;
 
 import mcjty.rftoolscontrol.api.code.Function;
-import mcjty.rftoolscontrol.api.paremeters.ParameterType;
-import mcjty.rftoolscontrol.api.paremeters.ParameterValue;
+import mcjty.rftoolscontrol.api.parameters.ParameterType;
+import mcjty.rftoolscontrol.api.parameters.ParameterValue;
 import mcjty.rftoolscontrol.logic.Parameter;
 import mcjty.rftoolscontrol.logic.TypeConverters;
 import net.minecraft.item.ItemStack;
@@ -12,7 +12,7 @@ import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import javax.annotation.Nonnull;
 import java.util.*;
 
-import static mcjty.rftoolscontrol.api.paremeters.ParameterType.*;
+import static mcjty.rftoolscontrol.api.parameters.ParameterType.*;
 
 public class Functions {
 

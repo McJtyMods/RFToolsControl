@@ -1,5 +1,7 @@
-package mcjty.rftoolscontrol.api;
+package mcjty.rftoolscontrol.api.machines;
 
+import mcjty.rftoolscontrol.api.code.ICompiledOpcode;
+import mcjty.rftoolscontrol.api.code.IOpcodeRunnable;
 import mcjty.rftoolscontrol.logic.registry.BlockSide;
 import mcjty.rftoolscontrol.logic.registry.Inventory;
 import net.minecraft.item.ItemStack;

@@ -22,7 +22,7 @@ import mcjty.rftoolscontrol.gui.GuiTools;
 import mcjty.rftoolscontrol.logic.Parameter;
 import mcjty.rftoolscontrol.logic.editors.ParameterEditor;
 import mcjty.rftoolscontrol.logic.editors.ParameterEditors;
-import mcjty.rftoolscontrol.api.paremeters.ParameterType;
+import mcjty.rftoolscontrol.api.parameters.ParameterType;
 import mcjty.rftoolscontrol.logic.registry.ParameterTypeTools;
 import mcjty.rftoolscontrol.network.*;
 import net.minecraft.client.renderer.GlStateManager;

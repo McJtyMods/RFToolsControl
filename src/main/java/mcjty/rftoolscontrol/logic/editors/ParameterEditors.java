@@ -1,11 +1,11 @@
 package mcjty.rftoolscontrol.logic.editors;
 
-import mcjty.rftoolscontrol.api.paremeters.ParameterType;
+import mcjty.rftoolscontrol.api.parameters.ParameterType;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static mcjty.rftoolscontrol.api.paremeters.ParameterType.*;
+import static mcjty.rftoolscontrol.api.parameters.ParameterType.*;
 
 public class ParameterEditors {
 

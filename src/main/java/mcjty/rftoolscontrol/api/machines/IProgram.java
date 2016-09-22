@@ -1,4 +1,4 @@
-package mcjty.rftoolscontrol.api;
+package mcjty.rftoolscontrol.api.machines;
 
 import mcjty.rftoolscontrol.logic.Parameter;
 

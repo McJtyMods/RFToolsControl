@@ -1,4 +1,4 @@
-package mcjty.rftoolscontrol.api.paremeters;
+package mcjty.rftoolscontrol.api.parameters;
 
 import java.util.HashMap;
 import java.util.Map;

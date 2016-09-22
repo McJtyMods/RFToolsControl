@@ -4,8 +4,8 @@ import mcjty.lib.gui.layout.HorizontalLayout;
 import mcjty.lib.gui.widgets.ChoiceLabel;
 import mcjty.lib.gui.widgets.Panel;
 import mcjty.rftoolscontrol.logic.running.ExceptionType;
-import mcjty.rftoolscontrol.api.paremeters.ParameterType;
-import mcjty.rftoolscontrol.api.paremeters.ParameterValue;
+import mcjty.rftoolscontrol.api.parameters.ParameterType;
+import mcjty.rftoolscontrol.api.parameters.ParameterValue;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 

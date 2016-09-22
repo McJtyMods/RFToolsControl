@@ -1,4 +1,4 @@
-package mcjty.rftoolscontrol.api.paremeters;
+package mcjty.rftoolscontrol.api.parameters;
 
 import mcjty.rftoolscontrol.api.code.Function;
 

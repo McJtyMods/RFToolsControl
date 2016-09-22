@@ -1,16 +1,16 @@
 package mcjty.rftoolscontrol.logic.running;
 
-import mcjty.rftoolscontrol.api.IProgram;
+import mcjty.rftoolscontrol.api.machines.IProgram;
 import mcjty.rftoolscontrol.blocks.processor.ProcessorTileEntity;
 import mcjty.rftoolscontrol.logic.Parameter;
 import mcjty.rftoolscontrol.logic.TypeConverters;
 import mcjty.rftoolscontrol.logic.compiled.CompiledCard;
 import mcjty.rftoolscontrol.logic.compiled.CompiledEvent;
 import mcjty.rftoolscontrol.logic.compiled.CompiledOpcode;
-import mcjty.rftoolscontrol.api.IOpcodeRunnable;
-import mcjty.rftoolscontrol.api.paremeters.ParameterType;
+import mcjty.rftoolscontrol.api.code.IOpcodeRunnable;
+import mcjty.rftoolscontrol.api.parameters.ParameterType;
 import mcjty.rftoolscontrol.logic.registry.ParameterTypeTools;
-import mcjty.rftoolscontrol.api.paremeters.ParameterValue;
+import mcjty.rftoolscontrol.api.parameters.ParameterValue;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraftforge.common.util.Constants;

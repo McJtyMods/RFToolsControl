@@ -1,9 +1,9 @@
 package mcjty.rftoolscontrol.api.code;
 
-import mcjty.rftoolscontrol.api.IOpcodeRunnable;
-import mcjty.rftoolscontrol.api.paremeters.ParameterDescription;
+import mcjty.rftoolscontrol.api.parameters.ParameterDescription;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -21,6 +21,7 @@ public class Opcode {
 
     private final int iconU;
     private final int iconV;
+    private final String iconResource;
 
     private Opcode(Builder builder) {
         this.id = builder.id;
@@ -33,6 +34,7 @@ public class Opcode {
         this.description = new ArrayList<>(builder.description);
         this.outputDescription = builder.outputDescription;
         this.deprecated = builder.deprecated;
+        this.iconResource = builder.iconResource;
     }
 
     public String getId() {
@@ -76,6 +78,11 @@ public class Opcode {
         return iconV;
     }
 
+    @Nullable
+    public String getIconResource() {
+        return iconResource;
+    }
+
     public static Builder builder() {
         return new Builder();
     }
@@ -111,6 +118,7 @@ public class Opcode {
         private boolean isEvent = false;
         private int iconU;
         private int iconV;
+        private String iconResource;
         private List<ParameterDescription> parameters = new ArrayList<>();
         private IOpcodeRunnable runnable = NOOP;
         private List<String> description = Collections.emptyList();
@@ -156,6 +164,13 @@ public class Opcode {
         public Builder icon(int u, int v) {
             this.iconU = u;
             this.iconV = v;
+            return this;
+        }
+
+        public Builder icon(int u, int v, String iconLocation) {
+            this.iconU = u;
+            this.iconV = v;
+            this.iconResource = iconLocation;
             return this;
         }
 

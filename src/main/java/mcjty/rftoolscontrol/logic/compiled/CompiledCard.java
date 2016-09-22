@@ -7,7 +7,7 @@ import mcjty.rftoolscontrol.logic.grid.GridPos;
 import mcjty.rftoolscontrol.logic.grid.ProgramCardInstance;
 import mcjty.rftoolscontrol.api.code.Opcode;
 import mcjty.rftoolscontrol.logic.registry.Opcodes;
-import mcjty.rftoolscontrol.api.paremeters.ParameterDescription;
+import mcjty.rftoolscontrol.api.parameters.ParameterDescription;
 
 import javax.annotation.Nonnull;
 import java.util.*;

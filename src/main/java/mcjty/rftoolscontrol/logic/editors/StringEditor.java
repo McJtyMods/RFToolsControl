@@ -3,8 +3,8 @@ package mcjty.rftoolscontrol.logic.editors;
 import mcjty.lib.gui.layout.HorizontalLayout;
 import mcjty.lib.gui.widgets.Panel;
 import mcjty.lib.gui.widgets.TextField;
-import mcjty.rftoolscontrol.api.paremeters.ParameterType;
-import mcjty.rftoolscontrol.api.paremeters.ParameterValue;
+import mcjty.rftoolscontrol.api.parameters.ParameterType;
+import mcjty.rftoolscontrol.api.parameters.ParameterValue;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 
