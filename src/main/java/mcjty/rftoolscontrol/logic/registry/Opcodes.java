@@ -1,6 +1,8 @@
 package mcjty.rftoolscontrol.logic.registry;
 
 import mcjty.rftoolscontrol.api.code.Opcode;
+import mcjty.rftoolscontrol.api.parameters.BlockSide;
+import mcjty.rftoolscontrol.api.parameters.Inventory;
 import mcjty.rftoolscontrol.api.parameters.ParameterDescription;
 import mcjty.rftoolscontrol.api.parameters.ParameterValue;
 import mcjty.rftoolscontrol.blocks.processor.ProcessorTileEntity;

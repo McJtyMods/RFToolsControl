@@ -5,6 +5,8 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import io.netty.buffer.ByteBuf;
 import mcjty.lib.network.NetworkTools;
+import mcjty.rftoolscontrol.api.parameters.BlockSide;
+import mcjty.rftoolscontrol.api.parameters.Inventory;
 import mcjty.rftoolscontrol.api.parameters.ParameterType;
 import mcjty.rftoolscontrol.api.parameters.ParameterValue;
 import mcjty.rftoolscontrol.logic.registry.*;
@@ -79,7 +81,7 @@ public class Parameter {
                     builder.value(ParameterValue.constant(buf.readBoolean()));
                     break;
                 case PAR_INVENTORY:
-                    builder.value(ParameterValue.constant(Inventory.readBuf(buf)));
+                    builder.value(ParameterValue.constant(InventoryUtil.readBuf(buf)));
                     break;
                 case PAR_ITEM:
                     builder.value(ParameterValue.constant(NetworkTools.readItemStack(buf)));
@@ -120,7 +122,7 @@ public class Parameter {
                 break;
             case PAR_INVENTORY:
                 Inventory inv = (Inventory) value;
-                inv.writeBuf(buf);
+                InventoryUtil.writeBuf(inv, buf);
                 break;
             case PAR_ITEM:
                 NetworkTools.writeItemStack(buf, (ItemStack) value);

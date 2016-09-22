@@ -1,9 +1,8 @@
-package mcjty.rftoolscontrol.logic.registry;
+package mcjty.rftoolscontrol.api.parameters;
 
 import net.minecraft.util.EnumFacing;
 import org.apache.commons.lang3.StringUtils;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**

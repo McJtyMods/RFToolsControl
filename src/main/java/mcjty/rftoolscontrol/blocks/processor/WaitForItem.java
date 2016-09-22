@@ -1,6 +1,6 @@
 package mcjty.rftoolscontrol.blocks.processor;
 
-import mcjty.rftoolscontrol.logic.registry.Inventory;
+import mcjty.rftoolscontrol.api.parameters.Inventory;
 import net.minecraft.item.ItemStack;
 
 import javax.annotation.Nonnull;

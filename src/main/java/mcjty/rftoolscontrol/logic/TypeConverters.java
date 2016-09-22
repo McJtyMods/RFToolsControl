@@ -1,8 +1,8 @@
 package mcjty.rftoolscontrol.logic;
 
 import mcjty.rftoolscontrol.logic.running.ExceptionType;
-import mcjty.rftoolscontrol.logic.registry.BlockSide;
-import mcjty.rftoolscontrol.logic.registry.Inventory;
+import mcjty.rftoolscontrol.api.parameters.BlockSide;
+import mcjty.rftoolscontrol.api.parameters.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 

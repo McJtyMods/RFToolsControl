@@ -6,7 +6,7 @@ import mcjty.lib.entity.GenericTileEntity;
 import mcjty.lib.network.Argument;
 import mcjty.lib.varia.BlockPosTools;
 import mcjty.rftoolscontrol.blocks.processor.ProcessorTileEntity;
-import mcjty.rftoolscontrol.logic.registry.Inventory;
+import mcjty.rftoolscontrol.api.parameters.Inventory;
 import mcjty.rftoolscontrol.logic.running.ExceptionType;
 import mcjty.rftoolscontrol.logic.running.ProgException;
 import net.minecraft.entity.player.EntityPlayer;

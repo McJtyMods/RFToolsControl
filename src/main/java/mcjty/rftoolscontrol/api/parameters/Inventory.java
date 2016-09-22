@@ -1,8 +1,5 @@
-package mcjty.rftoolscontrol.logic.registry;
+package mcjty.rftoolscontrol.api.parameters;
 
-import io.netty.buffer.ByteBuf;
-import mcjty.lib.network.NetworkTools;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import org.apache.commons.lang3.StringUtils;
 
@@ -50,43 +47,6 @@ public class Inventory {
     @Nullable
     public EnumFacing getIntSide() {
         return intSide;
-    }
-
-    public void writeBuf(ByteBuf buf) {
-        NetworkTools.writeString(buf, getNodeName());
-        buf.writeByte(getSide().ordinal());
-        buf.writeByte(getIntSide() == null ? -1 : getIntSide().ordinal());
-    }
-
-    public static Inventory readBuf(ByteBuf buf) {
-        String nodeName = NetworkTools.readString(buf);
-        int sideIdx = buf.readByte();
-        EnumFacing side = EnumFacing.values()[sideIdx];
-        sideIdx = buf.readByte();
-        EnumFacing intSide = sideIdx == -1 ? null : EnumFacing.values()[sideIdx];
-        return new Inventory(nodeName, side, intSide);
-    }
-
-    public NBTTagCompound writeToNBT() {
-        NBTTagCompound tag = new NBTTagCompound();
-        if (hasNodeName()) {
-            tag.setString("node", getNodeName());
-        }
-        tag.setByte("side", (byte) getSide().ordinal());
-        tag.setByte("intside", (byte) (getIntSide() == null ? -1 : getIntSide().ordinal()));
-        return tag;
-    }
-
-    public static Inventory readFromNBT(NBTTagCompound tag) {
-        String nodeName = null;
-        if (tag.hasKey("node")) {
-            nodeName = tag.getString("node");
-        }
-        int sideIdx = tag.getByte("side");
-        EnumFacing side = EnumFacing.values()[sideIdx];
-        sideIdx = tag.getByte("intside");
-        EnumFacing intSide = sideIdx == -1 ? null : EnumFacing.values()[sideIdx];
-        return new Inventory(nodeName, side, intSide);
     }
 
     public String getStringRepresentation() {

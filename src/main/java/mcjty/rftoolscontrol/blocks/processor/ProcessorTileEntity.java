@@ -12,6 +12,8 @@ import mcjty.rftoolscontrol.api.code.ICompiledOpcode;
 import mcjty.rftoolscontrol.api.code.IOpcodeRunnable;
 import mcjty.rftoolscontrol.api.machines.IProcessor;
 import mcjty.rftoolscontrol.api.machines.IProgram;
+import mcjty.rftoolscontrol.api.parameters.BlockSide;
+import mcjty.rftoolscontrol.api.parameters.Inventory;
 import mcjty.rftoolscontrol.api.parameters.ParameterValue;
 import mcjty.rftoolscontrol.blocks.craftingstation.CraftingStationTileEntity;
 import mcjty.rftoolscontrol.blocks.node.NodeTileEntity;
@@ -1587,7 +1589,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
 
             Inventory inventory;
             if (tag.hasKey("inv")) {
-                inventory = Inventory.readFromNBT(tag.getCompoundTag("inv"));
+                inventory = InventoryUtil.readFromNBT(tag.getCompoundTag("inv"));
             } else {
                 inventory = null;
             }
@@ -1718,7 +1720,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             NBTTagCompound tag = new NBTTagCompound();
             tag.setString("ticket", waitingForItem.getTicket());
             if (waitingForItem.getInventory() != null) {
-                tag.setTag("inv", waitingForItem.getInventory().writeToNBT());
+                tag.setTag("inv", InventoryUtil.writeToNBT(waitingForItem.getInventory()));
             }
             if (waitingForItem.getItemStack() != null) {
                 tag.setTag("item", waitingForItem.getItemStack().serializeNBT());
