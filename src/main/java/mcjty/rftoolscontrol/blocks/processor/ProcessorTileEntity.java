@@ -1404,7 +1404,19 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         return cnt;
     }
 
+    @Override
+    @Nullable
     public TileEntity getTileEntityAt(Inventory inv) {
+        BlockPos np = getPositionAt(inv);
+        if (np == null) {
+            return null;
+        }
+        return worldObj.getTileEntity(np);
+    }
+
+    @Override
+    @Nullable
+    public BlockPos getPositionAt(Inventory inv) {
         if (inv == null) {
             return null;
         }
@@ -1419,7 +1431,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             }
         }
         BlockPos np = p.offset(inv.getSide());
-        return worldObj.getTileEntity(np);
+        return np;
     }
 
     @Override

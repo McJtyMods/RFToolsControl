@@ -5,6 +5,8 @@ import mcjty.rftoolscontrol.api.code.IOpcodeRunnable;
 import mcjty.rftoolscontrol.api.parameters.BlockSide;
 import mcjty.rftoolscontrol.api.parameters.Inventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.items.IItemHandler;
 
 import javax.annotation.Nonnull;
@@ -46,6 +48,12 @@ public interface IProcessor {
      * @return
      */
     int readRedstoneIn(@Nonnull BlockSide side);
+
+    @Nullable
+    TileEntity getTileEntityAt(Inventory inv);
+
+    @Nullable
+    BlockPos getPositionAt(Inventory inv);
 
     /**
      * Get an itemhandler for an inventory at a given side on the network
