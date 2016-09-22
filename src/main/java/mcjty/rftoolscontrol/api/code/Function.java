@@ -1,4 +1,7 @@
-package mcjty.rftoolscontrol.logic.registry;
+package mcjty.rftoolscontrol.api.code;
+
+import mcjty.rftoolscontrol.api.IFunctionRunnable;
+import mcjty.rftoolscontrol.api.paremeters.ParameterType;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -8,7 +11,7 @@ public class Function {
 
     private final String id;
     private final String name;
-    private final FunctionRunnable functionRunnable;
+    private final IFunctionRunnable functionRunnable;
     private final List<String> description;
     private final ParameterType returnType;
 
@@ -28,7 +31,7 @@ public class Function {
         return name;
     }
 
-    public FunctionRunnable getFunctionRunnable() {
+    public IFunctionRunnable getFunctionRunnable() {
         return functionRunnable;
     }
 
@@ -46,10 +49,10 @@ public class Function {
 
     public static class Builder {
 
-        private static final FunctionRunnable NOOP = ((processor, program, opcode) -> null);
+        private static final IFunctionRunnable NOOP = ((processor, program) -> null);
 
         private String id;
-        private FunctionRunnable functionRunnable = NOOP;
+        private IFunctionRunnable functionRunnable = NOOP;
         private List<String> description = Collections.emptyList();
         private ParameterType returnType;
         private String name;
@@ -67,7 +70,7 @@ public class Function {
             return this;
         }
 
-        public Builder runnable(FunctionRunnable runnable) {
+        public Builder runnable(IFunctionRunnable runnable) {
             this.functionRunnable = runnable;
             return this;
         }

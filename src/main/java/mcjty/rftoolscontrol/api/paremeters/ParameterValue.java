@@ -1,4 +1,6 @@
-package mcjty.rftoolscontrol.logic.registry;
+package mcjty.rftoolscontrol.api.paremeters;
+
+import mcjty.rftoolscontrol.api.code.Function;
 
 public class ParameterValue {
 

@@ -12,6 +12,7 @@ import mcjty.rftoolscontrol.api.ICompiledOpcode;
 import mcjty.rftoolscontrol.api.IOpcodeRunnable;
 import mcjty.rftoolscontrol.api.IProcessor;
 import mcjty.rftoolscontrol.api.IProgram;
+import mcjty.rftoolscontrol.api.paremeters.ParameterValue;
 import mcjty.rftoolscontrol.blocks.craftingstation.CraftingStationTileEntity;
 import mcjty.rftoolscontrol.blocks.node.NodeTileEntity;
 import mcjty.rftoolscontrol.config.GeneralConfiguration;
@@ -1279,7 +1280,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         if (value.isConstant()) {
             return (T) value.getValue();
         } else if (value.isFunction()) {
-            ParameterValue v = value.getFunction().getFunctionRunnable().run(this, program, value.getFunction());
+            ParameterValue v = value.getFunction().getFunctionRunnable().run(this, program);
             // @todo  What if the function does not return a constant? Do we support that?
             return (T) v.getValue();
         } else {

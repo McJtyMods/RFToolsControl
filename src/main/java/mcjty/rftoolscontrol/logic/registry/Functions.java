@@ -1,8 +1,10 @@
 package mcjty.rftoolscontrol.logic.registry;
 
+import mcjty.rftoolscontrol.api.code.Function;
+import mcjty.rftoolscontrol.api.paremeters.ParameterType;
+import mcjty.rftoolscontrol.api.paremeters.ParameterValue;
 import mcjty.rftoolscontrol.logic.Parameter;
 import mcjty.rftoolscontrol.logic.TypeConverters;
-import mcjty.rftoolscontrol.logic.running.RunningProgram;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
@@ -10,7 +12,7 @@ import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import javax.annotation.Nonnull;
 import java.util.*;
 
-import static mcjty.rftoolscontrol.logic.registry.ParameterType.*;
+import static mcjty.rftoolscontrol.api.paremeters.ParameterType.*;
 
 public class Functions {
 
@@ -21,7 +23,7 @@ public class Functions {
             .name("last")
             .description("The last opcode result", "converted to a boolean")
             .type(PAR_BOOLEAN)
-            .runnable((processor, program, function) -> {
+            .runnable((processor, program) -> {
                 return convertToBool(program.getLastValue());
             })
             .build();
@@ -30,7 +32,7 @@ public class Functions {
             .name("last")
             .description("The last opcode result", "converted to an integer")
             .type(PAR_INTEGER)
-            .runnable((processor, program, function) -> {
+            .runnable((processor, program) -> {
                 return convertToInt(program.getLastValue());
             })
             .build();
@@ -39,7 +41,7 @@ public class Functions {
             .name("last")
             .description("The last opcode result", "converted to a string")
             .type(PAR_STRING)
-            .runnable((processor, program, function) -> {
+            .runnable((processor, program) -> {
                 return convertToString(program.getLastValue());
             })
             .build();
@@ -48,7 +50,7 @@ public class Functions {
             .name("last")
             .description("The last opcode result as an item", "Can also convert a string", "representing a registry name to an item")
             .type(PAR_ITEM)
-            .runnable((processor, program, function) -> {
+            .runnable((processor, program) -> {
                 return convertToItem(program.getLastValue());
             })
             .build();
@@ -57,7 +59,7 @@ public class Functions {
             .name("ticket")
             .description("The current crafting ticket")
             .type(PAR_STRING)
-            .runnable((processor, program, function) -> {
+            .runnable((processor, program) -> {
                 return ParameterValue.constant(program.getCraftTicket());
             })
             .build();
@@ -66,7 +68,7 @@ public class Functions {
             .name("craftresult")
             .description("The current desired crafting result")
             .type(PAR_ITEM)
-            .runnable((processor, program, function) -> {
+            .runnable((processor, program) -> {
                 return ParameterValue.constant(processor.getCraftResult(program));
             })
             .build();
@@ -75,7 +77,7 @@ public class Functions {
             .name("random")
             .description("A random integer between 0", "and the last opcode result (exclusive)", "(converted to integer)")
             .type(PAR_INTEGER)
-            .runnable((processor, program, function) -> {
+            .runnable((processor, program) -> {
                 int i = TypeConverters.convertToInt(program.getLastValue());
                 return ParameterValue.constant(random.nextInt(i));
             })
@@ -85,7 +87,7 @@ public class Functions {
             .name("random")
             .description("A random floating number between 0", "and the last opcode result (exclusive)", "(converted to float)")
             .type(PAR_FLOAT)
-            .runnable((processor, program, function) -> {
+            .runnable((processor, program) -> {
                 float i = TypeConverters.convertToFloat(program.getLastValue());
                 return ParameterValue.constant(random.nextFloat() * i);
             })

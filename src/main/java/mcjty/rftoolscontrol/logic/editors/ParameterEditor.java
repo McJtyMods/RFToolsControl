@@ -1,7 +1,7 @@
 package mcjty.rftoolscontrol.logic.editors;
 
 import mcjty.lib.gui.widgets.Panel;
-import mcjty.rftoolscontrol.logic.registry.ParameterValue;
+import mcjty.rftoolscontrol.api.paremeters.ParameterValue;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 

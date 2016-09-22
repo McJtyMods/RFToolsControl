@@ -1,11 +1,10 @@
 package mcjty.rftoolscontrol.logic.editors;
 
-import mcjty.lib.gui.layout.HorizontalLayout;
 import mcjty.lib.gui.layout.VerticalLayout;
 import mcjty.lib.gui.widgets.*;
 import mcjty.rftoolscontrol.logic.registry.Inventory;
-import mcjty.rftoolscontrol.logic.registry.ParameterType;
-import mcjty.rftoolscontrol.logic.registry.ParameterValue;
+import mcjty.rftoolscontrol.api.paremeters.ParameterType;
+import mcjty.rftoolscontrol.api.paremeters.ParameterValue;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.util.EnumFacing;

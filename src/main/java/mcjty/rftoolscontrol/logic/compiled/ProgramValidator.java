@@ -4,9 +4,9 @@ import mcjty.rftoolscontrol.logic.Parameter;
 import mcjty.rftoolscontrol.logic.grid.GridInstance;
 import mcjty.rftoolscontrol.logic.grid.GridPos;
 import mcjty.rftoolscontrol.logic.grid.ProgramCardInstance;
-import mcjty.rftoolscontrol.logic.registry.Opcode;
+import mcjty.rftoolscontrol.api.code.Opcode;
 import mcjty.rftoolscontrol.logic.registry.Opcodes;
-import mcjty.rftoolscontrol.logic.registry.ParameterDescription;
+import mcjty.rftoolscontrol.api.paremeters.ParameterDescription;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;

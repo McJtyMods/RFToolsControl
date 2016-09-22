@@ -1,5 +1,8 @@
 package mcjty.rftoolscontrol.logic.registry;
 
+import mcjty.rftoolscontrol.api.code.Opcode;
+import mcjty.rftoolscontrol.api.paremeters.ParameterDescription;
+import mcjty.rftoolscontrol.api.paremeters.ParameterValue;
 import mcjty.rftoolscontrol.blocks.processor.ProcessorTileEntity;
 import mcjty.rftoolscontrol.logic.Parameter;
 import mcjty.rftoolscontrol.logic.running.ExceptionType;
@@ -15,7 +18,7 @@ import java.util.Map;
 
 import static mcjty.rftoolscontrol.logic.registry.OpcodeOutput.*;
 import static mcjty.rftoolscontrol.api.IOpcodeRunnable.OpcodeResult.*;
-import static mcjty.rftoolscontrol.logic.registry.ParameterType.*;
+import static mcjty.rftoolscontrol.api.paremeters.ParameterType.*;
 
 public class Opcodes {
 

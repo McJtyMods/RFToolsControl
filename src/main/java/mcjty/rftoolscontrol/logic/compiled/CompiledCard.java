@@ -5,9 +5,9 @@ import mcjty.rftoolscontrol.logic.TypeConverters;
 import mcjty.rftoolscontrol.logic.grid.GridInstance;
 import mcjty.rftoolscontrol.logic.grid.GridPos;
 import mcjty.rftoolscontrol.logic.grid.ProgramCardInstance;
-import mcjty.rftoolscontrol.logic.registry.Opcode;
+import mcjty.rftoolscontrol.api.code.Opcode;
 import mcjty.rftoolscontrol.logic.registry.Opcodes;
-import mcjty.rftoolscontrol.logic.registry.ParameterDescription;
+import mcjty.rftoolscontrol.api.paremeters.ParameterDescription;
 
 import javax.annotation.Nonnull;
 import java.util.*;

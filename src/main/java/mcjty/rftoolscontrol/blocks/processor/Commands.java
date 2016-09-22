@@ -3,7 +3,7 @@ package mcjty.rftoolscontrol.blocks.processor;
 import mcjty.rftoolscontrol.logic.Parameter;
 import mcjty.rftoolscontrol.logic.TypeConverters;
 import mcjty.rftoolscontrol.logic.compiled.CompiledOpcode;
-import mcjty.rftoolscontrol.logic.registry.ParameterType;
+import mcjty.rftoolscontrol.api.paremeters.ParameterType;
 import mcjty.rftoolscontrol.logic.running.CpuCore;
 import mcjty.rftoolscontrol.logic.running.ExceptionType;
 import mcjty.rftoolscontrol.logic.running.RunningProgram;

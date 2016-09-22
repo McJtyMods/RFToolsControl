@@ -3,7 +3,7 @@ package mcjty.rftoolscontrol.logic.compiled;
 import mcjty.rftoolscontrol.api.ICompiledOpcode;
 import mcjty.rftoolscontrol.blocks.processor.ProcessorTileEntity;
 import mcjty.rftoolscontrol.logic.Parameter;
-import mcjty.rftoolscontrol.logic.registry.Opcode;
+import mcjty.rftoolscontrol.api.code.Opcode;
 import mcjty.rftoolscontrol.api.IOpcodeRunnable;
 import mcjty.rftoolscontrol.logic.running.ProgException;
 import mcjty.rftoolscontrol.logic.running.RunningProgram;
