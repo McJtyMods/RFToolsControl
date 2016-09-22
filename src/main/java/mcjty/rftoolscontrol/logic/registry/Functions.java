@@ -46,7 +46,7 @@ public class Functions {
             .id("last_item")
             .name("last")
             .description("The last opcode result", "as an item", "Can also convert a string", "representing a registry name to an item")
-            .type(PAR_STRING)
+            .type(PAR_ITEM)
             .runnable((processor, program, function) -> {
                 return convertToItem(program.getLastValue());
             })
