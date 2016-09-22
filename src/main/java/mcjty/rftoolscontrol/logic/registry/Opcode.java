@@ -1,5 +1,7 @@
 package mcjty.rftoolscontrol.logic.registry;
 
+import mcjty.rftoolscontrol.api.IOpcodeRunnable;
+
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -12,7 +14,7 @@ public class Opcode {
     private final boolean isEvent;
     private final List<ParameterDescription> parameters;
     private final String outputDescription;
-    private final OpcodeRunnable runnable;
+    private final IOpcodeRunnable runnable;
     private final List<String> description;
     private final boolean deprecated;
 
@@ -53,7 +55,7 @@ public class Opcode {
     }
 
     @Nonnull
-    public OpcodeRunnable getRunnable() {
+    public IOpcodeRunnable getRunnable() {
         return runnable;
     }
 
@@ -101,7 +103,7 @@ public class Opcode {
 
     public static class Builder {
 
-        private static final OpcodeRunnable NOOP = ((processor, program, opcode) -> OpcodeRunnable.OpcodeResult.POSITIVE);
+        private static final IOpcodeRunnable NOOP = ((processor, program, opcode) -> IOpcodeRunnable.OpcodeResult.POSITIVE);
 
         private String id;
         private OpcodeOutput opcodeOutput = OpcodeOutput.SINGLE;
@@ -109,7 +111,7 @@ public class Opcode {
         private int iconU;
         private int iconV;
         private List<ParameterDescription> parameters = new ArrayList<>();
-        private OpcodeRunnable runnable = NOOP;
+        private IOpcodeRunnable runnable = NOOP;
         private List<String> description = Collections.emptyList();
         private String outputDescription = "No result";
         private boolean deprecated = false;
@@ -135,7 +137,7 @@ public class Opcode {
             return this;
         }
 
-        public Builder runnable(OpcodeRunnable runnable) {
+        public Builder runnable(IOpcodeRunnable runnable) {
             this.runnable = runnable;
             return this;
         }

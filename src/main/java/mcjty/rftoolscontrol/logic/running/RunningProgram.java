@@ -7,7 +7,7 @@ import mcjty.rftoolscontrol.logic.TypeConverters;
 import mcjty.rftoolscontrol.logic.compiled.CompiledCard;
 import mcjty.rftoolscontrol.logic.compiled.CompiledEvent;
 import mcjty.rftoolscontrol.logic.compiled.CompiledOpcode;
-import mcjty.rftoolscontrol.logic.registry.OpcodeRunnable;
+import mcjty.rftoolscontrol.api.IOpcodeRunnable;
 import mcjty.rftoolscontrol.logic.registry.ParameterType;
 import mcjty.rftoolscontrol.logic.registry.ParameterTypeTools;
 import mcjty.rftoolscontrol.logic.registry.ParameterValue;
@@ -170,10 +170,10 @@ public class RunningProgram implements IProgram {
             if (DEBUG) {
                 System.out.println(opcode.getOpcode());
             }
-            OpcodeRunnable.OpcodeResult result = opcode.run(processor, this);
-            if (result == OpcodeRunnable.OpcodeResult.POSITIVE) {
+            IOpcodeRunnable.OpcodeResult result = opcode.run(processor, this);
+            if (result == IOpcodeRunnable.OpcodeResult.POSITIVE) {
                 current = opcode.getPrimaryIndex();
-            } else if (result == OpcodeRunnable.OpcodeResult.NEGATIVE){
+            } else if (result == IOpcodeRunnable.OpcodeResult.NEGATIVE){
                 current = opcode.getSecondaryIndex();
             } else {
                 // Stay at this opcode

@@ -58,7 +58,7 @@ public class Functions {
             .description("The current crafting ticket")
             .type(PAR_STRING)
             .runnable((processor, program, function) -> {
-                return ParameterValue.constant(((RunningProgram)program).getCraftTicket());
+                return ParameterValue.constant(program.getCraftTicket());
             })
             .build();
     public static final Function CRAFTRESULT = Function.builder()

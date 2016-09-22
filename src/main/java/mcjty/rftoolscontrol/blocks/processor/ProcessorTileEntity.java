@@ -8,6 +8,8 @@ import mcjty.lib.network.Argument;
 import mcjty.lib.varia.BlockPosTools;
 import mcjty.lib.varia.WorldTools;
 import mcjty.rftools.api.storage.IStorageScanner;
+import mcjty.rftoolscontrol.api.ICompiledOpcode;
+import mcjty.rftoolscontrol.api.IOpcodeRunnable;
 import mcjty.rftoolscontrol.api.IProcessor;
 import mcjty.rftoolscontrol.api.IProgram;
 import mcjty.rftoolscontrol.blocks.craftingstation.CraftingStationTileEntity;
@@ -903,12 +905,12 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     }
 
     @Override
-    public OpcodeRunnable.OpcodeResult placeLock(String name) {
+    public IOpcodeRunnable.OpcodeResult placeLock(String name) {
         if (testLock(name)) {
-            return OpcodeRunnable.OpcodeResult.HOLD;
+            return IOpcodeRunnable.OpcodeResult.HOLD;
         }
         locks.add(name);
-        return OpcodeRunnable.OpcodeResult.POSITIVE;
+        return IOpcodeRunnable.OpcodeResult.POSITIVE;
     }
 
     @Override
@@ -1235,7 +1237,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         ((RunningProgram)program).popLoopStack(this);
     }
 
-    public OpcodeRunnable.OpcodeResult handleLoop(IProgram program, int varIdx, int end) {
+    public IOpcodeRunnable.OpcodeResult handleLoop(IProgram program, int varIdx, int end) {
         CardInfo info = this.cardInfo[((RunningProgram)program).getCardIndex()];
         int realVar = info.getRealVar(varIdx);
         if (realVar == -1) {
@@ -1247,10 +1249,10 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
 
         int i = TypeConverters.convertToInt(getVariableArray()[realVar].getParameterValue().getValue());
         if (i > end) {
-            return OpcodeRunnable.OpcodeResult.NEGATIVE;
+            return IOpcodeRunnable.OpcodeResult.NEGATIVE;
         } else {
             ((RunningProgram)program).pushLoopStack(realVar);
-            return OpcodeRunnable.OpcodeResult.POSITIVE;
+            return IOpcodeRunnable.OpcodeResult.POSITIVE;
         }
     }
 
@@ -1268,7 +1270,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     }
 
     @Override
-    public <T> T evaluateParameter(CompiledOpcode compiledOpcode, IProgram program, int parIndex) {
+    public <T> T evaluateParameter(ICompiledOpcode compiledOpcode, IProgram program, int parIndex) {
         List<Parameter> parameters = compiledOpcode.getParameters();
         if (parIndex >= parameters.size()) {
             return null;
@@ -1299,26 +1301,26 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     }
 
     @Override
-    public int evaluateIntParameter(CompiledOpcode compiledOpcode, IProgram program, int parIndex) {
+    public int evaluateIntParameter(ICompiledOpcode compiledOpcode, IProgram program, int parIndex) {
         Object value = evaluateParameter(compiledOpcode, program, parIndex);
         return TypeConverters.convertToInt(value);
     }
 
     // This version allows returning null
     @Override
-    public Integer evaluateIntegerParameter(CompiledOpcode compiledOpcode, IProgram program, int parIndex) {
+    public Integer evaluateIntegerParameter(ICompiledOpcode compiledOpcode, IProgram program, int parIndex) {
         Object value = evaluateParameter(compiledOpcode, program, parIndex);
         return TypeConverters.convertToInteger(value);
     }
 
     @Override
-    public String evaluateStringParameter(CompiledOpcode compiledOpcode, IProgram program, int parIndex) {
+    public String evaluateStringParameter(ICompiledOpcode compiledOpcode, IProgram program, int parIndex) {
         Object value = evaluateParameter(compiledOpcode, program, parIndex);
         return TypeConverters.convertToString(value);
     }
 
     @Override
-    public boolean evaluateBoolParameter(CompiledOpcode compiledOpcode, IProgram program, int parIndex) {
+    public boolean evaluateBoolParameter(ICompiledOpcode compiledOpcode, IProgram program, int parIndex) {
         Object value = evaluateParameter(compiledOpcode, program, parIndex);
         return TypeConverters.convertToBool(value);
     }

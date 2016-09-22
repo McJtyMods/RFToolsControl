@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 import static mcjty.rftoolscontrol.logic.registry.OpcodeOutput.*;
-import static mcjty.rftoolscontrol.logic.registry.OpcodeRunnable.OpcodeResult.*;
+import static mcjty.rftoolscontrol.api.IOpcodeRunnable.OpcodeResult.*;
 import static mcjty.rftoolscontrol.logic.registry.ParameterType.*;
 
 public class Opcodes {

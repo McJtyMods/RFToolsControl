@@ -1,16 +1,17 @@
 package mcjty.rftoolscontrol.logic.compiled;
 
+import mcjty.rftoolscontrol.api.ICompiledOpcode;
 import mcjty.rftoolscontrol.blocks.processor.ProcessorTileEntity;
 import mcjty.rftoolscontrol.logic.Parameter;
 import mcjty.rftoolscontrol.logic.registry.Opcode;
-import mcjty.rftoolscontrol.logic.registry.OpcodeRunnable;
+import mcjty.rftoolscontrol.api.IOpcodeRunnable;
 import mcjty.rftoolscontrol.logic.running.ProgException;
 import mcjty.rftoolscontrol.logic.running.RunningProgram;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class CompiledOpcode {
+public class CompiledOpcode implements ICompiledOpcode {
 
     private final Opcode opcode;
     private final List<Parameter> parameters;
@@ -32,6 +33,7 @@ public class CompiledOpcode {
         return opcode;
     }
 
+    @Override
     public List<Parameter> getParameters() {
         return parameters;
     }
@@ -56,7 +58,7 @@ public class CompiledOpcode {
         return secondaryIndex;
     }
 
-    public OpcodeRunnable.OpcodeResult run(ProcessorTileEntity processor, RunningProgram program) throws ProgException {
+    public IOpcodeRunnable.OpcodeResult run(ProcessorTileEntity processor, RunningProgram program) throws ProgException {
         return opcode.getRunnable().run(processor, program, this);
     }
 

@@ -1,10 +1,7 @@
 package mcjty.rftoolscontrol.api;
 
-import mcjty.rftoolscontrol.logic.compiled.CompiledOpcode;
 import mcjty.rftoolscontrol.logic.registry.BlockSide;
 import mcjty.rftoolscontrol.logic.registry.Inventory;
-import mcjty.rftoolscontrol.logic.registry.OpcodeRunnable;
-import mcjty.rftoolscontrol.logic.running.RunningProgram;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.items.IItemHandler;
 
@@ -16,21 +13,21 @@ import javax.annotation.Nullable;
  */
 public interface IProcessor {
 
-    <T> T evaluateParameter(CompiledOpcode compiledOpcode, IProgram program, int parIndex);
+    <T> T evaluateParameter(ICompiledOpcode compiledOpcode, IProgram program, int parIndex);
 
     /**
      * Evaluate an integer parameter. Return 0 if the parameter was not an integer or null
      */
-    int evaluateIntParameter(CompiledOpcode compiledOpcode, IProgram program, int parIndex);
+    int evaluateIntParameter(ICompiledOpcode compiledOpcode, IProgram program, int parIndex);
 
     /**
      * Evaluate an integer parameter. Return null if the parameter was not given
      */
-    Integer evaluateIntegerParameter(CompiledOpcode compiledOpcode, IProgram program, int parIndex);
+    Integer evaluateIntegerParameter(ICompiledOpcode compiledOpcode, IProgram program, int parIndex);
 
-    String evaluateStringParameter(CompiledOpcode compiledOpcode, IProgram program, int parIndex);
+    String evaluateStringParameter(ICompiledOpcode compiledOpcode, IProgram program, int parIndex);
 
-    boolean evaluateBoolParameter(CompiledOpcode compiledOpcode, IProgram program, int parIndex);
+    boolean evaluateBoolParameter(ICompiledOpcode compiledOpcode, IProgram program, int parIndex);
 
     /**
      * Set the output redstone power at a given side on the network
@@ -89,7 +86,7 @@ public interface IProcessor {
 
     int getMaxEnergy(Inventory side);
 
-    OpcodeRunnable.OpcodeResult placeLock(String name);
+    IOpcodeRunnable.OpcodeResult placeLock(String name);
 
     void releaseLock(String name);
 
