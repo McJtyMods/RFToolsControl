@@ -20,7 +20,8 @@ public enum ExceptionType {
     EXCEPT_INTERNALERROR("internal_error", "Internal error"),
     EXCEPT_BADPARAMETERS("bad_parameters", "Bad parameters"),
     EXCEPT_MISSINGCRAFTINGSTATION("missing_crafting_station", "Missing crafting station"),
-    EXCEPT_BADCOMMAND("bad_command", "Bad command")
+    EXCEPT_BADCOMMAND("bad_command", "Bad command"),
+    EXCEPT_MISSINGITEM("missing_item", "Missing item")
     ;
 
     private final String code;

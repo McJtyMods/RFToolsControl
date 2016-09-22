@@ -1,6 +1,8 @@
 package mcjty.rftoolscontrol.logic.registry;
 
 import mcjty.rftoolscontrol.logic.Parameter;
+import mcjty.rftoolscontrol.logic.running.ExceptionType;
+import mcjty.rftoolscontrol.logic.running.ProgException;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.items.IItemHandler;
@@ -955,6 +957,27 @@ public class Opcodes {
             }))
             .build();
 
+    public static final Opcode EVAL_READDAMAGE = Opcode.builder()
+            .id("eval_readdamage")
+            .description(
+                    TextFormatting.GREEN + "Eval: read damage",
+                    "read the damage value from an item")
+            .outputDescription("damage value (integer)")
+            .opcodeOutput(SINGLE)
+            .parameter(ParameterDescription.builder().name("item").type(PAR_ITEM).description("item to read damage from").build())
+            .icon(6, 4)
+            .runnable(((processor, program, opcode) -> {
+                ItemStack item = processor.evaluateParameter(opcode, program, 0);
+                if (item == null) {
+                    throw new ProgException(ExceptionType.EXCEPT_MISSINGITEM);
+                }
+                int damage = item.getItemDamage();
+                program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(damage)).build());
+                return POSITIVE;
+            }))
+            .build();
+
+
     public static final Map<String, Opcode> OPCODES = new HashMap<>();
     public static final List<Opcode> SORTED_OPCODES = new ArrayList<>();
 
@@ -971,6 +994,7 @@ public class Opcodes {
         register(EVAL_COUNTINVINT);
         register(EVAL_GETITEM);
         register(EVAL_GETITEMINT);
+        register(EVAL_READDAMAGE);
         register(EVAL_INGREDIENTS);
         register(EVAL_REDSTONE);
         register(EVAL_GETRF);
