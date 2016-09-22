@@ -45,7 +45,7 @@ public class Functions {
     public static final Function LASTITEM = Function.builder()
             .id("last_item")
             .name("last")
-            .description("The last opcode result", "as an item", "Can also convert a string", "representing a registry name to an item")
+            .description("The last opcode result as an item", "Can also convert a string", "representing a registry name to an item")
             .type(PAR_ITEM)
             .runnable((processor, program, function) -> {
                 return convertToItem(program.getLastValue());
