@@ -127,7 +127,7 @@ public class Opcodes {
             .outputDescription("itemstack in target slot (stack)")
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("inv").type(PAR_INVENTORY).description("inventory adjacent to (networked) block").build())
-            .parameter(ParameterDescription.builder().name("slot").type(PAR_INTEGER).optional().description("slot in inventory").build())
+            .parameter(ParameterDescription.builder().name("slot").type(PAR_INTEGER).description("slot in inventory").build())
             .icon(10, 1)
             .runnable(((processor, program, opcode) -> {
                 Inventory inv = processor.evaluateParameter(opcode, program, 0);
