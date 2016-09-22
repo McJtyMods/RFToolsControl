@@ -1061,7 +1061,7 @@ public class Opcodes {
         register(DO_RELEASELOCK);
     }
 
-    private static void register(Opcode opcode) {
+    public static void register(Opcode opcode) {
         OPCODES.put(opcode.getId(), opcode);
         if (!opcode.isDeprecated()) {
             SORTED_OPCODES.add(opcode);

@@ -197,7 +197,7 @@ public class Functions {
         register(RANDOMFLOAT);
     }
 
-    private static void register(Function function) {
+    public static void register(Function function) {
         FUNCTIONS.put(function.getId(), function);
         ParameterType type = function.getReturnType();
         if (!FUNCTIONS_BY_TYPE.containsKey(type)) {
