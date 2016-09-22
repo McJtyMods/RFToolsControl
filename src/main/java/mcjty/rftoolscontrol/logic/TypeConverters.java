@@ -20,7 +20,7 @@ public class TypeConverters {
         } else if (value instanceof Boolean) {
             return ((Boolean) value) ? "true" : "false";
         } else if (value instanceof ItemStack) {
-            return ((ItemStack) value).getDisplayName();
+            return ((ItemStack) value).getItem().getRegistryName().toString();
         } else if (value instanceof ExceptionType) {
             return ((ExceptionType) value).getCode();
         } else {
