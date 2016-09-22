@@ -20,6 +20,7 @@ import mcjty.lib.network.PacketUpdateNBTItemInventory;
 import mcjty.lib.varia.Logging;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.api.code.Opcode;
+import mcjty.rftoolscontrol.api.code.OpcodeOutput;
 import mcjty.rftoolscontrol.api.paremeters.ParameterDescription;
 import mcjty.rftoolscontrol.api.paremeters.ParameterValue;
 import mcjty.rftoolscontrol.config.GeneralConfiguration;

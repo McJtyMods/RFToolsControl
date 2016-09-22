@@ -2,7 +2,6 @@ package mcjty.rftoolscontrol.api.code;
 
 import mcjty.rftoolscontrol.api.IOpcodeRunnable;
 import mcjty.rftoolscontrol.api.paremeters.ParameterDescription;
-import mcjty.rftoolscontrol.logic.registry.OpcodeOutput;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
