@@ -444,8 +444,8 @@ public class Opcodes {
                     "concatenate the two given strings")
             .outputDescription("v1 + v2 (string)")
             .opcodeOutput(SINGLE)
-            .parameter(ParameterDescription.builder().name("v1").type(PAR_INTEGER).description("first value").build())
-            .parameter(ParameterDescription.builder().name("v2").type(PAR_INTEGER).description("second value").build())
+            .parameter(ParameterDescription.builder().name("v1").type(PAR_STRING).description("first value").build())
+            .parameter(ParameterDescription.builder().name("v2").type(PAR_STRING).description("second value").build())
             .icon(9, 1)
             .runnable(((processor, program, opcode) -> {
                 String v1 = processor.evaluateStringParameter(opcode, program, 0);
