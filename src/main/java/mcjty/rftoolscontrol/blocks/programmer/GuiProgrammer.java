@@ -911,7 +911,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
                     String name = parameter.getName();
                     ParameterValue value = (ParameterValue) data.get(name);
                     if (value != null) {
-                        tooltips.add(TextFormatting.BLUE + "Par " + name + ": " + parameter.getType().stringRepresentation(value));
+                        tooltips.add(TextFormatting.BLUE + "Par " + name + ": " + ParameterTypeTools.stringRepresentation(parameter.getType(), value));
                     } else {
                         tooltips.add(TextFormatting.BLUE + "Par " + name + ": NULL");
                     }
@@ -1008,7 +1008,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
             Map<String, Object> data = icon.getData() == null ? Collections.emptyMap() : icon.getData();
             editor.build(mc, this, editPanel, o -> {
                 icon.addData(parameter.getName(), o);
-                field.setText(parameter.getType().stringRepresentation(o));
+                field.setText(ParameterTypeTools.stringRepresentation(parameter.getType(), o));
             });
             editor.writeValue((ParameterValue)data.get(parameter.getName()));
             if (constantOnly) {
@@ -1048,7 +1048,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
             ParameterValue value = (ParameterValue) data.get(name);
             Panel panel;
             if (value != null) {
-                panel = createValuePanel(parameter, icon, iconHolder, parameter.getType().stringRepresentation(value), opcode.isEvent());
+                panel = createValuePanel(parameter, icon, iconHolder, ParameterTypeTools.stringRepresentation(parameter.getType(), value), opcode.isEvent());
             } else {
                 panel = createValuePanel(parameter, icon, iconHolder, "", opcode.isEvent());
             }

@@ -1,6 +1,7 @@
 package mcjty.rftoolscontrol.logic.registry;
 
 import net.minecraft.util.EnumFacing;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -39,4 +40,16 @@ public class BlockSide {
             return side.toString();
         }
     }
+
+    public String getStringRepresentation() {
+        EnumFacing facing = getSide();
+
+        String s = facing == null ? "" : StringUtils.left(facing.getName().toUpperCase(), 1);
+        if (getNodeName() == null) {
+            return s;
+        } else {
+            return StringUtils.left(getNodeName(), 7) + " " + s;
+        }
+    }
+
 }

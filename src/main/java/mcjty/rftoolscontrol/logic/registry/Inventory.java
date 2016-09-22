@@ -88,4 +88,19 @@ public class Inventory {
         EnumFacing intSide = sideIdx == -1 ? null : EnumFacing.values()[sideIdx];
         return new Inventory(nodeName, side, intSide);
     }
+
+    public String getStringRepresentation() {
+        String s = StringUtils.left(getSide().getName().toUpperCase(), 1);
+        if (getIntSide() == null) {
+            s += "/*";
+        } else {
+            String is = StringUtils.left(getIntSide().getName().toUpperCase(), 1);
+            s += "/" + is;
+        }
+        if (getNodeName() == null) {
+            return s;
+        } else {
+            return StringUtils.left(getNodeName(), 6) + " " + s;
+        }
+    }
 }

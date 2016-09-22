@@ -23,6 +23,7 @@ import mcjty.rftoolscontrol.logic.Parameter;
 import mcjty.rftoolscontrol.logic.editors.ParameterEditor;
 import mcjty.rftoolscontrol.logic.editors.ParameterEditors;
 import mcjty.rftoolscontrol.logic.registry.ParameterType;
+import mcjty.rftoolscontrol.logic.registry.ParameterTypeTools;
 import mcjty.rftoolscontrol.network.*;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.inventory.Slot;
@@ -380,7 +381,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
                     .setFilledRectThickness(1);
             editor.build(mc, this, editPanel, o -> {
                 NBTTagCompound tag = new NBTTagCompound();
-                type.writeToNBT(tag, o);
+                ParameterTypeTools.writeToNBT(tag, type, o);
                 RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketVariableToServer(tileEntity.getPos(), varIdx, tag));
             });
             editor.writeValue(parameter.getParameterValue());

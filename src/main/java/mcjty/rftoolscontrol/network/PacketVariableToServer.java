@@ -5,6 +5,7 @@ import mcjty.lib.network.NetworkTools;
 import mcjty.rftoolscontrol.blocks.processor.ProcessorTileEntity;
 import mcjty.rftoolscontrol.logic.Parameter;
 import mcjty.rftoolscontrol.logic.registry.ParameterType;
+import mcjty.rftoolscontrol.logic.registry.ParameterTypeTools;
 import mcjty.rftoolscontrol.logic.registry.ParameterValue;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
@@ -59,7 +60,7 @@ public class PacketVariableToServer implements IMessage {
                 if (message.varIndex < variables.length) {
                     Parameter parameter = variables[message.varIndex];
                     ParameterType type = parameter.getParameterType();
-                    ParameterValue value = type.readFromNBT(message.tagCompound);
+                    ParameterValue value = ParameterTypeTools.readFromNBT(message.tagCompound, type);
                     variables[message.varIndex] = Parameter.builder()
                             .type(type)
                             .value(value)

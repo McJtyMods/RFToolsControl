@@ -1,6 +1,5 @@
 package mcjty.rftoolscontrol.logic.running;
 
-import mcjty.lib.varia.Logging;
 import mcjty.rftoolscontrol.blocks.processor.ProcessorTileEntity;
 import mcjty.rftoolscontrol.logic.Parameter;
 import mcjty.rftoolscontrol.logic.TypeConverters;
@@ -9,6 +8,7 @@ import mcjty.rftoolscontrol.logic.compiled.CompiledEvent;
 import mcjty.rftoolscontrol.logic.compiled.CompiledOpcode;
 import mcjty.rftoolscontrol.logic.registry.OpcodeRunnable;
 import mcjty.rftoolscontrol.logic.registry.ParameterType;
+import mcjty.rftoolscontrol.logic.registry.ParameterTypeTools;
 import mcjty.rftoolscontrol.logic.registry.ParameterValue;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -201,7 +201,7 @@ public class RunningProgram {
         if (lastValue != null) {
             NBTTagCompound varTag = new NBTTagCompound();
             varTag.setInteger("type", lastValue.getParameterType().ordinal());
-            lastValue.getParameterType().writeToNBT(varTag, lastValue.getParameterValue());
+            ParameterTypeTools.writeToNBT(varTag, lastValue.getParameterType(), lastValue.getParameterValue());
             tag.setTag("lastvar", varTag);
         }
         if (!loopStack.isEmpty()) {
@@ -236,7 +236,7 @@ public class RunningProgram {
             NBTTagCompound varTag = tag.getCompoundTag("lastvar");
             int t = varTag.getInteger("type");
             ParameterType type = ParameterType.values()[t];
-            program.lastValue = Parameter.builder().type(type).value(type.readFromNBT(varTag)).build();
+            program.lastValue = Parameter.builder().type(type).value(ParameterTypeTools.readFromNBT(varTag, type)).build();
         }
         if (tag.hasKey("loopStack")) {
             program.loopStack.clear();

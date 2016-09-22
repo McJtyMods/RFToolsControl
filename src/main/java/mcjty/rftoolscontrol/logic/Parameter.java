@@ -5,10 +5,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import io.netty.buffer.ByteBuf;
 import mcjty.lib.network.NetworkTools;
-import mcjty.rftoolscontrol.logic.registry.BlockSide;
-import mcjty.rftoolscontrol.logic.registry.Inventory;
-import mcjty.rftoolscontrol.logic.registry.ParameterType;
-import mcjty.rftoolscontrol.logic.registry.ParameterValue;
+import mcjty.rftoolscontrol.logic.registry.*;
 import mcjty.rftoolscontrol.logic.running.ExceptionType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -27,19 +24,19 @@ public class Parameter {
     public JsonElement getJsonElement() {
         JsonObject jsonObject = new JsonObject();
         jsonObject.add("type", new JsonPrimitive(parameterType.getName()));
-        jsonObject.add("value", parameterType.writeToJson(parameterValue));
+        jsonObject.add("value", ParameterTypeTools.writeToJson(parameterType, parameterValue));
         return jsonObject;
     }
 
     public static Parameter readFromJson(JsonObject object) {
         ParameterType type = ParameterType.getByName(object.get("type").getAsString());
-        ParameterValue value = type.readFromJson(object.get("value").getAsJsonObject());
+        ParameterValue value = ParameterTypeTools.readFromJson(type, object.get("value").getAsJsonObject());
         return builder().type(type).value(value).build();
     }
 
     public static Parameter readFromNBT(NBTTagCompound parTag) {
         ParameterType type = ParameterType.values()[parTag.getInteger("type")];
-        ParameterValue value = type.readFromNBT(parTag);
+        ParameterValue value = ParameterTypeTools.readFromNBT(parTag, type);
         return builder().type(type).value(value).build();
     }
 
@@ -48,7 +45,7 @@ public class Parameter {
         ParameterValue value = parameter.getParameterValue();
         NBTTagCompound parTag = new NBTTagCompound();
         parTag.setInteger("type", type.ordinal());
-        type.writeToNBT(parTag, value);
+        ParameterTypeTools.writeToNBT(parTag, type, value);
         return parTag;
     }
 
