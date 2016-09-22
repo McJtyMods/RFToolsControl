@@ -158,7 +158,7 @@ public class Functions {
             case PAR_BOOLEAN:
                 return ParameterValue.constant(((Boolean) v) ? "true" : "false");
             case PAR_ITEM:
-                return ParameterValue.constant(((ItemStack) v).getDisplayName());
+                return ParameterValue.constant(((ItemStack) v).getItem().getRegistryName().toString());
         }
         return ParameterValue.constant("");
     }
