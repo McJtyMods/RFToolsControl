@@ -34,7 +34,8 @@ import mcjty.rftoolscontrol.logic.editors.ParameterEditors;
 import mcjty.rftoolscontrol.logic.grid.GridInstance;
 import mcjty.rftoolscontrol.logic.grid.GridPos;
 import mcjty.rftoolscontrol.logic.grid.ProgramCardInstance;
-import mcjty.rftoolscontrol.logic.registry.*;
+import mcjty.rftoolscontrol.logic.registry.Opcodes;
+import mcjty.rftoolscontrol.logic.registry.ParameterTypeTools;
 import mcjty.rftoolscontrol.network.RFToolsCtrlMessages;
 import net.minecraft.inventory.ClickType;
 import net.minecraft.inventory.Slot;
@@ -125,7 +126,11 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
             for (Map.Entry<String, Opcode> entry : Opcodes.OPCODES.entrySet()) {
                 String id = entry.getKey();
                 Opcode opcode = entry.getValue();
-                ICONS.put(id, new ImageIcon(id).setDimensions(ICONSIZE, ICONSIZE).setImage(icons, opcode.getIconU()*ICONSIZE, opcode.getIconV()*ICONSIZE));
+                ResourceLocation iconResource = icons;
+                if (opcode.getIconResource() != null) {
+                    iconResource = new ResourceLocation(opcode.getIconResource());
+                }
+                ICONS.put(id, new ImageIcon(id).setDimensions(ICONSIZE, ICONSIZE).setImage(iconResource, opcode.getIconU()*ICONSIZE, opcode.getIconV()*ICONSIZE));
             }
         }
     }

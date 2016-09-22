@@ -1,9 +1,15 @@
 package mcjty.rftoolscontrol;
 
+import com.google.common.base.Function;
+import com.google.common.base.Optional;
 import mcjty.lib.base.ModBase;
 import mcjty.lib.compat.MainCompatHandler;
+import mcjty.rftoolscontrol.api.registry.IFunctionRegistry;
+import mcjty.rftoolscontrol.api.registry.IOpcodeRegistry;
 import mcjty.rftoolscontrol.items.ModItems;
 import mcjty.rftoolscontrol.items.manual.GuiRFToolsManual;
+import mcjty.rftoolscontrol.logic.registry.FunctionRegistry;
+import mcjty.rftoolscontrol.logic.registry.OpcodeRegistry;
 import mcjty.rftoolscontrol.proxy.CommonProxy;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
@@ -68,10 +74,6 @@ public class RFToolsControl implements ModBase {
 //        FMLInterModComms.sendFunctionMessage("theoneprobe", "getTheOneProbe", "mcjty.RFToolsControl.theoneprobe.TheOneProbeSupport");
     }
 
-    @Mod.EventHandler
-    public void imcCallback(FMLInterModComms.IMCEvent event) {
-    }
-
     /**
      * Do your mod setup. Build whatever data structures you care about. Register recipes.
      */
@@ -96,6 +98,19 @@ public class RFToolsControl implements ModBase {
     public void serverStopped(FMLServerStoppedEvent event) {
     }
 
+    @Mod.EventHandler
+    public void imcCallback(FMLInterModComms.IMCEvent event) {
+        for (FMLInterModComms.IMCMessage message : event.getMessages()) {
+            if (message.key.equalsIgnoreCase("getOpcodeRegistry")) {
+                Optional<Function<IOpcodeRegistry, Void>> value = message.getFunctionValue(IOpcodeRegistry.class, Void.class);
+                value.get().apply(new OpcodeRegistry());
+            } else if (message.key.equalsIgnoreCase("getFunctionRegistry")) {
+                Optional<Function<IFunctionRegistry, Void>> value = message.getFunctionValue(IFunctionRegistry.class, Void.class);
+                value.get().apply(new FunctionRegistry());
+            }
+        }
+
+    }
     /**
      * Handle interaction with other mods, complete your setup based on this.
      */
