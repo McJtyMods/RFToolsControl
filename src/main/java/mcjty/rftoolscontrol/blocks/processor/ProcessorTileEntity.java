@@ -8,6 +8,8 @@ import mcjty.lib.network.Argument;
 import mcjty.lib.varia.BlockPosTools;
 import mcjty.lib.varia.WorldTools;
 import mcjty.rftools.api.storage.IStorageScanner;
+import mcjty.rftoolscontrol.api.IProcessor;
+import mcjty.rftoolscontrol.api.IProgram;
 import mcjty.rftoolscontrol.blocks.craftingstation.CraftingStationTileEntity;
 import mcjty.rftoolscontrol.blocks.node.NodeTileEntity;
 import mcjty.rftoolscontrol.config.GeneralConfiguration;
@@ -65,7 +67,7 @@ import java.util.stream.Collectors;
 
 import static mcjty.rftoolscontrol.logic.running.ExceptionType.*;
 
-public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity implements DefaultSidedInventory, ITickable {
+public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity implements DefaultSidedInventory, ITickable, IProcessor {
 
     // Number of card slots the processor supports
     public static final int CARD_SLOTS = 6;
@@ -142,7 +144,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         return true;
     }
 
-    private BlockPos getAdjacentPosition(@Nonnull BlockSide side, @Nonnull RunningProgram program) {
+    private BlockPos getAdjacentPosition(@Nonnull BlockSide side) {
         BlockPos p;
         if (side.getNodeName() != null && !side.getNodeName().isEmpty()) {
             p = networkNodes.get(side.getNodeName());
@@ -159,18 +161,20 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         return p;
     }
 
-    public int readRedstoneIn(@Nonnull BlockSide side, @Nonnull RunningProgram program) {
+    @Override
+    public int readRedstoneIn(@Nonnull BlockSide side) {
         EnumFacing facing = side.getSide();
-        BlockPos p = getAdjacentPosition(side, program);
+        BlockPos p = getAdjacentPosition(side);
         if (p == null) {
             return 0;
         }
         return worldObj.getRedstonePower(p.offset(facing), facing);
     }
 
-    public void setPowerOut(@Nonnull BlockSide side, int level, RunningProgram program) {
+    @Override
+    public void setPowerOut(@Nonnull BlockSide side, int level) {
         EnumFacing facing = side.getSide();
-        BlockPos p = getAdjacentPosition(side, program);
+        BlockPos p = getAdjacentPosition(side);
         if (p == null) {
             return;
         }
@@ -280,13 +284,13 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         }
     }
 
-    public void craftOk(RunningProgram program, @Nullable Integer slot) {
+    public void craftOk(IProgram program, @Nullable Integer slot) {
         if (!program.hasCraftTicket()) {
             throw new ProgException(EXCEPT_MISSINGCRAFTTICKET);
         }
         String ticket = program.getCraftTicket();
 
-        CardInfo info = this.cardInfo[program.getCardIndex()];
+        CardInfo info = this.cardInfo[((RunningProgram)program).getCardIndex()];
         Integer realSlot = info.getRealSlot(slot);
         ItemStack craftedItem = null;
         if (realSlot != null) {
@@ -307,7 +311,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         }
     }
 
-    public void craftFail(RunningProgram program) {
+    public void craftFail(IProgram program) {
         if (!program.hasCraftTicket()) {
             throw new ProgException(EXCEPT_MISSINGCRAFTTICKET);
         }
@@ -322,11 +326,11 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         }
     }
 
-    public int pushItemsMulti(RunningProgram program, Inventory inv, int slot1, int slot2, @Nullable Integer extSlot) {
+    public int pushItemsMulti(IProgram program, Inventory inv, int slot1, int slot2, @Nullable Integer extSlot) {
         IItemHandler handler = getItemHandlerAt(inv);
         IStorageScanner scanner = getScannerForInv(inv);
 
-        CardInfo info = this.cardInfo[program.getCardIndex()];
+        CardInfo info = this.cardInfo[((RunningProgram)program).getCardIndex()];
         IItemHandler itemHandler = getItemHandler();
         int e = 0;
         if (extSlot != null) {
@@ -349,7 +353,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         return failed;
     }
 
-    public boolean checkIngredients(RunningProgram program, Inventory cardInv, @Nullable ItemStack item, int slot1, int slot2) {
+    public boolean checkIngredients(IProgram program, Inventory cardInv, @Nullable ItemStack item, int slot1, int slot2) {
         if (item == null) {
             item = getCraftResult(program);
         }
@@ -362,7 +366,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             throw new ProgException(EXCEPT_MISSINGCRAFTINGCARD);
         }
 
-        CardInfo info = this.cardInfo[program.getCardIndex()];
+        CardInfo info = this.cardInfo[((RunningProgram)program).getCardIndex()];
 
         IItemHandler itemHandler = getItemHandler();
         int slot = slot1;
@@ -396,7 +400,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         return true;
     }
 
-    public int getIngredientsSmart(RunningProgram program, Inventory inv, Inventory cardInv,
+    public int getIngredientsSmart(IProgram program, Inventory inv, Inventory cardInv,
                                    @Nullable ItemStack item, int slot1, int slot2, Inventory destInv) {
         IStorageScanner scanner = getScannerForInv(inv);
         IItemHandler handler = getHandlerForInv(inv);
@@ -418,7 +422,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         if (card == null) {
             throw new ProgException(EXCEPT_MISSINGCRAFTINGCARD);
         }
-        CardInfo info = this.cardInfo[program.getCardIndex()];
+        CardInfo info = this.cardInfo[((RunningProgram)program).getCardIndex()];
 
         List<ItemStack> ingredients;
         if (CraftingCardItem.fitsGrid(card) && (slot2 - slot1 >= 8)) {
@@ -497,7 +501,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         return needed;
     }
 
-    public int getIngredients(RunningProgram program, Inventory inv, Inventory cardInv, @Nullable ItemStack item, int slot1, int slot2) {
+    public int getIngredients(IProgram program, Inventory inv, Inventory cardInv, @Nullable ItemStack item, int slot1, int slot2) {
         IStorageScanner scanner = getScannerForInv(inv);
         IItemHandler handler = getHandlerForInv(inv);
 
@@ -513,7 +517,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         if (card == null) {
             throw new ProgException(EXCEPT_MISSINGCRAFTINGCARD);
         }
-        CardInfo info = this.cardInfo[program.getCardIndex()];
+        CardInfo info = this.cardInfo[((RunningProgram)program).getCardIndex()];
 
         IItemHandler itemHandler = getItemHandler();
         int slot = slot1;
@@ -549,7 +553,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         return getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
     }
 
-    public void craftWait(RunningProgram program, Inventory inv, ItemStack stack) {
+    public void craftWait(IProgram program, Inventory inv, ItemStack stack) {
         if (!program.hasCraftTicket()) {
             throw new ProgException(EXCEPT_MISSINGCRAFTTICKET);
         }
@@ -564,7 +568,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         markDirty();
     }
 
-    public void craftWaitTimed(RunningProgram program) {
+    public void craftWaitTimed(IProgram program) {
         if (!program.hasCraftTicket()) {
             throw new ProgException(EXCEPT_MISSINGCRAFTTICKET);
         }
@@ -588,6 +592,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
 
     }
 
+    @Override
     public boolean requestCraft(ItemStack stack, @Nullable Inventory inventory) {
         for (BlockPos p : craftingStations) {
             TileEntity te = worldObj.getTileEntity(p);
@@ -602,11 +607,12 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         throw new ProgException(EXCEPT_MISSINGCRAFTINGSTATION);
     }
 
-    public void setCraftTicket(RunningProgram program, String ticket) {
-        program.setCraftTicket(ticket);
+    public void setCraftTicket(IProgram program, String ticket) {
+        ((RunningProgram)program).setCraftTicket(ticket);
     }
 
-    public ItemStack getCraftResult(RunningProgram program) {
+    @Override
+    public ItemStack getCraftResult(IProgram program) {
         if (!program.hasCraftTicket()) {
             // @todo ? exception?
             return null;
@@ -834,6 +840,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         }
     }
 
+    @Override
     public int signal(String signal) {
         int cnt = 0;
         for (int i = 0 ; i < cardInfo.length ; i++) {
@@ -895,19 +902,22 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         markDirty();
     }
 
-    public OpcodeRunnable.OpcodeResult placeLock(RunningProgram program, String name) {
-        if (testLock(program, name)) {
+    @Override
+    public OpcodeRunnable.OpcodeResult placeLock(String name) {
+        if (testLock(name)) {
             return OpcodeRunnable.OpcodeResult.HOLD;
         }
         locks.add(name);
         return OpcodeRunnable.OpcodeResult.POSITIVE;
     }
 
-    public void releaseLock(RunningProgram program, String name) {
+    @Override
+    public void releaseLock(String name) {
         locks.remove(name);
     }
 
-    public boolean testLock(RunningProgram program, String name) {
+    @Override
+    public boolean testLock(String name) {
         return locks.contains(name);
     }
 
@@ -950,6 +960,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         log(message);
     }
 
+    @Override
     public void log(String message) {
         if (message == null) {
             // @todo report?
@@ -1049,7 +1060,8 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         }
     }
 
-    public int getEnergy(Inventory side, RunningProgram program) {
+    @Override
+    public int getEnergy(Inventory side) {
         TileEntity te = getTileEntityAt(side);
         if (te instanceof IEnergyHandler) {
             IEnergyHandler handler = (IEnergyHandler) te;
@@ -1061,7 +1073,8 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         throw new ProgException(EXCEPT_NORF);
     }
 
-    public int getMaxEnergy(Inventory side, RunningProgram program) {
+    @Override
+    public int getMaxEnergy(Inventory side) {
         TileEntity te = getTileEntityAt(side);
         if (te instanceof IEnergyHandler) {
             IEnergyHandler handler = (IEnergyHandler) te;
@@ -1073,7 +1086,8 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         throw new ProgException(EXCEPT_NORF);
     }
 
-    public int getLiquid(Inventory side, RunningProgram program) {
+    @Override
+    public int getLiquid(Inventory side) {
         TileEntity te = getTileEntityAt(side);
         if (te != null && te.hasCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, side.getIntSide())) {
             IFluidHandler handler = te.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, side.getIntSide());
@@ -1088,7 +1102,8 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         throw new ProgException(EXCEPT_NOLIQUID);
     }
 
-    public int getMaxLiquid(Inventory side, RunningProgram program) {
+    @Override
+    public int getMaxLiquid(Inventory side) {
         TileEntity te = getTileEntityAt(side);
         if (te != null && te.hasCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, side.getIntSide())) {
             IFluidHandler handler = te.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, side.getIntSide());
@@ -1118,11 +1133,11 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     }
 
 
-    public int fetchItems(RunningProgram program, Inventory inv, Integer slot, @Nullable ItemStack itemMatcher, boolean routable, boolean oredict, @Nullable Integer amount, int virtualSlot) {
+    public int fetchItems(IProgram program, Inventory inv, Integer slot, @Nullable ItemStack itemMatcher, boolean routable, boolean oredict, @Nullable Integer amount, int virtualSlot) {
         IStorageScanner scanner = getScannerForInv(inv);
         IItemHandler handler = getHandlerForInv(inv);
 
-        CardInfo info = this.cardInfo[program.getCardIndex()];
+        CardInfo info = this.cardInfo[((RunningProgram)program).getCardIndex()];
         int realSlot = info.getRealSlot(virtualSlot);
 
         ItemStack stack = InventoryTools.tryExtractItem(handler, scanner, amount, routable, oredict, itemMatcher, slot);
@@ -1141,18 +1156,19 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         return stack.stackSize;
     }
 
-    public ItemStack getItemInternal(RunningProgram program, int virtualSlot) {
-        CardInfo info = this.cardInfo[program.getCardIndex()];
+    @Override
+    public ItemStack getItemInternal(IProgram program, int virtualSlot) {
+        CardInfo info = this.cardInfo[((RunningProgram)program).getCardIndex()];
         int realSlot = info.getRealSlot(virtualSlot);
         IItemHandler capability = getItemHandler();
         return capability.getStackInSlot(realSlot);
     }
 
-    public int pushItems(RunningProgram program, Inventory inv, Integer slot, @Nullable Integer amount, int virtualSlot) {
+    public int pushItems(IProgram program, Inventory inv, Integer slot, @Nullable Integer amount, int virtualSlot) {
         IStorageScanner scanner = getScannerForInv(inv);
         IItemHandler handler = getHandlerForInv(inv);
 
-        CardInfo info = this.cardInfo[program.getCardIndex()];
+        CardInfo info = this.cardInfo[((RunningProgram)program).getCardIndex()];
         int realSlot = info.getRealSlot(virtualSlot);
         IItemHandler itemHandler = getItemHandler();
         ItemStack extracted = itemHandler.extractItem(realSlot, amount == null ? 64 : amount, false);
@@ -1215,12 +1231,12 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         return networkNodes.size();
     }
 
-    public void stopOrResume(RunningProgram program) {
-        program.popLoopStack(this);
+    public void stopOrResume(IProgram program) {
+        ((RunningProgram)program).popLoopStack(this);
     }
 
-    public OpcodeRunnable.OpcodeResult handleLoop(RunningProgram program, int varIdx, int end) {
-        CardInfo info = this.cardInfo[program.getCardIndex()];
+    public OpcodeRunnable.OpcodeResult handleLoop(IProgram program, int varIdx, int end) {
+        CardInfo info = this.cardInfo[((RunningProgram)program).getCardIndex()];
         int realVar = info.getRealVar(varIdx);
         if (realVar == -1) {
             throw new ProgException(EXCEPT_MISSINGVARIABLE);
@@ -1233,13 +1249,14 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         if (i > end) {
             return OpcodeRunnable.OpcodeResult.NEGATIVE;
         } else {
-            program.pushLoopStack(realVar);
+            ((RunningProgram)program).pushLoopStack(realVar);
             return OpcodeRunnable.OpcodeResult.POSITIVE;
         }
     }
 
-    public void setVariable(RunningProgram program, int var) {
-        CardInfo info = this.cardInfo[program.getCardIndex()];
+    @Override
+    public void setVariable(IProgram program, int var) {
+        CardInfo info = this.cardInfo[((RunningProgram)program).getCardIndex()];
         int realVar = info.getRealVar(var);
         if (realVar == -1) {
             throw new ProgException(EXCEPT_MISSINGVARIABLE);
@@ -1250,7 +1267,8 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         variables[realVar] = program.getLastValue();
     }
 
-    public <T> T evaluateParameter(CompiledOpcode compiledOpcode, RunningProgram program, int parIndex) {
+    @Override
+    public <T> T evaluateParameter(CompiledOpcode compiledOpcode, IProgram program, int parIndex) {
         List<Parameter> parameters = compiledOpcode.getParameters();
         if (parIndex >= parameters.size()) {
             return null;
@@ -1263,7 +1281,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             // @todo  What if the function does not return a constant? Do we support that?
             return (T) v.getValue();
         } else {
-            CardInfo info = this.cardInfo[program.getCardIndex()];
+            CardInfo info = this.cardInfo[((RunningProgram)program).getCardIndex()];
             int realVar = info.getRealVar(value.getVariableIndex());
             if (realVar == -1) {
                 throw new ProgException(EXCEPT_MISSINGVARIABLE);
@@ -1280,23 +1298,27 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         }
     }
 
-    public int evaluateIntParameter(CompiledOpcode compiledOpcode, RunningProgram program, int parIndex) {
+    @Override
+    public int evaluateIntParameter(CompiledOpcode compiledOpcode, IProgram program, int parIndex) {
         Object value = evaluateParameter(compiledOpcode, program, parIndex);
         return TypeConverters.convertToInt(value);
     }
 
     // This version allows returning null
-    public Integer evaluateIntegerParameter(CompiledOpcode compiledOpcode, RunningProgram program, int parIndex) {
+    @Override
+    public Integer evaluateIntegerParameter(CompiledOpcode compiledOpcode, IProgram program, int parIndex) {
         Object value = evaluateParameter(compiledOpcode, program, parIndex);
         return TypeConverters.convertToInteger(value);
     }
 
-    public String evaluateStringParameter(CompiledOpcode compiledOpcode, RunningProgram program, int parIndex) {
+    @Override
+    public String evaluateStringParameter(CompiledOpcode compiledOpcode, IProgram program, int parIndex) {
         Object value = evaluateParameter(compiledOpcode, program, parIndex);
         return TypeConverters.convertToString(value);
     }
 
-    public boolean evaluateBoolParameter(CompiledOpcode compiledOpcode, RunningProgram program, int parIndex) {
+    @Override
+    public boolean evaluateBoolParameter(CompiledOpcode compiledOpcode, IProgram program, int parIndex) {
         Object value = evaluateParameter(compiledOpcode, program, parIndex);
         return TypeConverters.convertToBool(value);
     }
@@ -1341,7 +1363,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         return (IStorageScanner) te;
     }
 
-    public int countItem(Inventory inv, Integer slot, ItemStack itemMatcher, boolean oredict, boolean routable, RunningProgram program) {
+    public int countItem(Inventory inv, Integer slot, ItemStack itemMatcher, boolean oredict, boolean routable, IProgram program) {
         if (inv == null) {
             return countItemStorage(itemMatcher, routable, oredict);
         }
@@ -1394,6 +1416,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         return worldObj.getTileEntity(np);
     }
 
+    @Override
     public IItemHandler getItemHandlerAt(Inventory inv) {
         TileEntity te = getTileEntityAt(inv);
         if (te != null && te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, inv.getIntSide())) {

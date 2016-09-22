@@ -1,5 +1,6 @@
 package mcjty.rftoolscontrol.logic.running;
 
+import mcjty.rftoolscontrol.api.IProgram;
 import mcjty.rftoolscontrol.blocks.processor.ProcessorTileEntity;
 import mcjty.rftoolscontrol.logic.Parameter;
 import mcjty.rftoolscontrol.logic.TypeConverters;
@@ -21,7 +22,7 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RunningProgram {
+public class RunningProgram implements IProgram {
 
     public static boolean DEBUG = false;
 
@@ -76,19 +77,23 @@ public class RunningProgram {
         this.ticket = craftId;
     }
 
+    @Override
     @Nullable
     public String getCraftTicket() {
         return ticket;
     }
 
+    @Override
     public boolean hasCraftTicket() {
         return ticket != null && !ticket.isEmpty();
     }
 
+    @Override
     public void setDelay(int delay) {
         this.delay = delay;
     }
 
+    @Override
     public int getDelay() {
         return delay;
     }
@@ -101,10 +106,12 @@ public class RunningProgram {
         this.lock = lock;
     }
 
+    @Override
     public void killMe() {
         dead = true;
     }
 
+    @Override
     public boolean isDead() {
         return dead;
     }
@@ -113,10 +120,12 @@ public class RunningProgram {
         return cardIndex;
     }
 
+    @Override
     public void setLastValue(Parameter value) {
         lastValue = value;
     }
 
+    @Override
     public Parameter getLastValue() {
         return lastValue;
     }
@@ -150,7 +159,7 @@ public class RunningProgram {
         }
 
         if (lock != null) {
-            if (processor.testLock(this, lock)) {
+            if (processor.testLock(lock)) {
                 return false;
             }
             lock = null;

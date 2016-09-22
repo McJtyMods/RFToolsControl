@@ -1,8 +1,8 @@
 package mcjty.rftoolscontrol.logic.registry;
 
-import mcjty.rftoolscontrol.blocks.processor.ProcessorTileEntity;
+import mcjty.rftoolscontrol.api.IProcessor;
+import mcjty.rftoolscontrol.api.IProgram;
 import mcjty.rftoolscontrol.logic.compiled.CompiledOpcode;
-import mcjty.rftoolscontrol.logic.running.ProgException;
 import mcjty.rftoolscontrol.logic.running.RunningProgram;
 
 public interface OpcodeRunnable {
@@ -14,5 +14,5 @@ public interface OpcodeRunnable {
 
 
     // Return true to process to primary output, else to secondary output
-    OpcodeResult run(ProcessorTileEntity processor, RunningProgram program, CompiledOpcode opcode);
+    OpcodeResult run(IProcessor processor, IProgram program, CompiledOpcode opcode);
 }

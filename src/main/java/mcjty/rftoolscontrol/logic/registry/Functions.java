@@ -2,6 +2,7 @@ package mcjty.rftoolscontrol.logic.registry;
 
 import mcjty.rftoolscontrol.logic.Parameter;
 import mcjty.rftoolscontrol.logic.TypeConverters;
+import mcjty.rftoolscontrol.logic.running.RunningProgram;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
@@ -57,7 +58,7 @@ public class Functions {
             .description("The current crafting ticket")
             .type(PAR_STRING)
             .runnable((processor, program, function) -> {
-                return ParameterValue.constant(program.getCraftTicket());
+                return ParameterValue.constant(((RunningProgram)program).getCraftTicket());
             })
             .build();
     public static final Function CRAFTRESULT = Function.builder()
