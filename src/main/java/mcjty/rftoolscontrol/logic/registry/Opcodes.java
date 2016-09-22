@@ -957,14 +957,14 @@ public class Opcodes {
             }))
             .build();
 
-    public static final Opcode EVAL_READDAMAGE = Opcode.builder()
-            .id("eval_readdamage")
+    public static final Opcode EVAL_GETDAMAGE = Opcode.builder()
+            .id("eval_getdamage")
             .description(
-                    TextFormatting.GREEN + "Eval: read damage",
-                    "read the damage value from an item")
+                    TextFormatting.GREEN + "Eval: get damage",
+                    "get the damage value from an item")
             .outputDescription("damage value (integer)")
             .opcodeOutput(SINGLE)
-            .parameter(ParameterDescription.builder().name("item").type(PAR_ITEM).description("item to read damage from").build())
+            .parameter(ParameterDescription.builder().name("item").type(PAR_ITEM).description("item to get damage from").build())
             .icon(6, 4)
             .runnable(((processor, program, opcode) -> {
                 ItemStack item = processor.evaluateParameter(opcode, program, 0);
@@ -973,6 +973,25 @@ public class Opcodes {
                 }
                 int damage = item.getItemDamage();
                 program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(damage)).build());
+                return POSITIVE;
+            }))
+            .build();
+    public static final Opcode EVAL_GETNAME = Opcode.builder()
+            .id("eval_getname")
+            .description(
+                    TextFormatting.GREEN + "Eval: get name",
+                    "get the readable name from an item")
+            .outputDescription("item name (string)")
+            .opcodeOutput(SINGLE)
+            .parameter(ParameterDescription.builder().name("item").type(PAR_ITEM).description("item to get name from").build())
+            .icon(7, 4)
+            .runnable(((processor, program, opcode) -> {
+                ItemStack item = processor.evaluateParameter(opcode, program, 0);
+                if (item == null) {
+                    throw new ProgException(ExceptionType.EXCEPT_MISSINGITEM);
+                }
+                String name = item.getDisplayName();
+                program.setLastValue(Parameter.builder().type(PAR_STRING).value(ParameterValue.constant(name)).build());
                 return POSITIVE;
             }))
             .build();
@@ -994,7 +1013,8 @@ public class Opcodes {
         register(EVAL_COUNTINVINT);
         register(EVAL_GETITEM);
         register(EVAL_GETITEMINT);
-        register(EVAL_READDAMAGE);
+        register(EVAL_GETDAMAGE);
+        register(EVAL_GETNAME);
         register(EVAL_INGREDIENTS);
         register(EVAL_REDSTONE);
         register(EVAL_GETRF);
