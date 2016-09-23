@@ -1,10 +1,9 @@
 package mcjty.rftoolscontrol.logic.registry;
 
 import mcjty.rftoolscontrol.api.code.Function;
+import mcjty.rftoolscontrol.api.parameters.Parameter;
 import mcjty.rftoolscontrol.api.parameters.ParameterType;
 import mcjty.rftoolscontrol.api.parameters.ParameterValue;
-import mcjty.rftoolscontrol.api.parameters.Parameter;
-import mcjty.rftoolscontrol.logic.TypeConverters;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
@@ -78,8 +77,8 @@ public class Functions {
             .description("A random integer between 0", "and the last opcode result (exclusive)", "(converted to integer)")
             .type(PAR_INTEGER)
             .runnable((processor, program) -> {
-                int i = TypeConverters.convertToInt(program.getLastValue());
-                return ParameterValue.constant(random.nextInt(i));
+                ParameterValue v = convertToInt(program.getLastValue());
+                return ParameterValue.constant(random.nextInt((Integer) v.getValue()));
             })
             .build();
     public static final Function RANDOMFLOAT = Function.builder()
@@ -88,8 +87,8 @@ public class Functions {
             .description("A random floating number between 0", "and the last opcode result (exclusive)", "(converted to float)")
             .type(PAR_FLOAT)
             .runnable((processor, program) -> {
-                float i = TypeConverters.convertToFloat(program.getLastValue());
-                return ParameterValue.constant(random.nextFloat() * i);
+                ParameterValue v = convertToFloat(program.getLastValue());
+                return ParameterValue.constant(random.nextFloat() * (Float) v.getValue());
             })
             .build();
 
@@ -114,6 +113,31 @@ public class Functions {
                 return value.getParameterValue();
         }
         return ParameterValue.constant(false);
+    }
+
+    private static ParameterValue convertToFloat(Parameter value) {
+        if (value == null) {
+            return ParameterValue.constant(0);
+        }
+        if (!value.isSet()) {
+            return ParameterValue.constant(0);
+        }
+        Object v = value.getParameterValue().getValue();
+        switch (value.getParameterType()) {
+            case PAR_STRING:
+                return ParameterValue.constant(Float.parseFloat((String) v));
+            case PAR_INTEGER:
+                return ParameterValue.constant(((Integer) v).floatValue());
+            case PAR_FLOAT:
+                return value.getParameterValue();
+            case PAR_SIDE:
+                return ParameterValue.constant(0);
+            case PAR_BOOLEAN:
+                return ParameterValue.constant(((Boolean) v) ? 1.0f : 0.0f);
+            case PAR_ITEM:
+                return ParameterValue.constant((float) ((ItemStack) v).stackSize);
+        }
+        return ParameterValue.constant(0);
     }
 
     private static ParameterValue convertToInt(Parameter value) {
