@@ -359,7 +359,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         return failed;
     }
 
-    public boolean checkIngredients(IProgram program, Inventory cardInv, @Nullable ItemStack item, int slot1, int slot2) {
+    public boolean checkIngredients(IProgram program, @Nonnull Inventory cardInv, @Nullable ItemStack item, int slot1, int slot2) {
         if (item == null) {
             item = getCraftResult(program);
         }
@@ -406,8 +406,8 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         return true;
     }
 
-    public int getIngredientsSmart(IProgram program, Inventory inv, Inventory cardInv,
-                                   @Nullable ItemStack item, int slot1, int slot2, Inventory destInv) {
+    public int getIngredientsSmart(IProgram program, Inventory inv, @Nonnull Inventory cardInv,
+                                   @Nullable ItemStack item, int slot1, int slot2, @Nonnull Inventory destInv) {
         IStorageScanner scanner = getScannerForInv(inv);
         IItemHandler handler = getHandlerForInv(inv);
 
@@ -559,7 +559,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         return getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
     }
 
-    public void craftWait(IProgram program, Inventory inv, ItemStack stack) {
+    public void craftWait(IProgram program, @Nonnull Inventory inv, ItemStack stack) {
         if (!program.hasCraftTicket()) {
             throw new ProgException(EXCEPT_MISSINGCRAFTTICKET);
         }
@@ -599,7 +599,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     }
 
     @Override
-    public boolean requestCraft(ItemStack stack, @Nullable Inventory inventory) {
+    public boolean requestCraft(@Nonnull ItemStack stack, @Nullable Inventory inventory) {
         for (BlockPos p : craftingStations) {
             TileEntity te = worldObj.getTileEntity(p);
             if (te instanceof CraftingStationTileEntity) {
@@ -694,7 +694,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         for (CompiledEvent event : compiledCard.getEvents(Opcodes.EVENT_CRAFTRESUME)) {
             int index = event.getIndex();
             CompiledOpcode compiledOpcode = compiledCard.getOpcodes().get(index);
-            int ticks = evaluateParameter(compiledOpcode, null, 0);
+            int ticks = evaluateIntParameter(compiledOpcode, null, 0);
             if (ticks > 0 && tickCount % ticks == 0) {
                 if (!waitingForItems.isEmpty()) {
                     WaitForItem found = null;
@@ -728,7 +728,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         for (CompiledEvent event : compiledCard.getEvents(Opcodes.EVENT_TIMER)) {
             int index = event.getIndex();
             CompiledOpcode compiledOpcode = compiledCard.getOpcodes().get(index);
-            int ticks = evaluateParameter(compiledOpcode, null, 0);
+            int ticks = evaluateIntParameter(compiledOpcode, null, 0);
             if (ticks > 0 && tickCount % ticks == 0) {
                 runOrDropEvent(i, event, null);
             }
@@ -742,7 +742,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                 int index = event.getIndex();
                 CompiledOpcode compiledOpcode = compiledCard.getOpcodes().get(index);
                 BlockSide side = evaluateParameter(compiledOpcode, null, 0);
-                if (!side.hasNodeName()) {
+                if (side == null || !side.hasNodeName()) {
                     EnumFacing facing = side == null ? null : side.getSide();
                     if (facing == null || ((redstoneOffMask >> facing.ordinal()) & 1) == 1) {
                         runOrQueueEvent(i, event, null);
@@ -759,7 +759,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                 int index = event.getIndex();
                 CompiledOpcode compiledOpcode = compiledCard.getOpcodes().get(index);
                 BlockSide side = evaluateParameter(compiledOpcode, null, 0);
-                if (!side.hasNodeName()) {
+                if (side == null || !side.hasNodeName()) {
                     EnumFacing facing = side == null ? null : side.getSide();
                     if (facing == null || ((redstoneOnMask >> facing.ordinal()) & 1) == 1) {
                         runOrQueueEvent(i, event, null);
@@ -776,8 +776,8 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                 int index = event.getIndex();
                 CompiledOpcode compiledOpcode = compiledCard.getOpcodes().get(index);
                 BlockSide side = evaluateParameter(compiledOpcode, null, 0);
-                if (node.equals(side.getNodeName())) {
-                    EnumFacing facing = side == null ? null : side.getSide();
+                if (side != null && node.equals(side.getNodeName())) {
+                    EnumFacing facing = side.getSide();
                     if (facing == null || ((redstoneOffMask >> facing.ordinal()) & 1) == 1) {
                         runOrQueueEvent(i, event, null);
                     }
@@ -793,8 +793,8 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                 int index = event.getIndex();
                 CompiledOpcode compiledOpcode = compiledCard.getOpcodes().get(index);
                 BlockSide side = evaluateParameter(compiledOpcode, null, 0);
-                if (node.equals(side.getNodeName())) {
-                    EnumFacing facing = side == null ? null : side.getSide();
+                if (side != null && node.equals(side.getNodeName())) {
+                    EnumFacing facing = side.getSide();
                     if (facing == null || ((redstoneOnMask >> facing.ordinal()) & 1) == 1) {
                         runOrQueueEvent(i, event, null);
                     }
@@ -856,7 +856,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                 for (CompiledEvent event : compiledCard.getEvents(Opcodes.EVENT_SIGNAL)) {
                     int index = event.getIndex();
                     CompiledOpcode compiledOpcode = compiledCard.getOpcodes().get(index);
-                    String sig = evaluateParameter(compiledOpcode, null, 0);
+                    String sig = evaluateStringParameter(compiledOpcode, null, 0);
                     if (signal.equals(sig)) {
                         runOrQueueEvent(i, event, null);
                         cnt++;
@@ -1093,7 +1093,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     }
 
     @Override
-    public int getLiquid(Inventory side) {
+    public int getLiquid(@Nonnull Inventory side) {
         TileEntity te = getTileEntityAt(side);
         if (te != null && te.hasCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, side.getIntSide())) {
             IFluidHandler handler = te.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, side.getIntSide());
@@ -1109,7 +1109,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     }
 
     @Override
-    public int getMaxLiquid(Inventory side) {
+    public int getMaxLiquid(@Nonnull Inventory side) {
         TileEntity te = getTileEntityAt(side);
         if (te != null && te.hasCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, side.getIntSide())) {
             IFluidHandler handler = te.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, side.getIntSide());
@@ -1163,6 +1163,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     }
 
     @Override
+    @Nullable
     public ItemStack getItemInternal(IProgram program, int virtualSlot) {
         CardInfo info = this.cardInfo[((RunningProgram)program).getCardIndex()];
         int realSlot = info.getRealSlot(virtualSlot);
@@ -1273,7 +1274,18 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         variables[realVar] = program.getLastValue();
     }
 
+    @Nonnull
     @Override
+    public <T> T evaluateParameterNonNull(ICompiledOpcode compiledOpcode, IProgram program, int parIndex) {
+        T parameter = evaluateParameter(compiledOpcode, program, parIndex);
+        if (parameter == null) {
+            throw new ProgException(EXCEPT_MISSINGPARAMETER);
+        }
+        return parameter;
+    }
+
+    @Override
+    @Nullable
     public <T> T evaluateParameter(ICompiledOpcode compiledOpcode, IProgram program, int parIndex) {
         List<Parameter> parameters = compiledOpcode.getParameters();
         if (parIndex >= parameters.size()) {
@@ -1312,12 +1324,14 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
 
     // This version allows returning null
     @Override
+    @Nullable
     public Integer evaluateIntegerParameter(ICompiledOpcode compiledOpcode, IProgram program, int parIndex) {
         Object value = evaluateParameter(compiledOpcode, program, parIndex);
         return TypeConverters.convertToInteger(value);
     }
 
     @Override
+    @Nullable
     public String evaluateStringParameter(ICompiledOpcode compiledOpcode, IProgram program, int parIndex) {
         Object value = evaluateParameter(compiledOpcode, program, parIndex);
         return TypeConverters.convertToString(value);
@@ -1435,7 +1449,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     }
 
     @Override
-    public IItemHandler getItemHandlerAt(Inventory inv) {
+    public IItemHandler getItemHandlerAt(@Nonnull Inventory inv) {
         TileEntity te = getTileEntityAt(inv);
         if (te != null && te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, inv.getIntSide())) {
             IItemHandler handler = te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, inv.getIntSide());

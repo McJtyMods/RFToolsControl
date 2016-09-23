@@ -8,6 +8,7 @@ import mcjty.rftoolscontrol.api.code.IOpcodeRunnable;
 import mcjty.rftoolscontrol.logic.running.ProgException;
 import mcjty.rftoolscontrol.logic.running.RunningProgram;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,6 +35,7 @@ public class CompiledOpcode implements ICompiledOpcode {
     }
 
     @Override
+    @Nonnull
     public List<Parameter> getParameters() {
         return parameters;
     }
