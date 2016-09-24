@@ -3,6 +3,8 @@ package mcjty.rftoolscontrol.logic.registry;
 import mcjty.rftoolscontrol.api.code.Opcode;
 import mcjty.rftoolscontrol.api.parameters.*;
 import mcjty.rftoolscontrol.blocks.processor.ProcessorTileEntity;
+import mcjty.rftoolscontrol.logic.running.ExceptionType;
+import mcjty.rftoolscontrol.logic.running.ProgException;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.items.IItemHandler;
@@ -28,7 +30,10 @@ public class Opcodes {
             .parameter(ParameterDescription.builder().name("side").type(PAR_SIDE).description("side of (networked) block").build())
             .parameter(ParameterDescription.builder().name("level").type(PAR_INTEGER).description("redstone level").build())
             .runnable(((processor, program, opcode) -> {
-                BlockSide side = processor.evaluateParameterNonNull(opcode, program, 0);
+                BlockSide side = processor.evaluateSideParameter(opcode, program, 0);
+                if (side == null) {
+                    throw new ProgException(ExceptionType.EXCEPT_MISSINGPARAMETER);
+                }
                 int level = processor.evaluateIntParameter(opcode, program, 1);
                 processor.setPowerOut(side, level);
                 return POSITIVE;
@@ -150,7 +155,10 @@ public class Opcodes {
             .parameter(ParameterDescription.builder().name("side").type(PAR_SIDE).description("side of (networked) block").build())
             .icon(1, 0)
             .runnable(((processor, program, opcode) -> {
-                BlockSide side = processor.evaluateParameterNonNull(opcode, program, 0);
+                BlockSide side = processor.evaluateSideParameter(opcode, program, 0);
+                if (side == null) {
+                    throw new ProgException(ExceptionType.EXCEPT_MISSINGPARAMETER);
+                }
                 int rs = processor.readRedstoneIn(side);
                 program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(rs)).build());
                 return POSITIVE;

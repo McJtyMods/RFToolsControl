@@ -32,6 +32,14 @@ public interface IProcessor {
     <T> T evaluateParameterNonNull(ICompiledOpcode compiledOpcode, IProgram program, int parIndex);
 
     /**
+     * Evalulate a parameter with a given index and return a BlockSide.
+     * This can convert from Inventory correctly
+     * of the right type or null if the parameter was not given
+     */
+    @Nullable
+    BlockSide evaluateSideParameter(ICompiledOpcode compiledOpcode, IProgram program, int parIndex);
+
+    /**
      * Evaluate an integer parameter. Return 0 if the parameter was not an integer or null
      */
     int evaluateIntParameter(ICompiledOpcode compiledOpcode, IProgram program, int parIndex);

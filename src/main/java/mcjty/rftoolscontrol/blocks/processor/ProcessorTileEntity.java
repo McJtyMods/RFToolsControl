@@ -14,6 +14,7 @@ import mcjty.rftoolscontrol.api.machines.IProcessor;
 import mcjty.rftoolscontrol.api.machines.IProgram;
 import mcjty.rftoolscontrol.api.parameters.BlockSide;
 import mcjty.rftoolscontrol.api.parameters.Inventory;
+import mcjty.rftoolscontrol.api.parameters.Parameter;
 import mcjty.rftoolscontrol.api.parameters.ParameterValue;
 import mcjty.rftoolscontrol.blocks.craftingstation.CraftingStationTileEntity;
 import mcjty.rftoolscontrol.blocks.node.NodeTileEntity;
@@ -22,14 +23,14 @@ import mcjty.rftoolscontrol.items.CPUCoreItem;
 import mcjty.rftoolscontrol.items.ModItems;
 import mcjty.rftoolscontrol.items.craftingcard.CraftingCardItem;
 import mcjty.rftoolscontrol.logic.InventoryTools;
-import mcjty.rftoolscontrol.api.parameters.Parameter;
 import mcjty.rftoolscontrol.logic.ParameterTools;
 import mcjty.rftoolscontrol.logic.TypeConverters;
 import mcjty.rftoolscontrol.logic.compiled.CompiledCard;
 import mcjty.rftoolscontrol.logic.compiled.CompiledEvent;
 import mcjty.rftoolscontrol.logic.compiled.CompiledOpcode;
 import mcjty.rftoolscontrol.logic.grid.ProgramCardInstance;
-import mcjty.rftoolscontrol.logic.registry.*;
+import mcjty.rftoolscontrol.logic.registry.InventoryUtil;
+import mcjty.rftoolscontrol.logic.registry.Opcodes;
 import mcjty.rftoolscontrol.logic.running.CpuCore;
 import mcjty.rftoolscontrol.logic.running.ExceptionType;
 import mcjty.rftoolscontrol.logic.running.ProgException;
@@ -741,7 +742,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             for (CompiledEvent event : compiledCard.getEvents(Opcodes.EVENT_REDSTONE_OFF)) {
                 int index = event.getIndex();
                 CompiledOpcode compiledOpcode = compiledCard.getOpcodes().get(index);
-                BlockSide side = evaluateParameter(compiledOpcode, null, 0);
+                BlockSide side = evaluateSideParameter(compiledOpcode, null, 0);
                 if (side == null || !side.hasNodeName()) {
                     EnumFacing facing = side == null ? null : side.getSide();
                     if (facing == null || ((redstoneOffMask >> facing.ordinal()) & 1) == 1) {
@@ -758,7 +759,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             for (CompiledEvent event : compiledCard.getEvents(Opcodes.EVENT_REDSTONE_ON)) {
                 int index = event.getIndex();
                 CompiledOpcode compiledOpcode = compiledCard.getOpcodes().get(index);
-                BlockSide side = evaluateParameter(compiledOpcode, null, 0);
+                BlockSide side = evaluateSideParameter(compiledOpcode, null, 0);
                 if (side == null || !side.hasNodeName()) {
                     EnumFacing facing = side == null ? null : side.getSide();
                     if (facing == null || ((redstoneOnMask >> facing.ordinal()) & 1) == 1) {
@@ -775,7 +776,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             for (CompiledEvent event : compiledCard.getEvents(Opcodes.EVENT_REDSTONE_OFF)) {
                 int index = event.getIndex();
                 CompiledOpcode compiledOpcode = compiledCard.getOpcodes().get(index);
-                BlockSide side = evaluateParameter(compiledOpcode, null, 0);
+                BlockSide side = evaluateSideParameter(compiledOpcode, null, 0);
                 if (side != null && node.equals(side.getNodeName())) {
                     EnumFacing facing = side.getSide();
                     if (facing == null || ((redstoneOffMask >> facing.ordinal()) & 1) == 1) {
@@ -792,7 +793,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             for (CompiledEvent event : compiledCard.getEvents(Opcodes.EVENT_REDSTONE_ON)) {
                 int index = event.getIndex();
                 CompiledOpcode compiledOpcode = compiledCard.getOpcodes().get(index);
-                BlockSide side = evaluateParameter(compiledOpcode, null, 0);
+                BlockSide side = evaluateSideParameter(compiledOpcode, null, 0);
                 if (side != null && node.equals(side.getNodeName())) {
                     EnumFacing facing = side.getSide();
                     if (facing == null || ((redstoneOnMask >> facing.ordinal()) & 1) == 1) {
@@ -1314,6 +1315,19 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             }
             return par.isSet() ? (T) par.getParameterValue().getValue() : null;
         }
+    }
+
+    @Nullable
+    @Override
+    public BlockSide evaluateSideParameter(ICompiledOpcode compiledOpcode, IProgram program, int parIndex) {
+        Object o = evaluateParameter(compiledOpcode, program, parIndex);
+        if (o instanceof BlockSide) {
+            return (BlockSide) o;
+        }
+        if (o instanceof Inventory) {
+            return new BlockSide(((Inventory) o).getNodeName(), ((Inventory) o).getSide());
+        }
+        return null;
     }
 
     @Override
