@@ -1434,7 +1434,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
 
     @Override
     @Nullable
-    public TileEntity getTileEntityAt(Inventory inv) {
+    public TileEntity getTileEntityAt(@Nullable BlockSide inv) {
         BlockPos np = getPositionAt(inv);
         if (np == null) {
             return null;
@@ -1444,7 +1444,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
 
     @Override
     @Nullable
-    public BlockPos getPositionAt(Inventory inv) {
+    public BlockPos getPositionAt(@Nullable BlockSide inv) {
         if (inv == null) {
             return null;
         }
@@ -1458,8 +1458,11 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                 throw new ProgException(EXCEPT_MISSINGNODE);
             }
         }
-        BlockPos np = p.offset(inv.getSide());
-        return np;
+        if (inv.getSide() == null) {
+            return p;
+        } else {
+            return p.offset(inv.getSide());
+        }
     }
 
     @Override
