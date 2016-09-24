@@ -227,7 +227,6 @@ public class Opcodes {
                     TextFormatting.GREEN + "Test: greater than",
                     "check if the first value is greater",
                     "then the second value")
-            .outputDescription("v1 > v2 (boolean)")
             .opcodeOutput(YESNO)
             .parameter(ParameterDescription.builder().name("v1").type(PAR_INTEGER).description("first value").build())
             .parameter(ParameterDescription.builder().name("v2").type(PAR_INTEGER).description("second value").build())
@@ -245,7 +244,6 @@ public class Opcodes {
                     TextFormatting.GREEN + "Test: equality",
                     "check if the first value is equal",
                     "to the second value")
-            .outputDescription("v1 = v2 (boolean)")
             .opcodeOutput(YESNO)
             .parameter(ParameterDescription.builder().name("v1").type(PAR_INTEGER).description("first value").build())
             .parameter(ParameterDescription.builder().name("v2").type(PAR_INTEGER).description("second value").build())
