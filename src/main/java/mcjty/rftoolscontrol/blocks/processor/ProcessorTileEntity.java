@@ -260,8 +260,8 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                     for (CompiledEvent event : compiledCard.getEvents(Opcodes.EVENT_CRAFT)) {
                         int index = event.getIndex();
                         CompiledOpcode compiledOpcode = compiledCard.getOpcodes().get(index);
-                        ItemStack stack = evaluateParameter(compiledOpcode, null, 0);
-                        Inventory inv = evaluateParameter(compiledOpcode, null, 1);
+                        ItemStack stack = evaluateItemParameter(compiledOpcode, null, 0);
+                        Inventory inv = evaluateInventoryParameter(compiledOpcode, null, 1);
                         if (stack != null && inv != null) {
                             throw new ProgException(EXCEPT_BADPARAMETERS);
                         }
@@ -658,8 +658,8 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                 for (CompiledEvent event : compiledCard.getEvents(Opcodes.EVENT_CRAFT)) {
                     int index = event.getIndex();
                     CompiledOpcode compiledOpcode = compiledCard.getOpcodes().get(index);
-                    ItemStack stack = evaluateParameter(compiledOpcode, null, 0);
-                    Inventory inv = evaluateParameter(compiledOpcode, null, 1);
+                    ItemStack stack = evaluateItemParameter(compiledOpcode, null, 0);
+                    Inventory inv = evaluateInventoryParameter(compiledOpcode, null, 1);
                     if (stack != null) {
                         if (stack.isItemEqual(stackToCraft)) {
                             runOrQueueEvent(i, event, ticket);
@@ -1319,15 +1319,56 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
 
     @Nullable
     @Override
+    public ItemStack evaluateItemParameter(ICompiledOpcode compiledOpcode, IProgram program, int parIndex) {
+        Object o = evaluateParameter(compiledOpcode, program, parIndex);
+        return TypeConverters.convertToItem(o);
+    }
+
+    @Nonnull
+    @Override
+    public ItemStack evaluateItemParameterNonNull(ICompiledOpcode compiledOpcode, IProgram program, int parIndex) {
+        Object o = evaluateParameter(compiledOpcode, program, parIndex);
+        ItemStack stack = TypeConverters.convertToItem(o);
+        if (stack == null) {
+            throw new ProgException(EXCEPT_MISSINGPARAMETER);
+        }
+        return stack;
+    }
+
+    @Nullable
+    @Override
     public BlockSide evaluateSideParameter(ICompiledOpcode compiledOpcode, IProgram program, int parIndex) {
         Object o = evaluateParameter(compiledOpcode, program, parIndex);
-        if (o instanceof BlockSide) {
-            return (BlockSide) o;
+        return TypeConverters.convertToSide(o);
+    }
+
+    @Nonnull
+    @Override
+    public BlockSide evaluateSideParameterNonNull(ICompiledOpcode compiledOpcode, IProgram program, int parIndex) {
+        Object o = evaluateParameter(compiledOpcode, program, parIndex);
+        BlockSide side = TypeConverters.convertToSide(o);
+        if (side == null) {
+            throw new ProgException(EXCEPT_MISSINGPARAMETER);
         }
-        if (o instanceof Inventory) {
-            return new BlockSide(((Inventory) o).getNodeName(), ((Inventory) o).getSide());
+        return side;
+    }
+
+    @Nullable
+    @Override
+    public Inventory evaluateInventoryParameter(ICompiledOpcode compiledOpcode, IProgram program, int parIndex) {
+        Object o = evaluateParameter(compiledOpcode, program, parIndex);
+        return TypeConverters.convertToInventory(o);
+    }
+
+    @Nonnull
+    @Override
+    public Inventory evaluateInventoryParameterNonNull(ICompiledOpcode compiledOpcode, IProgram program, int parIndex) {
+        Object o = evaluateParameter(compiledOpcode, program, parIndex);
+        Inventory inv = TypeConverters.convertToInventory(o);
+        if (inv == null) {
+            throw new ProgException(EXCEPT_MISSINGPARAMETER);
         }
-        return null;
+        return inv;
     }
 
     @Override

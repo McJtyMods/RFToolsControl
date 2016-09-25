@@ -30,10 +30,7 @@ public class Opcodes {
             .parameter(ParameterDescription.builder().name("side").type(PAR_SIDE).description("side of (networked) block").build())
             .parameter(ParameterDescription.builder().name("level").type(PAR_INTEGER).description("redstone level").build())
             .runnable(((processor, program, opcode) -> {
-                BlockSide side = processor.evaluateSideParameter(opcode, program, 0);
-                if (side == null) {
-                    throw new ProgException(ExceptionType.EXCEPT_MISSINGPARAMETER);
-                }
+                BlockSide side = processor.evaluateSideParameterNonNull(opcode, program, 0);
                 int level = processor.evaluateIntParameter(opcode, program, 1);
                 processor.setPowerOut(side, level);
                 return POSITIVE;
@@ -111,9 +108,9 @@ public class Opcodes {
             .parameter(ParameterDescription.builder().name("routable").type(PAR_BOOLEAN).optional().description("count routable items", "(only for storage)").build())
             .icon(2, 0)
             .runnable(((processor, program, opcode) -> {
-                Inventory inv = processor.evaluateParameter(opcode, program, 0);
+                Inventory inv = processor.evaluateInventoryParameter(opcode, program, 0);
                 Integer slot = processor.evaluateIntegerParameter(opcode, program, 1);
-                ItemStack item = processor.evaluateParameter(opcode, program, 2);
+                ItemStack item = processor.evaluateItemParameter(opcode, program, 2);
                 boolean oredict = processor.evaluateBoolParameter(opcode, program, 3);
                 boolean routable = processor.evaluateBoolParameter(opcode, program, 4);
                 int cnt = ((ProcessorTileEntity)processor).countItem(inv, slot, item, oredict, routable, program);
@@ -135,7 +132,7 @@ public class Opcodes {
             .parameter(ParameterDescription.builder().name("slot").type(PAR_INTEGER).description("slot in inventory").build())
             .icon(10, 1)
             .runnable(((processor, program, opcode) -> {
-                Inventory inv = processor.evaluateParameterNonNull(opcode, program, 0);
+                Inventory inv = processor.evaluateInventoryParameterNonNull(opcode, program, 0);
                 int slot = processor.evaluateIntParameter(opcode, program, 1);
                 IItemHandler handler = processor.getItemHandlerAt(inv);
                 ItemStack item = handler.getStackInSlot(slot);
@@ -155,10 +152,7 @@ public class Opcodes {
             .parameter(ParameterDescription.builder().name("side").type(PAR_SIDE).description("side of (networked) block").build())
             .icon(1, 0)
             .runnable(((processor, program, opcode) -> {
-                BlockSide side = processor.evaluateSideParameter(opcode, program, 0);
-                if (side == null) {
-                    throw new ProgException(ExceptionType.EXCEPT_MISSINGPARAMETER);
-                }
+                BlockSide side = processor.evaluateSideParameterNonNull(opcode, program, 0);
                 int rs = processor.readRedstoneIn(side);
                 program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(rs)).build());
                 return POSITIVE;
@@ -274,9 +268,9 @@ public class Opcodes {
             .parameter(ParameterDescription.builder().name("routable").type(PAR_BOOLEAN).optional().description("only routable items", "(only for storage)").build())
             .icon(0, 1)
             .runnable(((processor, program, opcode) -> {
-                Inventory inv = processor.evaluateParameter(opcode, program, 0);
+                Inventory inv = processor.evaluateInventoryParameter(opcode, program, 0);
                 Integer slot = processor.evaluateIntegerParameter(opcode, program, 1);
-                ItemStack item = processor.evaluateParameter(opcode, program, 2);
+                ItemStack item = processor.evaluateItemParameter(opcode, program, 2);
                 Integer amount = processor.evaluateIntegerParameter(opcode, program, 3);
                 int slotOut = processor.evaluateIntParameter(opcode, program, 4);
                 boolean oredict = processor.evaluateBoolParameter(opcode, program, 5);
@@ -303,7 +297,7 @@ public class Opcodes {
             .parameter(ParameterDescription.builder().name("slotIn").type(PAR_INTEGER).description("internal (processor) slot for input").build())
             .icon(1, 1)
             .runnable(((processor, program, opcode) -> {
-                Inventory inv = processor.evaluateParameter(opcode, program, 0);
+                Inventory inv = processor.evaluateInventoryParameter(opcode, program, 0);
                 Integer slot = processor.evaluateIntegerParameter(opcode, program, 1);
                 Integer amount = processor.evaluateIntegerParameter(opcode, program, 2);
                 int slotIn = processor.evaluateIntParameter(opcode, program, 3);
@@ -467,7 +461,7 @@ public class Opcodes {
             .parameter(ParameterDescription.builder().name("side").type(PAR_INVENTORY).description("side of (networked) block").build())
             .icon(3, 2)
             .runnable(((processor, program, opcode) -> {
-                Inventory side = processor.evaluateParameterNonNull(opcode, program, 0);
+                Inventory side = processor.evaluateInventoryParameterNonNull(opcode, program, 0);
                 int rf = processor.getEnergy(side);
                 program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(rf)).build());
                 return POSITIVE;
@@ -485,7 +479,7 @@ public class Opcodes {
             .parameter(ParameterDescription.builder().name("side").type(PAR_INVENTORY).description("side of (networked) block").build())
             .icon(4, 2)
             .runnable(((processor, program, opcode) -> {
-                Inventory side = processor.evaluateParameterNonNull(opcode, program, 0);
+                Inventory side = processor.evaluateInventoryParameterNonNull(opcode, program, 0);
                 int rf = processor.getMaxEnergy(side);
                 program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(rf)).build());
                 return POSITIVE;
@@ -569,9 +563,9 @@ public class Opcodes {
             .parameter(ParameterDescription.builder().name("slot2").type(PAR_INTEGER).description("last slot of that range").build())
             .icon(8, 2)
             .runnable(((processor, program, opcode) -> {
-                Inventory inv = processor.evaluateParameter(opcode, program, 0);
-                Inventory cardInv = processor.evaluateParameter(opcode, program, 1);
-                ItemStack item = processor.evaluateParameter(opcode, program, 2);
+                Inventory inv = processor.evaluateInventoryParameter(opcode, program, 0);
+                Inventory cardInv = processor.evaluateInventoryParameter(opcode, program, 1);
+                ItemStack item = processor.evaluateItemParameter(opcode, program, 2);
                 int slot1 = processor.evaluateIntParameter(opcode, program, 3);
                 int slot2 = processor.evaluateIntParameter(opcode, program, 4);
                 int failed = ((ProcessorTileEntity)processor).getIngredients(program, inv, cardInv, item, slot1, slot2);
@@ -599,12 +593,12 @@ public class Opcodes {
             .parameter(ParameterDescription.builder().name("destInv").type(PAR_INVENTORY).description("inventory adjacent to (networked) block", "for end result of requests").build())
             .icon(11, 3)
             .runnable(((processor, program, opcode) -> {
-                Inventory inv = processor.evaluateParameter(opcode, program, 0);
-                Inventory cardInv = processor.evaluateParameterNonNull(opcode, program, 1);
-                ItemStack item = processor.evaluateParameter(opcode, program, 2);
+                Inventory inv = processor.evaluateInventoryParameter(opcode, program, 0);
+                Inventory cardInv = processor.evaluateInventoryParameterNonNull(opcode, program, 1);
+                ItemStack item = processor.evaluateItemParameter(opcode, program, 2);
                 int slot1 = processor.evaluateIntParameter(opcode, program, 3);
                 int slot2 = processor.evaluateIntParameter(opcode, program, 4);
-                Inventory destInv = processor.evaluateParameterNonNull(opcode, program, 5);
+                Inventory destInv = processor.evaluateInventoryParameterNonNull(opcode, program, 5);
                 int failed = ((ProcessorTileEntity)processor).getIngredientsSmart(program, inv, cardInv, item, slot1, slot2, destInv);
                 program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(failed)).build());
                 return POSITIVE;
@@ -626,7 +620,7 @@ public class Opcodes {
             .parameter(ParameterDescription.builder().name("extSlot").type(PAR_INTEGER).optional().description("first external slot").build())
             .icon(11, 2)
             .runnable(((processor, program, opcode) -> {
-                Inventory inv = processor.evaluateParameter(opcode, program, 0);
+                Inventory inv = processor.evaluateInventoryParameter(opcode, program, 0);
                 int slot1 = processor.evaluateIntParameter(opcode, program, 1);
                 int slot2 = processor.evaluateIntParameter(opcode, program, 2);
                 Integer extSlot = processor.evaluateIntegerParameter(opcode, program, 3);
@@ -689,8 +683,8 @@ public class Opcodes {
             .parameter(ParameterDescription.builder().name("item").type(PAR_ITEM).optional().description("item to wait for. If not given", "it will use current craft result").build())
             .icon(3, 3)
             .runnable(((processor, program, opcode) -> {
-                Inventory inv = processor.evaluateParameterNonNull(opcode, program, 0);
-                ItemStack item = processor.evaluateParameter(opcode, program, 1);
+                Inventory inv = processor.evaluateInventoryParameterNonNull(opcode, program, 0);
+                ItemStack item = processor.evaluateItemParameter(opcode, program, 1);
                 ((ProcessorTileEntity)processor).craftWait(program, inv, item);
                 return POSITIVE;
             }))
@@ -783,8 +777,8 @@ public class Opcodes {
             .parameter(ParameterDescription.builder().name("inv").type(PAR_INVENTORY).optional().description("inventory for the end result").build())
             .icon(6, 3)
             .runnable(((processor, program, opcode) -> {
-                ItemStack item = processor.evaluateParameterNonNull(opcode, program, 0);
-                Inventory inv = processor.evaluateParameter(opcode, program, 1);
+                ItemStack item = processor.evaluateItemParameterNonNull(opcode, program, 0);
+                Inventory inv = processor.evaluateInventoryParameter(opcode, program, 1);
                 processor.requestCraft(item, inv);
                 return POSITIVE;
             }))
@@ -874,8 +868,8 @@ public class Opcodes {
             .parameter(ParameterDescription.builder().name("slot2").type(PAR_INTEGER).description("last slot of that range").build())
             .icon(0, 4)
             .runnable(((processor, program, opcode) -> {
-                Inventory cardInv = processor.evaluateParameterNonNull(opcode, program, 0);
-                ItemStack item = processor.evaluateParameter(opcode, program, 1);
+                Inventory cardInv = processor.evaluateInventoryParameterNonNull(opcode, program, 0);
+                ItemStack item = processor.evaluateItemParameter(opcode, program, 1);
                 int slot1 = processor.evaluateIntParameter(opcode, program, 2);
                 int slot2 = processor.evaluateIntParameter(opcode, program, 3);
                 boolean ok = ((ProcessorTileEntity)processor).checkIngredients(program, cardInv, item, slot1, slot2);
@@ -898,7 +892,7 @@ public class Opcodes {
             .parameter(ParameterDescription.builder().name("inv").type(PAR_INVENTORY).optional().description("inventory adjacent to (networked)", "block or empty for storage").build())
             .icon(1, 4)
             .runnable(((processor, program, opcode) -> {
-                Inventory inv = processor.evaluateParameter(opcode, program, 0);
+                Inventory inv = processor.evaluateInventoryParameter(opcode, program, 0);
                 program.setLastValue(Parameter.builder().type(PAR_INVENTORY).value(ParameterValue.constant(inv)).build());
                 return POSITIVE;
             }))
@@ -916,7 +910,7 @@ public class Opcodes {
             .parameter(ParameterDescription.builder().name("side").type(PAR_INVENTORY).description("side of (networked) block").build())
             .icon(3, 4)
             .runnable(((processor, program, opcode) -> {
-                Inventory side = processor.evaluateParameterNonNull(opcode, program, 0);
+                Inventory side = processor.evaluateInventoryParameterNonNull(opcode, program, 0);
                 int rf = processor.getLiquid(side);
                 program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(rf)).build());
                 return POSITIVE;
@@ -935,7 +929,7 @@ public class Opcodes {
             .parameter(ParameterDescription.builder().name("side").type(PAR_INVENTORY).description("side of (networked) block").build())
             .icon(4, 4)
             .runnable(((processor, program, opcode) -> {
-                Inventory side = processor.evaluateParameterNonNull(opcode, program, 0);
+                Inventory side = processor.evaluateInventoryParameterNonNull(opcode, program, 0);
                 int rf = processor.getMaxLiquid(side);
                 program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(rf)).build());
                 return POSITIVE;
@@ -973,7 +967,7 @@ public class Opcodes {
             .parameter(ParameterDescription.builder().name("item").type(PAR_ITEM).description("item to get damage from").build())
             .icon(6, 4)
             .runnable(((processor, program, opcode) -> {
-                ItemStack item = processor.evaluateParameterNonNull(opcode, program, 0);
+                ItemStack item = processor.evaluateItemParameterNonNull(opcode, program, 0);
                 int damage = item.getItemDamage();
                 program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(damage)).build());
                 return POSITIVE;
@@ -989,7 +983,7 @@ public class Opcodes {
             .parameter(ParameterDescription.builder().name("item").type(PAR_ITEM).description("item to get name from").build())
             .icon(7, 4)
             .runnable(((processor, program, opcode) -> {
-                ItemStack item = processor.evaluateParameterNonNull(opcode, program, 0);
+                ItemStack item = processor.evaluateItemParameterNonNull(opcode, program, 0);
                 String name = item.getDisplayName();
                 program.setLastValue(Parameter.builder().type(PAR_STRING).value(ParameterValue.constant(name)).build());
                 return POSITIVE;

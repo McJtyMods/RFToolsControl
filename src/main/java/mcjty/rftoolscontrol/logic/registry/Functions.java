@@ -64,7 +64,7 @@ public class Functions {
             })
             .build();
     public static final Function LASTSIDE = Function.builder()
-            .id("last_inv")
+            .id("last_side")
             .name("last")
             .description("The last opcode result as a side (position)", "Can also convert a string with format", "'<name> S' to a side")
             .type(PAR_SIDE)
@@ -268,7 +268,7 @@ public class Functions {
         Object v = value.getParameterValue().getValue();
         switch (value.getParameterType()) {
             case PAR_STRING:
-                return ParameterValue.constant(ForgeRegistries.ITEMS.getValue(new ResourceLocation((String) v)));
+                return ParameterValue.constant(new ItemStack(ForgeRegistries.ITEMS.getValue(new ResourceLocation((String) v)), 1, 0));
             case PAR_ITEM:
                 return value.getParameterValue();
         }
