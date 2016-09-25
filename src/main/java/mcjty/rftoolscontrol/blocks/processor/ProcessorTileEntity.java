@@ -906,6 +906,18 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         waitingForItems.clear();
         eventQueue.clear();
         stopPrograms();
+        for (EnumFacing facing : EnumFacing.values()) {
+            powerOut[facing.ordinal()] = 0;
+        }
+        for (BlockPos np : networkNodes.values()) {
+            TileEntity te = worldObj.getTileEntity(np);
+            if (te instanceof NodeTileEntity) {
+                NodeTileEntity tileEntity = (NodeTileEntity) te;
+                for (EnumFacing facing : EnumFacing.values()) {
+                    tileEntity.setPowerOut(facing, 0);
+                }
+            }
+        }
         markDirty();
     }
 
