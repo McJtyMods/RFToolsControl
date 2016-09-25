@@ -1,9 +1,9 @@
 package mcjty.rftoolscontrol.logic.registry;
 
 import mcjty.rftoolscontrol.api.code.Function;
-import mcjty.rftoolscontrol.api.parameters.Parameter;
-import mcjty.rftoolscontrol.api.parameters.ParameterType;
-import mcjty.rftoolscontrol.api.parameters.ParameterValue;
+import mcjty.rftoolscontrol.api.parameters.*;
+import mcjty.rftoolscontrol.logic.running.ExceptionType;
+import mcjty.rftoolscontrol.logic.running.ProgException;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
@@ -47,10 +47,28 @@ public class Functions {
     public static final Function LASTITEM = Function.builder()
             .id("last_item")
             .name("last")
-            .description("The last opcode result as an item", "Can also convert a string", "representing a registry name to an item")
+            .description("The last opcode result as an item", "Can also convert a string representing", "a registry name to an item")
             .type(PAR_ITEM)
             .runnable((processor, program) -> {
                 return convertToItem(program.getLastValue());
+            })
+            .build();
+    public static final Function LASTINV = Function.builder()
+            .id("last_inv")
+            .name("last")
+            .description("The last opcode result as an inventory (position)", "Can also convert a string with format", "'<name> S/S' to a position")
+            .type(PAR_INVENTORY)
+            .runnable((processor, program) -> {
+                return convertToInventory(program.getLastValue());
+            })
+            .build();
+    public static final Function LASTSIDE = Function.builder()
+            .id("last_inv")
+            .name("last")
+            .description("The last opcode result as a side (position)", "Can also convert a string with format", "'<name> S' to a side")
+            .type(PAR_SIDE)
+            .runnable((processor, program) -> {
+                return convertToSide(program.getLastValue());
             })
             .build();
     public static final Function TICKET = Function.builder()
@@ -180,14 +198,63 @@ public class Functions {
                 return ParameterValue.constant(Integer.toString((Integer) v));
             case PAR_FLOAT:
                 return ParameterValue.constant(Float.toString((Float) v));
-            case PAR_SIDE:
-                return ParameterValue.constant(v.toString());
             case PAR_BOOLEAN:
                 return ParameterValue.constant(((Boolean) v) ? "true" : "false");
             case PAR_ITEM:
                 return ParameterValue.constant(((ItemStack) v).getItem().getRegistryName().toString());
+            case PAR_INVENTORY:
+                return ParameterValue.constant(((Inventory) v).toString());
+            case PAR_SIDE:
+                return ParameterValue.constant(((BlockSide) v).toString());
         }
         return ParameterValue.constant("");
+    }
+
+    private static ParameterValue convertToInventory(Parameter value) {
+        if (value == null) {
+            return ParameterValue.constant(null);
+        }
+        if (!value.isSet()) {
+            return ParameterValue.constant(null);
+        }
+        switch (value.getParameterType()) {
+            case PAR_INVENTORY:
+                return value.getParameterValue();
+            case PAR_SIDE: {
+                BlockSide v = (BlockSide) value.getParameterValue().getValue();
+                if (v.getSide() == null) {
+                    throw new ProgException(ExceptionType.EXCEPT_BADPARAMETERS);
+                }
+                return ParameterValue.constant(new Inventory(v.getNodeName(), v.getSide(), null));
+            }
+            case PAR_STRING: {
+                Object v = value.getParameterValue().getValue();
+                return ParameterValue.constant(Inventory.fromString(v.toString()));
+            }
+        }
+        return ParameterValue.constant(null);
+    }
+
+    private static ParameterValue convertToSide(Parameter value) {
+        if (value == null) {
+            return ParameterValue.constant(null);
+        }
+        if (!value.isSet()) {
+            return ParameterValue.constant(null);
+        }
+        switch (value.getParameterType()) {
+            case PAR_SIDE:
+                return value.getParameterValue();
+            case PAR_INVENTORY: {
+                Inventory v = (Inventory) value.getParameterValue().getValue();
+                return ParameterValue.constant(new BlockSide(v.getNodeName(), v.getSide()));
+            }
+            case PAR_STRING: {
+                Object v = value.getParameterValue().getValue();
+                return ParameterValue.constant(BlockSide.fromString(v.toString()));
+            }
+        }
+        return ParameterValue.constant(null);
     }
 
     private static ParameterValue convertToItem(Parameter value) {
@@ -215,6 +282,8 @@ public class Functions {
         register(LASTINT);
         register(LASTSTRING);
         register(LASTITEM);
+        register(LASTINV);
+        register(LASTSIDE);
         register(TICKET);
         register(CRAFTRESULT);
         register(RANDOMINT);
