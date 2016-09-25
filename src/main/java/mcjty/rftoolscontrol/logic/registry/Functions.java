@@ -2,6 +2,7 @@ package mcjty.rftoolscontrol.logic.registry;
 
 import mcjty.rftoolscontrol.api.code.Function;
 import mcjty.rftoolscontrol.api.parameters.*;
+import mcjty.rftoolscontrol.logic.InventoryTools;
 import mcjty.rftoolscontrol.logic.running.ExceptionType;
 import mcjty.rftoolscontrol.logic.running.ProgException;
 import net.minecraft.item.ItemStack;
@@ -203,9 +204,9 @@ public class Functions {
             case PAR_ITEM:
                 return ParameterValue.constant(((ItemStack) v).getItem().getRegistryName().toString());
             case PAR_INVENTORY:
-                return ParameterValue.constant(((Inventory) v).toString());
+                return ParameterValue.constant(InventoryTools.inventoryToString((Inventory) v));
             case PAR_SIDE:
-                return ParameterValue.constant(((BlockSide) v).toString());
+                return ParameterValue.constant(InventoryTools.blockSideToString((BlockSide) v));
         }
         return ParameterValue.constant("");
     }
@@ -229,7 +230,7 @@ public class Functions {
             }
             case PAR_STRING: {
                 Object v = value.getParameterValue().getValue();
-                return ParameterValue.constant(Inventory.fromString(v.toString()));
+                return ParameterValue.constant(InventoryTools.inventoryFromString(v.toString()));
             }
         }
         return ParameterValue.constant(null);
@@ -247,11 +248,11 @@ public class Functions {
                 return value.getParameterValue();
             case PAR_INVENTORY: {
                 Inventory v = (Inventory) value.getParameterValue().getValue();
-                return ParameterValue.constant(new BlockSide(v.getNodeName(), v.getSide()));
+                return ParameterValue.constant(v);
             }
             case PAR_STRING: {
                 Object v = value.getParameterValue().getValue();
-                return ParameterValue.constant(BlockSide.fromString(v.toString()));
+                return ParameterValue.constant(InventoryTools.blockSideFromString(v.toString()));
             }
         }
         return ParameterValue.constant(null);

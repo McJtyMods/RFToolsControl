@@ -14,6 +14,7 @@ import javax.annotation.Nullable;
  * we are supposedly accessing the inventory.
  */
 public class Inventory extends BlockSide {
+
     @Nullable private final EnumFacing intSide;   // The side at which we are accessing the inventory (can be null)
 
     public Inventory(@Nullable String name, @Nonnull EnumFacing side, @Nullable EnumFacing intSide) {
@@ -56,60 +57,4 @@ public class Inventory extends BlockSide {
         }
     }
 
-    @Override
-    public String toString() {
-        String s = StringUtils.left(getSide().getName().toUpperCase(), 1);
-        if (getIntSide() == null) {
-            s += "/*";
-        } else {
-            String is = StringUtils.left(getIntSide().getName().toUpperCase(), 1);
-            s += "/" + is;
-        }
-        if (getNodeName() == null) {
-            return s;
-        } else {
-            return getNodeName() + " " + s;
-        }
-    }
-
-    @Nullable
-    public static Inventory fromString(String s) {
-        if (s == null) {
-            return null;
-        }
-        int indexOf = s.lastIndexOf('/');
-        if (indexOf == -1) {
-            return null;
-        }
-        if (s.length() <= indexOf+1) {
-            return null;
-        }
-        EnumFacing side = getSideFromChar(s.charAt(indexOf-1));
-        if (side == null) {
-            return null;
-        }
-        EnumFacing intSide = getSideFromChar(s.charAt(indexOf+1));
-        int i = indexOf-2;
-        String name;
-        if (i <= 0) {
-            name = null;
-        } else {
-            name = s.substring(0, i);
-        }
-
-        return new Inventory(name, side, intSide);
-    }
-
-    public static EnumFacing getSideFromChar(char is) {
-        switch (is) {
-            case '*': return null;
-            case 'D': return EnumFacing.DOWN;
-            case 'U': return EnumFacing.UP;
-            case 'W': return EnumFacing.WEST;
-            case 'E': return EnumFacing.EAST;
-            case 'S': return EnumFacing.SOUTH;
-            case 'N': return EnumFacing.NORTH;
-        }
-        return null;
-    }
 }

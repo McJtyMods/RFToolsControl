@@ -1,9 +1,13 @@
 package mcjty.rftoolscontrol.logic;
 
 import mcjty.rftools.api.storage.IStorageScanner;
+import mcjty.rftoolscontrol.api.parameters.BlockSide;
+import mcjty.rftoolscontrol.api.parameters.Inventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumFacing;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -139,5 +143,90 @@ public class InventoryTools {
             return null;
         }
         return item;
+    }
+
+    public static String inventoryToString(Inventory inv) {
+        String s = StringUtils.left(inv.getSide().getName().toUpperCase(), 1);
+        if (inv.getIntSide() == null) {
+            s += "/*";
+        } else {
+            String is = StringUtils.left(inv.getIntSide().getName().toUpperCase(), 1);
+            s += "/" + is;
+        }
+        if (inv.getNodeName() == null) {
+            return s;
+        } else {
+            return inv.getNodeName() + " " + s;
+        }
+    }
+
+    @Nullable
+    public static Inventory inventoryFromString(String s) {
+        if (s == null) {
+            return null;
+        }
+        int indexOf = s.lastIndexOf('/');
+        if (indexOf == -1) {
+            return null;
+        }
+        if (s.length() <= indexOf+1) {
+            return null;
+        }
+        EnumFacing side = getSideFromChar(s.charAt(indexOf-1));
+        if (side == null) {
+            // Side == null is invalid for Inventory
+            return null;
+        }
+        EnumFacing intSide = getSideFromChar(s.charAt(indexOf+1));
+
+        int indexSpace = s.lastIndexOf(' ');
+        if (indexSpace <= 0) {
+            return new Inventory(null, side, intSide);
+        }
+
+        return new Inventory(s.substring(0, indexSpace), side, intSide);
+    }
+
+    public static EnumFacing getSideFromChar(char is) {
+        switch (is) {
+            case '*': return null;
+            case 'D': return EnumFacing.DOWN;
+            case 'U': return EnumFacing.UP;
+            case 'W': return EnumFacing.WEST;
+            case 'E': return EnumFacing.EAST;
+            case 'S': return EnumFacing.SOUTH;
+            case 'N': return EnumFacing.NORTH;
+        }
+        return null;
+    }
+
+    public static String blockSideToString(BlockSide bc) {
+        String s;
+        if (bc.getSide() == null) {
+            s = "*";
+        } else {
+            s = StringUtils.left(bc.getSide().getName().toUpperCase(), 1);
+        }
+        if (bc.getNodeName() == null) {
+            return s;
+        } else {
+            return bc.getNodeName() + " " + s;
+        }
+    }
+
+    @Nullable
+    public static BlockSide blockSideFromString(String s) {
+        if (s == null) {
+            return null;
+        }
+        if (s.isEmpty()) {
+            return null;
+        }
+        EnumFacing side = getSideFromChar(s.charAt(s.length()-1));
+        int indexOf = s.lastIndexOf(' ');
+        if (indexOf <= 0) {
+            return new BlockSide(null, side);
+        }
+        return new BlockSide(s.substring(0, indexOf), side);
     }
 }

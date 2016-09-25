@@ -44,42 +44,4 @@ public class BlockSide {
         }
     }
 
-    @Override
-    public String toString() {
-        String s;
-        if (getSide() == null) {
-            s = "*";
-        } else {
-            s = StringUtils.left(getSide().getName().toUpperCase(), 1);
-        }
-        if (getNodeName() == null) {
-            return s;
-        } else {
-            return getNodeName() + " " + s;
-        }
-    }
-
-    @Nullable
-    public static BlockSide fromString(String s) {
-        if (s == null) {
-            return null;
-        }
-        int indexOf = s.lastIndexOf(' ');
-        if (indexOf == -1) {
-            return new BlockSide(s, null);
-        }
-        if (s.length() <= indexOf+1) {
-            return null;
-        }
-        EnumFacing side = Inventory.getSideFromChar(s.charAt(indexOf+1));
-        int i = indexOf;
-        String name;
-        if (i <= 0) {
-            name = null;
-        } else {
-            name = s.substring(0, i);
-        }
-
-        return new BlockSide(name, side);
-    }
 }
