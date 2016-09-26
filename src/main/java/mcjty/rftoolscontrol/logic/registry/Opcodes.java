@@ -6,6 +6,7 @@ import mcjty.rftoolscontrol.blocks.processor.ProcessorTileEntity;
 import mcjty.rftoolscontrol.logic.running.ExceptionType;
 import mcjty.rftoolscontrol.logic.running.ProgException;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTBase;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.items.IItemHandler;
 
@@ -990,6 +991,26 @@ public class Opcodes {
             }))
             .build();
 
+    public static final Opcode TEST_NBT_EQ = Opcode.builder()
+            .id("test_nbt_eq")
+            .description(
+                    TextFormatting.GREEN + "Test: NBT equality",
+                    "check if a specific tag of the first item",
+                    "is exactly equal to the value of that tag of",
+                    "the second item")
+            .opcodeOutput(YESNO)
+            .parameter(ParameterDescription.builder().name("v1").type(PAR_ITEM).description("first item").build())
+            .parameter(ParameterDescription.builder().name("v2").type(PAR_ITEM).description("second item").build())
+            .parameter(ParameterDescription.builder().name("tag").type(PAR_STRING).description("the tag to compare").build())
+            .icon(8, 4)
+            .runnable(((processor, program, opcode) -> {
+                ItemStack v1 = processor.evaluateItemParameterNonNull(opcode, program, 0);
+                ItemStack v2 = processor.evaluateItemParameterNonNull(opcode, program, 1);
+                String tag = processor.evaluateStringParameterNonNull(opcode, program, 2);
+                boolean rc = ((ProcessorTileEntity) processor).compareNBTTag(v1, v2, tag);
+                return rc ? POSITIVE : NEGATIVE;
+            }))
+            .build();
 
     public static final Map<String, Opcode> OPCODES = new HashMap<>();
     public static final List<Opcode> SORTED_OPCODES = new ArrayList<>();
@@ -1023,6 +1044,7 @@ public class Opcodes {
         register(TEST_EQ);
         register(TEST_SET);
         register(TEST_LOOP);
+        register(TEST_NBT_EQ);
         register(DO_REDSTONE);
         register(DO_DELAY);
         register(DO_STOP);

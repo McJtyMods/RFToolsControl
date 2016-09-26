@@ -93,6 +93,9 @@ public interface IProcessor {
     @Nullable
     String evaluateStringParameter(ICompiledOpcode compiledOpcode, IProgram program, int parIndex);
 
+    @Nonnull
+    String evaluateStringParameterNonNull(ICompiledOpcode compiledOpcode, IProgram program, int parIndex);
+
     /**
      * Evaluate a boolean parameter. Return false if the parameter was not given
      */

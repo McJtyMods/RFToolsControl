@@ -41,6 +41,7 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagString;
@@ -1139,6 +1140,22 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         }
     }
 
+    public boolean compareNBTTag(@Nonnull ItemStack v1, @Nonnull ItemStack v2, @Nonnull String tag) {
+        if ((!v1.hasTagCompound()) || (!v2.hasTagCompound())) {
+            return v1.hasTagCompound() == v2.hasTagCompound();
+        }
+        NBTBase tag1 = v1.getTagCompound().getTag(tag);
+        NBTBase tag2 = v2.getTagCompound().getTag(tag);
+        if (tag1 == tag2) {
+            return true;
+        }
+        if (tag1 != null) {
+            return tag1.equals(tag2);
+        }
+        return false;
+    }
+
+
 
     public int fetchItems(IProgram program, Inventory inv, Integer slot, @Nullable ItemStack itemMatcher, boolean routable, boolean oredict, @Nullable Integer amount, int virtualSlot) {
         IStorageScanner scanner = getScannerForInv(inv);
@@ -1390,6 +1407,17 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     public String evaluateStringParameter(ICompiledOpcode compiledOpcode, IProgram program, int parIndex) {
         Object value = evaluateParameter(compiledOpcode, program, parIndex);
         return TypeConverters.convertToString(value);
+    }
+
+    @Nonnull
+    @Override
+    public String evaluateStringParameterNonNull(ICompiledOpcode compiledOpcode, IProgram program, int parIndex) {
+        Object value = evaluateParameter(compiledOpcode, program, parIndex);
+        String s = TypeConverters.convertToString(value);
+        if (s == null) {
+            throw new ProgException(EXCEPT_MISSINGPARAMETER);
+        }
+        return s;
     }
 
     @Override
