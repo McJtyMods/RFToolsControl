@@ -30,6 +30,7 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.TextFormatting;
 
 import java.awt.*;
 import java.io.IOException;
@@ -52,6 +53,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
     private WidgetList log;
     private WidgetList variableList;
     private TextField command;
+    private ToggleButton exclusive;
 
     private static List<String> commandHistory = new ArrayList<>();
     private static int commandHistoryIndex = -1;
@@ -82,16 +84,31 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
         toplevel.setBounds(new Rectangle(guiLeft, guiTop, xSize, ySize));
 
         int maxEnergyStored = tileEntity.getMaxEnergyStored(EnumFacing.DOWN);
-        energyBar = new EnergyBar(mc, this).setVertical().setMaxValue(maxEnergyStored).setLayoutHint(new PositionalLayout.PositionalHint(122, 8, 70, 10)).setShowText(false).setHorizontal();
+        energyBar = new EnergyBar(mc, this).setVertical().setMaxValue(maxEnergyStored)
+                .setLayoutHint(new PositionalLayout.PositionalHint(122, 4, 70, 10))
+                .setShowText(false).setHorizontal();
         energyBar.setValue(GenericEnergyStorageTileEntity.getCurrentRF());
         toplevel.addChild(energyBar);
+
+        exclusive = new ToggleButton(mc, this)
+                .setLayoutHint(new PositionalLayout.PositionalHint(122, 16, 70, 15))
+                .setCheckMarker(true)
+                .setText("Exclusive")
+                .setTooltips(TextFormatting.YELLOW + "Exclusive mode", "If pressed then programs on", "card X can only run on core X");
+        exclusive.setPressed(tileEntity.isExclusive());
+        exclusive
+                .addButtonEvent(parent -> {
+                    tileEntity.setExclusive(exclusive.isPressed());
+                    sendServerCommand(RFToolsCtrlMessages.INSTANCE, ProcessorTileEntity.CMD_SETEXCLUSIVE, new Argument("v", exclusive.isPressed()));
+                });
+        toplevel.addChild(exclusive);
 
         setupLogWindow(toplevel);
 
         for (int i = 0; i < ProcessorTileEntity.CARD_SLOTS ; i++) {
             setupButtons[i] = new ToggleButton(mc, this)
                 .addButtonEvent(this::setupMode)
-                .setTooltips("Setup item and variable", "allocation for this card")
+                .setTooltips(TextFormatting.YELLOW + "Resource allocation", "Setup item and variable", "allocation for this card")
                 .setLayoutHint(new PositionalLayout.PositionalHint(11 + i * 18, 6, 15, 7))
                 .setUserObject("allowed");
             toplevel.addChild(setupButtons[i]);
@@ -108,7 +125,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
 
     private void setupLogWindow(Panel toplevel) {
         log = new WidgetList(mc, this).setFilledBackground(0xff000000).setFilledRectThickness(1)
-                .setLayoutHint(new PositionalLayout.PositionalHint(9, 35, 170, 98))
+                .setLayoutHint(new PositionalLayout.PositionalHint(9, 35, 173, 98))
                 .setRowheight(14)
                 .setInvisibleSelection(true)
                 .setDrawHorizontalLines(false);
@@ -116,10 +133,10 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
         Slider slider = new Slider(mc, this)
                 .setVertical()
                 .setScrollable(log)
-                .setLayoutHint(new PositionalLayout.PositionalHint(180, 35, 9, 98));
+                .setLayoutHint(new PositionalLayout.PositionalHint(183, 35, 9, 98));
 
         command = new TextField(mc, this)
-                .setLayoutHint(new PositionalLayout.PositionalHint(9, 35+99, 180, 15))
+                .setLayoutHint(new PositionalLayout.PositionalHint(9, 35+99, 183, 15))
                 .addTextEnterEvent((e, text) -> executeCommand(text))
                 .addSpecialKeyEvent(new TextSpecialKeyEvent() {
                     @Override

@@ -19,8 +19,7 @@ import mcjty.rftoolscontrol.api.parameters.ParameterValue;
 import mcjty.rftoolscontrol.blocks.craftingstation.CraftingStationTileEntity;
 import mcjty.rftoolscontrol.blocks.node.NodeTileEntity;
 import mcjty.rftoolscontrol.config.GeneralConfiguration;
-import mcjty.rftoolscontrol.items.CPUCoreItem;
-import mcjty.rftoolscontrol.items.ModItems;
+import mcjty.rftoolscontrol.items.*;
 import mcjty.rftoolscontrol.items.craftingcard.CraftingCardItem;
 import mcjty.rftoolscontrol.logic.InventoryTools;
 import mcjty.rftoolscontrol.logic.ParameterTools;
@@ -41,6 +40,7 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagString;
@@ -53,6 +53,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.energy.CapabilityEnergy;
@@ -85,6 +86,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     public static final String CMD_ALLOCATE = "allocate";
     public static final String CMD_CLEARLOG = "clearLog";
     public static final String CMD_GETLOG = "getLog";
+    public static final String CMD_SETEXCLUSIVE = "setExclusive";
     public static final String CLIENTCMD_GETLOG = "getLog";
     public static final String CMD_GETVARS = "getVars";
     public static final String CLIENTCMD_GETVARS = "getVars";
@@ -99,8 +101,10 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     private boolean coresDirty = true;
 
     private int maxVars = -1;   // If -1 we need updating
-    private boolean hasNetworkCard = false;
+    private int hasNetworkCard = -1;
     private int storageCard = -2;   // -2 is unknown
+
+    private boolean exclusive = false;
 
     private String channel = "";
     private Map<String, BlockPos> networkNodes = new HashMap<>();
@@ -140,6 +144,15 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     @Override
     public InventoryHelper getInventoryHelper() {
         return inventoryHelper;
+    }
+
+    public boolean isExclusive() {
+        return exclusive;
+    }
+
+    public void setExclusive(boolean exclusive) {
+        this.exclusive = exclusive;
+        markDirty();
     }
 
     public Parameter getParameter(int idx) {
@@ -241,7 +254,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             if (compiledEvent.isSingle() && runningEvents.contains(Pair.of(queuedEvent.getCardIndex(), compiledEvent.getIndex()))) {
                 return;
             }
-            CpuCore core = findAvailableCore();
+            CpuCore core = findAvailableCore(queuedEvent.getCardIndex());
             if (core != null) {
                 eventQueue.remove();
                 RunningProgram program = new RunningProgram(queuedEvent.getCardIndex());
@@ -662,14 +675,14 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                     Inventory inv = evaluateInventoryParameter(compiledOpcode, null, 1);
                     if (stack != null) {
                         if (stack.isItemEqual(stackToCraft)) {
-                            runOrQueueEvent(i, event, ticket);
+                            runOrQueueEvent(i, event, ticket, null);
                             return;
                         }
                     } else if (inv != null) {
                         IItemHandler handler = getItemHandlerAt(inv);
                         ItemStack craftingCard = findCraftingCard(handler, stackToCraft);
                         if (craftingCard != null) {
-                            runOrQueueEvent(i, event, ticket);
+                            runOrQueueEvent(i, event, ticket, null);
                             return;
                         }
                     }
@@ -718,7 +731,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                     }
                     if (found != null) {
                         waitingForItems.remove(foundIdx);
-                        runOrQueueEvent(cardIndex, event, found.getTicket());
+                        runOrQueueEvent(cardIndex, event, found.getTicket(), null);
                     }
                 }
             }
@@ -746,7 +759,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                 if (side == null || !side.hasNodeName()) {
                     EnumFacing facing = side == null ? null : side.getSide();
                     if (facing == null || ((redstoneOffMask >> facing.ordinal()) & 1) == 1) {
-                        runOrQueueEvent(i, event, null);
+                        runOrQueueEvent(i, event, null, null);
                     }
                 }
             }
@@ -763,7 +776,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                 if (side == null || !side.hasNodeName()) {
                     EnumFacing facing = side == null ? null : side.getSide();
                     if (facing == null || ((redstoneOnMask >> facing.ordinal()) & 1) == 1) {
-                        runOrQueueEvent(i, event, null);
+                        runOrQueueEvent(i, event, null, null);
                     }
                 }
             }
@@ -780,7 +793,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                 if (side != null && node.equals(side.getNodeName())) {
                     EnumFacing facing = side.getSide();
                     if (facing == null || ((redstoneOffMask >> facing.ordinal()) & 1) == 1) {
-                        runOrQueueEvent(i, event, null);
+                        runOrQueueEvent(i, event, null, null);
                     }
                 }
             }
@@ -797,7 +810,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                 if (side != null && node.equals(side.getNodeName())) {
                     EnumFacing facing = side.getSide();
                     if (facing == null || ((redstoneOnMask >> facing.ordinal()) & 1) == 1) {
-                        runOrQueueEvent(i, event, null);
+                        runOrQueueEvent(i, event, null, null);
                     }
                 }
             }
@@ -812,7 +825,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             // Already running and single
             return;
         }
-        CpuCore core = findAvailableCore();
+        CpuCore core = findAvailableCore(cardIndex);
         if (core == null) {
             // No available core. We drop this event
         } else {
@@ -826,20 +839,21 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         }
     }
 
-    private void runOrQueueEvent(int cardIndex, CompiledEvent event, @Nullable String ticket) {
+    private void runOrQueueEvent(int cardIndex, CompiledEvent event, @Nullable String ticket, @Nullable Parameter parameter) {
         if (event.isSingle() && runningEvents.contains(Pair.of(cardIndex, event.getIndex()))) {
             // Already running and single
-            eventQueue.add(new QueuedEvent(cardIndex, event, ticket));
+            eventQueue.add(new QueuedEvent(cardIndex, event, ticket, parameter));
             return;
         }
-        CpuCore core = findAvailableCore();
+        CpuCore core = findAvailableCore(cardIndex);
         if (core == null) {
             // No available core
-            eventQueue.add(new QueuedEvent(cardIndex, event, ticket));
+            eventQueue.add(new QueuedEvent(cardIndex, event, ticket, parameter));
         } else {
             RunningProgram program = new RunningProgram(cardIndex);
             program.startFromEvent(event);
             program.setCraftTicket(ticket);
+            program.setLastValue(parameter);
             core.startProgram(program);
             if (event.isSingle()) {
                 runningEvents.add(Pair.of(cardIndex, event.getIndex()));
@@ -859,7 +873,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                     CompiledOpcode compiledOpcode = compiledCard.getOpcodes().get(index);
                     String sig = evaluateStringParameter(compiledOpcode, null, 0);
                     if (signal.equals(sig)) {
-                        runOrQueueEvent(i, event, null);
+                        runOrQueueEvent(i, event, null, null);
                         cnt++;
                     }
                 }
@@ -867,6 +881,24 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         }
         return cnt;
     }
+
+    public void receiveMessage(String name, @Nullable Parameter value) {
+        for (int i = 0 ; i < cardInfo.length ; i++) {
+            CardInfo info = cardInfo[i];
+            CompiledCard compiledCard = info.getCompiledCard();
+            if (compiledCard != null) {
+                for (CompiledEvent event : compiledCard.getEvents(Opcodes.EVENT_MESSAGE)) {
+                    int index = event.getIndex();
+                    CompiledOpcode compiledOpcode = compiledCard.getOpcodes().get(index);
+                    String messageName = evaluateStringParameter(compiledOpcode, null, 0);
+                    if (name.equals(messageName)) {
+                        runOrQueueEvent(i, event, null, value);
+                    }
+                }
+            }
+        }
+    }
+
     public void listStatus() {
         int n = 0;
         for (CpuCore core : getCpuCores()) {
@@ -955,7 +987,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                     CompiledOpcode compiledOpcode = compiledCard.getOpcodes().get(index);
                     String code = evaluateStringParameter(compiledOpcode, null, 0);
                     if (exception.getCode().equals(code)) {
-                        runOrQueueEvent(i, event, program.getCraftTicket());
+                        runOrQueueEvent(i, event, program.getCraftTicket(), null);
                         return;
                     }
                 }
@@ -1021,10 +1053,19 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         return cpuCores;
     }
 
-    private CpuCore findAvailableCore() {
-        for (CpuCore core : cpuCores) {
-            if (!core.hasProgram()) {
-                return core;
+    private CpuCore findAvailableCore(int cardIndex) {
+        if (exclusive) {
+            if (cardIndex < cpuCores.size()) {
+                CpuCore core = cpuCores.get(cardIndex);
+                if (!core.hasProgram()) {
+                    return core;
+                }
+            }
+        } else {
+            for (CpuCore core : cpuCores) {
+                if (!core.hasProgram()) {
+                    return core;
+                }
             }
         }
         return null;
@@ -1151,6 +1192,22 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         }
     }
 
+    public boolean compareNBTTag(@Nonnull ItemStack v1, @Nonnull ItemStack v2, @Nonnull String tag) {
+        if ((!v1.hasTagCompound()) || (!v2.hasTagCompound())) {
+            return v1.hasTagCompound() == v2.hasTagCompound();
+        }
+        NBTBase tag1 = v1.getTagCompound().getTag(tag);
+        NBTBase tag2 = v2.getTagCompound().getTag(tag);
+        if (tag1 == tag2) {
+            return true;
+        }
+        if (tag1 != null) {
+            return tag1.equals(tag2);
+        }
+        return false;
+    }
+
+
 
     public int fetchItems(IProgram program, Inventory inv, Integer slot, @Nullable ItemStack itemMatcher, boolean routable, boolean oredict, @Nullable Integer amount, int virtualSlot) {
         IStorageScanner scanner = getScannerForInv(inv);
@@ -1204,18 +1261,58 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         return extracted.stackSize;
     }
 
+    @Override
+    public void sendMessage(IProgram program, int idSlot, String messageName, @Nullable Integer variableSlot) {
+        if (!hasNetworkCard()) {
+            throw new ProgException(EXCEPT_MISSINGNETWORKCARD);
+        }
+        if (hasNetworkCard != NetworkCardItem.TIER_ADVANCED) {
+            throw new ProgException(EXCEPT_NEEDSADVANCEDNETWORK);
+        }
+
+        CardInfo info = this.cardInfo[((RunningProgram)program).getCardIndex()];
+        int realIdSlot = info.getRealSlot(idSlot);
+
+        Integer realVariable = info.getRealVar(variableSlot);
+
+        IItemHandler handler = getItemHandler();
+        ItemStack idCard = handler.getStackInSlot(realIdSlot);
+        if (idCard == null || !(idCard.getItem() instanceof NetworkIdentifierItem)) {
+            throw new ProgException(EXCEPT_NOTANIDENTIFIER);
+        }
+        NBTTagCompound tagCompound = idCard.getTagCompound();
+        if (tagCompound == null || !tagCompound.hasKey("monitorx")) {
+            throw new ProgException(EXCEPT_INVALIDDESTINATION);
+        }
+        int monitordim = tagCompound.getInteger("monitordim");
+        int monitorx = tagCompound.getInteger("monitorx");
+        int monitory = tagCompound.getInteger("monitory");
+        int monitorz = tagCompound.getInteger("monitorz");
+        WorldServer world = DimensionManager.getWorld(monitordim);
+        BlockPos dest = new BlockPos(monitorx, monitory, monitorz);
+        if (!WorldTools.chunkLoaded(world, dest)) {
+            throw new ProgException(EXCEPT_INVALIDDESTINATION);
+        }
+        TileEntity te = world.getTileEntity(dest);
+        if (!(te instanceof ProcessorTileEntity)) {
+            throw new ProgException(EXCEPT_INVALIDDESTINATION);
+        }
+        ProcessorTileEntity destTE = (ProcessorTileEntity) te;
+        destTE.receiveMessage(messageName, realVariable == null ? null : getVariableArray()[realVariable]);
+    }
+
     public int getMaxvars() {
         if (maxVars == -1) {
             maxVars = 0;
-            hasNetworkCard = false;
+            hasNetworkCard = -1;
             storageCard = -1;
             Item storageCardItem = ForgeRegistries.ITEMS.getValue(new ResourceLocation("rftools", "storage_control_module"));
             for (int i = ProcessorContainer.SLOT_EXPANSION ; i < ProcessorContainer.SLOT_EXPANSION + EXPANSION_SLOTS ; i++) {
                 ItemStack stack = getStackInSlot(i);
                 if (stack != null) {
-                    if (stack.getItem() == ModItems.networkCardItem) {
-                        hasNetworkCard = true;
-                    } else if (stack.getItem() == ModItems.ramChipItem) {
+                    if (stack.getItem() instanceof NetworkCardItem) {
+                        hasNetworkCard = ((NetworkCardItem) stack.getItem()).getTier();
+                    } else if (stack.getItem() instanceof RAMChipItem) {
                         maxVars += 8;
                     } else if (stack.getItem() == storageCardItem) {
                         storageCard = i;
@@ -1233,7 +1330,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         if (maxVars == -1) {
             getMaxvars();       // Update
         }
-        return hasNetworkCard;
+        return hasNetworkCard != -1;
     }
 
     public int getStorageCard() {
@@ -1273,6 +1370,44 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             return IOpcodeRunnable.OpcodeResult.POSITIVE;
         }
     }
+
+    public void setValueInToken(IProgram program, int slot) {
+        CardInfo info = this.cardInfo[((RunningProgram)program).getCardIndex()];
+        int realSlot = info.getRealSlot(slot);
+        ItemStack stack = getItemHandler().getStackInSlot(realSlot);
+        if (stack == null || !(stack.getItem() instanceof TokenItem)) {
+            throw new ProgException(EXCEPT_NOTATOKEN);
+        }
+        if (!stack.hasTagCompound()) {
+            stack.setTagCompound(new NBTTagCompound());
+        }
+        Parameter lastValue = program.getLastValue();
+        if (lastValue == null) {
+            stack.getTagCompound().removeTag("parameter");
+        } else {
+            NBTTagCompound tag = ParameterTools.writeToNBT(lastValue);
+            stack.getTagCompound().setTag("parameter", tag);
+        }
+    }
+
+    @Nullable
+    public Parameter getParameterFromToken(IProgram program, int slot) {
+        CardInfo info = this.cardInfo[((RunningProgram)program).getCardIndex()];
+        int realSlot = info.getRealSlot(slot);
+        ItemStack stack = getItemHandler().getStackInSlot(realSlot);
+        if (stack == null || !(stack.getItem() instanceof TokenItem)) {
+            throw new ProgException(EXCEPT_NOTATOKEN);
+        }
+        if (!stack.hasTagCompound()) {
+            return null;
+        }
+        NBTTagCompound tag = stack.getTagCompound().getCompoundTag("parameter");
+        if (tag.hasNoTags()) {
+            return null;
+        }
+        return ParameterTools.readFromNBT(tag);
+    }
+
 
     @Override
     public void setVariable(IProgram program, int var) {
@@ -1402,6 +1537,17 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     public String evaluateStringParameter(ICompiledOpcode compiledOpcode, IProgram program, int parIndex) {
         Object value = evaluateParameter(compiledOpcode, program, parIndex);
         return TypeConverters.convertToString(value);
+    }
+
+    @Nonnull
+    @Override
+    public String evaluateStringParameterNonNull(ICompiledOpcode compiledOpcode, IProgram program, int parIndex) {
+        Object value = evaluateParameter(compiledOpcode, program, parIndex);
+        String s = TypeConverters.convertToString(value);
+        if (s == null) {
+            throw new ProgException(EXCEPT_MISSINGPARAMETER);
+        }
+        return s;
     }
 
     @Override
@@ -1602,12 +1748,14 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     @Override
     public void readClientDataFromNBT(NBTTagCompound tagCompound) {
         working = tagCompound.getBoolean("working");
+        exclusive = tagCompound.getBoolean("exclusive");
         readCardInfo(tagCompound);
     }
 
     @Override
     public void writeClientDataToNBT(NBTTagCompound tagCompound) {
         tagCompound.setBoolean("working", working);
+        tagCompound.setBoolean("exclusive", exclusive);
         writeCardInfo(tagCompound);
     }
 
@@ -1636,6 +1784,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         working = tagCompound.getBoolean("working");
         tickCount = tagCompound.getInteger("tickCount");
         channel = tagCompound.getString("channel");
+        exclusive = tagCompound.getBoolean("exclusive");
         readBufferFromNBT(tagCompound, inventoryHelper);
 
         readCardInfo(tagCompound);
@@ -1761,7 +1910,11 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             int index = tag.getInteger("index");
             boolean single = tag.getBoolean("single");
             String ticket = tag.hasKey("ticket") ? tag.getString("ticket") : null;
-            eventQueue.add(new QueuedEvent(card, new CompiledEvent(index, single), ticket));
+            Parameter parameter = null;
+            if (tag.hasKey("parameter")) {
+                parameter = ParameterTools.readFromNBT(tag.getCompoundTag("parameter"));
+            }
+            eventQueue.add(new QueuedEvent(card, new CompiledEvent(index, single), ticket, parameter));
         }
     }
 
@@ -1778,6 +1931,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         tagCompound.setBoolean("working", working);
         tagCompound.setInteger("tickCount", tickCount);
         tagCompound.setString("channel", channel == null ? "" : channel);
+        tagCompound.setBoolean("exclusive", exclusive);
         writeBufferToNBT(tagCompound, inventoryHelper);
 
         writeCardInfo(tagCompound);
@@ -1890,6 +2044,10 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             tag.setBoolean("single", queuedEvent.getCompiledEvent().isSingle());
             if (queuedEvent.getTicket() != null) {
                 tag.setString("ticket", queuedEvent.getTicket());
+            }
+            if (queuedEvent.getParameter() != null) {
+                NBTTagCompound parTag = ParameterTools.writeToNBT(queuedEvent.getParameter());
+                tag.setTag("parameter", parTag);
             }
             eventQueueList.appendTag(tag);
         }
@@ -2008,15 +2166,20 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     }
 
     public void scanNodes() {
+        if (!hasNetworkCard()) {
+            log(TextFormatting.RED + "No network card!");
+            return;
+        }
         if (channel == null || channel.isEmpty()) {
-            log("Setup a channel first!");
+            log(TextFormatting.RED + "Setup a channel first!");
             return;
         }
         networkNodes.clear();
         craftingStations.clear();
-        for (int x = -8 ; x <= 8 ; x++) {
-            for (int y = -8 ; y <= 8 ; y++) {
-                for (int z = -8 ; z <= 8 ; z++) {
+        int range = hasNetworkCard == NetworkCardItem.TIER_NORMAL ? 8 : 16;
+        for (int x = -range; x <= range; x++) {
+            for (int y = -range; y <= range; y++) {
+                for (int z = -range; z <= range; z++) {
                     BlockPos n = new BlockPos(pos.getX() + x, pos.getY() + y, pos.getZ() + z);
                     TileEntity te = worldObj.getTileEntity(n);
                     if (te instanceof NodeTileEntity) {
@@ -2056,6 +2219,10 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             return true;
         } else if (CMD_CLEARLOG.equals(command)) {
             Commands.executeCommand(this, args.get("cmd").getString());
+            return true;
+        } else if (CMD_SETEXCLUSIVE.equals(command)) {
+            boolean v = args.get("v").getBoolean();
+            setExclusive(v);
             return true;
         }
         return false;

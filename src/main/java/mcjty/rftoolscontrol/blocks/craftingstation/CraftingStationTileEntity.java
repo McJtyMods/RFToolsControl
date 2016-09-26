@@ -344,7 +344,7 @@ public class CraftingStationTileEntity extends GenericTileEntity implements Defa
         return canPlayerAccess(player);
     }
 
-    private int findItem(String itemName) {
+    private int findItem(String itemName, int meta) {
         int index = 0;
         for (BlockPos p : processorList) {
             TileEntity te = worldObj.getTileEntity(p);
@@ -353,7 +353,7 @@ public class CraftingStationTileEntity extends GenericTileEntity implements Defa
                 List<ItemStack> items = new ArrayList<>();
                 processor.getCraftableItems(items);
                 for (ItemStack item : items) {
-                    if (itemName.equals(item.getItem().getRegistryName().toString())) {
+                    if (item.getItemDamage() == meta && itemName.equals(item.getItem().getRegistryName().toString())) {
                         return index;
                     }
                     index++;
@@ -373,7 +373,8 @@ public class CraftingStationTileEntity extends GenericTileEntity implements Defa
         }
         if (CMD_REQUEST.equals(command)) {
             String itemName = args.get("item").getString();
-            int index = findItem(itemName);
+            int meta = args.get("meta").getInteger();
+            int index = findItem(itemName, meta);
             if (index == -1) {
                 return true;
             }

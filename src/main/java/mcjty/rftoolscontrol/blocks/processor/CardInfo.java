@@ -96,6 +96,13 @@ public class CardInfo {
         return varCache[virtualVar];
     }
 
+    public Integer getRealVar(Integer virtualVar) {
+        if (virtualVar == null) {
+            return null;
+        }
+        return getRealVar((int)virtualVar);
+    }
+
     public NBTTagCompound writeToNBT() {
         NBTTagCompound tag = new NBTTagCompound();
         tag.setInteger("itemAlloc", itemAllocation);

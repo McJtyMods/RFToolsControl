@@ -19,6 +19,7 @@ Table of Contents:
 {l:variables}Variables
 {l:events}Events
 {l:opcodes}Opcode Types
+{l:tokens}Tokens
 {l:concurrency}Concurrency
 {l:debugging}Debugging
 {-------------------------------------------------------------}
@@ -124,16 +125,30 @@ you can create a network. A processor has only six sides but using
 a network you can extend this by also enabling access to the sides
 of all nodes that are connected to the network.
 {-------------------------------------------------------------}
-After installing a network card you need to set it up. This can be
-done with the 'net setup <name>' console command (in the Processor
-console). The <name> will be the network name and is also used
-in all the nodes that want to connect to this network.
+After installing a network card you need to set it up. This can be done
+with the 'net setup <name>' console command (in the Processor console).
+The <name> will be the network name and is also used in all the nodes
+that want to connect to this network.
 
-Setting up the network card will also initiate the scan to find
-all nodes that match the given channel name (in a 17x17x17 area
-with the processor at the center). Note that the network card is
-also needed to connect to crafting stations which this scan will
-also pick up.
+Setting up the network card will also initiate the scan to find all
+nodes that match the given channel name (in a 17x17x17 area with the
+processor at the center). Note that the network card is also needed
+to connect to crafting stations which this scan will also pick up.
+
+Note: an advanced networking card supports a 33x33x33 area and can
+also supports sending messages to other processors anywhere in the
+world.
+{-------------------------------------------------------------}
+If you have an advanced networking card then you can also send
+messages to other processors in the world (if they are chunkloaded).
+To do that you need to have a network identifier card in one
+of the internal processor slots:
+{ri:network_identifier}
+and then link that card to the destination processor (using sneak right
+click). That destination does not need a network card for this to work.
+
+Together with a message you can also send information in the form of
+a variable.
 {-------------------------------------------------------------}
 {b}Crafting Station
 {n:craftingstation}
@@ -281,6 +296,16 @@ The following types of opcodes are available:
   * Wire: there is only one wire opcode. It is meant to connect
     opcodes that are not adjacent
 {-------------------------------------------------------------}
+{b}Tokens
+{n:tokens}
+{ri:token}
+
+Tokens are items that serve no purpose except that they hold
+information. From within a program you can write any data to
+a token and then from another program read that data again.
+Tokens are regular items so you can transfer them and by doing
+that transmit the information anywhere you want.
+{-------------------------------------------------------------}
 {b}Concurrency
 {n:concurrency}
 As soon as you have multiple cores in your processor multiple programs
@@ -308,6 +333,16 @@ of a given program running at every time. To do that you can use the
 'single' parameter that you can set with every event. If you make that
 true then this event can only be fired once and it will be locked until
 the program that was attached to that event stops running.
+{-------------------------------------------------------------}
+Another solution to concurrency can be the 'exclusive' option that you
+can select in the GUI of the processor. If this button is pressed then
+programs on card X can only execute on core X. So that means that
+every core if exclusively dedicated to programs on a single card.
+
+This feature can also be used when you have a processor that has a
+low tier and a high tier core installed. Using exclusive mode you can
+make sure that the more demanding programs only run on the high tier
+core.
 {-------------------------------------------------------------}
 {b}Debugging
 {n:debugging}

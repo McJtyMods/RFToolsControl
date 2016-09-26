@@ -78,7 +78,7 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
 //                .setLayoutHint(new PositionalLayout.PositionalHint(180, 5, 46, 16))
                 .setLayoutHint(new PositionalLayout.PositionalHint(WIDTH-46-5, 5, 46, 16))
                 .setText("Cancel")
-                .setTooltips("Cancel the currently selected", "crafting request")
+                .setTooltips(TextFormatting.YELLOW + "Cancel request", "Cancel the currently selected", "crafting request")
                 .addButtonEvent((widget -> cancelRequest()));
         toplevel.addChild(cancelButton).addChild(searchField);
     }
@@ -246,6 +246,7 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
     private void requestItem(ItemStack stack, int amount) {
         sendServerCommand(RFToolsCtrlMessages.INSTANCE, CraftingStationTileEntity.CMD_REQUEST,
                 new Argument("item", stack.getItem().getRegistryName().toString()),
+                new Argument("meta", stack.getItemDamage()),
                 new Argument("amount", amount));
     }
 
