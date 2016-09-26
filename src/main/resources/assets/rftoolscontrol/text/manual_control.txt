@@ -125,16 +125,30 @@ you can create a network. A processor has only six sides but using
 a network you can extend this by also enabling access to the sides
 of all nodes that are connected to the network.
 {-------------------------------------------------------------}
-After installing a network card you need to set it up. This can be
-done with the 'net setup <name>' console command (in the Processor
-console). The <name> will be the network name and is also used
-in all the nodes that want to connect to this network.
+After installing a network card you need to set it up. This can be done
+with the 'net setup <name>' console command (in the Processor console).
+The <name> will be the network name and is also used in all the nodes
+that want to connect to this network.
 
-Setting up the network card will also initiate the scan to find
-all nodes that match the given channel name (in a 17x17x17 area
-with the processor at the center). Note that the network card is
-also needed to connect to crafting stations which this scan will
-also pick up.
+Setting up the network card will also initiate the scan to find all
+nodes that match the given channel name (in a 17x17x17 area with the
+processor at the center). Note that the network card is also needed
+to connect to crafting stations which this scan will also pick up.
+
+Note: an advanced networking card supports a 33x33x33 area and can
+also supports sending messages to other processors anywhere in the
+world.
+{-------------------------------------------------------------}
+If you have an advanced networking card then you can also send
+messages to other processors in the world (if they are chunkloaded).
+To do that you need to have a network identifier card in one
+of the internal processor slots:
+{ri:network_identifier}
+and then link that card to the destination processor (using sneak right
+click). That destination does not need a network card for this to work.
+
+Together with a message you can also send information in the form of
+a variable.
 {-------------------------------------------------------------}
 {b}Crafting Station
 {n:craftingstation}
