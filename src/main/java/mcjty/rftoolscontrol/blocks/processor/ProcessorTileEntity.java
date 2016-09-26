@@ -12,7 +12,10 @@ import mcjty.rftoolscontrol.api.code.ICompiledOpcode;
 import mcjty.rftoolscontrol.api.code.IOpcodeRunnable;
 import mcjty.rftoolscontrol.api.machines.IProcessor;
 import mcjty.rftoolscontrol.api.machines.IProgram;
-import mcjty.rftoolscontrol.api.parameters.*;
+import mcjty.rftoolscontrol.api.parameters.BlockSide;
+import mcjty.rftoolscontrol.api.parameters.Inventory;
+import mcjty.rftoolscontrol.api.parameters.Parameter;
+import mcjty.rftoolscontrol.api.parameters.ParameterValue;
 import mcjty.rftoolscontrol.blocks.craftingstation.CraftingStationTileEntity;
 import mcjty.rftoolscontrol.blocks.node.NodeTileEntity;
 import mcjty.rftoolscontrol.config.GeneralConfiguration;
@@ -84,6 +87,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     public static final String CMD_ALLOCATE = "allocate";
     public static final String CMD_CLEARLOG = "clearLog";
     public static final String CMD_GETLOG = "getLog";
+    public static final String CMD_SETEXCLUSIVE = "setExclusive";
     public static final String CLIENTCMD_GETLOG = "getLog";
     public static final String CMD_GETVARS = "getVars";
     public static final String CLIENTCMD_GETVARS = "getVars";
@@ -100,6 +104,8 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     private int maxVars = -1;   // If -1 we need updating
     private boolean hasNetworkCard = false;
     private int storageCard = -2;   // -2 is unknown
+
+    private boolean exclusive = false;
 
     private String channel = "";
     private Map<String, BlockPos> networkNodes = new HashMap<>();
@@ -139,6 +145,15 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     @Override
     public InventoryHelper getInventoryHelper() {
         return inventoryHelper;
+    }
+
+    public boolean isExclusive() {
+        return exclusive;
+    }
+
+    public void setExclusive(boolean exclusive) {
+        this.exclusive = exclusive;
+        markDirty();
     }
 
     public Parameter getParameter(int idx) {
@@ -240,7 +255,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             if (compiledEvent.isSingle() && runningEvents.contains(Pair.of(queuedEvent.getCardIndex(), compiledEvent.getIndex()))) {
                 return;
             }
-            CpuCore core = findAvailableCore();
+            CpuCore core = findAvailableCore(queuedEvent.getCardIndex());
             if (core != null) {
                 eventQueue.remove();
                 RunningProgram program = new RunningProgram(queuedEvent.getCardIndex());
@@ -811,7 +826,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             // Already running and single
             return;
         }
-        CpuCore core = findAvailableCore();
+        CpuCore core = findAvailableCore(cardIndex);
         if (core == null) {
             // No available core. We drop this event
         } else {
@@ -831,7 +846,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             eventQueue.add(new QueuedEvent(cardIndex, event, ticket));
             return;
         }
-        CpuCore core = findAvailableCore();
+        CpuCore core = findAvailableCore(cardIndex);
         if (core == null) {
             // No available core
             eventQueue.add(new QueuedEvent(cardIndex, event, ticket));
@@ -1008,10 +1023,19 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         return cpuCores;
     }
 
-    private CpuCore findAvailableCore() {
-        for (CpuCore core : cpuCores) {
-            if (!core.hasProgram()) {
-                return core;
+    private CpuCore findAvailableCore(int cardIndex) {
+        if (exclusive) {
+            if (cardIndex < cpuCores.size()) {
+                CpuCore core = cpuCores.get(cardIndex);
+                if (!core.hasProgram()) {
+                    return core;
+                }
+            }
+        } else {
+            for (CpuCore core : cpuCores) {
+                if (!core.hasProgram()) {
+                    return core;
+                }
             }
         }
         return null;
@@ -1654,12 +1678,14 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     @Override
     public void readClientDataFromNBT(NBTTagCompound tagCompound) {
         working = tagCompound.getBoolean("working");
+        exclusive = tagCompound.getBoolean("exclusive");
         readCardInfo(tagCompound);
     }
 
     @Override
     public void writeClientDataToNBT(NBTTagCompound tagCompound) {
         tagCompound.setBoolean("working", working);
+        tagCompound.setBoolean("exclusive", exclusive);
         writeCardInfo(tagCompound);
     }
 
@@ -1688,6 +1714,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         working = tagCompound.getBoolean("working");
         tickCount = tagCompound.getInteger("tickCount");
         channel = tagCompound.getString("channel");
+        exclusive = tagCompound.getBoolean("exclusive");
         readBufferFromNBT(tagCompound, inventoryHelper);
 
         readCardInfo(tagCompound);
@@ -1830,6 +1857,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         tagCompound.setBoolean("working", working);
         tagCompound.setInteger("tickCount", tickCount);
         tagCompound.setString("channel", channel == null ? "" : channel);
+        tagCompound.setBoolean("exclusive", exclusive);
         writeBufferToNBT(tagCompound, inventoryHelper);
 
         writeCardInfo(tagCompound);
@@ -2108,6 +2136,10 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             return true;
         } else if (CMD_CLEARLOG.equals(command)) {
             Commands.executeCommand(this, args.get("cmd").getString());
+            return true;
+        } else if (CMD_SETEXCLUSIVE.equals(command)) {
+            boolean v = args.get("v").getBoolean();
+            setExclusive(v);
             return true;
         }
         return false;

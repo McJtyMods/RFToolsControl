@@ -320,6 +320,16 @@ of a given program running at every time. To do that you can use the
 true then this event can only be fired once and it will be locked until
 the program that was attached to that event stops running.
 {-------------------------------------------------------------}
+Another solution to concurrency can be the 'exclusive' option that you
+can select in the GUI of the processor. If this button is pressed then
+programs on card X can only execute on core X. So that means that
+every core if exclusively dedicated to programs on a single card.
+
+This feature can also be used when you have a processor that has a
+low tier and a high tier core installed. Using exclusive mode you can
+make sure that the more demanding programs only run on the high tier
+core.
+{-------------------------------------------------------------}
 {b}Debugging
 {n:debugging}
 You will make bugs. Repeat after me: you will make bugs! So what can you
