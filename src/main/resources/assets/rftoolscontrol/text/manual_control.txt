@@ -19,6 +19,7 @@ Table of Contents:
 {l:variables}Variables
 {l:events}Events
 {l:opcodes}Opcode Types
+{l:tokens}Tokens
 {l:concurrency}Concurrency
 {l:debugging}Debugging
 {-------------------------------------------------------------}
@@ -280,6 +281,16 @@ The following types of opcodes are available:
     two outputs (a green and a red output)
   * Wire: there is only one wire opcode. It is meant to connect
     opcodes that are not adjacent
+{-------------------------------------------------------------}
+{b}Tokens
+{n:tokens}
+{ri:token}
+
+Tokens are items that serve no purpose except that they hold
+information. From within a program you can write any data to
+a token and then from another program read that data again.
+Tokens are regular items so you can transfer them and by doing
+that transmit the information anywhere you want.
 {-------------------------------------------------------------}
 {b}Concurrency
 {n:concurrency}

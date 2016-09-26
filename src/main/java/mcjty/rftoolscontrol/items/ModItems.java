@@ -19,6 +19,7 @@ public class ModItems {
     public static NetworkCardItem networkCardItem;
     public static CardBaseItem cardBaseItem;
     public static CraftingCardItem craftingCardItem;
+    public static TokenItem tokenItem;
 
     public static VariableModuleItem variableModuleItem;
     public static InteractionModuleItem interactionModuleItem;
@@ -34,6 +35,8 @@ public class ModItems {
         networkCardItem = new NetworkCardItem();
         cardBaseItem = new CardBaseItem();
         craftingCardItem = new CraftingCardItem();
+        tokenItem = new TokenItem();
+
         variableModuleItem = new VariableModuleItem();
         interactionModuleItem = new InteractionModuleItem();
         consoleModuleItem = new ConsoleModuleItem();
@@ -50,6 +53,8 @@ public class ModItems {
         networkCardItem.initModel();
         cardBaseItem.initModel();
         craftingCardItem.initModel();
+        tokenItem.initModel();
+
         variableModuleItem.initModel();
         interactionModuleItem.initModel();
         consoleModuleItem.initModel();

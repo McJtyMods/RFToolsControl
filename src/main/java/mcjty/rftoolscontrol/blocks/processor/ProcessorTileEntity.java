@@ -12,15 +12,13 @@ import mcjty.rftoolscontrol.api.code.ICompiledOpcode;
 import mcjty.rftoolscontrol.api.code.IOpcodeRunnable;
 import mcjty.rftoolscontrol.api.machines.IProcessor;
 import mcjty.rftoolscontrol.api.machines.IProgram;
-import mcjty.rftoolscontrol.api.parameters.BlockSide;
-import mcjty.rftoolscontrol.api.parameters.Inventory;
-import mcjty.rftoolscontrol.api.parameters.Parameter;
-import mcjty.rftoolscontrol.api.parameters.ParameterValue;
+import mcjty.rftoolscontrol.api.parameters.*;
 import mcjty.rftoolscontrol.blocks.craftingstation.CraftingStationTileEntity;
 import mcjty.rftoolscontrol.blocks.node.NodeTileEntity;
 import mcjty.rftoolscontrol.config.GeneralConfiguration;
 import mcjty.rftoolscontrol.items.CPUCoreItem;
 import mcjty.rftoolscontrol.items.ModItems;
+import mcjty.rftoolscontrol.items.TokenItem;
 import mcjty.rftoolscontrol.items.craftingcard.CraftingCardItem;
 import mcjty.rftoolscontrol.logic.InventoryTools;
 import mcjty.rftoolscontrol.logic.ParameterTools;
@@ -1278,6 +1276,44 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             return IOpcodeRunnable.OpcodeResult.POSITIVE;
         }
     }
+
+    public void setValueInToken(IProgram program, int slot) {
+        CardInfo info = this.cardInfo[((RunningProgram)program).getCardIndex()];
+        int realSlot = info.getRealSlot(slot);
+        ItemStack stack = getItemHandler().getStackInSlot(realSlot);
+        if (stack == null || !(stack.getItem() instanceof TokenItem)) {
+            throw new ProgException(EXCEPT_NOTATOKEN);
+        }
+        if (!stack.hasTagCompound()) {
+            stack.setTagCompound(new NBTTagCompound());
+        }
+        Parameter lastValue = program.getLastValue();
+        if (lastValue == null) {
+            stack.getTagCompound().removeTag("parameter");
+        } else {
+            NBTTagCompound tag = ParameterTools.writeToNBT(lastValue);
+            stack.getTagCompound().setTag("parameter", tag);
+        }
+    }
+
+    @Nullable
+    public Parameter getParameterFromToken(IProgram program, int slot) {
+        CardInfo info = this.cardInfo[((RunningProgram)program).getCardIndex()];
+        int realSlot = info.getRealSlot(slot);
+        ItemStack stack = getItemHandler().getStackInSlot(realSlot);
+        if (stack == null || !(stack.getItem() instanceof TokenItem)) {
+            throw new ProgException(EXCEPT_NOTATOKEN);
+        }
+        if (!stack.hasTagCompound()) {
+            return null;
+        }
+        NBTTagCompound tag = stack.getTagCompound().getCompoundTag("parameter");
+        if (tag.hasNoTags()) {
+            return null;
+        }
+        return ParameterTools.readFromNBT(tag);
+    }
+
 
     @Override
     public void setVariable(IProgram program, int var) {

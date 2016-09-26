@@ -23,6 +23,7 @@ public enum ExceptionType {
     EXCEPT_BADCOMMAND("bad_command", "Bad command"),
     EXCEPT_MISSINGITEM("missing_item", "Missing item"),
     EXCEPT_MISSINGPARAMETER("missing_parameter", "Missing parameter"),
+    EXCEPT_NOTATOKEN("not_a_token", "Not a token"),
     ;
 
     private final String code;

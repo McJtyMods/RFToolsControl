@@ -1012,6 +1012,38 @@ public class Opcodes {
             }))
             .build();
 
+    public static final Opcode DO_SETTOKEN = Opcode.builder()
+            .id("do_settoken")
+            .description(
+                    TextFormatting.GREEN + "Operation: set value in token",
+                    "copy the last returned value to a token",
+                    "item in an internal slot")
+            .opcodeOutput(SINGLE)
+            .parameter(ParameterDescription.builder().name("slot").type(PAR_INTEGER).description("internal (processor) slot with token").build())
+            .icon(9, 4)
+            .runnable(((processor, program, opcode) -> {
+                int slot = processor.evaluateIntParameter(opcode, program, 0);
+                ((ProcessorTileEntity)processor).setValueInToken(program, slot);
+                return POSITIVE;
+            }))
+            .build();
+    public static final Opcode EVAL_GETTOKEN = Opcode.builder()
+            .id("eval_gettoken")
+            .description(
+                    TextFormatting.GREEN + "Eval: get value from token",
+                    "get the value out of a token in an internal slot")
+            .outputDescription("token value (any type)")
+            .opcodeOutput(SINGLE)
+            .parameter(ParameterDescription.builder().name("slot").type(PAR_INTEGER).description("internal (processor) slot with token").build())
+            .icon(10, 4)
+            .runnable(((processor, program, opcode) -> {
+                int slot = processor.evaluateIntParameter(opcode, program, 0);
+                Parameter parameter = ((ProcessorTileEntity) processor).getParameterFromToken(program, slot);
+                program.setLastValue(parameter);
+                return POSITIVE;
+            }))
+            .build();
+
     public static final Map<String, Opcode> OPCODES = new HashMap<>();
     public static final List<Opcode> SORTED_OPCODES = new ArrayList<>();
 
@@ -1039,6 +1071,7 @@ public class Opcodes {
         register(EVAL_INTEGER);
         register(EVAL_STRING);
         register(EVAL_INVENTORY);
+        register(EVAL_GETTOKEN);
         register(EVAL_LOCK);
         register(TEST_GT);
         register(TEST_EQ);
@@ -1055,6 +1088,7 @@ public class Opcodes {
         register(DO_PUSHITEMS);
         register(DO_PUSHMULTI);
         register(DO_SETVAR);
+        register(DO_SETTOKEN);
         register(DO_ADD);
         register(DO_SUBTRACT);
         register(DO_DIVIDE);
