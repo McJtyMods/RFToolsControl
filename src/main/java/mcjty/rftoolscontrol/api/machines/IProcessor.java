@@ -206,4 +206,9 @@ public interface IProcessor {
     @Nullable
     ItemStack getCraftResult(IProgram program);
 
+    /**
+     * Send a message to another processor identified by the network identifier item
+     * that is in idSlot. Can optionally send a variable to that processor.
+     */
+    void sendMessage(IProgram program, int idSlot, String messageName, @Nullable Integer variableSlot);
 }

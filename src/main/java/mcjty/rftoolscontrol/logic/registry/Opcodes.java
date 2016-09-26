@@ -3,10 +3,7 @@ package mcjty.rftoolscontrol.logic.registry;
 import mcjty.rftoolscontrol.api.code.Opcode;
 import mcjty.rftoolscontrol.api.parameters.*;
 import mcjty.rftoolscontrol.blocks.processor.ProcessorTileEntity;
-import mcjty.rftoolscontrol.logic.running.ExceptionType;
-import mcjty.rftoolscontrol.logic.running.ProgException;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTBase;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.items.IItemHandler;
 
@@ -951,7 +948,7 @@ public class Opcodes {
             .parameter(ParameterDescription.builder().name("signal").type(PAR_STRING).description("signal name").build())
             .icon(5, 4)
             .runnable(((processor, program, opcode) -> {
-                String signal = processor.evaluateStringParameter(opcode, program, 0);
+                String signal = processor.evaluateStringParameterNonNull(opcode, program, 0);
                 int cnt = processor.signal(signal);
                 program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(cnt)).build());
                 return POSITIVE;
@@ -1019,7 +1016,7 @@ public class Opcodes {
                     "copy the last returned value to a token",
                     "item in an internal slot")
             .opcodeOutput(SINGLE)
-            .parameter(ParameterDescription.builder().name("slot").type(PAR_INTEGER).description("internal (processor) slot with token").build())
+            .parameter(ParameterDescription.builder().name("tokenSlot").type(PAR_INTEGER).description("internal (processor) slot with token").build())
             .icon(9, 4)
             .runnable(((processor, program, opcode) -> {
                 int slot = processor.evaluateIntParameter(opcode, program, 0);
@@ -1034,7 +1031,7 @@ public class Opcodes {
                     "get the value out of a token in an internal slot")
             .outputDescription("token value (any type)")
             .opcodeOutput(SINGLE)
-            .parameter(ParameterDescription.builder().name("slot").type(PAR_INTEGER).description("internal (processor) slot with token").build())
+            .parameter(ParameterDescription.builder().name("tokenSlot").type(PAR_INTEGER).description("internal (processor) slot with token").build())
             .icon(10, 4)
             .runnable(((processor, program, opcode) -> {
                 int slot = processor.evaluateIntParameter(opcode, program, 0);
@@ -1043,6 +1040,42 @@ public class Opcodes {
                 return POSITIVE;
             }))
             .build();
+    public static final Opcode EVENT_MESSAGE = Opcode.builder()
+            .id("ev_message")
+            .description(
+                    TextFormatting.GREEN + "Event: message",
+                    "receive a message from another processor",
+                    "If that message was sent with a variable",
+                    "then the last value will be set to that")
+            .outputDescription("optional value (any)")
+            .opcodeOutput(SINGLE)
+            .parameter(ParameterDescription.builder().name("name").type(PAR_STRING).description("matching message name").build())
+            .parameter(ParameterDescription.builder().name("single").type(PAR_BOOLEAN).optional().description("only one simultaneous run").build())
+            .isEvent(true)
+            .icon(11, 4)
+            .build();
+    public static final Opcode DO_MESSAGE = Opcode.builder()
+            .id("do_message")
+            .description(
+                    TextFormatting.GREEN + "Operation: send message",
+                    "send a message to another processor",
+                    "This needs a network identifier in a slot",
+                    "and an advanced networking card",
+                    "Can optionally send a variable")
+            .opcodeOutput(SINGLE)
+            .parameter(ParameterDescription.builder().name("name").type(PAR_STRING).description("message name").build())
+            .parameter(ParameterDescription.builder().name("idSlot").type(PAR_INTEGER).description("internal (processor) slot with identifier").build())
+            .parameter(ParameterDescription.builder().name("variable").type(PAR_INTEGER).optional().description("variable index to send over").build())
+            .icon(4, 5)
+            .runnable(((processor, program, opcode) -> {
+                String name = processor.evaluateStringParameterNonNull(opcode, program, 0);
+                int idSlot = processor.evaluateIntParameter(opcode, program, 1);
+                Integer variable = processor.evaluateIntegerParameter(opcode, program, 2);
+                processor.sendMessage(program, idSlot, name, variable);
+                return POSITIVE;
+            }))
+            .build();
+
 
     public static final Map<String, Opcode> OPCODES = new HashMap<>();
     public static final List<Opcode> SORTED_OPCODES = new ArrayList<>();
@@ -1052,6 +1085,7 @@ public class Opcodes {
         register(EVENT_REDSTONE_OFF);
         register(EVENT_TIMER);
         register(EVENT_SIGNAL);
+        register(EVENT_MESSAGE);
         register(EVENT_CRAFT);
         register(EVENT_CRAFTRESUME);
         register(EVENT_EXCEPTION);
@@ -1083,6 +1117,7 @@ public class Opcodes {
         register(DO_STOP);
         register(DO_STOP_OR_RESUME);
         register(DO_SIGNAL);
+        register(DO_MESSAGE);
         register(DO_LOG);
         register(DO_FETCHITEMS);
         register(DO_PUSHITEMS);
