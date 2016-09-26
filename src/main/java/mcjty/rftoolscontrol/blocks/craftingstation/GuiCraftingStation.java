@@ -246,6 +246,7 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
     private void requestItem(ItemStack stack, int amount) {
         sendServerCommand(RFToolsCtrlMessages.INSTANCE, CraftingStationTileEntity.CMD_REQUEST,
                 new Argument("item", stack.getItem().getRegistryName().toString()),
+                new Argument("meta", stack.getItemDamage()),
                 new Argument("amount", amount));
     }
 
