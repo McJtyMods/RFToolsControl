@@ -770,13 +770,22 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
                 .setDesiredHeight(14)
                 .setBorder(1)
                 .setBorderColor(0xffff0000)
-                .setTooltips("Drop opcodes here to", "delete them")
+                .setTooltips(TextFormatting.YELLOW + "Delete opcode", "Drop opcodes here to", "delete them")
                 .setSelectable(false);
         return new Panel(mc, this).setLayout(new HorizontalLayout().setSpacing(2).setHorizontalMargin(1)).setLayoutHint(new PositionalLayout.PositionalHint(108, 136, 145, 18))
-                .addChild(new Button(mc, this).setText("Load").setDesiredHeight(15).addButtonEvent(w -> loadProgram(ProgrammerContainer.SLOT_CARD)))
-                .addChild(new Button(mc, this).setText("Save").setDesiredHeight(15).addButtonEvent(w -> askNameAndSave(ProgrammerContainer.SLOT_CARD)))
-                .addChild(new Button(mc, this).setText("Clear").setDesiredHeight(15).addButtonEvent(w -> clearProgram()))
-                .addChild(new Button(mc, this).setText("Val").setDesiredHeight(15).addButtonEvent(w -> validateProgram()))
+                .addChild(new Button(mc, this).setText("Load")
+                        .setTooltips(TextFormatting.YELLOW + "Load program", "Load the current program", "from a program card")
+                        .setDesiredHeight(15).addButtonEvent(w -> loadProgram(ProgrammerContainer.SLOT_CARD)))
+                .addChild(new Button(mc, this).setText("Save")
+                        .setTooltips(TextFormatting.YELLOW + "Save program", "Save the current program", "to a program card")
+                        .setDesiredHeight(15).addButtonEvent(w -> askNameAndSave(ProgrammerContainer.SLOT_CARD)))
+                .addChild(new Button(mc, this).setText("Clear")
+                        .setTooltips(TextFormatting.YELLOW + "Clear program", "Remove all opcodes on the grid", "(press Ctrl-Z if this was a mistake)")
+                        .setDesiredHeight(15).addButtonEvent(w -> clearProgram()))
+                .addChild(new Button(mc, this).setText("Val")
+                        .setTooltips(TextFormatting.YELLOW + "Validate program", "Perform some basic validations on", "the current program", "Double click on error", "to highlight opcode")
+                        .setDesiredHeight(15)
+                        .addButtonEvent(w -> validateProgram()))
                 .addChild(trashcan);
     }
 

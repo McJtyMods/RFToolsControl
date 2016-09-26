@@ -108,7 +108,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
         for (int i = 0; i < ProcessorTileEntity.CARD_SLOTS ; i++) {
             setupButtons[i] = new ToggleButton(mc, this)
                 .addButtonEvent(this::setupMode)
-                .setTooltips("Setup item and variable", "allocation for this card")
+                .setTooltips(TextFormatting.YELLOW + "Resource allocation", "Setup item and variable", "allocation for this card")
                 .setLayoutHint(new PositionalLayout.PositionalHint(11 + i * 18, 6, 15, 7))
                 .setUserObject("allowed");
             toplevel.addChild(setupButtons[i]);
