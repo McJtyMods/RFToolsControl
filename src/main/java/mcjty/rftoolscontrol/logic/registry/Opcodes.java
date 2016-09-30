@@ -1164,6 +1164,24 @@ public class Opcodes {
                 return POSITIVE;
             }))
             .build();
+    public static final Opcode EVAL_RANDOM = Opcode.builder()
+            .id("eval_random")
+            .description(
+                    TextFormatting.GREEN + "Eval: random integer",
+                    "get a random integer between two values")
+            .outputDescription("random result (integer)")
+            .opcodeOutput(SINGLE)
+            .parameter(ParameterDescription.builder().name("lower").type(PAR_INTEGER).description("lower bound").build())
+            .parameter(ParameterDescription.builder().name("upper").type(PAR_INTEGER).description("upper bound (exclusive)").build())
+            .icon(9, 5)
+            .runnable(((processor, program, opcode) -> {
+                int lower = processor.evaluateIntParameter(opcode, program, 0);
+                int upper = processor.evaluateIntParameter(opcode, program, 1);
+                program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(
+                        ParameterValue.constant(Functions.random.nextInt(upper-lower)+lower)).build());
+                return POSITIVE;
+            }))
+            .build();
 
 
     public static final Map<String, Opcode> OPCODES = new HashMap<>();
@@ -1191,6 +1209,7 @@ public class Opcodes {
         register(EVAL_GETMAXRF);
         register(EVAL_GETLIQUID);
         register(EVAL_GETMAXLIQUID);
+        register(EVAL_RANDOM);
         register(EVAL_INTEGER);
         register(EVAL_STRING);
         register(EVAL_INVENTORY);
