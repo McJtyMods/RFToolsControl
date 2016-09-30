@@ -211,4 +211,24 @@ public interface IProcessor {
      * that is in idSlot. Can optionally send a variable to that processor.
      */
     void sendMessage(IProgram program, int idSlot, String messageName, @Nullable Integer variableSlot);
+
+    /**
+     * Draw a box. Needs a graphics card
+     */
+    void gfxDrawBox(IProgram program, String id, int x, int y, int w, int h, int color);
+
+    /**
+     * Draw a line. Needs a graphics card
+     */
+    void gfxDrawLine(IProgram program, String id, int x1, int y1, int x2, int y2, int color);
+
+    /**
+     * Draw text. Needs a graphics card
+     */
+    void gfxDrawText(IProgram program, String id, int x, int y, String text, int color);
+
+    /**
+     * Clear an operation or all operatinos if id is null
+     */
+    void gfxClear(IProgram program, @Nullable String id);
 }

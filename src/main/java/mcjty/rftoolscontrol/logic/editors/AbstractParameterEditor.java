@@ -35,7 +35,11 @@ public abstract class AbstractParameterEditor implements ParameterEditor {
     public static Integer parseIntSafe(String newText) {
         Integer f;
         try {
-            f = Integer.parseInt(newText);
+            if (newText.startsWith("$")) {
+                f = (int) Long.parseLong(newText.substring(1), 16);
+            } else {
+                f = Integer.parseInt(newText);
+            }
         } catch (NumberFormatException e) {
             f = null;
         }

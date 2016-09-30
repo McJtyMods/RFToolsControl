@@ -18,6 +18,10 @@ import mcjty.rftoolscontrol.api.parameters.Parameter;
 import mcjty.rftoolscontrol.api.parameters.ParameterValue;
 import mcjty.rftoolscontrol.blocks.craftingstation.CraftingStationTileEntity;
 import mcjty.rftoolscontrol.blocks.node.NodeTileEntity;
+import mcjty.rftoolscontrol.blocks.vectorart.GfxOp;
+import mcjty.rftoolscontrol.blocks.vectorart.GfxOpBox;
+import mcjty.rftoolscontrol.blocks.vectorart.GfxOpLine;
+import mcjty.rftoolscontrol.blocks.vectorart.GfxOpText;
 import mcjty.rftoolscontrol.config.GeneralConfiguration;
 import mcjty.rftoolscontrol.items.*;
 import mcjty.rftoolscontrol.items.craftingcard.CraftingCardItem;
@@ -103,6 +107,10 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     private int maxVars = -1;   // If -1 we need updating
     private int hasNetworkCard = -1;
     private int storageCard = -2;   // -2 is unknown
+    private boolean hasGraphicsCard = false;
+
+    private Map<String, GfxOp> gfxOps = new HashMap<>();
+    private List<String> orderedOps = null;
 
     private boolean exclusive = false;
 
@@ -950,6 +958,8 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                 }
             }
         }
+        gfxOps.clear();
+        orderedOps.clear();
         markDirty();
     }
 
@@ -977,7 +987,6 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     }
 
     public void exception(ExceptionType exception, RunningProgram program) {
-
         for (int i = 0 ; i < cardInfo.length ; i++) {
             CardInfo info = cardInfo[i];
             CompiledCard compiledCard = info.getCompiledCard();
@@ -1301,10 +1310,73 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         destTE.receiveMessage(messageName, realVariable == null ? null : getVariableArray()[realVariable]);
     }
 
+    private void setOp(String id, GfxOp op) {
+        if (!hasGraphicsCard) {
+            throw new ProgException(EXCEPT_MISSINGGRAPHICSCARD);
+        }
+        if (!gfxOps.containsKey(id)) {
+            if (gfxOps.size() >= GeneralConfiguration.maxGraphicsOpcodes) {
+                throw new ProgException(EXCEPT_MISSINGNETWORKCARD);
+            }
+            orderedOps = null;
+        }
+        gfxOps.put(id, op);
+        markDirty();
+    }
+
+    private void sortOps() {
+        orderedOps = new ArrayList<>(gfxOps.keySet());
+        orderedOps.sort(new Comparator<String>() {
+            @Override
+            public int compare(String s, String t1) {
+                return s.compareTo(t1);
+            }
+        });
+    }
+
+    @Override
+    public void gfxDrawBox(IProgram program, String id, int x, int y, int w, int h, int color) {
+        setOp(id, new GfxOpBox(x, y, w, h, color));
+    }
+
+    @Override
+    public void gfxDrawLine(IProgram program, String id, int x1, int y1, int x2, int y2, int color) {
+        setOp(id, new GfxOpLine(x1, y1, x2, y2, color));
+    }
+
+    @Override
+    public void gfxDrawText(IProgram program, String id, int x, int y, String text, int color) {
+        setOp(id, new GfxOpText(x, y, text, color));
+    }
+
+    @Override
+    public void gfxClear(IProgram program, @Nullable String id) {
+        if (id == null) {
+            gfxOps.clear();
+            orderedOps.clear();
+        } else {
+            gfxOps.remove(id);
+            orderedOps = null;
+        }
+        markDirty();
+    }
+
+    public Map<String, GfxOp> getGfxOps() {
+        return gfxOps;
+    }
+
+    public List<String> getOrderedOps() {
+        if (orderedOps == null) {
+            sortOps();
+        }
+        return orderedOps;
+    }
+
     public int getMaxvars() {
         if (maxVars == -1) {
             maxVars = 0;
             hasNetworkCard = -1;
+            hasGraphicsCard = false;
             storageCard = -1;
             Item storageCardItem = ForgeRegistries.ITEMS.getValue(new ResourceLocation("rftools", "storage_control_module"));
             for (int i = ProcessorContainer.SLOT_EXPANSION ; i < ProcessorContainer.SLOT_EXPANSION + EXPANSION_SLOTS ; i++) {
@@ -1314,6 +1386,8 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                         hasNetworkCard = ((NetworkCardItem) stack.getItem()).getTier();
                     } else if (stack.getItem() instanceof RAMChipItem) {
                         maxVars += 8;
+                    } else if (stack.getItem() instanceof GraphicsCardItem) {
+                        hasGraphicsCard = true;
                     } else if (stack.getItem() == storageCardItem) {
                         storageCard = i;
                     }
@@ -1797,6 +1871,16 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         readWaitingForItems(tagCompound);
         readLocks(tagCompound);
         readRunningEvents(tagCompound);
+        readGraphicsOperations(tagCompound);
+    }
+
+    private void readGraphicsOperations(NBTTagCompound tagCompound) {
+        gfxOps.clear();
+        NBTTagCompound opTag = tagCompound.getCompoundTag("gfxop");
+        for (String key : opTag.getKeySet()) {
+            gfxOps.put(key, GfxOp.readFromNBT(opTag.getCompoundTag(key)));
+        }
+        sortOps();
     }
 
     private void readRunningEvents(NBTTagCompound tagCompound) {
@@ -1944,6 +2028,15 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         writeWaitingForItems(tagCompound);
         writeLocks(tagCompound);
         writeRunningEvents(tagCompound);
+        writeGraphicsOperation(tagCompound);
+    }
+
+    private void writeGraphicsOperation(NBTTagCompound tagCompound) {
+        NBTTagCompound opTag = new NBTTagCompound();
+        for (Map.Entry<String, GfxOp> entry : gfxOps.entrySet()) {
+            opTag.setTag(entry.getKey(), entry.getValue().writeToNBT());
+        }
+        tagCompound.setTag("gfxop", opTag);
     }
 
     private void writeRunningEvents(NBTTagCompound tagCompound) {

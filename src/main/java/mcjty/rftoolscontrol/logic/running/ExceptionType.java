@@ -27,6 +27,8 @@ public enum ExceptionType {
     EXCEPT_NOTANIDENTIFIER("not_an_identifier", "Not an identifier"),
     EXCEPT_INVALIDDESTINATION("invalid_destination", "Invalid destination"),
     EXCEPT_NEEDSADVANCEDNETWORK("needs_advanced_network", "This needs an advanced network card"),
+    EXCEPT_MISSINGGRAPHICSCARD("missing_graphics_card", "Missing graphics card"),
+    EXCEPT_TOOMANYGRAPHICS("too_many_graphics_opcodes", "Too many graphics opcodes"),
     ;
 
     private final String code;

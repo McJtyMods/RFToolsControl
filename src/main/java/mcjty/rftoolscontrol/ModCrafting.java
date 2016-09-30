@@ -33,8 +33,10 @@ public class ModCrafting {
         GameRegistry.addRecipe(new ItemStack(ModItems.variableModuleItem), " c ", "rir", " b ", 'c', ModItems.cardBaseItem, 'r', Items.REDSTONE, 'i', Items.IRON_INGOT, 'b', inkSac);
         GameRegistry.addRecipe(new ItemStack(ModItems.interactionModuleItem), "cxc", "rir", " b ", 'x', ModItems.cardBaseItem, 'c', Blocks.STONE_PRESSURE_PLATE, 'r', Items.REDSTONE, 'i', Items.IRON_INGOT, 'b', inkSac);
         GameRegistry.addRecipe(new ItemStack(ModItems.consoleModuleItem), "pxp", "rir", "pbp", 'x', ModItems.cardBaseItem, 'p', Blocks.GLASS_PANE, 'r', Items.REDSTONE, 'i', Items.IRON_INGOT, 'b', inkSac);
+        GameRegistry.addRecipe(new ItemStack(ModItems.vectorArtModuleItem), "pxp", "rir", "pbp", 'x', ModItems.cardBaseItem, 'p', Blocks.GLASS_PANE, 'r', Items.GLOWSTONE_DUST, 'i', Items.GOLD_INGOT, 'b', inkSac);
         GameRegistry.addRecipe(new ItemStack(ModItems.tokenItem, 16), "ppp", "pnp", "ppp", 'n', ModItems.cardBaseItem, 'p', Items.PAPER);
-        GameRegistry.addRecipe(new ItemStack(ModItems.networkIdentifierItem, 1), " c ", " n ", " r ", 'n', ModItems.cardBaseItem, 'c', Items.COMPARATOR, 'r', Items.REPEATER);
+        GameRegistry.addRecipe(new ItemStack(ModItems.networkIdentifierItem), " c ", " n ", " r ", 'n', ModItems.cardBaseItem, 'c', Items.COMPARATOR, 'r', Items.REPEATER);
+        GameRegistry.addRecipe(new ItemStack(ModItems.graphicsCardItem), "qgq", "rnr", "qGq", 'n', ModItems.cardBaseItem, 'q', Items.QUARTZ, 'g', Blocks.GLASS, 'r', Items.REDSTONE, 'G', Blocks.GLOWSTONE);
 
         GameRegistry.addRecipe(new ItemStack(ModBlocks.programmerBlock), "rqr", "pMp", "rqr", 'M', machineFrame, 'r', Items.REDSTONE, 'q', Items.QUARTZ, 'p', Items.PAPER);
         GameRegistry.addRecipe(new ItemStack(ModBlocks.processorBlock), "rqr", "bMb", "rqr", 'M', machineFrame, 'b', ModItems.cardBaseItem, 'r', Items.REDSTONE, 'q', Items.QUARTZ);

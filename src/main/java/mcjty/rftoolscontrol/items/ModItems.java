@@ -5,6 +5,7 @@ import mcjty.rftoolscontrol.items.craftingcard.CraftingCardItem;
 import mcjty.rftoolscontrol.items.interactionmodule.InteractionModuleItem;
 import mcjty.rftoolscontrol.items.manual.RFToolsControlManualItem;
 import mcjty.rftoolscontrol.items.variablemodule.VariableModuleItem;
+import mcjty.rftoolscontrol.items.vectorartmodule.VectorArtModuleItem;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -22,10 +23,12 @@ public class ModItems {
     public static CraftingCardItem craftingCardItem;
     public static TokenItem tokenItem;
     public static NetworkIdentifierItem networkIdentifierItem;
+    public static GraphicsCardItem graphicsCardItem;
 
     public static VariableModuleItem variableModuleItem;
     public static InteractionModuleItem interactionModuleItem;
     public static ConsoleModuleItem consoleModuleItem;
+    public static VectorArtModuleItem vectorArtModuleItem;
 
     public static void init() {
         rfToolsControlManualItem = new RFToolsControlManualItem();
@@ -40,10 +43,12 @@ public class ModItems {
         craftingCardItem = new CraftingCardItem();
         tokenItem = new TokenItem();
         networkIdentifierItem = new NetworkIdentifierItem();
+        graphicsCardItem = new GraphicsCardItem();
 
         variableModuleItem = new VariableModuleItem();
         interactionModuleItem = new InteractionModuleItem();
         consoleModuleItem = new ConsoleModuleItem();
+        vectorArtModuleItem = new VectorArtModuleItem();
     }
 
     @SideOnly(Side.CLIENT)
@@ -60,9 +65,11 @@ public class ModItems {
         craftingCardItem.initModel();
         tokenItem.initModel();
         networkIdentifierItem.initModel();
+        graphicsCardItem.initModel();
 
         variableModuleItem.initModel();
         interactionModuleItem.initModel();
         consoleModuleItem.initModel();
+        vectorArtModuleItem.initModel();
     }
 }

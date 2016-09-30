@@ -16,9 +16,12 @@ public class GeneralConfiguration {
     public static int VARIABLEMODULE_RFPERTICK = 1;
     public static int INTERACTMODULE_RFPERTICK = 2;
     public static int CONSOLEMODULE_RFPERTICK = 2;
+    public static int VECTORARTMODULE_RFPERTICK = 2;
 
     public static boolean doubleClickToChangeConnector = true;
     public static int tooltipVerbosityLevel = 2;
+
+    public static int maxGraphicsOpcodes = 30;
 
     public static void init(Configuration cfg) {
         processorMaxenergy = cfg.get(CATEGORY_GENERAL, "processorMaxRF", processorMaxenergy,
@@ -27,6 +30,8 @@ public class GeneralConfiguration {
                 "RF per tick that the processor can receive").getInt();
         processorMaxloglines = cfg.get(CATEGORY_GENERAL, "processorMaxLogLines", processorMaxloglines,
                 "Maximum number of lines to keep in the log").getInt();
+        maxGraphicsOpcodes = cfg.get(CATEGORY_GENERAL, "maxGraphicsOpcodes", maxGraphicsOpcodes,
+                "Maximum amount of graphics opcodes that a graphics card supports").getInt();
         doubleClickToChangeConnector = cfg.get(CATEGORY_GENERAL, "doubleClickToChangeConnector", doubleClickToChangeConnector,
                 "If true double click is needed in programmer to change connector. If false single click is sufficient").getBoolean();
         tooltipVerbosityLevel = cfg.get(CATEGORY_GENERAL, "tooltipVerbosityLevel", tooltipVerbosityLevel,
@@ -49,6 +54,8 @@ public class GeneralConfiguration {
                 "RF per tick/per block for the interaction screen module").getInt();
         CONSOLEMODULE_RFPERTICK = cfg.get(CATEGORY_GENERAL, "consoleModuleRFPerTick", CONSOLEMODULE_RFPERTICK,
                 "RF per tick/per block for the console screen module").getInt();
+        VECTORARTMODULE_RFPERTICK = cfg.get(CATEGORY_GENERAL, "vectorArtModuleRFPerTick", VECTORARTMODULE_RFPERTICK,
+                "RF per tick/per block for the vector art screen module").getInt();
     }
 
 }

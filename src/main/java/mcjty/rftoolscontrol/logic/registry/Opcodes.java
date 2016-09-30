@@ -1075,6 +1075,95 @@ public class Opcodes {
                 return POSITIVE;
             }))
             .build();
+    public static final Opcode DO_GFX_BOX = Opcode.builder()
+            .id("do_gfx_box")
+            .description(
+                    TextFormatting.GREEN + "Operation: gfx box",
+                    "draw a box",
+                    TextFormatting.RED + "Needs a graphics card")
+            .opcodeOutput(SINGLE)
+            .parameter(ParameterDescription.builder().name("id").type(PAR_STRING).description("id (used to identify this box)").build())
+            .parameter(ParameterDescription.builder().name("x").type(PAR_INTEGER).description("x location").build())
+            .parameter(ParameterDescription.builder().name("y").type(PAR_INTEGER).description("y location").build())
+            .parameter(ParameterDescription.builder().name("w").type(PAR_INTEGER).description("width").build())
+            .parameter(ParameterDescription.builder().name("h").type(PAR_INTEGER).description("height").build())
+            .parameter(ParameterDescription.builder().name("color").type(PAR_INTEGER).description("color").build())
+            .icon(5, 5)
+            .runnable(((processor, program, opcode) -> {
+                String id = processor.evaluateStringParameterNonNull(opcode, program, 0);
+                int x = processor.evaluateIntParameter(opcode, program, 1);
+                int y = processor.evaluateIntParameter(opcode, program, 2);
+                int w = processor.evaluateIntParameter(opcode, program, 3);
+                int h = processor.evaluateIntParameter(opcode, program, 4);
+                int color = processor.evaluateIntParameter(opcode, program, 5);
+                processor.gfxDrawBox(program, id, x, y, w, h, color);
+                return POSITIVE;
+            }))
+            .build();
+    public static final Opcode DO_GFX_LINE = Opcode.builder()
+            .id("do_gfx_line")
+            .description(
+                    TextFormatting.GREEN + "Operation: gfx line",
+                    "draw a line",
+                    TextFormatting.RED + "Needs a graphics card")
+            .opcodeOutput(SINGLE)
+            .parameter(ParameterDescription.builder().name("id").type(PAR_STRING).description("id (used to identify this line)").build())
+            .parameter(ParameterDescription.builder().name("x1").type(PAR_INTEGER).description("start x location").build())
+            .parameter(ParameterDescription.builder().name("y1").type(PAR_INTEGER).description("start y location").build())
+            .parameter(ParameterDescription.builder().name("x2").type(PAR_INTEGER).description("end x location").build())
+            .parameter(ParameterDescription.builder().name("y2").type(PAR_INTEGER).description("end y location").build())
+            .parameter(ParameterDescription.builder().name("color").type(PAR_INTEGER).description("color").build())
+            .icon(6, 5)
+            .runnable(((processor, program, opcode) -> {
+                String id = processor.evaluateStringParameterNonNull(opcode, program, 0);
+                int x1 = processor.evaluateIntParameter(opcode, program, 1);
+                int y1 = processor.evaluateIntParameter(opcode, program, 2);
+                int x2 = processor.evaluateIntParameter(opcode, program, 3);
+                int y2 = processor.evaluateIntParameter(opcode, program, 4);
+                int color = processor.evaluateIntParameter(opcode, program, 5);
+                processor.gfxDrawLine(program, id, x1, y1, x2, y2, color);
+                return POSITIVE;
+            }))
+            .build();
+    public static final Opcode DO_GFX_TEXT = Opcode.builder()
+            .id("do_gfx_text")
+            .description(
+                    TextFormatting.GREEN + "Operation: gfx text",
+                    "draw text",
+                    TextFormatting.RED + "Needs a graphics card")
+            .opcodeOutput(SINGLE)
+            .parameter(ParameterDescription.builder().name("id").type(PAR_STRING).description("id (used to identify this text)").build())
+            .parameter(ParameterDescription.builder().name("x").type(PAR_INTEGER).description("x location").build())
+            .parameter(ParameterDescription.builder().name("y").type(PAR_INTEGER).description("y location").build())
+            .parameter(ParameterDescription.builder().name("text").type(PAR_STRING).description("text").build())
+            .parameter(ParameterDescription.builder().name("color").type(PAR_INTEGER).description("color").build())
+            .icon(7, 5)
+            .runnable(((processor, program, opcode) -> {
+                String id = processor.evaluateStringParameterNonNull(opcode, program, 0);
+                int x = processor.evaluateIntParameter(opcode, program, 1);
+                int y = processor.evaluateIntParameter(opcode, program, 2);
+                String txt = processor.evaluateStringParameterNonNull(opcode, program, 3);
+                int color = processor.evaluateIntParameter(opcode, program, 4);
+                processor.gfxDrawText(program, id, x, y, txt, color);
+                return POSITIVE;
+            }))
+            .build();
+    public static final Opcode DO_GFX_CLEAR = Opcode.builder()
+            .id("do_gfx_clear")
+            .description(
+                    TextFormatting.GREEN + "Operation: gfx clear",
+                    "clear an operation with a specific id or",
+                    "all operations",
+                    TextFormatting.RED + "Needs a graphics card")
+            .opcodeOutput(SINGLE)
+            .parameter(ParameterDescription.builder().name("id").type(PAR_STRING).optional().description("id to delete or empty to delete all").build())
+            .icon(8, 5)
+            .runnable(((processor, program, opcode) -> {
+                String id = processor.evaluateStringParameter(opcode, program, 0);
+                processor.gfxClear(program, id);
+                return POSITIVE;
+            }))
+            .build();
 
 
     public static final Map<String, Opcode> OPCODES = new HashMap<>();
@@ -1140,6 +1229,10 @@ public class Opcodes {
         register(DO_REQUESTCRAFT);
         register(DO_LOCK);
         register(DO_RELEASELOCK);
+        register(DO_GFX_BOX);
+        register(DO_GFX_LINE);
+        register(DO_GFX_TEXT);
+        register(DO_GFX_CLEAR);
     }
 
     public static void register(Opcode opcode) {

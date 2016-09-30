@@ -58,7 +58,12 @@ public class TypeConverters {
         if (value instanceof Integer) {
             return (Integer) value;
         } else if (value instanceof String) {
-            return Integer.parseInt((String) value);
+            String s = (String) value;
+            if (s.startsWith("$")) {
+                return (int) Long.parseLong(s.substring(1), 16);
+            } else {
+                return Integer.parseInt(s);
+            }
         } else if (value instanceof Float) {
             return ((Float) value).intValue();
         } else if (value instanceof Boolean) {
@@ -126,7 +131,12 @@ public class TypeConverters {
         if (value instanceof Integer) {
             return (Integer) value;
         } else if (value instanceof String) {
-            return Integer.parseInt((String) value);
+            String s = (String) value;
+            if (s.startsWith("$")) {
+                return (int) Long.parseLong(s.substring(1), 16);
+            } else {
+                return Integer.parseInt(s);
+            }
         } else if (value instanceof Float) {
             return ((Float) value).intValue();
         } else if (value instanceof Boolean) {

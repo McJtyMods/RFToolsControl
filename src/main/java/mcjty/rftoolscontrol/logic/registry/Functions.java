@@ -169,7 +169,12 @@ public class Functions {
         Object v = value.getParameterValue().getValue();
         switch (value.getParameterType()) {
             case PAR_STRING:
-                return ParameterValue.constant(Integer.parseInt((String) v));
+                String s = (String) v;
+                if (s.startsWith("$")) {
+                    return ParameterValue.constant((int) Long.parseLong(s.substring(1), 16));
+                } else {
+                    return ParameterValue.constant(Integer.parseInt(s));
+                }
             case PAR_INTEGER:
                 return value.getParameterValue();
             case PAR_FLOAT:
