@@ -45,11 +45,11 @@ public class PacketLogReady extends PacketListToClient<String> {
 
     @Override
     protected String createItem(ByteBuf buf) {
-        return NetworkTools.readString(buf);
+        return NetworkTools.readStringUTF8(buf);
     }
 
     @Override
     protected void writeItemToBuf(ByteBuf buf, String s) {
-        NetworkTools.writeString(buf, s);
+        NetworkTools.writeStringUTF8(buf, s);
     }
 }
