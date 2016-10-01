@@ -161,6 +161,7 @@ public class CraftingStationTileEntity extends GenericTileEntity implements Defa
 
 
     public boolean isRequested(ItemStack item) {
+        cleanupStaleRequests();
         for (CraftingRequest request : activeCraftingRequests) {
             if (request.getStack().isItemEqual(item)) {
                 return true;
