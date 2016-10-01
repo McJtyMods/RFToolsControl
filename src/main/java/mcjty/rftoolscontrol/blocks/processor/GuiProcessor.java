@@ -18,13 +18,16 @@ import mcjty.lib.gui.widgets.Panel;
 import mcjty.lib.gui.widgets.TextField;
 import mcjty.lib.network.Argument;
 import mcjty.rftoolscontrol.RFToolsControl;
-import mcjty.rftoolscontrol.gui.GuiTools;
 import mcjty.rftoolscontrol.api.parameters.Parameter;
+import mcjty.rftoolscontrol.api.parameters.ParameterType;
+import mcjty.rftoolscontrol.gui.GuiTools;
 import mcjty.rftoolscontrol.logic.editors.ParameterEditor;
 import mcjty.rftoolscontrol.logic.editors.ParameterEditors;
-import mcjty.rftoolscontrol.api.parameters.ParameterType;
 import mcjty.rftoolscontrol.logic.registry.ParameterTypeTools;
-import mcjty.rftoolscontrol.network.*;
+import mcjty.rftoolscontrol.network.PacketGetLog;
+import mcjty.rftoolscontrol.network.PacketGetVariables;
+import mcjty.rftoolscontrol.network.PacketVariableToServer;
+import mcjty.rftoolscontrol.network.RFToolsCtrlMessages;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.inventory.Slot;
 import net.minecraft.nbt.NBTTagCompound;
@@ -333,23 +336,12 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
                     }
                     cardInfo.setVarAllocation(varAlloc);
 
-                    Panel panel = (Panel) variableList.getChild(i);
-                    panel.removeChildren();
-                    int fill = allocated ? 0x7700ff00 : (tileEntity.isVarAllocated(-1, i) ? 0x77660000 : 0x77444444);
-                    panel.setFilledBackground(fill);
-                    panel.addChild(new Label(mc, GuiProcessor.this)
-                            .setText(String.valueOf(i))
-                            .setDesiredWidth(26)
-                            .setUserObject("allowed"));
-                    panel.addChild(new Button(mc, GuiProcessor.this)
-                            .setText("...")
-                            .setUserObject("allowed"));
-                    panel.setUserObject("allowed");
-
                     sendServerCommand(RFToolsCtrlMessages.INSTANCE, ProcessorTileEntity.CMD_ALLOCATE,
                             new Argument("card", setupMode),
                             new Argument("items", itemAlloc),
                             new Argument("vars", varAlloc));
+
+                    updateVariableList();
 
                     variableList.setSelected(-1);
                 }
@@ -433,14 +425,22 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
         }
         variableList.setPropagateEventsToChildren(setupMode == -1);
 
+        int index = 0;
         for (int i = 0 ; i < tileEntity.getMaxvars() ; i++) {
             Panel panel = new Panel(mc, this).setLayout(new HorizontalLayout()).setDesiredWidth(40);
             if (setupMode != -1) {
                 boolean allocated = ((varAlloc >> i) & 1) != 0;
                 int fill = allocated ? 0x7700ff00 : (tileEntity.isVarAllocated(-1, i) ? 0x77660000 : 0x77444444);
                 panel.setFilledBackground(fill);
+                if (allocated) {
+                    panel.addChild(new Label(mc, this).setColor(0xffffffff).setText(String.valueOf(index)).setDesiredWidth(26).setUserObject("allowed"));
+                    index++;
+                } else {
+                    panel.addChild(new Label(mc, this).setText("/").setDesiredWidth(26).setUserObject("allowed"));
+                }
+            } else {
+                panel.addChild(new Label(mc, this).setText(String.valueOf(i)).setDesiredWidth(26).setUserObject("allowed"));
             }
-            panel.addChild(new Label(mc, this).setText(String.valueOf(i)).setDesiredWidth(26).setUserObject("allowed"));
             int finalI = i;
             panel.addChild(new Button(mc, this)
                     .addButtonEvent(w -> openValueEditor(finalI))
@@ -482,6 +482,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
         CardInfo cardInfo = tileEntity.getCardInfo(setupMode);
         int itemAlloc = cardInfo.getItemAllocation();
 
+        int index = 0;
         for (int i = 0 ; i < ProcessorTileEntity.ITEM_SLOTS ; i++) {
             Slot slot = inventorySlots.getSlot(ProcessorContainer.SLOT_BUFFER + i);
 
@@ -490,6 +491,10 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
             int fill = allocated ? 0x7700ff00 : (tileEntity.isItemAllocated(-1, i) ? 0x77660000 : 0x77444444);
             RenderHelper.drawFlatBox(slot.xDisplayPosition, slot.yDisplayPosition, slot.xDisplayPosition + 17, slot.yDisplayPosition + 17,
                     border, fill);
+            if (allocated) {
+                this.drawString(fontRendererObj, "" + index, slot.xDisplayPosition+4, slot.yDisplayPosition+4, 0xffffffff);
+                index++;
+            }
         }
 
         GlStateManager.popMatrix();
