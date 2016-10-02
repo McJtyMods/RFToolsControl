@@ -66,7 +66,7 @@ public class PacketSendRecipe implements IMessage {
             if (mainhand != null && mainhand.getItem() == ModItems.craftingCardItem) {
                 if (player.openContainer instanceof CraftingCardContainer) {
                     CraftingCardContainer craftingCardContainer = (CraftingCardContainer) player.openContainer;
-                    craftingCardContainer.setGridContents(message.stacks);
+                    craftingCardContainer.setGridContents(player, message.stacks);
                 }
             }
         }

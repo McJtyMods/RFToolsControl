@@ -3,6 +3,7 @@ package mcjty.rftoolscontrol.network;
 import io.netty.buffer.ByteBuf;
 import mcjty.lib.network.NetworkTools;
 import mcjty.rftoolscontrol.items.ProgramCardItem;
+import mcjty.rftoolscontrol.items.craftingcard.CraftingCardItem;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -49,6 +50,8 @@ public class PacketItemNBTToServer implements IMessage {
                 return;
             }
             if (heldItem.getItem() instanceof ProgramCardItem) {
+                heldItem.setTagCompound(message.tagCompound);
+            } else if (heldItem.getItem() instanceof CraftingCardItem) {
                 heldItem.setTagCompound(message.tagCompound);
             }
         }

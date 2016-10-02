@@ -25,6 +25,38 @@ public class CraftingCardItem extends GenericRFToolsItem {
         super("crafting_card");
     }
 
+    public static ItemStack[] getStacksFromItem(ItemStack craftingCard) {
+        NBTTagCompound tagCompound = craftingCard.getTagCompound();
+        if (tagCompound == null) {
+            tagCompound = new NBTTagCompound();
+            craftingCard.setTagCompound(tagCompound);
+        }
+        ItemStack[] stacks = new ItemStack[CraftingCardContainer.INPUT_SLOTS+1];
+        NBTTagList bufferTagList = tagCompound.getTagList("Items", Constants.NBT.TAG_COMPOUND);
+        for (int i = 0 ; i < bufferTagList.tagCount() ; i++) {
+            NBTTagCompound nbtTagCompound = bufferTagList.getCompoundTagAt(i);
+            stacks[i] = ItemStack.loadItemStackFromNBT(nbtTagCompound);
+        }
+        return stacks;
+    }
+
+    public static void putStacksInItem(ItemStack craftingCard, ItemStack[] stacks) {
+        NBTTagCompound tagCompound = craftingCard.getTagCompound();
+        if (tagCompound == null) {
+            tagCompound = new NBTTagCompound();
+            craftingCard.setTagCompound(tagCompound);
+        }
+        NBTTagList bufferTagList = new NBTTagList();
+        for (ItemStack stack : stacks) {
+            NBTTagCompound nbtTagCompound = new NBTTagCompound();
+            if (stack != null) {
+                stack.writeToNBT(nbtTagCompound);
+            }
+            bufferTagList.appendTag(nbtTagCompound);
+        }
+        tagCompound.setTag("Items", bufferTagList);
+    }
+
     @SideOnly(Side.CLIENT)
     @Override
     public void addInformation(ItemStack stack, EntityPlayer playerIn, List<String> list, boolean advanced) {
