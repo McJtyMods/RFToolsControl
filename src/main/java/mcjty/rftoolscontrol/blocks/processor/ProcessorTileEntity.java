@@ -960,6 +960,10 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         }
         gfxOps.clear();
         orderedOps.clear();
+        for (CpuCore core : cpuCores) {
+            core.setDebug(false);
+        }
+
         markDirty();
     }
 
