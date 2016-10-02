@@ -23,7 +23,7 @@ public class CraftingCardContainer extends GenericContainer {
 	public static final ContainerFactory factory = new ContainerFactory() {
         @Override
         protected void setup() {
-            layoutPlayerInventorySlots(10, 106);
+            layoutPlayerInventorySlots(10, 116);
         }
     };
 

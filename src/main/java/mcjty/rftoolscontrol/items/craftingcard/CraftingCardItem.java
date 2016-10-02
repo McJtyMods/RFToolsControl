@@ -3,7 +3,10 @@ package mcjty.rftoolscontrol.items.craftingcard;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.items.GenericRFToolsItem;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.Container;
+import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.ActionResult;
@@ -19,10 +22,34 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static mcjty.rftoolscontrol.items.craftingcard.CraftingCardContainer.GRID_WIDTH;
+import static mcjty.rftoolscontrol.items.craftingcard.CraftingCardContainer.INPUT_SLOTS;
+
 public class CraftingCardItem extends GenericRFToolsItem {
 
     public CraftingCardItem() {
         super("crafting_card");
+    }
+
+    public static void testRecipe(World world, ItemStack craftingCard) {
+        ItemStack[] stacks = getStacksFromItem(craftingCard);
+
+        InventoryCrafting workInventory = new InventoryCrafting(new Container() {
+            @Override
+            public boolean canInteractWith(EntityPlayer var1) {
+                return false;
+            }
+        }, 3, 3);
+        for (int y = 0 ; y < 3 ; y++) {
+            for (int x = 0 ; x < 3 ; x++) {
+                int idx = y*3+x;
+                int idxCard = y*GRID_WIDTH + x;
+                workInventory.setInventorySlotContents(idx, stacks[idxCard]);
+            }
+        }
+        ItemStack stack = CraftingManager.getInstance().findMatchingRecipe(workInventory, world);
+        stacks[INPUT_SLOTS] = stack;
+        putStacksInItem(craftingCard, stacks);
     }
 
     public static ItemStack[] getStacksFromItem(ItemStack craftingCard) {

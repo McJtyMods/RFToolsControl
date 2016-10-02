@@ -6,6 +6,7 @@ Table of Contents:
 {l:processor}Processor
 {l:networking}Networking
 {l:craftingstation}Crafting Station
+{n:craftingcard}Crafting Card
 {l:workbench}Workbench
 {l:items}Moving Items
 {l:sharing}Sharing Programs
@@ -171,6 +172,25 @@ use the crafting station as a way to trigger various actions to
 happen. For example, you can have a 'craft redstone' event that
 actually just turns on processing of various items and then a
 'craft coal' event to turn it off again. It is up to you.
+{-------------------------------------------------------------}
+{b}Crafting Card
+{n:craftingcard}
+{ri:crafting_card}
+A crafting card is a special item that can hold a recipe. It is often
+used for the classical recipes (3x3 grid to single output) and it has
+JEI integration so that you can easily put a recipe in it. But it is
+not limited to that. In fact, if you open the GUI of the crafting card
+you'll see that there are more then 3x3 possible input slots. You can
+describe much more complex recipes then the typical 3x3 recipe.
+{-------------------------------------------------------------}
+Note also that the output slot does not have to actually correspond with
+the actual output. Let's demonstrate with an example how this can be
+useful. Say you want a recipe to craft EnderIO facade blocks. These
+require a normal recipe and then the result of that has to be smelted.
+So you could have a crafting card with as input the 3x3 slots needed
+for the intermediate result and as output the final result from the
+smelter. Of course this kind of crafting card will require support from
+a program that can do this kind of multi-step crafting.
 {-------------------------------------------------------------}
 {b}Workbench
 {n:workbench}

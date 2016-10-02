@@ -19,6 +19,7 @@ public class RFToolsCtrlMessages {
         net.registerMessage(PacketSendRecipe.Handler.class, PacketSendRecipe.class, PacketHandler.nextID(), Side.SERVER);
         net.registerMessage(PacketItemNBTToServer.Handler.class, PacketItemNBTToServer.class, PacketHandler.nextID(), Side.SERVER);
         net.registerMessage(PacketVariableToServer.Handler.class, PacketVariableToServer.class, PacketHandler.nextID(), Side.SERVER);
+        net.registerMessage(PacketTestRecipe.Handler.class, PacketTestRecipe.class, PacketHandler.nextID(), Side.SERVER);
 
         // Client side
         net.registerMessage(PacketLogReady.Handler.class, PacketLogReady.class, PacketHandler.nextID(), Side.CLIENT);
