@@ -850,12 +850,20 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     private void runOrQueueEvent(int cardIndex, CompiledEvent event, @Nullable String ticket, @Nullable Parameter parameter) {
         if (event.isSingle() && runningEvents.contains(Pair.of(cardIndex, event.getIndex()))) {
             // Already running and single
+            if (eventQueue.size() >= GeneralConfiguration.maxEventQueueSize) {
+                // Too many events
+                throw new ProgException(ExceptionType.EXCEPT_TOOMANYEVENTS);
+            }
             eventQueue.add(new QueuedEvent(cardIndex, event, ticket, parameter));
             return;
         }
         CpuCore core = findAvailableCore(cardIndex);
         if (core == null) {
             // No available core
+            if (eventQueue.size() >= GeneralConfiguration.maxEventQueueSize) {
+                // Too many events
+                throw new ProgException(ExceptionType.EXCEPT_TOOMANYEVENTS);
+            }
             eventQueue.add(new QueuedEvent(cardIndex, event, ticket, parameter));
         } else {
             RunningProgram program = new RunningProgram(cardIndex);

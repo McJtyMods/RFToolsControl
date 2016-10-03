@@ -22,6 +22,7 @@ public class GeneralConfiguration {
     public static int tooltipVerbosityLevel = 2;
 
     public static int maxGraphicsOpcodes = 30;
+    public static int maxEventQueueSize = 100;
 
     public static void init(Configuration cfg) {
         processorMaxenergy = cfg.get(CATEGORY_GENERAL, "processorMaxRF", processorMaxenergy,
@@ -32,6 +33,8 @@ public class GeneralConfiguration {
                 "Maximum number of lines to keep in the log").getInt();
         maxGraphicsOpcodes = cfg.get(CATEGORY_GENERAL, "maxGraphicsOpcodes", maxGraphicsOpcodes,
                 "Maximum amount of graphics opcodes that a graphics card supports").getInt();
+        maxEventQueueSize = cfg.get(CATEGORY_GENERAL, "maxEventQueueSize", maxEventQueueSize,
+                "Maximum amount of event queue entries supported by a processor. More events will be ignored").getInt();
         doubleClickToChangeConnector = cfg.get(CATEGORY_GENERAL, "doubleClickToChangeConnector", doubleClickToChangeConnector,
                 "If true double click is needed in programmer to change connector. If false single click is sufficient").getBoolean();
         tooltipVerbosityLevel = cfg.get(CATEGORY_GENERAL, "tooltipVerbosityLevel", tooltipVerbosityLevel,

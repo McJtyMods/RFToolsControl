@@ -29,6 +29,7 @@ public enum ExceptionType {
     EXCEPT_NEEDSADVANCEDNETWORK("needs_advanced_network", "This needs an advanced network card"),
     EXCEPT_MISSINGGRAPHICSCARD("missing_graphics_card", "Missing graphics card"),
     EXCEPT_TOOMANYGRAPHICS("too_many_graphics_opcodes", "Too many graphics opcodes"),
+    EXCEPT_TOOMANYEVENTS("too_many_events", "Too many events"),
     ;
 
     private final String code;
