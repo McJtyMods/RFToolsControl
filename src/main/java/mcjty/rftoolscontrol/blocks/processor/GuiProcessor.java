@@ -61,7 +61,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
     private static List<String> commandHistory = new ArrayList<>();
     private static int commandHistoryIndex = -1;
 
-    private static List<String> fromServer_log = new ArrayList<>();
+    public static List<String> fromServer_log = new ArrayList<>();
     public static void storeLogForClient(List<String> messages) {
         fromServer_log = new ArrayList<>(messages);
     }
