@@ -7,6 +7,7 @@ import mcjty.lib.network.Argument;
 import mcjty.lib.varia.BlockPosTools;
 import mcjty.rftoolscontrol.blocks.processor.ProcessorTileEntity;
 import mcjty.rftoolscontrol.api.parameters.Inventory;
+import mcjty.rftoolscontrol.config.GeneralConfiguration;
 import mcjty.rftoolscontrol.logic.running.ExceptionType;
 import mcjty.rftoolscontrol.logic.running.ProgException;
 import net.minecraft.entity.player.EntityPlayer;
@@ -148,6 +149,9 @@ public class CraftingStationTileEntity extends GenericTileEntity implements Defa
         int count = (amount + stack.stackSize-1) / stack.stackSize;
         CraftingRequest request = new CraftingRequest(ticket, stack, count);
 
+        if (!checkRequestAmount()) {
+            return;
+        }
         activeCraftingRequests.add(request);
         pair.getKey().fireCraftEvent(ticket, stack);
 
@@ -158,6 +162,17 @@ public class CraftingStationTileEntity extends GenericTileEntity implements Defa
         }
     }
 
+    private boolean checkRequestAmount() {
+        if (activeCraftingRequests.size() >= GeneralConfiguration.maxCraftRequests) {
+            cleanupCounter = 50;
+            cleanupStaleRequests();
+            if (activeCraftingRequests.size() >= GeneralConfiguration.maxCraftRequests) {
+                // To many requests
+                return false;
+            }
+        }
+        return true;
+    }
 
 
     public boolean isRequested(ItemStack item) {
@@ -183,6 +198,9 @@ public class CraftingStationTileEntity extends GenericTileEntity implements Defa
                 for (ItemStack i : items) {
                     if (item.isItemEqual(i)) {
                         String ticket = getNewTicket(destination);
+                        if (!checkRequestAmount()) {
+                            return false;
+                        }
                         activeCraftingRequests.add(new CraftingRequest(ticket, i, 1));
                         processor.fireCraftEvent(ticket, i);
                         return true;

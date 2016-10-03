@@ -23,6 +23,7 @@ public class GeneralConfiguration {
 
     public static int maxGraphicsOpcodes = 30;
     public static int maxEventQueueSize = 100;
+    public static int maxCraftRequests = 200;
 
     public static void init(Configuration cfg) {
         processorMaxenergy = cfg.get(CATEGORY_GENERAL, "processorMaxRF", processorMaxenergy,
@@ -35,6 +36,8 @@ public class GeneralConfiguration {
                 "Maximum amount of graphics opcodes that a graphics card supports").getInt();
         maxEventQueueSize = cfg.get(CATEGORY_GENERAL, "maxEventQueueSize", maxEventQueueSize,
                 "Maximum amount of event queue entries supported by a processor. More events will be ignored").getInt();
+        maxCraftRequests = cfg.get(CATEGORY_GENERAL, "maxCraftRequests", maxCraftRequests,
+                "Maximum amount of craft requests supported by the crafting station. More requests will be ignored").getInt();
         doubleClickToChangeConnector = cfg.get(CATEGORY_GENERAL, "doubleClickToChangeConnector", doubleClickToChangeConnector,
                 "If true double click is needed in programmer to change connector. If false single click is sufficient").getBoolean();
         tooltipVerbosityLevel = cfg.get(CATEGORY_GENERAL, "tooltipVerbosityLevel", tooltipVerbosityLevel,
