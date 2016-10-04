@@ -10,6 +10,7 @@ import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import org.lwjgl.opengl.GL11;
 
 import java.util.List;
 
@@ -39,7 +40,11 @@ public class ProcessorRenderer extends TileEntitySpecialRenderer<ProcessorTileEn
 
         GlStateManager.translate((float) x + 0.5F, (float) y + 1.75F, (float) z + 0.5F);
         GlStateManager.rotate(-f3, 0.0F, 1.0F, 0.0F);
-        GlStateManager.translate(0.0F, -0.2500F, -0.4375F);
+        if (getWorld().isAirBlock(tileEntity.getPos().up())) {
+            GlStateManager.translate(0.0F, -0.2500F, -0.4375F + .4);
+        } else {
+            GlStateManager.translate(0.0F, -0.2500F, -0.4375F + 1);
+        }
 
         RenderHelper.disableStandardItemLighting();
         Minecraft.getMinecraft().entityRenderer.disableLightmap();
@@ -49,8 +54,10 @@ public class ProcessorRenderer extends TileEntitySpecialRenderer<ProcessorTileEn
         renderText(this.getFontRenderer(), tileEntity);
         Minecraft.getMinecraft().entityRenderer.enableLightmap();
 
+//        RenderHelper.enableStandardItemLighting();
         GlStateManager.enableLighting();
         GlStateManager.enableBlend();
+        GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 
         GlStateManager.popMatrix();
     }
