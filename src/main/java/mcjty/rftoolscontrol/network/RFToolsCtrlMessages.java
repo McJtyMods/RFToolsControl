@@ -21,11 +21,13 @@ public class RFToolsCtrlMessages {
         net.registerMessage(PacketItemNBTToServer.Handler.class, PacketItemNBTToServer.class, PacketHandler.nextID(), Side.SERVER);
         net.registerMessage(PacketVariableToServer.Handler.class, PacketVariableToServer.class, PacketHandler.nextID(), Side.SERVER);
         net.registerMessage(PacketTestRecipe.Handler.class, PacketTestRecipe.class, PacketHandler.nextID(), Side.SERVER);
+        net.registerMessage(PacketGetGraphics.Handler.class, PacketGetGraphics.class, PacketHandler.nextID(), Side.SERVER);
 
         // Client side
         net.registerMessage(PacketLogReady.Handler.class, PacketLogReady.class, PacketHandler.nextID(), Side.CLIENT);
         net.registerMessage(PacketVariablesReady.Handler.class, PacketVariablesReady.class, PacketHandler.nextID(), Side.CLIENT);
         net.registerMessage(PacketCraftableItemsReady.Handler.class, PacketCraftableItemsReady.class, PacketHandler.nextID(), Side.CLIENT);
         net.registerMessage(PacketRequestsReady.Handler.class, PacketRequestsReady.class, PacketHandler.nextID(), Side.CLIENT);
+        net.registerMessage(PacketGraphicsReady.Handler.class, PacketGraphicsReady.class, PacketHandler.nextID(), Side.CLIENT);
     }
 }

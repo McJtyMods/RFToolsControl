@@ -102,7 +102,11 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     private InventoryHelper inventoryHelper = new InventoryHelper(this, ProcessorContainer.factory, ProcessorContainer.SLOTS);
     private List<CpuCore> cpuCores = new ArrayList<>();
 
-    private int showHud = 0;        // 0 == off, 1 == console, 2 == debug
+    public static final int HUD_OFF = 0;
+    public static final int HUD_LOG = 1;
+    public static final int HUD_DB = 2;
+    public static final int HUD_GFX = 3;
+    private int showHud = HUD_OFF;
 
     // If true some cards might need compiling
     private boolean cardsDirty = true;
@@ -116,6 +120,9 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
 
     private Map<String, GfxOp> gfxOps = new HashMap<>();
     private List<String> orderedOps = null;
+
+    // Client-side only: for the HUD
+    private List<GfxOp> clientGfxOps = new ArrayList<>();
 
     private boolean exclusive = false;
 
@@ -143,6 +150,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     private Queue<String> logMessages = new ArrayDeque<>();
 
     // Client side: log from server
+    public long clientTime = 0;
     private List<String> clientLog = new ArrayList<>();
     private List<String> clientDebugLog = new ArrayList<>();
 
@@ -1464,6 +1472,17 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             sortOps();
         }
         return orderedOps;
+    }
+
+    public void setClientOrderedGfx(Map<String, GfxOp> gfxOps, List<String> orderedOps) {
+        clientGfxOps.clear();
+        for (String key : orderedOps) {
+            clientGfxOps.add(gfxOps.get(key));
+        }
+    }
+
+    public List<GfxOp> getClientGfxOps() {
+        return clientGfxOps;
     }
 
     public int getMaxvars() {

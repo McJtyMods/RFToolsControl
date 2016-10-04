@@ -41,6 +41,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static mcjty.rftoolscontrol.blocks.processor.ProcessorTileEntity.*;
+
 public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
     public static final int SIDEWIDTH = 80;
     public static final int WIDTH = 256;
@@ -105,20 +107,28 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
 
         hudMode = new ChoiceLabel(mc, this)
                 .setLayoutHint(new PositionalLayout.PositionalHint(122+40+1, 16, 28, 15))
-                .addChoices("Off", "Log", "Db")
+                .addChoices("Off", "Log", "Db", "Gfx")
                 .setChoiceTooltip("Off", "No overhead log")
                 .setChoiceTooltip("Log", "Show the normal log")
-                .setChoiceTooltip("Db", "Show a debug display");
-        hudMode.setChoice(tileEntity.getShowHud() == 0 ? "Off" : tileEntity.getShowHud() == 1 ? "Log" : "Db");
+                .setChoiceTooltip("Db", "Show a debug display")
+                .setChoiceTooltip("Gfx", "Graphics display");
+        switch (tileEntity.getShowHud()) {
+            case HUD_OFF: hudMode.setChoice("Off"); break;
+            case HUD_LOG: hudMode.setChoice("Log"); break;
+            case HUD_DB: hudMode.setChoice("Db"); break;
+            case HUD_GFX: hudMode.setChoice("Gfx"); break;
+        }
         hudMode.addChoiceEvent((parent, newChoice) -> {
             String choice = hudMode.getCurrentChoice();
-            int m = 0;
+            int m = HUD_OFF;
             if ("Off".equals(choice)) {
-                m = 0;
+                m = HUD_OFF;
             } else if ("Log".equals(choice)) {
-                m = 1;
+                m = HUD_LOG;
+            } else if ("Db".equals(choice)) {
+                m = HUD_DB;
             } else {
-                m = 2;
+                m = HUD_GFX;
             }
             sendServerCommand(RFToolsCtrlMessages.INSTANCE, ProcessorTileEntity.CMD_SETHUDMODE, new Argument("v", m));
         });
