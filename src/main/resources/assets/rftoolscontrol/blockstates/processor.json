@@ -1,7 +1,7 @@
 {
   "forge_marker": 1,
   "defaults": {
-    "model": "rftoolscontrol:processor"
+    "model": "rftoolscontrol:processor_on"
   },
   "variants": {
     "normal": [{}],
@@ -13,10 +13,6 @@
       "east": {"y": 90},
       "up": {"x": -90},
       "down": {"x": 90}
-    },
-    "working": {
-      "false": {},
-      "true": { "model": "rftoolscontrol:processor_on" }
     }
   }
 }

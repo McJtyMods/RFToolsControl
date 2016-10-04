@@ -48,8 +48,6 @@ import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagString;
-import net.minecraft.network.NetworkManager;
-import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
@@ -102,7 +100,6 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     public static final String CLIENTCMD_GETVARS = "getVars";
 
     private InventoryHelper inventoryHelper = new InventoryHelper(this, ProcessorContainer.factory, ProcessorContainer.SLOTS);
-    private boolean working = false;
     private List<CpuCore> cpuCores = new ArrayList<>();
 
     private int showHud = 0;        // 0 == off, 1 == console, 2 == debug
@@ -241,16 +238,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     @Override
     public void update() {
         if (!worldObj.isRemote) {
-            boolean old = working;
-            working = true; // @todo
-            if (working != old) {
-                markDirtyClient();
-            }
-
-            if (working) {
-                process();
-            }
-
+            process();
             prevIn = powerLevel;
         }
     }
@@ -763,7 +751,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             CompiledOpcode compiledOpcode = compiledCard.getOpcodes().get(index);
             int ticks = evaluateIntParameter(compiledOpcode, null, 0);
             if (ticks > 0 && tickCount % ticks == 0) {
-                runOrDropEvent(i, event, null);
+                runOrDropEvent(i, event, null, null);
             }
         }
     }
@@ -839,43 +827,25 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         runningEvents.remove(Pair.of(cardIndex, eventIndex));
     }
 
-    private void runOrDropEvent(int cardIndex, CompiledEvent event, @Nullable String ticket) {
+    private void runOrDropEvent(int cardIndex, CompiledEvent event, @Nullable String ticket, @Nullable Parameter parameter) {
         if (event.isSingle() && runningEvents.contains(Pair.of(cardIndex, event.getIndex()))) {
             // Already running and single
             return;
         }
         CpuCore core = findAvailableCore(cardIndex);
         if (core == null) {
-            // No available core. We drop this event
-        } else {
-            RunningProgram program = new RunningProgram(cardIndex);
-            program.startFromEvent(event);
-            program.setCraftTicket(ticket);
-            core.startProgram(program);
-            if (event.isSingle()) {
-                runningEvents.add(Pair.of(cardIndex, event.getIndex()));
+            // No available core. First we check if this exact event is already
+            // in the queue. If so we drop it. Otherwise we add it
+            for (QueuedEvent q : eventQueue) {
+                if (q.getCardIndex() == cardIndex) {
+                    if (q.getCompiledEvent().equals(event)) {
+                        // This event is already in the queue. Just drop it
+                        return;
+                    }
+                }
             }
-        }
-    }
-
-    private void runOrQueueEvent(int cardIndex, CompiledEvent event, @Nullable String ticket, @Nullable Parameter parameter) {
-        if (event.isSingle() && runningEvents.contains(Pair.of(cardIndex, event.getIndex()))) {
-            // Already running and single
-            if (eventQueue.size() >= GeneralConfiguration.maxEventQueueSize) {
-                // Too many events
-                throw new ProgException(ExceptionType.EXCEPT_TOOMANYEVENTS);
-            }
-            eventQueue.add(new QueuedEvent(cardIndex, event, ticket, parameter));
-            return;
-        }
-        CpuCore core = findAvailableCore(cardIndex);
-        if (core == null) {
-            // No available core
-            if (eventQueue.size() >= GeneralConfiguration.maxEventQueueSize) {
-                // Too many events
-                throw new ProgException(ExceptionType.EXCEPT_TOOMANYEVENTS);
-            }
-            eventQueue.add(new QueuedEvent(cardIndex, event, ticket, parameter));
+            // We could not find this event in the queue. Schedule it
+            queueEvent(cardIndex, event, ticket, parameter);
         } else {
             RunningProgram program = new RunningProgram(cardIndex);
             program.startFromEvent(event);
@@ -886,6 +856,36 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                 runningEvents.add(Pair.of(cardIndex, event.getIndex()));
             }
         }
+    }
+
+    private void runOrQueueEvent(int cardIndex, CompiledEvent event, @Nullable String ticket, @Nullable Parameter parameter) {
+        if (event.isSingle() && runningEvents.contains(Pair.of(cardIndex, event.getIndex()))) {
+            // Already running and single
+            queueEvent(cardIndex, event, ticket, parameter);
+            return;
+        }
+        CpuCore core = findAvailableCore(cardIndex);
+        if (core == null) {
+            // No available core
+            queueEvent(cardIndex, event, ticket, parameter);
+        } else {
+            RunningProgram program = new RunningProgram(cardIndex);
+            program.startFromEvent(event);
+            program.setCraftTicket(ticket);
+            program.setLastValue(parameter);
+            core.startProgram(program);
+            if (event.isSingle()) {
+                runningEvents.add(Pair.of(cardIndex, event.getIndex()));
+            }
+        }
+    }
+
+    private void queueEvent(int cardIndex, CompiledEvent event, @Nullable String ticket, @Nullable Parameter parameter) {
+        if (eventQueue.size() >= GeneralConfiguration.maxEventQueueSize) {
+            // Too many events
+            throw new ProgException(ExceptionType.EXCEPT_TOOMANYEVENTS);
+        }
+        eventQueue.add(new QueuedEvent(cardIndex, event, ticket, parameter));
     }
 
     @Override
@@ -1912,7 +1912,6 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
 
     @Override
     public void readClientDataFromNBT(NBTTagCompound tagCompound) {
-        working = tagCompound.getBoolean("working");
         exclusive = tagCompound.getBoolean("exclusive");
         showHud = tagCompound.getByte("hud");
         readCardInfo(tagCompound);
@@ -1920,7 +1919,6 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
 
     @Override
     public void writeClientDataToNBT(NBTTagCompound tagCompound) {
-        tagCompound.setBoolean("working", working);
         tagCompound.setBoolean("exclusive", exclusive);
         tagCompound.setByte("hud", (byte) showHud);
         writeCardInfo(tagCompound);
@@ -1948,7 +1946,6 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     @Override
     public void readRestorableFromNBT(NBTTagCompound tagCompound) {
         super.readRestorableFromNBT(tagCompound);
-        working = tagCompound.getBoolean("working");
         tickCount = tagCompound.getInteger("tickCount");
         channel = tagCompound.getString("channel");
         exclusive = tagCompound.getBoolean("exclusive");
@@ -2113,7 +2110,6 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     @Override
     public void writeRestorableToNBT(NBTTagCompound tagCompound) {
         super.writeRestorableToNBT(tagCompound);
-        tagCompound.setBoolean("working", working);
         tagCompound.setInteger("tickCount", tickCount);
         tagCompound.setString("channel", channel == null ? "" : channel);
         tagCompound.setBoolean("exclusive", exclusive);
@@ -2261,21 +2257,6 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         tagCompound.setTag("cardInfo", cardInfoList);
     }
 
-    @Override
-    public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity packet) {
-        boolean working = isWorking();
-
-        super.onDataPacket(net, packet);
-
-        if (worldObj.isRemote) {
-            // If needed send a render update.
-            boolean newWorking = isWorking();
-            if (newWorking != working) {
-                worldObj.markBlockRangeForRenderUpdate(getPos(), getPos());
-            }
-        }
-    }
-
     public boolean isVarAllocated(int cardIndex, int varIndex) {
         if (cardIndex == -1) {
             for (CardInfo info : cardInfo) {
@@ -2321,10 +2302,6 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             cardInfo[index].setCompiledCard(card);
         }
         return card;
-    }
-
-    public boolean isWorking() {
-        return working && isMachineEnabled();
     }
 
     private void allocate(int card, int itemAlloc, int varAlloc) {

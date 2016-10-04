@@ -10,19 +10,14 @@ import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.PropertyBool;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.minecraftforge.client.ForgeHooksClient;
-import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -30,8 +25,6 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import java.util.List;
 
 public class ProcessorBlock extends GenericRFToolsBlock<ProcessorTileEntity, ProcessorContainer> {
-
-    public static final PropertyBool WORKING = PropertyBool.create("working");
 
     @Override
     public boolean needsRedstoneCheck() {
@@ -140,18 +133,8 @@ public class ProcessorBlock extends GenericRFToolsBlock<ProcessorTileEntity, Pro
     }
 
     @Override
-    public IBlockState getActualState(IBlockState state, IBlockAccess world, BlockPos pos) {
-        TileEntity te = world.getTileEntity(pos);
-        boolean working = false;
-        if (te instanceof ProcessorTileEntity) {
-            working = ((ProcessorTileEntity)te).isWorking();
-        }
-        return state.withProperty(WORKING, working);
-    }
-
-    @Override
     protected BlockStateContainer createBlockState() {
-        return new BlockStateContainer(this, FACING, WORKING);
+        return new BlockStateContainer(this, FACING);
     }
 
 }
