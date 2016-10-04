@@ -2375,4 +2375,9 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         return new AxisAlignedBB(xCoord, yCoord, zCoord, xCoord + 1, yCoord + 21, zCoord + 1);
     }
 
+//    @Override
+//    public boolean shouldRenderInPass(int pass)
+//    {
+//        return pass == 0 || pass == 1;
+//    }
 }

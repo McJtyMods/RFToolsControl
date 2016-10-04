@@ -2,8 +2,10 @@ package mcjty.rftoolscontrol.blocks.processor;
 
 import mcjty.rftoolscontrol.network.PacketGetLog;
 import mcjty.rftoolscontrol.network.RFToolsCtrlMessages;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.relauncher.Side;
@@ -30,20 +32,19 @@ public class ProcessorRenderer extends TileEntitySpecialRenderer<ProcessorTileEn
             f3 = 0.0F;
         }
 
-        // TileEntity can be null if this is used for an item renderer.
         GlStateManager.translate((float) x + 0.5F, (float) y + 1.75F, (float) z + 0.5F);
         GlStateManager.rotate(-f3, 0.0F, 1.0F, 0.0F);
         GlStateManager.translate(0.0F, -0.2500F, -0.4375F);
 
-        FontRenderer fontrenderer = this.getFontRenderer();
-
-        GlStateManager.depthMask(false);
+        RenderHelper.disableStandardItemLighting();
+        Minecraft.getMinecraft().entityRenderer.disableLightmap();
+        GlStateManager.disableBlend();
         GlStateManager.disableLighting();
 
-        renderText(fontrenderer, tileEntity);
+        renderText(this.getFontRenderer(), tileEntity);
 
         GlStateManager.enableLighting();
-        GlStateManager.depthMask(true);
+        GlStateManager.enableBlend();
 
         GlStateManager.popMatrix();
     }
@@ -58,7 +59,7 @@ public class ProcessorRenderer extends TileEntitySpecialRenderer<ProcessorTileEn
         GlStateManager.translate(-0.5F, 0.5F, 0.07F);
         f3 = 0.0075F;
         GlStateManager.scale(f3 * factor, -f3 * factor, f3);
-        GL11.glNormal3f(0.0F, 0.0F, -1.0F);
+        GlStateManager.glNormal3f(0.0F, 0.0F, 1.0F);
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 
         long t = System.currentTimeMillis();
@@ -74,7 +75,7 @@ public class ProcessorRenderer extends TileEntitySpecialRenderer<ProcessorTileEn
             if (i >= logsize-11) {
                 // Check if this module has enough room
                 if (currenty + height <= 124) {
-                    fontrenderer.drawString(fontrenderer.trimStringToWidth(s, 115), 7, currenty, 0xffffffff);
+                    fontrenderer.drawString(fontrenderer.trimStringToWidth(s, 115), 7, currenty, 0xffffff);
                     currenty += height;
                 }
             }
