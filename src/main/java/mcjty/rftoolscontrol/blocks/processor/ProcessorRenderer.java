@@ -75,7 +75,7 @@ public class ProcessorRenderer extends TileEntitySpecialRenderer<ProcessorTileEn
         GlStateManager.glNormal3f(0.0F, 0.0F, 1.0F);
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 
-        List<String> log = tileEntity.getShowHud() == 2 ? GuiProcessor.fromServer_debuglog : GuiProcessor.fromServer_log;
+        List<String> log = tileEntity.getShowHud() == 2 ? tileEntity.getClientDebugLog() : tileEntity.getClientLog();
         long t = System.currentTimeMillis();
         if (t-time > 250) {
             if (tileEntity.getShowHud() == 2) {

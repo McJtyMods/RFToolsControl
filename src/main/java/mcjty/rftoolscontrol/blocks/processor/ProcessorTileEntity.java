@@ -142,6 +142,10 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
 
     private Queue<String> logMessages = new ArrayDeque<>();
 
+    // Client side: log from server
+    private List<String> clientLog = new ArrayList<>();
+    private List<String> clientDebugLog = new ArrayList<>();
+
     // Card index, Opcode index
     private Set<Pair<Integer,Integer>> runningEvents = new HashSet<>();
 
@@ -1116,6 +1120,14 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
 
     private List<String> getLog() {
         return logMessages.stream().collect(Collectors.toList());
+    }
+
+    public List<String> getClientLog() {
+        return clientLog;
+    }
+
+    public List<String> getClientDebugLog() {
+        return clientDebugLog;
     }
 
     public List<String> getLastMessages(int n) {
@@ -2431,10 +2443,10 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             return true;
         }
         if (CLIENTCMD_GETLOG.equals(command)) {
-            GuiProcessor.storeLogForClient(list);
+            clientLog = new ArrayList<>(list);
             return true;
         } else if (CLIENTCMD_GETDEBUGLOG.equals(command)) {
-            GuiProcessor.storeDebugLogForClient(list);
+            clientDebugLog = new ArrayList<>(list);
             return true;
         } else if (CLIENTCMD_GETVARS.equals(command)) {
             GuiProcessor.storeVarsForClient(list);

@@ -62,16 +62,6 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
     private static List<String> commandHistory = new ArrayList<>();
     private static int commandHistoryIndex = -1;
 
-    public static List<String> fromServer_log = new ArrayList<>();
-    public static void storeLogForClient(List<String> messages) {
-        fromServer_log = new ArrayList<>(messages);
-    }
-
-    public static List<String> fromServer_debuglog = new ArrayList<>();
-    public static void storeDebugLogForClient(List<String> messages) {
-        fromServer_debuglog = new ArrayList<>(messages);
-    }
-
     private static List<Parameter> fromServer_vars = new ArrayList<>();
     public static void storeVarsForClient(List<Parameter> messages) {
         fromServer_vars = new ArrayList<>(messages);
@@ -259,7 +249,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
     private void populateLog() {
         boolean atend = log.getFirstSelected() + log.getCountSelected() >= log.getChildCount();
         log.removeChildren();
-        for (String message : fromServer_log) {
+        for (String message : tileEntity.getClientLog()) {
             log.addChild(new Label(mc, this).setColor(0xff008800).setText(message).setHorizontalAlignment(HorizontalAlignment.ALIGH_LEFT));
         }
         if (atend) {
