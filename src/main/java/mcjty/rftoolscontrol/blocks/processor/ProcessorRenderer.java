@@ -1,5 +1,6 @@
 package mcjty.rftoolscontrol.blocks.processor;
 
+import mcjty.rftoolscontrol.network.PacketGetDebugLog;
 import mcjty.rftoolscontrol.network.PacketGetLog;
 import mcjty.rftoolscontrol.network.RFToolsCtrlMessages;
 import net.minecraft.client.Minecraft;
@@ -7,16 +8,20 @@ import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
-import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import org.lwjgl.opengl.GL11;
+
+import java.util.List;
 
 @SideOnly(Side.CLIENT)
 public class ProcessorRenderer extends TileEntitySpecialRenderer<ProcessorTileEntity> {
 
     @Override
     public void renderTileEntityAt(ProcessorTileEntity tileEntity, double x, double y, double z, float partialTicks, int destroyStage) {
+        if (tileEntity.getShowHud() == 0) {
+            return;
+        }
+
         GlStateManager.pushMatrix();
         float f3;
 
@@ -42,6 +47,7 @@ public class ProcessorRenderer extends TileEntitySpecialRenderer<ProcessorTileEn
         GlStateManager.disableLighting();
 
         renderText(this.getFontRenderer(), tileEntity);
+        Minecraft.getMinecraft().entityRenderer.enableLightmap();
 
         GlStateManager.enableLighting();
         GlStateManager.enableBlend();
@@ -62,16 +68,21 @@ public class ProcessorRenderer extends TileEntitySpecialRenderer<ProcessorTileEn
         GlStateManager.glNormal3f(0.0F, 0.0F, 1.0F);
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 
+        List<String> log = tileEntity.getShowHud() == 2 ? GuiProcessor.fromServer_debuglog : GuiProcessor.fromServer_log;
         long t = System.currentTimeMillis();
         if (t-time > 250) {
-            RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketGetLog(tileEntity.getPos()));
+            if (tileEntity.getShowHud() == 2) {
+                RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketGetDebugLog(tileEntity.getPos()));
+            } else {
+                RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketGetLog(tileEntity.getPos()));
+            }
             time = t;
         }
 
         int height = 10;
-        int logsize = GuiProcessor.fromServer_log.size();
+        int logsize = log.size();
         int i = 0;
-        for (String s : GuiProcessor.fromServer_log) {
+        for (String s : log) {
             if (i >= logsize-11) {
                 // Check if this module has enough room
                 if (currenty + height <= 124) {

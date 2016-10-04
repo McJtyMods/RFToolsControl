@@ -93,14 +93,19 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     public static final String CMD_ALLOCATE = "allocate";
     public static final String CMD_CLEARLOG = "clearLog";
     public static final String CMD_GETLOG = "getLog";
+    public static final String CMD_GETDEBUGLOG = "getDebugLog";
     public static final String CMD_SETEXCLUSIVE = "setExclusive";
+    public static final String CMD_SETHUDMODE = "setHudMode";
     public static final String CLIENTCMD_GETLOG = "getLog";
+    public static final String CLIENTCMD_GETDEBUGLOG = "getDebugLog";
     public static final String CMD_GETVARS = "getVars";
     public static final String CLIENTCMD_GETVARS = "getVars";
 
     private InventoryHelper inventoryHelper = new InventoryHelper(this, ProcessorContainer.factory, ProcessorContainer.SLOTS);
     private boolean working = false;
     private List<CpuCore> cpuCores = new ArrayList<>();
+
+    private int showHud = 0;        // 0 == off, 1 == console, 2 == debug
 
     // If true some cards might need compiling
     private boolean cardsDirty = true;
@@ -918,21 +923,26 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         }
     }
 
+    private String getStatus(int c) {
+        CpuCore core = cpuCores.get(c);
+        if (core.hasProgram()) {
+            RunningProgram program = core.getProgram();
+            if (program.getDelay() > 0) {
+                return "<delayed: " + program.getDelay() + ">";
+            } else if (program.getLock() != null) {
+                return "<locked: " + program.getLock() + ">";
+            } else {
+                return "<busy>";
+            }
+        } else {
+            return "<idle>";
+        }
+    }
+
     public void listStatus() {
         int n = 0;
         for (CpuCore core : getCpuCores()) {
-            if (core.hasProgram()) {
-                RunningProgram program = core.getProgram();
-                if (program.getDelay() > 0) {
-                    log("Core: " + n + " -> <delayed: " + program.getDelay() + ">");
-                } else if (program.getLock() != null) {
-                    log("Core: " + n + " -> <locked: " + program.getLock() + ">");
-                } else {
-                    log("Core: " + n + " -> <busy>");
-                }
-            } else {
-                log("Core: " + n + " -> <idle>");
-            }
+            log("Core: " + n + " -> " + getStatus(n));
             n++;
         }
         log("Event queue: " + eventQueue.size());
@@ -1044,6 +1054,27 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         logMessages.add(message);
         while (logMessages.size() > GeneralConfiguration.processorMaxloglines) {
             logMessages.remove();
+        }
+    }
+
+    private List<String> getDebugLog() {
+        List<String> result = new ArrayList<>();
+        for (int i = 0 ; i < Math.min(6, cpuCores.size()) ; i++) {
+            result.add(TextFormatting.BLUE + "Core " + i + " " + TextFormatting.WHITE + getStatus(i));
+        }
+
+        showWithWarn("Event queue: ", eventQueue.size(), 20, result);
+        showWithWarn("Waiting items: ", waitingForItems.size(), 20, result);
+        showWithWarn("Locks: ", locks.size(), 10, result);
+
+        return result;
+    }
+
+    private void showWithWarn(String label, int size, int max, List<String> result) {
+        if (size >= max) {
+            result.add(label + TextFormatting.RED + size);
+        } else {
+            result.add(label + TextFormatting.GREEN + size);
         }
     }
 
@@ -1834,10 +1865,20 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         return getInventoryHelper().decrStackSize(index, count);
     }
 
+    public int getShowHud() {
+        return showHud;
+    }
+
+    public void setShowHud(int showHud) {
+        this.showHud = showHud;
+        markDirtyClient();
+    }
+
     @Override
     public void readClientDataFromNBT(NBTTagCompound tagCompound) {
         working = tagCompound.getBoolean("working");
         exclusive = tagCompound.getBoolean("exclusive");
+        showHud = tagCompound.getByte("hud");
         readCardInfo(tagCompound);
     }
 
@@ -1845,6 +1886,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     public void writeClientDataToNBT(NBTTagCompound tagCompound) {
         tagCompound.setBoolean("working", working);
         tagCompound.setBoolean("exclusive", exclusive);
+        tagCompound.setByte("hud", (byte) showHud);
         writeCardInfo(tagCompound);
     }
 
@@ -1874,6 +1916,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         tickCount = tagCompound.getInteger("tickCount");
         channel = tagCompound.getString("channel");
         exclusive = tagCompound.getBoolean("exclusive");
+        showHud = tagCompound.getByte("hud");
         readBufferFromNBT(tagCompound, inventoryHelper);
 
         readCardInfo(tagCompound);
@@ -2031,6 +2074,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         tagCompound.setInteger("tickCount", tickCount);
         tagCompound.setString("channel", channel == null ? "" : channel);
         tagCompound.setBoolean("exclusive", exclusive);
+        tagCompound.setByte("hud", (byte) showHud);
         writeBufferToNBT(tagCompound, inventoryHelper);
 
         writeCardInfo(tagCompound);
@@ -2332,6 +2376,10 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             boolean v = args.get("v").getBoolean();
             setExclusive(v);
             return true;
+        } else if (CMD_SETHUDMODE.equals(command)) {
+            int v = args.get("v").getInteger();
+            setShowHud(v);
+            return true;
         }
         return false;
     }
@@ -2344,6 +2392,8 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         }
         if (CMD_GETLOG.equals(command)) {
             return getLog();
+        } else if (CMD_GETDEBUGLOG.equals(command)) {
+            return getDebugLog();
         } else if (CMD_GETVARS.equals(command)) {
             return getVariables();
         }
@@ -2358,6 +2408,9 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         }
         if (CLIENTCMD_GETLOG.equals(command)) {
             GuiProcessor.storeLogForClient(list);
+            return true;
+        } else if (CLIENTCMD_GETDEBUGLOG.equals(command)) {
+            GuiProcessor.storeDebugLogForClient(list);
             return true;
         } else if (CLIENTCMD_GETVARS.equals(command)) {
             GuiProcessor.storeVarsForClient(list);
@@ -2374,10 +2427,4 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         int zCoord = getPos().getZ();
         return new AxisAlignedBB(xCoord, yCoord, zCoord, xCoord + 1, yCoord + 21, zCoord + 1);
     }
-
-//    @Override
-//    public boolean shouldRenderInPass(int pass)
-//    {
-//        return pass == 0 || pass == 1;
-//    }
 }

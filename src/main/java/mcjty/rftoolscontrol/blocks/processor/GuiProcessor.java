@@ -57,6 +57,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
     private WidgetList variableList;
     private TextField command;
     private ToggleButton exclusive;
+    private ChoiceLabel hudMode;
 
     private static List<String> commandHistory = new ArrayList<>();
     private static int commandHistoryIndex = -1;
@@ -65,6 +66,12 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
     public static void storeLogForClient(List<String> messages) {
         fromServer_log = new ArrayList<>(messages);
     }
+
+    public static List<String> fromServer_debuglog = new ArrayList<>();
+    public static void storeDebugLogForClient(List<String> messages) {
+        fromServer_debuglog = new ArrayList<>(messages);
+    }
+
     private static List<Parameter> fromServer_vars = new ArrayList<>();
     public static void storeVarsForClient(List<Parameter> messages) {
         fromServer_vars = new ArrayList<>(messages);
@@ -94,9 +101,9 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
         toplevel.addChild(energyBar);
 
         exclusive = new ToggleButton(mc, this)
-                .setLayoutHint(new PositionalLayout.PositionalHint(122, 16, 70, 15))
+                .setLayoutHint(new PositionalLayout.PositionalHint(122, 16, 40, 15))
                 .setCheckMarker(true)
-                .setText("Exclusive")
+                .setText("Excl.")
                 .setTooltips(TextFormatting.YELLOW + "Exclusive mode", "If pressed then programs on", "card X can only run on core X");
         exclusive.setPressed(tileEntity.isExclusive());
         exclusive
@@ -105,6 +112,27 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
                     sendServerCommand(RFToolsCtrlMessages.INSTANCE, ProcessorTileEntity.CMD_SETEXCLUSIVE, new Argument("v", exclusive.isPressed()));
                 });
         toplevel.addChild(exclusive);
+
+        hudMode = new ChoiceLabel(mc, this)
+                .setLayoutHint(new PositionalLayout.PositionalHint(122+40+5, 16, 28, 15))
+                .addChoices("Off", "Log", "Db")
+                .setChoiceTooltip("Off", "No overhead log")
+                .setChoiceTooltip("Log", "Show the normal log")
+                .setChoiceTooltip("Db", "Show a debug display");
+        hudMode.setChoice(tileEntity.getShowHud() == 0 ? "Off" : tileEntity.getShowHud() == 1 ? "Log" : "Db");
+        hudMode.addChoiceEvent((parent, newChoice) -> {
+            String choice = hudMode.getCurrentChoice();
+            int m = 0;
+            if ("Off".equals(choice)) {
+                m = 0;
+            } else if ("Log".equals(choice)) {
+                m = 1;
+            } else {
+                m = 2;
+            }
+            sendServerCommand(RFToolsCtrlMessages.INSTANCE, ProcessorTileEntity.CMD_SETHUDMODE, new Argument("v", m));
+        });
+        toplevel.addChild(hudMode);
 
         setupLogWindow(toplevel);
 

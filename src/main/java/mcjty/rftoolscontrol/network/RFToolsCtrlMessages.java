@@ -13,6 +13,7 @@ public class RFToolsCtrlMessages {
 
         // Server side
         net.registerMessage(PacketGetLog.Handler.class, PacketGetLog.class, PacketHandler.nextID(), Side.SERVER);
+        net.registerMessage(PacketGetDebugLog.Handler.class, PacketGetDebugLog.class, PacketHandler.nextID(), Side.SERVER);
         net.registerMessage(PacketGetVariables.Handler.class, PacketGetVariables.class, PacketHandler.nextID(), Side.SERVER);
         net.registerMessage(PacketGetCraftableItems.Handler.class, PacketGetCraftableItems.class, PacketHandler.nextID(), Side.SERVER);
         net.registerMessage(PacketGetRequests.Handler.class, PacketGetRequests.class, PacketHandler.nextID(), Side.SERVER);
