@@ -43,7 +43,7 @@ public class ProcessorRenderer extends TileEntitySpecialRenderer<ProcessorTileEn
         if (getWorld().isAirBlock(tileEntity.getPos().up())) {
             GlStateManager.translate(0.0F, -0.2500F, -0.4375F + .4);
         } else {
-            GlStateManager.translate(0.0F, -0.2500F, -0.4375F + 1);
+            GlStateManager.translate(0.0F, -0.2500F, -0.4375F + .9);
         }
 
         RenderHelper.disableStandardItemLighting();
