@@ -122,6 +122,9 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
 
     private boolean exclusive = false;
 
+    private String lastException = null;
+    private long lastExceptionTime = 0;
+
     private String channel = "";
     private Map<String, BlockPos> networkNodes = new HashMap<>();
     private Set<BlockPos> craftingStations = new HashSet<>();
@@ -925,17 +928,18 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
 
     private String getStatus(int c) {
         CpuCore core = cpuCores.get(c);
+        String db = core.isDebug() ? "[DB] " : "";
         if (core.hasProgram()) {
             RunningProgram program = core.getProgram();
             if (program.getDelay() > 0) {
-                return "<delayed: " + program.getDelay() + ">";
+                return db + "<delayed: " + program.getDelay() + ">";
             } else if (program.getLock() != null) {
-                return "<locked: " + program.getLock() + ">";
+                return db + "<locked: " + program.getLock() + ">";
             } else {
-                return "<busy>";
+                return db + "<busy>";
             }
         } else {
-            return "<idle>";
+            return db + "<idle>";
         }
     }
 
@@ -948,6 +952,20 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         log("Event queue: " + eventQueue.size());
         log("Waiting items: " + waitingForItems.size());
         log("Locks: " + locks.size());
+
+        if (lastException != null) {
+            long dt = System.currentTimeMillis() - lastExceptionTime;
+            log("Last: " + TextFormatting.RED + lastException);
+            if (dt > 60000*60) {
+                log("(" + (dt / (60000/60)) + "hours ago)");
+            } else if (dt > 60000) {
+                log("(" + (dt/60000) + "min ago)");
+            } else if (dt > 1000) {
+                log("(" + (dt/1000) + "sec ago)");
+            } else {
+                log("(" + dt + "ms ago)");
+            }
+        }
     }
 
     public int stopPrograms() {
@@ -1009,6 +1027,8 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
 
     public void clearLog() {
         logMessages.clear();
+        lastException = null;
+        markDirty();
     }
 
     public void exception(ExceptionType exception, RunningProgram program) {
@@ -1042,6 +1062,8 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         } else {
             message = TextFormatting.RED + exception.getDescription();
         }
+        lastException = message;
+        lastExceptionTime = System.currentTimeMillis();
         log(message);
     }
 
@@ -1059,13 +1081,27 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
 
     private List<String> getDebugLog() {
         List<String> result = new ArrayList<>();
-        for (int i = 0 ; i < Math.min(6, cpuCores.size()) ; i++) {
+        for (int i = 0 ; i < Math.min(5, cpuCores.size()) ; i++) {
             result.add(TextFormatting.BLUE + "Core " + i + " " + TextFormatting.WHITE + getStatus(i));
         }
 
         showWithWarn("Event queue: ", eventQueue.size(), 20, result);
         showWithWarn("Waiting items: ", waitingForItems.size(), 20, result);
         showWithWarn("Locks: ", locks.size(), 10, result);
+
+        if (lastException != null) {
+            long dt = System.currentTimeMillis() - lastExceptionTime;
+            result.add(TextFormatting.RED + lastException);
+            if (dt > 60000*60) {
+                result.add("(" + (dt / (60000/60)) + "hours ago)");
+            } else if (dt > 60000) {
+                result.add("(" + (dt/60000) + "min ago)");
+            } else if (dt > 1000) {
+                result.add("(" + (dt/1000) + "sec ago)");
+            } else {
+                result.add("(" + dt + "ms ago)");
+            }
+        }
 
         return result;
     }
@@ -1917,6 +1953,13 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         channel = tagCompound.getString("channel");
         exclusive = tagCompound.getBoolean("exclusive");
         showHud = tagCompound.getByte("hud");
+        if (tagCompound.hasKey("lastExc")) {
+            lastException = tagCompound.getString("lastExc");
+            lastExceptionTime = tagCompound.getLong("lastExcT");
+        } else {
+            lastException = null;
+            lastExceptionTime = 0;
+        }
         readBufferFromNBT(tagCompound, inventoryHelper);
 
         readCardInfo(tagCompound);
@@ -2075,6 +2118,10 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         tagCompound.setString("channel", channel == null ? "" : channel);
         tagCompound.setBoolean("exclusive", exclusive);
         tagCompound.setByte("hud", (byte) showHud);
+        if (lastException != null) {
+            tagCompound.setString("lastExc", lastException);
+            tagCompound.setLong("lastExcT", lastExceptionTime);
+        }
         writeBufferToNBT(tagCompound, inventoryHelper);
 
         writeCardInfo(tagCompound);

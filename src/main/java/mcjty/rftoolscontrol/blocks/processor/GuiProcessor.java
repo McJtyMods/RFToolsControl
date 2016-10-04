@@ -114,7 +114,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
         toplevel.addChild(exclusive);
 
         hudMode = new ChoiceLabel(mc, this)
-                .setLayoutHint(new PositionalLayout.PositionalHint(122+40+5, 16, 28, 15))
+                .setLayoutHint(new PositionalLayout.PositionalHint(122+40+1, 16, 28, 15))
                 .addChoices("Off", "Log", "Db")
                 .setChoiceTooltip("Off", "No overhead log")
                 .setChoiceTooltip("Log", "Show the normal log")
