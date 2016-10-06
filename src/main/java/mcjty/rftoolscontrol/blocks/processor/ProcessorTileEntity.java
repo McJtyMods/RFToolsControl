@@ -366,7 +366,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     }
 
     public int pushItemsMulti(IProgram program, Inventory inv, int slot1, int slot2, @Nullable Integer extSlot) {
-        IItemHandler handler = getItemHandlerAt(inv);
+        IItemHandler handler = getHandlerForInv(inv);
         IStorageScanner scanner = getScannerForInv(inv);
 
         CardInfo info = this.cardInfo[((RunningProgram)program).getCardIndex()];
