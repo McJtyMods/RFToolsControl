@@ -12,10 +12,7 @@ import mcjty.rftoolscontrol.api.code.ICompiledOpcode;
 import mcjty.rftoolscontrol.api.code.IOpcodeRunnable;
 import mcjty.rftoolscontrol.api.machines.IProcessor;
 import mcjty.rftoolscontrol.api.machines.IProgram;
-import mcjty.rftoolscontrol.api.parameters.BlockSide;
-import mcjty.rftoolscontrol.api.parameters.Inventory;
-import mcjty.rftoolscontrol.api.parameters.Parameter;
-import mcjty.rftoolscontrol.api.parameters.ParameterValue;
+import mcjty.rftoolscontrol.api.parameters.*;
 import mcjty.rftoolscontrol.blocks.craftingstation.CraftingStationTileEntity;
 import mcjty.rftoolscontrol.blocks.node.NodeTileEntity;
 import mcjty.rftoolscontrol.blocks.vectorart.GfxOp;
@@ -1539,15 +1536,98 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         ((RunningProgram)program).popLoopStack(this);
     }
 
-    public IOpcodeRunnable.OpcodeResult handleLoop(IProgram program, int varIdx, int end) {
-        CardInfo info = this.cardInfo[((RunningProgram)program).getCardIndex()];
-        int realVar = info.getRealVar(varIdx);
+    public boolean testGreater(IProgram program, int var) {
+        CardInfo info = this.cardInfo[((RunningProgram) program).getCardIndex()];
+        int realVar = getRealVarSafe(var, info);
+
+        Parameter lastValue = program.getLastValue();
+        Parameter varValue = variables[realVar];
+
+        if (lastValue == null) {
+            return varValue == null;
+        }
+        if (varValue == null) {
+            return false;
+        }
+        if (lastValue.getParameterType() != varValue.getParameterType()) {
+            return false;
+        }
+        Object v1 = lastValue.getParameterValue().getValue();
+        Object v2 = varValue.getParameterValue().getValue();
+        if (v1 == null) {
+            return v2 == null;
+        }
+        if (v2 == null) {
+            return false;
+        }
+
+        switch (varValue.getParameterType()) {
+            case PAR_STRING:
+                return ((String)v1).compareTo((String)v2) > 0;
+            case PAR_INTEGER:
+                return ((Integer)v1) > (Integer)v2;
+            case PAR_FLOAT:
+                return ((Float)v1) > (Float)v2;
+            case PAR_SIDE:
+                return false;
+            case PAR_BOOLEAN:
+                return ((Boolean)v1) && !(Boolean)v2;
+            case PAR_INVENTORY:
+                return false;
+            case PAR_ITEM:
+                return ((ItemStack) v1).stackSize > ((ItemStack) v2).stackSize;
+            case PAR_EXCEPTION:
+                return false;
+        }
+        return false;
+    }
+
+    public boolean testEquality(IProgram program, int var) {
+        CardInfo info = this.cardInfo[((RunningProgram) program).getCardIndex()];
+        int realVar = getRealVarSafe(var, info);
+
+        Parameter lastValue = program.getLastValue();
+        Parameter varValue = variables[realVar];
+
+        if (lastValue == null) {
+            return varValue == null;
+        }
+        if (varValue == null) {
+            return false;
+        }
+        if (lastValue.getParameterType() != varValue.getParameterType()) {
+            return false;
+        }
+        Object v1 = lastValue.getParameterValue().getValue();
+        Object v2 = varValue.getParameterValue().getValue();
+        if (v1 == null) {
+            return v2 == null;
+        }
+        if (v2 == null) {
+            return false;
+        }
+
+        if (varValue.getParameterType() == ParameterType.PAR_ITEM) {
+            return ((ItemStack) v1).isItemEqual((ItemStack) v2);
+        } else {
+            return v1.equals(v2);
+        }
+    }
+
+    private int getRealVarSafe(int var, CardInfo info) {
+        int realVar = info.getRealVar(var);
         if (realVar == -1) {
             throw new ProgException(EXCEPT_MISSINGVARIABLE);
         }
         if (realVar >= getMaxvars()) {
             throw new ProgException(EXCEPT_NOTENOUGHVARIABLES);
         }
+        return realVar;
+    }
+
+    public IOpcodeRunnable.OpcodeResult handleLoop(IProgram program, int varIdx, int end) {
+        CardInfo info = this.cardInfo[((RunningProgram)program).getCardIndex()];
+        int realVar = getRealVarSafe(varIdx, info);
 
         int i = TypeConverters.convertToInt(getVariableArray()[realVar].getParameterValue().getValue());
         if (i > end) {
@@ -1599,13 +1679,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     @Override
     public void setVariable(IProgram program, int var) {
         CardInfo info = this.cardInfo[((RunningProgram)program).getCardIndex()];
-        int realVar = info.getRealVar(var);
-        if (realVar == -1) {
-            throw new ProgException(EXCEPT_MISSINGVARIABLE);
-        }
-        if (realVar >= getMaxvars()) {
-            throw new ProgException(EXCEPT_NOTENOUGHVARIABLES);
-        }
+        int realVar = getRealVarSafe(var, info);
         variables[realVar] = program.getLastValue();
     }
 
@@ -1635,13 +1709,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             return (T) v.getValue();
         } else {
             CardInfo info = this.cardInfo[((RunningProgram)program).getCardIndex()];
-            int realVar = info.getRealVar(value.getVariableIndex());
-            if (realVar == -1) {
-                throw new ProgException(EXCEPT_MISSINGVARIABLE);
-            }
-            if (realVar >= getMaxvars()) {
-                throw new ProgException(EXCEPT_NOTENOUGHVARIABLES);
-            }
+            int realVar = getRealVarSafe(value.getVariableIndex(), info);
             // @todo  What if the variable does not return a constant? Do we support that?
             Parameter par = variables[realVar];
             if (par == null) {

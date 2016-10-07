@@ -247,6 +247,36 @@ public class Opcodes {
             }))
             .build();
 
+    public static final Opcode TEST_GT_VAR = Opcode.builder()
+            .id("test_gt_var")
+            .description(
+                    TextFormatting.GREEN + "Test: greater than var",
+                    "check if the last result is greater",
+                    "then a value in a variable")
+            .opcodeOutput(YESNO)
+            .parameter(ParameterDescription.builder().name("var").type(PAR_INTEGER).description("variable index").build())
+            .icon(10, 5)
+            .runnable(((processor, program, opcode) -> {
+                int var = processor.evaluateIntParameter(opcode, program, 0);
+                return ((ProcessorTileEntity) processor).testGreater(program, var) ? POSITIVE : NEGATIVE;
+            }))
+            .build();
+
+    public static final Opcode TEST_EQ_VAR = Opcode.builder()
+            .id("test_eq_var")
+            .description(
+                    TextFormatting.GREEN + "Test: equality with var",
+                    "check if the last result is equal",
+                    "to a value in a variable")
+            .opcodeOutput(YESNO)
+            .parameter(ParameterDescription.builder().name("var").type(PAR_INTEGER).description("variable index").build())
+            .icon(11, 5)
+            .runnable(((processor, program, opcode) -> {
+                int var = processor.evaluateIntParameter(opcode, program, 0);
+                return ((ProcessorTileEntity) processor).testEquality(program, var) ? POSITIVE : NEGATIVE;
+            }))
+            .build();
+
     public static final Opcode DO_FETCHITEMS = Opcode.builder()
             .id("do_fetchitems")
             .description(
@@ -1216,7 +1246,9 @@ public class Opcodes {
         register(EVAL_GETTOKEN);
         register(EVAL_LOCK);
         register(TEST_GT);
+        register(TEST_GT_VAR);
         register(TEST_EQ);
+        register(TEST_EQ_VAR);
         register(TEST_SET);
         register(TEST_LOOP);
         register(TEST_NBT_EQ);

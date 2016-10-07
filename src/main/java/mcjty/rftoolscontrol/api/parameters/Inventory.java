@@ -32,6 +32,7 @@ public class Inventory extends BlockSide {
                 "-".equals(splitted[2]) ? null : EnumFacing.byName(splitted[2]));
     }
 
+    @Override
     @Nonnull
     public EnumFacing getSide() {
         return super.getSide();
@@ -42,6 +43,7 @@ public class Inventory extends BlockSide {
         return intSide;
     }
 
+    @Override
     public String getStringRepresentation() {
         String s = StringUtils.left(getSide().getName().toUpperCase(), 1);
         if (getIntSide() == null) {
@@ -57,4 +59,23 @@ public class Inventory extends BlockSide {
         }
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+
+        Inventory inventory = (Inventory) o;
+
+        if (intSide != inventory.intSide) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + (intSide != null ? intSide.hashCode() : 0);
+        return result;
+    }
 }
