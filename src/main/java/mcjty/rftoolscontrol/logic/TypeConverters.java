@@ -49,6 +49,8 @@ public class TypeConverters {
             return true;
         } else if (value instanceof BlockSide) {
             return true;
+        } else if (value instanceof ItemStack) {
+            return true;
         } else {
             return false;
         }
