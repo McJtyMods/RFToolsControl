@@ -1041,17 +1041,20 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     }
 
     public void exception(ExceptionType exception, RunningProgram program) {
-        for (int i = 0 ; i < cardInfo.length ; i++) {
-            CardInfo info = cardInfo[i];
-            CompiledCard compiledCard = info.getCompiledCard();
-            if (compiledCard != null) {
-                for (CompiledEvent event : compiledCard.getEvents(Opcodes.EVENT_EXCEPTION)) {
-                    int index = event.getIndex();
-                    CompiledOpcode compiledOpcode = compiledCard.getOpcodes().get(index);
-                    String code = evaluateStringParameter(compiledOpcode, null, 0);
-                    if (exception.getCode().equals(code)) {
-                        runOrQueueEvent(i, event, program.getCraftTicket(), null);
-                        return;
+        // For too many events exception we don't want to queue another event for obvious reasons
+        if (exception != EXCEPT_TOOMANYEVENTS) {
+            for (int i = 0; i < cardInfo.length; i++) {
+                CardInfo info = cardInfo[i];
+                CompiledCard compiledCard = info.getCompiledCard();
+                if (compiledCard != null) {
+                    for (CompiledEvent event : compiledCard.getEvents(Opcodes.EVENT_EXCEPTION)) {
+                        int index = event.getIndex();
+                        CompiledOpcode compiledOpcode = compiledCard.getOpcodes().get(index);
+                        String code = evaluateStringParameter(compiledOpcode, null, 0);
+                        if (exception.getCode().equals(code)) {
+                            runOrQueueEvent(i, event, program.getCraftTicket(), null);
+                            return;
+                        }
                     }
                 }
             }
