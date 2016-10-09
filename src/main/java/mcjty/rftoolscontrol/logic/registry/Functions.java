@@ -126,10 +126,13 @@ public class Functions {
                 return ParameterValue.constant(((Integer) v) != 0);
             case PAR_FLOAT:
                 return ParameterValue.constant(((Float) v) != 0);
-            case PAR_SIDE:
-                return ParameterValue.constant(false);
             case PAR_BOOLEAN:
                 return value.getParameterValue();
+            case PAR_SIDE:
+            case PAR_INVENTORY:
+            case PAR_ITEM:
+            case PAR_EXCEPTION:
+                return ParameterValue.constant(true);
         }
         return ParameterValue.constant(false);
     }
