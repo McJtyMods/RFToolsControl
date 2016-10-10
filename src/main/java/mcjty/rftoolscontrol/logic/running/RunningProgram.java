@@ -181,7 +181,7 @@ public class RunningProgram implements IProgram {
         } catch (ProgException e) {
             throw e;
         } catch (Exception e) {
-            LogManager.getLogger().log(Level.WARN, "Opcode failed with: ", e);
+            LogManager.getLogger().log(Level.DEBUG, "Opcode failed with: ", e);
             throw new ProgException(ExceptionType.EXCEPT_INTERNALERROR);
         }
         return true;
