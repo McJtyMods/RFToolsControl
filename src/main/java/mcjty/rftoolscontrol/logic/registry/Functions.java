@@ -73,6 +73,15 @@ public class Functions {
                 return convertToSide(program.getLastValue());
             })
             .build();
+    public static final Function LASTTUPLE = Function.builder()
+            .id("last_tuple")
+            .name("last")
+            .description("The last opcode result as a tuple", "Can also convert a string with format", "'x,y' to a tuple")
+            .type(PAR_TUPLE)
+            .runnable((processor, program) -> {
+                return convertToTuple(program.getLastValue());
+            })
+            .build();
     public static final Function TICKET = Function.builder()
             .id("ticket")
             .name("ticket")
@@ -382,6 +391,7 @@ public class Functions {
         register(LASTITEM);
         register(LASTINV);
         register(LASTSIDE);
+        register(LASTTUPLE);
         register(TICKET);
         register(CRAFTRESULT);
         register(RANDOMINT);
