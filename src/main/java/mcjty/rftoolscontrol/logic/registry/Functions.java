@@ -8,6 +8,7 @@ import mcjty.rftoolscontrol.logic.running.ProgException;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Nonnull;
 import java.util.*;
@@ -98,6 +99,26 @@ public class Functions {
             .runnable((processor, program) -> {
                 ParameterValue v = convertToInt(program.getLastValue());
                 return ParameterValue.constant(random.nextInt((Integer) v.getValue()));
+            })
+            .build();
+    public static final Function TUPLE_X = Function.builder()
+            .id("tuple_x")
+            .name("tuple_x")
+            .description("Get the X component out tuple")
+            .type(PAR_INTEGER)
+            .runnable((processor, program) -> {
+                ParameterValue v = convertToTuple(program.getLastValue());
+                return ParameterValue.constant(((Tuple)v.getValue()).getX());
+            })
+            .build();
+    public static final Function TUPLE_Y = Function.builder()
+            .id("tuple_y")
+            .name("tuple_y")
+            .description("Get the Y component out tuple")
+            .type(PAR_INTEGER)
+            .runnable((processor, program) -> {
+                ParameterValue v = convertToTuple(program.getLastValue());
+                return ParameterValue.constant(((Tuple)v.getValue()).getY());
             })
             .build();
     public static final Function RANDOMFLOAT = Function.builder()
@@ -256,6 +277,13 @@ public class Functions {
                 Object v = value.getParameterValue().getValue();
                 return ParameterValue.constant(InventoryTools.inventoryFromString(v.toString()));
             }
+            case PAR_INTEGER:
+            case PAR_FLOAT:
+            case PAR_BOOLEAN:
+            case PAR_ITEM:
+            case PAR_EXCEPTION:
+            case PAR_TUPLE:
+                break;
         }
         return ParameterValue.constant(null);
     }
@@ -278,6 +306,43 @@ public class Functions {
                 Object v = value.getParameterValue().getValue();
                 return ParameterValue.constant(InventoryTools.blockSideFromString(v.toString()));
             }
+            case PAR_INTEGER:
+            case PAR_FLOAT:
+            case PAR_BOOLEAN:
+            case PAR_ITEM:
+            case PAR_EXCEPTION:
+            case PAR_TUPLE:
+                break;
+        }
+        return ParameterValue.constant(null);
+    }
+
+    private static ParameterValue convertToTuple(Parameter value) {
+        if (value == null) {
+            return ParameterValue.constant(null);
+        }
+        if (!value.isSet()) {
+            return ParameterValue.constant(null);
+        }
+        switch (value.getParameterType()) {
+            case PAR_TUPLE:
+                return value.getParameterValue();
+            case PAR_STRING: {
+                Object v = value.getParameterValue().getValue();
+                String s = (String) v;
+                String[] split = StringUtils.split(s, ',');
+                int x = Integer.parseInt(split[0]);
+                int y = Integer.parseInt(split[1]);
+                return ParameterValue.constant(new Tuple(x, y));
+            }
+            case PAR_INTEGER:
+            case PAR_FLOAT:
+            case PAR_BOOLEAN:
+            case PAR_INVENTORY:
+            case PAR_ITEM:
+            case PAR_EXCEPTION:
+            case PAR_SIDE:
+                break;
         }
         return ParameterValue.constant(null);
     }
@@ -295,6 +360,14 @@ public class Functions {
                 return ParameterValue.constant(new ItemStack(ForgeRegistries.ITEMS.getValue(new ResourceLocation((String) v)), 1, 0));
             case PAR_ITEM:
                 return value.getParameterValue();
+            case PAR_INTEGER:
+            case PAR_FLOAT:
+            case PAR_SIDE:
+            case PAR_BOOLEAN:
+            case PAR_INVENTORY:
+            case PAR_EXCEPTION:
+            case PAR_TUPLE:
+                break;
         }
         return ParameterValue.constant(null);
     }
@@ -313,6 +386,8 @@ public class Functions {
         register(CRAFTRESULT);
         register(RANDOMINT);
         register(RANDOMFLOAT);
+        register(TUPLE_X);
+        register(TUPLE_Y);
     }
 
     public static void register(Function function) {
