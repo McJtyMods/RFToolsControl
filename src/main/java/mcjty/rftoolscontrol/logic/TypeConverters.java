@@ -2,11 +2,13 @@ package mcjty.rftoolscontrol.logic;
 
 import mcjty.rftoolscontrol.api.parameters.BlockSide;
 import mcjty.rftoolscontrol.api.parameters.Inventory;
+import mcjty.rftoolscontrol.api.parameters.Tuple;
 import mcjty.rftoolscontrol.logic.running.ExceptionType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
+import org.apache.commons.lang3.StringUtils;
 
 public class TypeConverters {
 
@@ -27,6 +29,8 @@ public class TypeConverters {
             return ((Boolean) value) ? "true" : "false";
         } else if (value instanceof ItemStack) {
             return ((ItemStack) value).getItem().getRegistryName().toString();
+        } else if (value instanceof Tuple) {
+            return value.toString();
         } else if (value instanceof ExceptionType) {
             return ((ExceptionType) value).getCode();
         } else {
@@ -82,6 +86,20 @@ public class TypeConverters {
             return (ItemStack) value;
         } else if (value instanceof String) {
             return new ItemStack(ForgeRegistries.ITEMS.getValue(new ResourceLocation((String) value)), 1, 0);
+        } else {
+            return null;
+        }
+    }
+
+    public static Tuple convertToTuple(Object value) {
+        if (value instanceof Tuple) {
+            return (Tuple) value;
+        } else if (value instanceof String) {
+            String s = (String) value;
+            String[] split = StringUtils.split(s, ',');
+            int x = Integer.parseInt(split[0]);
+            int y = Integer.parseInt(split[1]);
+            return new Tuple(x, y);
         } else {
             return null;
         }

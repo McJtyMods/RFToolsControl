@@ -11,7 +11,8 @@ public enum ParameterType {
     PAR_BOOLEAN("boolean"),
     PAR_INVENTORY("inventory"),
     PAR_ITEM("item"),
-    PAR_EXCEPTION("exception");
+    PAR_EXCEPTION("exception"),
+    PAR_TUPLE("tuple");
 
     private final String name;
 

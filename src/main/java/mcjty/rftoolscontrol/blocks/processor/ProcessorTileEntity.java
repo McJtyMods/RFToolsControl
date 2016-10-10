@@ -1452,6 +1452,21 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     }
 
     @Override
+    public void gfxDrawBox(IProgram program, String id, @Nonnull Tuple loc, @Nonnull Tuple size, int color) {
+        setOp(id, new GfxOpBox(loc.getX(), loc.getY(), size.getX(), size.getY(), color));
+    }
+
+    @Override
+    public void gfxDrawLine(IProgram program, String id, @Nonnull Tuple pos1, @Nonnull Tuple pos2, int color) {
+        setOp(id, new GfxOpLine(pos1.getX(), pos1.getY(), pos2.getX(), pos2.getY(), color));
+    }
+
+    @Override
+    public void gfxDrawText(IProgram program, String id, @Nonnull Tuple pos, String text, int color) {
+        setOp(id, new GfxOpText(pos.getX(), pos.getY(), text, color));
+    }
+
+    @Override
     public void gfxClear(IProgram program, @Nullable String id) {
         if (id == null) {
             gfxOps.clear();
@@ -1581,6 +1596,14 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                 return ((ItemStack) v1).stackSize > ((ItemStack) v2).stackSize;
             case PAR_EXCEPTION:
                 return false;
+            case PAR_TUPLE: {
+                Tuple t1 = (Tuple) v1;
+                Tuple t2 = (Tuple) v2;
+                if (t1.getX() == t2.getX()) {
+                    return t1.getY() > t2.getY();
+                }
+                return t1.getX() > t2.getX();
+            }
         }
         return false;
     }
@@ -1721,6 +1744,25 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             return par.isSet() ? (T) par.getParameterValue().getValue() : null;
         }
     }
+
+    @Nullable
+    @Override
+    public Tuple evaluateTupleParameter(ICompiledOpcode compiledOpcode, IProgram program, int parIndex) {
+        Object o = evaluateParameter(compiledOpcode, program, parIndex);
+        return TypeConverters.convertToTuple(o);
+    }
+
+    @Nonnull
+    @Override
+    public Tuple evaluateTupleParameterNonNull(ICompiledOpcode compiledOpcode, IProgram program, int parIndex) {
+        Object o = evaluateParameter(compiledOpcode, program, parIndex);
+        Tuple tuple = TypeConverters.convertToTuple(o);
+        if (tuple == null) {
+            throw new ProgException(EXCEPT_MISSINGPARAMETER);
+        }
+        return tuple;
+    }
+
 
     @Nullable
     @Override

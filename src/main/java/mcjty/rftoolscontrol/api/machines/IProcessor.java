@@ -4,6 +4,7 @@ import mcjty.rftoolscontrol.api.code.ICompiledOpcode;
 import mcjty.rftoolscontrol.api.code.IOpcodeRunnable;
 import mcjty.rftoolscontrol.api.parameters.BlockSide;
 import mcjty.rftoolscontrol.api.parameters.Inventory;
+import mcjty.rftoolscontrol.api.parameters.Tuple;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
@@ -78,6 +79,19 @@ public interface IProcessor {
      */
     @Nonnull
     Inventory evaluateInventoryParameterNonNull(ICompiledOpcode compiledOpcode, IProgram program, int parIndex);
+
+    /**
+     * Evalulate a parameter with a given index and return aa tuple.
+     */
+    @Nullable
+    Tuple evaluateTupleParameter(ICompiledOpcode compiledOpcode, IProgram program, int parIndex);
+
+    /**
+     * Evalulate a parameter with a given index and return a tuple.
+     * Gives an exception if the result was null
+     */
+    @Nonnull
+    Tuple evaluateTupleParameterNonNull(ICompiledOpcode compiledOpcode, IProgram program, int parIndex);
 
     /**
      * Evaluate an integer parameter. Return 0 if the parameter was not an integer or null
@@ -215,16 +229,25 @@ public interface IProcessor {
     /**
      * Draw a box. Needs a graphics card
      */
+    void gfxDrawBox(IProgram program, String id, @Nonnull Tuple loc, @Nonnull Tuple size, int color);
+
+    @Deprecated
     void gfxDrawBox(IProgram program, String id, int x, int y, int w, int h, int color);
 
     /**
      * Draw a line. Needs a graphics card
      */
+    void gfxDrawLine(IProgram program, String id, @Nonnull Tuple pos1, @Nonnull Tuple pos2, int color);
+
+    @Deprecated
     void gfxDrawLine(IProgram program, String id, int x1, int y1, int x2, int y2, int color);
 
     /**
      * Draw text. Needs a graphics card
      */
+    void gfxDrawText(IProgram program, String id, @Nonnull Tuple pos, String text, int color);
+
+    @Deprecated
     void gfxDrawText(IProgram program, String id, int x, int y, String text, int color);
 
     /**

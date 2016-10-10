@@ -1105,13 +1105,14 @@ public class Opcodes {
                 return POSITIVE;
             }))
             .build();
-    public static final Opcode DO_GFX_BOX = Opcode.builder()
+    public static final Opcode DO_GFX_BOX_OLD = Opcode.builder()
             .id("do_gfx_box")
             .description(
                     TextFormatting.GREEN + "Operation: gfx box",
                     "draw a box",
                     TextFormatting.RED + "Needs a graphics card")
             .opcodeOutput(SINGLE)
+            .deprecated(true)
             .parameter(ParameterDescription.builder().name("id").type(PAR_STRING).description("id (used to identify this box)").build())
             .parameter(ParameterDescription.builder().name("x").type(PAR_INTEGER).description("x location").build())
             .parameter(ParameterDescription.builder().name("y").type(PAR_INTEGER).description("y location").build())
@@ -1130,13 +1131,14 @@ public class Opcodes {
                 return POSITIVE;
             }))
             .build();
-    public static final Opcode DO_GFX_LINE = Opcode.builder()
+    public static final Opcode DO_GFX_LINE_OLD = Opcode.builder()
             .id("do_gfx_line")
             .description(
                     TextFormatting.GREEN + "Operation: gfx line",
                     "draw a line",
                     TextFormatting.RED + "Needs a graphics card")
             .opcodeOutput(SINGLE)
+            .deprecated(true)
             .parameter(ParameterDescription.builder().name("id").type(PAR_STRING).description("id (used to identify this line)").build())
             .parameter(ParameterDescription.builder().name("x1").type(PAR_INTEGER).description("start x location").build())
             .parameter(ParameterDescription.builder().name("y1").type(PAR_INTEGER).description("start y location").build())
@@ -1155,13 +1157,14 @@ public class Opcodes {
                 return POSITIVE;
             }))
             .build();
-    public static final Opcode DO_GFX_TEXT = Opcode.builder()
+    public static final Opcode DO_GFX_TEXT_OLD = Opcode.builder()
             .id("do_gfx_text")
             .description(
                     TextFormatting.GREEN + "Operation: gfx text",
                     "draw text",
                     TextFormatting.RED + "Needs a graphics card")
             .opcodeOutput(SINGLE)
+            .deprecated(true)
             .parameter(ParameterDescription.builder().name("id").type(PAR_STRING).description("id (used to identify this text)").build())
             .parameter(ParameterDescription.builder().name("x").type(PAR_INTEGER).description("x location").build())
             .parameter(ParameterDescription.builder().name("y").type(PAR_INTEGER).description("y location").build())
@@ -1175,6 +1178,69 @@ public class Opcodes {
                 String txt = processor.evaluateStringParameterNonNull(opcode, program, 3);
                 int color = processor.evaluateIntParameter(opcode, program, 4);
                 processor.gfxDrawText(program, id, x, y, txt, color);
+                return POSITIVE;
+            }))
+            .build();
+    public static final Opcode DO_GFX_BOX = Opcode.builder()
+            .id("do_box")
+            .description(
+                    TextFormatting.GREEN + "Operation: gfx box",
+                    "draw a box",
+                    TextFormatting.RED + "Needs a graphics card")
+            .opcodeOutput(SINGLE)
+            .parameter(ParameterDescription.builder().name("id").type(PAR_STRING).description("id (used to identify this box)").build())
+            .parameter(ParameterDescription.builder().name("loc").type(PAR_TUPLE).description("location").build())
+            .parameter(ParameterDescription.builder().name("size").type(PAR_TUPLE).description("size").build())
+            .parameter(ParameterDescription.builder().name("color").type(PAR_INTEGER).description("color").build())
+            .icon(5, 6)
+            .runnable(((processor, program, opcode) -> {
+                String id = processor.evaluateStringParameterNonNull(opcode, program, 0);
+                Tuple loc = processor.evaluateTupleParameterNonNull(opcode, program, 1);
+                Tuple size = processor.evaluateTupleParameterNonNull(opcode, program, 2);
+                int color = processor.evaluateIntParameter(opcode, program, 3);
+                processor.gfxDrawBox(program, id, loc, size, color);
+                return POSITIVE;
+            }))
+            .build();
+    public static final Opcode DO_GFX_LINE = Opcode.builder()
+            .id("do_line")
+            .description(
+                    TextFormatting.GREEN + "Operation: gfx line",
+                    "draw a line",
+                    TextFormatting.RED + "Needs a graphics card")
+            .opcodeOutput(SINGLE)
+            .parameter(ParameterDescription.builder().name("id").type(PAR_STRING).description("id (used to identify this line)").build())
+            .parameter(ParameterDescription.builder().name("loc1").type(PAR_TUPLE).description("location 1").build())
+            .parameter(ParameterDescription.builder().name("loc2").type(PAR_TUPLE).description("location 2").build())
+            .parameter(ParameterDescription.builder().name("color").type(PAR_INTEGER).description("color").build())
+            .icon(6, 6)
+            .runnable(((processor, program, opcode) -> {
+                String id = processor.evaluateStringParameterNonNull(opcode, program, 0);
+                Tuple loc1 = processor.evaluateTupleParameterNonNull(opcode, program, 1);
+                Tuple loc2 = processor.evaluateTupleParameterNonNull(opcode, program, 2);
+                int color = processor.evaluateIntParameter(opcode, program, 3);
+                processor.gfxDrawLine(program, id, loc1, loc2, color);
+                return POSITIVE;
+            }))
+            .build();
+    public static final Opcode DO_GFX_TEXT = Opcode.builder()
+            .id("do_text")
+            .description(
+                    TextFormatting.GREEN + "Operation: gfx text",
+                    "draw text",
+                    TextFormatting.RED + "Needs a graphics card")
+            .opcodeOutput(SINGLE)
+            .parameter(ParameterDescription.builder().name("id").type(PAR_STRING).description("id (used to identify this text)").build())
+            .parameter(ParameterDescription.builder().name("loc").type(PAR_TUPLE).description("location").build())
+            .parameter(ParameterDescription.builder().name("text").type(PAR_STRING).description("text").build())
+            .parameter(ParameterDescription.builder().name("color").type(PAR_INTEGER).description("color").build())
+            .icon(7, 6)
+            .runnable(((processor, program, opcode) -> {
+                String id = processor.evaluateStringParameterNonNull(opcode, program, 0);
+                Tuple loc = processor.evaluateTupleParameterNonNull(opcode, program, 1);
+                String txt = processor.evaluateStringParameterNonNull(opcode, program, 2);
+                int color = processor.evaluateIntParameter(opcode, program, 3);
+                processor.gfxDrawText(program, id, loc, txt, color);
                 return POSITIVE;
             }))
             .build();
@@ -1212,6 +1278,24 @@ public class Opcodes {
                 return POSITIVE;
             }))
             .build();
+    public static final Opcode EVAL_TUPLE = Opcode.builder()
+            .id("eval_tuple")
+            .description(
+                    TextFormatting.GREEN + "Eval: tuple",
+                    "evaluate a tuple (two integers) and set it",
+                    "as the result for future opcodes to use")
+            .outputDescription("tuple result (tuple)")
+            .opcodeOutput(SINGLE)
+            .parameter(ParameterDescription.builder().name("x").type(PAR_INTEGER).description("x (or first) value for the tuple").build())
+            .parameter(ParameterDescription.builder().name("y").type(PAR_INTEGER).description("y (or second) value for the tuple").build())
+            .icon(4, 6)
+            .runnable(((processor, program, opcode) -> {
+                int x = processor.evaluateIntParameter(opcode, program, 0);
+                int y = processor.evaluateIntParameter(opcode, program, 1);
+                program.setLastValue(Parameter.builder().type(PAR_TUPLE).value(ParameterValue.constant(new Tuple(x, y))).build());
+                return POSITIVE;
+            }))
+            .build();
 
 
     public static final Map<String, Opcode> OPCODES = new HashMap<>();
@@ -1242,6 +1326,7 @@ public class Opcodes {
         register(EVAL_RANDOM);
         register(EVAL_INTEGER);
         register(EVAL_STRING);
+        register(EVAL_TUPLE);
         register(EVAL_INVENTORY);
         register(EVAL_GETTOKEN);
         register(EVAL_LOCK);
@@ -1280,6 +1365,9 @@ public class Opcodes {
         register(DO_REQUESTCRAFT);
         register(DO_LOCK);
         register(DO_RELEASELOCK);
+        register(DO_GFX_BOX_OLD);
+        register(DO_GFX_LINE_OLD);
+        register(DO_GFX_TEXT_OLD);
         register(DO_GFX_BOX);
         register(DO_GFX_LINE);
         register(DO_GFX_TEXT);

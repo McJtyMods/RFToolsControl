@@ -128,6 +128,8 @@ public class Functions {
                 return ParameterValue.constant(((Float) v) != 0);
             case PAR_BOOLEAN:
                 return value.getParameterValue();
+            case PAR_TUPLE:
+                return ParameterValue.constant(((Tuple) v).getX() != 0 || ((Tuple) v).getY() != 0);
             case PAR_SIDE:
             case PAR_INVENTORY:
             case PAR_ITEM:
@@ -156,8 +158,13 @@ public class Functions {
                 return ParameterValue.constant(0);
             case PAR_BOOLEAN:
                 return ParameterValue.constant(((Boolean) v) ? 1.0f : 0.0f);
+            case PAR_INVENTORY:
+                break;
             case PAR_ITEM:
                 return ParameterValue.constant((float) ((ItemStack) v).stackSize);
+            case PAR_EXCEPTION:
+            case PAR_TUPLE:
+                break;
         }
         return ParameterValue.constant(0);
     }
@@ -186,8 +193,13 @@ public class Functions {
                 return ParameterValue.constant(0);
             case PAR_BOOLEAN:
                 return ParameterValue.constant(((Boolean) v) ? 1 : 0);
+            case PAR_INVENTORY:
+                break;
             case PAR_ITEM:
                 return ParameterValue.constant(((ItemStack) v).stackSize);
+            case PAR_EXCEPTION:
+            case PAR_TUPLE:
+                break;
         }
         return ParameterValue.constant(0);
     }
@@ -215,6 +227,10 @@ public class Functions {
                 return ParameterValue.constant(InventoryTools.inventoryToString((Inventory) v));
             case PAR_SIDE:
                 return ParameterValue.constant(InventoryTools.blockSideToString((BlockSide) v));
+            case PAR_EXCEPTION:
+                return ParameterValue.constant(((ExceptionType) v).getCode());
+            case PAR_TUPLE:
+                return ParameterValue.constant(v.toString());
         }
         return ParameterValue.constant("");
     }

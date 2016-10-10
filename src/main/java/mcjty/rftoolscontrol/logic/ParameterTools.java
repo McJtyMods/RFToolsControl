@@ -51,6 +51,9 @@ public class ParameterTools {
                 case PAR_EXCEPTION:
                     builder.value(ParameterValue.constant(ExceptionType.getExceptionForCode(NetworkTools.readString(buf))));
                     break;
+                case PAR_TUPLE:
+                    builder.value(ParameterValue.constant(new Tuple(buf.readInt(), buf.readInt())));
+                    break;
             }
         }
         return builder.build();
@@ -91,6 +94,11 @@ public class ParameterTools {
                 break;
             case PAR_EXCEPTION:
                 NetworkTools.writeString(buf, ((ExceptionType)value).getCode());
+                break;
+            case PAR_TUPLE:
+                Tuple tuple = (Tuple) value;
+                buf.writeInt(tuple.getX());
+                buf.writeInt(tuple.getY());
                 break;
         }
     }

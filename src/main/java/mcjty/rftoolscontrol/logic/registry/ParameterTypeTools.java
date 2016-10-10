@@ -3,10 +3,7 @@ package mcjty.rftoolscontrol.logic.registry;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
-import mcjty.rftoolscontrol.api.parameters.BlockSide;
-import mcjty.rftoolscontrol.api.parameters.Inventory;
-import mcjty.rftoolscontrol.api.parameters.ParameterType;
-import mcjty.rftoolscontrol.api.parameters.ParameterValue;
+import mcjty.rftoolscontrol.api.parameters.*;
 import mcjty.rftoolscontrol.logic.running.ExceptionType;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -52,6 +49,8 @@ public class ParameterTypeTools {
             case PAR_EXCEPTION:
                 ExceptionType exception = (ExceptionType) value;
                 return exception.getCode();
+            case PAR_TUPLE:
+                return value.toString();
         }
         return "?";
     }
@@ -144,6 +143,8 @@ public class ParameterTypeTools {
             case PAR_EXCEPTION:
                 String code = tag.getString("code");
                 return ParameterValue.constant(ExceptionType.getExceptionForCode(code));
+            case PAR_TUPLE:
+                return ParameterValue.constant(new Tuple(tag.getInteger("x"), tag.getInteger("y")));
         }
         return ParameterValue.constant(null);
     }
@@ -186,6 +187,10 @@ public class ParameterTypeTools {
             case PAR_EXCEPTION:
                 ExceptionType exception = (ExceptionType) value;
                 tag.setString("code", exception.getCode());
+                break;
+            case PAR_TUPLE:
+                tag.setInteger("x", ((Tuple) value).getX());
+                tag.setInteger("y", ((Tuple) value).getY());
                 break;
         }
     }
@@ -235,6 +240,10 @@ public class ParameterTypeTools {
                 ExceptionType exception = (ExceptionType) value;
                 object.add("code", new JsonPrimitive(exception.getCode()));
                 break;
+            case PAR_TUPLE:
+                object.add("x", new JsonPrimitive(((Tuple) value).getX()));
+                object.add("y", new JsonPrimitive(((Tuple) value).getY()));
+                break;
         }
     }
 
@@ -278,6 +287,8 @@ public class ParameterTypeTools {
             case PAR_EXCEPTION:
                 String code = object.get("code").getAsString();
                 return ParameterValue.constant(ExceptionType.getExceptionForCode(code));
+            case PAR_TUPLE:
+                return ParameterValue.constant(new Tuple(object.get("x").getAsInt(), object.get("y").getAsInt()));
         }
         return null;
     }
