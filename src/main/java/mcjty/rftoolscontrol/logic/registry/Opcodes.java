@@ -1296,6 +1296,20 @@ public class Opcodes {
                 return POSITIVE;
             }))
             .build();
+    public static final Opcode EVENT_GFX_SELECT = Opcode.builder()
+            .id("ev_select")
+            .description(
+                    TextFormatting.GREEN + "Event: gfx select",
+                    "execute program when a screen with a",
+                    "vector module is selected.",
+                    "The last value will be set to the tuple",
+                    "of the selected location")
+            .outputDescription("selected location (tuple)")
+            .opcodeOutput(SINGLE)
+            .isEvent(true)
+            .parameter(ParameterDescription.builder().name("single").type(PAR_BOOLEAN).optional().description("only one simultaneous run").build())
+            .icon(8, 6)
+            .build();
 
 
     public static final Map<String, Opcode> OPCODES = new HashMap<>();
@@ -1306,6 +1320,7 @@ public class Opcodes {
         register(EVENT_REDSTONE_OFF);
         register(EVENT_TIMER);
         register(EVENT_SIGNAL);
+        register(EVENT_GFX_SELECT);
         register(EVENT_MESSAGE);
         register(EVENT_CRAFT);
         register(EVENT_CRAFTRESUME);

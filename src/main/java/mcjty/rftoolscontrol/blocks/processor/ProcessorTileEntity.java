@@ -918,6 +918,27 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         return cnt;
     }
 
+    @Override
+    public int signal(Tuple location) {
+        int cnt = 0;
+        for (int i = 0 ; i < cardInfo.length ; i++) {
+            CardInfo info = cardInfo[i];
+            CompiledCard compiledCard = info.getCompiledCard();
+            if (compiledCard != null) {
+                for (CompiledEvent event : compiledCard.getEvents(Opcodes.EVENT_GFX_SELECT)) {
+                    int index = event.getIndex();
+                    CompiledOpcode compiledOpcode = compiledCard.getOpcodes().get(index);
+                    runOrQueueEvent(i, event, null, Parameter.builder()
+                        .type(ParameterType.PAR_TUPLE)
+                        .value(ParameterValue.constant(location))
+                        .build());
+                    cnt++;
+                }
+            }
+        }
+        return cnt;
+    }
+
     public void receiveMessage(String name, @Nullable Parameter value) {
         for (int i = 0 ; i < cardInfo.length ; i++) {
             CardInfo info = cardInfo[i];

@@ -4,6 +4,7 @@ import mcjty.lib.varia.BlockPosTools;
 import mcjty.lib.varia.WorldTools;
 import mcjty.rftools.api.screens.IScreenDataHelper;
 import mcjty.rftools.api.screens.IScreenModule;
+import mcjty.rftoolscontrol.api.parameters.Tuple;
 import mcjty.rftoolscontrol.blocks.ModBlocks;
 import mcjty.rftoolscontrol.blocks.processor.ProcessorTileEntity;
 import mcjty.rftoolscontrol.config.GeneralConfiguration;
@@ -13,6 +14,8 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.common.DimensionManager;
 
@@ -75,5 +78,30 @@ public class VectorArtScreenModule implements IScreenModule<ModuleDataVectorArt>
 
     @Override
     public void mouseClick(World world, int x, int y, boolean clicked, EntityPlayer player) {
+        int xoffset = 0;
+        if (x >= xoffset) {
+            if (coordinate.getY() != -1) {
+                if (!WorldTools.chunkLoaded(world, coordinate)) {
+                    return;
+                }
+
+                Block block = world.getBlockState(coordinate).getBlock();
+                if (block != ModBlocks.processorBlock) {
+                    return;
+                }
+
+                if (clicked) {
+                    TileEntity te = world.getTileEntity(coordinate);
+                    if (te instanceof ProcessorTileEntity) {
+                        ProcessorTileEntity processor = (ProcessorTileEntity) te;
+                        processor.signal(new Tuple(x, y));
+                    }
+                }
+            } else {
+                if (player != null) {
+                    player.addChatComponentMessage(new TextComponentString(TextFormatting.RED + "Module is not linked to a processor!"));
+                }
+            }
+        }
     }
 }

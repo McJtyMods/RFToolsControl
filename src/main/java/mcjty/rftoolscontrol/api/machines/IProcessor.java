@@ -214,6 +214,13 @@ public interface IProcessor {
     int signal(String signal);
 
     /**
+     * Send a signal to this processor to be handled by a program. It returns the
+     * number of handlers that reacted to this.
+     * This version is meant for the graphics select event (ev_select)
+     */
+    int signal(Tuple location);
+
+    /**
      * If this program is running in the context of a craft operation
      * then you can get the desired craft result here
      */
