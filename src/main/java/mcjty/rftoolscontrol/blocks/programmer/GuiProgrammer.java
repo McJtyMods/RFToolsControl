@@ -22,13 +22,13 @@ import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.api.code.Opcode;
 import mcjty.rftoolscontrol.api.code.OpcodeCategory;
 import mcjty.rftoolscontrol.api.code.OpcodeOutput;
+import mcjty.rftoolscontrol.api.parameters.Parameter;
 import mcjty.rftoolscontrol.api.parameters.ParameterDescription;
 import mcjty.rftoolscontrol.api.parameters.ParameterValue;
 import mcjty.rftoolscontrol.config.GeneralConfiguration;
 import mcjty.rftoolscontrol.gui.GuiTools;
 import mcjty.rftoolscontrol.items.ProgramCardItem;
 import mcjty.rftoolscontrol.logic.Connection;
-import mcjty.rftoolscontrol.api.parameters.Parameter;
 import mcjty.rftoolscontrol.logic.compiled.ProgramValidator;
 import mcjty.rftoolscontrol.logic.editors.ParameterEditor;
 import mcjty.rftoolscontrol.logic.editors.ParameterEditors;
@@ -87,6 +87,8 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
     private static final Map<Connection, IIcon> CONNECTION_ICONS = new HashMap<>();
     private static final Map<Connection, IIcon> HIGHLIGHT_ICONS = new HashMap<>();
     private static final IIcon selectionIcon;
+    private static final IIcon errorIcon1;
+    private static final IIcon errorIcon2;
 
     private static ProgramCardInstance undoProgram = null;
 
@@ -115,6 +117,8 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
         }
 
         selectionIcon = new ImageIcon("S").setDimensions(ICONSIZE, ICONSIZE).setImage(icons, 0*ICONSIZE, 8*ICONSIZE);
+        errorIcon1 = new ImageIcon("E1").setDimensions(ICONSIZE, ICONSIZE).setImage(icons, 1*ICONSIZE, 8*ICONSIZE);
+        errorIcon2 = new ImageIcon("E2").setDimensions(ICONSIZE, ICONSIZE).setImage(icons, 2*ICONSIZE, 8*ICONSIZE);
     }
 
     public GuiProgrammer(ProgrammerTileEntity tileEntity, ProgrammerContainer container) {
@@ -548,6 +552,28 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
         return (IconHolder) row.getChild(x);
     }
 
+    private void validateAndHilight() {
+        ProgramCardInstance instance = makeGridInstance(false);
+
+        for (int x = 0 ; x < GRID_WIDTH ; x++) {
+            for (int y = 0 ; y < GRID_HEIGHT ; y++) {
+                IconHolder h = getHolder(x, y);
+                if (h.getIcon() != null) {
+                    h.getIcon().removeOverlay("E1");
+                    h.getIcon().removeOverlay("E2");
+                }
+            }
+        }
+
+        long time = System.currentTimeMillis();
+        List<Pair<GridPos, String>> errors = ProgramValidator.validate(instance);
+        for (Pair<GridPos, String> entry : errors) {
+            GridPos p = entry.getKey();
+            IconHolder h = getHolder(p.getX(), p.getY());
+            h.getIcon().addOverlay((time % 2000) < 1000 ? errorIcon1 : errorIcon2);
+        }
+    }
+
     private void validateProgram() {
         Panel panel = new Panel(mc, this)
                 .setLayout(new VerticalLayout())
@@ -579,6 +605,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
                     getWindowManager().closeWindow(modalWindow);
                 })
                 .setText("Close"));
+
         ProgramCardInstance instance = makeGridInstance(false);
 
         List<Pair<GridPos, String>> errors = ProgramValidator.validate(instance);
@@ -1155,6 +1182,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
         saveCounter--;
         if (saveCounter < 0) {
             saveCounter = 10;
+            validateAndHilight();
             saveProgram(ProgrammerContainer.SLOT_DUMMY, null);
         }
     }
