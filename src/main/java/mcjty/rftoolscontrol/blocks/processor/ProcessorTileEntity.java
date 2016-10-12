@@ -1945,6 +1945,11 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         return (IStorageScanner) te;
     }
 
+    public int countSlots(Inventory inv, IProgram program) {
+        IItemHandler handler = getItemHandlerAt(inv);
+        return handler.getSlots();
+    }
+
     public int countItem(Inventory inv, Integer slot, ItemStack itemMatcher, boolean oredict, boolean routable, IProgram program) {
         if (inv == null) {
             return countItemStorage(itemMatcher, routable, oredict);

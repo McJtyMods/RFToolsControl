@@ -1363,6 +1363,24 @@ public class Opcodes {
             .parameter(ParameterDescription.builder().name("single").type(PAR_BOOLEAN).optional().description("only one simultaneous run").build())
             .icon(8, 6)
             .build();
+    public static final Opcode EVAL_SLOTS = Opcode.builder()
+            .id("eval_slots")
+            .description(
+                    TextFormatting.GREEN + "Eval: get number of slots",
+                    "return the amount of slots in an",
+                    "external inventory")
+            .outputDescription("amount of slots (integer)")
+            .opcodeOutput(SINGLE)
+            .parameter(ParameterDescription.builder().name("inv").type(PAR_INVENTORY).description("inventory adjacent to (networked)", "block").build())
+            .icon(9, 6)
+            .runnable(((processor, program, opcode) -> {
+                Inventory inv = processor.evaluateInventoryParameterNonNull(opcode, program, 0);
+                int cnt = ((ProcessorTileEntity)processor).countSlots(inv, program);
+                program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(cnt)).build());
+                return POSITIVE;
+            }))
+            .build();
+
     public static final Opcode EVAL_ITEM = Opcode.builder()
             .id("eval_item")
             .description(
