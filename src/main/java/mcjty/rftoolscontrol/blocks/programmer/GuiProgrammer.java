@@ -807,8 +807,8 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
     private void makeCategoryToggle(Panel panel, int cx, int cy, OpcodeCategory category, int u, int v) {
         ImageChoiceLabel catLabel = new ImageChoiceLabel(mc, this)
                 .setLayoutHint(new PositionalLayout.PositionalHint(cx * 18 + 3, cy * 18 + 14, 16, 16))
-                .addChoice("off", "Category " + category.getName() + " is off", guiElements, u*16, v*16)
-                .addChoice("on", "Category " + category.getName() + " is on", guiElements, u*16 + 16, v*16);
+                .addChoice("off", "Filter on category " + category.getName() + " (off)", guiElements, u*16, v*16)
+                .addChoice("on", "Filter on category " + category.getName() + " (on)", guiElements, u*16 + 16, v*16);
         catLabel.addChoiceEvent((parent, newChoice) -> {
                     if ("on".equals(newChoice)) {
                         clearCategoryLabels();
