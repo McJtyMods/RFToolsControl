@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static mcjty.rftoolscontrol.api.code.OpcodeCategory.*;
 import static mcjty.rftoolscontrol.api.code.IOpcodeRunnable.OpcodeResult.*;
 import static mcjty.rftoolscontrol.api.code.OpcodeOutput.*;
 import static mcjty.rftoolscontrol.api.parameters.ParameterType.*;
@@ -25,6 +26,7 @@ public class Opcodes {
                     "set redstone level at a specific side",
                     "on the processor or a node in the network")
             .opcodeOutput(SINGLE)
+            .category(CATEGORY_REDSTONE)
             .parameter(ParameterDescription.builder().name("side").type(PAR_SIDE).description("side of (networked) block").build())
             .parameter(ParameterDescription.builder().name("level").type(PAR_INTEGER).description("redstone level").build())
             .runnable(((processor, program, opcode) -> {
@@ -42,6 +44,7 @@ public class Opcodes {
                     "execute program when redstone signal at",
                     "a specific side (or in general) goes on")
             .opcodeOutput(SINGLE)
+            .category(CATEGORY_REDSTONE)
             .isEvent(true)
             .parameter(ParameterDescription.builder().name("side").type(PAR_SIDE).description("side of (networked) block").build())
             .parameter(ParameterDescription.builder().name("single").type(PAR_BOOLEAN).optional().description("only one simultaneous run").build())
@@ -54,6 +57,7 @@ public class Opcodes {
                     "execute program when redstone signal at",
                     "a specific side (or in general) goes off")
             .opcodeOutput(SINGLE)
+            .category(CATEGORY_REDSTONE)
             .isEvent(true)
             .parameter(ParameterDescription.builder().name("side").type(PAR_SIDE).description("side of (networked) block").build())
             .parameter(ParameterDescription.builder().name("single").type(PAR_BOOLEAN).optional().description("only one simultaneous run").build())
@@ -68,6 +72,7 @@ public class Opcodes {
                     "received from an rftools screen",
                     "or from the processor console")
             .opcodeOutput(SINGLE)
+            .category(CATEGORY_COMMUNICATION)
             .isEvent(true)
             .parameter(ParameterDescription.builder().name("signal").type(PAR_STRING).description("matching signal").build())
             .parameter(ParameterDescription.builder().name("single").type(PAR_BOOLEAN).optional().description("only one simultaneous run").build())
@@ -98,6 +103,7 @@ public class Opcodes {
                     "adjacent to the processor or a connected node",
                     "Can also be used to count items in storage system")
             .outputDescription("amount of items (integer)")
+            .category(CATEGORY_ITEMS)
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("inv").type(PAR_INVENTORY).optional().description("inventory adjacent to (networked)", "block or empty to access storage").build())
             .parameter(ParameterDescription.builder().name("slot").type(PAR_INTEGER).optional().description("slot in inventory", "(not for storage)").build())
@@ -125,6 +131,7 @@ public class Opcodes {
                     "from an external inventory adjacent to",
                     "the processor or a connected node")
             .outputDescription("itemstack in target slot (stack)")
+            .category(CATEGORY_ITEMS)
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("inv").type(PAR_INVENTORY).description("inventory adjacent to (networked) block").build())
             .parameter(ParameterDescription.builder().name("slot").type(PAR_INTEGER).description("slot in inventory").build())
@@ -146,6 +153,7 @@ public class Opcodes {
                     "read the redstone value coming to a specific",
                     "side of the processor or a connected node")
             .outputDescription("read redstone value (integer)")
+            .category(CATEGORY_REDSTONE)
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("side").type(PAR_SIDE).description("side of (networked) block").build())
             .icon(1, 0)
@@ -220,6 +228,7 @@ public class Opcodes {
                     "check if the first value is greater",
                     "then the second value")
             .opcodeOutput(YESNO)
+            .category(CATEGORY_NUMBERS)
             .parameter(ParameterDescription.builder().name("v1").type(PAR_INTEGER).description("first value").build())
             .parameter(ParameterDescription.builder().name("v2").type(PAR_INTEGER).description("second value").build())
             .icon(10, 0)
@@ -237,6 +246,7 @@ public class Opcodes {
                     "check if the first value is equal",
                     "to the second value")
             .opcodeOutput(YESNO)
+            .category(CATEGORY_NUMBERS)
             .parameter(ParameterDescription.builder().name("v1").type(PAR_INTEGER).description("first value").build())
             .parameter(ParameterDescription.builder().name("v2").type(PAR_INTEGER).description("second value").build())
             .icon(11, 0)
@@ -286,6 +296,7 @@ public class Opcodes {
                     "the result in the internal inventory",
                     "Also works for a storage scanner system")
             .outputDescription("amount of items fetched (integer)")
+            .category(CATEGORY_ITEMS)
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("inv").type(PAR_INVENTORY).optional().description("inventory adjacent to (networked)", "block or empty to access storage").build())
             .parameter(ParameterDescription.builder().name("slot").type(PAR_INTEGER).optional().description("slot in inventory", "(not used for storage)").build())
@@ -318,6 +329,7 @@ public class Opcodes {
                     "node from the internal inventory",
                     "Can also be used for modular storage systems")
             .outputDescription("amount of items inserted (integer)")
+            .category(CATEGORY_ITEMS)
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("inv").type(PAR_INVENTORY).optional().description("inventory adjacent to (networked)", "block or empty to access storage").build())
             .parameter(ParameterDescription.builder().name("slot").type(PAR_INTEGER).optional().description("slot in inventory (not", "used for storage)").build())
@@ -342,6 +354,7 @@ public class Opcodes {
                     "count the amount of items in a",
                     "specific slot in the processor inventory")
             .outputDescription("amount of items (integer)")
+            .category(CATEGORY_ITEMS)
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("slot").type(PAR_INTEGER).description("internal (processor) slot").build())
             .icon(2, 1)
@@ -375,6 +388,7 @@ public class Opcodes {
                     TextFormatting.GREEN + "Operation: add integers",
                     "add the two given integers")
             .outputDescription("v1 + v2 (integer)")
+            .category(CATEGORY_NUMBERS)
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("v1").type(PAR_INTEGER).description("first value").build())
             .parameter(ParameterDescription.builder().name("v2").type(PAR_INTEGER).description("second value").build())
@@ -393,6 +407,7 @@ public class Opcodes {
                     TextFormatting.GREEN + "Operation: subtract integers",
                     "subtract the two given integers")
             .outputDescription("v1 - v2 (integer)")
+            .category(CATEGORY_NUMBERS)
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("v1").type(PAR_INTEGER).description("first value").build())
             .parameter(ParameterDescription.builder().name("v2").type(PAR_INTEGER).description("second value").build())
@@ -411,6 +426,7 @@ public class Opcodes {
                     TextFormatting.GREEN + "Operation: divide integers",
                     "divide the two given integers")
             .outputDescription("v1 / v2 (integer)")
+            .category(CATEGORY_NUMBERS)
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("v1").type(PAR_INTEGER).description("first value").build())
             .parameter(ParameterDescription.builder().name("v2").type(PAR_INTEGER).description("second value").build())
@@ -429,6 +445,7 @@ public class Opcodes {
                     TextFormatting.GREEN + "Operation: multiply integers",
                     "multiply the two given integers")
             .outputDescription("v1 * v2 (integer)")
+            .category(CATEGORY_NUMBERS)
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("v1").type(PAR_INTEGER).description("first value").build())
             .parameter(ParameterDescription.builder().name("v2").type(PAR_INTEGER).description("second value").build())
@@ -447,6 +464,7 @@ public class Opcodes {
                     TextFormatting.GREEN + "Operation: modulo",
                     "calculate the modulo of two given integers")
             .outputDescription("v1 % v2 (integer)")
+            .category(CATEGORY_NUMBERS)
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("v1").type(PAR_INTEGER).description("first value").build())
             .parameter(ParameterDescription.builder().name("v2").type(PAR_INTEGER).description("second value").build())
@@ -485,6 +503,7 @@ public class Opcodes {
                     "a specific machine adjacent to the processor",
                     "or a connected node")
             .outputDescription("amount of energy (integer)")
+            .category(CATEGORY_ENERGY)
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("side").type(PAR_INVENTORY).description("side of (networked) block").build())
             .icon(3, 2)
@@ -503,6 +522,7 @@ public class Opcodes {
                     "in a specific machine adjacent to the procesor",
                     "or a connected node")
             .outputDescription("max amount of energy (integer)")
+            .category(CATEGORY_ENERGY)
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("side").type(PAR_INVENTORY).description("side of (networked) block").build())
             .icon(4, 2)
@@ -534,6 +554,7 @@ public class Opcodes {
                     "station requests a specific item",
                     "or for an inventory with crafting cards",
                     "This operation sets the crafting ticket")
+            .category(CATEGORY_CRAFTING)
             .opcodeOutput(SINGLE)
             .isEvent(true)
             .parameter(ParameterDescription.builder().name("item").type(PAR_ITEM).optional().description("the item to craft").build())
@@ -550,6 +571,7 @@ public class Opcodes {
                     "this opcode to mark the craft operation as ok",
                     "The optional item in the slot will be sent back to",
                     "whatever requested the item")
+            .category(CATEGORY_CRAFTING)
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("slot").type(PAR_INTEGER).optional().description("internal (processor) slot", "with craft result").build())
             .icon(6, 2)
@@ -566,6 +588,7 @@ public class Opcodes {
                     "as a result of a crafting event",
                     "you can use this opcode to mark",
                     "the craft operation as failed")
+            .category(CATEGORY_CRAFTING)
             .opcodeOutput(SINGLE)
             .icon(7, 2)
             .runnable(((processor, program, opcode) -> {
@@ -582,6 +605,7 @@ public class Opcodes {
                     "missing ingredients from another inventory and insert",
                     "in processor. Can also be used with a storage scanner",
                     "Returns number of items that it could not find")
+            .category(CATEGORY_CRAFTING)
             .outputDescription("amount of failed items (integer)")
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("inv").type(PAR_INVENTORY).optional().description("inventory adjacent to (networked)", "block or empty to access storage").build())
@@ -611,6 +635,7 @@ public class Opcodes {
                     "processor. Otherwise try to request all missing items",
                     "Returns 0 on success, -1 on failure and otherwise the",
                     "number of items that are requested")
+            .category(CATEGORY_CRAFTING)
             .outputDescription("0, -1, or requested items (integer)")
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("inv").type(PAR_INVENTORY).optional().description("inventory adjacent to (networked)", "block or empty to access storage").build())
@@ -640,6 +665,8 @@ public class Opcodes {
                     "push multiple items from the internal inventory",
                     "to an external inventory adjacent to the processor",
                     "or a connected node. Also works on storage system")
+            .category(CATEGORY_ITEMS)
+            .category(CATEGORY_CRAFTING)
             .outputDescription("amount of failed items (integer)")
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("inv").type(PAR_INVENTORY).optional().description("inventory adjacent to (networked)", "block or empty to access storage").build())
@@ -664,6 +691,7 @@ public class Opcodes {
                     TextFormatting.GREEN + "Operation: set craft ticket",
                     "set a craft ticket so that you can resume",
                     "a previously stored crafting operation")
+            .category(CATEGORY_CRAFTING)
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("ticket").type(PAR_STRING).description("crafting ticket").build())
             .icon(0, 3)
@@ -693,6 +721,7 @@ public class Opcodes {
                     TextFormatting.GREEN + "Event: craft resume",
                     "resume crafting operation",
                     "This operation sets the crafting ticket")
+            .category(CATEGORY_CRAFTING)
             .parameter(ParameterDescription.builder().name("ticks").type(PAR_INTEGER).description("ticks between each check").build())
             .parameter(ParameterDescription.builder().name("single").type(PAR_BOOLEAN).optional().description("only one simultaneous run").build())
             .opcodeOutput(SINGLE)
@@ -706,6 +735,7 @@ public class Opcodes {
                     TextFormatting.GREEN + "Operation: wait for finished craft (item)",
                     "suspend the crafting operation and resume it",
                     "as soon as a certain item appears in an inventory")
+            .category(CATEGORY_CRAFTING)
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("inv").type(PAR_INVENTORY).description("inventory adjacent to (networked) block").build())
             .parameter(ParameterDescription.builder().name("item").type(PAR_ITEM).optional().description("item to wait for. If not given", "it will use current craft result").build())
@@ -724,6 +754,7 @@ public class Opcodes {
                     TextFormatting.GREEN + "Operation: wait for finished craft (timed)",
                     "suspend the crafting operation and resume",
                     "it at regular times")
+            .category(CATEGORY_CRAFTING)
             .opcodeOutput(SINGLE)
             .icon(2, 4)
             .runnable(((processor, program, opcode) -> {
@@ -800,6 +831,7 @@ public class Opcodes {
                     "connected crafting station. If the optional inventory",
                     "is given the craft result will be directed there",
                     "Otherwise it goes to the crafting station")
+            .category(CATEGORY_CRAFTING)
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("item").type(PAR_ITEM).description("the item to request").build())
             .parameter(ParameterDescription.builder().name("inv").type(PAR_INVENTORY).optional().description("inventory for the end result").build())
@@ -818,6 +850,7 @@ public class Opcodes {
                     TextFormatting.GREEN + "Eval: examine item internal",
                     "examine an item in a specific slot",
                     "in the processor")
+            .category(CATEGORY_ITEMS)
             .outputDescription("itemstack in target slot (stack)")
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("slot").type(PAR_INTEGER).description("internal slot in processor").build())
@@ -838,6 +871,7 @@ public class Opcodes {
                     "Make sure to set the variable to the starting value",
                     "of the loop before this opcode")
             .opcodeOutput(YESNO)
+            .category(CATEGORY_NUMBERS)
             .parameter(ParameterDescription.builder().name("var").type(PAR_INTEGER).description("variable index (first var is 0)").build())
             .parameter(ParameterDescription.builder().name("end").type(PAR_INTEGER).description("end index (inclusive)").build())
             .icon(8, 3)
@@ -855,6 +889,7 @@ public class Opcodes {
                     "evaluate an integer and set it as",
                     "the result for future opcodes to use")
             .outputDescription("integer result (integer)")
+            .category(CATEGORY_NUMBERS)
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("value").type(PAR_INTEGER).description("integer value to set as result").build())
             .icon(9, 3)
@@ -889,6 +924,7 @@ public class Opcodes {
                     "the ingredients for the given recipe are present",
                     "at exactly the right amount and right spot")
             .outputDescription("if the ingredients are complete (boolean)")
+            .category(CATEGORY_CRAFTING)
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("cardInv").type(PAR_INVENTORY).description("inventory adjacent to (networked) block", "with crafting cards").build())
             .parameter(ParameterDescription.builder().name("item").type(PAR_ITEM).optional().description("the item to craft or empty", "for default from ticket").build())
@@ -934,6 +970,7 @@ public class Opcodes {
                     "specific tank adjacent to the",
                     "processor or a connected node")
             .outputDescription("amount of mb (integer)")
+            .category(CATEGORY_LIQUIDS)
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("side").type(PAR_INVENTORY).description("side of (networked) block").build())
             .icon(3, 4)
@@ -953,6 +990,7 @@ public class Opcodes {
                     "in a specific tank adjacent to the",
                     "processor or a connected node")
             .outputDescription("max amount of mb (integer)")
+            .category(CATEGORY_LIQUIDS)
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("side").type(PAR_INVENTORY).description("side of (networked) block").build())
             .icon(4, 4)
@@ -974,6 +1012,7 @@ public class Opcodes {
                     "This operation returns the amount of event handlers",
                     "that reacted to this signal")
             .outputDescription("event handlers that reacted (integer)")
+            .category(CATEGORY_COMMUNICATION)
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("signal").type(PAR_STRING).description("signal name").build())
             .icon(5, 4)
@@ -991,6 +1030,7 @@ public class Opcodes {
                     TextFormatting.GREEN + "Eval: get damage",
                     "get the damage value from an item")
             .outputDescription("damage value (integer)")
+            .category(CATEGORY_ITEMS)
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("item").type(PAR_ITEM).description("item to get damage from").build())
             .icon(6, 4)
@@ -1007,6 +1047,7 @@ public class Opcodes {
                     TextFormatting.GREEN + "Eval: get name",
                     "get the readable name from an item")
             .outputDescription("item name (string)")
+            .category(CATEGORY_ITEMS)
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("item").type(PAR_ITEM).description("item to get name from").build())
             .icon(7, 4)
@@ -1025,6 +1066,7 @@ public class Opcodes {
                     "check if a specific tag of the first item",
                     "is exactly equal to the value of that tag of",
                     "the second item")
+            .category(CATEGORY_ITEMS)
             .opcodeOutput(YESNO)
             .parameter(ParameterDescription.builder().name("v1").type(PAR_ITEM).description("first item").build())
             .parameter(ParameterDescription.builder().name("v2").type(PAR_ITEM).description("second item").build())
@@ -1078,6 +1120,7 @@ public class Opcodes {
                     "If that message was sent with a variable",
                     "then the last value will be set to that")
             .outputDescription("optional value (any)")
+            .category(CATEGORY_COMMUNICATION)
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("name").type(PAR_STRING).description("matching message name").build())
             .parameter(ParameterDescription.builder().name("single").type(PAR_BOOLEAN).optional().description("only one simultaneous run").build())
@@ -1092,6 +1135,7 @@ public class Opcodes {
                     "This needs a network identifier in a slot",
                     "and an advanced networking card",
                     "Can optionally send a variable")
+            .category(CATEGORY_COMMUNICATION)
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("name").type(PAR_STRING).description("message name").build())
             .parameter(ParameterDescription.builder().name("idSlot").type(PAR_INTEGER).description("internal (processor) slot with identifier").build())
@@ -1111,6 +1155,7 @@ public class Opcodes {
                     TextFormatting.GREEN + "Operation: gfx box",
                     "draw a box",
                     TextFormatting.RED + "Needs a graphics card")
+            .category(CATEGORY_GRAPHICS)
             .opcodeOutput(SINGLE)
             .deprecated(true)
             .parameter(ParameterDescription.builder().name("id").type(PAR_STRING).description("id (used to identify this box)").build())
@@ -1137,6 +1182,7 @@ public class Opcodes {
                     TextFormatting.GREEN + "Operation: gfx line",
                     "draw a line",
                     TextFormatting.RED + "Needs a graphics card")
+            .category(CATEGORY_GRAPHICS)
             .opcodeOutput(SINGLE)
             .deprecated(true)
             .parameter(ParameterDescription.builder().name("id").type(PAR_STRING).description("id (used to identify this line)").build())
@@ -1163,6 +1209,7 @@ public class Opcodes {
                     TextFormatting.GREEN + "Operation: gfx text",
                     "draw text",
                     TextFormatting.RED + "Needs a graphics card")
+            .category(CATEGORY_GRAPHICS)
             .opcodeOutput(SINGLE)
             .deprecated(true)
             .parameter(ParameterDescription.builder().name("id").type(PAR_STRING).description("id (used to identify this text)").build())
@@ -1187,6 +1234,7 @@ public class Opcodes {
                     TextFormatting.GREEN + "Operation: gfx box",
                     "draw a box",
                     TextFormatting.RED + "Needs a graphics card")
+            .category(CATEGORY_GRAPHICS)
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("id").type(PAR_STRING).description("id (used to identify this box)").build())
             .parameter(ParameterDescription.builder().name("loc").type(PAR_TUPLE).description("location").build())
@@ -1208,6 +1256,7 @@ public class Opcodes {
                     TextFormatting.GREEN + "Operation: gfx line",
                     "draw a line",
                     TextFormatting.RED + "Needs a graphics card")
+            .category(CATEGORY_GRAPHICS)
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("id").type(PAR_STRING).description("id (used to identify this line)").build())
             .parameter(ParameterDescription.builder().name("loc1").type(PAR_TUPLE).description("location 1").build())
@@ -1229,6 +1278,7 @@ public class Opcodes {
                     TextFormatting.GREEN + "Operation: gfx text",
                     "draw text",
                     TextFormatting.RED + "Needs a graphics card")
+            .category(CATEGORY_GRAPHICS)
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("id").type(PAR_STRING).description("id (used to identify this text)").build())
             .parameter(ParameterDescription.builder().name("loc").type(PAR_TUPLE).description("location").build())
@@ -1251,6 +1301,7 @@ public class Opcodes {
                     "clear an operation with a specific id or",
                     "all operations",
                     TextFormatting.RED + "Needs a graphics card")
+            .category(CATEGORY_GRAPHICS)
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("id").type(PAR_STRING).optional().description("id to delete or empty to delete all").build())
             .icon(8, 5)
@@ -1266,6 +1317,7 @@ public class Opcodes {
                     TextFormatting.GREEN + "Eval: random integer",
                     "get a random integer between two values")
             .outputDescription("random result (integer)")
+            .category(CATEGORY_NUMBERS)
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("lower").type(PAR_INTEGER).description("lower bound").build())
             .parameter(ParameterDescription.builder().name("upper").type(PAR_INTEGER).description("upper bound (exclusive)").build())
@@ -1304,6 +1356,7 @@ public class Opcodes {
                     "vector module is selected.",
                     "The last value will be set to the tuple",
                     "of the selected location")
+            .category(CATEGORY_GRAPHICS)
             .outputDescription("selected location (tuple)")
             .opcodeOutput(SINGLE)
             .isEvent(true)
