@@ -12,8 +12,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static mcjty.rftoolscontrol.api.code.OpcodeCategory.*;
 import static mcjty.rftoolscontrol.api.code.IOpcodeRunnable.OpcodeResult.*;
+import static mcjty.rftoolscontrol.api.code.OpcodeCategory.*;
 import static mcjty.rftoolscontrol.api.code.OpcodeOutput.*;
 import static mcjty.rftoolscontrol.api.parameters.ParameterType.*;
 
@@ -1363,6 +1363,22 @@ public class Opcodes {
             .parameter(ParameterDescription.builder().name("single").type(PAR_BOOLEAN).optional().description("only one simultaneous run").build())
             .icon(8, 6)
             .build();
+    public static final Opcode EVAL_ITEM = Opcode.builder()
+            .id("eval_item")
+            .description(
+                    TextFormatting.GREEN + "Eval: evaluate item",
+                    "set the last value to a specific item")
+            .outputDescription("itemstack (stack)")
+            .category(CATEGORY_ITEMS)
+            .opcodeOutput(SINGLE)
+            .parameter(ParameterDescription.builder().name("item").type(PAR_ITEM).description("an item").build())
+            .icon(9, 6)
+            .runnable(((processor, program, opcode) -> {
+                ItemStack stack = processor.evaluateItemParameterNonNull(opcode, program, 0);
+                program.setLastValue(Parameter.builder().type(PAR_ITEM).value(ParameterValue.constant(stack)).build());
+                return POSITIVE;
+            }))
+            .build();
 
 
     public static final Map<String, Opcode> OPCODES = new HashMap<>();
@@ -1396,6 +1412,7 @@ public class Opcodes {
         register(EVAL_STRING);
         register(EVAL_TUPLE);
         register(EVAL_INVENTORY);
+        register(EVAL_ITEM);
         register(EVAL_GETTOKEN);
         register(EVAL_LOCK);
         register(TEST_GT);
