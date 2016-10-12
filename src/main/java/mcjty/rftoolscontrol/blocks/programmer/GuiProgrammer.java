@@ -806,7 +806,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
 
     private void makeCategoryToggle(Panel panel, int cx, int cy, OpcodeCategory category, int u, int v) {
         ImageChoiceLabel catLabel = new ImageChoiceLabel(mc, this)
-                .setLayoutHint(new PositionalLayout.PositionalHint(cx * 18 + 3, cy * 18 + 2, 16, 16))
+                .setLayoutHint(new PositionalLayout.PositionalHint(cx * 18 + 3, cy * 18 + 14, 16, 16))
                 .addChoice("off", "Category " + category.getName() + " is off", guiElements, u*16, v*16)
                 .addChoice("on", "Category " + category.getName() + " is on", guiElements, u*16 + 16, v*16);
         catLabel.addChoiceEvent((parent, newChoice) -> {
@@ -826,7 +826,9 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
     private Panel setupListPanel() {
         Panel panel = new Panel(mc, this)
                 .setLayout(new PositionalLayout())
-                .setLayoutHint(new PositionalLayout.PositionalHint(2, 2, 78, 232));
+                .setLayoutHint(new PositionalLayout.PositionalHint(2, 2, 78, 232))
+                .addChild(new Label(mc, this).setText("Opcodes:")
+                    .setLayoutHint(new PositionalLayout.PositionalHint(0, 0, 70, 12)));
 
         makeCategoryToggle(panel, 0, 0, OpcodeCategory.CATEGORY_ITEMS, 8, 5);
         makeCategoryToggle(panel, 1, 0, OpcodeCategory.CATEGORY_LIQUIDS, 10, 5);
@@ -838,7 +840,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
         makeCategoryToggle(panel, 3, 1, OpcodeCategory.CATEGORY_GRAPHICS, 6, 6);
 
         opcodeList = new WidgetList(mc, this)
-                .setLayoutHint(new PositionalLayout.PositionalHint(0, 40, 68, 192))
+                .setLayoutHint(new PositionalLayout.PositionalHint(0, 52, 68, 180))
                 .setPropagateEventsToChildren(true)
                 .setInvisibleSelection(true)
                 .setDrawHorizontalLines(false)
@@ -846,7 +848,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
         Slider slider = new Slider(mc, this)
                 .setVertical()
                 .setScrollable(opcodeList)
-                .setLayoutHint(new PositionalLayout.PositionalHint(68, 40, 8, 192));
+                .setLayoutHint(new PositionalLayout.PositionalHint(68, 52, 8, 180));
 
         fillOpcodes();
 
