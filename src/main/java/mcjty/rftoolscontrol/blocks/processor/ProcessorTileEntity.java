@@ -647,6 +647,34 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         ((RunningProgram)program).setCraftTicket(ticket);
     }
 
+    @Nullable
+    public ItemStack getItemFromCard(IProgram program) {
+        Parameter lastValue = program.getLastValue();
+        if (lastValue == null) {
+            throw new ProgException(EXCEPT_MISSINGLASTVALUE);
+        }
+        ItemStack itemStack = TypeConverters.convertToItem(lastValue.getParameterValue().getValue());
+        if (itemStack == null) {
+            throw new ProgException(EXCEPT_NOTANITEM);
+        }
+        if (itemStack.getItem() instanceof CraftingCardItem) {
+            return CraftingCardItem.getResult(itemStack);
+        }
+        if (itemStack.getItem() instanceof TokenItem && itemStack.hasTagCompound()) {
+            NBTTagCompound tag = itemStack.getTagCompound().getCompoundTag("parameter");
+            if (tag.hasNoTags()) {
+                return null;
+            }
+            Parameter parameter = ParameterTools.readFromNBT(tag);
+            if (parameter == null || !parameter.isSet()) {
+                return null;
+            }
+            return TypeConverters.convertToItem(parameter.getParameterValue().getValue());
+        }
+        return null;
+    }
+
+
     @Override
     public ItemStack getCraftResult(IProgram program) {
         if (!program.hasCraftTicket()) {

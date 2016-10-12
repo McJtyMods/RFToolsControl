@@ -2,6 +2,7 @@ package mcjty.rftoolscontrol.logic.registry;
 
 import mcjty.rftoolscontrol.api.code.Function;
 import mcjty.rftoolscontrol.api.parameters.*;
+import mcjty.rftoolscontrol.blocks.processor.ProcessorTileEntity;
 import mcjty.rftoolscontrol.logic.InventoryTools;
 import mcjty.rftoolscontrol.logic.running.ExceptionType;
 import mcjty.rftoolscontrol.logic.running.ProgException;
@@ -98,6 +99,19 @@ public class Functions {
             .type(PAR_ITEM)
             .runnable((processor, program) -> {
                 return ParameterValue.constant(processor.getCraftResult(program));
+            })
+            .build();
+    public static final Function ITEMFROMCARD = Function.builder()
+            .id("itemfromcard")
+            .name("itemfromcard")
+            .description("If the last value is a crafting card then",
+                    "this will return the output of that card",
+                    "If the last result is a token then this will return",
+                    "the value in that token converted to an item (if",
+                    "possible)")
+            .type(PAR_ITEM)
+            .runnable((processor, program) -> {
+                return ParameterValue.constant(((ProcessorTileEntity)processor).getItemFromCard(program));
             })
             .build();
     public static final Function RANDOMINT = Function.builder()
@@ -394,6 +408,7 @@ public class Functions {
         register(LASTTUPLE);
         register(TICKET);
         register(CRAFTRESULT);
+        register(ITEMFROMCARD);
         register(RANDOMINT);
         register(RANDOMFLOAT);
         register(TUPLE_X);

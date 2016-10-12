@@ -30,6 +30,8 @@ public enum ExceptionType {
     EXCEPT_MISSINGGRAPHICSCARD("missing_graphics_card", "Missing graphics card"),
     EXCEPT_TOOMANYGRAPHICS("too_many_graphics_opcodes", "Too many graphics opcodes"),
     EXCEPT_TOOMANYEVENTS("too_many_events", "Too many events"),
+    EXCEPT_MISSINGLASTVALUE("missing_last_value", "Missing last value"),
+    EXCEPT_NOTANITEM("not_an_item", "This is not an item"),
     ;
 
     private final String code;
