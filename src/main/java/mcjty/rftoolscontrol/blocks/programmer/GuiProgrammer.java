@@ -20,6 +20,7 @@ import mcjty.lib.network.PacketUpdateNBTItemInventory;
 import mcjty.lib.varia.Logging;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.api.code.Opcode;
+import mcjty.rftoolscontrol.api.code.OpcodeCategory;
 import mcjty.rftoolscontrol.api.code.OpcodeOutput;
 import mcjty.rftoolscontrol.api.parameters.ParameterDescription;
 import mcjty.rftoolscontrol.api.parameters.ParameterValue;
@@ -68,15 +69,19 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
     private static final ResourceLocation mainBackground = new ResourceLocation(RFToolsControl.MODID, "textures/gui/programmer.png");
     private static final ResourceLocation sideBackground = new ResourceLocation(RFToolsControl.MODID, "textures/gui/sidegui.png");
     private static final ResourceLocation icons = new ResourceLocation(RFToolsControl.MODID, "textures/gui/icons.png");
+    private static final ResourceLocation guiElements = new ResourceLocation(RFToolsControl.MODID, "textures/gui/guielements.png");
 
     private Window sideWindow;
     private WidgetList gridList;
     private WidgetList editorList;
+    private WidgetList opcodeList;
     private IconHolder trashcan;
+    private List<ImageChoiceLabel> categoryLabels = new ArrayList<>();
 
     private int iconLeavesFromX = -1;
     private int iconLeavesFromY = -1;
     private boolean loading = false;
+    private OpcodeCategory currentCategory = null;
 
     private static final Map<String, IIcon> ICONS = new HashMap<>();
     private static final Map<Connection, IIcon> CONNECTION_ICONS = new HashMap<>();
@@ -158,6 +163,8 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
         sideWindow = new Window(this, sidePanel);
 
         loadProgram(ProgrammerContainer.SLOT_DUMMY);
+
+        clearCategoryLabels();
     }
 
     @Override
@@ -789,26 +796,78 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
                 .addChild(trashcan);
     }
 
+    private void clearCategoryLabels() {
+        for (ImageChoiceLabel label : categoryLabels) {
+            label.setCurrentChoice("off");
+        }
+        currentCategory = null;
+        fillOpcodes();
+    }
+
+    private void makeCategoryToggle(Panel panel, int cx, int cy, OpcodeCategory category, int u, int v) {
+        ImageChoiceLabel catLabel = new ImageChoiceLabel(mc, this)
+                .setLayoutHint(new PositionalLayout.PositionalHint(cx * 18, cy * 18, 16, 16))
+                .addChoice("off", "Category " + category.getName() + " is off", guiElements, u*16, v*16)
+                .addChoice("on", "Category " + category.getName() + " is on", guiElements, u*16 + 16, v*16);
+        catLabel.addChoiceEvent((parent, newChoice) -> {
+                    if ("on".equals(newChoice)) {
+                        clearCategoryLabels();
+                        catLabel.setCurrentChoice("on");
+                        currentCategory = category;
+                        fillOpcodes();
+                    } else {
+                        clearCategoryLabels();
+                    }
+                });
+        panel.addChild(catLabel);
+        categoryLabels.add(catLabel);
+    }
+
     private Panel setupListPanel() {
-        WidgetList list = new WidgetList(mc, this)
-                .setLayoutHint(new PositionalLayout.PositionalHint(0, 0, 62, 226))
+        Panel panel = new Panel(mc, this)
+                .setLayout(new PositionalLayout())
+                .setLayoutHint(new PositionalLayout.PositionalHint(5, 5, 72, 226));
+
+        makeCategoryToggle(panel, 0, 0, OpcodeCategory.CATEGORY_ITEMS, 8, 5);
+        makeCategoryToggle(panel, 1, 0, OpcodeCategory.CATEGORY_LIQUIDS, 10, 5);
+        makeCategoryToggle(panel, 2, 0, OpcodeCategory.CATEGORY_CRAFTING, 6, 5);
+        makeCategoryToggle(panel, 3, 0, OpcodeCategory.CATEGORY_REDSTONE, 14, 5);
+        makeCategoryToggle(panel, 0, 1, OpcodeCategory.CATEGORY_ENERGY, 12, 5);
+        makeCategoryToggle(panel, 1, 1, OpcodeCategory.CATEGORY_NUMBERS, 8, 6);
+        makeCategoryToggle(panel, 2, 1, OpcodeCategory.CATEGORY_COMMUNICATION, 10, 6);
+        makeCategoryToggle(panel, 3, 1, OpcodeCategory.CATEGORY_GRAPHICS, 6, 6);
+
+        opcodeList = new WidgetList(mc, this)
+                .setLayoutHint(new PositionalLayout.PositionalHint(0, 40, 62, 186))
                 .setPropagateEventsToChildren(true)
                 .setInvisibleSelection(true)
                 .setDrawHorizontalLines(false)
                 .setRowheight(ICONSIZE+2);
         Slider slider = new Slider(mc, this)
                 .setVertical()
-                .setScrollable(list)
-                .setLayoutHint(new PositionalLayout.PositionalHint(62, 0, 9, 226));
+                .setScrollable(opcodeList)
+                .setLayoutHint(new PositionalLayout.PositionalHint(62, 40, 9, 186));
 
+        fillOpcodes();
+
+        return panel.addChild(opcodeList).addChild(slider);
+    }
+
+    private void fillOpcodes() {
+        opcodeList.removeChildren();
         int x = 0;
         int y = 0;
         Panel childPanel = null;
         for (Opcode opcode : Opcodes.SORTED_OPCODES) {
+            if (currentCategory != null) {
+                if (!opcode.getCategories().contains(currentCategory)) {
+                    continue;
+                }
+            }
             String key = opcode.getId();
             if (childPanel == null) {
                 childPanel = new Panel(mc, this).setLayout(new HorizontalLayout().setVerticalMargin(1).setSpacing(3).setHorizontalMargin(3)).setDesiredHeight(ICONSIZE+1);
-                list.addChild(childPanel);
+                opcodeList.addChild(childPanel);
             }
             IconHolder holder = new IconHolder(mc, this) {
                 @Override
@@ -827,10 +886,6 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
                 childPanel = null;
             }
         }
-
-        return new Panel(mc, this).setLayout(new PositionalLayout()).setLayoutHint(new PositionalLayout.PositionalHint(5, 5, 72, 226))
-                .addChild(list)
-                .addChild(slider);
     }
 
     @Override
