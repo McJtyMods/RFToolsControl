@@ -1370,9 +1370,10 @@ public class Opcodes {
                     "return the amount of slots in an",
                     "external inventory")
             .outputDescription("amount of slots (integer)")
+            .category(CATEGORY_ITEMS)
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("inv").type(PAR_INVENTORY).description("inventory adjacent to (networked)", "block").build())
-            .icon(9, 6)
+            .icon(10, 6)
             .runnable(((processor, program, opcode) -> {
                 Inventory inv = processor.evaluateInventoryParameterNonNull(opcode, program, 0);
                 int cnt = ((ProcessorTileEntity)processor).countSlots(inv, program);
@@ -1415,6 +1416,7 @@ public class Opcodes {
         register(DO_WIRE);
         register(EVAL_COUNTINV);
         register(EVAL_COUNTINVINT);
+        register(EVAL_SLOTS);
         register(EVAL_GETITEM);
         register(EVAL_GETITEMINT);
         register(EVAL_GETDAMAGE);
