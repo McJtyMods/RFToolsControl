@@ -5,6 +5,7 @@ import mcjty.rftoolscontrol.api.parameters.*;
 import mcjty.rftoolscontrol.blocks.processor.ProcessorTileEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.TextFormatting;
+import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.items.IItemHandler;
 
 import java.util.ArrayList;
@@ -1399,6 +1400,23 @@ public class Opcodes {
             }))
             .build();
 
+    public static final Opcode EVAL_FLUID = Opcode.builder()
+            .id("eval_item")
+            .description(
+                    TextFormatting.GREEN + "Eval: evaluate fluid",
+                    "set the last value to a specific fluid")
+            .outputDescription("fluidstack (fluid)")
+            .category(CATEGORY_LIQUIDS)
+            .opcodeOutput(SINGLE)
+            .parameter(ParameterDescription.builder().name("fluid").type(PAR_ITEM).description("a fluid stack (bucket)").build())
+            .icon(11, 6)
+            .runnable(((processor, program, opcode) -> {
+                FluidStack stack = processor.evaluateFluidParameterNonNull(opcode, program, 0);
+                program.setLastValue(Parameter.builder().type(PAR_FLUID).value(ParameterValue.constant(stack)).build());
+                return POSITIVE;
+            }))
+            .build();
+
 
     public static final Map<String, Opcode> OPCODES = new HashMap<>();
     public static final List<Opcode> SORTED_OPCODES = new ArrayList<>();
@@ -1433,6 +1451,7 @@ public class Opcodes {
         register(EVAL_TUPLE);
         register(EVAL_INVENTORY);
         register(EVAL_ITEM);
+        register(EVAL_FLUID);
         register(EVAL_GETTOKEN);
         register(EVAL_LOCK);
         register(TEST_GT);

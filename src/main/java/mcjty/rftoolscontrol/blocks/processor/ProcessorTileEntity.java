@@ -58,6 +58,7 @@ import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.energy.IEnergyStorage;
+import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidTankProperties;
@@ -1643,6 +1644,8 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                 return false;
             case PAR_ITEM:
                 return ((ItemStack) v1).stackSize > ((ItemStack) v2).stackSize;
+            case PAR_FLUID:
+                return ((FluidStack) v1).amount > ((FluidStack) v2).amount;
             case PAR_EXCEPTION:
                 return false;
             case PAR_TUPLE: {
@@ -1684,6 +1687,8 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
 
         if (varValue.getParameterType() == ParameterType.PAR_ITEM) {
             return ((ItemStack) v1).isItemEqual((ItemStack) v2);
+        } else if (varValue.getParameterType() == ParameterType.PAR_FLUID) {
+            return ((FluidStack) v1).isFluidEqual((FluidStack) v2);
         } else {
             return v1.equals(v2);
         }
@@ -1812,7 +1817,6 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         return tuple;
     }
 
-
     @Nullable
     @Override
     public ItemStack evaluateItemParameter(ICompiledOpcode compiledOpcode, IProgram program, int parIndex) {
@@ -1825,6 +1829,24 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     public ItemStack evaluateItemParameterNonNull(ICompiledOpcode compiledOpcode, IProgram program, int parIndex) {
         Object o = evaluateParameter(compiledOpcode, program, parIndex);
         ItemStack stack = TypeConverters.convertToItem(o);
+        if (stack == null) {
+            throw new ProgException(EXCEPT_MISSINGPARAMETER);
+        }
+        return stack;
+    }
+
+    @Nullable
+    @Override
+    public FluidStack evaluateFluidParameter(ICompiledOpcode compiledOpcode, IProgram program, int parIndex) {
+        Object o = evaluateParameter(compiledOpcode, program, parIndex);
+        return TypeConverters.convertToFluid(o);
+    }
+
+    @Nonnull
+    @Override
+    public FluidStack evaluateFluidParameterNonNull(ICompiledOpcode compiledOpcode, IProgram program, int parIndex) {
+        Object o = evaluateParameter(compiledOpcode, program, parIndex);
+        FluidStack stack = TypeConverters.convertToFluid(o);
         if (stack == null) {
             throw new ProgException(EXCEPT_MISSINGPARAMETER);
         }
@@ -2641,6 +2663,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         return false;
     }
 
+    @SuppressWarnings("NullableProblems")
     @SideOnly(Side.CLIENT)
     @Override
     public AxisAlignedBB getRenderBoundingBox() {

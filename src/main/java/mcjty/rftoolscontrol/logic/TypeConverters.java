@@ -4,9 +4,13 @@ import mcjty.rftoolscontrol.api.parameters.BlockSide;
 import mcjty.rftoolscontrol.api.parameters.Inventory;
 import mcjty.rftoolscontrol.api.parameters.Tuple;
 import mcjty.rftoolscontrol.logic.running.ExceptionType;
+import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fluids.FluidContainerRegistry;
+import net.minecraftforge.fluids.FluidRegistry;
+import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import org.apache.commons.lang3.StringUtils;
 
@@ -84,8 +88,24 @@ public class TypeConverters {
     public static ItemStack convertToItem(Object value) {
         if (value instanceof ItemStack) {
             return (ItemStack) value;
+        } else if (value instanceof FluidStack) {
+            FluidStack fluidStack = (FluidStack) value;
+            return FluidContainerRegistry.fillFluidContainer(fluidStack, new ItemStack(Items.BUCKET));
         } else if (value instanceof String) {
             return new ItemStack(ForgeRegistries.ITEMS.getValue(new ResourceLocation((String) value)), 1, 0);
+        } else {
+            return null;
+        }
+    }
+
+    public static FluidStack convertToFluid(Object value) {
+        if (value instanceof ItemStack) {
+            ItemStack itemStack = (ItemStack) value;
+            return FluidContainerRegistry.getFluidForFilledItem(itemStack);
+        } else if (value instanceof FluidStack) {
+            return (FluidStack) value;
+        } else if (value instanceof String) {
+            return new FluidStack(FluidRegistry.getFluid((String) value), 1);
         } else {
             return null;
         }

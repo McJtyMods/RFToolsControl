@@ -8,6 +8,7 @@ import mcjty.rftoolscontrol.api.parameters.Tuple;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.items.IItemHandler;
 
 import javax.annotation.Nonnull;
@@ -41,12 +42,28 @@ public interface IProcessor {
     ItemStack evaluateItemParameter(ICompiledOpcode compiledOpcode, IProgram program, int parIndex);
 
     /**
-     * Evalulate a parameter with a given index and return a BlockSide.
+     * Evalulate a parameter with a given index and return an item stack.
      * This can convert from String correctly
      * Gives an exception if the result was null
      */
     @Nonnull
     ItemStack evaluateItemParameterNonNull(ICompiledOpcode compiledOpcode, IProgram program, int parIndex);
+
+    /**
+     * Evalulate a parameter with a given index and return a fluid stack
+     * This can convert from String correctly
+     * or null if the parameter was not given
+     */
+    @Nullable
+    FluidStack evaluateFluidParameter(ICompiledOpcode compiledOpcode, IProgram program, int parIndex);
+
+    /**
+     * Evalulate a parameter with a given index and return a fluid stack.
+     * This can convert from String correctly
+     * Gives an exception if the result was null
+     */
+    @Nonnull
+    FluidStack evaluateFluidParameterNonNull(ICompiledOpcode compiledOpcode, IProgram program, int parIndex);
 
     /**
      * Evalulate a parameter with a given index and return a BlockSide.

@@ -6,8 +6,12 @@ import mcjty.rftoolscontrol.blocks.processor.ProcessorTileEntity;
 import mcjty.rftoolscontrol.logic.InventoryTools;
 import mcjty.rftoolscontrol.logic.running.ExceptionType;
 import mcjty.rftoolscontrol.logic.running.ProgException;
+import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fluids.FluidContainerRegistry;
+import net.minecraftforge.fluids.FluidRegistry;
+import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import org.apache.commons.lang3.StringUtils;
 
@@ -177,6 +181,7 @@ public class Functions {
             case PAR_SIDE:
             case PAR_INVENTORY:
             case PAR_ITEM:
+            case PAR_FLUID:
             case PAR_EXCEPTION:
                 return ParameterValue.constant(true);
         }
@@ -206,6 +211,8 @@ public class Functions {
                 break;
             case PAR_ITEM:
                 return ParameterValue.constant((float) ((ItemStack) v).stackSize);
+            case PAR_FLUID:
+                return ParameterValue.constant((float) ((FluidStack) v).amount);
             case PAR_EXCEPTION:
             case PAR_TUPLE:
                 break;
@@ -241,6 +248,8 @@ public class Functions {
                 break;
             case PAR_ITEM:
                 return ParameterValue.constant(((ItemStack) v).stackSize);
+            case PAR_FLUID:
+                return ParameterValue.constant(((FluidStack) v).amount);
             case PAR_EXCEPTION:
             case PAR_TUPLE:
                 break;
@@ -267,6 +276,8 @@ public class Functions {
                 return ParameterValue.constant(((Boolean) v) ? "true" : "false");
             case PAR_ITEM:
                 return ParameterValue.constant(((ItemStack) v).getItem().getRegistryName().toString());
+            case PAR_FLUID:
+                return ParameterValue.constant(((FluidStack) v).getFluid().getName());
             case PAR_INVENTORY:
                 return ParameterValue.constant(InventoryTools.inventoryToString((Inventory) v));
             case PAR_SIDE:
@@ -304,6 +315,7 @@ public class Functions {
             case PAR_FLOAT:
             case PAR_BOOLEAN:
             case PAR_ITEM:
+            case PAR_FLUID:
             case PAR_EXCEPTION:
             case PAR_TUPLE:
                 break;
@@ -333,6 +345,7 @@ public class Functions {
             case PAR_FLOAT:
             case PAR_BOOLEAN:
             case PAR_ITEM:
+            case PAR_FLUID:
             case PAR_EXCEPTION:
             case PAR_TUPLE:
                 break;
@@ -363,6 +376,7 @@ public class Functions {
             case PAR_BOOLEAN:
             case PAR_INVENTORY:
             case PAR_ITEM:
+            case PAR_FLUID:
             case PAR_EXCEPTION:
             case PAR_SIDE:
                 break;
@@ -383,6 +397,39 @@ public class Functions {
                 return ParameterValue.constant(new ItemStack(ForgeRegistries.ITEMS.getValue(new ResourceLocation((String) v)), 1, 0));
             case PAR_ITEM:
                 return value.getParameterValue();
+            case PAR_FLUID:
+                FluidStack fluidStack = (FluidStack) v;
+                ItemStack itemStack = FluidContainerRegistry.fillFluidContainer(fluidStack, new ItemStack(Items.BUCKET));
+                return ParameterValue.constant(itemStack);
+            case PAR_INTEGER:
+            case PAR_FLOAT:
+            case PAR_SIDE:
+            case PAR_BOOLEAN:
+            case PAR_INVENTORY:
+            case PAR_EXCEPTION:
+            case PAR_TUPLE:
+                break;
+        }
+        return ParameterValue.constant(null);
+    }
+
+    private static ParameterValue convertToFluid(Parameter value) {
+        if (value == null) {
+            return ParameterValue.constant(null);
+        }
+        if (!value.isSet()) {
+            return ParameterValue.constant(null);
+        }
+        Object v = value.getParameterValue().getValue();
+        switch (value.getParameterType()) {
+            case PAR_STRING:
+                return ParameterValue.constant(new FluidStack(FluidRegistry.getFluid((String) v), 1));
+            case PAR_FLUID:
+                return value.getParameterValue();
+            case PAR_ITEM:
+                ItemStack itemStack = (ItemStack) v;
+                FluidStack fluidStack = FluidContainerRegistry.getFluidForFilledItem(itemStack);
+                return ParameterValue.constant(fluidStack);
             case PAR_INTEGER:
             case PAR_FLOAT:
             case PAR_SIDE:

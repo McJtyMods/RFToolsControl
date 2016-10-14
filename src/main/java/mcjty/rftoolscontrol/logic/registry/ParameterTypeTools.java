@@ -12,6 +12,8 @@ import net.minecraft.nbt.NBTException;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fluids.FluidRegistry;
+import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import org.apache.commons.lang3.StringUtils;
 
@@ -44,8 +46,11 @@ public class ParameterTypeTools {
             case PAR_INVENTORY:
                 return ((Inventory) value).getStringRepresentation();
             case PAR_ITEM:
-                ItemStack inv = (ItemStack) value;
-                return StringUtils.left(inv.getDisplayName(), 10);
+                ItemStack itemStack = (ItemStack) value;
+                return StringUtils.left(itemStack.getDisplayName(), 10);
+            case PAR_FLUID:
+                FluidStack fluidStack = (FluidStack) value;
+                return StringUtils.left(fluidStack.getLocalizedName(), 10);
             case PAR_EXCEPTION:
                 ExceptionType exception = (ExceptionType) value;
                 return exception.getCode();
@@ -140,6 +145,13 @@ public class ParameterTypeTools {
                     return ParameterValue.constant(stack);
                 }
                 return ParameterValue.constant(null);
+            case PAR_FLUID:
+                if (tag.hasKey("fluid")) {
+                    NBTTagCompound tc = (NBTTagCompound) tag.getTag("fluid");
+                    FluidStack stack = FluidStack.loadFluidStackFromNBT(tc);
+                    return ParameterValue.constant(stack);
+                }
+                return ParameterValue.constant(null);
             case PAR_EXCEPTION:
                 String code = tag.getString("code");
                 return ParameterValue.constant(ExceptionType.getExceptionForCode(code));
@@ -179,10 +191,16 @@ public class ParameterTypeTools {
                 }
                 break;
             case PAR_ITEM:
-                ItemStack item = (ItemStack) value;
+                ItemStack itemStack = (ItemStack) value;
                 NBTTagCompound tc = new NBTTagCompound();
-                item.writeToNBT(tc);
+                itemStack.writeToNBT(tc);
                 tag.setTag("item", tc);
+                break;
+            case PAR_FLUID:
+                FluidStack fluidStack = (FluidStack) value;
+                NBTTagCompound fluidTc = new NBTTagCompound();
+                fluidStack.writeToNBT(fluidTc);
+                tag.setTag("fluid", fluidTc);
                 break;
             case PAR_EXCEPTION:
                 ExceptionType exception = (ExceptionType) value;
@@ -236,6 +254,14 @@ public class ParameterTypeTools {
                     object.add("nbt", new JsonPrimitive(item.getTagCompound().toString()));
                 }
                 break;
+            case PAR_FLUID:
+                FluidStack fluidStack = (FluidStack) value;
+                object.add("fluid", new JsonPrimitive(fluidStack.getFluid().getName()));
+                object.add("amount", new JsonPrimitive(fluidStack.amount));
+                if (fluidStack.tag != null) {
+                    object.add("nbt", new JsonPrimitive(fluidStack.tag.toString()));
+                }
+                break;
             case PAR_EXCEPTION:
                 ExceptionType exception = (ExceptionType) value;
                 object.add("code", new JsonPrimitive(exception.getCode()));
@@ -284,6 +310,19 @@ public class ParameterTypeTools {
                     stack.setTagCompound(tagCompound);
                 }
                 return ParameterValue.constant(stack);
+            case PAR_FLUID:
+                String fluidName = object.get("name").getAsString();
+                int amount = object.get("amount").getAsInt();
+                FluidStack fluidStack = new FluidStack(FluidRegistry.getFluid(fluidName), amount);
+                if (object.has("nbt")) {
+                    String nbt = object.get("nbt").getAsString();
+                    try {
+                        fluidStack.tag = JsonToNBT.getTagFromJson(nbt);
+                    } catch (NBTException e) {
+                        // @todo What to do?
+                    }
+                }
+                return ParameterValue.constant(fluidStack);
             case PAR_EXCEPTION:
                 String code = object.get("code").getAsString();
                 return ParameterValue.constant(ExceptionType.getExceptionForCode(code));

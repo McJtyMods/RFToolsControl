@@ -12,7 +12,8 @@ public enum ParameterType {
     PAR_INVENTORY("inventory"),
     PAR_ITEM("item"),
     PAR_EXCEPTION("exception"),
-    PAR_TUPLE("tuple");
+    PAR_TUPLE("tuple"),
+    PAR_FLUID("fluid");
 
     private final String name;
 
