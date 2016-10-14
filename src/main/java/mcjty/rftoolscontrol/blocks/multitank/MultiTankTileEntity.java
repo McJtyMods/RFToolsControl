@@ -6,11 +6,29 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
+import net.minecraftforge.fluids.capability.FluidTankProperties;
+import net.minecraftforge.fluids.capability.IFluidTankProperties;
 
 import java.util.Map;
 
 public class MultiTankTileEntity extends GenericTileEntity {
+
+    public static final int TANKS = 4;
+    public static final int MAXCAPACITY = 10000;
+
+    private final IFluidTankProperties properties[] = new IFluidTankProperties[TANKS];
+
+    public MultiTankTileEntity() {
+        for (int i = 0 ; i < TANKS ; i++) {
+            properties[i] = new FluidTankProperties(null, MAXCAPACITY);
+        }
+    }
+
+    public IFluidTankProperties[] getProperties() {
+        return properties;
+    }
 
     @Override
     public void readFromNBT(NBTTagCompound tagCompound) {
@@ -26,11 +44,22 @@ public class MultiTankTileEntity extends GenericTileEntity {
     @Override
     public void readRestorableFromNBT(NBTTagCompound tagCompound) {
         super.readRestorableFromNBT(tagCompound);
+        for (int i = 0 ; i < TANKS ; i++) {
+            properties[i] = new FluidTankProperties(FluidStack.loadFluidStackFromNBT(tagCompound.getCompoundTag("f" + i)), MAXCAPACITY);
+        }
     }
 
     @Override
     public void writeRestorableToNBT(NBTTagCompound tagCompound) {
         super.writeRestorableToNBT(tagCompound);
+        for (int i = 0 ; i < TANKS ; i++) {
+            FluidStack contents = properties[i].getContents();
+            if (contents != null) {
+                NBTTagCompound tag = new NBTTagCompound();
+                contents.writeToNBT(tag);
+                tagCompound.setTag("f" + i, tag);
+            }
+        }
     }
 
     @Override
@@ -59,7 +88,7 @@ public class MultiTankTileEntity extends GenericTileEntity {
     @Override
     public <T> T getCapability(Capability<T> capability, EnumFacing facing) {
         if (capability == CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY) {
-            return (T) new MultiTankHandler();
+            return (T) new MultiTankHandler(this);
         }
         return super.getCapability(capability, facing);
     }

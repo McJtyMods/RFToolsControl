@@ -1,15 +1,23 @@
 package mcjty.rftoolscontrol.blocks.multitank;
 
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.capability.FluidTankProperties;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidTankProperties;
 
 import javax.annotation.Nullable;
 
 class MultiTankHandler implements IFluidHandler {
+
+    private final MultiTankTileEntity tank;
+
+    public MultiTankHandler(MultiTankTileEntity tank) {
+        this.tank = tank;
+    }
+
     @Override
     public IFluidTankProperties[] getTankProperties() {
-        return new IFluidTankProperties[0];
+        return tank.getProperties();
     }
 
     @Override
