@@ -54,10 +54,21 @@ public class Functions {
     public static final Function LASTITEM = Function.builder()
             .id("last_item")
             .name("last")
-            .description("The last opcode result as an item", "Can also convert a string representing", "a registry name to an item")
+            .description("The last opcode result as an item", "Can also convert a string representing", "a registry name to an item",
+                    "or a fluid to the corresponding bucket")
             .type(PAR_ITEM)
             .runnable((processor, program) -> {
                 return convertToItem(program.getLastValue());
+            })
+            .build();
+    public static final Function LASTFLUID = Function.builder()
+            .id("last_fluid")
+            .name("last")
+            .description("The last opcode result as an fluid", "Can also convert a string representing", "a registry name to an fluid",
+                    "or an item containing a fluid")
+            .type(PAR_FLUID)
+            .runnable((processor, program) -> {
+                return convertToFluid(program.getLastValue());
             })
             .build();
     public static final Function LASTINV = Function.builder()
@@ -450,6 +461,7 @@ public class Functions {
         register(LASTINT);
         register(LASTSTRING);
         register(LASTITEM);
+        register(LASTFLUID);
         register(LASTINV);
         register(LASTSIDE);
         register(LASTTUPLE);
