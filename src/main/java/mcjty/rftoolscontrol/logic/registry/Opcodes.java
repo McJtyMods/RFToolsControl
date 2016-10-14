@@ -1401,7 +1401,7 @@ public class Opcodes {
             .build();
 
     public static final Opcode EVAL_FLUID = Opcode.builder()
-            .id("eval_item")
+            .id("eval_fluid")
             .description(
                     TextFormatting.GREEN + "Eval: evaluate fluid",
                     "set the last value to a specific fluid")
