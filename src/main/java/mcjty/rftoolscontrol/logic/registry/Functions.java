@@ -12,6 +12,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fluids.FluidContainerRegistry;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidUtil;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import org.apache.commons.lang3.StringUtils;
 
@@ -439,7 +440,7 @@ public class Functions {
                 return value.getParameterValue();
             case PAR_ITEM:
                 ItemStack itemStack = (ItemStack) v;
-                FluidStack fluidStack = FluidContainerRegistry.getFluidForFilledItem(itemStack);
+                FluidStack fluidStack = FluidUtil.getFluidContained(itemStack);
                 return ParameterValue.constant(fluidStack);
             case PAR_INTEGER:
             case PAR_FLOAT:
