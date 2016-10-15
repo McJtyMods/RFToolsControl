@@ -1,6 +1,7 @@
 package mcjty.rftoolscontrol.blocks;
 
 import mcjty.rftoolscontrol.blocks.craftingstation.CraftingStationBlock;
+import mcjty.rftoolscontrol.blocks.multitank.MultiTankBlock;
 import mcjty.rftoolscontrol.blocks.node.NodeBlock;
 import mcjty.rftoolscontrol.blocks.processor.ProcessorBlock;
 import mcjty.rftoolscontrol.blocks.programmer.ProgrammerBlock;
@@ -15,6 +16,7 @@ public final class ModBlocks {
     public static NodeBlock nodeBlock;
     public static CraftingStationBlock craftingStationBlock;
     public static WorkbenchBlock workbenchBlock;
+    public static MultiTankBlock multiTankBlock;
 
     public static void init() {
         programmerBlock = new ProgrammerBlock();
@@ -22,6 +24,7 @@ public final class ModBlocks {
         nodeBlock = new NodeBlock();
         craftingStationBlock = new CraftingStationBlock();
         workbenchBlock = new WorkbenchBlock();
+        multiTankBlock = new MultiTankBlock();
     }
 
     @SideOnly(Side.CLIENT)
@@ -31,5 +34,6 @@ public final class ModBlocks {
         nodeBlock.initModel();
         craftingStationBlock.initModel();
         workbenchBlock.initModel();
+        multiTankBlock.initModel();
     }
 }

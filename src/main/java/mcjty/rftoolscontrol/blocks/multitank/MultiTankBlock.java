@@ -9,6 +9,7 @@ import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -21,7 +22,12 @@ public class MultiTankBlock extends GenericRFToolsBlock<MultiTankTileEntity, Emp
         super(Material.IRON, MultiTankTileEntity.class, EmptyContainer.class, "tank", false);
     }
 
-//    @SideOnly(Side.CLIENT)
+    @Override
+    public boolean hasNoRotation() {
+        return true;
+    }
+
+    //    @SideOnly(Side.CLIENT)
 //    @Override
 //    public Class<? extends GenericGuiContainer> getGuiClass() {
 //        return GuiNode.class;
@@ -45,4 +51,14 @@ public class MultiTankBlock extends GenericRFToolsBlock<MultiTankTileEntity, Emp
         super.addProbeInfo(mode, probeInfo, player, world, blockState, data);
     }
 
+
+    @Override
+    public boolean canRenderInLayer(IBlockState state, BlockRenderLayer layer) {
+        return layer == BlockRenderLayer.SOLID || layer == BlockRenderLayer.TRANSLUCENT;
+    }
+
+    @Override
+    public boolean isOpaqueCube(IBlockState state) {
+        return false;
+    }
 }
