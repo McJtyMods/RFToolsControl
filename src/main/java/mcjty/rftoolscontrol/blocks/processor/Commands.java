@@ -113,7 +113,7 @@ public class Commands {
                             processor.log(TextFormatting.YELLOW + "Last value not set");
                         } else {
                             ParameterType type = value.getParameterType();
-                            processor.log(TextFormatting.YELLOW + "Last " + type.getName() + ": " + TypeConverters.convertToString(value.getParameterValue().getValue()));
+                            processor.log(TextFormatting.YELLOW + "Last " + type.getName() + ": " + TypeConverters.convertToString(value.getParameterType(), value.getParameterValue()));
                         }
                     } else {
                         processor.log(TextFormatting.YELLOW + "No program!");
@@ -131,7 +131,7 @@ public class Commands {
                             processor.log(TextFormatting.YELLOW + "" + i + ": Last value not set");
                         } else {
                             ParameterType type = value.getParameterType();
-                            processor.log(TextFormatting.YELLOW + "" + i + ": Last " + type.getName() + ": " + TypeConverters.convertToString(value.getParameterValue().getValue()));
+                            processor.log(TextFormatting.YELLOW + "" + i + ": Last " + type.getName() + ": " + TypeConverters.convertToString(value.getParameterType(), value.getParameterValue()));
                         }
                     }
                     i++;

@@ -17,6 +17,7 @@ public interface IProgram {
     /**
      * Get the current 'last value'
      */
+    @Nullable
     Parameter getLastValue();
 
     /**

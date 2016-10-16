@@ -8,6 +8,7 @@ import mcjty.lib.network.Argument;
 import mcjty.lib.varia.BlockPosTools;
 import mcjty.lib.varia.WorldTools;
 import mcjty.rftools.api.storage.IStorageScanner;
+import mcjty.rftoolscontrol.api.code.Function;
 import mcjty.rftoolscontrol.api.code.ICompiledOpcode;
 import mcjty.rftoolscontrol.api.code.IOpcodeRunnable;
 import mcjty.rftoolscontrol.api.machines.IProcessor;
@@ -654,7 +655,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         if (lastValue == null) {
             throw new ProgException(EXCEPT_MISSINGLASTVALUE);
         }
-        ItemStack itemStack = TypeConverters.convertToItem(lastValue.getParameterValue().getValue());
+        ItemStack itemStack = TypeConverters.convertToItem(lastValue.getParameterType(), lastValue.getParameterValue());
         if (itemStack == null) {
             throw new ProgException(EXCEPT_NOTANITEM);
         }
@@ -670,7 +671,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             if (parameter == null || !parameter.isSet()) {
                 return null;
             }
-            return TypeConverters.convertToItem(parameter.getParameterValue().getValue());
+            return TypeConverters.convertToItem(parameter.getParameterType(), parameter.getParameterValue());
         }
         return null;
     }
@@ -1709,7 +1710,8 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         CardInfo info = this.cardInfo[((RunningProgram)program).getCardIndex()];
         int realVar = getRealVarSafe(varIdx, info);
 
-        int i = TypeConverters.convertToInt(getVariableArray()[realVar].getParameterValue().getValue());
+        Parameter parameter = getVariableArray()[realVar];
+        int i = TypeConverters.convertToInteger(parameter.getParameterType(), parameter.getParameterValue());
         if (i > end) {
             return IOpcodeRunnable.OpcodeResult.NEGATIVE;
         } else {
@@ -1784,13 +1786,11 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         if (value.isConstant()) {
             return (T) value.getValue();
         } else if (value.isFunction()) {
-            ParameterValue v = value.getFunction().getFunctionRunnable().run(this, program);
-            // @todo  What if the function does not return a constant? Do we support that?
-            return (T) v.getValue();
+            Object v = value.getFunction().getFunctionRunnable().run(this, program);
+            return (T) v;
         } else {
             CardInfo info = this.cardInfo[((RunningProgram)program).getCardIndex()];
             int realVar = getRealVarSafe(value.getVariableIndex(), info);
-            // @todo  What if the variable does not return a constant? Do we support that?
             Parameter par = variables[realVar];
             if (par == null) {
                 return null;
@@ -1802,15 +1802,33 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     @Nullable
     @Override
     public Tuple evaluateTupleParameter(ICompiledOpcode compiledOpcode, IProgram program, int parIndex) {
-        Object o = evaluateParameter(compiledOpcode, program, parIndex);
-        return TypeConverters.convertToTuple(o);
+        List<Parameter> parameters = compiledOpcode.getParameters();
+        if (parIndex >= parameters.size()) {
+            return null;
+        }
+        Parameter parameter = parameters.get(parIndex);
+        ParameterValue value = parameter.getParameterValue();
+        if (value.isConstant()) {
+            return TypeConverters.convertToTuple(parameter.getParameterType(), value);
+        } else if (value.isFunction()) {
+            Function function = value.getFunction();
+            Object v = function.getFunctionRunnable().run(this, program);
+            return TypeConverters.convertToTupleValue(function.getReturnType(), v);
+        } else {
+            CardInfo info = this.cardInfo[((RunningProgram)program).getCardIndex()];
+            int realVar = getRealVarSafe(value.getVariableIndex(), info);
+            Parameter par = variables[realVar];
+            if (par == null) {
+                return null;
+            }
+            return TypeConverters.convertToTuple(par.getParameterType(), par.getParameterValue());
+        }
     }
 
     @Nonnull
     @Override
     public Tuple evaluateTupleParameterNonNull(ICompiledOpcode compiledOpcode, IProgram program, int parIndex) {
-        Object o = evaluateParameter(compiledOpcode, program, parIndex);
-        Tuple tuple = TypeConverters.convertToTuple(o);
+        Tuple tuple = evaluateTupleParameter(compiledOpcode, program, parIndex);
         if (tuple == null) {
             throw new ProgException(EXCEPT_MISSINGPARAMETER);
         }
@@ -1820,15 +1838,33 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     @Nullable
     @Override
     public ItemStack evaluateItemParameter(ICompiledOpcode compiledOpcode, IProgram program, int parIndex) {
-        Object o = evaluateParameter(compiledOpcode, program, parIndex);
-        return TypeConverters.convertToItem(o);
+        List<Parameter> parameters = compiledOpcode.getParameters();
+        if (parIndex >= parameters.size()) {
+            return null;
+        }
+        Parameter parameter = parameters.get(parIndex);
+        ParameterValue value = parameter.getParameterValue();
+        if (value.isConstant()) {
+            return TypeConverters.convertToItem(parameter.getParameterType(), value);
+        } else if (value.isFunction()) {
+            Function function = value.getFunction();
+            Object v = function.getFunctionRunnable().run(this, program);
+            return TypeConverters.convertToItemValue(function.getReturnType(), v);
+        } else {
+            CardInfo info = this.cardInfo[((RunningProgram)program).getCardIndex()];
+            int realVar = getRealVarSafe(value.getVariableIndex(), info);
+            Parameter par = variables[realVar];
+            if (par == null) {
+                return null;
+            }
+            return TypeConverters.convertToItem(par.getParameterType(), par.getParameterValue());
+        }
     }
 
     @Nonnull
     @Override
     public ItemStack evaluateItemParameterNonNull(ICompiledOpcode compiledOpcode, IProgram program, int parIndex) {
-        Object o = evaluateParameter(compiledOpcode, program, parIndex);
-        ItemStack stack = TypeConverters.convertToItem(o);
+        ItemStack stack = evaluateItemParameter(compiledOpcode, program, parIndex);
         if (stack == null) {
             throw new ProgException(EXCEPT_MISSINGPARAMETER);
         }
@@ -1838,15 +1874,33 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     @Nullable
     @Override
     public FluidStack evaluateFluidParameter(ICompiledOpcode compiledOpcode, IProgram program, int parIndex) {
-        Object o = evaluateParameter(compiledOpcode, program, parIndex);
-        return TypeConverters.convertToFluid(o);
+        List<Parameter> parameters = compiledOpcode.getParameters();
+        if (parIndex >= parameters.size()) {
+            return null;
+        }
+        Parameter parameter = parameters.get(parIndex);
+        ParameterValue value = parameter.getParameterValue();
+        if (value.isConstant()) {
+            return TypeConverters.convertToFluid(parameter.getParameterType(), value);
+        } else if (value.isFunction()) {
+            Function function = value.getFunction();
+            Object v = function.getFunctionRunnable().run(this, program);
+            return TypeConverters.convertToFluidValue(function.getReturnType(), v);
+        } else {
+            CardInfo info = this.cardInfo[((RunningProgram)program).getCardIndex()];
+            int realVar = getRealVarSafe(value.getVariableIndex(), info);
+            Parameter par = variables[realVar];
+            if (par == null) {
+                return null;
+            }
+            return TypeConverters.convertToFluid(par.getParameterType(), par.getParameterValue());
+        }
     }
 
     @Nonnull
     @Override
     public FluidStack evaluateFluidParameterNonNull(ICompiledOpcode compiledOpcode, IProgram program, int parIndex) {
-        Object o = evaluateParameter(compiledOpcode, program, parIndex);
-        FluidStack stack = TypeConverters.convertToFluid(o);
+        FluidStack stack = evaluateFluidParameter(compiledOpcode, program, parIndex);
         if (stack == null) {
             throw new ProgException(EXCEPT_MISSINGPARAMETER);
         }
@@ -1856,15 +1910,33 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     @Nullable
     @Override
     public BlockSide evaluateSideParameter(ICompiledOpcode compiledOpcode, IProgram program, int parIndex) {
-        Object o = evaluateParameter(compiledOpcode, program, parIndex);
-        return TypeConverters.convertToSide(o);
+        List<Parameter> parameters = compiledOpcode.getParameters();
+        if (parIndex >= parameters.size()) {
+            return null;
+        }
+        Parameter parameter = parameters.get(parIndex);
+        ParameterValue value = parameter.getParameterValue();
+        if (value.isConstant()) {
+            return TypeConverters.convertToSide(parameter.getParameterType(), value);
+        } else if (value.isFunction()) {
+            Function function = value.getFunction();
+            Object v = function.getFunctionRunnable().run(this, program);
+            return TypeConverters.convertToSideValue(function.getReturnType(), v);
+        } else {
+            CardInfo info = this.cardInfo[((RunningProgram)program).getCardIndex()];
+            int realVar = getRealVarSafe(value.getVariableIndex(), info);
+            Parameter par = variables[realVar];
+            if (par == null) {
+                return null;
+            }
+            return TypeConverters.convertToSide(par.getParameterType(), par.getParameterValue());
+        }
     }
 
     @Nonnull
     @Override
     public BlockSide evaluateSideParameterNonNull(ICompiledOpcode compiledOpcode, IProgram program, int parIndex) {
-        Object o = evaluateParameter(compiledOpcode, program, parIndex);
-        BlockSide side = TypeConverters.convertToSide(o);
+        BlockSide side = evaluateSideParameter(compiledOpcode, program, parIndex);
         if (side == null) {
             throw new ProgException(EXCEPT_MISSINGPARAMETER);
         }
@@ -1874,15 +1946,33 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     @Nullable
     @Override
     public Inventory evaluateInventoryParameter(ICompiledOpcode compiledOpcode, IProgram program, int parIndex) {
-        Object o = evaluateParameter(compiledOpcode, program, parIndex);
-        return TypeConverters.convertToInventory(o);
+        List<Parameter> parameters = compiledOpcode.getParameters();
+        if (parIndex >= parameters.size()) {
+            return null;
+        }
+        Parameter parameter = parameters.get(parIndex);
+        ParameterValue value = parameter.getParameterValue();
+        if (value.isConstant()) {
+            return TypeConverters.convertToInventory(parameter.getParameterType(), value);
+        } else if (value.isFunction()) {
+            Function function = value.getFunction();
+            Object v = function.getFunctionRunnable().run(this, program);
+            return TypeConverters.convertToInventoryValue(function.getReturnType(), v);
+        } else {
+            CardInfo info = this.cardInfo[((RunningProgram)program).getCardIndex()];
+            int realVar = getRealVarSafe(value.getVariableIndex(), info);
+            Parameter par = variables[realVar];
+            if (par == null) {
+                return null;
+            }
+            return TypeConverters.convertToInventory(par.getParameterType(), par.getParameterValue());
+        }
     }
 
     @Nonnull
     @Override
     public Inventory evaluateInventoryParameterNonNull(ICompiledOpcode compiledOpcode, IProgram program, int parIndex) {
-        Object o = evaluateParameter(compiledOpcode, program, parIndex);
-        Inventory inv = TypeConverters.convertToInventory(o);
+        Inventory inv = evaluateInventoryParameter(compiledOpcode, program, parIndex);
         if (inv == null) {
             throw new ProgException(EXCEPT_MISSINGPARAMETER);
         }
@@ -1891,40 +1981,99 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
 
     @Override
     public int evaluateIntParameter(ICompiledOpcode compiledOpcode, IProgram program, int parIndex) {
-        Object value = evaluateParameter(compiledOpcode, program, parIndex);
-        return TypeConverters.convertToInt(value);
+        Integer value = evaluateIntegerParameter(compiledOpcode, program, parIndex);
+        if (value == null) {
+            return 0;
+        }
+        return value;
     }
 
     // This version allows returning null
     @Override
     @Nullable
     public Integer evaluateIntegerParameter(ICompiledOpcode compiledOpcode, IProgram program, int parIndex) {
-        Object value = evaluateParameter(compiledOpcode, program, parIndex);
-        return TypeConverters.convertToInteger(value);
+        List<Parameter> parameters = compiledOpcode.getParameters();
+        if (parIndex >= parameters.size()) {
+            return null;
+        }
+        Parameter parameter = parameters.get(parIndex);
+        ParameterValue value = parameter.getParameterValue();
+        if (value.isConstant()) {
+            return TypeConverters.convertToInteger(parameter.getParameterType(), value);
+        } else if (value.isFunction()) {
+            Function function = value.getFunction();
+            Object v = function.getFunctionRunnable().run(this, program);
+            return TypeConverters.convertToIntegerValue(function.getReturnType(), v);
+        } else {
+            CardInfo info = this.cardInfo[((RunningProgram)program).getCardIndex()];
+            int realVar = getRealVarSafe(value.getVariableIndex(), info);
+            Parameter par = variables[realVar];
+            if (par == null) {
+                return null;
+            }
+            return TypeConverters.convertToInteger(par.getParameterType(), par.getParameterValue());
+        }
     }
 
     @Override
     @Nullable
     public String evaluateStringParameter(ICompiledOpcode compiledOpcode, IProgram program, int parIndex) {
-        Object value = evaluateParameter(compiledOpcode, program, parIndex);
-        return TypeConverters.convertToString(value);
+        List<Parameter> parameters = compiledOpcode.getParameters();
+        if (parIndex >= parameters.size()) {
+            return null;
+        }
+        Parameter parameter = parameters.get(parIndex);
+        ParameterValue value = parameter.getParameterValue();
+        if (value.isConstant()) {
+            return TypeConverters.convertToString(parameter.getParameterType(), value);
+        } else if (value.isFunction()) {
+            Function function = value.getFunction();
+            Object v = function.getFunctionRunnable().run(this, program);
+            return TypeConverters.convertToStringValue(function.getReturnType(), v);
+        } else {
+            CardInfo info = this.cardInfo[((RunningProgram)program).getCardIndex()];
+            int realVar = getRealVarSafe(value.getVariableIndex(), info);
+            Parameter par = variables[realVar];
+            if (par == null) {
+                return null;
+            }
+            return TypeConverters.convertToString(par.getParameterType(), par.getParameterValue());
+        }
     }
 
     @Nonnull
     @Override
     public String evaluateStringParameterNonNull(ICompiledOpcode compiledOpcode, IProgram program, int parIndex) {
-        Object value = evaluateParameter(compiledOpcode, program, parIndex);
-        String s = TypeConverters.convertToString(value);
-        if (s == null) {
+        String value = evaluateStringParameter(compiledOpcode, program, parIndex);
+        if (value == null) {
             throw new ProgException(EXCEPT_MISSINGPARAMETER);
         }
-        return s;
+        return value;
     }
 
     @Override
     public boolean evaluateBoolParameter(ICompiledOpcode compiledOpcode, IProgram program, int parIndex) {
-        Object value = evaluateParameter(compiledOpcode, program, parIndex);
-        return TypeConverters.convertToBool(value);
+        List<Parameter> parameters = compiledOpcode.getParameters();
+        if (parIndex >= parameters.size()) {
+            return false;
+        }
+        Parameter parameter = parameters.get(parIndex);
+        ParameterValue value = parameter.getParameterValue();
+        if (value.isConstant()) {
+            return TypeConverters.convertToBool(parameter.getParameterType(), value);
+        } else if (value.isFunction()) {
+            Function function = value.getFunction();
+            Object v = function.getFunctionRunnable().run(this, program);
+            return TypeConverters.convertToBoolValue(function.getReturnType(), v);
+        } else {
+            CardInfo info = this.cardInfo[((RunningProgram)program).getCardIndex()];
+            int realVar = getRealVarSafe(value.getVariableIndex(), info);
+            Parameter par = variables[realVar];
+            if (par == null) {
+                return false;
+            }
+            return TypeConverters.convertToBool(par.getParameterType(), par.getParameterValue());
+        }
     }
 
     public int countItemStorage(ItemStack stack, boolean routable, boolean oredict) {
