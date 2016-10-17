@@ -83,6 +83,7 @@ public class FluidEditor extends AbstractParameterEditor {
                 itemStack = new ItemStack(inv.getFluid().getBlock());
             }
             blockRender.setRenderItem(itemStack);
+//            blockRender.setRenderItem(inv);
         }
     }
 }

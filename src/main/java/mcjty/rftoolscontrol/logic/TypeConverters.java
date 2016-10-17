@@ -36,9 +36,9 @@ public class TypeConverters {
             case PAR_BOOLEAN:
                 return ((Boolean) v) ? 1.0f : 0.0f;
             case PAR_ITEM:
-                return (float) ((ItemStack) v).stackSize;
+                return ((ItemStack) v).stackSize;
             case PAR_FLUID:
-                return (float) ((FluidStack) v).amount;
+                return ((FluidStack) v).amount;
             case PAR_INVENTORY:
             case PAR_SIDE:
             case PAR_EXCEPTION:

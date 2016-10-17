@@ -1408,7 +1408,7 @@ public class Opcodes {
             .outputDescription("fluidstack (fluid)")
             .category(CATEGORY_LIQUIDS)
             .opcodeOutput(SINGLE)
-            .parameter(ParameterDescription.builder().name("fluid").type(PAR_ITEM).description("a fluid stack (bucket)").build())
+            .parameter(ParameterDescription.builder().name("fluid").type(PAR_FLUID).description("a fluid stack (bucket)").build())
             .icon(11, 6)
             .runnable(((processor, program, opcode) -> {
                 FluidStack stack = processor.evaluateFluidParameterNonNull(opcode, program, 0);

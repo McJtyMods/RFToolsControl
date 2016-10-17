@@ -19,7 +19,7 @@ public class ParameterEditors {
         EDITORS.put(PAR_BOOLEAN, new BooleanEditor());
         EDITORS.put(PAR_INVENTORY, new InventoryEditor());
         EDITORS.put(PAR_ITEM, new ItemEditor());
-        EDITORS.put(PAR_FLOAT, new FluidEditor());
+        EDITORS.put(PAR_FLUID, new FluidEditor());
         EDITORS.put(PAR_EXCEPTION, new ExceptionEditor());
         EDITORS.put(PAR_TUPLE, new TupleEditor());
     }
