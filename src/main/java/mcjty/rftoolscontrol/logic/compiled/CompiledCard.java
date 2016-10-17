@@ -60,7 +60,7 @@ public class CompiledCard {
             for (int i = 0 ; i < grid.getParameters().size() ; i++) {
                 Parameter parameter = grid.getParameters().get(i);
                 if (i < parameters.size() && "single".equals(parameters.get(i).getName())) {
-                    single = TypeConverters.convertToBool(parameter.getParameterType(), parameter.getParameterValue());
+                    single = TypeConverters.convertToBool(parameter);
                 }
                 opcodeBuilder.parameter(parameter);
             }

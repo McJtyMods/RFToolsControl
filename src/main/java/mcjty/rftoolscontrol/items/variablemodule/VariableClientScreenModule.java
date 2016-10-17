@@ -42,7 +42,7 @@ public class VariableClientScreenModule implements IClientScreenModule<ModuleDat
         if (screenData != null) {
             Parameter parameter = screenData.getParameter();
             if (parameter != null && parameter.getParameterValue() != null) {
-                String str = TypeConverters.convertToString(parameter.getParameterType(), parameter.getParameterValue());
+                String str = TypeConverters.convertToString(parameter);
                 fontRenderer.drawString(str, xoffset, currenty, varcolor);
             }
         }

@@ -147,7 +147,7 @@ public class RunningProgram implements IProgram {
             int varIdx = pair.getRight();
             loopStack.remove(loopStack.size()-1);
             Parameter parameter = processor.getVariableArray()[varIdx];
-            int i = TypeConverters.convertToInteger(parameter.getParameterType(), parameter.getParameterValue());
+            int i = TypeConverters.convertToInt(parameter);
             i++;
             processor.getVariableArray()[varIdx] = Parameter.builder().type(ParameterType.PAR_INTEGER).value(ParameterValue.constant(i)).build();
         }

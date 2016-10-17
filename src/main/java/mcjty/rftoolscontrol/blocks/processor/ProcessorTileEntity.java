@@ -75,6 +75,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
+import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 import static mcjty.rftoolscontrol.logic.running.ExceptionType.*;
@@ -97,6 +98,15 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     public static final String CLIENTCMD_GETDEBUGLOG = "getDebugLog";
     public static final String CMD_GETVARS = "getVars";
     public static final String CLIENTCMD_GETVARS = "getVars";
+
+    private static final BiFunction<ParameterType, Object, ItemStack> CONVERTOR_ITEM = (type, value) -> TypeConverters.convertToItem(type, value);
+    private static final BiFunction<ParameterType, Object, FluidStack> CONVERTOR_FLUID = (type, value) -> TypeConverters.convertToFluid(type, value);
+    private static final BiFunction<ParameterType, Object, BlockSide> CONVERTOR_SIDE = (type, value) -> TypeConverters.convertToSide(type, value);
+    private static final BiFunction<ParameterType, Object, Inventory> CONVERTOR_INVENTORY = (type, value) -> TypeConverters.convertToInventory(type, value);
+    private static final BiFunction<ParameterType, Object, Tuple> CONVERTOR_TUPLE = (type, value) -> TypeConverters.convertToTuple(type, value);
+    private static final BiFunction<ParameterType, Object, Integer> CONVERTOR_INTEGER = (type, value) -> TypeConverters.convertToInteger(type, value);
+    private static final BiFunction<ParameterType, Object, String> CONVERTOR_STRING = (type, value) -> TypeConverters.convertToString(type, value);
+    private static final BiFunction<ParameterType, Object, Boolean> CONVERTOR_BOOL = (type, value) -> TypeConverters.convertToBool(type, value);
 
     private InventoryHelper inventoryHelper = new InventoryHelper(this, ProcessorContainer.factory, ProcessorContainer.SLOTS);
     private List<CpuCore> cpuCores = new ArrayList<>();
@@ -655,7 +665,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         if (lastValue == null) {
             throw new ProgException(EXCEPT_MISSINGLASTVALUE);
         }
-        ItemStack itemStack = TypeConverters.convertToItem(lastValue.getParameterType(), lastValue.getParameterValue());
+        ItemStack itemStack = TypeConverters.convertToItem(lastValue);
         if (itemStack == null) {
             throw new ProgException(EXCEPT_NOTANITEM);
         }
@@ -671,7 +681,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             if (parameter == null || !parameter.isSet()) {
                 return null;
             }
-            return TypeConverters.convertToItem(parameter.getParameterType(), parameter.getParameterValue());
+            return TypeConverters.convertToItem(parameter);
         }
         return null;
     }
@@ -1711,7 +1721,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         int realVar = getRealVarSafe(varIdx, info);
 
         Parameter parameter = getVariableArray()[realVar];
-        int i = TypeConverters.convertToInteger(parameter.getParameterType(), parameter.getParameterValue());
+        int i = TypeConverters.convertToInt(parameter);
         if (i > end) {
             return IOpcodeRunnable.OpcodeResult.NEGATIVE;
         } else {
@@ -1765,218 +1775,112 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         variables[realVar] = program.getLastValue();
     }
 
+    @Nullable
+    public <T> T evaluateGenericParameter(ICompiledOpcode compiledOpcode, IProgram program, int parIndex,
+                                          BiFunction<ParameterType, Object, T> convertor) {
+        List<Parameter> parameters = compiledOpcode.getParameters();
+        if (parIndex >= parameters.size()) {
+            return null;
+        }
+        Parameter parameter = parameters.get(parIndex);
+        ParameterValue value = parameter.getParameterValue();
+        if (value.isConstant()) {
+            return convertor.apply(parameter.getParameterType(), value.getValue());
+        } else if (value.isFunction()) {
+            Function function = value.getFunction();
+            Object v = function.getFunctionRunnable().run(this, program);
+            return convertor.apply(function.getReturnType(), v);
+        } else {
+            CardInfo info = this.cardInfo[((RunningProgram)program).getCardIndex()];
+            int realVar = getRealVarSafe(value.getVariableIndex(), info);
+            Parameter par = variables[realVar];
+            if (par == null || par.getParameterValue() == null) {
+                return null;
+            }
+            return convertor.apply(par.getParameterType(), par.getParameterValue().getValue());
+        }
+    }
+
+    @Nonnull
+    public <T> T evaluateGenericParameterNonNull(ICompiledOpcode compiledOpcode, IProgram program, int parIndex,
+                                          BiFunction<ParameterType, Object, T> convertor) {
+        T rc = evaluateGenericParameter(compiledOpcode, program, parIndex, convertor);
+        if (rc == null) {
+            throw new ProgException(EXCEPT_MISSINGPARAMETER);
+        }
+        return rc;
+    }
+
     @Nonnull
     @Override
     public <T> T evaluateParameterNonNull(ICompiledOpcode compiledOpcode, IProgram program, int parIndex) {
-        T parameter = evaluateParameter(compiledOpcode, program, parIndex);
-        if (parameter == null) {
-            throw new ProgException(EXCEPT_MISSINGPARAMETER);
-        }
-        return parameter;
+        return evaluateGenericParameterNonNull(compiledOpcode, program, parIndex, (type, value) -> (T) value);
     }
 
     @Override
     @Nullable
     public <T> T evaluateParameter(ICompiledOpcode compiledOpcode, IProgram program, int parIndex) {
-        List<Parameter> parameters = compiledOpcode.getParameters();
-        if (parIndex >= parameters.size()) {
-            return null;
-        }
-        ParameterValue value = parameters.get(parIndex).getParameterValue();
-        if (value.isConstant()) {
-            return (T) value.getValue();
-        } else if (value.isFunction()) {
-            Object v = value.getFunction().getFunctionRunnable().run(this, program);
-            return (T) v;
-        } else {
-            CardInfo info = this.cardInfo[((RunningProgram)program).getCardIndex()];
-            int realVar = getRealVarSafe(value.getVariableIndex(), info);
-            Parameter par = variables[realVar];
-            if (par == null) {
-                return null;
-            }
-            return par.isSet() ? (T) par.getParameterValue().getValue() : null;
-        }
+        return evaluateGenericParameter(compiledOpcode, program, parIndex, (type, value) -> (T) value);
     }
 
     @Nullable
     @Override
     public Tuple evaluateTupleParameter(ICompiledOpcode compiledOpcode, IProgram program, int parIndex) {
-        List<Parameter> parameters = compiledOpcode.getParameters();
-        if (parIndex >= parameters.size()) {
-            return null;
-        }
-        Parameter parameter = parameters.get(parIndex);
-        ParameterValue value = parameter.getParameterValue();
-        if (value.isConstant()) {
-            return TypeConverters.convertToTuple(parameter.getParameterType(), value);
-        } else if (value.isFunction()) {
-            Function function = value.getFunction();
-            Object v = function.getFunctionRunnable().run(this, program);
-            return TypeConverters.convertToTupleValue(function.getReturnType(), v);
-        } else {
-            CardInfo info = this.cardInfo[((RunningProgram)program).getCardIndex()];
-            int realVar = getRealVarSafe(value.getVariableIndex(), info);
-            Parameter par = variables[realVar];
-            if (par == null) {
-                return null;
-            }
-            return TypeConverters.convertToTuple(par.getParameterType(), par.getParameterValue());
-        }
+        return evaluateGenericParameter(compiledOpcode, program, parIndex, CONVERTOR_TUPLE);
     }
 
     @Nonnull
     @Override
     public Tuple evaluateTupleParameterNonNull(ICompiledOpcode compiledOpcode, IProgram program, int parIndex) {
-        Tuple tuple = evaluateTupleParameter(compiledOpcode, program, parIndex);
-        if (tuple == null) {
-            throw new ProgException(EXCEPT_MISSINGPARAMETER);
-        }
-        return tuple;
+        return evaluateGenericParameterNonNull(compiledOpcode, program, parIndex, CONVERTOR_TUPLE);
     }
 
     @Nullable
     @Override
     public ItemStack evaluateItemParameter(ICompiledOpcode compiledOpcode, IProgram program, int parIndex) {
-        List<Parameter> parameters = compiledOpcode.getParameters();
-        if (parIndex >= parameters.size()) {
-            return null;
-        }
-        Parameter parameter = parameters.get(parIndex);
-        ParameterValue value = parameter.getParameterValue();
-        if (value.isConstant()) {
-            return TypeConverters.convertToItem(parameter.getParameterType(), value);
-        } else if (value.isFunction()) {
-            Function function = value.getFunction();
-            Object v = function.getFunctionRunnable().run(this, program);
-            return TypeConverters.convertToItemValue(function.getReturnType(), v);
-        } else {
-            CardInfo info = this.cardInfo[((RunningProgram)program).getCardIndex()];
-            int realVar = getRealVarSafe(value.getVariableIndex(), info);
-            Parameter par = variables[realVar];
-            if (par == null) {
-                return null;
-            }
-            return TypeConverters.convertToItem(par.getParameterType(), par.getParameterValue());
-        }
+        return evaluateGenericParameter(compiledOpcode, program, parIndex, CONVERTOR_ITEM);
     }
 
     @Nonnull
     @Override
     public ItemStack evaluateItemParameterNonNull(ICompiledOpcode compiledOpcode, IProgram program, int parIndex) {
-        ItemStack stack = evaluateItemParameter(compiledOpcode, program, parIndex);
-        if (stack == null) {
-            throw new ProgException(EXCEPT_MISSINGPARAMETER);
-        }
-        return stack;
+        return evaluateGenericParameterNonNull(compiledOpcode, program, parIndex, CONVERTOR_ITEM);
     }
 
     @Nullable
     @Override
     public FluidStack evaluateFluidParameter(ICompiledOpcode compiledOpcode, IProgram program, int parIndex) {
-        List<Parameter> parameters = compiledOpcode.getParameters();
-        if (parIndex >= parameters.size()) {
-            return null;
-        }
-        Parameter parameter = parameters.get(parIndex);
-        ParameterValue value = parameter.getParameterValue();
-        if (value.isConstant()) {
-            return TypeConverters.convertToFluid(parameter.getParameterType(), value);
-        } else if (value.isFunction()) {
-            Function function = value.getFunction();
-            Object v = function.getFunctionRunnable().run(this, program);
-            return TypeConverters.convertToFluidValue(function.getReturnType(), v);
-        } else {
-            CardInfo info = this.cardInfo[((RunningProgram)program).getCardIndex()];
-            int realVar = getRealVarSafe(value.getVariableIndex(), info);
-            Parameter par = variables[realVar];
-            if (par == null) {
-                return null;
-            }
-            return TypeConverters.convertToFluid(par.getParameterType(), par.getParameterValue());
-        }
+        return evaluateGenericParameter(compiledOpcode, program, parIndex, CONVERTOR_FLUID);
     }
 
     @Nonnull
     @Override
     public FluidStack evaluateFluidParameterNonNull(ICompiledOpcode compiledOpcode, IProgram program, int parIndex) {
-        FluidStack stack = evaluateFluidParameter(compiledOpcode, program, parIndex);
-        if (stack == null) {
-            throw new ProgException(EXCEPT_MISSINGPARAMETER);
-        }
-        return stack;
+        return evaluateGenericParameterNonNull(compiledOpcode, program, parIndex, CONVERTOR_FLUID);
     }
 
     @Nullable
     @Override
     public BlockSide evaluateSideParameter(ICompiledOpcode compiledOpcode, IProgram program, int parIndex) {
-        List<Parameter> parameters = compiledOpcode.getParameters();
-        if (parIndex >= parameters.size()) {
-            return null;
-        }
-        Parameter parameter = parameters.get(parIndex);
-        ParameterValue value = parameter.getParameterValue();
-        if (value.isConstant()) {
-            return TypeConverters.convertToSide(parameter.getParameterType(), value);
-        } else if (value.isFunction()) {
-            Function function = value.getFunction();
-            Object v = function.getFunctionRunnable().run(this, program);
-            return TypeConverters.convertToSideValue(function.getReturnType(), v);
-        } else {
-            CardInfo info = this.cardInfo[((RunningProgram)program).getCardIndex()];
-            int realVar = getRealVarSafe(value.getVariableIndex(), info);
-            Parameter par = variables[realVar];
-            if (par == null) {
-                return null;
-            }
-            return TypeConverters.convertToSide(par.getParameterType(), par.getParameterValue());
-        }
+        return evaluateGenericParameter(compiledOpcode, program, parIndex, CONVERTOR_SIDE);
     }
 
     @Nonnull
     @Override
     public BlockSide evaluateSideParameterNonNull(ICompiledOpcode compiledOpcode, IProgram program, int parIndex) {
-        BlockSide side = evaluateSideParameter(compiledOpcode, program, parIndex);
-        if (side == null) {
-            throw new ProgException(EXCEPT_MISSINGPARAMETER);
-        }
-        return side;
+        return evaluateGenericParameterNonNull(compiledOpcode, program, parIndex, CONVERTOR_SIDE);
     }
 
     @Nullable
     @Override
     public Inventory evaluateInventoryParameter(ICompiledOpcode compiledOpcode, IProgram program, int parIndex) {
-        List<Parameter> parameters = compiledOpcode.getParameters();
-        if (parIndex >= parameters.size()) {
-            return null;
-        }
-        Parameter parameter = parameters.get(parIndex);
-        ParameterValue value = parameter.getParameterValue();
-        if (value.isConstant()) {
-            return TypeConverters.convertToInventory(parameter.getParameterType(), value);
-        } else if (value.isFunction()) {
-            Function function = value.getFunction();
-            Object v = function.getFunctionRunnable().run(this, program);
-            return TypeConverters.convertToInventoryValue(function.getReturnType(), v);
-        } else {
-            CardInfo info = this.cardInfo[((RunningProgram)program).getCardIndex()];
-            int realVar = getRealVarSafe(value.getVariableIndex(), info);
-            Parameter par = variables[realVar];
-            if (par == null) {
-                return null;
-            }
-            return TypeConverters.convertToInventory(par.getParameterType(), par.getParameterValue());
-        }
+        return evaluateGenericParameter(compiledOpcode, program, parIndex, CONVERTOR_INVENTORY);
     }
 
     @Nonnull
     @Override
     public Inventory evaluateInventoryParameterNonNull(ICompiledOpcode compiledOpcode, IProgram program, int parIndex) {
-        Inventory inv = evaluateInventoryParameter(compiledOpcode, program, parIndex);
-        if (inv == null) {
-            throw new ProgException(EXCEPT_MISSINGPARAMETER);
-        }
-        return inv;
+        return evaluateGenericParameterNonNull(compiledOpcode, program, parIndex, CONVERTOR_INVENTORY);
     }
 
     @Override
@@ -1988,92 +1892,31 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         return value;
     }
 
-    // This version allows returning null
     @Override
     @Nullable
     public Integer evaluateIntegerParameter(ICompiledOpcode compiledOpcode, IProgram program, int parIndex) {
-        List<Parameter> parameters = compiledOpcode.getParameters();
-        if (parIndex >= parameters.size()) {
-            return null;
-        }
-        Parameter parameter = parameters.get(parIndex);
-        ParameterValue value = parameter.getParameterValue();
-        if (value.isConstant()) {
-            return TypeConverters.convertToInteger(parameter.getParameterType(), value);
-        } else if (value.isFunction()) {
-            Function function = value.getFunction();
-            Object v = function.getFunctionRunnable().run(this, program);
-            return TypeConverters.convertToIntegerValue(function.getReturnType(), v);
-        } else {
-            CardInfo info = this.cardInfo[((RunningProgram)program).getCardIndex()];
-            int realVar = getRealVarSafe(value.getVariableIndex(), info);
-            Parameter par = variables[realVar];
-            if (par == null) {
-                return null;
-            }
-            return TypeConverters.convertToInteger(par.getParameterType(), par.getParameterValue());
-        }
+        return evaluateGenericParameter(compiledOpcode, program, parIndex, CONVERTOR_INTEGER);
     }
 
     @Override
     @Nullable
     public String evaluateStringParameter(ICompiledOpcode compiledOpcode, IProgram program, int parIndex) {
-        List<Parameter> parameters = compiledOpcode.getParameters();
-        if (parIndex >= parameters.size()) {
-            return null;
-        }
-        Parameter parameter = parameters.get(parIndex);
-        ParameterValue value = parameter.getParameterValue();
-        if (value.isConstant()) {
-            return TypeConverters.convertToString(parameter.getParameterType(), value);
-        } else if (value.isFunction()) {
-            Function function = value.getFunction();
-            Object v = function.getFunctionRunnable().run(this, program);
-            return TypeConverters.convertToStringValue(function.getReturnType(), v);
-        } else {
-            CardInfo info = this.cardInfo[((RunningProgram)program).getCardIndex()];
-            int realVar = getRealVarSafe(value.getVariableIndex(), info);
-            Parameter par = variables[realVar];
-            if (par == null) {
-                return null;
-            }
-            return TypeConverters.convertToString(par.getParameterType(), par.getParameterValue());
-        }
+        return evaluateGenericParameter(compiledOpcode, program, parIndex, CONVERTOR_STRING);
     }
 
     @Nonnull
     @Override
     public String evaluateStringParameterNonNull(ICompiledOpcode compiledOpcode, IProgram program, int parIndex) {
-        String value = evaluateStringParameter(compiledOpcode, program, parIndex);
-        if (value == null) {
-            throw new ProgException(EXCEPT_MISSINGPARAMETER);
-        }
-        return value;
+        return evaluateGenericParameterNonNull(compiledOpcode, program, parIndex, CONVERTOR_STRING);
     }
 
     @Override
     public boolean evaluateBoolParameter(ICompiledOpcode compiledOpcode, IProgram program, int parIndex) {
-        List<Parameter> parameters = compiledOpcode.getParameters();
-        if (parIndex >= parameters.size()) {
+        Boolean rc = evaluateGenericParameter(compiledOpcode, program, parIndex, CONVERTOR_BOOL);
+        if (rc == null) {
             return false;
         }
-        Parameter parameter = parameters.get(parIndex);
-        ParameterValue value = parameter.getParameterValue();
-        if (value.isConstant()) {
-            return TypeConverters.convertToBool(parameter.getParameterType(), value);
-        } else if (value.isFunction()) {
-            Function function = value.getFunction();
-            Object v = function.getFunctionRunnable().run(this, program);
-            return TypeConverters.convertToBoolValue(function.getReturnType(), v);
-        } else {
-            CardInfo info = this.cardInfo[((RunningProgram)program).getCardIndex()];
-            int realVar = getRealVarSafe(value.getVariableIndex(), info);
-            Parameter par = variables[realVar];
-            if (par == null) {
-                return false;
-            }
-            return TypeConverters.convertToBool(par.getParameterType(), par.getParameterValue());
-        }
+        return rc;
     }
 
     public int countItemStorage(ItemStack stack, boolean routable, boolean oredict) {

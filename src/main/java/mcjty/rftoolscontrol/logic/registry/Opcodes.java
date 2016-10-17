@@ -1327,7 +1327,7 @@ public class Opcodes {
                 int lower = processor.evaluateIntParameter(opcode, program, 0);
                 int upper = processor.evaluateIntParameter(opcode, program, 1);
                 program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(
-                        ParameterValue.constant(Functions.random.nextInt(upper-lower)+lower)).build());
+                        ParameterValue.constant(Functions.RANDOM.nextInt(upper-lower)+lower)).build());
                 return POSITIVE;
             }))
             .build();

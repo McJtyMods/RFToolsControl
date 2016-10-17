@@ -13,7 +13,7 @@ import static mcjty.rftoolscontrol.api.parameters.ParameterType.*;
 
 public class Functions {
 
-    public static Random random = new Random(System.currentTimeMillis());
+    public static final Random RANDOM = new Random(System.currentTimeMillis());
 
     public static final Function LASTBOOL = Function.builder()
             .id("last_bool")
@@ -105,7 +105,7 @@ public class Functions {
             .type(PAR_INTEGER)
             .runnable((processor, program) -> {
                 int v = TypeConverters.convertToInt(program.getLastValue());
-                return random.nextInt(v);
+                return RANDOM.nextInt(v);
             })
             .build();
     public static final Function TUPLE_X = Function.builder()
@@ -141,7 +141,7 @@ public class Functions {
             .type(PAR_FLOAT)
             .runnable((processor, program) -> {
                 float v = TypeConverters.convertToFloat(program.getLastValue());
-                return random.nextFloat() * v;
+                return RANDOM.nextFloat() * v;
             })
             .build();
 

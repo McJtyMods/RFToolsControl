@@ -53,19 +53,14 @@ public class TypeConverters {
         if (parameter == null) {
             return null;
         }
-        return convertToFluid(parameter.getParameterType(), parameter.getParameterValue());
+        return convertToFluid(parameter.getParameterType(), parameter.getParameterValue().getValue());
     }
 
     @Nullable
-    public static FluidStack convertToFluid(ParameterType type, ParameterValue value) {
-        if (value == null || value.getValue() == null) {
+    public static FluidStack convertToFluid(ParameterType type, Object v) {
+        if (v == null) {
             return null;
         }
-        return convertToFluidValue(type, value.getValue());
-    }
-
-    @Nullable
-    public static FluidStack convertToFluidValue(ParameterType type, Object v) {
         switch (type) {
             case PAR_STRING:
                 return new FluidStack(FluidRegistry.getFluid((String) v), 1);
@@ -91,18 +86,14 @@ public class TypeConverters {
         if (value == null) {
             return null;
         }
-        return convertToItem(value.getParameterType(), value.getParameterValue());
+        return convertToItem(value.getParameterType(), value.getParameterValue().getValue());
     }
 
     @Nullable
-    public static ItemStack convertToItem(ParameterType type, ParameterValue value) {
-        if (value == null || value.getValue() == null) {
+    public static ItemStack convertToItem(ParameterType type, Object v) {
+        if (v == null) {
             return null;
         }
-        return convertToItemValue(type, value.getValue());
-    }
-
-    public static ItemStack convertToItemValue(ParameterType type, Object v) {
         switch (type) {
             case PAR_STRING:
                 return new ItemStack(ForgeRegistries.ITEMS.getValue(new ResourceLocation((String) v)), 1, 0);
@@ -129,18 +120,14 @@ public class TypeConverters {
         if (par == null) {
             return null;
         }
-        return convertToInventory(par.getParameterType(), par.getParameterValue());
+        return convertToInventory(par.getParameterType(), par.getParameterValue().getValue());
     }
 
     @Nullable
-    public static Inventory convertToInventory(ParameterType type, ParameterValue value) {
-        if (value == null || value.getValue() == null) {
+    public static Inventory convertToInventory(ParameterType type, Object v) {
+        if (v == null) {
             return null;
         }
-        return convertToInventoryValue(type, value.getValue());
-    }
-
-    public static Inventory convertToInventoryValue(ParameterType type, Object v) {
         switch (type) {
             case PAR_INVENTORY:
                 return (Inventory) v;
@@ -170,19 +157,14 @@ public class TypeConverters {
         if (par == null) {
             return null;
         }
-        return convertToSide(par.getParameterType(), par.getParameterValue());
+        return convertToSide(par.getParameterType(), par.getParameterValue().getValue());
     }
 
     @Nullable
-    public static BlockSide convertToSide(ParameterType type, ParameterValue value) {
-        if (value == null || value.getValue() == null) {
+    public static BlockSide convertToSide(ParameterType type, Object v) {
+        if (v == null) {
             return null;
         }
-        return convertToSideValue(type, value.getValue());
-    }
-
-    @Nullable
-    public static BlockSide convertToSideValue(ParameterType type, Object v) {
         switch (type) {
             case PAR_SIDE:
                 return (BlockSide) v;
@@ -204,22 +186,17 @@ public class TypeConverters {
 
     @Nullable
     public static Tuple convertToTuple(Parameter value) {
-        if (value == null) {
+        if (value == null || value.getParameterValue() == null) {
             return null;
         }
-        return convertToTuple(value.getParameterType(), value.getParameterValue());
+        return convertToTuple(value.getParameterType(), value.getParameterValue().getValue());
     }
 
     @Nullable
-    public static Tuple convertToTuple(ParameterType type, ParameterValue value) {
-        if (value == null || value.getValue() == null) {
+    public static Tuple convertToTuple(ParameterType type, Object v) {
+        if (v == null) {
             return null;
         }
-        return convertToTupleValue(type, value.getValue());
-    }
-
-    @Nullable
-    public static Tuple convertToTupleValue(ParameterType type, Object v) {
         switch (type) {
             case PAR_TUPLE:
                 return (Tuple) v;
@@ -247,17 +224,13 @@ public class TypeConverters {
         if (value == null) {
             return false;
         }
-        return convertToBool(value.getParameterType(), value.getParameterValue());
+        return convertToBool(value.getParameterType(), value.getParameterValue().getValue());
     }
 
-    public static boolean convertToBool(ParameterType type, ParameterValue value) {
-        if (value == null || value.getValue() == null) {
+    public static boolean convertToBool(ParameterType type, Object v) {
+        if (v == null) {
             return false;
         }
-        return convertToBoolValue(type, value.getValue());
-    }
-
-    public static boolean convertToBoolValue(ParameterType type, Object v) {
         switch (type) {
             case PAR_STRING:
                 return !((String) v).isEmpty();
@@ -283,7 +256,7 @@ public class TypeConverters {
         if (value == null) {
             return 0;
         }
-        Integer integer = convertToInteger(value.getParameterType(), value.getParameterValue());
+        Integer integer = convertToInteger(value.getParameterType(), value.getParameterValue().getValue());
         if (integer == null) {
             return 0;
         }
@@ -291,15 +264,10 @@ public class TypeConverters {
     }
 
     @Nullable
-    public static Integer convertToInteger(ParameterType type, ParameterValue value) {
-        if (value == null || value.getValue() == null) {
+    public static Integer convertToInteger(ParameterType type, Object v) {
+        if (v == null) {
             return null;
         }
-        return convertToIntegerValue(type, value.getValue());
-    }
-
-    @Nullable
-    public static Integer convertToIntegerValue(ParameterType type, Object v) {
         switch (type) {
             case PAR_STRING:
                 String s = (String) v;
@@ -333,7 +301,7 @@ public class TypeConverters {
         if (value == null) {
             return "";
         }
-        String s = convertToString(value.getParameterType(), value.getParameterValue());
+        String s = convertToString(value.getParameterType(), value.getParameterValue().getValue());
         if (s == null) {
             return "";
         }
@@ -341,14 +309,10 @@ public class TypeConverters {
     }
 
     @Nullable
-    public static String convertToString(ParameterType type, ParameterValue value) {
-        if (value == null || value.getValue() == null) {
+    public static String convertToString(ParameterType type, Object v) {
+        if (v == null) {
             return null;
         }
-        return convertToStringValue(type, value.getValue());
-    }
-
-    public static String convertToStringValue(ParameterType type, Object v) {
         switch (type) {
             case PAR_STRING:
                 return (String) v;
