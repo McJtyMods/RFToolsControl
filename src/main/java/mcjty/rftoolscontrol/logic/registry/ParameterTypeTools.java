@@ -249,9 +249,13 @@ public class ParameterTypeTools {
             case PAR_ITEM:
                 ItemStack item = (ItemStack) value;
                 object.add("item", new JsonPrimitive(item.getItem().getRegistryName().toString()));
+                if (item.stackSize != 1) {
+                    object.add("amount", new JsonPrimitive(item.stackSize));
+                }
                 object.add("meta", new JsonPrimitive(item.getItemDamage()));
                 if (item.hasTagCompound()) {
-                    object.add("nbt", new JsonPrimitive(item.getTagCompound().toString()));
+                    String string = item.getTagCompound().toString();
+                    object.add("nbt", new JsonPrimitive(string));
                 }
                 break;
             case PAR_FLUID:
@@ -294,11 +298,12 @@ public class ParameterTypeTools {
                 String node = object.has("node") ? object.get("node").getAsString() : null;
                 return ParameterValue.constant(new Inventory(node, side, intSide));
             }
-            case PAR_ITEM:
+            case PAR_ITEM: {
                 String itemReg = object.get("item").getAsString();
                 Item item = ForgeRegistries.ITEMS.getValue(new ResourceLocation(itemReg));
+                int amount = object.has("amount") ? object.get("amount").getAsInt() : 1;
                 int meta = object.get("meta").getAsInt();
-                ItemStack stack = new ItemStack(item, meta);
+                ItemStack stack = new ItemStack(item, amount, meta);
                 if (object.has("nbt")) {
                     String nbt = object.get("nbt").getAsString();
                     NBTTagCompound tagCompound = null;
@@ -310,7 +315,8 @@ public class ParameterTypeTools {
                     stack.setTagCompound(tagCompound);
                 }
                 return ParameterValue.constant(stack);
-            case PAR_FLUID:
+            }
+            case PAR_FLUID: {
                 String fluidName = object.get("name").getAsString();
                 int amount = object.get("amount").getAsInt();
                 FluidStack fluidStack = new FluidStack(FluidRegistry.getFluid(fluidName), amount);
@@ -323,6 +329,7 @@ public class ParameterTypeTools {
                     }
                 }
                 return ParameterValue.constant(fluidStack);
+            }
             case PAR_EXCEPTION:
                 String code = object.get("code").getAsString();
                 return ParameterValue.constant(ExceptionType.getExceptionForCode(code));
