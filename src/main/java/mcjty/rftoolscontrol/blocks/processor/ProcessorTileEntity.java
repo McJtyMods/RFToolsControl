@@ -87,6 +87,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     public static final int ITEM_SLOTS = 3*8;
     public static final int EXPANSION_SLOTS = 4*4;
     public static final int MAXVARS = 32;
+    public static final int MAXFLUIDVARS = 4*6;
 
     public static final String CMD_ALLOCATE = "allocate";
     public static final String CMD_CLEARLOG = "clearLog";
@@ -149,6 +150,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     private int tickCount = 0;
 
     private Parameter[] variables = new Parameter[MAXVARS];
+    private FluidStack[] fluidVariables = new FluidStack[MAXFLUIDVARS];
 
     private CardInfo[] cardInfo = new CardInfo[CARD_SLOTS];
 
@@ -176,6 +178,9 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         for (int i = 0 ; i < MAXVARS ; i++) {
             variables[i] = null;
         }
+        for (int i = 0 ; i < MAXFLUIDVARS ; i++) {
+            fluidVariables[i] = null;
+        }
     }
 
     @Override
@@ -195,6 +200,8 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     public Parameter getParameter(int idx) {
         return variables[idx];
     }
+
+    public FluidStack getFluidParameter(int idx) { return fluidVariables[idx]; }
 
     @Override
     protected boolean needsCustomInvWrapper() {
@@ -1211,13 +1218,23 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         return rc;
     }
 
+    public FluidStack[] getFluidVariableArray() {
+        return fluidVariables;
+    }
+
+    public List<FluidStack> getFluidVariables() {
+        List<FluidStack> pars = new ArrayList<>();
+        Collections.addAll(pars,fluidVariables);
+        return pars;
+    }
+
     public Parameter[] getVariableArray() {
         return variables;
     }
 
     public List<Parameter> getVariables() {
         List<Parameter> pars = new ArrayList<>();
-        Collections.addAll(pars, variables);
+        Collections.addAll(pars,variables);
         return pars;
     }
 
@@ -2176,6 +2193,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         readEventQueue(tagCompound);
         readLog(tagCompound);
         readVariables(tagCompound);
+        readFluidVariables(tagCompound);
         readNetworkNodes(tagCompound);
         readCraftingStations(tagCompound);
         readWaitingForItems(tagCompound);
@@ -2261,6 +2279,18 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         }
     }
 
+    private void readFluidVariables(NBTTagCompound tagCompound) {
+        for (int i = 0 ; i < MAXFLUIDVARS ; i++) {
+            fluidVariables[i] = null;
+        }
+        NBTTagList varList = tagCompound.getTagList("fluidVars", Constants.NBT.TAG_COMPOUND);
+        for (int i = 0 ; i < varList.tagCount() ; i++) {
+            NBTTagCompound var = varList.getCompoundTagAt(i);
+            int index = var.getInteger("varidx");
+            fluidVariables[index] = FluidStack.loadFluidStackFromNBT(var);
+        }
+    }
+
     private void readVariables(NBTTagCompound tagCompound) {
         for (int i = 0 ; i < MAXVARS ; i++) {
             variables[i] = null;
@@ -2337,6 +2367,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         writeEventQueue(tagCompound);
         writeLog(tagCompound);
         writeVariables(tagCompound);
+        writeFluidVariables(tagCompound);
         writeNetworkNodes(tagCompound);
         writeCraftingStations(tagCompound);
         writeWaitingForItems(tagCompound);
@@ -2419,6 +2450,19 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         for (int i = 0 ; i < MAXVARS ; i++) {
             if (variables[i] != null) {
                 NBTTagCompound var = ParameterTools.writeToNBT(variables[i]);
+                var.setInteger("varidx", i);
+                varList.appendTag(var);
+            }
+        }
+        tagCompound.setTag("vars", varList);
+    }
+
+    private void writeFluidVariables(NBTTagCompound tagCompound) {
+        NBTTagList varList = new NBTTagList();
+        for (int i = 0 ; i < MAXFLUIDVARS ; i++) {
+            if (fluidVariables[i] != null) {
+                NBTTagCompound var = new NBTTagCompound();
+                fluidVariables[i].writeToNBT(var);
                 var.setInteger("varidx", i);
                 varList.appendTag(var);
             }

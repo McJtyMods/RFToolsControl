@@ -57,12 +57,18 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
     private ToggleButton[] setupButtons = new ToggleButton[ProcessorTileEntity.CARD_SLOTS];
     private WidgetList log;
     private WidgetList variableList;
+    private WidgetList fluidList;
     private TextField command;
     private ToggleButton exclusive;
     private ChoiceLabel hudMode;
 
     private static List<String> commandHistory = new ArrayList<>();
     private static int commandHistoryIndex = -1;
+
+//    private static List<Parameter> fromServer_vars = new ArrayList<>();
+//    public static void storeVarsForClient(List<Parameter> messages) {
+//        fromServer_vars = new ArrayList<>(messages);
+//    }
 
     private static List<Parameter> fromServer_vars = new ArrayList<>();
     public static void storeVarsForClient(List<Parameter> messages) {
@@ -340,8 +346,21 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
     }
 
     private Panel setupVariableListPanel() {
+        fluidList = new WidgetList(mc, this)
+                .setLayoutHint(new PositionalLayout.PositionalHint(0, 0, 62, 60))
+                .setPropagateEventsToChildren(true)
+                .setInvisibleSelection(true)
+                .setDrawHorizontalLines(false)
+                .setUserObject("allowed");
+
+        Slider fluidSlider = new Slider(mc, this)
+                .setVertical()
+                .setScrollable(fluidList)
+                .setLayoutHint(new PositionalLayout.PositionalHint(62, 0, 9, 60))
+                .setUserObject("allowed");
+
         variableList = new WidgetList(mc, this)
-                .setLayoutHint(new PositionalLayout.PositionalHint(0, 0, 62, 220))
+                .setLayoutHint(new PositionalLayout.PositionalHint(0, 64, 62, 162))
                 .setPropagateEventsToChildren(true)
                 .setInvisibleSelection(true)
                 .setDrawHorizontalLines(false)
@@ -381,17 +400,19 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
             }
         });
 
-        Slider slider = new Slider(mc, this)
+        Slider varSlider = new Slider(mc, this)
                 .setVertical()
                 .setScrollable(variableList)
-                .setLayoutHint(new PositionalLayout.PositionalHint(62, 0, 9, 220))
+                .setLayoutHint(new PositionalLayout.PositionalHint(62, 64, 9, 162))
                 .setUserObject("allowed");
 
         updateVariableList();
 
         return new Panel(mc, this).setLayout(new PositionalLayout()).setLayoutHint(new PositionalLayout.PositionalHint(5, 5, 72, 220))
                 .addChild(variableList)
-                .addChild(slider)
+                .addChild(varSlider)
+                .addChild(fluidList)
+                .addChild(fluidSlider)
                 .setUserObject("allowed");
 //                .setFilledRectThickness(-2)
 //                .setFilledBackground(StyleConfig.colorListBackground);
