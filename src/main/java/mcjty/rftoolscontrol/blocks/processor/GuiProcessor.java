@@ -11,8 +11,8 @@ import mcjty.lib.gui.layout.HorizontalAlignment;
 import mcjty.lib.gui.layout.HorizontalLayout;
 import mcjty.lib.gui.layout.PositionalLayout;
 import mcjty.lib.gui.layout.VerticalLayout;
-import mcjty.lib.gui.widgets.Button;
 import mcjty.lib.gui.widgets.*;
+import mcjty.lib.gui.widgets.Button;
 import mcjty.lib.gui.widgets.Label;
 import mcjty.lib.gui.widgets.Panel;
 import mcjty.lib.gui.widgets.TextField;
@@ -64,6 +64,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
     private static List<String> commandHistory = new ArrayList<>();
     private static int commandHistoryIndex = -1;
 
+    private int[] fluidListMapping = new int[TANKS * 6];
     private static List<PacketGetFluids.FluidEntry> fromServer_fluids = new ArrayList<>();
     public static void storeFluidsForClient(List<PacketGetFluids.FluidEntry> messages) {
         fromServer_fluids = new ArrayList<>(messages);
@@ -316,6 +317,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
             CardInfo cardInfo = tileEntity.getCardInfo(setupMode);
             int itemAlloc = cardInfo.getItemAllocation();
             int varAlloc = cardInfo.getVarAllocation();
+            int fluidAlloc = cardInfo.getFluidAllocation();
 
             for (int i = 0 ; i < ProcessorTileEntity.ITEM_SLOTS ; i++) {
                 Slot slot = inventorySlots.getSlot(ProcessorContainer.SLOT_BUFFER + i);
@@ -331,7 +333,8 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
                     sendServerCommand(RFToolsCtrlMessages.INSTANCE, ProcessorTileEntity.CMD_ALLOCATE,
                             new Argument("card", setupMode),
                             new Argument("items", itemAlloc),
-                            new Argument("vars", varAlloc));
+                            new Argument("vars", varAlloc),
+                            new Argument("fluids", fluidAlloc));
                     break;
                 }
             }
@@ -347,22 +350,58 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
 
     private Panel setupVariableListPanel() {
         fluidList = new WidgetList(mc, this)
-                .setLayoutHint(new PositionalLayout.PositionalHint(0, 0, 62, 60))
+                .setLayoutHint(new PositionalLayout.PositionalHint(0, 0, 62, 65))
                 .setPropagateEventsToChildren(true)
                 .setInvisibleSelection(true)
                 .setDrawHorizontalLines(false)
                 .setUserObject("allowed");
+        fluidList.addSelectionEvent(new SelectionEvent() {
+            @Override
+            public void select(Widget parent, int i) {
+                int setupMode = getSetupMode();
+                if (setupMode != -1) {
+                    CardInfo cardInfo = tileEntity.getCardInfo(setupMode);
+                    int varAlloc = cardInfo.getVarAllocation();
+                    int itemAlloc = cardInfo.getItemAllocation();
+                    int fluidAlloc = cardInfo.getFluidAllocation();
+
+                    int idx = fluidListMapping[i];
+
+                    boolean allocated = ((fluidAlloc >> idx) & 1) != 0;
+                    allocated = !allocated;
+                    if (allocated) {
+                        fluidAlloc = fluidAlloc | (1 << idx);
+                    } else {
+                        fluidAlloc = fluidAlloc & ~(1 << idx);
+                    }
+                    cardInfo.setFluidAllocation(fluidAlloc);
+
+                    sendServerCommand(RFToolsCtrlMessages.INSTANCE, ProcessorTileEntity.CMD_ALLOCATE,
+                            new Argument("card", setupMode),
+                            new Argument("items", itemAlloc),
+                            new Argument("vars", varAlloc),
+                            new Argument("fluids", fluidAlloc));
+
+                    updateFluidList();
+                    fluidList.setSelected(-1);
+                }
+            }
+            @Override
+            public void doubleClick(Widget parent, int index) {
+
+            }
+        });
 
         Slider fluidSlider = new Slider(mc, this)
                 .setVertical()
                 .setScrollable(fluidList)
-                .setLayoutHint(new PositionalLayout.PositionalHint(62, 0, 9, 60))
+                .setLayoutHint(new PositionalLayout.PositionalHint(62, 0, 9, 65))
                 .setUserObject("allowed");
 
         updateFluidList();
 
         variableList = new WidgetList(mc, this)
-                .setLayoutHint(new PositionalLayout.PositionalHint(0, 64, 62, 162))
+                .setLayoutHint(new PositionalLayout.PositionalHint(0, 67, 62, 161))
                 .setPropagateEventsToChildren(true)
                 .setInvisibleSelection(true)
                 .setDrawHorizontalLines(false)
@@ -375,6 +414,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
                     CardInfo cardInfo = tileEntity.getCardInfo(setupMode);
                     int varAlloc = cardInfo.getVarAllocation();
                     int itemAlloc = cardInfo.getItemAllocation();
+                    int fluidAlloc = cardInfo.getFluidAllocation();
 
                     boolean allocated = ((varAlloc >> i) & 1) != 0;
                     allocated = !allocated;
@@ -388,7 +428,8 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
                     sendServerCommand(RFToolsCtrlMessages.INSTANCE, ProcessorTileEntity.CMD_ALLOCATE,
                             new Argument("card", setupMode),
                             new Argument("items", itemAlloc),
-                            new Argument("vars", varAlloc));
+                            new Argument("vars", varAlloc),
+                            new Argument("fluids", fluidAlloc));
 
                     updateVariableList();
 
@@ -405,7 +446,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
         Slider varSlider = new Slider(mc, this)
                 .setVertical()
                 .setScrollable(variableList)
-                .setLayoutHint(new PositionalLayout.PositionalHint(62, 64, 9, 162))
+                .setLayoutHint(new PositionalLayout.PositionalHint(62, 67, 9, 161))
                 .setUserObject("allowed");
 
         updateVariableList();
@@ -416,8 +457,6 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
                 .addChild(fluidList)
                 .addChild(fluidSlider)
                 .setUserObject("allowed");
-//                .setFilledRectThickness(-2)
-//                .setFilledBackground(StyleConfig.colorListBackground);
     }
 
     private void openValueEditor(int varIdx) {
@@ -467,14 +506,42 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
 
     private void updateFluidList() {
         fluidList.removeChildren();
+        for (int i = 0 ; i < fluidListMapping.length ; i++) {
+            fluidListMapping[i] = -1;
+        }
 
+        int setupMode = getSetupMode();
+
+        int fluidAlloc = 0;
+        if (setupMode != -1) {
+            CardInfo cardInfo = tileEntity.getCardInfo(setupMode);
+            fluidAlloc = cardInfo.getFluidAllocation();
+        }
+        fluidList.setPropagateEventsToChildren(setupMode == -1);
+
+        int index = 0;
         for (int i = 0 ; i < fromServer_fluids.size() ; i++) {
             PacketGetFluids.FluidEntry entry = fromServer_fluids.get(i);
             if (entry.isAllocated()) {
+                fluidListMapping[fluidList.getChildCount()] = i;
                 EnumFacing side = EnumFacing.values()[i / TANKS];
                 String l = side.getName().substring(0, 1).toUpperCase() + (i%TANKS);
                 Panel panel = new Panel(mc, this).setLayout(new HorizontalLayout()).setDesiredWidth(40);
-                AbstractWidget label = new Label(mc, this).setText(l).setDesiredWidth(26).setUserObject("allowed");
+                AbstractWidget label;
+                if (setupMode != -1) {
+                    boolean allocated = ((fluidAlloc >> i) & 1) != 0;
+                    int fill = allocated ? 0x7700ff00 : (tileEntity.isFluidAllocated(-1, i) ? 0x77660000 : 0x77444444);
+                    panel.setFilledBackground(fill);
+                    if (allocated) {
+                        label = new Label(mc, this).setColor(0xffffffff).setText(String.valueOf(index)).setDesiredWidth(26).setUserObject("allowed");
+                        index++;
+                    } else {
+                        label = new Label(mc, this).setText("/").setDesiredWidth(26).setUserObject("allowed");
+                    }
+                } else {
+                    label = new Label(mc, this).setText(l).setDesiredWidth(26).setUserObject("allowed");
+                }
+                label.setUserObject("allowed");
                 panel.addChild(label);
                 FluidStack fluidStack = entry.getFluidStack();
                 if (fluidStack != null) {
@@ -482,8 +549,10 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
                     fluid.setTooltips(
                             TextFormatting.GREEN + "Fluid: " + TextFormatting.WHITE + fluidStack.getLocalizedName(),
                             TextFormatting.GREEN + "Amount: " + TextFormatting.WHITE + fluidStack.amount + "mb");
+                    fluid.setUserObject("allowed");
                     panel.addChild(fluid);
                 }
+                panel.setUserObject("allowed");
                 fluidList.addChild(panel);
             }
         }

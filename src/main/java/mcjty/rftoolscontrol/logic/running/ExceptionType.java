@@ -32,6 +32,7 @@ public enum ExceptionType {
     EXCEPT_TOOMANYEVENTS("too_many_events", "Too many events"),
     EXCEPT_MISSINGLASTVALUE("missing_last_value", "Missing last value"),
     EXCEPT_NOTANITEM("not_an_item", "This is not an item"),
+    EXCEPT_NOINTERNALFLUIDSLOT("no_internal_fluid_slot", "Missing internal fluid slot"),
     ;
 
     private final String code;

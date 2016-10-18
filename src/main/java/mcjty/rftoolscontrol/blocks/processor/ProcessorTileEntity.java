@@ -2544,6 +2544,22 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         tagCompound.setTag("cardInfo", cardInfoList);
     }
 
+    public boolean isFluidAllocated(int cardIndex, int fluidIndex) {
+        if (cardIndex == -1) {
+            for (CardInfo info : cardInfo) {
+                int fluidAlloc = info.getFluidAllocation();
+                if (((fluidAlloc >> fluidIndex) & 1) != 0) {
+                    return true;
+                }
+            }
+            return false;
+        } else {
+            CardInfo info = getCardInfo(cardIndex);
+            int fluidA = info.getFluidAllocation();
+            return ((fluidA >> fluidIndex) & 1) != 0;
+        }
+    }
+
     public boolean isVarAllocated(int cardIndex, int varIndex) {
         if (cardIndex == -1) {
             for (CardInfo info : cardInfo) {
@@ -2591,9 +2607,10 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         return card;
     }
 
-    private void allocate(int card, int itemAlloc, int varAlloc) {
+    private void allocate(int card, int itemAlloc, int varAlloc, int fluidAlloc) {
         cardInfo[card].setItemAllocation(itemAlloc);
         cardInfo[card].setVarAllocation(varAlloc);
+        cardInfo[card].setFluidAllocation(fluidAlloc);
         markDirty();
     }
 
@@ -2678,7 +2695,8 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             int card = args.get("card").getInteger();
             int itemAlloc = args.get("items").getInteger();
             int varAlloc = args.get("vars").getInteger();
-            allocate(card, itemAlloc, varAlloc);
+            int fluidAlloc = args.get("fluids").getInteger();
+            allocate(card, itemAlloc, varAlloc, fluidAlloc);
             return true;
         } else if (CMD_CLEARLOG.equals(command)) {
             Commands.executeCommand(this, args.get("cmd").getString());

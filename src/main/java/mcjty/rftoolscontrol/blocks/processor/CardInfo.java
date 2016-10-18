@@ -1,9 +1,11 @@
 package mcjty.rftoolscontrol.blocks.processor;
 
+import mcjty.rftoolscontrol.blocks.multitank.MultiTankTileEntity;
 import mcjty.rftoolscontrol.logic.compiled.CompiledCard;
 import mcjty.rftoolscontrol.logic.running.ProgException;
 import net.minecraft.nbt.NBTTagCompound;
 
+import static mcjty.rftoolscontrol.logic.running.ExceptionType.EXCEPT_NOINTERNALFLUIDSLOT;
 import static mcjty.rftoolscontrol.logic.running.ExceptionType.EXCEPT_NOINTERNALSLOT;
 
 public class CardInfo {
@@ -12,11 +14,23 @@ public class CardInfo {
     private int itemAllocation;
     // 32-bit field for variable allocation
     private int varAllocation;
+    // 32-bit field for fluid allocation
+    private int fluidAllocation;
 
     private CompiledCard compiledCard;
 
     private int slotCache[] = null;
     private int varCache[] = null;
+    private int fluidCache[] = null;
+
+    public int getFluidAllocation() {
+        return fluidAllocation;
+    }
+
+    public void setFluidAllocation(int fluidAllocation) {
+        this.fluidAllocation = fluidAllocation;
+        fluidCache = null;
+    }
 
     public int getItemAllocation() {
         return itemAllocation;
@@ -42,6 +56,38 @@ public class CardInfo {
 
     public CompiledCard getCompiledCard() {
         return compiledCard;
+    }
+
+    public Integer getRealFluidSlot(Integer virtualSlot) {
+        if (virtualSlot == null) {
+            return null;
+        }
+        return getRealFluidSlot((int)virtualSlot);
+    }
+
+    public int getRealFluidSlot(int virtualSlot) {
+        if (fluidCache == null) {
+            fluidCache = new int[MultiTankTileEntity.TANKS * 6];
+            int idx = 0;
+            for (int i = 0 ; i < MultiTankTileEntity.TANKS * 6 ; i++) {
+                if (((itemAllocation >> i) & 1) == 1) {
+                    fluidCache[idx] = i;
+                    idx++;
+                }
+            }
+            for ( ; idx < MultiTankTileEntity.TANKS * 6 ; idx++) {
+                fluidCache[idx] = -1;
+            }
+        }
+        if (virtualSlot < 0 && virtualSlot >= MultiTankTileEntity.TANKS * 6) {
+            throw new ProgException(EXCEPT_NOINTERNALFLUIDSLOT);
+        }
+        int realSlot = fluidCache[virtualSlot];
+        if (realSlot == -1) {
+            throw new ProgException(EXCEPT_NOINTERNALFLUIDSLOT);
+        }
+
+        return realSlot + ProcessorContainer.SLOT_BUFFER;
     }
 
     public Integer getRealSlot(Integer virtualSlot) {
@@ -107,6 +153,7 @@ public class CardInfo {
         NBTTagCompound tag = new NBTTagCompound();
         tag.setInteger("itemAlloc", itemAllocation);
         tag.setInteger("varAlloc", varAllocation);
+        tag.setInteger("fluidAlloc", fluidAllocation);
         return tag;
     }
 
@@ -114,8 +161,10 @@ public class CardInfo {
         CardInfo cardInfo = new CardInfo();
         cardInfo.itemAllocation = tag.getInteger("itemAlloc");
         cardInfo.varAllocation = tag.getInteger("varAlloc");
+        cardInfo.fluidAllocation = tag.getInteger("fluidAlloc");
         cardInfo.slotCache = null;
         cardInfo.varCache = null;
+        cardInfo.fluidCache = null;
         return cardInfo;
     }
 }
