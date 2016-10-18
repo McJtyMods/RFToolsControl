@@ -1430,7 +1430,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             IFluidHandler handler = te.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, inv.getIntSide());
             CardInfo info = this.cardInfo[((RunningProgram)program).getCardIndex()];
             int realSlot = info.getRealFluidSlot(virtualSlot);
-            getFluids()
+//            getFluids()
 
             FluidStack drain = handler.drain(amount, true);
             return 0;
