@@ -23,7 +23,9 @@ public class ItemEditor extends AbstractParameterEditor {
         Label label = new Label(mc, gui).setText("Drop item:");
         constantPanel.addChild(label);
 
-        blockRender = new BlockRender(mc, gui).setDesiredWidth(18).setDesiredHeight(18).setFilledRectThickness(1).setFilledBackground(0xff555555);
+        blockRender = new BlockRender(mc, gui)
+                .setDesiredWidth(18+100).setDesiredHeight(18).setFilledRectThickness(1).setFilledBackground(0xff555555)
+                .setShowLabel(true);
         constantPanel.addChild(blockRender);
         blockRender.addSelectionEvent(new BlockRenderEvent() {
             @Override

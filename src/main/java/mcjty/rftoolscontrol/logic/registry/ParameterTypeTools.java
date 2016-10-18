@@ -317,7 +317,7 @@ public class ParameterTypeTools {
                 return ParameterValue.constant(stack);
             }
             case PAR_FLUID: {
-                String fluidName = object.get("name").getAsString();
+                String fluidName = object.get("fluid").getAsString();
                 int amount = object.get("amount").getAsInt();
                 FluidStack fluidStack = new FluidStack(FluidRegistry.getFluid(fluidName), amount);
                 if (object.has("nbt")) {
