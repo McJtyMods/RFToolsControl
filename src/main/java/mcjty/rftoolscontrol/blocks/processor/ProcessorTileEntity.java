@@ -15,6 +15,7 @@ import mcjty.rftoolscontrol.api.machines.IProcessor;
 import mcjty.rftoolscontrol.api.machines.IProgram;
 import mcjty.rftoolscontrol.api.parameters.*;
 import mcjty.rftoolscontrol.blocks.craftingstation.CraftingStationTileEntity;
+import mcjty.rftoolscontrol.blocks.multitank.MultiTankFluidProperties;
 import mcjty.rftoolscontrol.blocks.multitank.MultiTankTileEntity;
 import mcjty.rftoolscontrol.blocks.node.NodeTileEntity;
 import mcjty.rftoolscontrol.blocks.vectorart.GfxOp;
@@ -63,6 +64,7 @@ import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
+import net.minecraftforge.fluids.capability.FluidTankProperties;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidTankProperties;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
@@ -80,6 +82,7 @@ import java.util.*;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
+import static mcjty.rftoolscontrol.blocks.multitank.MultiTankTileEntity.MAXCAPACITY;
 import static mcjty.rftoolscontrol.blocks.multitank.MultiTankTileEntity.TANKS;
 import static mcjty.rftoolscontrol.logic.running.ExceptionType.*;
 
@@ -1424,15 +1427,68 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         return false;
     }
 
-    public int fetchLiquid(IProgram program, @Nonnull Inventory inv, int amount, int virtualSlot) {
+    private MultiTankFluidProperties getFluidPropertiesFromMultiTank(EnumFacing side, int idx) {
+        TileEntity te = worldObj.getTileEntity(getPos().offset(side));
+        if (te instanceof MultiTankTileEntity) {
+            MultiTankTileEntity mtank = (MultiTankTileEntity) te;
+            MultiTankFluidProperties properties = mtank.getProperties()[idx];
+            return properties;
+        }
+        return null;
+    }
+
+    public int fetchLiquid(IProgram program, @Nonnull Inventory inv, int amount, @Nullable FluidStack fluidStack, int virtualSlot) {
         TileEntity te = getTileEntityAt(inv);
         if (te != null && te.hasCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, inv.getIntSide())) {
             IFluidHandler handler = te.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, inv.getIntSide());
             CardInfo info = this.cardInfo[((RunningProgram)program).getCardIndex()];
             int realSlot = info.getRealFluidSlot(virtualSlot);
-//            getFluids()
+            EnumFacing side = EnumFacing.values()[realSlot / TANKS];
+            int idx = realSlot % TANKS;
+            MultiTankFluidProperties properties = getFluidPropertiesFromMultiTank(side, idx);
+            if (properties == null) {
+                return 0;
+            }
+            if (properties.getContents() != null) {
+                // There is already some fluid in the slot
+                if (fluidStack != null) {
+                    // This has to match
+                    if (!fluidStack.isFluidEqual(properties.getContents())) {
+                        return 0;
+                    }
+                }
+                fluidStack = properties.getContents();
+            }
+            if (fluidStack == null) {
+                // Just drain any fluid
+                if (amount > MAXCAPACITY) {
+                    amount = MAXCAPACITY;
+                }
+                FluidStack drained = handler.drain(amount, true);
+                if (drained != null) {
+                    properties.set(drained);
+                    return drained.amount;
+                }
+            } else {
+                // Drain only that fluid
+                if (fluidStack.amount + amount > MAXCAPACITY) {
+                    amount = MAXCAPACITY - fluidStack.amount;
+                }
+                if (amount > 0) {
+                    FluidStack todrain = fluidStack.copy();
+                    todrain.amount = amount;
+                    FluidStack drained = handler.drain(todrain, true);
+                    if (drained != null) {
+                        int drainedAmount = drained.amount;
+                        if (properties.getContents() != null) {
+                            drained.amount += properties.getContents().amount;
+                        }
+                        properties.set(drained);
+                        return drainedAmount;
+                    }
+                }
+            }
 
-            FluidStack drain = handler.drain(amount, true);
             return 0;
         }
         throw new ProgException(EXCEPT_NOLIQUID);

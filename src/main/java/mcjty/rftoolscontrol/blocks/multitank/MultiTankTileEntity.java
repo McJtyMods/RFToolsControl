@@ -18,15 +18,16 @@ public class MultiTankTileEntity extends GenericTileEntity {
     public static final int TANKS = 4;
     public static final int MAXCAPACITY = 10000;
 
-    private final IFluidTankProperties properties[] = new IFluidTankProperties[TANKS];
+    private final MultiTankFluidProperties properties[] = new MultiTankFluidProperties[TANKS];
+    private final FluidStack fluids[] = new FluidStack[TANKS];
 
     public MultiTankTileEntity() {
         for (int i = 0 ; i < TANKS ; i++) {
-            properties[i] = new FluidTankProperties(null, MAXCAPACITY);
+            properties[i] = new MultiTankFluidProperties(this, null, MAXCAPACITY);
         }
     }
 
-    public IFluidTankProperties[] getProperties() {
+    public MultiTankFluidProperties[] getProperties() {
         return properties;
     }
 
@@ -45,7 +46,7 @@ public class MultiTankTileEntity extends GenericTileEntity {
     public void readRestorableFromNBT(NBTTagCompound tagCompound) {
         super.readRestorableFromNBT(tagCompound);
         for (int i = 0 ; i < TANKS ; i++) {
-            properties[i] = new FluidTankProperties(FluidStack.loadFluidStackFromNBT(tagCompound.getCompoundTag("f" + i)), MAXCAPACITY);
+            properties[i] = new MultiTankFluidProperties(this, FluidStack.loadFluidStackFromNBT(tagCompound.getCompoundTag("f" + i)), MAXCAPACITY);
         }
     }
 

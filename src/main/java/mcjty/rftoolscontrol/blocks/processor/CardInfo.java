@@ -70,7 +70,7 @@ public class CardInfo {
             fluidCache = new int[MultiTankTileEntity.TANKS * 6];
             int idx = 0;
             for (int i = 0 ; i < MultiTankTileEntity.TANKS * 6 ; i++) {
-                if (((itemAllocation >> i) & 1) == 1) {
+                if (((fluidAllocation >> i) & 1) == 1) {
                     fluidCache[idx] = i;
                     idx++;
                 }

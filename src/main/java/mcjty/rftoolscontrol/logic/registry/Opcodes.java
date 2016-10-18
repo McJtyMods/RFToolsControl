@@ -301,13 +301,15 @@ public class Opcodes {
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("tank").type(PAR_INVENTORY).description("tank adjacent to (networked) block").build())
             .parameter(ParameterDescription.builder().name("amount").type(PAR_INTEGER).description("amount of mb to fetch").build())
+            .parameter(ParameterDescription.builder().name("fluid").type(PAR_FLUID).optional().description("optinoal fluid to fetch").build())
             .parameter(ParameterDescription.builder().name("slotOut").type(PAR_INTEGER).description("internal (processor) fluid slot for result").build())
-            .icon(0, 1)
+            .icon(0, 2)
             .runnable(((processor, program, opcode) -> {
                 Inventory inv = processor.evaluateInventoryParameterNonNull(opcode, program, 0);
                 int amount = processor.evaluateIntParameter(opcode, program, 1);
-                int slotOut = processor.evaluateIntParameter(opcode, program, 2);
-                int cnt = ((ProcessorTileEntity)processor).fetchLiquid(program, inv, amount, slotOut);
+                FluidStack fluidStack = processor.evaluateFluidParameter(opcode, program, 2);
+                int slotOut = processor.evaluateIntParameter(opcode, program, 3);
+                int cnt = ((ProcessorTileEntity)processor).fetchLiquid(program, inv, amount, fluidStack, slotOut);
                 program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(cnt)).build());
                 return POSITIVE;
             }))
