@@ -484,6 +484,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
                             TextFormatting.GREEN + "Amount: " + TextFormatting.WHITE + fluidStack.amount + "mb");
                     panel.addChild(fluid);
                 }
+                fluidList.addChild(panel);
             }
         }
     }
