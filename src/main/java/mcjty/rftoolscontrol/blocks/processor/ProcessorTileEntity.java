@@ -1437,6 +1437,28 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         return null;
     }
 
+    public int pushLiquid(IProgram program, @Nonnull Inventory inv, int amount, int virtualSlot) {
+        TileEntity te = getTileEntityAt(inv);
+        if (te != null && te.hasCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, inv.getIntSide())) {
+            IFluidHandler handler = te.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, inv.getIntSide());
+            CardInfo info = this.cardInfo[((RunningProgram)program).getCardIndex()];
+            int realSlot = info.getRealFluidSlot(virtualSlot);
+            EnumFacing side = EnumFacing.values()[realSlot / TANKS];
+            int idx = realSlot % TANKS;
+            MultiTankFluidProperties properties = getFluidPropertiesFromMultiTank(side, idx);
+            if (properties == null) {
+                return 0;
+            }
+            if (properties.getContents() == null) {
+                return 0;
+            }
+
+            // @todo
+        }
+        return 0;
+    }
+
+    // @todo double check code
     public int fetchLiquid(IProgram program, @Nonnull Inventory inv, int amount, @Nullable FluidStack fluidStack, int virtualSlot) {
         TileEntity te = getTileEntityAt(inv);
         if (te != null && te.hasCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, inv.getIntSide())) {

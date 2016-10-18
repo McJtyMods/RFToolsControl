@@ -301,7 +301,7 @@ public class Opcodes {
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("tank").type(PAR_INVENTORY).description("tank adjacent to (networked) block").build())
             .parameter(ParameterDescription.builder().name("amount").type(PAR_INTEGER).description("amount of mb to fetch").build())
-            .parameter(ParameterDescription.builder().name("fluid").type(PAR_FLUID).optional().description("optinoal fluid to fetch").build())
+            .parameter(ParameterDescription.builder().name("fluid").type(PAR_FLUID).optional().description("optional fluid to fetch").build())
             .parameter(ParameterDescription.builder().name("slotOut").type(PAR_INTEGER).description("internal (processor) fluid slot for result").build())
             .icon(0, 2)
             .runnable(((processor, program, opcode) -> {
@@ -310,6 +310,30 @@ public class Opcodes {
                 FluidStack fluidStack = processor.evaluateFluidParameter(opcode, program, 2);
                 int slotOut = processor.evaluateIntParameter(opcode, program, 3);
                 int cnt = ((ProcessorTileEntity)processor).fetchLiquid(program, inv, amount, fluidStack, slotOut);
+                program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(cnt)).build());
+                return POSITIVE;
+            }))
+            .build();
+    public static final Opcode DO_PUSHLIQUID = Opcode.builder()
+            .id("do_pushliquid")
+            .description(
+                    TextFormatting.GREEN + "Operation: push liquid",
+                    "push a liquid to an external tank adjacent",
+                    "to the processor or a connected node",
+                    "from an internal tank (provided by",
+                    "a multi-tank adjacent to the processor)")
+            .outputDescription("amount of fluid pushed in mb (integer)")
+            .category(CATEGORY_LIQUIDS)
+            .opcodeOutput(SINGLE)
+            .parameter(ParameterDescription.builder().name("tank").type(PAR_INVENTORY).description("tank adjacent to (networked) block").build())
+            .parameter(ParameterDescription.builder().name("amount").type(PAR_INTEGER).description("amount of mb to push").build())
+            .parameter(ParameterDescription.builder().name("slotIn").type(PAR_INTEGER).description("internal (processor) fluid slot for input").build())
+            .icon(1, 2)
+            .runnable(((processor, program, opcode) -> {
+                Inventory inv = processor.evaluateInventoryParameterNonNull(opcode, program, 0);
+                int amount = processor.evaluateIntParameter(opcode, program, 1);
+                int slotIn = processor.evaluateIntParameter(opcode, program, 2);
+                int cnt = ((ProcessorTileEntity)processor).pushLiquid(program, inv, amount, slotIn);
                 program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(cnt)).build());
                 return POSITIVE;
             }))
@@ -1496,6 +1520,7 @@ public class Opcodes {
         register(DO_MESSAGE);
         register(DO_LOG);
         register(DO_FETCHLIQUID);
+        register(DO_PUSHLIQUID);
         register(DO_FETCHITEMS);
         register(DO_PUSHITEMS);
         register(DO_PUSHMULTI);
