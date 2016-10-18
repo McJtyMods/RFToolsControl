@@ -15,6 +15,7 @@ import mcjty.rftoolscontrol.api.machines.IProcessor;
 import mcjty.rftoolscontrol.api.machines.IProgram;
 import mcjty.rftoolscontrol.api.parameters.*;
 import mcjty.rftoolscontrol.blocks.craftingstation.CraftingStationTileEntity;
+import mcjty.rftoolscontrol.blocks.multitank.MultiTankTileEntity;
 import mcjty.rftoolscontrol.blocks.node.NodeTileEntity;
 import mcjty.rftoolscontrol.blocks.vectorart.GfxOp;
 import mcjty.rftoolscontrol.blocks.vectorart.GfxOpBox;
@@ -36,6 +37,7 @@ import mcjty.rftoolscontrol.logic.running.CpuCore;
 import mcjty.rftoolscontrol.logic.running.ExceptionType;
 import mcjty.rftoolscontrol.logic.running.ProgException;
 import mcjty.rftoolscontrol.logic.running.RunningProgram;
+import mcjty.rftoolscontrol.network.PacketGetFluids;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.IInventory;
@@ -78,6 +80,7 @@ import java.util.*;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
+import static mcjty.rftoolscontrol.blocks.multitank.MultiTankTileEntity.TANKS;
 import static mcjty.rftoolscontrol.logic.running.ExceptionType.*;
 
 public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity implements DefaultSidedInventory, ITickable, IProcessor {
@@ -99,6 +102,8 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     public static final String CLIENTCMD_GETDEBUGLOG = "getDebugLog";
     public static final String CMD_GETVARS = "getVars";
     public static final String CLIENTCMD_GETVARS = "getVars";
+    public static final String CMD_GETFLUIDS = "getFluids";
+    public static final String CLIENTCMD_GETFLUIDS = "getFluids";
 
     private static final BiFunction<ParameterType, Object, ItemStack> CONVERTOR_ITEM = (type, value) -> TypeConverters.convertToItem(type, value);
     private static final BiFunction<ParameterType, Object, FluidStack> CONVERTOR_FLUID = (type, value) -> TypeConverters.convertToFluid(type, value);
@@ -150,7 +155,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     private int tickCount = 0;
 
     private Parameter[] variables = new Parameter[MAXVARS];
-    private FluidStack[] fluidVariables = new FluidStack[MAXFLUIDVARS];
+    private int fluidSlotsAvailable = 0;    // Bitmask indexed by side (6 bits)
 
     private CardInfo[] cardInfo = new CardInfo[CARD_SLOTS];
 
@@ -178,9 +183,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         for (int i = 0 ; i < MAXVARS ; i++) {
             variables[i] = null;
         }
-        for (int i = 0 ; i < MAXFLUIDVARS ; i++) {
-            fluidVariables[i] = null;
-        }
+        fluidSlotsAvailable = 0;
     }
 
     @Override
@@ -201,7 +204,13 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         return variables[idx];
     }
 
-    public FluidStack getFluidParameter(int idx) { return fluidVariables[idx]; }
+    public boolean isFluidSlotAvailable(int idx) {
+        if (maxVars == -1) {
+            getMaxvars();       // Update
+        }
+        int sideIndex = idx / TANKS;
+        return (fluidSlotsAvailable & (1 << sideIndex)) != 0;
+    }
 
     @Override
     protected boolean needsCustomInvWrapper() {
@@ -1218,14 +1227,11 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         return rc;
     }
 
-    public FluidStack[] getFluidVariableArray() {
-        return fluidVariables;
-    }
-
-    public List<FluidStack> getFluidVariables() {
-        List<FluidStack> pars = new ArrayList<>();
-        Collections.addAll(pars,fluidVariables);
-        return pars;
+    public int getFluidSlotsAvailable() {
+        if (maxVars == -1) {
+            getMaxvars();       // Update
+        }
+        return fluidSlotsAvailable;
     }
 
     public Parameter[] getVariableArray() {
@@ -1235,6 +1241,28 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     public List<Parameter> getVariables() {
         List<Parameter> pars = new ArrayList<>();
         Collections.addAll(pars,variables);
+        return pars;
+    }
+
+    public List<PacketGetFluids.FluidEntry> getFluids() {
+        List<PacketGetFluids.FluidEntry> pars = new ArrayList<>();
+        for (int i = 0 ; i < MAXFLUIDVARS ; i++) {
+            if (isFluidSlotAvailable(i)) {
+                EnumFacing side = EnumFacing.values()[i / TANKS];
+                TileEntity te = worldObj.getTileEntity(getPos().offset(side));
+                if (te instanceof MultiTankTileEntity) {
+                    MultiTankTileEntity mtank = (MultiTankTileEntity) te;
+                    IFluidHandler handler = mtank.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null);
+                    IFluidTankProperties properties = handler.getTankProperties()[i % TANKS];
+                    FluidStack fluidStack = properties == null ? null : properties.getContents();
+                    pars.add(new PacketGetFluids.FluidEntry(fluidStack, true));
+                } else {
+                    pars.add(new PacketGetFluids.FluidEntry(null, true));
+                }
+            } else {
+                pars.add(new PacketGetFluids.FluidEntry(null, false));
+            }
+        }
         return pars;
     }
 
@@ -1491,7 +1519,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     }
 
     private void setOp(String id, GfxOp op) {
-        if (!hasGraphicsCard) {
+        if (!hasGraphicsCard()) {
             throw new ProgException(EXCEPT_MISSINGGRAPHICSCARD);
         }
         if (!gfxOps.containsKey(id)) {
@@ -1602,8 +1630,28 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             if (maxVars >= MAXVARS) {
                 maxVars = MAXVARS;
             }
+
+            updateFluidSlotsAvailability();
+
         }
         return maxVars;
+    }
+
+    public void updateFluidSlotsAvailability() {
+        fluidSlotsAvailable = 0;
+        for (EnumFacing facing : EnumFacing.values()) {
+            TileEntity te = worldObj.getTileEntity(getPos().offset(facing));
+            if (te instanceof MultiTankTileEntity) {
+                fluidSlotsAvailable |= 1 << facing.ordinal();
+            }
+        }
+    }
+
+    public boolean hasGraphicsCard() {
+        if (maxVars == -1) {
+            getMaxvars();       // Update
+        }
+        return hasGraphicsCard;
     }
 
     public boolean hasNetworkCard() {
@@ -2280,15 +2328,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     }
 
     private void readFluidVariables(NBTTagCompound tagCompound) {
-        for (int i = 0 ; i < MAXFLUIDVARS ; i++) {
-            fluidVariables[i] = null;
-        }
-        NBTTagList varList = tagCompound.getTagList("fluidVars", Constants.NBT.TAG_COMPOUND);
-        for (int i = 0 ; i < varList.tagCount() ; i++) {
-            NBTTagCompound var = varList.getCompoundTagAt(i);
-            int index = var.getInteger("varidx");
-            fluidVariables[index] = FluidStack.loadFluidStackFromNBT(var);
-        }
+        fluidSlotsAvailable = tagCompound.getInteger("fluidSlots");
     }
 
     private void readVariables(NBTTagCompound tagCompound) {
@@ -2458,16 +2498,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     }
 
     private void writeFluidVariables(NBTTagCompound tagCompound) {
-        NBTTagList varList = new NBTTagList();
-        for (int i = 0 ; i < MAXFLUIDVARS ; i++) {
-            if (fluidVariables[i] != null) {
-                NBTTagCompound var = new NBTTagCompound();
-                fluidVariables[i].writeToNBT(var);
-                var.setInteger("varidx", i);
-                varList.appendTag(var);
-            }
-        }
-        tagCompound.setTag("vars", varList);
+        tagCompound.setInteger("fluidSlots", fluidSlotsAvailable);
     }
 
     private void writeLog(NBTTagCompound tagCompound) {
@@ -2676,6 +2707,8 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             return getDebugLog();
         } else if (CMD_GETVARS.equals(command)) {
             return getVariables();
+        } else if (CMD_GETFLUIDS.equals(command)) {
+            return getFluids();
         }
         return null;
     }
@@ -2694,6 +2727,9 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             return true;
         } else if (CLIENTCMD_GETVARS.equals(command)) {
             GuiProcessor.storeVarsForClient(list);
+            return true;
+        } else if (CLIENTCMD_GETFLUIDS.equals(command)) {
+            GuiProcessor.storeFluidsForClient(list);
             return true;
         }
         return false;

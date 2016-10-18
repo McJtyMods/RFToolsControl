@@ -9,7 +9,6 @@ import mcjty.rftoolscontrol.api.parameters.*;
 import mcjty.rftoolscontrol.logic.registry.InventoryUtil;
 import mcjty.rftoolscontrol.logic.registry.ParameterTypeTools;
 import mcjty.rftoolscontrol.logic.running.ExceptionType;
-import mcjty.rftoolscontrol.network.NetworkToolsExtra;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
@@ -51,7 +50,7 @@ public class ParameterTools {
                     builder.value(ParameterValue.constant(NetworkTools.readItemStack(buf)));
                     break;
                 case PAR_FLUID:
-                    builder.value(ParameterValue.constant(NetworkToolsExtra.readFluidStack(buf)));
+                    builder.value(ParameterValue.constant(NetworkTools.readFluidStack(buf)));
                     break;
                 case PAR_EXCEPTION:
                     builder.value(ParameterValue.constant(ExceptionType.getExceptionForCode(NetworkTools.readString(buf))));
@@ -98,7 +97,7 @@ public class ParameterTools {
                 NetworkTools.writeItemStack(buf, (ItemStack) value);
                 break;
             case PAR_FLUID:
-                NetworkToolsExtra.writeFluidStack(buf, (FluidStack) value);
+                NetworkTools.writeFluidStack(buf, (FluidStack) value);
                 break;
             case PAR_EXCEPTION:
                 NetworkTools.writeString(buf, ((ExceptionType)value).getCode());

@@ -24,16 +24,14 @@ import mcjty.rftoolscontrol.gui.GuiTools;
 import mcjty.rftoolscontrol.logic.editors.ParameterEditor;
 import mcjty.rftoolscontrol.logic.editors.ParameterEditors;
 import mcjty.rftoolscontrol.logic.registry.ParameterTypeTools;
-import mcjty.rftoolscontrol.network.PacketGetLog;
-import mcjty.rftoolscontrol.network.PacketGetVariables;
-import mcjty.rftoolscontrol.network.PacketVariableToServer;
-import mcjty.rftoolscontrol.network.RFToolsCtrlMessages;
+import mcjty.rftoolscontrol.network.*;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.inventory.Slot;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextFormatting;
+import net.minecraftforge.fluids.FluidStack;
 
 import java.awt.*;
 import java.io.IOException;
@@ -41,6 +39,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static mcjty.rftoolscontrol.blocks.multitank.MultiTankTileEntity.TANKS;
 import static mcjty.rftoolscontrol.blocks.processor.ProcessorTileEntity.*;
 
 public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
@@ -65,10 +64,10 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
     private static List<String> commandHistory = new ArrayList<>();
     private static int commandHistoryIndex = -1;
 
-//    private static List<Parameter> fromServer_vars = new ArrayList<>();
-//    public static void storeVarsForClient(List<Parameter> messages) {
-//        fromServer_vars = new ArrayList<>(messages);
-//    }
+    private static List<PacketGetFluids.FluidEntry> fromServer_fluids = new ArrayList<>();
+    public static void storeFluidsForClient(List<PacketGetFluids.FluidEntry> messages) {
+        fromServer_fluids = new ArrayList<>(messages);
+    }
 
     private static List<Parameter> fromServer_vars = new ArrayList<>();
     public static void storeVarsForClient(List<Parameter> messages) {
@@ -252,6 +251,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
     private void requestLists() {
         RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketGetLog(tileEntity.getPos()));
         RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketGetVariables(tileEntity.getPos()));
+        RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketGetFluids(tileEntity.getPos()));
     }
 
     private void requestListsIfNeeded() {
@@ -359,6 +359,8 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
                 .setLayoutHint(new PositionalLayout.PositionalHint(62, 0, 9, 60))
                 .setUserObject("allowed");
 
+        updateFluidList();
+
         variableList = new WidgetList(mc, this)
                 .setLayoutHint(new PositionalLayout.PositionalHint(0, 64, 62, 162))
                 .setPropagateEventsToChildren(true)
@@ -463,6 +465,29 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
                 .setText("Close"));
     }
 
+    private void updateFluidList() {
+        fluidList.removeChildren();
+
+        for (int i = 0 ; i < fromServer_fluids.size() ; i++) {
+            PacketGetFluids.FluidEntry entry = fromServer_fluids.get(i);
+            if (entry.isAllocated()) {
+                EnumFacing side = EnumFacing.values()[i / TANKS];
+                String l = side.getName().substring(0, 1).toUpperCase() + (i%TANKS);
+                Panel panel = new Panel(mc, this).setLayout(new HorizontalLayout()).setDesiredWidth(40);
+                AbstractWidget label = new Label(mc, this).setText(l).setDesiredWidth(26).setUserObject("allowed");
+                panel.addChild(label);
+                FluidStack fluidStack = entry.getFluidStack();
+                if (fluidStack != null) {
+                    BlockRender fluid = new BlockRender(mc, this).setRenderItem(fluidStack);
+                    fluid.setTooltips(
+                            TextFormatting.GREEN + "Fluid: " + TextFormatting.WHITE + fluidStack.getLocalizedName(),
+                            TextFormatting.GREEN + "Amount: " + TextFormatting.WHITE + fluidStack.amount + "mb");
+                    panel.addChild(fluid);
+                }
+            }
+        }
+    }
+
     private void updateVariableList() {
         variableList.removeChildren();
         int setupMode = getSetupMode();
@@ -506,6 +531,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
         if (variableList.getChildCount() != tileEntity.getMaxvars()) {
             updateVariableList();
         }
+        updateFluidList();
 
         requestListsIfNeeded();
         populateLog();
