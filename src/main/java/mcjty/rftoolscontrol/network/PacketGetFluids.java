@@ -3,7 +3,6 @@ package mcjty.rftoolscontrol.network;
 import mcjty.lib.network.PacketRequestServerList;
 import mcjty.lib.network.PacketRequestServerListHandler;
 import mcjty.rftoolscontrol.RFToolsControl;
-import mcjty.rftoolscontrol.api.parameters.Parameter;
 import mcjty.rftoolscontrol.blocks.processor.ProcessorTileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fluids.FluidStack;
@@ -20,14 +19,14 @@ public class PacketGetFluids extends PacketRequestServerList<PacketGetFluids.Flu
         super(RFToolsControl.MODID, pos, ProcessorTileEntity.CMD_GETFLUIDS);
     }
 
-    public static class Handler extends PacketRequestServerListHandler<PacketGetFluids, Parameter> {
+    public static class Handler extends PacketRequestServerListHandler<PacketGetFluids, PacketGetFluids.FluidEntry> {
 
         public Handler() {
         }
 
         @Override
-        protected void sendToClient(BlockPos pos, List<Parameter> list, MessageContext messageContext) {
-            RFToolsCtrlMessages.INSTANCE.sendTo(new PacketVariablesReady(pos, ProcessorTileEntity.CLIENTCMD_GETFLUIDS, list), messageContext.getServerHandler().playerEntity);
+        protected void sendToClient(BlockPos pos, List<PacketGetFluids.FluidEntry> list, MessageContext messageContext) {
+            RFToolsCtrlMessages.INSTANCE.sendTo(new PacketFluidsReady(pos, ProcessorTileEntity.CLIENTCMD_GETFLUIDS, list), messageContext.getServerHandler().playerEntity);
         }
     }
 
