@@ -87,7 +87,7 @@ public class CardInfo {
             throw new ProgException(EXCEPT_NOINTERNALFLUIDSLOT);
         }
 
-        return realSlot + ProcessorContainer.SLOT_BUFFER;
+        return realSlot;
     }
 
     public Integer getRealSlot(Integer virtualSlot) {

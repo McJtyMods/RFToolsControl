@@ -1424,7 +1424,19 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         return false;
     }
 
+    public int fetchLiquid(IProgram program, @Nonnull Inventory inv, int amount, int virtualSlot) {
+        TileEntity te = getTileEntityAt(inv);
+        if (te != null && te.hasCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, inv.getIntSide())) {
+            IFluidHandler handler = te.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, inv.getIntSide());
+            CardInfo info = this.cardInfo[((RunningProgram)program).getCardIndex()];
+            int realSlot = info.getRealFluidSlot(virtualSlot);
+            getFluids()
 
+            FluidStack drain = handler.drain(amount, true);
+            return 0;
+        }
+        throw new ProgException(EXCEPT_NOLIQUID);
+    }
 
     public int fetchItems(IProgram program, Inventory inv, Integer slot, @Nullable ItemStack itemMatcher, boolean routable, boolean oredict, @Nullable Integer amount, int virtualSlot) {
         IStorageScanner scanner = getScannerForInv(inv);

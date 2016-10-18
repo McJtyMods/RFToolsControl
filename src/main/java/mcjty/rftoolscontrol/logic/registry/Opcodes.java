@@ -288,6 +288,31 @@ public class Opcodes {
             }))
             .build();
 
+    public static final Opcode DO_FETCHLIQUID = Opcode.builder()
+            .id("do_fetchliquid")
+            .description(
+                    TextFormatting.GREEN + "Operation: fetch liquid",
+                    "fetch a liquid from an external tank adjacent",
+                    "to the processor or a connected node and place",
+                    "the result in an internal tank (provided by",
+                    "a multi-tank adjacent to the processor)")
+            .outputDescription("amount of fluid fetched in mb (integer)")
+            .category(CATEGORY_LIQUIDS)
+            .opcodeOutput(SINGLE)
+            .parameter(ParameterDescription.builder().name("tank").type(PAR_INVENTORY).description("tank adjacent to (networked) block").build())
+            .parameter(ParameterDescription.builder().name("amount").type(PAR_INTEGER).description("amount of mb to fetch").build())
+            .parameter(ParameterDescription.builder().name("slotOut").type(PAR_INTEGER).description("internal (processor) fluid slot for result").build())
+            .icon(0, 1)
+            .runnable(((processor, program, opcode) -> {
+                Inventory inv = processor.evaluateInventoryParameterNonNull(opcode, program, 0);
+                int amount = processor.evaluateIntParameter(opcode, program, 1);
+                int slotOut = processor.evaluateIntParameter(opcode, program, 2);
+                int cnt = ((ProcessorTileEntity)processor).fetchLiquid(program, inv, amount, slotOut);
+                program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(cnt)).build());
+                return POSITIVE;
+            }))
+            .build();
+
     public static final Opcode DO_FETCHITEMS = Opcode.builder()
             .id("do_fetchitems")
             .description(
@@ -1468,6 +1493,7 @@ public class Opcodes {
         register(DO_SIGNAL);
         register(DO_MESSAGE);
         register(DO_LOG);
+        register(DO_FETCHLIQUID);
         register(DO_FETCHITEMS);
         register(DO_PUSHITEMS);
         register(DO_PUSHMULTI);
