@@ -54,7 +54,7 @@ public class MultiTankFluidProperties implements IFluidTankProperties {
 
     public void drain(int amount) {
         contents.amount -= amount;
-        if (contents.amount >= 0) {
+        if (contents.amount <= 0) {
             contents = null;
         }
         tankTileEntity.markDirty();

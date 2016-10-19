@@ -64,7 +64,6 @@ import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
-import net.minecraftforge.fluids.capability.FluidTankProperties;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidTankProperties;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
@@ -1431,8 +1430,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         TileEntity te = worldObj.getTileEntity(getPos().offset(side));
         if (te instanceof MultiTankTileEntity) {
             MultiTankTileEntity mtank = (MultiTankTileEntity) te;
-            MultiTankFluidProperties properties = mtank.getProperties()[idx];
-            return properties;
+            return mtank.getProperties()[idx];
         }
         return null;
     }
@@ -1453,7 +1451,12 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                 return 0;
             }
 
-            // @todo
+            amount = Math.min(amount, properties.getContents().amount);
+            FluidStack topush = properties.getContents().copy();
+            topush.amount = amount;
+            int filled = handler.fill(topush, true);
+            properties.drain(filled);
+            return filled;
         }
         return 0;
     }
