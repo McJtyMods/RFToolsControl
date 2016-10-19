@@ -34,11 +34,11 @@ public class MultiTankFluidProperties implements IFluidTankProperties {
 
     @Nonnull private final MultiTankTileEntity tankTileEntity;
 
-    public MultiTankFluidProperties(MultiTankTileEntity tankTileEntity, @Nullable FluidStack contents, int capacity) {
+    public MultiTankFluidProperties(@Nonnull MultiTankTileEntity tankTileEntity, @Nullable FluidStack contents, int capacity) {
         this(tankTileEntity, contents, capacity, true, true);
     }
 
-    public MultiTankFluidProperties(MultiTankTileEntity tankTileEntity, @Nullable FluidStack contents, int capacity, boolean canFill, boolean canDrain) {
+    public MultiTankFluidProperties(@Nonnull MultiTankTileEntity tankTileEntity, @Nullable FluidStack contents, int capacity, boolean canFill, boolean canDrain) {
         this.tankTileEntity = tankTileEntity;
         this.contents = contents;
         this.capacity = capacity;
@@ -52,7 +52,18 @@ public class MultiTankFluidProperties implements IFluidTankProperties {
         return contents == null ? null : contents.copy();
     }
 
+    public FluidStack getContentsInternal() {
+        return contents;
+    }
+
+    public boolean hasContents() {
+        return contents != null;
+    }
+
     public void drain(int amount) {
+        if (contents == null) {
+            return;
+        }
         contents.amount -= amount;
         if (contents.amount <= 0) {
             contents = null;

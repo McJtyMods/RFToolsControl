@@ -1463,12 +1463,12 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         if (properties == null) {
             return 0;
         }
-        if (properties.getContents() == null) {
+        if (properties.hasContents()) {
             return 0;
         }
 
         amount = Math.min(amount, properties.getContents().amount);
-        FluidStack topush = properties.getContents().copy();
+        FluidStack topush = properties.getContents();   // getContents() already does a copy()
         topush.amount = amount;
         int filled = handler.fill(topush, true);
         properties.drain(filled);
@@ -1485,21 +1485,29 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         if (properties == null) {
             return 0;
         }
-        if (properties.getContents() != null) {
+
+        int internalAmount = 0;
+        if (properties.hasContents()) {
             // There is already some fluid in the slot
             if (fluidStack != null) {
                 // This has to match
-                if (!fluidStack.isFluidEqual(properties.getContents())) {
+                if (!fluidStack.isFluidEqual(properties.getContentsInternal())) {
                     return 0;
                 }
             }
-            fluidStack = properties.getContents();
+            internalAmount = properties.getContentsInternal().amount;
         }
+
+        // Make sure we only drain what can fit in the internal slot
+        if (internalAmount + amount > MAXCAPACITY) {
+            amount = MAXCAPACITY - internalAmount;
+        }
+        if (amount <= 0) {
+            return 0;
+        }
+
         if (fluidStack == null) {
             // Just drain any fluid
-            if (amount > MAXCAPACITY) {
-                amount = MAXCAPACITY;
-            }
             FluidStack drained = handler.drain(amount, true);
             if (drained != null) {
                 properties.set(drained);
@@ -1507,21 +1515,16 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             }
         } else {
             // Drain only that fluid
-            if (fluidStack.amount + amount > MAXCAPACITY) {
-                amount = MAXCAPACITY - fluidStack.amount;
-            }
-            if (amount > 0) {
-                FluidStack todrain = fluidStack.copy();
-                todrain.amount = amount;
-                FluidStack drained = handler.drain(todrain, true);
-                if (drained != null) {
-                    int drainedAmount = drained.amount;
-                    if (properties.getContents() != null) {
-                        drained.amount += properties.getContents().amount;
-                    }
-                    properties.set(drained);
-                    return drainedAmount;
+            FluidStack todrain = fluidStack.copy();
+            todrain.amount = amount;
+            FluidStack drained = handler.drain(todrain, true);
+            if (drained != null) {
+                int drainedAmount = drained.amount;
+                if (properties.hasContents()) {
+                    drained.amount += properties.getContentsInternal().amount;
                 }
+                properties.set(drained);
+                return drainedAmount;
             }
         }
 
