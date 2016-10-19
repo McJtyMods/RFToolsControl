@@ -2143,7 +2143,16 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         IItemHandler handler = getItemHandlerAt(inv);
         if (slot != null) {
             ItemStack stackInSlot = handler.getStackInSlot(slot);
-            return stackInSlot == null ? 0 : stackInSlot.stackSize;
+            if (stackInSlot == null) {
+                return 0;
+            } else {
+                if (itemMatcher != null) {
+                    if (!ItemStack.areItemsEqual(stackInSlot, itemMatcher)) {
+                        return 0;
+                    }
+                }
+                return stackInSlot.stackSize;
+            }
         } else if (itemMatcher != null) {
             return countItemInHandler(itemMatcher, handler);
         } else {
