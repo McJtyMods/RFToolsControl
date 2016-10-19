@@ -1370,8 +1370,9 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         IFluidHandler handler = getFluidHandlerAt(side);
         IFluidTankProperties[] properties = handler.getTankProperties();
         if (properties != null && properties.length > 0) {
-            if (properties[0].getContents() != null) {
-                return properties[0].getContents().amount;
+            FluidStack contents = properties[0].getContents();
+            if (contents != null) {
+                return contents.amount;
             }
         }
         return 0;
@@ -1467,7 +1468,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             return 0;
         }
 
-        amount = Math.min(amount, properties.getContents().amount);
+        amount = Math.min(amount, properties.getContentsInternal().amount);
         FluidStack topush = properties.getContents();   // getContents() already does a copy()
         topush.amount = amount;
         int filled = handler.fill(topush, true);
