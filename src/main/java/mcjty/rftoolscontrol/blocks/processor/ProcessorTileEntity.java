@@ -1435,6 +1435,37 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         return null;
     }
 
+    @Nullable
+    public FluidStack examineLiquid(@Nonnull Inventory inv, @Nullable Integer slot) {
+        TileEntity te = getTileEntityAt(inv);
+        if (te != null && te.hasCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, inv.getIntSide())) {
+            IFluidHandler handler = te.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, inv.getIntSide());
+            if (slot == null) {
+                slot = 0;
+            }
+            IFluidTankProperties[] properties = handler.getTankProperties();
+            if (properties != null && slot < properties.length) {
+                return properties[slot].getContents();
+            }
+            return null;
+        } else {
+            throw new ProgException(EXCEPT_NOLIQUID);
+        }
+    }
+
+    @Nullable
+    public FluidStack examineLiquidInternal(IProgram program, int virtualSlot) {
+        CardInfo info = this.cardInfo[((RunningProgram)program).getCardIndex()];
+        int realSlot = info.getRealFluidSlot(virtualSlot);
+        EnumFacing side = EnumFacing.values()[realSlot / TANKS];
+        int idx = realSlot % TANKS;
+        MultiTankFluidProperties properties = getFluidPropertiesFromMultiTank(side, idx);
+        if (properties == null) {
+            return null;
+        }
+        return properties.getContents();
+    }
+
     public int pushLiquid(IProgram program, @Nonnull Inventory inv, int amount, int virtualSlot) {
         TileEntity te = getTileEntityAt(inv);
         if (te != null && te.hasCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, inv.getIntSide())) {
@@ -1457,8 +1488,9 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             int filled = handler.fill(topush, true);
             properties.drain(filled);
             return filled;
+        } else {
+            throw new ProgException(EXCEPT_NOLIQUID);
         }
-        return 0;
     }
 
     // @todo double check code

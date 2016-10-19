@@ -1014,6 +1014,63 @@ public class Opcodes {
             }))
             .build();
 
+    public static final Opcode EVAL_EXAMINELIQUID = Opcode.builder()
+            .id("eval_examineliquid")
+            .description(
+                    TextFormatting.GREEN + "Eval: examine liquid",
+                    "examine a liquid in a specific slot",
+                    "from an external tank adjacent to",
+                    "the processor or a connected node")
+            .outputDescription("fluidstack in target slot (stack)")
+            .category(CATEGORY_LIQUIDS)
+            .opcodeOutput(SINGLE)
+            .parameter(ParameterDescription.builder().name("tank").type(PAR_INVENTORY).description("tank adjacent to (networked) block").build())
+            .parameter(ParameterDescription.builder().name("slot").type(PAR_INTEGER).optional().description("slot in inventory", "(defaults to 0)").build())
+            .icon(2, 2)
+            .runnable(((processor, program, opcode) -> {
+                Inventory inv = processor.evaluateInventoryParameterNonNull(opcode, program, 0);
+                Integer slot = processor.evaluateIntegerParameter(opcode, program, 1);
+                FluidStack stack = ((ProcessorTileEntity)processor).examineLiquid(inv, slot);
+                program.setLastValue(Parameter.builder().type(PAR_FLUID).value(ParameterValue.constant(stack)).build());
+                return POSITIVE;
+            }))
+            .build();
+    public static final Opcode EVAL_EXAMINELIQUIDINT = Opcode.builder()
+            .id("eval_examineliquidint")
+            .description(
+                    TextFormatting.GREEN + "Eval: examine liquid internal",
+                    "examine a liquid in a liquid slot")
+            .outputDescription("fluidstack in target slot (stack)")
+            .category(CATEGORY_LIQUIDS)
+            .opcodeOutput(SINGLE)
+            .parameter(ParameterDescription.builder().name("slot").type(PAR_INTEGER).description("internal liquid slot").build())
+            .icon(4, 7)
+            .runnable(((processor, program, opcode) -> {
+                int slot = processor.evaluateIntegerParameter(opcode, program, 0);
+                FluidStack stack = ((ProcessorTileEntity)processor).examineLiquidInternal(program, slot);
+                program.setLastValue(Parameter.builder().type(PAR_FLUID).value(ParameterValue.constant(stack)).build());
+                return POSITIVE;
+            }))
+            .build();
+
+    public static final Opcode EVAL_GETLIQUIDNAME = Opcode.builder()
+            .id("eval_getliquidname")
+            .description(
+                    TextFormatting.GREEN + "Eval: get liquid name",
+                    "get the readable name from a liquid")
+            .outputDescription("item name (string)")
+            .category(CATEGORY_LIQUIDS)
+            .opcodeOutput(SINGLE)
+            .parameter(ParameterDescription.builder().name("liquid").type(PAR_FLUID).description("liquid to get name from").build())
+            .icon(5, 7)
+            .runnable(((processor, program, opcode) -> {
+                FluidStack fluid = processor.evaluateFluidParameterNonNull(opcode, program, 0);
+                String name = fluid.getLocalizedName();
+                program.setLastValue(Parameter.builder().type(PAR_STRING).value(ParameterValue.constant(name)).build());
+                return POSITIVE;
+            }))
+            .build();
+
     public static final Opcode EVAL_GETLIQUID = Opcode.builder()
             .id("eval_getliquid")
             .description(
@@ -1496,6 +1553,9 @@ public class Opcodes {
         register(EVAL_GETMAXRF);
         register(EVAL_GETLIQUID);
         register(EVAL_GETMAXLIQUID);
+        register(EVAL_EXAMINELIQUID);
+        register(EVAL_EXAMINELIQUIDINT);
+        register(EVAL_GETLIQUIDNAME);
         register(EVAL_RANDOM);
         register(EVAL_INTEGER);
         register(EVAL_STRING);
