@@ -43,5 +43,6 @@ public class ModCrafting {
         GameRegistry.addRecipe(new ItemStack(ModBlocks.nodeBlock), "rer", "rMr", "rbr", 'M', machineFrame, 'b', ModItems.cardBaseItem, 'r', Items.REDSTONE, 'e', Items.ENDER_PEARL);
         GameRegistry.addRecipe(new ItemStack(ModBlocks.craftingStationBlock), "rbr", "cMc", "rbr", 'M', machineFrame, 'b', ModItems.cardBaseItem, 'r', Items.REDSTONE, 'c', Blocks.CRAFTING_TABLE);
         GameRegistry.addRecipe(new ItemStack(ModBlocks.workbenchBlock), " T ", " M ", " C ", 'M', machineFrame, 'T', Blocks.CRAFTING_TABLE, 'C', Blocks.CHEST);
+        GameRegistry.addRecipe(new ItemStack(ModBlocks.multiTankBlock), "Mii", "iGG", "iGG", 'M', machineFrame, 'i', Items.IRON_INGOT, 'G', Blocks.GLASS);
     }
 }
