@@ -9,6 +9,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.items.IItemHandler;
 
 import javax.annotation.Nonnull;
@@ -163,8 +164,15 @@ public interface IProcessor {
     BlockPos getPositionAt(@Nullable BlockSide inv);
 
     /**
+     * Get a fluidhandler for a tank at a given position on the network
+     */
+    @Nonnull
+    IFluidHandler getFluidHandlerAt(@Nonnull Inventory inv);
+
+    /**
      * Get an itemhandler for an inventory at a given position on the network
      */
+    @Nonnull
     IItemHandler getItemHandlerAt(@Nonnull Inventory inv);
 
     /**

@@ -1254,8 +1254,8 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                 TileEntity te = worldObj.getTileEntity(getPos().offset(side));
                 if (te instanceof MultiTankTileEntity) {
                     MultiTankTileEntity mtank = (MultiTankTileEntity) te;
-                    IFluidHandler handler = mtank.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null);
-                    IFluidTankProperties properties = handler.getTankProperties()[i % TANKS];
+                    MultiTankFluidProperties[] propertyList = mtank.getProperties();
+                    IFluidTankProperties properties = propertyList[i % TANKS];
                     FluidStack fluidStack = properties == null ? null : properties.getContents();
                     pars.add(new PacketGetFluids.FluidEntry(fluidStack, true));
                 } else {
@@ -1367,32 +1367,24 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
 
     @Override
     public int getLiquid(@Nonnull Inventory side) {
-        TileEntity te = getTileEntityAt(side);
-        if (te != null && te.hasCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, side.getIntSide())) {
-            IFluidHandler handler = te.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, side.getIntSide());
-            IFluidTankProperties[] properties = handler.getTankProperties();
-            if (properties != null && properties.length > 0) {
-                if (properties[0].getContents() != null) {
-                    return properties[0].getContents().amount;
-                }
+        IFluidHandler handler = getFluidHandlerAt(side);
+        IFluidTankProperties[] properties = handler.getTankProperties();
+        if (properties != null && properties.length > 0) {
+            if (properties[0].getContents() != null) {
+                return properties[0].getContents().amount;
             }
-            return 0;
         }
-        throw new ProgException(EXCEPT_NOLIQUID);
+        return 0;
     }
 
     @Override
     public int getMaxLiquid(@Nonnull Inventory side) {
-        TileEntity te = getTileEntityAt(side);
-        if (te != null && te.hasCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, side.getIntSide())) {
-            IFluidHandler handler = te.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, side.getIntSide());
-            IFluidTankProperties[] properties = handler.getTankProperties();
-            if (properties != null && properties.length > 0) {
-                return properties[0].getCapacity();
-            }
-            return 0;
+        IFluidHandler handler = getFluidHandlerAt(side);
+        IFluidTankProperties[] properties = handler.getTankProperties();
+        if (properties != null && properties.length > 0) {
+            return properties[0].getCapacity();
         }
-        throw new ProgException(EXCEPT_NOLIQUID);
+        return 0;
     }
 
     private IStorageScanner getScannerForInv(Inventory inv) {
@@ -1437,20 +1429,15 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
 
     @Nullable
     public FluidStack examineLiquid(@Nonnull Inventory inv, @Nullable Integer slot) {
-        TileEntity te = getTileEntityAt(inv);
-        if (te != null && te.hasCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, inv.getIntSide())) {
-            IFluidHandler handler = te.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, inv.getIntSide());
-            if (slot == null) {
-                slot = 0;
-            }
-            IFluidTankProperties[] properties = handler.getTankProperties();
-            if (properties != null && slot < properties.length) {
-                return properties[slot].getContents();
-            }
-            return null;
-        } else {
-            throw new ProgException(EXCEPT_NOLIQUID);
+        IFluidHandler handler = getFluidHandlerAt(inv);
+        if (slot == null) {
+            slot = 0;
         }
+        IFluidTankProperties[] properties = handler.getTankProperties();
+        if (properties != null && slot < properties.length) {
+            return properties[slot].getContents();
+        }
+        return null;
     }
 
     @Nullable
@@ -1467,88 +1454,78 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     }
 
     public int pushLiquid(IProgram program, @Nonnull Inventory inv, int amount, int virtualSlot) {
-        TileEntity te = getTileEntityAt(inv);
-        if (te != null && te.hasCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, inv.getIntSide())) {
-            IFluidHandler handler = te.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, inv.getIntSide());
-            CardInfo info = this.cardInfo[((RunningProgram)program).getCardIndex()];
-            int realSlot = info.getRealFluidSlot(virtualSlot);
-            EnumFacing side = EnumFacing.values()[realSlot / TANKS];
-            int idx = realSlot % TANKS;
-            MultiTankFluidProperties properties = getFluidPropertiesFromMultiTank(side, idx);
-            if (properties == null) {
-                return 0;
-            }
-            if (properties.getContents() == null) {
-                return 0;
-            }
-
-            amount = Math.min(amount, properties.getContents().amount);
-            FluidStack topush = properties.getContents().copy();
-            topush.amount = amount;
-            int filled = handler.fill(topush, true);
-            properties.drain(filled);
-            return filled;
-        } else {
-            throw new ProgException(EXCEPT_NOLIQUID);
-        }
-    }
-
-    // @todo double check code
-    public int fetchLiquid(IProgram program, @Nonnull Inventory inv, int amount, @Nullable FluidStack fluidStack, int virtualSlot) {
-        TileEntity te = getTileEntityAt(inv);
-        if (te != null && te.hasCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, inv.getIntSide())) {
-            IFluidHandler handler = te.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, inv.getIntSide());
-            CardInfo info = this.cardInfo[((RunningProgram)program).getCardIndex()];
-            int realSlot = info.getRealFluidSlot(virtualSlot);
-            EnumFacing side = EnumFacing.values()[realSlot / TANKS];
-            int idx = realSlot % TANKS;
-            MultiTankFluidProperties properties = getFluidPropertiesFromMultiTank(side, idx);
-            if (properties == null) {
-                return 0;
-            }
-            if (properties.getContents() != null) {
-                // There is already some fluid in the slot
-                if (fluidStack != null) {
-                    // This has to match
-                    if (!fluidStack.isFluidEqual(properties.getContents())) {
-                        return 0;
-                    }
-                }
-                fluidStack = properties.getContents();
-            }
-            if (fluidStack == null) {
-                // Just drain any fluid
-                if (amount > MAXCAPACITY) {
-                    amount = MAXCAPACITY;
-                }
-                FluidStack drained = handler.drain(amount, true);
-                if (drained != null) {
-                    properties.set(drained);
-                    return drained.amount;
-                }
-            } else {
-                // Drain only that fluid
-                if (fluidStack.amount + amount > MAXCAPACITY) {
-                    amount = MAXCAPACITY - fluidStack.amount;
-                }
-                if (amount > 0) {
-                    FluidStack todrain = fluidStack.copy();
-                    todrain.amount = amount;
-                    FluidStack drained = handler.drain(todrain, true);
-                    if (drained != null) {
-                        int drainedAmount = drained.amount;
-                        if (properties.getContents() != null) {
-                            drained.amount += properties.getContents().amount;
-                        }
-                        properties.set(drained);
-                        return drainedAmount;
-                    }
-                }
-            }
-
+        IFluidHandler handler = getFluidHandlerAt(inv);
+        CardInfo info = this.cardInfo[((RunningProgram)program).getCardIndex()];
+        int realSlot = info.getRealFluidSlot(virtualSlot);
+        EnumFacing side = EnumFacing.values()[realSlot / TANKS];
+        int idx = realSlot % TANKS;
+        MultiTankFluidProperties properties = getFluidPropertiesFromMultiTank(side, idx);
+        if (properties == null) {
             return 0;
         }
-        throw new ProgException(EXCEPT_NOLIQUID);
+        if (properties.getContents() == null) {
+            return 0;
+        }
+
+        amount = Math.min(amount, properties.getContents().amount);
+        FluidStack topush = properties.getContents().copy();
+        topush.amount = amount;
+        int filled = handler.fill(topush, true);
+        properties.drain(filled);
+        return filled;
+    }
+
+    public int fetchLiquid(IProgram program, @Nonnull Inventory inv, int amount, @Nullable FluidStack fluidStack, int virtualSlot) {
+        IFluidHandler handler = getFluidHandlerAt(inv);
+        CardInfo info = this.cardInfo[((RunningProgram)program).getCardIndex()];
+        int realSlot = info.getRealFluidSlot(virtualSlot);
+        EnumFacing side = EnumFacing.values()[realSlot / TANKS];
+        int idx = realSlot % TANKS;
+        MultiTankFluidProperties properties = getFluidPropertiesFromMultiTank(side, idx);
+        if (properties == null) {
+            return 0;
+        }
+        if (properties.getContents() != null) {
+            // There is already some fluid in the slot
+            if (fluidStack != null) {
+                // This has to match
+                if (!fluidStack.isFluidEqual(properties.getContents())) {
+                    return 0;
+                }
+            }
+            fluidStack = properties.getContents();
+        }
+        if (fluidStack == null) {
+            // Just drain any fluid
+            if (amount > MAXCAPACITY) {
+                amount = MAXCAPACITY;
+            }
+            FluidStack drained = handler.drain(amount, true);
+            if (drained != null) {
+                properties.set(drained);
+                return drained.amount;
+            }
+        } else {
+            // Drain only that fluid
+            if (fluidStack.amount + amount > MAXCAPACITY) {
+                amount = MAXCAPACITY - fluidStack.amount;
+            }
+            if (amount > 0) {
+                FluidStack todrain = fluidStack.copy();
+                todrain.amount = amount;
+                FluidStack drained = handler.drain(todrain, true);
+                if (drained != null) {
+                    int drainedAmount = drained.amount;
+                    if (properties.getContents() != null) {
+                        drained.amount += properties.getContents().amount;
+                    }
+                    properties.set(drained);
+                    return drainedAmount;
+                }
+            }
+        }
+
+        return 0;
     }
 
     public int fetchItems(IProgram program, Inventory inv, Integer slot, @Nullable ItemStack itemMatcher, boolean routable, boolean oredict, @Nullable Integer amount, int virtualSlot) {
@@ -2223,6 +2200,20 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     }
 
     @Override
+    @Nonnull
+    public IFluidHandler getFluidHandlerAt(@Nonnull Inventory inv) {
+        TileEntity te = getTileEntityAt(inv);
+        if (te != null && te.hasCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, inv.getIntSide())) {
+            IFluidHandler handler = te.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, inv.getIntSide());
+            if (handler != null) {
+                return handler;
+            }
+        }
+        throw new ProgException(EXCEPT_NOLIQUID);
+    }
+
+    @Override
+    @Nonnull
     public IItemHandler getItemHandlerAt(@Nonnull Inventory inv) {
         TileEntity te = getTileEntityAt(inv);
         if (te != null && te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, inv.getIntSide())) {
