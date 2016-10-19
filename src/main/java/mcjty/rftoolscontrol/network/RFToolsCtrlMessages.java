@@ -16,6 +16,7 @@ public class RFToolsCtrlMessages {
         net.registerMessage(PacketGetDebugLog.Handler.class, PacketGetDebugLog.class, PacketHandler.nextID(), Side.SERVER);
         net.registerMessage(PacketGetVariables.Handler.class, PacketGetVariables.class, PacketHandler.nextID(), Side.SERVER);
         net.registerMessage(PacketGetFluids.Handler.class, PacketGetFluids.class, PacketHandler.nextID(), Side.SERVER);
+        net.registerMessage(PacketGetTankFluids.Handler.class, PacketGetTankFluids.class, PacketHandler.nextID(), Side.SERVER);
         net.registerMessage(PacketGetCraftableItems.Handler.class, PacketGetCraftableItems.class, PacketHandler.nextID(), Side.SERVER);
         net.registerMessage(PacketGetRequests.Handler.class, PacketGetRequests.class, PacketHandler.nextID(), Side.SERVER);
         net.registerMessage(PacketSendRecipe.Handler.class, PacketSendRecipe.class, PacketHandler.nextID(), Side.SERVER);
@@ -28,6 +29,7 @@ public class RFToolsCtrlMessages {
         net.registerMessage(PacketLogReady.Handler.class, PacketLogReady.class, PacketHandler.nextID(), Side.CLIENT);
         net.registerMessage(PacketVariablesReady.Handler.class, PacketVariablesReady.class, PacketHandler.nextID(), Side.CLIENT);
         net.registerMessage(PacketFluidsReady.Handler.class, PacketFluidsReady.class, PacketHandler.nextID(), Side.CLIENT);
+        net.registerMessage(PacketTankFluidsReady.Handler.class, PacketTankFluidsReady.class, PacketHandler.nextID(), Side.CLIENT);
         net.registerMessage(PacketCraftableItemsReady.Handler.class, PacketCraftableItemsReady.class, PacketHandler.nextID(), Side.CLIENT);
         net.registerMessage(PacketRequestsReady.Handler.class, PacketRequestsReady.class, PacketHandler.nextID(), Side.CLIENT);
         net.registerMessage(PacketGraphicsReady.Handler.class, PacketGraphicsReady.class, PacketHandler.nextID(), Side.CLIENT);

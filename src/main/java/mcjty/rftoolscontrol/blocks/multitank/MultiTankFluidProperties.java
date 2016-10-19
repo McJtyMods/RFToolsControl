@@ -72,7 +72,11 @@ public class MultiTankFluidProperties implements IFluidTankProperties {
     }
 
     public void set(FluidStack stack) {
-        contents = stack.copy();
+        if (stack == null) {
+            contents = null;
+        } else {
+            contents = stack.copy();
+        }
         tankTileEntity.markDirty();
     }
 

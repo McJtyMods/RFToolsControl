@@ -26,8 +26,8 @@ import static mcjty.rftoolscontrol.items.craftingcard.CraftingCardContainer.*;
 
 
 public class GuiCraftingCard extends GenericGuiContainer {
-    public static final int CONTROLLER_WIDTH = 180;
-    public static final int CONTROLLER_HEIGHT = 198;
+    public static final int WIDTH = 180;
+    public static final int HEIGHT = 198;
 
     private static final ResourceLocation iconLocation = new ResourceLocation(RFToolsControl.MODID, "textures/gui/craftingcard.png");
     private static final ResourceLocation guiElements = new ResourceLocation(RFToolsControl.MODID, "textures/gui/guielements.png");
@@ -36,8 +36,8 @@ public class GuiCraftingCard extends GenericGuiContainer {
 
     public GuiCraftingCard(CraftingCardContainer container) {
         super(RFToolsControl.instance, RFToolsCtrlMessages.INSTANCE, null, container, RFToolsControl.GUI_MANUAL_CONTROL, "craftingcard");
-        xSize = CONTROLLER_WIDTH;
-        ySize = CONTROLLER_HEIGHT;
+        xSize = WIDTH;
+        ySize = HEIGHT;
     }
 
     @Override

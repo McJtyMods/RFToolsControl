@@ -2,6 +2,7 @@ package mcjty.rftoolscontrol.blocks.multitank;
 
 import mcjty.lib.entity.GenericTileEntity;
 import mcjty.lib.network.Argument;
+import mcjty.rftoolscontrol.blocks.processor.GuiProcessor;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
@@ -11,9 +12,14 @@ import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.FluidTankProperties;
 import net.minecraftforge.fluids.capability.IFluidTankProperties;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public class MultiTankTileEntity extends GenericTileEntity {
+
+    public static final String CMD_GETFLUIDS = "getFluids";
+    public static final String CLIENTCMD_GETFLUIDS = "getFluids";
 
     public static final int TANKS = 4;
     public static final int MAXCAPACITY = 10000;
@@ -64,19 +70,36 @@ public class MultiTankTileEntity extends GenericTileEntity {
     }
 
     @Override
-    public boolean execute(EntityPlayerMP playerMP, String command, Map<String, Argument> args) {
-        boolean rc = super.execute(playerMP, command, args);
+    public List executeWithResultList(String command, Map<String, Argument> args) {
+        List rc = super.executeWithResultList(command, args);
+        if (rc != null) {
+            return rc;
+        }
+        if (CMD_GETFLUIDS.equals(command)) {
+            List<FluidStack> result = new ArrayList<>(TANKS);
+            for (MultiTankFluidProperties property : properties) {
+                result.add(property.getContents());
+            }
+            return result;
+        }
+        return null;
+    }
+
+    @Override
+    public boolean execute(String command, List list) {
+        boolean rc = super.execute(command, list);
         if (rc) {
             return true;
         }
-//        if (CMD_UPDATE.equals(command)) {
-//            this.node = args.get("node").getString();
-//            this.channel = args.get("channel").getString();
-//            markDirtyClient();
-//            return true;
-//        }
+        if (CLIENTCMD_GETFLUIDS.equals(command)) {
+            for (int i = 0 ; i < TANKS ; i++) {
+                properties[i].set((FluidStack)list.get(i));
+            }
+            return true;
+        }
         return false;
     }
+
 
     @Override
     public boolean hasCapability(Capability<?> capability, EnumFacing facing) {

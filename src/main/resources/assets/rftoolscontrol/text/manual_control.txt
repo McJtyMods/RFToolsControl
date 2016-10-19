@@ -8,6 +8,7 @@ Table of Contents:
 {l:craftingstation}Crafting Station
 {n:craftingcard}Crafting Card
 {l:workbench}Workbench
+{l:tank}Tank
 {l:items}Moving Items
 {l:sharing}Sharing Programs
 {/}
@@ -203,6 +204,14 @@ for a recipe in the workbench from the top side.
 
 The internal buffer of the Workbench is often used for crafting cards to
 help with autocrafting setups.
+{-------------------------------------------------------------}
+{b}Tank
+{n:tank}
+{rb:tank}
+The multi tank is a block that is capable of holding four types of liquids.
+When placed adjacent to the processor it gives that processor access to four
+new fluid slots (four per tank) which can be allocated to programs so that
+they can work with liquids.
 {-------------------------------------------------------------}
 {b}Moving Items
 {n:items}
