@@ -1533,6 +1533,11 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     }
 
     public int fetchItems(IProgram program, Inventory inv, Integer slot, @Nullable ItemStack itemMatcher, boolean routable, boolean oredict, @Nullable Integer amount, int virtualSlot) {
+
+        if (amount != null && amount == 0) {
+            throw new ProgException(EXCEPT_BADPARAMETERS);
+        }
+
         IStorageScanner scanner = getScannerForInv(inv);
         IItemHandler handler = getHandlerForInv(inv);
 
