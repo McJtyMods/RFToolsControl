@@ -10,7 +10,7 @@ Table of Contents:
 {l:workbench}Workbench
 {l:tank}Tank
 {l:items}Moving Items
-{l:sharing}Sharing Programs
+{l:graphics}Graphics
 {/}
 
 
@@ -24,6 +24,7 @@ Table of Contents:
 {l:tokens}Tokens
 {l:concurrency}Concurrency
 {l:debugging}Debugging
+{l:sharing}Sharing Programs
 {-------------------------------------------------------------}
 {b}Introduction
 {n:intro}
@@ -232,21 +233,29 @@ the 16 expansion slots of the Processor. Then to use this feature you
 just leave the 'inventory' parameter empty and it should access
 the storage where supported.
 {-------------------------------------------------------------}
-{b}Sharing Programs
-{n:sharing}
-The programmer supports the clipboard. You select opcodes, you can type
-Ctrl-C and the selected grid will be copied to the clipboard. This is a
-JSON file that you can share on the web. If you have such a program in
-your clipboard you can do Ctrl-V to paste it. If the program is small
-enough you can paste it in a section of your grid by clicking on the
-grid location where you want the left-top opcode to appear. If you
-select nothing it will try to place from the top-left corner. Note that
-it will merge what is in the clipboard with what is already there.
-
-Note that you can always use Ctrl-Z to undo this.
-
-To select opcodes you can use Ctrl-A for the entire grid or else
-ctrl-click for a single opcode and ctrl-double click for a sequence.
+{b}Graphics
+{n:graphics}
+If you install a graphics card into your processor you will be able to do
+some limited vector graphics. You can draw lines, boxes and text and it is
+also possible to interact with your graphics in a limited way. There are
+two ways to display graphics: either you can use the built-in HUD (set
+to 'Gfx' mode) or else you can use an rftools screen with a 'vector art'
+module. If you want to interact with your graphics then the rftools screen
+is the only way. When working with graphics you have to know about
+three concepts: 'ids', 'colors', and 'coordinates'. I'll go over these in the
+next page.
+{-------------------------------------------------------------}
+{b}Ids
+Every graphics operation on a processor is identified by an 'id'. This is both
+needed to be able to modify a certain operation (i.e. replace the graphics
+represented by that id) as well as to control what operations are rendered first.
+Basically graphics operations are rendered with their id in alphabetical order.
+{b}Colors
+Colors are integers. It is easiest to represent them in hexadecimal notation like
+this: $AARRGGBB. A few examples to clarify this: $FF00FF00. Is a fully
+non-transparent green color. $55990000 is a transparent darker red color.
+{b}Coordinates
+Coordinates go from 0,0 (top-left corner) to 128,128 (bottom-right corner).
 {-------------------------------------------------------------}
 {b}Programming Concepts
 {n:concepts}
@@ -412,4 +421,20 @@ change them).
 
 To resume all programs you do:
     db resume
+{-------------------------------------------------------------}
+{b}Sharing Programs
+{n:sharing}
+The programmer supports the clipboard. You select opcodes, you can type
+Ctrl-C and the selected grid will be copied to the clipboard. This is a
+JSON file that you can share on the web. If you have such a program in
+your clipboard you can do Ctrl-V to paste it. If the program is small
+enough you can paste it in a section of your grid by clicking on the
+grid location where you want the left-top opcode to appear. If you
+select nothing it will try to place from the top-left corner. Note that
+it will merge what is in the clipboard with what is already there.
+
+Note that you can always use Ctrl-Z to undo this.
+
+To select opcodes you can use Ctrl-A for the entire grid or else
+ctrl-click for a single opcode and ctrl-double click for a sequence.
 {-------------------------------------------------------------}
