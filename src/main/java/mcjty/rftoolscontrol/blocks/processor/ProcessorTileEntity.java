@@ -1464,7 +1464,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         if (properties == null) {
             return 0;
         }
-        if (properties.hasContents()) {
+        if (!properties.hasContents()) {
             return 0;
         }
 
@@ -1509,10 +1509,15 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
 
         if (fluidStack == null) {
             // Just drain any fluid
-            FluidStack drained = handler.drain(amount, true);
+            FluidStack drained = handler.drain(amount, false);
             if (drained != null) {
-                properties.set(drained);
-                return drained.amount;
+                // Check if the fluid matches
+                if ((!properties.hasContents()) || properties.getContentsInternal().isFluidEqual(drained)) {
+                    drained = handler.drain(amount, true);
+                    properties.fill(drained);
+                    return drained.amount;
+                }
+                return 0;
             }
         } else {
             // Drain only that fluid
@@ -1524,7 +1529,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                 if (properties.hasContents()) {
                     drained.amount += properties.getContentsInternal().amount;
                 }
-                properties.set(drained);
+                properties.fill(drained);
                 return drainedAmount;
             }
         }
@@ -1533,6 +1538,11 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     }
 
     public int fetchItems(IProgram program, Inventory inv, Integer slot, @Nullable ItemStack itemMatcher, boolean routable, boolean oredict, @Nullable Integer amount, int virtualSlot) {
+
+        if (amount != null && amount == 0) {
+            throw new ProgException(EXCEPT_BADPARAMETERS);
+        }
+
         IStorageScanner scanner = getScannerForInv(inv);
         IItemHandler handler = getHandlerForInv(inv);
 

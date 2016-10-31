@@ -46,6 +46,8 @@ public class MultiTankBlock extends GenericRFToolsBlock<MultiTankTileEntity, Emp
         super.addInformation(stack, playerIn, list, advanced);
         list.add("This is a tank that has capacity");
         list.add("for four types of liquids");
+        list.add("This block is meant for the processor");
+        list.add("and cannot otherwise be used directly");
     }
 
     @Override

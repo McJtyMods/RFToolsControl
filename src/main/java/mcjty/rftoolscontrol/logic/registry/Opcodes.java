@@ -1046,7 +1046,7 @@ public class Opcodes {
             .parameter(ParameterDescription.builder().name("slot").type(PAR_INTEGER).description("internal liquid slot").build())
             .icon(4, 7)
             .runnable(((processor, program, opcode) -> {
-                int slot = processor.evaluateIntegerParameter(opcode, program, 0);
+                int slot = processor.evaluateIntParameter(opcode, program, 0);
                 FluidStack stack = ((ProcessorTileEntity)processor).examineLiquidInternal(program, slot);
                 program.setLastValue(Parameter.builder().type(PAR_FLUID).value(ParameterValue.constant(stack)).build());
                 return POSITIVE;

@@ -6,7 +6,7 @@ Table of Contents:
 {l:processor}Processor
 {l:networking}Networking
 {l:craftingstation}Crafting Station
-{n:craftingcard}Crafting Card
+{l:craftingcard}Crafting Card
 {l:workbench}Workbench
 {l:tank}Tank
 {l:items}Moving Items
@@ -209,9 +209,14 @@ help with autocrafting setups.
 {n:tank}
 {rb:tank}
 The multi tank is a block that is capable of holding four types of liquids.
-When placed adjacent to the processor it gives that processor access to four
-new fluid slots (four per tank) which can be allocated to programs so that
-they can work with liquids.
+When placed adjacent to the processor it gives that processor access to
+four new fluid slots (four per tank) which can be allocated to programs
+so that they can work with liquids.
+
+Note that there is currently no way to interact with the multi tank except
+through the processor and a program accessing the fluids. It is meant
+purely as a directly accessible fluid storage for the processor. Placing
+it adjacent to a node is also not useful.
 {-------------------------------------------------------------}
 {b}Moving Items
 {n:items}

@@ -53,7 +53,7 @@ public class GuiMultiTank extends GenericGuiContainer<MultiTankTileEntity> {
                     .setHorizontalAlignment(HorizontalAlignment.ALIGH_LEFT)
                     .setVerticalAlignment(VerticalAlignment.ALIGN_CENTER)
                     .setLayoutHint(new PositionalLayout.PositionalHint(32, 9 + i * 18, WIDTH-32-6, 16));
-
+            toplevel.addChild(labels[i]);
         }
 
         window = new Window(this, toplevel);
@@ -78,7 +78,7 @@ public class GuiMultiTank extends GenericGuiContainer<MultiTankTileEntity> {
                 FluidStack stack = properties[i].getContents();
                 if (stack != null) {
                     liquids[i].setRenderItem(stack);
-                    labels[i].setText(stack.getLocalizedName() + " " + stack.amount + "mb");
+                    labels[i].setText(stack.getLocalizedName() + " (" + stack.amount + "mb)");
                     continue;
                 }
             }

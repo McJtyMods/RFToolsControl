@@ -71,6 +71,19 @@ public class MultiTankFluidProperties implements IFluidTankProperties {
         tankTileEntity.markDirty();
     }
 
+    // Warning! Doesn't check if amount fits and is right liquid!
+    public void fill(FluidStack stack) {
+        if (stack == null) {
+            return;
+        }
+        if (contents == null) {
+            contents = stack;
+        } else {
+            contents.amount += stack.amount;
+        }
+        tankTileEntity.markDirty();
+    }
+
     public void set(FluidStack stack) {
         if (stack == null) {
             contents = null;

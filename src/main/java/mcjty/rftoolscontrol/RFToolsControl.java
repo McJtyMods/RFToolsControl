@@ -27,9 +27,9 @@ import net.minecraftforge.fml.relauncher.SideOnly;
         version = RFToolsControl.VERSION)
 public class RFToolsControl implements ModBase {
     public static final String MODID = "rftoolscontrol";
-    public static final String VERSION = "1.4.0";
+    public static final String VERSION = "1.5.1";
     public static final String MIN_FORGE_VER = "12.16.1.1896";
-    public static final String MIN_MCJTYLIB_VER = "1.10-2.1.4";
+    public static final String MIN_MCJTYLIB_VER = "1.10-2.2.0";
     public static final String MIN_RFTOOLS_VER = "1.10-5.22";
 
     @SidedProxy(clientSide="mcjty.rftoolscontrol.proxy.ClientProxy", serverSide="mcjty.rftoolscontrol.proxy.ServerProxy")
