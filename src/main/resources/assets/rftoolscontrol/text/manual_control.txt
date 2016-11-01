@@ -248,12 +248,15 @@ next page.
 {b}Ids
 Every graphics operation on a processor is identified by an 'id'. This is both
 needed to be able to modify a certain operation (i.e. replace the graphics
-represented by that id) as well as to control what operations are rendered first.
-Basically graphics operations are rendered with their id in alphabetical order.
+represented by that id) as well as to control what operations are rendered
+first. Basically graphics operations are rendered with their id in
+alphabetical order.
+
 {b}Colors
-Colors are integers. It is easiest to represent them in hexadecimal notation like
-this: $AARRGGBB. A few examples to clarify this: $FF00FF00. Is a fully
-non-transparent green color. $55990000 is a transparent darker red color.
+Colors are integers. It is easiest to represent them in hexadecimal notation
+like this: $AARRGGBB. A few examples to clarify this: $FF00FF00. Is a fully
+non-transparent green color. $55990000 is a transparent dark red color.
+
 {b}Coordinates
 Coordinates go from 0,0 (top-left corner) to 128,128 (bottom-right corner).
 {-------------------------------------------------------------}
