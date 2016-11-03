@@ -254,6 +254,12 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             return;
         }
 
+        if (level < 0) {
+            level = 0;
+        } else if (level > 15) {
+            level = 15;
+        }
+
         if (p.equals(pos)) {
             powerOut[facing.ordinal()] = level;
             markDirty();
