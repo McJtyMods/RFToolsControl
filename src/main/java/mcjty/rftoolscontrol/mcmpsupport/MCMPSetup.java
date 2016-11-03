@@ -1,12 +1,15 @@
 package mcjty.rftoolscontrol.mcmpsupport;
 
+import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.blocks.nodemcmp.NodePart;
+import mcjty.rftoolscontrol.blocks.nodemcmp.NodePartItem;
 import mcmultipart.multipart.MultipartRegistry;
 
 public class MCMPSetup {
 
     public static void init() {
-        MultipartRegistry.registerPart(NodePart.class, "node");
+        NodePartItem itemNode = new NodePartItem();
+        MultipartRegistry.registerPart(NodePart.class, RFToolsControl.MODID + ":nodepart");
     }
 
 }

@@ -10,6 +10,11 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
 public class NodePartItem extends ItemMultiPart {
+
+    public NodePartItem() {
+        setRegistryName("nodepart");
+    }
+
     @Override
     public IMultipart createPart(World world, BlockPos pos, EnumFacing side, Vec3d hit, ItemStack stack, EntityPlayer player) {
         return new NodePart();
