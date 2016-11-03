@@ -737,6 +737,39 @@ public class Opcodes {
             }))
             .build();
 
+    public static final Opcode DO_PUSHWORKBENCH = Opcode.builder()
+            .id("do_pushworkbench")
+            .description(
+                    TextFormatting.GREEN + "Operation: push items to workbench",
+                    "push multiple items from the internal inventory to a",
+                    "workbench adjacent to the processor or a connected node.",
+                    "This operation will use a crafting card to push exactly (and",
+                    "only) the items that are required for the craft operation",
+                    "and that are not already present in the workbench.",
+                    "Crafting card has to be present in the workbench storage.",
+                    "Returns true if all items are present to craft",
+                    "and false if items are missing or the workbench already has",
+                    "incompatible items in it")
+            .category(CATEGORY_ITEMS)
+            .category(CATEGORY_CRAFTING)
+            .outputDescription("true on success (boolean)")
+            .opcodeOutput(SINGLE)
+            .parameter(ParameterDescription.builder().name("inv").type(PAR_SIDE).description("workbench adjacent to (networked) block").build())
+            .parameter(ParameterDescription.builder().name("item").type(PAR_ITEM).optional().description("item to push ingredients for. If not given", "it will use current craft result").build())
+            .parameter(ParameterDescription.builder().name("slot1").type(PAR_INTEGER).description("first internal slot for input").build())
+            .parameter(ParameterDescription.builder().name("slot2").type(PAR_INTEGER).description("last internal slot for input").build())
+            .icon(6, 7)
+            .runnable(((processor, program, opcode) -> {
+                BlockSide workbench = processor.evaluateSideParameterNonNull(opcode, program, 0);
+                ItemStack item = processor.evaluateItemParameter(opcode, program, 1);
+                int slot1 = processor.evaluateIntParameter(opcode, program, 2);
+                int slot2 = processor.evaluateIntParameter(opcode, program, 3);
+                boolean result = ((ProcessorTileEntity)processor).pushItemsWorkbench(program, workbench, item, slot1, slot2);
+                program.setLastValue(Parameter.builder().type(PAR_BOOLEAN).value(ParameterValue.constant(result)).build());
+                return POSITIVE;
+            }))
+            .build();
+
     public static final Opcode DO_SETCRAFTTICKET = Opcode.builder()
             .id("do_setticket")
             .description(
@@ -1584,6 +1617,7 @@ public class Opcodes {
         register(DO_FETCHITEMS);
         register(DO_PUSHITEMS);
         register(DO_PUSHMULTI);
+        register(DO_PUSHWORKBENCH);
         register(DO_SETVAR);
         register(DO_SETTOKEN);
         register(DO_ADD);

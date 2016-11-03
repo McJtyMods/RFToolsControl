@@ -22,6 +22,7 @@ import mcjty.rftoolscontrol.blocks.vectorart.GfxOp;
 import mcjty.rftoolscontrol.blocks.vectorart.GfxOpBox;
 import mcjty.rftoolscontrol.blocks.vectorart.GfxOpLine;
 import mcjty.rftoolscontrol.blocks.vectorart.GfxOpText;
+import mcjty.rftoolscontrol.blocks.workbench.WorkbenchTileEntity;
 import mcjty.rftoolscontrol.config.GeneralConfiguration;
 import mcjty.rftoolscontrol.items.*;
 import mcjty.rftoolscontrol.items.craftingcard.CraftingCardItem;
@@ -398,7 +399,70 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         }
     }
 
-    public int pushItemsMulti(IProgram program, Inventory inv, int slot1, int slot2, @Nullable Integer extSlot) {
+    public boolean pushItemsWorkbench(IProgram program, @Nonnull BlockSide workbench, @Nullable ItemStack item, int slot1, int slot2) {
+        if (item == null) {
+            item = getCraftResult(program);
+        }
+        if (item == null) {
+            throw new ProgException(EXCEPT_MISSINGCRAFTRESULT);
+        }
+
+        TileEntity te = getTileEntityAt(workbench);
+        if (!(te instanceof WorkbenchTileEntity)) {
+            throw new ProgException(EXCEPT_NOTAWORKBENCH);
+        }
+        IItemHandler cardHandler = getItemHandlerAt(te, EnumFacing.EAST);
+        ItemStack card = findCraftingCard(cardHandler, item);
+        if (card == null) {
+            throw new ProgException(EXCEPT_MISSINGCRAFTINGCARD);
+        }
+
+        if (!CraftingCardItem.fitsGrid(card)) {
+            throw new ProgException(EXCEPT_NOTAGRID);
+        }
+
+        CardInfo info = this.cardInfo[((RunningProgram)program).getCardIndex()];
+        IItemHandler itemHandler = getItemHandler();
+
+        IItemHandler gridHandler = getItemHandlerAt(te, EnumFacing.UP);
+        List<ItemStack> ingredients = CraftingCardItem.getIngredientsGrid(card);
+        boolean success = true;
+        for (int i = 0 ; i < 9 ; i++) {
+            ItemStack stackInWorkbench = gridHandler.getStackInSlot(i);
+            ItemStack stackInIngredient = ingredients.get(i);
+            if (stackInWorkbench != null && stackInIngredient == null) {
+                // Can't work. There is already something in the workbench that doesn't belong
+                success = false;
+            } else if (stackInWorkbench == null && stackInIngredient != null) {
+                // Let's see if we can find the needed ingredient
+                boolean found = false;
+                for (int slot = slot1 ; slot <= slot2 ; slot++) {
+                    int realSlot = info.getRealSlot(slot);
+                    ItemStack localStack = itemHandler.getStackInSlot(realSlot);
+                    if (stackInIngredient.isItemEqual(localStack)) {
+                        localStack = itemHandler.extractItem(realSlot, stackInIngredient.stackSize, false);
+                        gridHandler.insertItem(i, localStack, false);
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    success = false;
+                }
+            } else if (stackInWorkbench != null && stackInIngredient != null) {
+                // See if the item matches and we have enough
+                if (!stackInIngredient.isItemEqual(stackInWorkbench)) {
+                    success = false;
+                } else if (stackInIngredient.stackSize > stackInWorkbench.stackSize) {
+                    success = false;
+                }
+            }
+        }
+
+        return success;
+    }
+
+    public int pushItemsMulti(IProgram program, @Nullable Inventory inv, int slot1, int slot2, @Nullable Integer extSlot) {
         IItemHandler handler = getHandlerForInv(inv);
         IStorageScanner scanner = getScannerForInv(inv);
 
@@ -1394,7 +1458,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         return 0;
     }
 
-    private IStorageScanner getScannerForInv(Inventory inv) {
+    private IStorageScanner getScannerForInv(@Nullable Inventory inv) {
         if (inv == null) {
             return getStorageScanner();
         } else {
@@ -1402,7 +1466,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         }
     }
 
-    private IItemHandler getHandlerForInv(Inventory inv) {
+    private IItemHandler getHandlerForInv(@Nullable Inventory inv) {
         if (inv == null) {
             return null;
         } else {
@@ -2244,16 +2308,21 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     @Override
     @Nonnull
     public IItemHandler getItemHandlerAt(@Nonnull Inventory inv) {
+        EnumFacing intSide = inv.getIntSide();
         TileEntity te = getTileEntityAt(inv);
-        if (te != null && te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, inv.getIntSide())) {
-            IItemHandler handler = te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, inv.getIntSide());
+        return getItemHandlerAt(te, intSide);
+    }
+
+    private IItemHandler getItemHandlerAt(@Nonnull TileEntity te, EnumFacing intSide) {
+        if (te != null && te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, intSide)) {
+            IItemHandler handler = te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, intSide);
             if (handler != null) {
                 return handler;
             }
         } else if (te instanceof ISidedInventory) {
             // Support for old inventory
             ISidedInventory sidedInventory = (ISidedInventory) te;
-            return new SidedInvWrapper(sidedInventory, inv.getIntSide());
+            return new SidedInvWrapper(sidedInventory, intSide);
         } else if (te instanceof IInventory) {
             // Support for old inventory
             IInventory inventory = (IInventory) te;

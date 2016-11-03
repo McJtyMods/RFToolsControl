@@ -33,6 +33,8 @@ public enum ExceptionType {
     EXCEPT_MISSINGLASTVALUE("missing_last_value", "Missing last value"),
     EXCEPT_NOTANITEM("not_an_item", "This is not an item"),
     EXCEPT_NOINTERNALFLUIDSLOT("no_internal_fluid_slot", "Missing internal fluid slot"),
+    EXCEPT_NOTAWORKBENCH("not_a_workbench", "Inventory must be a workbench"),
+    EXCEPT_NOTAGRID("not_a_grid", "Crafting does not match a 3x3 grid"),
     ;
 
     private final String code;
