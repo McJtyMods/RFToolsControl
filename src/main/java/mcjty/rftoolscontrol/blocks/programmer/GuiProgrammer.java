@@ -625,10 +625,14 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
             GuiTools.showMessage(mc, this, getWindowManager(), 50, 50, "No card!");
             return;
         }
-        GuiTools.askSomething(mc, this, getWindowManager(), 50, 50, "Card name:", ProgramCardItem.getCardName(card), s -> {
-            saveProgram(slot, s);
-        });
-
+        String cardName = ProgramCardItem.getCardName(card);
+        if (cardName.isEmpty() || Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT)) {
+            GuiTools.askSomething(mc, this, getWindowManager(), 50, 50, "Card name:", cardName, s -> {
+                saveProgram(slot, s);
+            });
+        } else {
+            saveProgram(slot, cardName);
+        }
     }
 
     private void saveProgram(int slot, String name) {
@@ -811,7 +815,10 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
                         .setTooltips(TextFormatting.YELLOW + "Load program", "Load the current program", "from a program card")
                         .setDesiredHeight(15).addButtonEvent(w -> loadProgram(ProgrammerContainer.SLOT_CARD)))
                 .addChild(new Button(mc, this).setText("Save")
-                        .setTooltips(TextFormatting.YELLOW + "Save program", "Save the current program", "to a program card")
+                        .setTooltips(TextFormatting.YELLOW + "Save program",
+                                "Save the current program",
+                                "to a program card",
+                                TextFormatting.GREEN + "Press shift to change name")
                         .setDesiredHeight(15).addButtonEvent(w -> askNameAndSave(ProgrammerContainer.SLOT_CARD)))
                 .addChild(new Button(mc, this).setText("Clear")
                         .setTooltips(TextFormatting.YELLOW + "Clear program", "Remove all opcodes on the grid", "(press Ctrl-Z if this was a mistake)")
