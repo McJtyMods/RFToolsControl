@@ -1,17 +1,18 @@
 package mcjty.rftoolscontrol.proxy;
 
 import com.google.common.util.concurrent.ListenableFuture;
-import mcjty.rftoolscontrol.ModCrafting;
-import mcjty.rftoolscontrol.blocks.ModBlocks;
-import mcjty.rftoolscontrol.items.ModItems;
 import mcjty.lib.base.GeneralConfig;
 import mcjty.lib.network.PacketHandler;
 import mcjty.lib.varia.WrenchChecker;
+import mcjty.rftoolscontrol.ModCrafting;
 import mcjty.rftoolscontrol.RFToolsControl;
+import mcjty.rftoolscontrol.blocks.ModBlocks;
 import mcjty.rftoolscontrol.config.GeneralConfiguration;
 import mcjty.rftoolscontrol.gui.GuiProxy;
+import mcjty.rftoolscontrol.items.ModItems;
 import mcjty.rftoolscontrol.logic.registry.Functions;
 import mcjty.rftoolscontrol.logic.registry.Opcodes;
+import mcjty.rftoolscontrol.mcmpsupport.MCMPSetup;
 import mcjty.rftoolscontrol.network.RFToolsCtrlMessages;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.World;
@@ -46,6 +47,10 @@ public abstract class CommonProxy {
         Functions.init();
         ModItems.init();
         ModBlocks.init();
+
+        if (RFToolsControl.mcmpPresent) {
+            MCMPSetup.init();
+        }
     }
 
     private void readMainConfig() {

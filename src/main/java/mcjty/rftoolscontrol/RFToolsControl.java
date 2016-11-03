@@ -14,6 +14,7 @@ import mcjty.rftoolscontrol.proxy.CommonProxy;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
+import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.*;
@@ -37,6 +38,8 @@ public class RFToolsControl implements ModBase {
 
     @Mod.Instance(MODID)
     public static RFToolsControl instance;
+
+    public static boolean mcmpPresent = false;
 
     /** This is used to keep track of GUIs that we make*/
     private static int modGuiIndex = 0;
@@ -66,6 +69,8 @@ public class RFToolsControl implements ModBase {
      */
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent e) {
+        mcmpPresent = Loader.isModLoaded("mcmultipart");
+
         this.proxy.preInit(e);
         MainCompatHandler.registerWaila();
         MainCompatHandler.registerTOP();
