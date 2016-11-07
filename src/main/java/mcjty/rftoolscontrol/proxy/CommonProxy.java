@@ -12,7 +12,6 @@ import mcjty.rftoolscontrol.gui.GuiProxy;
 import mcjty.rftoolscontrol.items.ModItems;
 import mcjty.rftoolscontrol.logic.registry.Functions;
 import mcjty.rftoolscontrol.logic.registry.Opcodes;
-import mcjty.rftoolscontrol.mcmpsupport.MCMPSetup;
 import mcjty.rftoolscontrol.network.RFToolsCtrlMessages;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.World;
@@ -48,9 +47,9 @@ public abstract class CommonProxy {
         ModItems.init();
         ModBlocks.init();
 
-        if (RFToolsControl.mcmpPresent) {
-            MCMPSetup.init();
-        }
+//        if (RFToolsControl.mcmpPresent) {
+//            MCMPSetup.init();
+//        }
     }
 
     private void readMainConfig() {
