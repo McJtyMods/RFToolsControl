@@ -1,5 +1,5 @@
 {
   "parent": "item/generated",
   "textures": {
-    "layer0": "rftoolscontrol:items/variableModuleItem"
+    "layer0": "rftoolscontrol:items/variablemoduleitem"
   }}

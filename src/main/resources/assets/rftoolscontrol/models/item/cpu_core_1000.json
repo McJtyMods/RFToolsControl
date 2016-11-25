@@ -1,6 +1,6 @@
 {
   "parent": "item/generated",
   "textures": {
-    "layer0": "rftoolscontrol:items/cpuCoreS1000"
+    "layer0": "rftoolscontrol:items/cpucores1000"
   }
 }

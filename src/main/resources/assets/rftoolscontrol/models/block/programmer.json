@@ -1,6 +1,6 @@
 {
   "parent": "rftools:block/rftoolsblock",
   "textures": {
-    "front": "rftoolscontrol:blocks/machineProgrammer"
+    "front": "rftoolscontrol:blocks/machineprogrammer"
   }
 }

@@ -17,7 +17,7 @@
       "model": "rftoolscontrol:tank.obj"
     }],
     "window": [{
-      "model": "rftoolscontrol:tank_windows", "textures": { "overlay": "rftoolscontrol:blocks/machineTankWindow" }
+      "model": "rftoolscontrol:tank_windows", "textures": { "overlay": "rftoolscontrol:blocks/machinetankwindow" }
     }]
   }
 }
