@@ -1,6 +1,6 @@
 [
 {
-  "modid": "rftoolsctrl",
+  "modid": "rftoolscontrol",
   "name": "RFTools Control",
   "description": "RFTools Control Addon",
   "version": "${version}",
