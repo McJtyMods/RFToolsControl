@@ -11,7 +11,7 @@ public class WaitForItem {
     private final ItemStack itemStack;
     private final Inventory inventory;
 
-    public WaitForItem(@Nonnull String ticket, @Nullable ItemStack itemStack, @Nullable Inventory inventory) {
+    public WaitForItem(@Nonnull String ticket, ItemStack itemStack, @Nullable Inventory inventory) {
         this.ticket = ticket;
         this.itemStack = itemStack;
         this.inventory = inventory;
@@ -22,7 +22,6 @@ public class WaitForItem {
         return ticket;
     }
 
-    @Nullable
     public ItemStack getItemStack() {
         return itemStack;
     }

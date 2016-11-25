@@ -37,9 +37,8 @@ public interface IProcessor {
     /**
      * Evalulate a parameter with a given index and return an item stack
      * This can convert from String correctly
-     * or null if the parameter was not given
+     * or empty stack (null for 1.10) if the parameter was not given
      */
-    @Nullable
     ItemStack evaluateItemParameter(ICompiledOpcode compiledOpcode, IProgram program, int parIndex);
 
     /**
@@ -185,8 +184,8 @@ public interface IProcessor {
      * Get an item from an internal slot. The virtualSlot is a slot
      * number relative to how the slots are allocated for the card. So
      * index 0 means the first allocated slot
+     * Can return empty stack (or null on 1.10)
      */
-    @Nullable
     ItemStack getItemInternal(IProgram program, int virtualSlot);
 
     /**
@@ -247,9 +246,9 @@ public interface IProcessor {
 
     /**
      * If this program is running in the context of a craft operation
-     * then you can get the desired craft result here
+     * then you can get the desired craft result here. Can return empty
+     * stack (or null on 1.10)
      */
-    @Nullable
     ItemStack getCraftResult(IProgram program);
 
     /**

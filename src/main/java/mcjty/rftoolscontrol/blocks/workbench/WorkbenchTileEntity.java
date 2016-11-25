@@ -170,13 +170,13 @@ public class WorkbenchTileEntity extends GenericTileEntity implements DefaultSid
             List<ItemStack> remainingItems = CraftingManager.getInstance().getRemainingItems(workInventory, getWorld());
             for (int i = 0 ; i < 9 ; i++) {
                 ItemStack s = getStackInSlot(i + WorkbenchContainer.SLOT_CRAFTINPUT);
-                if (s != null) {
+                if (ItemStackTools.isValid(s)) {
                     getInventoryHelper().decrStackSize(i + WorkbenchContainer.SLOT_CRAFTINPUT, 1);
                     s = getStackInSlot(i + WorkbenchContainer.SLOT_CRAFTINPUT);
                 }
 
                 if (ItemStackTools.isValid(remainingItems.get(i))) {
-                    if (s == null) {
+                    if (ItemStackTools.isEmpty(s)) {
                         getInventoryHelper().setStackInSlot(i + WorkbenchContainer.SLOT_CRAFTINPUT, remainingItems.get(i));
                     } else if (ItemStack.areItemsEqual(s, remainingItems.get(i)) && ItemStack.areItemStackTagsEqual(s, remainingItems.get(i))) {
                         ItemStackTools.incStackSize(remainingItems.get(i), ItemStackTools.getStackSize(s));

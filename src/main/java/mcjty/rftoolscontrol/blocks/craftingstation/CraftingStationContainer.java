@@ -4,12 +4,8 @@ import mcjty.lib.container.ContainerFactory;
 import mcjty.lib.container.GenericContainer;
 import mcjty.lib.container.SlotDefinition;
 import mcjty.lib.container.SlotType;
-import mcjty.rftoolscontrol.items.ModItems;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
-import net.minecraft.item.ItemStack;
-
-import static mcjty.rftoolscontrol.blocks.processor.ProcessorTileEntity.*;
 
 public class CraftingStationContainer extends GenericContainer {
     public static final String CONTAINER_INVENTORY = "container";

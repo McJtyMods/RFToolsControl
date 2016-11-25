@@ -4,6 +4,7 @@ import io.netty.buffer.ByteBuf;
 import mcjty.lib.network.ClientCommandHandler;
 import mcjty.lib.network.NetworkTools;
 import mcjty.lib.network.PacketListToClient;
+import mcjty.lib.tools.ItemStackTools;
 import mcjty.lib.varia.Logging;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.typed.Type;
@@ -50,7 +51,7 @@ public class PacketCraftableItemsReady extends PacketListToClient<ItemStack> {
         if (buf.readBoolean()) {
             return NetworkTools.readItemStack(buf);
         } else {
-            return null;
+            return ItemStackTools.getEmptyStack();
         }
     }
 

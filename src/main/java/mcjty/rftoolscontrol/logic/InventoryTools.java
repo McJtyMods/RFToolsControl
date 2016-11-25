@@ -40,12 +40,12 @@ public class InventoryTools {
     }
 
     public static ItemStack extractItem(@Nullable IItemHandler itemHandler, @Nullable IStorageScanner scanner,
-                                        @Nullable Integer amount, boolean routable, boolean oredict, @Nullable ItemStack itemMatcher,
+                                        @Nullable Integer amount, boolean routable, boolean oredict, ItemStack itemMatcher,
                                         @Nullable Integer slot) {
         if (itemHandler != null) {
             // @todo implement oredict here
             if (slot == null) {
-                if (itemMatcher == null) {
+                if (ItemStackTools.isEmpty(itemMatcher)) {
                     // Just find the first available stack
                     for (int i = 0 ; i < itemHandler.getSlots() ; i++) {
                         ItemStack stack = itemHandler.getStackInSlot(i);
@@ -62,11 +62,11 @@ public class InventoryTools {
                     }
                 }
             } else {
-                if (itemMatcher == null) {
+                if (ItemStackTools.isEmpty(itemMatcher)) {
                     return itemHandler.extractItem(slot, amount == null ? 64 : amount, false);
                 } else {
                     if (!ItemStack.areItemsEqual(itemMatcher, itemHandler.getStackInSlot(slot))) {
-                        return null;
+                        return ItemStackTools.getEmptyStack();
                     }
                     return itemHandler.extractItem(slot, amount == null ? itemMatcher.getMaxStackSize() : amount, false);
                 }
@@ -74,18 +74,18 @@ public class InventoryTools {
         } else if (scanner != null) {
             return scanner.requestItem(itemMatcher, amount == null ? itemMatcher.getMaxStackSize() : amount, routable, oredict);
         }
-        return null;
+        return ItemStackTools.getEmptyStack();
     }
 
     @Nullable
     public static ItemStack tryExtractItem(@Nullable IItemHandler itemHandler, @Nullable IStorageScanner scanner,
                                            @Nullable Integer amount, boolean routable, boolean oredict,
-                                           @Nullable ItemStack itemMatcher,
+                                           ItemStack itemMatcher,
                                            @Nullable Integer slot) {
 
         if (itemHandler != null) {
             if (slot == null) {
-                if (itemMatcher == null) {
+                if (ItemStackTools.isEmpty(itemMatcher)) {
                     // Just find the first available stack
                     for (int i = 0 ; i < itemHandler.getSlots() ; i++) {
                         ItemStack stack = itemHandler.getStackInSlot(i);
@@ -106,7 +106,7 @@ public class InventoryTools {
                     return itemHandler.extractItem(slot, amount == null ? 64 : amount, true);
                 } else {
                     if (!ItemStack.areItemsEqual(itemMatcher, itemHandler.getStackInSlot(slot))) {
-                        return null;
+                        return ItemStackTools.getEmptyStack();
                     }
                     return itemHandler.extractItem(slot, amount == null ? itemMatcher.getMaxStackSize() : amount, true);
                 }
@@ -120,10 +120,9 @@ public class InventoryTools {
                 return copy;
             }
         }
-        return null;
+        return ItemStackTools.getEmptyStack();
     }
 
-    @Nullable
     public static ItemStack insertItem(@Nullable IItemHandler itemHandler, @Nullable IStorageScanner scanner, @Nonnull ItemStack item,
                                         @Nullable Integer slot) {
         if (itemHandler != null) {
@@ -140,7 +139,7 @@ public class InventoryTools {
                 ItemStackTools.setStackSize(copy, cnt);
                 return copy;
             }
-            return null;
+            return ItemStackTools.getEmptyStack();
         }
         return item;
     }

@@ -414,7 +414,8 @@ public class Opcodes {
             .runnable(((processor, program, opcode) -> {
                 int slot = processor.evaluateIntParameter(opcode, program, 0);
                 ItemStack stack = processor.getItemInternal(program, slot);
-                program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(stack == null ? 0 : ItemStackTools.getStackSize(stack))).build());
+                program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(
+                        ItemStackTools.isEmpty(stack) ? 0 : ItemStackTools.getStackSize(stack))).build());
                 return POSITIVE;
             }))
             .build();

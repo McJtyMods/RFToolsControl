@@ -33,7 +33,7 @@ public class ItemEditor extends AbstractParameterEditor {
             @Override
             public void select(Widget widget) {
                 ItemStack holding = MinecraftTools.getPlayer(Minecraft.getMinecraft()).inventory.getItemStack();
-                if (holding == null) {
+                if (ItemStackTools.isEmpty(holding)) {
                     blockRender.setRenderItem(null);
                 } else {
                     ItemStack copy = holding.copy();

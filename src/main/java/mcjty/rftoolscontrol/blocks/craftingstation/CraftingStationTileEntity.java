@@ -4,6 +4,7 @@ import mcjty.lib.container.DefaultSidedInventory;
 import mcjty.lib.container.InventoryHelper;
 import mcjty.lib.entity.GenericTileEntity;
 import mcjty.lib.network.Argument;
+import mcjty.lib.tools.ItemStackList;
 import mcjty.lib.tools.ItemStackTools;
 import mcjty.lib.varia.BlockPosTools;
 import mcjty.rftoolscontrol.api.parameters.Inventory;
@@ -70,7 +71,7 @@ public class CraftingStationTileEntity extends GenericTileEntity implements Defa
                 return request.getStack();
             }
         }
-        return null;
+        return ItemStackTools.getEmptyStack();
     }
 
     private Pair<ProcessorTileEntity, ItemStack> findCraftableItem(int index) {
@@ -78,7 +79,7 @@ public class CraftingStationTileEntity extends GenericTileEntity implements Defa
             TileEntity te = getWorld().getTileEntity(p);
             if (te instanceof ProcessorTileEntity) {
                 ProcessorTileEntity processor = (ProcessorTileEntity) te;
-                List<ItemStack> items = new ArrayList<>();
+                ItemStackList items = ItemStackList.create(0);
                 processor.getCraftableItems(items);
                 for (ItemStack item : items) {
                     if (index == 0) {
@@ -92,7 +93,7 @@ public class CraftingStationTileEntity extends GenericTileEntity implements Defa
         return null;
     }
 
-    public ItemStack craftOk(ProcessorTileEntity processor, String ticket, @Nullable ItemStack stack) {
+    public ItemStack craftOk(ProcessorTileEntity processor, String ticket, ItemStack stack) {
         CraftingRequest foundRequest = null;
         for (CraftingRequest request : activeCraftingRequests) {
             if (ticket.equals(request.getTicket())) {
@@ -108,7 +109,7 @@ public class CraftingStationTileEntity extends GenericTileEntity implements Defa
             } else {
                 processor.fireCraftEvent(ticket, stack);
             }
-            if (stack != null) {
+            if (ItemStackTools.isValid(stack)) {
                 Inventory inventory = getInventoryFromTicket(ticket);
                 if (inventory != null) {
                     IItemHandler handlerAt = processor.getItemHandlerAt(inventory);
@@ -197,7 +198,7 @@ public class CraftingStationTileEntity extends GenericTileEntity implements Defa
             TileEntity te = getWorld().getTileEntity(p);
             if (te instanceof ProcessorTileEntity) {
                 ProcessorTileEntity processor = (ProcessorTileEntity) te;
-                List<ItemStack> items = new ArrayList<>();
+                ItemStackList items = ItemStackList.create(0);
                 processor.getCraftableItems(items);
                 for (ItemStack i : items) {
                     if (item.isItemEqual(i)) {
@@ -246,8 +247,8 @@ public class CraftingStationTileEntity extends GenericTileEntity implements Defa
         return new BlockPos(Integer.parseInt(poss[0]), Integer.parseInt(poss[1]), Integer.parseInt(poss[2]));
     }
 
-    public List<ItemStack> getCraftableItems() {
-        List<ItemStack> items = new ArrayList<>();
+    public ItemStackList getCraftableItems() {
+        ItemStackList items = ItemStackList.create(0);
         for (BlockPos p : processorList) {
             TileEntity te = getWorld().getTileEntity(p);
             if (te instanceof ProcessorTileEntity) {
@@ -375,7 +376,7 @@ public class CraftingStationTileEntity extends GenericTileEntity implements Defa
             TileEntity te = getWorld().getTileEntity(p);
             if (te instanceof ProcessorTileEntity) {
                 ProcessorTileEntity processor = (ProcessorTileEntity) te;
-                List<ItemStack> items = new ArrayList<>();
+                ItemStackList items = ItemStackList.create(0);
                 processor.getCraftableItems(items);
                 for (ItemStack item : items) {
                     if (item.getItemDamage() == meta && itemName.equals(item.getItem().getRegistryName().toString())) {
