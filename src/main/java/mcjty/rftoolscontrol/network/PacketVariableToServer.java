@@ -53,7 +53,7 @@ public class PacketVariableToServer implements IMessage {
 
         private void handle(PacketVariableToServer message, MessageContext ctx) {
             EntityPlayerMP playerEntity = ctx.getServerHandler().playerEntity;
-            TileEntity te = playerEntity.worldObj.getTileEntity(message.pos);
+            TileEntity te = playerEntity.getEntityWorld().getTileEntity(message.pos);
             if (te instanceof ProcessorTileEntity) {
                 ProcessorTileEntity processor = (ProcessorTileEntity) te;
                 Parameter[] variables = processor.getVariableArray();

@@ -6,6 +6,7 @@ import mcjty.lib.network.NetworkTools;
 import mcjty.lib.network.PacketListToClient;
 import mcjty.lib.varia.Logging;
 import mcjty.rftoolscontrol.RFToolsControl;
+import mcjty.typed.Type;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fluids.FluidStack;
@@ -38,7 +39,7 @@ public class PacketTankFluidsReady extends PacketListToClient<FluidStack> {
                 return;
             }
             ClientCommandHandler clientCommandHandler = (ClientCommandHandler) te;
-            if (!clientCommandHandler.execute(message.command, message.list)) {
+            if (!clientCommandHandler.execute(message.command, message.list, Type.create(FluidStack.class))) {
                 Logging.log("Command " + message.command + " was not handled!");
             }
         }

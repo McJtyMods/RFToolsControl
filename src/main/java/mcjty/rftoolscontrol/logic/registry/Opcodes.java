@@ -1,5 +1,6 @@
 package mcjty.rftoolscontrol.logic.registry;
 
+import mcjty.lib.tools.ItemStackTools;
 import mcjty.rftoolscontrol.api.code.Opcode;
 import mcjty.rftoolscontrol.api.parameters.*;
 import mcjty.rftoolscontrol.blocks.processor.ProcessorTileEntity;
@@ -413,7 +414,7 @@ public class Opcodes {
             .runnable(((processor, program, opcode) -> {
                 int slot = processor.evaluateIntParameter(opcode, program, 0);
                 ItemStack stack = processor.getItemInternal(program, slot);
-                program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(stack == null ? 0 : stack.stackSize)).build());
+                program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(stack == null ? 0 : ItemStackTools.getStackSize(stack))).build());
                 return POSITIVE;
             }))
             .build();

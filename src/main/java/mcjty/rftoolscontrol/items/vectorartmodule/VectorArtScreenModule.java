@@ -1,5 +1,6 @@
 package mcjty.rftoolscontrol.items.vectorartmodule;
 
+import mcjty.lib.tools.ChatTools;
 import mcjty.lib.varia.BlockPosTools;
 import mcjty.lib.varia.WorldTools;
 import mcjty.rftools.api.screens.IScreenDataHelper;
@@ -99,7 +100,7 @@ public class VectorArtScreenModule implements IScreenModule<ModuleDataVectorArt>
                 }
             } else {
                 if (player != null) {
-                    player.addChatComponentMessage(new TextComponentString(TextFormatting.RED + "Module is not linked to a processor!"));
+                    ChatTools.addChatMessage(player, new TextComponentString(TextFormatting.RED + "Module is not linked to a processor!"));
                 }
             }
         }

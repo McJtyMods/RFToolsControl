@@ -2,13 +2,13 @@ package mcjty.rftoolscontrol.blocks.node;
 
 import mcjty.lib.entity.GenericTileEntity;
 import mcjty.lib.network.Argument;
+import mcjty.lib.tools.WorldTools;
 import mcjty.lib.varia.BlockPosTools;
 import mcjty.rftoolscontrol.blocks.processor.ProcessorTileEntity;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.ITickable;
 import net.minecraft.util.math.BlockPos;
 
 import java.util.Map;
@@ -47,7 +47,7 @@ public class NodeTileEntity extends GenericTileEntity {
     public void setPowerInput(int powered) {
         if (powerLevel != powered) {
             if (processor != null) {
-                TileEntity te = worldObj.getTileEntity(processor);
+                TileEntity te = getWorld().getTileEntity(processor);
                 if (te instanceof ProcessorTileEntity) {
                     ProcessorTileEntity processorTileEntity = (ProcessorTileEntity) te;
                     processorTileEntity.redstoneNodeChange(prevIn, powered, node);
@@ -65,7 +65,7 @@ public class NodeTileEntity extends GenericTileEntity {
     public void setPowerOut(EnumFacing side, int powerOut) {
         this.powerOut[side.ordinal()] = powerOut;
         markDirty();
-        worldObj.notifyBlockOfStateChange(this.pos.offset(side), this.getBlockType());
+        WorldTools.notifyNeighborsOfStateChange(getWorld(), this.pos.offset(side), this.getBlockType());
     }
 
     @Override

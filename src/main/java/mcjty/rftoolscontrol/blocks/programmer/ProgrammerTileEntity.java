@@ -7,7 +7,6 @@ import mcjty.rftoolscontrol.items.ModItems;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumFacing;
 
 public class ProgrammerTileEntity extends GenericTileEntity implements DefaultSidedInventory {
 
@@ -27,9 +26,8 @@ public class ProgrammerTileEntity extends GenericTileEntity implements DefaultSi
         return inventoryHelper;
     }
 
-    @SuppressWarnings("NullableProblems")
     @Override
-    public boolean isUseableByPlayer(EntityPlayer player) {
+    public boolean isUsable(EntityPlayer player) {
         return canPlayerAccess(player);
     }
 

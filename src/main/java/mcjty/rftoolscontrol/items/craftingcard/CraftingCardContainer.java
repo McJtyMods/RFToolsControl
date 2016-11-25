@@ -1,6 +1,7 @@
 package mcjty.rftoolscontrol.items.craftingcard;
 
 import mcjty.lib.container.*;
+import mcjty.lib.tools.ItemStackList;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
@@ -51,18 +52,15 @@ public class CraftingCardContainer extends GenericContainer {
 
 	public void setGridContents(EntityPlayer player, List<ItemStack> stacks) {
 		ItemStack craftingCard = player.getHeldItem(EnumHand.MAIN_HAND);
-		ItemStack[] s = new ItemStack[INPUT_SLOTS+1];
-		for (int i = 0 ; i < s.length ; i++) {
-			s[i] = null;
-		}
+		ItemStackList s = ItemStackList.create(INPUT_SLOTS+1);
 		int x = 0;
 		int y = 0;
 		for (int i = 0 ; i < stacks.size() ; i++) {
 			if (i == 0) {
-				s[SLOT_OUT] = stacks.get(i);
+				s.set(SLOT_OUT, stacks.get(i));
 			} else {
 				int slot = y*GRID_WIDTH + x;
-				s[slot] = stacks.get(i);
+				s.set(slot, stacks.get(i));
 				x++;
 				if (x >= 3) { x = 0; y++; }
 			}

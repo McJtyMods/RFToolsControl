@@ -1,5 +1,8 @@
 package mcjty.rftoolscontrol.commands;
 
+import mcjty.lib.tools.ChatTools;
+import mcjty.lib.tools.ItemStackTools;
+import mcjty.lib.tools.MinecraftTools;
 import mcjty.rftoolscontrol.items.ProgramCardItem;
 import mcjty.rftoolscontrol.logic.grid.ProgramCardInstance;
 import mcjty.rftoolscontrol.network.PacketItemNBTToServer;
@@ -22,22 +25,31 @@ import java.util.List;
  * Client side command
  */
 public class ProgramCommand extends CommandBase {
-    @Override
-    public String getCommandName() {
-        return "rfctrl";
-    }
+    // @todo @@@@@@@@@@@@@
+
 
     @Override
-    public String getCommandUsage(ICommandSender sender) {
+    public String getName() {
+        return "rfctrl";
+    }
+//    public String getCommandName() {
+//        return "rfctrl";
+//    }
+
+    @Override
+    public String getUsage(ICommandSender sender) {
         return "rfctrl save | load";
     }
+//    public String getCommandUsage(ICommandSender sender) {
+//        return "rfctrl save | load";
+//    }
 
     @Override
     public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
         if (args.length > 1) {
-            ItemStack item = Minecraft.getMinecraft().thePlayer.getHeldItemMainhand();
-            if (item == null || !(item.getItem() instanceof ProgramCardItem)) {
-                sender.addChatMessage(new TextComponentString(TextFormatting.RED + "You need a program card in your hand!"));
+            ItemStack item = MinecraftTools.getPlayer(Minecraft.getMinecraft()).getHeldItemMainhand();
+            if (ItemStackTools.isEmpty(item) || !(item.getItem() instanceof ProgramCardItem)) {
+                ChatTools.addChatMessage(sender, new TextComponentString(TextFormatting.RED + "You need a program card in your hand!"));
                 return;
             }
             if ("save".equals(args[0])) {
@@ -46,7 +58,7 @@ public class ProgramCommand extends CommandBase {
                 loadProgram(sender, args[1], item);
             }
         } else {
-            sender.addChatMessage(new TextComponentString(TextFormatting.RED + "Missing parameter (save <file> or load <file>)!"));
+            ChatTools.addChatMessage(sender, new TextComponentString(TextFormatting.RED + "Missing parameter (save <file> or load <file>)!"));
         }
     }
 
@@ -61,13 +73,13 @@ public class ProgramCommand extends CommandBase {
             stream.read(data);
             json = new String(data, "UTF-8");
         } catch (IOException e) {
-            sender.addChatMessage(new TextComponentString(TextFormatting.RED + "Error opening file for reading!"));
+            ChatTools.addChatMessage(sender, new TextComponentString(TextFormatting.RED + "Error opening file for reading!"));
             return;
         }
         ProgramCardInstance program = ProgramCardInstance.readFromJson(json);
         program.writeToNBT(item);
         RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketItemNBTToServer(item.getTagCompound()));
-        sender.addChatMessage(new TextComponentString("Loaded program!"));
+        ChatTools.addChatMessage(sender, new TextComponentString("Loaded program!"));
     }
 
     private void saveProgram(ICommandSender sender, String arg, ItemStack item) {
@@ -82,12 +94,12 @@ public class ProgramCommand extends CommandBase {
         try {
             writer = new PrintWriter(file);
         } catch (FileNotFoundException e) {
-            sender.addChatMessage(new TextComponentString(TextFormatting.RED + "Error opening file for writing!"));
+            ChatTools.addChatMessage(sender, new TextComponentString(TextFormatting.RED + "Error opening file for writing!"));
             return;
         }
         writer.print(json);
         writer.close();
-        sender.addChatMessage(new TextComponentString("Saved program!"));
+        ChatTools.addChatMessage(sender, new TextComponentString("Saved program!"));
     }
 
     @Override
@@ -96,10 +108,18 @@ public class ProgramCommand extends CommandBase {
     }
 
     @Override
-    public List<String> getTabCompletionOptions(MinecraftServer server, ICommandSender sender, String[] args, @Nullable BlockPos pos) {
+    public List<String> getTabCompletions(MinecraftServer server, ICommandSender sender, String[] args, @Nullable BlockPos pos) {
         if (args.length > 0) {
             return getListOfStringsMatchingLastWord(args, "save", "load");
         };
         return null;
     }
+//
+//    @Override
+//    public List<String> getTabCompletionOptions(MinecraftServer server, ICommandSender sender, String[] args, @Nullable BlockPos pos) {
+//        if (args.length > 0) {
+//            return getListOfStringsMatchingLastWord(args, "save", "load");
+//        };
+//        return null;
+//    }
 }

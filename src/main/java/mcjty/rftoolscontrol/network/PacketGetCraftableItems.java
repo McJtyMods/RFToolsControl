@@ -4,10 +4,12 @@ import mcjty.lib.network.PacketRequestServerList;
 import mcjty.lib.network.PacketRequestServerListHandler;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.blocks.craftingstation.CraftingStationTileEntity;
+import mcjty.typed.Type;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
+import javax.annotation.Nonnull;
 import java.util.List;
 
 public class PacketGetCraftableItems extends PacketRequestServerList<ItemStack> {
@@ -22,10 +24,11 @@ public class PacketGetCraftableItems extends PacketRequestServerList<ItemStack> 
     public static class Handler extends PacketRequestServerListHandler<PacketGetCraftableItems, ItemStack> {
 
         public Handler() {
+            super(Type.create(ItemStack.class));
         }
 
         @Override
-        protected void sendToClient(BlockPos pos, List<ItemStack> list, MessageContext messageContext) {
+        protected void sendToClient(BlockPos pos, @Nonnull List<ItemStack> list, MessageContext messageContext) {
             RFToolsCtrlMessages.INSTANCE.sendTo(new PacketCraftableItemsReady(pos, CraftingStationTileEntity.CLIENTCMD_GETCRAFTABLE, list), messageContext.getServerHandler().playerEntity);
         }
     }

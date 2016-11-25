@@ -1,5 +1,6 @@
 package mcjty.rftoolscontrol.logic;
 
+import mcjty.lib.tools.ItemStackTools;
 import mcjty.rftools.api.storage.IStorageScanner;
 import mcjty.rftoolscontrol.api.parameters.BlockSide;
 import mcjty.rftoolscontrol.api.parameters.Inventory;
@@ -20,8 +21,8 @@ public class InventoryTools {
             int cnt = 0;
             for (int i = 0; i < itemHandler.getSlots(); i++) {
                 ItemStack stack = itemHandler.getStackInSlot(i);
-                if (stack != null && ItemStack.areItemsEqual(stack, itemMatcher)) {
-                    cnt += stack.stackSize;
+                if (ItemStackTools.isValid(stack) && ItemStack.areItemsEqual(stack, itemMatcher)) {
+                    cnt += ItemStackTools.getStackSize(stack);
                     if (maxToCount != -1 && cnt >= maxToCount) {
                         return maxToCount;
                     }
@@ -38,7 +39,6 @@ public class InventoryTools {
         return 0;
     }
 
-    @Nullable
     public static ItemStack extractItem(@Nullable IItemHandler itemHandler, @Nullable IStorageScanner scanner,
                                         @Nullable Integer amount, boolean routable, boolean oredict, @Nullable ItemStack itemMatcher,
                                         @Nullable Integer slot) {
@@ -49,14 +49,14 @@ public class InventoryTools {
                     // Just find the first available stack
                     for (int i = 0 ; i < itemHandler.getSlots() ; i++) {
                         ItemStack stack = itemHandler.getStackInSlot(i);
-                        if (stack != null && (amount == null || amount <= stack.stackSize)) {
+                        if (ItemStackTools.isValid(stack) && (amount == null || amount <= ItemStackTools.getStackSize(stack))) {
                             return itemHandler.extractItem(i, amount == null ? 64 : amount, false);
                         }
                     }
                 } else {
                     for (int i = 0; i < itemHandler.getSlots(); i++) {
                         ItemStack stack = itemHandler.getStackInSlot(i);
-                        if (stack != null && ItemStack.areItemsEqual(stack, itemMatcher)) {
+                        if (ItemStackTools.isValid(stack) && ItemStack.areItemsEqual(stack, itemMatcher)) {
                             return itemHandler.extractItem(i, amount == null ? itemMatcher.getMaxStackSize() : amount, false);
                         }
                     }
@@ -89,20 +89,20 @@ public class InventoryTools {
                     // Just find the first available stack
                     for (int i = 0 ; i < itemHandler.getSlots() ; i++) {
                         ItemStack stack = itemHandler.getStackInSlot(i);
-                        if (stack != null && (amount == null || amount <= stack.stackSize)) {
+                        if (ItemStackTools.isValid(stack) && (amount == null || amount <= ItemStackTools.getStackSize(stack))) {
                             return itemHandler.extractItem(i, amount == null ? 64 : amount, true);
                         }
                     }
                 } else {
                     for (int i = 0; i < itemHandler.getSlots(); i++) {
                         ItemStack stack = itemHandler.getStackInSlot(i);
-                        if (stack != null && ItemStack.areItemsEqual(stack, itemMatcher)) {
+                        if (ItemStackTools.isValid(stack) && ItemStack.areItemsEqual(stack, itemMatcher)) {
                             return itemHandler.extractItem(i, amount == null ? itemMatcher.getMaxStackSize() : amount, true);
                         }
                     }
                 }
             } else {
-                if (itemMatcher == null) {
+                if (ItemStackTools.isEmpty(itemMatcher)) {
                     return itemHandler.extractItem(slot, amount == null ? 64 : amount, true);
                 } else {
                     if (!ItemStack.areItemsEqual(itemMatcher, itemHandler.getStackInSlot(slot))) {
@@ -116,7 +116,7 @@ public class InventoryTools {
             int cnt = scanner.countItems(itemMatcher, routable, oredict);
             if (cnt > 0) {
                 ItemStack copy = itemMatcher.copy();
-                copy.stackSize = Math.min(cnt, amount == null ? itemMatcher.getMaxStackSize() : amount);
+                ItemStackTools.setStackSize(copy, Math.min(cnt, amount == null ? itemMatcher.getMaxStackSize() : amount));
                 return copy;
             }
         }
@@ -137,7 +137,7 @@ public class InventoryTools {
             int cnt = scanner.insertItem(item);
             if (cnt > 0) {
                 ItemStack copy = item.copy();
-                copy.stackSize = cnt;
+                ItemStackTools.setStackSize(copy, cnt);
                 return copy;
             }
             return null;

@@ -6,6 +6,7 @@ import mcjty.lib.network.NetworkTools;
 import mcjty.lib.network.PacketListToClient;
 import mcjty.lib.varia.Logging;
 import mcjty.rftoolscontrol.RFToolsControl;
+import mcjty.typed.Type;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
@@ -38,7 +39,7 @@ public class PacketCraftableItemsReady extends PacketListToClient<ItemStack> {
                 return;
             }
             ClientCommandHandler clientCommandHandler = (ClientCommandHandler) te;
-            if (!clientCommandHandler.execute(message.command, message.list)) {
+            if (!clientCommandHandler.execute(message.command, message.list, Type.create(ItemStack.class))) {
                 Logging.log("Command " + message.command + " was not handled!");
             }
         }

@@ -1,5 +1,6 @@
 package mcjty.rftoolscontrol.jei;
 
+import mcjty.lib.jei.CompatRecipeTransferHandler;
 import mcjty.rftoolscontrol.blocks.ModBlocks;
 import mcjty.rftoolscontrol.blocks.workbench.WorkbenchContainer;
 import mcjty.rftoolscontrol.network.RFToolsCtrlMessages;
@@ -9,8 +10,6 @@ import mezz.jei.api.JEIPlugin;
 import mezz.jei.api.gui.IGuiIngredient;
 import mezz.jei.api.recipe.VanillaRecipeCategoryUid;
 import mezz.jei.api.recipe.transfer.IRecipeTransferRegistry;
-import net.minecraft.init.Blocks;
-import net.minecraft.inventory.ContainerWorkbench;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
 
@@ -41,7 +40,7 @@ public class RFToolsControlJeiPlugin extends BlankModPlugin {
     @Override
     public void register(@Nonnull IModRegistry registry) {
         IRecipeTransferRegistry transferRegistry = registry.getRecipeTransferRegistry();
-        transferRegistry.addRecipeTransferHandler(new CraftingCardRecipeTransferHandler());
+        CompatRecipeTransferHandler.register(transferRegistry, new CraftingCardRecipeTransferHandler());
 
         transferRegistry.addRecipeTransferHandler(WorkbenchContainer.class, VanillaRecipeCategoryUid.CRAFTING, WorkbenchContainer.SLOT_CRAFTINPUT, 9, WorkbenchContainer.SLOT_BUFFER, WorkbenchContainer.BUFFER_SIZE + 9*4);
         registry.addRecipeCategoryCraftingItem(new ItemStack(ModBlocks.workbenchBlock), VanillaRecipeCategoryUid.CRAFTING);

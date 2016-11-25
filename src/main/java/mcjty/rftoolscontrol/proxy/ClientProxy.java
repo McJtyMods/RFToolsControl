@@ -1,6 +1,7 @@
 package mcjty.rftoolscontrol.proxy;
 
 import com.google.common.util.concurrent.ListenableFuture;
+import mcjty.lib.tools.MinecraftTools;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.blocks.ModBlocks;
 import mcjty.rftoolscontrol.commands.ProgramCommand;
@@ -42,12 +43,12 @@ public class ClientProxy extends CommonProxy {
 
     @Override
     public World getClientWorld() {
-        return Minecraft.getMinecraft().theWorld;
+        return MinecraftTools.getWorld(Minecraft.getMinecraft());
     }
 
     @Override
     public EntityPlayer getClientPlayer() {
-        return Minecraft.getMinecraft().thePlayer;
+        return MinecraftTools.getPlayer(Minecraft.getMinecraft());
     }
 
     @Override

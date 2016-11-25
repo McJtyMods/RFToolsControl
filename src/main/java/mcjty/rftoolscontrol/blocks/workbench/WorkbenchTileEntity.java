@@ -4,6 +4,7 @@ import mcjty.lib.container.DefaultSidedInventory;
 import mcjty.lib.container.GenericCrafter;
 import mcjty.lib.container.InventoryHelper;
 import mcjty.lib.entity.GenericTileEntity;
+import mcjty.lib.tools.ItemStackTools;
 import mcjty.lib.varia.FacedSidedInvWrapper;
 import mcjty.lib.varia.NullSidedInvWrapper;
 import net.minecraft.entity.player.EntityPlayer;
@@ -15,6 +16,8 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.items.CapabilityItemHandler;
+
+import java.util.List;
 
 public class WorkbenchTileEntity extends GenericTileEntity implements DefaultSidedInventory, GenericCrafter {
 
@@ -88,7 +91,7 @@ public class WorkbenchTileEntity extends GenericTileEntity implements DefaultSid
     private void updateRecipe() {
         if (getStackInSlot(WorkbenchContainer.SLOT_CRAFTOUTPUT) == null || realItems == 0) {
             InventoryCrafting workInventory = makeWorkInventory();
-            ItemStack stack = CraftingManager.getInstance().findMatchingRecipe(workInventory, this.worldObj);
+            ItemStack stack = CraftingManager.getInstance().findMatchingRecipe(workInventory, this.getWorld());
             getInventoryHelper().setInventorySlotContents(getInventoryStackLimit(), WorkbenchContainer.SLOT_CRAFTOUTPUT, stack);
         }
     }
@@ -163,7 +166,8 @@ public class WorkbenchTileEntity extends GenericTileEntity implements DefaultSid
     public ItemStack decrStackSize(int index, int count) {
         if (isCraftOutput(index) && realItems == 0) {
             InventoryCrafting workInventory = makeWorkInventory();
-            ItemStack[] remainingItems = CraftingManager.getInstance().getRemainingItems(workInventory, worldObj);
+            // @todo @@@@@@@@@
+            List<ItemStack> remainingItems = CraftingManager.getInstance().getRemainingItems(workInventory, getWorld());
             for (int i = 0 ; i < 9 ; i++) {
                 ItemStack s = getStackInSlot(i + WorkbenchContainer.SLOT_CRAFTINPUT);
                 if (s != null) {
@@ -171,12 +175,12 @@ public class WorkbenchTileEntity extends GenericTileEntity implements DefaultSid
                     s = getStackInSlot(i + WorkbenchContainer.SLOT_CRAFTINPUT);
                 }
 
-                if (remainingItems[i] != null) {
+                if (ItemStackTools.isValid(remainingItems.get(i))) {
                     if (s == null) {
-                        getInventoryHelper().setStackInSlot(i + WorkbenchContainer.SLOT_CRAFTINPUT, remainingItems[i]);
-                    } else if (ItemStack.areItemsEqual(s, remainingItems[i]) && ItemStack.areItemStackTagsEqual(s, remainingItems[i])) {
-                        remainingItems[i].stackSize += s.stackSize;
-                        getInventoryHelper().setInventorySlotContents(getInventoryStackLimit(), i + WorkbenchContainer.SLOT_CRAFTINPUT, remainingItems[i]);
+                        getInventoryHelper().setStackInSlot(i + WorkbenchContainer.SLOT_CRAFTINPUT, remainingItems.get(i));
+                    } else if (ItemStack.areItemsEqual(s, remainingItems.get(i)) && ItemStack.areItemStackTagsEqual(s, remainingItems.get(i))) {
+                        ItemStackTools.incStackSize(remainingItems.get(i), ItemStackTools.getStackSize(s));
+                        getInventoryHelper().setInventorySlotContents(getInventoryStackLimit(), i + WorkbenchContainer.SLOT_CRAFTINPUT, remainingItems.get(i));
                     } else {
                         // @todo
                         // Not enough room!
@@ -187,8 +191,8 @@ public class WorkbenchTileEntity extends GenericTileEntity implements DefaultSid
         ItemStack rc = getInventoryHelper().decrStackSize(index, count);
         if (isCraftOutput(index)) {
             ItemStack stack = getStackInSlot(index);
-            if (stack != null) {
-                realItems = stack.stackSize;
+            if (ItemStackTools.isValid(stack)) {
+                realItems = ItemStackTools.getStackSize(stack);
             } else {
                 realItems = 0;
             }
@@ -204,9 +208,8 @@ public class WorkbenchTileEntity extends GenericTileEntity implements DefaultSid
         return inventoryHelper;
     }
 
-    @SuppressWarnings("NullableProblems")
     @Override
-    public boolean isUseableByPlayer(EntityPlayer player) {
+    public boolean isUsable(EntityPlayer player) {
         return canPlayerAccess(player);
     }
 

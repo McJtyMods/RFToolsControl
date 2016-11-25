@@ -4,12 +4,14 @@ import mcjty.lib.container.DefaultSidedInventory;
 import mcjty.lib.container.InventoryHelper;
 import mcjty.lib.entity.GenericTileEntity;
 import mcjty.lib.network.Argument;
+import mcjty.lib.tools.ItemStackTools;
 import mcjty.lib.varia.BlockPosTools;
-import mcjty.rftoolscontrol.blocks.processor.ProcessorTileEntity;
 import mcjty.rftoolscontrol.api.parameters.Inventory;
+import mcjty.rftoolscontrol.blocks.processor.ProcessorTileEntity;
 import mcjty.rftoolscontrol.config.GeneralConfiguration;
 import mcjty.rftoolscontrol.logic.running.ExceptionType;
 import mcjty.rftoolscontrol.logic.running.ProgException;
+import mcjty.typed.Type;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
@@ -24,8 +26,10 @@ import net.minecraftforge.items.ItemHandlerHelper;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -71,7 +75,7 @@ public class CraftingStationTileEntity extends GenericTileEntity implements Defa
 
     private Pair<ProcessorTileEntity, ItemStack> findCraftableItem(int index) {
         for (BlockPos p : processorList) {
-            TileEntity te = worldObj.getTileEntity(p);
+            TileEntity te = getWorld().getTileEntity(p);
             if (te instanceof ProcessorTileEntity) {
                 ProcessorTileEntity processor = (ProcessorTileEntity) te;
                 List<ItemStack> items = new ArrayList<>();
@@ -146,7 +150,7 @@ public class CraftingStationTileEntity extends GenericTileEntity implements Defa
         }
         String ticket = getNewTicket(null);
         ItemStack stack = pair.getValue();
-        int count = (amount + stack.stackSize-1) / stack.stackSize;
+        int count = (amount + ItemStackTools.getStackSize(stack)-1) / ItemStackTools.getStackSize(stack);
         CraftingRequest request = new CraftingRequest(ticket, stack, count);
 
         if (!checkRequestAmount()) {
@@ -190,7 +194,7 @@ public class CraftingStationTileEntity extends GenericTileEntity implements Defa
 
     public boolean request(ItemStack item, @Nullable Inventory destination) {
         for (BlockPos p : processorList) {
-            TileEntity te = worldObj.getTileEntity(p);
+            TileEntity te = getWorld().getTileEntity(p);
             if (te instanceof ProcessorTileEntity) {
                 ProcessorTileEntity processor = (ProcessorTileEntity) te;
                 List<ItemStack> items = new ArrayList<>();
@@ -245,7 +249,7 @@ public class CraftingStationTileEntity extends GenericTileEntity implements Defa
     public List<ItemStack> getCraftableItems() {
         List<ItemStack> items = new ArrayList<>();
         for (BlockPos p : processorList) {
-            TileEntity te = worldObj.getTileEntity(p);
+            TileEntity te = getWorld().getTileEntity(p);
             if (te instanceof ProcessorTileEntity) {
                 ProcessorTileEntity processor = (ProcessorTileEntity) te;
                 processor.getCraftableItems(items);
@@ -286,7 +290,7 @@ public class CraftingStationTileEntity extends GenericTileEntity implements Defa
         for (int i = 0 ; i < list.tagCount() ; i++) {
             NBTTagCompound requestTag = list.getCompoundTagAt(i);
             String craftId = requestTag.getString("craftId");
-            ItemStack stack = ItemStack.loadItemStackFromNBT(requestTag.getCompoundTag("stack"));
+            ItemStack stack = ItemStackTools.loadFromNBT(requestTag.getCompoundTag("stack"));
             int count = requestTag.getInteger("count");
             CraftingRequest request = new CraftingRequest(craftId, stack, count);
             request.setFailed(requestTag.getLong("failed"));
@@ -360,16 +364,15 @@ public class CraftingStationTileEntity extends GenericTileEntity implements Defa
         return inventoryHelper;
     }
 
-    @SuppressWarnings("NullableProblems")
     @Override
-    public boolean isUseableByPlayer(EntityPlayer player) {
+    public boolean isUsable(EntityPlayer player) {
         return canPlayerAccess(player);
     }
 
     private int findItem(String itemName, int meta) {
         int index = 0;
         for (BlockPos p : processorList) {
-            TileEntity te = worldObj.getTileEntity(p);
+            TileEntity te = getWorld().getTileEntity(p);
             if (te instanceof ProcessorTileEntity) {
                 ProcessorTileEntity processor = (ProcessorTileEntity) te;
                 List<ItemStack> items = new ArrayList<>();
@@ -411,31 +414,32 @@ public class CraftingStationTileEntity extends GenericTileEntity implements Defa
         return false;
     }
 
+    @Nonnull
     @Override
-    public List executeWithResultList(String command, Map<String, Argument> args) {
-        List rc = super.executeWithResultList(command, args);
-        if (rc != null) {
+    public <T> List<T> executeWithResultList(String command, Map<String, Argument> args, Type<T> type) {
+        List<T> rc = super.executeWithResultList(command, args, type);
+        if (!rc.isEmpty()) {
             return rc;
         }
         if (CMD_GETCRAFTABLE.equals(command)) {
-            return getCraftableItems();
+            return type.convert(getCraftableItems());
         } else if (CMD_GETREQUESTS.equals(command)) {
-            return getRequests();
+            return type.convert(getRequests());
         }
-        return null;
+        return Collections.emptyList();
     }
 
     @Override
-    public boolean execute(String command, List list) {
-        boolean rc = super.execute(command, list);
+    public <T> boolean execute(String command, List<T> list, Type<T> type) {
+        boolean rc = super.execute(command, list, type);
         if (rc) {
             return true;
         }
         if (CLIENTCMD_GETCRAFTABLE.equals(command)) {
-            GuiCraftingStation.storeCraftableForClient(list);
+            GuiCraftingStation.storeCraftableForClient(Type.create(ItemStack.class).convert(list));
             return true;
         } else if (CLIENTCMD_GETREQUESTS.equals(command)) {
-            GuiCraftingStation.storeRequestsForClient(list);
+            GuiCraftingStation.storeRequestsForClient(Type.create(CraftingRequest.class).convert(list));
             return true;
         }
         return false;

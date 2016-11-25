@@ -7,6 +7,7 @@ import mcjty.lib.varia.Logging;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.api.parameters.Parameter;
 import mcjty.rftoolscontrol.logic.ParameterTools;
+import mcjty.typed.Type;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
@@ -38,7 +39,7 @@ public class PacketVariablesReady extends PacketListToClient<Parameter> {
                 return;
             }
             ClientCommandHandler clientCommandHandler = (ClientCommandHandler) te;
-            if (!clientCommandHandler.execute(message.command, message.list)) {
+            if (!clientCommandHandler.execute(message.command, message.list, Type.create(Parameter.class))) {
                 Logging.log("Command " + message.command + " was not handled!");
             }
         }

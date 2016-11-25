@@ -5,6 +5,7 @@ import mcjty.lib.container.DefaultSidedInventory;
 import mcjty.lib.container.InventoryHelper;
 import mcjty.lib.entity.GenericEnergyReceiverTileEntity;
 import mcjty.lib.network.Argument;
+import mcjty.lib.tools.ItemStackTools;
 import mcjty.lib.varia.BlockPosTools;
 import mcjty.lib.varia.WorldTools;
 import mcjty.rftools.api.storage.IStorageScanner;
@@ -40,6 +41,7 @@ import mcjty.rftoolscontrol.logic.running.ExceptionType;
 import mcjty.rftoolscontrol.logic.running.ProgException;
 import mcjty.rftoolscontrol.logic.running.RunningProgram;
 import mcjty.rftoolscontrol.network.PacketGetFluids;
+import mcjty.typed.Type;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.IInventory;
@@ -227,7 +229,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             if (p == null) {
                 throw new ProgException(EXCEPT_MISSINGNODE);
             }
-            TileEntity te = worldObj.getTileEntity(p);
+            TileEntity te = getWorld().getTileEntity(p);
             if (!(te instanceof NodeTileEntity)) {
                 throw new ProgException(EXCEPT_MISSINGNODE);
             }
@@ -244,7 +246,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         if (p == null) {
             return 0;
         }
-        return worldObj.getRedstonePower(p.offset(facing), facing);
+        return getWorld().getRedstonePower(p.offset(facing), facing);
     }
 
     @Override
@@ -264,9 +266,9 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         if (p.equals(pos)) {
             powerOut[facing.ordinal()] = level;
             markDirty();
-            worldObj.notifyBlockOfStateChange(this.pos.offset(facing), this.getBlockType());
+            mcjty.lib.tools.WorldTools.notifyNeighborsOfStateChange(getWorld(), this.pos.offset(facing), this.getBlockType());
         } else {
-            NodeTileEntity te = (NodeTileEntity) worldObj.getTileEntity(p);
+            NodeTileEntity te = (NodeTileEntity) getWorld().getTileEntity(p);
             te.setPowerOut(facing, level);
 }
     }
@@ -275,15 +277,14 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         return powerOut[side.ordinal()];
     }
 
-    @SuppressWarnings("NullableProblems")
     @Override
-    public boolean isUseableByPlayer(EntityPlayer player) {
+    public boolean isUsable(EntityPlayer player) {
         return canPlayerAccess(player);
     }
 
     @Override
     public void update() {
-        if (!worldObj.isRemote) {
+        if (!getWorld().isRemote) {
             process();
             prevIn = powerLevel;
         }
@@ -371,7 +372,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         }
 
         for (BlockPos p : craftingStations) {
-            TileEntity te = worldObj.getTileEntity(p);
+            TileEntity te = getWorld().getTileEntity(p);
             if (te instanceof CraftingStationTileEntity) {
                 CraftingStationTileEntity craftingStation = (CraftingStationTileEntity) te;
                 craftedItem = craftingStation.craftOk(this, ticket, craftedItem);
@@ -391,7 +392,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         String ticket = program.getCraftTicket();
 
         for (BlockPos p : craftingStations) {
-            TileEntity te = worldObj.getTileEntity(p);
+            TileEntity te = getWorld().getTileEntity(p);
             if (te instanceof CraftingStationTileEntity) {
                 CraftingStationTileEntity craftingStation = (CraftingStationTileEntity) te;
                 craftingStation.craftFail(ticket);
@@ -430,17 +431,17 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         for (int i = 0 ; i < 9 ; i++) {
             ItemStack stackInWorkbench = gridHandler.getStackInSlot(i);
             ItemStack stackInIngredient = ingredients.get(i);
-            if (stackInWorkbench != null && stackInIngredient == null) {
+            if (ItemStackTools.isValid(stackInWorkbench) && ItemStackTools.isEmpty(stackInIngredient)) {
                 // Can't work. There is already something in the workbench that doesn't belong
                 success = false;
-            } else if (stackInWorkbench == null && stackInIngredient != null) {
+            } else if (ItemStackTools.isEmpty(stackInWorkbench) && ItemStackTools.isValid(stackInIngredient)) {
                 // Let's see if we can find the needed ingredient
                 boolean found = false;
                 for (int slot = slot1 ; slot <= slot2 ; slot++) {
                     int realSlot = info.getRealSlot(slot);
                     ItemStack localStack = itemHandler.getStackInSlot(realSlot);
                     if (stackInIngredient.isItemEqual(localStack)) {
-                        localStack = itemHandler.extractItem(realSlot, stackInIngredient.stackSize, false);
+                        localStack = itemHandler.extractItem(realSlot, ItemStackTools.getStackSize(stackInIngredient), false);
                         gridHandler.insertItem(i, localStack, false);
                         found = true;
                         break;
@@ -449,11 +450,11 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                 if (!found) {
                     success = false;
                 }
-            } else if (stackInWorkbench != null && stackInIngredient != null) {
+            } else if (ItemStackTools.isValid(stackInWorkbench) && ItemStackTools.isValid(stackInIngredient)) {
                 // See if the item matches and we have enough
                 if (!stackInIngredient.isItemEqual(stackInWorkbench)) {
                     success = false;
-                } else if (stackInIngredient.stackSize > stackInWorkbench.stackSize) {
+                } else if (ItemStackTools.getStackSize(stackInIngredient) > ItemStackTools.getStackSize(stackInWorkbench)) {
                     success = false;
                 }
             }
@@ -477,7 +478,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         for (int slot = slot1 ; slot <= slot2 ; slot++) {
             int realSlot = info.getRealSlot(slot);
             ItemStack stack = itemHandler.getStackInSlot(realSlot);
-            if (stack != null) {
+            if (ItemStackTools.isValid(stack)) {
                 ItemStack remaining = InventoryTools.insertItem(handler, scanner, stack, extSlot == null ? null : e);
                 if (remaining != null) {
                     failed++;
@@ -490,15 +491,15 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     }
 
     public boolean checkIngredients(IProgram program, @Nonnull Inventory cardInv, @Nullable ItemStack item, int slot1, int slot2) {
-        if (item == null) {
+        if (ItemStackTools.isEmpty(item)) {
             item = getCraftResult(program);
         }
-        if (item == null) {
+        if (ItemStackTools.isEmpty(item)) {
             throw new ProgException(EXCEPT_MISSINGCRAFTRESULT);
         }
         IItemHandler cardHandler = getItemHandlerAt(cardInv);
         ItemStack card = findCraftingCard(cardHandler, item);
-        if (card == null) {
+        if (ItemStackTools.isEmpty(card)) {
             throw new ProgException(EXCEPT_MISSINGCRAFTINGCARD);
         }
 
@@ -519,15 +520,15 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         for (ItemStack ingredient : ingredients) {
             int realSlot = info.getRealSlot(slot);
             ItemStack localStack = itemHandler.getStackInSlot(realSlot);
-            if (ingredient != null) {
+            if (ItemStackTools.isValid(ingredient)) {
                 if (!ingredient.isItemEqual(localStack)) {
                     return false;
                 }
-                if (ingredient.stackSize != localStack.stackSize) {
+                if (ItemStackTools.getStackSize(ingredient) != ItemStackTools.getStackSize(localStack)) {
                     return false;
                 }
             } else {
-                if (localStack != null) {
+                if (ItemStackTools.isValid(localStack)) {
                     return false;
                 }
             }
@@ -537,14 +538,14 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     }
 
     public int getIngredientsSmart(IProgram program, Inventory inv, @Nonnull Inventory cardInv,
-                                   @Nullable ItemStack item, int slot1, int slot2, @Nonnull Inventory destInv) {
+                                   ItemStack item, int slot1, int slot2, @Nonnull Inventory destInv) {
         IStorageScanner scanner = getScannerForInv(inv);
         IItemHandler handler = getHandlerForInv(inv);
 
-        if (item == null) {
+        if (ItemStackTools.isEmpty(item)) {
             item = getCraftResult(program);
         }
-        if (item == null) {
+        if (ItemStackTools.isEmpty(item)) {
             throw new ProgException(EXCEPT_MISSINGCRAFTRESULT);
         }
 
@@ -555,7 +556,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
 
         IItemHandler cardHandler = getItemHandlerAt(cardInv);
         ItemStack card = findCraftingCard(cardHandler, item);
-        if (card == null) {
+        if (ItemStackTools.isEmpty(card)) {
             throw new ProgException(EXCEPT_MISSINGCRAFTINGCARD);
         }
         CardInfo info = this.cardInfo[((RunningProgram)program).getCardIndex()];
@@ -579,9 +580,9 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
 
         for (ItemStack ingredient : ingredients) {
             int realSlot = info.getRealSlot(slot);
-            if (ingredient != null) {
-                ItemStack stack = InventoryTools.extractItem(handler, scanner, ingredient.stackSize, true, false, ingredient, null);
-                if (stack != null) {
+            if (ItemStackTools.isValid(ingredient)) {
+                ItemStack stack = InventoryTools.extractItem(handler, scanner, ItemStackTools.getStackSize(ingredient), true, false, ingredient, null);
+                if (ItemStackTools.isValid(stack)) {
                     itemHandler.insertItem(realSlot, stack, false);
                 }
             }
@@ -598,11 +599,11 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         int requested = 0;
         for (ItemStack ingredient : needed) {
             if (ingredient != null) {
-                int cnt = InventoryTools.countItem(handler, scanner, ingredient, false, ingredient.stackSize);
-                if (cnt < ingredient.stackSize) {
+                int cnt = InventoryTools.countItem(handler, scanner, ingredient, false, ItemStackTools.getStackSize(ingredient));
+                if (cnt < ItemStackTools.getStackSize(ingredient)) {
                     requested++;
                     ItemStack requestedItem = ingredient.copy();
-                    requestedItem.stackSize = ingredient.stackSize - cnt;
+                    ItemStackTools.setStackSize(requestedItem, ItemStackTools.getStackSize(ingredient) - cnt);
                     if (!isRequested(requestedItem)) {
                         if (!requestCraft(requestedItem, destInv)) {
                             // It can't be requested, total failure
@@ -620,11 +621,11 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     private List<ItemStack> combineIngredients(List<ItemStack> ingredients) {
         List<ItemStack> needed = new ArrayList<>();
         for (ItemStack ingredient : ingredients) {
-            if (ingredient != null) {
+            if (ItemStackTools.isValid(ingredient)) {
                 boolean found = false;
                 for (ItemStack neededStack : needed) {
                     if (neededStack.isItemEqual(ingredient)) {
-                        neededStack.stackSize += ingredient.stackSize;
+                        ItemStackTools.incStackSize(neededStack, ItemStackTools.getStackSize(ingredient));
                         found = true;
                         break;
                     }
@@ -641,16 +642,16 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         IStorageScanner scanner = getScannerForInv(inv);
         IItemHandler handler = getHandlerForInv(inv);
 
-        if (item == null) {
+        if (ItemStackTools.isEmpty(item)) {
             item = getCraftResult(program);
         }
-        if (item == null) {
+        if (ItemStackTools.isEmpty(item)) {
             throw new ProgException(EXCEPT_MISSINGCRAFTRESULT);
         }
 
         IItemHandler cardHandler = getItemHandlerAt(cardInv);
         ItemStack card = findCraftingCard(cardHandler, item);
-        if (card == null) {
+        if (ItemStackTools.isEmpty(card)) {
             throw new ProgException(EXCEPT_MISSINGCRAFTINGCARD);
         }
         CardInfo info = this.cardInfo[((RunningProgram)program).getCardIndex()];
@@ -670,10 +671,10 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         for (ItemStack ingredient : ingredients) {
             int realSlot = info.getRealSlot(slot);
             if (ingredient != null) {
-                ItemStack stack = InventoryTools.extractItem(handler, scanner, ingredient.stackSize, true, false, ingredient, null);
-                if (stack != null) {
+                ItemStack stack = InventoryTools.extractItem(handler, scanner, ItemStackTools.getStackSize(ingredient), true, false, ingredient, null);
+                if (ItemStackTools.isValid(stack)) {
                     ItemStack remainder = itemHandler.insertItem(realSlot, stack, false);
-                    if (remainder != null) {
+                    if (ItemStackTools.isValid(remainder)) {
                         InventoryTools.insertItem(handler, scanner, remainder, null);
                     }
                 } else {
@@ -715,7 +716,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
 
     public boolean isRequested(ItemStack stack) {
         for (BlockPos p : craftingStations) {
-            TileEntity te = worldObj.getTileEntity(p);
+            TileEntity te = getWorld().getTileEntity(p);
             if (te instanceof CraftingStationTileEntity) {
                 CraftingStationTileEntity craftingStation = (CraftingStationTileEntity) te;
                 if (craftingStation.isRequested(stack)) {
@@ -731,7 +732,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     @Override
     public boolean requestCraft(@Nonnull ItemStack stack, @Nullable Inventory inventory) {
         for (BlockPos p : craftingStations) {
-            TileEntity te = worldObj.getTileEntity(p);
+            TileEntity te = getWorld().getTileEntity(p);
             if (te instanceof CraftingStationTileEntity) {
                 CraftingStationTileEntity craftingStation = (CraftingStationTileEntity) te;
                 if (craftingStation.request(stack, inventory)) {
@@ -782,7 +783,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             return null;
         }
         for (BlockPos p : craftingStations) {
-            TileEntity te = worldObj.getTileEntity(p);
+            TileEntity te = getWorld().getTileEntity(p);
             if (te instanceof CraftingStationTileEntity) {
                 CraftingStationTileEntity craftingStation = (CraftingStationTileEntity) te;
                 ItemStack stack = craftingStation.getCraftResult(program.getCraftTicket());
@@ -866,7 +867,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                         } else {
                             IItemHandler handler = getItemHandlerAt(wfi.getInventory());
                             int cnt = countItemInHandler(wfi.getItemStack(), handler);
-                            if (cnt >= wfi.getItemStack().stackSize) {
+                            if (cnt >= ItemStackTools.getStackSize(wfi.getItemStack())) {
                                 foundIdx = i;
                                 found = wfi;
                                 break;
@@ -1147,7 +1148,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             powerOut[facing.ordinal()] = 0;
         }
         for (BlockPos np : networkNodes.values()) {
-            TileEntity te = worldObj.getTileEntity(np);
+            TileEntity te = getWorld().getTileEntity(np);
             if (te instanceof NodeTileEntity) {
                 NodeTileEntity tileEntity = (NodeTileEntity) te;
                 for (EnumFacing facing : EnumFacing.values()) {
@@ -1321,7 +1322,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         for (int i = 0 ; i < MAXFLUIDVARS ; i++) {
             if (isFluidSlotAvailable(i)) {
                 EnumFacing side = EnumFacing.values()[i / TANKS];
-                TileEntity te = worldObj.getTileEntity(getPos().offset(side));
+                TileEntity te = getWorld().getTileEntity(getPos().offset(side));
                 if (te instanceof MultiTankTileEntity) {
                     MultiTankTileEntity mtank = (MultiTankTileEntity) te;
                     MultiTankFluidProperties[] propertyList = mtank.getProperties();
@@ -1490,7 +1491,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     }
 
     private MultiTankFluidProperties getFluidPropertiesFromMultiTank(EnumFacing side, int idx) {
-        TileEntity te = worldObj.getTileEntity(getPos().offset(side));
+        TileEntity te = getWorld().getTileEntity(getPos().offset(side));
         if (te instanceof MultiTankTileEntity) {
             MultiTankTileEntity mtank = (MultiTankTileEntity) te;
             return mtank.getProperties()[idx];
@@ -1632,7 +1633,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         // All seems ok. Do the real thing now.
         stack = InventoryTools.extractItem(handler, scanner, amount, routable, oredict, itemMatcher, slot);
         capability.insertItem(realSlot, stack, false);
-        return stack.stackSize;
+        return ItemStackTools.getStackSize(stack);
     }
 
     @Override
@@ -1659,9 +1660,9 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         ItemStack remaining = InventoryTools.insertItem(handler, scanner, extracted, slot);
         if (remaining != null) {
             itemHandler.insertItem(realSlot, remaining, false);
-            return extracted.stackSize - remaining.stackSize;
+            return ItemStackTools.getStackSize(extracted) - ItemStackTools.getStackSize(remaining);
         }
-        return extracted.stackSize;
+        return ItemStackTools.getStackSize(extracted);
     }
 
     @Override
@@ -1826,7 +1827,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     public void updateFluidSlotsAvailability() {
         fluidSlotsAvailable = 0;
         for (EnumFacing facing : EnumFacing.values()) {
-            TileEntity te = worldObj.getTileEntity(getPos().offset(facing));
+            TileEntity te = getWorld().getTileEntity(getPos().offset(facing));
             if (te instanceof MultiTankTileEntity) {
                 fluidSlotsAvailable |= 1 << facing.ordinal();
             }
@@ -1905,7 +1906,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             case PAR_INVENTORY:
                 return false;
             case PAR_ITEM:
-                return ((ItemStack) v1).stackSize > ((ItemStack) v2).stackSize;
+                return ItemStackTools.getStackSize((ItemStack) v1) > ItemStackTools.getStackSize((ItemStack) v2);
             case PAR_FLUID:
                 return ((FluidStack) v1).amount > ((FluidStack) v2).amount;
             case PAR_EXCEPTION:
@@ -2231,7 +2232,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                         return 0;
                     }
                 }
-                return stackInSlot.stackSize;
+                return ItemStackTools.getStackSize(stackInSlot);
             }
         } else if (itemMatcher != null) {
             return countItemInHandler(itemMatcher, handler);
@@ -2240,8 +2241,8 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             int cnt = 0;
             for (int i = 0 ; i < handler.getSlots() ; i++) {
                 ItemStack stack = handler.getStackInSlot(i);
-                if (stack != null) {
-                    cnt += stack.stackSize;
+                if (ItemStackTools.isValid(stack)) {
+                    cnt += ItemStackTools.getStackSize(stack);
                 }
             }
             return cnt;
@@ -2252,8 +2253,8 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         int cnt = 0;
         for (int i = 0 ; i < handler.getSlots() ; i++) {
             ItemStack stack = handler.getStackInSlot(i);
-            if (stack != null && ItemStack.areItemsEqual(stack, itemMatcher)) {
-                cnt += stack.stackSize;
+            if (ItemStackTools.isValid(stack) && ItemStack.areItemsEqual(stack, itemMatcher)) {
+                cnt += ItemStackTools.getStackSize(stack);
             }
         }
         return cnt;
@@ -2266,7 +2267,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         if (np == null) {
             return null;
         }
-        return worldObj.getTileEntity(np);
+        return getWorld().getTileEntity(np);
     }
 
     @Override
@@ -2502,9 +2503,9 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
 
             ItemStack stack;
             if (tag.hasKey("item")) {
-                stack = ItemStack.loadItemStackFromNBT(tag.getCompoundTag("item"));
+                stack = ItemStackTools.loadFromNBT(tag.getCompoundTag("item"));
             } else {
-                stack = null;
+                stack = ItemStackTools.getEmptyStack();
             }
 
             Inventory inventory;
@@ -2875,7 +2876,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             for (int y = -range; y <= range; y++) {
                 for (int z = -range; z <= range; z++) {
                     BlockPos n = new BlockPos(pos.getX() + x, pos.getY() + y, pos.getZ() + z);
-                    TileEntity te = worldObj.getTileEntity(n);
+                    TileEntity te = getWorld().getTileEntity(n);
                     if (te instanceof NodeTileEntity) {
                         NodeTileEntity node = (NodeTileEntity) te;
                         if (channel.equals(node.getChannelName())) {
@@ -2927,41 +2928,42 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         return false;
     }
 
+    @Nonnull
     @Override
-    public List executeWithResultList(String command, Map<String, Argument> args) {
-        List rc = super.executeWithResultList(command, args);
-        if (rc != null) {
+    public <T> List<T> executeWithResultList(String command, Map<String, Argument> args, Type<T> type) {
+        List<T> rc = super.executeWithResultList(command, args, type);
+        if (!rc.isEmpty()) {
             return rc;
         }
         if (CMD_GETLOG.equals(command)) {
-            return getLog();
+            return type.convert(getLog());
         } else if (CMD_GETDEBUGLOG.equals(command)) {
-            return getDebugLog();
+            return type.convert(getDebugLog());
         } else if (CMD_GETVARS.equals(command)) {
-            return getVariables();
+            return type.convert(getVariables());
         } else if (CMD_GETFLUIDS.equals(command)) {
-            return getFluids();
+            return type.convert(getFluids());
         }
-        return null;
+        return Collections.emptyList();
     }
 
     @Override
-    public boolean execute(String command, List list) {
-        boolean rc = super.execute(command, list);
+    public <T> boolean execute(String command, List<T> list, Type<T> type) {
+        boolean rc = super.execute(command, list, type);
         if (rc) {
             return true;
         }
         if (CLIENTCMD_GETLOG.equals(command)) {
-            clientLog = new ArrayList<>(list);
+            clientLog = Type.STRING.convert(list);
             return true;
         } else if (CLIENTCMD_GETDEBUGLOG.equals(command)) {
-            clientDebugLog = new ArrayList<>(list);
+            clientDebugLog = Type.STRING.convert(list);
             return true;
         } else if (CLIENTCMD_GETVARS.equals(command)) {
-            GuiProcessor.storeVarsForClient(list);
+            GuiProcessor.storeVarsForClient(Type.create(Parameter.class).convert(list));
             return true;
         } else if (CLIENTCMD_GETFLUIDS.equals(command)) {
-            GuiProcessor.storeFluidsForClient(list);
+            GuiProcessor.storeFluidsForClient(Type.create(PacketGetFluids.FluidEntry.class).convert(list));
             return true;
         }
         return false;

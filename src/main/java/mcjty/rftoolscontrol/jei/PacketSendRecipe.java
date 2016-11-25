@@ -60,7 +60,7 @@ public class PacketSendRecipe implements IMessage {
 
         private void handle(PacketSendRecipe message, MessageContext ctx) {
             EntityPlayerMP player = ctx.getServerHandler().playerEntity;
-            World world = player.worldObj;
+            World world = player.getEntityWorld();
             // Handle tablet version
             ItemStack mainhand = player.getHeldItemMainhand();
             if (mainhand != null && mainhand.getItem() == ModItems.craftingCardItem) {

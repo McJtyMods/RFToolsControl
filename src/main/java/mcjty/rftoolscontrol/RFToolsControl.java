@@ -3,6 +3,7 @@ package mcjty.rftoolscontrol;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import mcjty.lib.base.ModBase;
+import mcjty.lib.compat.CompatCreativeTabs;
 import mcjty.lib.compat.MainCompatHandler;
 import mcjty.rftoolscontrol.api.registry.IFunctionRegistry;
 import mcjty.rftoolscontrol.api.registry.IOpcodeRegistry;
@@ -18,8 +19,6 @@ import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.*;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
 @Mod(modid = RFToolsControl.MODID, name="RFTools Control", dependencies =
         "required-after:Forge@["+ RFToolsControl.MIN_FORGE_VER+
@@ -52,11 +51,9 @@ public class RFToolsControl implements ModBase {
     public static final int GUI_WORKBENCH = modGuiIndex++;
     public static final int GUI_TANK = modGuiIndex++;
 
-    public static CreativeTabs tabRFToolsControl = new CreativeTabs("RFToolsControl") {
-        @SuppressWarnings("NullableProblems")
+    public static CreativeTabs tabRFToolsControl = new CompatCreativeTabs("RFToolsControl") {
         @Override
-        @SideOnly(Side.CLIENT)
-        public Item getTabIconItem() {
+        protected Item getItem() {
             return ModItems.rfToolsControlManualItem;
         }
     };
@@ -133,6 +130,6 @@ public class RFToolsControl implements ModBase {
     @Override
     public void openManual(EntityPlayer player, int bookIndex, String page) {
         GuiRFToolsManual.locatePage = page;
-        player.openGui(RFToolsControl.instance, bookIndex, player.worldObj, (int) player.posX, (int) player.posY, (int) player.posZ);
+        player.openGui(RFToolsControl.instance, bookIndex, player.getEntityWorld(), (int) player.posX, (int) player.posY, (int) player.posZ);
     }
 }

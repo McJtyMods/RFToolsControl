@@ -1,12 +1,11 @@
 package mcjty.rftoolscontrol.logic;
 
+import mcjty.lib.tools.ItemStackTools;
 import mcjty.rftoolscontrol.api.parameters.*;
 import mcjty.rftoolscontrol.logic.running.ExceptionType;
 import mcjty.rftoolscontrol.logic.running.ProgException;
-import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fluids.FluidContainerRegistry;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidUtil;
@@ -36,7 +35,7 @@ public class TypeConverters {
             case PAR_BOOLEAN:
                 return ((Boolean) v) ? 1.0f : 0.0f;
             case PAR_ITEM:
-                return ((ItemStack) v).stackSize;
+                return ItemStackTools.getStackSize((ItemStack) v);
             case PAR_FLUID:
                 return ((FluidStack) v).amount;
             case PAR_INVENTORY:
@@ -101,7 +100,9 @@ public class TypeConverters {
                 return (ItemStack) v;
             case PAR_FLUID:
                 FluidStack fluidStack = (FluidStack) v;
-                return FluidContainerRegistry.fillFluidContainer(fluidStack, new ItemStack(Items.BUCKET));
+//                return FluidContainerRegistry.fillFluidContainer(fluidStack, new ItemStack(Items.BUCKET));
+                // @todo @@@@@@@@@@@@@@@
+                return null;
             case PAR_INTEGER:
             case PAR_FLOAT:
             case PAR_SIDE:
@@ -283,7 +284,7 @@ public class TypeConverters {
             case PAR_BOOLEAN:
                 return ((Boolean) v) ? 1 : 0;
             case PAR_ITEM:
-                return ((ItemStack) v).stackSize;
+                return ItemStackTools.getStackSize((ItemStack) v);
             case PAR_FLUID:
                 return ((FluidStack) v).amount;
             case PAR_EXCEPTION:

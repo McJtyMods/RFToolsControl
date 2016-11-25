@@ -12,6 +12,7 @@ import mcjty.lib.gui.widgets.Label;
 import mcjty.lib.gui.widgets.Panel;
 import mcjty.lib.gui.widgets.TextField;
 import mcjty.lib.network.Argument;
+import mcjty.lib.tools.MinecraftTools;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.gui.GuiTools;
 import mcjty.rftoolscontrol.network.PacketGetCraftableItems;
@@ -129,7 +130,7 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
             BlockRender blockRender = new BlockRender(mc, this) {
                 @Override
                 public List<String> getTooltips() {
-                    List<String> list = stack.getTooltip(this.mc.thePlayer, this.mc.gameSettings.advancedItemTooltips);
+                    List<String> list = stack.getTooltip(MinecraftTools.getPlayer(this.mc), this.mc.gameSettings.advancedItemTooltips);
 
                     for (int i = 0; i < list.size(); ++i) {
                         if (i == 0) {
@@ -178,7 +179,7 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
             BlockRender blockRender = new BlockRender(mc, this) {
                 @Override
                 public List<String> getTooltips() {
-                    List<String> list = stack.getTooltip(this.mc.thePlayer, this.mc.gameSettings.advancedItemTooltips);
+                    List<String> list = stack.getTooltip(MinecraftTools.getPlayer(this.mc), this.mc.gameSettings.advancedItemTooltips);
 
                     for (int i = 0; i < list.size(); ++i) {
                         if (i == 0) {

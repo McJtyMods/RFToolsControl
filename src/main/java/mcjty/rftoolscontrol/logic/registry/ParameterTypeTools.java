@@ -3,6 +3,7 @@ package mcjty.rftoolscontrol.logic.registry;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import mcjty.lib.tools.ItemStackTools;
 import mcjty.rftoolscontrol.api.parameters.*;
 import mcjty.rftoolscontrol.logic.running.ExceptionType;
 import net.minecraft.item.Item;
@@ -141,7 +142,7 @@ public class ParameterTypeTools {
             case PAR_ITEM:
                 if (tag.hasKey("item")) {
                     NBTTagCompound tc = (NBTTagCompound) tag.getTag("item");
-                    ItemStack stack = ItemStack.loadItemStackFromNBT(tc);
+                    ItemStack stack = ItemStackTools.loadFromNBT(tc);
                     return ParameterValue.constant(stack);
                 }
                 return ParameterValue.constant(null);
@@ -249,8 +250,8 @@ public class ParameterTypeTools {
             case PAR_ITEM:
                 ItemStack item = (ItemStack) value;
                 object.add("item", new JsonPrimitive(item.getItem().getRegistryName().toString()));
-                if (item.stackSize != 1) {
-                    object.add("amount", new JsonPrimitive(item.stackSize));
+                if (ItemStackTools.getStackSize(item) != 1) {
+                    object.add("amount", new JsonPrimitive(ItemStackTools.getStackSize(item)));
                 }
                 object.add("meta", new JsonPrimitive(item.getItemDamage()));
                 if (item.hasTagCompound()) {

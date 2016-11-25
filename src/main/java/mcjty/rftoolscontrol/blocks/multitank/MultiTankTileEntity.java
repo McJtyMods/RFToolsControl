@@ -2,17 +2,16 @@ package mcjty.rftoolscontrol.blocks.multitank;
 
 import mcjty.lib.entity.GenericTileEntity;
 import mcjty.lib.network.Argument;
-import mcjty.rftoolscontrol.blocks.processor.GuiProcessor;
-import net.minecraft.entity.player.EntityPlayerMP;
+import mcjty.typed.Type;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
-import net.minecraftforge.fluids.capability.FluidTankProperties;
-import net.minecraftforge.fluids.capability.IFluidTankProperties;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -69,10 +68,11 @@ public class MultiTankTileEntity extends GenericTileEntity {
         }
     }
 
+    @Nonnull
     @Override
-    public List executeWithResultList(String command, Map<String, Argument> args) {
-        List rc = super.executeWithResultList(command, args);
-        if (rc != null) {
+    public <T> List<T> executeWithResultList(String command, Map<String, Argument> args, Type<T> type) {
+        List<T> rc = super.executeWithResultList(command, args, type);
+        if (!rc.isEmpty()) {
             return rc;
         }
         if (CMD_GETFLUIDS.equals(command)) {
@@ -80,14 +80,14 @@ public class MultiTankTileEntity extends GenericTileEntity {
             for (MultiTankFluidProperties property : properties) {
                 result.add(property.getContents());
             }
-            return result;
+            return type.convert(result);
         }
-        return null;
+        return Collections.emptyList();
     }
 
     @Override
-    public boolean execute(String command, List list) {
-        boolean rc = super.execute(command, list);
+    public <T> boolean execute(String command, List<T> list, Type<T> type) {
+        boolean rc = super.execute(command, list, type);
         if (rc) {
             return true;
         }
