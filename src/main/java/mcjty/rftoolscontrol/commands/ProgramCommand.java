@@ -1,5 +1,6 @@
 package mcjty.rftoolscontrol.commands;
 
+import mcjty.lib.compat.CompatCommandBase;
 import mcjty.lib.tools.ChatTools;
 import mcjty.lib.tools.ItemStackTools;
 import mcjty.lib.tools.MinecraftTools;
@@ -8,7 +9,6 @@ import mcjty.rftoolscontrol.logic.grid.ProgramCardInstance;
 import mcjty.rftoolscontrol.network.PacketItemNBTToServer;
 import mcjty.rftoolscontrol.network.RFToolsCtrlMessages;
 import net.minecraft.client.Minecraft;
-import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.item.ItemStack;
@@ -24,25 +24,16 @@ import java.util.List;
 /**
  * Client side command
  */
-public class ProgramCommand extends CommandBase {
-    // @todo @@@@@@@@@@@@@
-
-
+public class ProgramCommand extends CompatCommandBase {
     @Override
     public String getName() {
         return "rfctrl";
     }
-//    public String getCommandName() {
-//        return "rfctrl";
-//    }
 
     @Override
     public String getUsage(ICommandSender sender) {
         return "rfctrl save | load";
     }
-//    public String getCommandUsage(ICommandSender sender) {
-//        return "rfctrl save | load";
-//    }
 
     @Override
     public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
@@ -114,12 +105,4 @@ public class ProgramCommand extends CommandBase {
         };
         return null;
     }
-//
-//    @Override
-//    public List<String> getTabCompletionOptions(MinecraftServer server, ICommandSender sender, String[] args, @Nullable BlockPos pos) {
-//        if (args.length > 0) {
-//            return getListOfStringsMatchingLastWord(args, "save", "load");
-//        };
-//        return null;
-//    }
 }

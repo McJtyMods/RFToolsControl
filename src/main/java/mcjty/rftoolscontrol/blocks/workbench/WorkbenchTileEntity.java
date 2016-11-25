@@ -4,6 +4,7 @@ import mcjty.lib.container.DefaultSidedInventory;
 import mcjty.lib.container.GenericCrafter;
 import mcjty.lib.container.InventoryHelper;
 import mcjty.lib.entity.GenericTileEntity;
+import mcjty.lib.tools.InventoryTools;
 import mcjty.lib.tools.ItemStackTools;
 import mcjty.lib.varia.FacedSidedInvWrapper;
 import mcjty.lib.varia.NullSidedInvWrapper;
@@ -166,8 +167,7 @@ public class WorkbenchTileEntity extends GenericTileEntity implements DefaultSid
     public ItemStack decrStackSize(int index, int count) {
         if (isCraftOutput(index) && realItems == 0) {
             InventoryCrafting workInventory = makeWorkInventory();
-            // @todo @@@@@@@@@
-            List<ItemStack> remainingItems = CraftingManager.getInstance().getRemainingItems(workInventory, getWorld());
+            List<ItemStack> remainingItems = InventoryTools.getRemainingItems(workInventory, getWorld());
             for (int i = 0 ; i < 9 ; i++) {
                 ItemStack s = getStackInSlot(i + WorkbenchContainer.SLOT_CRAFTINPUT);
                 if (ItemStackTools.isValid(s)) {
