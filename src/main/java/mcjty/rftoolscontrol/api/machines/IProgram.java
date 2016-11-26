@@ -27,7 +27,7 @@ public interface IProgram {
     @Nullable
     String getCraftTicket();
 
-    public boolean hasCraftTicket();
+    boolean hasCraftTicket();
 
     /**
      * Suspend the program for a specific number of ticks

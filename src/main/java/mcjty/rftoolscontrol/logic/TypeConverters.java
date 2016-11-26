@@ -1,5 +1,6 @@
 package mcjty.rftoolscontrol.logic;
 
+import mcjty.lib.tools.FluidTools;
 import mcjty.lib.tools.ItemStackTools;
 import mcjty.rftoolscontrol.api.parameters.*;
 import mcjty.rftoolscontrol.logic.running.ExceptionType;
@@ -80,18 +81,16 @@ public class TypeConverters {
         return null;
     }
 
-    @Nullable
     public static ItemStack convertToItem(Parameter value) {
         if (value == null) {
-            return null;
+            return ItemStackTools.getEmptyStack();
         }
         return convertToItem(value.getParameterType(), value.getParameterValue().getValue());
     }
 
-    @Nullable
     public static ItemStack convertToItem(ParameterType type, Object v) {
         if (v == null) {
-            return null;
+            return ItemStackTools.getEmptyStack();
         }
         switch (type) {
             case PAR_STRING:
@@ -100,9 +99,7 @@ public class TypeConverters {
                 return (ItemStack) v;
             case PAR_FLUID:
                 FluidStack fluidStack = (FluidStack) v;
-//                return FluidContainerRegistry.fillFluidContainer(fluidStack, new ItemStack(Items.BUCKET));
-                // @todo @@@@@@@@@@@@@@@
-                return null;
+                return FluidTools.convertFluidToBucket(fluidStack);
             case PAR_INTEGER:
             case PAR_FLOAT:
             case PAR_SIDE:
@@ -112,7 +109,7 @@ public class TypeConverters {
             case PAR_TUPLE:
                 break;
         }
-        return null;
+        return ItemStackTools.getEmptyStack();
     }
 
 

@@ -2,6 +2,7 @@ package mcjty.rftoolscontrol.jei;
 
 import io.netty.buffer.ByteBuf;
 import mcjty.lib.network.NetworkTools;
+import mcjty.lib.tools.ItemStackTools;
 import mcjty.rftoolscontrol.items.ModItems;
 import mcjty.rftoolscontrol.items.craftingcard.CraftingCardContainer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -63,7 +64,7 @@ public class PacketSendRecipe implements IMessage {
             World world = player.getEntityWorld();
             // Handle tablet version
             ItemStack mainhand = player.getHeldItemMainhand();
-            if (mainhand != null && mainhand.getItem() == ModItems.craftingCardItem) {
+            if (ItemStackTools.isValid(mainhand) && mainhand.getItem() == ModItems.craftingCardItem) {
                 if (player.openContainer instanceof CraftingCardContainer) {
                     CraftingCardContainer craftingCardContainer = (CraftingCardContainer) player.openContainer;
                     craftingCardContainer.setGridContents(player, message.stacks);

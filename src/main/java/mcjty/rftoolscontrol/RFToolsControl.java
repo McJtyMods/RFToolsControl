@@ -15,6 +15,7 @@ import mcjty.rftoolscontrol.proxy.CommonProxy;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
+import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
@@ -51,6 +52,11 @@ public class RFToolsControl implements ModBase {
     public static final int GUI_WORKBENCH = modGuiIndex++;
     public static final int GUI_TANK = modGuiIndex++;
 
+    public RFToolsControl() {
+        // This has to be done VERY early
+        FluidRegistry.enableUniversalBucket();
+    }
+
     public static CreativeTabs tabRFToolsControl = new CompatCreativeTabs("RFToolsControl") {
         @Override
         protected Item getItem() {
@@ -68,7 +74,7 @@ public class RFToolsControl implements ModBase {
     public void preInit(FMLPreInitializationEvent e) {
         mcmpPresent = Loader.isModLoaded("mcmultipart");
 
-        this.proxy.preInit(e);
+        proxy.preInit(e);
         MainCompatHandler.registerWaila();
         MainCompatHandler.registerTOP();
         FMLInterModComms.sendFunctionMessage("rftools", "getScreenModuleRegistry", "mcjty.rftoolscontrol.rftoolssupport.RFToolsSupport$GetScreenModuleRegistry");
@@ -82,7 +88,7 @@ public class RFToolsControl implements ModBase {
      */
     @Mod.EventHandler
     public void init(FMLInitializationEvent e) {
-        this.proxy.init(e);
+        proxy.init(e);
 
 //        Achievements.init();
         // @todo
@@ -119,7 +125,7 @@ public class RFToolsControl implements ModBase {
      */
     @Mod.EventHandler
     public void postInit(FMLPostInitializationEvent e) {
-        this.proxy.postInit(e);
+        proxy.postInit(e);
     }
 
     @Override

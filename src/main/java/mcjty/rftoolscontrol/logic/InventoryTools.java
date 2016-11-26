@@ -77,7 +77,6 @@ public class InventoryTools {
         return ItemStackTools.getEmptyStack();
     }
 
-    @Nullable
     public static ItemStack tryExtractItem(@Nullable IItemHandler itemHandler, @Nullable IStorageScanner scanner,
                                            @Nullable Integer amount, boolean routable, boolean oredict,
                                            ItemStack itemMatcher,

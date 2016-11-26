@@ -102,7 +102,7 @@ public class ProgramCommand extends CompatCommandBase {
     public List<String> getTabCompletions(MinecraftServer server, ICommandSender sender, String[] args, @Nullable BlockPos pos) {
         if (args.length > 0) {
             return getListOfStringsMatchingLastWord(args, "save", "load");
-        };
+        }
         return null;
     }
 }

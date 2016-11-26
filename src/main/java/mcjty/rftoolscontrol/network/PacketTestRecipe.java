@@ -41,7 +41,7 @@ public class PacketTestRecipe implements IMessage {
                 return;
             }
             if (heldItem.getItem() instanceof CraftingCardItem) {
-                ((CraftingCardItem) heldItem.getItem()).testRecipe(playerEntity.getEntityWorld(), heldItem);
+                CraftingCardItem.testRecipe(playerEntity.getEntityWorld(), heldItem);
             }
         }
     }

@@ -400,7 +400,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         }
     }
 
-    public boolean pushItemsWorkbench(IProgram program, @Nonnull BlockSide workbench, @Nullable ItemStack item, int slot1, int slot2) {
+    public boolean pushItemsWorkbench(IProgram program, @Nonnull BlockSide workbench, ItemStack item, int slot1, int slot2) {
         if (ItemStackTools.isEmpty(item)) {
             item = getCraftResult(program);
         }
