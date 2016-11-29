@@ -29,7 +29,7 @@ import net.minecraftforge.fml.common.event.*;
         acceptedMinecraftVersions = "[1.10,1.12)")
 public class RFToolsControl implements ModBase {
     public static final String MODID = "rftoolscontrol";
-    public static final String VERSION = "1.5.2alpha1";
+    public static final String VERSION = "1.5.2alpha2";
     public static final String MIN_FORGE_VER = "12.16.1.1896";
     public static final String MIN_MCJTYLIB_VER = "1.11-2.2.0";
     public static final String MIN_RFTOOLS_VER = "1.10-5.22";
