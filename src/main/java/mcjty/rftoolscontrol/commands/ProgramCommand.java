@@ -19,6 +19,7 @@ import net.minecraft.util.text.TextFormatting;
 
 import javax.annotation.Nullable;
 import java.io.*;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -103,6 +104,6 @@ public class ProgramCommand extends CompatCommandBase {
         if (args.length > 0) {
             return getListOfStringsMatchingLastWord(args, "save", "load");
         }
-        return null;
+        return Collections.emptyList();
     }
 }

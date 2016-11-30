@@ -19,13 +19,21 @@ public class Tuple {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         Tuple tuple = (Tuple) o;
 
-        if (x != tuple.x) return false;
-        if (y != tuple.y) return false;
+        if (x != tuple.x) {
+            return false;
+        }
+        if (y != tuple.y) {
+            return false;
+        }
 
         return true;
     }

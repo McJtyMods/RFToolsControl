@@ -23,12 +23,18 @@ public class CompiledEvent {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         CompiledEvent that = (CompiledEvent) o;
 
-        if (index != that.index) return false;
+        if (index != that.index) {
+            return false;
+        }
 
         return true;
     }

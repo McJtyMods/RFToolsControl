@@ -42,12 +42,18 @@ public class GridPos {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         GridPos gridPos = (GridPos) o;
 
-        if (x != gridPos.x) return false;
+        if (x != gridPos.x) {
+            return false;
+        }
         return y == gridPos.y;
 
     }

@@ -21,18 +21,23 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.*;
 
-@Mod(modid = RFToolsControl.MODID, name="RFTools Control", //dependencies =
-//        "required-after:Forge@["+ RFToolsControl.MIN_FORGE_VER+",);" +
-//                "required-after:rftools@["+RFToolsControl.MIN_RFTOOLS_VER+",);"+
-//                        "required-after:McJtyLib@["+ RFToolsControl.MIN_MCJTYLIB_VER+",)",
+@Mod(modid = RFToolsControl.MODID, name="RFTools Control",
+        dependencies =
+                        "required-after:mcjtylib_ng@[" + RFToolsControl.MIN_MCJTYLIB_VER + ",);" +
+                        "required-after:compatlayer@[" + RFToolsControl.COMPATLAYER_VER + ",);" +
+                        "required-after:rftools@[" + RFToolsControl.MIN_RFTOOLS_VER + ",);" +
+                        "after:Forge@[" + RFToolsControl.MIN_FORGE10_VER + ",);" +
+                        "after:forge@[" + RFToolsControl.MIN_FORGE11_VER + ",)",
         version = RFToolsControl.VERSION,
         acceptedMinecraftVersions = "[1.10,1.12)")
 public class RFToolsControl implements ModBase {
     public static final String MODID = "rftoolscontrol";
     public static final String VERSION = "1.5.2alpha2";
-    public static final String MIN_FORGE_VER = "12.16.1.1896";
-    public static final String MIN_MCJTYLIB_VER = "1.11-2.2.0";
-    public static final String MIN_RFTOOLS_VER = "1.10-5.22";
+    public static final String MIN_RFTOOLS_VER = "5.62alpha4";
+    public static final String MIN_FORGE10_VER = "12.18.1.2082";
+    public static final String MIN_FORGE11_VER = "13.19.0.2157";
+    public static final String MIN_MCJTYLIB_VER = "2.2.0alpha14";
+    public static final String COMPATLAYER_VER = "0.0.35alpha";
 
     @SidedProxy(clientSide="mcjty.rftoolscontrol.proxy.ClientProxy", serverSide="mcjty.rftoolscontrol.proxy.ServerProxy")
     public static CommonProxy proxy;

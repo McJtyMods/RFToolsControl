@@ -35,13 +35,21 @@ public class BlockSide {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         BlockSide blockSide = (BlockSide) o;
 
-        if (nodeName != null ? !nodeName.equals(blockSide.nodeName) : blockSide.nodeName != null) return false;
-        if (side != blockSide.side) return false;
+        if (nodeName != null ? !nodeName.equals(blockSide.nodeName) : blockSide.nodeName != null) {
+            return false;
+        }
+        if (side != blockSide.side) {
+            return false;
+        }
 
         return true;
     }

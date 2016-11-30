@@ -53,12 +53,18 @@ public class CraftingRequest {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         CraftingRequest that = (CraftingRequest) o;
 
-        if (!ticket.equals(that.ticket)) return false;
+        if (!ticket.equals(that.ticket)) {
+            return false;
+        }
 
         return true;
     }
