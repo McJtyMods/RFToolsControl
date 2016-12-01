@@ -57,7 +57,7 @@ public class PacketCraftableItemsReady extends PacketListToClient<ItemStack> {
 
     @Override
     protected void writeItemToBuf(ByteBuf buf, ItemStack s) {
-        if (s == null) {
+        if (ItemStackTools.isEmpty(s)) {
             buf.writeBoolean(false);
         } else {
             buf.writeBoolean(true);

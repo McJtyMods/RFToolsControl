@@ -32,12 +32,12 @@ import net.minecraftforge.fml.common.event.*;
         acceptedMinecraftVersions = "[1.10,1.12)")
 public class RFToolsControl implements ModBase {
     public static final String MODID = "rftoolscontrol";
-    public static final String VERSION = "1.5.2alpha2";
-    public static final String MIN_RFTOOLS_VER = "5.62alpha4";
+    public static final String VERSION = "1.5.2beta1";
+    public static final String MIN_RFTOOLS_VER = "5.62beta1";
     public static final String MIN_FORGE10_VER = "12.18.1.2082";
-    public static final String MIN_FORGE11_VER = "13.19.0.2157";
-    public static final String MIN_MCJTYLIB_VER = "2.2.0alpha14";
-    public static final String COMPATLAYER_VER = "0.0.37beta";
+    public static final String MIN_FORGE11_VER = "13.19.0.2176";
+    public static final String MIN_MCJTYLIB_VER = "2.2.0beta1";
+    public static final String COMPATLAYER_VER = "0.0.38beta";
 
     @SidedProxy(clientSide="mcjty.rftoolscontrol.proxy.ClientProxy", serverSide="mcjty.rftoolscontrol.proxy.ServerProxy")
     public static CommonProxy proxy;
