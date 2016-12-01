@@ -266,7 +266,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         if (p.equals(pos)) {
             powerOut[facing.ordinal()] = level;
             markDirty();
-            mcjty.lib.tools.WorldTools.notifyNeighborsOfStateChange(getWorld(), this.pos.offset(facing), this.getBlockType());
+            mcjty.lib.tools.WorldTools.notifyBlockOfStateChange(getWorld(), this.pos.offset(facing), this.getBlockType(), this.pos);
         } else {
             NodeTileEntity te = (NodeTileEntity) getWorld().getTileEntity(p);
             te.setPowerOut(facing, level);

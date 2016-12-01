@@ -65,7 +65,7 @@ public class NodeTileEntity extends GenericTileEntity {
     public void setPowerOut(EnumFacing side, int powerOut) {
         this.powerOut[side.ordinal()] = powerOut;
         markDirty();
-        WorldTools.notifyNeighborsOfStateChange(getWorld(), this.pos.offset(side), this.getBlockType());
+        WorldTools.notifyBlockOfStateChange(getWorld(), this.pos.offset(side), this.getBlockType(), this.pos);
     }
 
     @Override
