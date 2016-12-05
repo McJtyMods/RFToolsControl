@@ -2089,13 +2089,22 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     @Nullable
     @Override
     public ItemStack evaluateItemParameter(ICompiledOpcode compiledOpcode, IProgram program, int parIndex) {
-        return evaluateGenericParameter(compiledOpcode, program, parIndex, CONVERTOR_ITEM);
+        ItemStack stack = evaluateGenericParameter(compiledOpcode, program, parIndex, CONVERTOR_ITEM);
+        // This can return null!
+        if (stack == null) {
+            return ItemStackTools.getEmptyStack();
+        }
+        return stack;
     }
 
     @Nonnull
     @Override
     public ItemStack evaluateItemParameterNonNull(ICompiledOpcode compiledOpcode, IProgram program, int parIndex) {
-        return evaluateGenericParameterNonNull(compiledOpcode, program, parIndex, CONVERTOR_ITEM);
+        ItemStack stack = evaluateGenericParameterNonNull(compiledOpcode, program, parIndex, CONVERTOR_ITEM);
+        if (ItemStackTools.isEmpty(stack)) {
+            throw new ProgException(EXCEPT_MISSINGPARAMETER);
+        }
+        return stack;
     }
 
     @Nullable

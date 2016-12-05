@@ -240,9 +240,10 @@ public class TypeConverters {
                 return (Boolean) v;
             case PAR_TUPLE:
                 return ((Tuple) v).getX() != 0 || ((Tuple) v).getY() != 0;
+            case PAR_ITEM:
+                return ItemStackTools.isValid((ItemStack) v);
             case PAR_SIDE:
             case PAR_INVENTORY:
-            case PAR_ITEM:
             case PAR_FLUID:
             case PAR_EXCEPTION:
                 return true;
@@ -321,7 +322,11 @@ public class TypeConverters {
             case PAR_BOOLEAN:
                 return ((Boolean) v) ? "true" : "false";
             case PAR_ITEM:
-                return ((ItemStack) v).getItem().getRegistryName().toString();
+                if (ItemStackTools.isValid((ItemStack) v)) {
+                    return ((ItemStack) v).getItem().getRegistryName().toString();
+                } else {
+                    return null;
+                }
             case PAR_FLUID:
                 return ((FluidStack) v).getFluid().getName();
             case PAR_INVENTORY:
