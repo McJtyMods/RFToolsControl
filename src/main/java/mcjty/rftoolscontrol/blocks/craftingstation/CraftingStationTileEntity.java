@@ -128,7 +128,7 @@ public class CraftingStationTileEntity extends GenericTileEntity implements Defa
     public void craftFail(String ticket) {
         for (CraftingRequest request : activeCraftingRequests) {
             if (ticket.equals(request.getTicket())) {
-                request.setFailed(System.currentTimeMillis()+2000);
+                request.setFailed(System.currentTimeMillis() + 2000);
                 markDirty();
             }
         }
@@ -151,7 +151,7 @@ public class CraftingStationTileEntity extends GenericTileEntity implements Defa
         }
         String ticket = getNewTicket(null);
         ItemStack stack = pair.getValue();
-        int count = (amount + ItemStackTools.getStackSize(stack)-1) / ItemStackTools.getStackSize(stack);
+        int count = (amount + ItemStackTools.getStackSize(stack) - 1) / ItemStackTools.getStackSize(stack);
         CraftingRequest request = new CraftingRequest(ticket, stack, count);
 
         if (!checkRequestAmount()) {
@@ -288,7 +288,7 @@ public class CraftingStationTileEntity extends GenericTileEntity implements Defa
     private void readRequests(NBTTagCompound tagCompound) {
         NBTTagList list = tagCompound.getTagList("requests", Constants.NBT.TAG_COMPOUND);
         activeCraftingRequests.clear();
-        for (int i = 0 ; i < list.tagCount() ; i++) {
+        for (int i = 0; i < list.tagCount(); i++) {
             NBTTagCompound requestTag = list.getCompoundTagAt(i);
             String craftId = requestTag.getString("craftId");
             ItemStack stack = ItemStackTools.loadFromNBT(requestTag.getCompoundTag("stack"));
@@ -303,7 +303,7 @@ public class CraftingStationTileEntity extends GenericTileEntity implements Defa
     private void readProcessorList(NBTTagCompound tagCompound) {
         NBTTagList list = tagCompound.getTagList("processors", Constants.NBT.TAG_COMPOUND);
         processorList.clear();
-        for (int i = 0 ; i < list.tagCount() ; i++) {
+        for (int i = 0; i < list.tagCount(); i++) {
             NBTTagCompound tag = list.getCompoundTagAt(i);
             processorList.add(new BlockPos(tag.getInteger("x"), tag.getInteger("y"), tag.getInteger("z")));
         }
@@ -370,7 +370,7 @@ public class CraftingStationTileEntity extends GenericTileEntity implements Defa
         return canPlayerAccess(player);
     }
 
-    private int findItem(String itemName, int meta) {
+    private int findItem(String itemName, int meta, String nbtString) {
         int index = 0;
         for (BlockPos p : processorList) {
             TileEntity te = getWorld().getTileEntity(p);
@@ -379,7 +379,11 @@ public class CraftingStationTileEntity extends GenericTileEntity implements Defa
                 ItemStackList items = ItemStackList.create();
                 processor.getCraftableItems(items);
                 for (ItemStack item : items) {
-                    if (item.getItemDamage() == meta && itemName.equals(item.getItem().getRegistryName().toString())) {
+                    if (item.hasTagCompound()) {
+                        if (nbtString.equalsIgnoreCase(item.serializeNBT().toString())) {
+                            return index;
+                        }
+                    } else if (item.getItemDamage() == meta && itemName.equals(item.getItem().getRegistryName().toString())) {
                         return index;
                     }
                     index++;
@@ -388,7 +392,6 @@ public class CraftingStationTileEntity extends GenericTileEntity implements Defa
         }
         return -1;
     }
-
 
 
     @Override
@@ -400,7 +403,8 @@ public class CraftingStationTileEntity extends GenericTileEntity implements Defa
         if (CMD_REQUEST.equals(command)) {
             String itemName = args.get("item").getString();
             int meta = args.get("meta").getInteger();
-            int index = findItem(itemName, meta);
+            String nbtString = args.get("nbtData").getString();
+            int index = findItem(itemName, meta, nbtString);
             if (index == -1) {
                 return true;
             }
