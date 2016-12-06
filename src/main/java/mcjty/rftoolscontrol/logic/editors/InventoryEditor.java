@@ -1,5 +1,6 @@
 package mcjty.rftoolscontrol.logic.editors;
 
+import mcjty.lib.gui.Window;
 import mcjty.lib.gui.layout.VerticalLayout;
 import mcjty.lib.gui.widgets.*;
 import mcjty.rftoolscontrol.api.parameters.Inventory;
@@ -30,6 +31,11 @@ public class InventoryEditor extends AbstractParameterEditor {
             intSide = EnumFacing.byName(StringUtils.lowerCase(intSideS));
         }
         return new Inventory(name, side, intSide);
+    }
+
+    @Override
+    public void initialFocus(Window window) {
+        window.setTextFocus(nameLabel);
     }
 
     @Override

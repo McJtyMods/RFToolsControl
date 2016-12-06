@@ -1,5 +1,6 @@
 package mcjty.rftoolscontrol.logic.editors;
 
+import mcjty.lib.gui.Window;
 import mcjty.lib.gui.layout.HorizontalAlignment;
 import mcjty.lib.gui.layout.HorizontalLayout;
 import mcjty.lib.gui.layout.PositionalLayout;
@@ -30,6 +31,11 @@ public abstract class AbstractParameterEditor implements ParameterEditor {
     public void constantOnly() {
         variableButton.setEnabled(false);
         functionButton.setEnabled(false);
+    }
+
+    @Override
+    public void initialFocus(Window window) {
+
     }
 
     public static Integer parseIntSafe(String newText) {

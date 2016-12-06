@@ -1,5 +1,6 @@
 package mcjty.rftoolscontrol.logic.editors;
 
+import mcjty.lib.gui.Window;
 import mcjty.lib.gui.widgets.Panel;
 import mcjty.rftoolscontrol.api.parameters.ParameterValue;
 import net.minecraft.client.Minecraft;
@@ -17,4 +18,7 @@ public interface ParameterEditor {
 
     // Call this to set the editor in 'constant only' mode
     void constantOnly();
+
+    // Set initial focus when this gui is opened
+    void initialFocus(Window window);
 }

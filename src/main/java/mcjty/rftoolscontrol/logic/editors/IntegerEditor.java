@@ -1,5 +1,6 @@
 package mcjty.rftoolscontrol.logic.editors;
 
+import mcjty.lib.gui.Window;
 import mcjty.lib.gui.layout.HorizontalLayout;
 import mcjty.lib.gui.widgets.Panel;
 import mcjty.lib.gui.widgets.TextField;
@@ -19,6 +20,11 @@ public class IntegerEditor extends AbstractParameterEditor {
         constantPanel.addChild(field);
 
         createEditorPanel(mc, gui, panel, callback, constantPanel, ParameterType.PAR_INTEGER);
+    }
+
+    @Override
+    public void initialFocus(Window window) {
+        window.setTextFocus(field);
     }
 
     @Override

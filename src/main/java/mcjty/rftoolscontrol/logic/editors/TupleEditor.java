@@ -1,5 +1,6 @@
 package mcjty.rftoolscontrol.logic.editors;
 
+import mcjty.lib.gui.Window;
 import mcjty.lib.gui.layout.HorizontalLayout;
 import mcjty.lib.gui.widgets.Panel;
 import mcjty.lib.gui.widgets.TextField;
@@ -22,6 +23,11 @@ public class TupleEditor extends AbstractParameterEditor {
         constantPanel.addChild(fieldX).addChild(fieldY);
 
         createEditorPanel(mc, gui, panel, callback, constantPanel, ParameterType.PAR_TUPLE);
+    }
+
+    @Override
+    public void initialFocus(Window window) {
+        window.setTextFocus(fieldX);
     }
 
     @Override

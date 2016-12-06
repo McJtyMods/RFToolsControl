@@ -1146,6 +1146,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
                     window.setTextFocus(iconHolder);
                 })
                 .setText("Close"));
+        editor.initialFocus(modalWindow);
     }
 
     private void clearEditorPanel() {

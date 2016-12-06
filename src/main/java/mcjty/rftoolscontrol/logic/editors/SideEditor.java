@@ -1,5 +1,6 @@
 package mcjty.rftoolscontrol.logic.editors;
 
+import mcjty.lib.gui.Window;
 import mcjty.lib.gui.layout.VerticalLayout;
 import mcjty.lib.gui.widgets.ChoiceLabel;
 import mcjty.lib.gui.widgets.Panel;
@@ -22,6 +23,11 @@ public class SideEditor extends AbstractParameterEditor {
             return null;
         }
         return EnumFacing.byName(StringUtils.lowerCase(t));
+    }
+
+    @Override
+    public void initialFocus(Window window) {
+        window.setTextFocus(nameLabel);
     }
 
     @Override
