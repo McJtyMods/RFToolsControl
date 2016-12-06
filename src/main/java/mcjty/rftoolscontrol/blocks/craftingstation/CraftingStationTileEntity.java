@@ -79,7 +79,7 @@ public class CraftingStationTileEntity extends GenericTileEntity implements Defa
             TileEntity te = getWorld().getTileEntity(p);
             if (te instanceof ProcessorTileEntity) {
                 ProcessorTileEntity processor = (ProcessorTileEntity) te;
-                ItemStackList items = ItemStackList.create(0);
+                ItemStackList items = ItemStackList.create();
                 processor.getCraftableItems(items);
                 for (ItemStack item : items) {
                     if (index == 0) {
@@ -198,7 +198,7 @@ public class CraftingStationTileEntity extends GenericTileEntity implements Defa
             TileEntity te = getWorld().getTileEntity(p);
             if (te instanceof ProcessorTileEntity) {
                 ProcessorTileEntity processor = (ProcessorTileEntity) te;
-                ItemStackList items = ItemStackList.create(0);
+                ItemStackList items = ItemStackList.create();
                 processor.getCraftableItems(items);
                 for (ItemStack i : items) {
                     if (item.isItemEqual(i)) {
@@ -248,7 +248,7 @@ public class CraftingStationTileEntity extends GenericTileEntity implements Defa
     }
 
     public ItemStackList getCraftableItems() {
-        ItemStackList items = ItemStackList.create(0);
+        ItemStackList items = ItemStackList.create();
         for (BlockPos p : processorList) {
             TileEntity te = getWorld().getTileEntity(p);
             if (te instanceof ProcessorTileEntity) {
@@ -376,7 +376,7 @@ public class CraftingStationTileEntity extends GenericTileEntity implements Defa
             TileEntity te = getWorld().getTileEntity(p);
             if (te instanceof ProcessorTileEntity) {
                 ProcessorTileEntity processor = (ProcessorTileEntity) te;
-                ItemStackList items = ItemStackList.create(0);
+                ItemStackList items = ItemStackList.create();
                 processor.getCraftableItems(items);
                 for (ItemStack item : items) {
                     if (item.getItemDamage() == meta && itemName.equals(item.getItem().getRegistryName().toString())) {
