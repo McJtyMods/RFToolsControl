@@ -33,7 +33,7 @@ public class FloatEditor extends AbstractParameterEditor {
     }
 
     @Override
-    public void initialFocus(Window window) {
+    public void initialFocusInternal(Window window) {
         window.setTextFocus(field);
     }
 

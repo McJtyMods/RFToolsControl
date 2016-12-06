@@ -27,6 +27,9 @@ public abstract class AbstractParameterEditor implements ParameterEditor {
     private ToggleButton variableButton;
     private ToggleButton functionButton;
 
+    // Parent window is only set if 'initialFocus' is called. So this can be null
+    private Window parentWindow;
+
     @Override
     public void constantOnly() {
         variableButton.setEnabled(false);
@@ -35,7 +38,19 @@ public abstract class AbstractParameterEditor implements ParameterEditor {
 
     @Override
     public void initialFocus(Window window) {
+        parentWindow = window;
+        if (PAGE_CONSTANT.equals(tabbedPanel.getCurrentName())) {
+            initialFocusInternal(window);
+        } else if (PAGE_VARIABLE.equals(tabbedPanel.getCurrentName())) {
+            initialFocusVariable(window);
+        }
+    }
 
+    protected void initialFocusInternal(Window window) {
+    }
+
+    private void initialFocusVariable(Window window) {
+        window.setTextFocus(variableIndex);
     }
 
     public static Integer parseIntSafe(String newText) {
@@ -157,6 +172,12 @@ public abstract class AbstractParameterEditor implements ParameterEditor {
                 callback.valueChanged(readValue());
             }
         }
-
+        if (parentWindow != null) {
+            if (PAGE_CONSTANT.equals(page)) {
+                initialFocusInternal(parentWindow);
+            } else if (PAGE_VARIABLE.equals(page)) {
+                initialFocusVariable(parentWindow);
+            }
+        }
     }
 }

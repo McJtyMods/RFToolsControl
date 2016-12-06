@@ -26,7 +26,7 @@ public class TupleEditor extends AbstractParameterEditor {
     }
 
     @Override
-    public void initialFocus(Window window) {
+    public void initialFocusInternal(Window window) {
         window.setTextFocus(fieldX);
     }
 
