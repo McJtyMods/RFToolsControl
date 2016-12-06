@@ -98,7 +98,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     public static final int MAXFLUIDVARS = 4*6;
 
     public static final String CMD_ALLOCATE = "allocate";
-    public static final String CMD_CLEARLOG = "clearLog";
+    public static final String CMD_EXECUTE = "execute";
     public static final String CMD_GETLOG = "getLog";
     public static final String CMD_GETDEBUGLOG = "getDebugLog";
     public static final String CMD_SETEXCLUSIVE = "setExclusive";
@@ -2921,7 +2921,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             int fluidAlloc = args.get("fluids").getInteger();
             allocate(card, itemAlloc, varAlloc, fluidAlloc);
             return true;
-        } else if (CMD_CLEARLOG.equals(command)) {
+        } else if (CMD_EXECUTE.equals(command)) {
             Commands.executeCommand(this, args.get("cmd").getString());
             return true;
         } else if (CMD_SETEXCLUSIVE.equals(command)) {

@@ -220,7 +220,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
 
     private void executeCommand(String text) {
         dumpHistory();
-        sendServerCommand(RFToolsCtrlMessages.INSTANCE, ProcessorTileEntity.CMD_CLEARLOG, new Argument("cmd", text));
+        sendServerCommand(RFToolsCtrlMessages.INSTANCE, ProcessorTileEntity.CMD_EXECUTE, new Argument("cmd", text));
 
         if (commandHistoryIndex >= 0 && commandHistoryIndex < commandHistory.size() && text.equals(commandHistory.get(commandHistoryIndex))) {
             // History command that didn't change
