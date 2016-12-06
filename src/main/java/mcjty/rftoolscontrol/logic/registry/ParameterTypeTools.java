@@ -143,9 +143,13 @@ public class ParameterTypeTools {
                 if (tag.hasKey("item")) {
                     NBTTagCompound tc = (NBTTagCompound) tag.getTag("item");
                     ItemStack stack = ItemStackTools.loadFromNBT(tc);
+                    // Fix for 1.10 0-sized stacks
+                    if (ItemStackTools.getStackSize(stack) == 0) {
+                        ItemStackTools.setStackSize(stack, 1);
+                    }
                     return ParameterValue.constant(stack);
                 }
-                return ParameterValue.constant(null);
+                return ParameterValue.constant(ItemStackTools.getEmptyStack());
             case PAR_FLUID:
                 if (tag.hasKey("fluid")) {
                     NBTTagCompound tc = (NBTTagCompound) tag.getTag("fluid");
