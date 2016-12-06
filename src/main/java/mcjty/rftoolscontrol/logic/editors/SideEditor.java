@@ -41,6 +41,7 @@ public class SideEditor extends AbstractParameterEditor {
 
         nameLabel = new TextField(mc, gui)
                 .addTextEvent((o,text) -> callback.valueChanged(readValue()))
+                .addTextEnterEvent((parent, newText) -> closeWindow())
                 .setDesiredWidth(50).setDesiredHeight(14);
         constantPanel.addChild(createLabeledPanel(mc, gui, "Node name:", nameLabel, "Optional name of a node in the network"));
 

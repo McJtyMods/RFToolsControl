@@ -48,6 +48,7 @@ public class InventoryEditor extends AbstractParameterEditor {
         Panel constantPanel = new Panel(mc, gui).setLayout(new VerticalLayout());
         nameLabel = new TextField(mc, gui)
                 .addTextEvent((o,text) -> callback.valueChanged(readValue()))
+                .addTextEnterEvent((parent, newText) -> closeWindow())
                 .setDesiredWidth(50).setDesiredHeight(14);
         constantPanel.addChild(createLabeledPanel(mc, gui, "Node name:", nameLabel, "Optional name of a node in the network"));
         sideLabel = new ChoiceLabel(mc, gui).addChoices("*", "Down", "Up", "North", "South", "West", "East")

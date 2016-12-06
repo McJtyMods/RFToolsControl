@@ -18,8 +18,12 @@ public class TupleEditor extends AbstractParameterEditor {
     @Override
     public void build(Minecraft mc, Gui gui, Panel panel, ParameterEditorCallback callback) {
         Panel constantPanel = new Panel(mc, gui).setLayout(new HorizontalLayout());
-        fieldX = new TextField(mc, gui).addTextEvent((parent, newText) -> callback.valueChanged(readValue()));
-        fieldY = new TextField(mc, gui).addTextEvent((parent, newText) -> callback.valueChanged(readValue()));
+        fieldX = new TextField(mc, gui)
+                .addTextEvent((parent, newText) -> callback.valueChanged(readValue()))
+                .addTextEnterEvent((parent, newText) -> closeWindow());
+        fieldY = new TextField(mc, gui)
+                .addTextEvent((parent, newText) -> callback.valueChanged(readValue()))
+                .addTextEnterEvent((parent, newText) -> closeWindow());
         constantPanel.addChild(fieldX).addChild(fieldY);
 
         createEditorPanel(mc, gui, panel, callback, constantPanel, ParameterType.PAR_TUPLE);

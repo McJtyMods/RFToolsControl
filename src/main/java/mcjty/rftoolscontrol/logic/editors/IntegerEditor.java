@@ -16,7 +16,9 @@ public class IntegerEditor extends AbstractParameterEditor {
     @Override
     public void build(Minecraft mc, Gui gui, Panel panel, ParameterEditorCallback callback) {
         Panel constantPanel = new Panel(mc, gui).setLayout(new HorizontalLayout());
-        field = new TextField(mc, gui).addTextEvent((parent, newText) -> callback.valueChanged(readValue()));
+        field = new TextField(mc, gui)
+                .addTextEvent((parent, newText) -> callback.valueChanged(readValue()))
+                .addTextEnterEvent((parent, newText) -> closeWindow());
         constantPanel.addChild(field);
 
         createEditorPanel(mc, gui, panel, callback, constantPanel, ParameterType.PAR_INTEGER);

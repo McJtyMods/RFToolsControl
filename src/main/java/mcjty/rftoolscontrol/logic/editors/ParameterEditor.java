@@ -21,4 +21,7 @@ public interface ParameterEditor {
 
     // Set initial focus when this gui is opened
     void initialFocus(Window window);
+
+    // Set an 'on-close' action
+    void setOnClose(Runnable onClose);
 }

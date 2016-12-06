@@ -27,6 +27,8 @@ public abstract class AbstractParameterEditor implements ParameterEditor {
     private ToggleButton variableButton;
     private ToggleButton functionButton;
 
+    private Runnable onClose;
+
     // Parent window is only set if 'initialFocus' is called. So this can be null
     private Window parentWindow;
 
@@ -37,12 +39,26 @@ public abstract class AbstractParameterEditor implements ParameterEditor {
     }
 
     @Override
+    public void setOnClose(Runnable onClose) {
+        this.onClose = onClose;
+    }
+
+    @Override
     public void initialFocus(Window window) {
         parentWindow = window;
         if (PAGE_CONSTANT.equals(tabbedPanel.getCurrentName())) {
             initialFocusInternal(window);
         } else if (PAGE_VARIABLE.equals(tabbedPanel.getCurrentName())) {
             initialFocusVariable(window);
+        }
+    }
+
+    protected void closeWindow() {
+        if (parentWindow != null) {
+            parentWindow.getWindowManager().closeWindow(parentWindow);
+        }
+        if (onClose != null) {
+            onClose.run();
         }
     }
 
