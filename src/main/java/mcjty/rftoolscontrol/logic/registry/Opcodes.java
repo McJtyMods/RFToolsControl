@@ -956,7 +956,9 @@ public class Opcodes {
                     TextFormatting.GREEN + "Test: loop",
                     "loop a variable until it reaches a specific value",
                     "Make sure to set the variable to the starting value",
-                    "of the loop before this opcode")
+                    "of the loop before this opcode.",
+                    "The red output of this opcode is executed when the",
+                    "loop ends")
             .opcodeOutput(YESNO)
             .category(CATEGORY_NUMBERS)
             .parameter(ParameterDescription.builder().name("var").type(PAR_INTEGER).description("variable index (first var is 0)").build())
