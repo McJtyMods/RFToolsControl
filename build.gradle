@@ -82,6 +82,7 @@ dependencies {
     deobfCompile "mcjty.theoneprobe:TheOneProbe:1.11-1.3.3-46"
     deobfCompile "com.github.mcjty:compatlayer:1.11-0.1.0"
     deobfCompile "com.github.mcjty:mcjtylib:1.1x-2.3.1-SNAPSHOT"
+    deobfCompile "com.github.mcjty:rftools:1.1x-5.70"
 
     //compile "li.cil.oc:OpenComputers:MC1.7.10-1.5.+:api"
 }
