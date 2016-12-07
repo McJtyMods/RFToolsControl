@@ -160,7 +160,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     private int tickCount = 0;
 
     private Parameter[] variables = new Parameter[MAXVARS];
-    private int fluidSlotsAvailable = 0;    // Bitmask indexed by side (6 bits)
+    private int fluidSlotsAvailable = -1;    // Bitmask indexed by side (6 bits), -1 means unset
 
     private CardInfo[] cardInfo = new CardInfo[CARD_SLOTS];
 
@@ -188,7 +188,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         for (int i = 0 ; i < MAXVARS ; i++) {
             variables[i] = null;
         }
-        fluidSlotsAvailable = 0;
+        fluidSlotsAvailable = -1;
     }
 
     @Override
@@ -210,11 +210,8 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     }
 
     public boolean isFluidSlotAvailable(int idx) {
-        if (maxVars == -1) {
-            getMaxvars();       // Update
-        }
         int sideIndex = idx / TANKS;
-        return (fluidSlotsAvailable & (1 << sideIndex)) != 0;
+        return (getFluidSlotsAvailable() & (1 << sideIndex)) != 0;
     }
 
     @Override
@@ -1300,8 +1297,8 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     }
 
     public int getFluidSlotsAvailable() {
-        if (maxVars == -1) {
-            getMaxvars();       // Update
+        if (fluidSlotsAvailable == -1) {
+            updateFluidSlotsAvailability();
         }
         return fluidSlotsAvailable;
     }
@@ -1831,16 +1828,20 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                 fluidSlotsAvailable |= 1 << facing.ordinal();
             }
         }
+        fixCardInfoForSlotAvailability();
+        markDirty();
+    }
+
+    private void fixCardInfoForSlotAvailability() {
         for (CardInfo info : cardInfo) {
             int alloc = info.getFluidAllocation();
-            for (int i = 0 ; i < MultiTankTileEntity.TANKS * 6 ; i++) {
+            for (int i = 0; i < MultiTankTileEntity.TANKS * 6 ; i++) {
                 if ((fluidSlotsAvailable & (1 << (i / TANKS))) == 0) {
                     alloc &= ~(1 << i);
                 }
             }
             info.setFluidAllocation(alloc);
         }
-        markDirty();
     }
 
     public boolean hasGraphicsCard() {
@@ -2474,7 +2475,6 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         readEventQueue(tagCompound);
         readLog(tagCompound);
         readVariables(tagCompound);
-        readFluidVariables(tagCompound);
         readNetworkNodes(tagCompound);
         readCraftingStations(tagCompound);
         readWaitingForItems(tagCompound);
@@ -2560,10 +2560,6 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         }
     }
 
-    private void readFluidVariables(NBTTagCompound tagCompound) {
-        fluidSlotsAvailable = tagCompound.getInteger("fluidSlots");
-    }
-
     private void readVariables(NBTTagCompound tagCompound) {
         for (int i = 0 ; i < MAXVARS ; i++) {
             variables[i] = null;
@@ -2640,7 +2636,6 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         writeEventQueue(tagCompound);
         writeLog(tagCompound);
         writeVariables(tagCompound);
-        writeFluidVariables(tagCompound);
         writeNetworkNodes(tagCompound);
         writeCraftingStations(tagCompound);
         writeWaitingForItems(tagCompound);
@@ -2728,10 +2723,6 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             }
         }
         tagCompound.setTag("vars", varList);
-    }
-
-    private void writeFluidVariables(NBTTagCompound tagCompound) {
-        tagCompound.setInteger("fluidSlots", fluidSlotsAvailable);
     }
 
     private void writeLog(NBTTagCompound tagCompound) {
