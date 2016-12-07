@@ -1831,6 +1831,16 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                 fluidSlotsAvailable |= 1 << facing.ordinal();
             }
         }
+        for (CardInfo info : cardInfo) {
+            int alloc = info.getFluidAllocation();
+            for (int i = 0 ; i < MultiTankTileEntity.TANKS * 6 ; i++) {
+                if ((fluidSlotsAvailable & (1 << (i / TANKS))) == 0) {
+                    alloc &= ~(1 << i);
+                }
+            }
+            info.setFluidAllocation(alloc);
+        }
+        markDirty();
     }
 
     public boolean hasGraphicsCard() {
