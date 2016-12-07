@@ -6,6 +6,7 @@ import mcjty.rftoolscontrol.blocks.GenericRFToolsBlock;
 import mcjty.theoneprobe.api.IProbeHitData;
 import mcjty.theoneprobe.api.IProbeInfo;
 import mcjty.theoneprobe.api.ProbeMode;
+import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
@@ -61,7 +62,8 @@ public class ProcessorBlock extends GenericRFToolsBlock<ProcessorTileEntity, Pro
     }
 
     @Override
-    public void onNeighborChange(IBlockAccess world, BlockPos pos, BlockPos neighbor) {
+    protected void clOnNeighborChanged(IBlockState state, World world, BlockPos pos, Block blockIn) {
+        super.clOnNeighborChanged(state, world, pos, blockIn);
         TileEntity te = world.getTileEntity(pos);
         if (te instanceof ProcessorTileEntity) {
             ((ProcessorTileEntity) te).updateFluidSlotsAvailability();
