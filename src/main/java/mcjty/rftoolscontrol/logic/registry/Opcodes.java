@@ -976,7 +976,9 @@ public class Opcodes {
             .description(
                     TextFormatting.GREEN + "Test: call function",
                     "call a function (signal). When that code has",
-                    "done executing resume execution here")
+                    "done executing resume execution here",
+                    "Note that the signal has to be defined on the",
+                    "same card!")
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("signal").type(PAR_STRING).description("name of the signal to call").build())
             .icon(7, 7)
