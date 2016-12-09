@@ -37,6 +37,7 @@ public enum ExceptionType {
     EXCEPT_NOTAGRID("not_a_grid", "Crafting does not match a 3x3 grid"),
     EXCEPT_MISSINGSIGNAL("missing_signal", "Signal is missing"),
     EXCEPT_STACKOVERFLOW("stack_overflow", "Stack overflow (recursing too deep?)"),
+    EXCEPT_BADINDEX("bad_index", "Bad index for vector access"),
     ;
 
     private final String code;

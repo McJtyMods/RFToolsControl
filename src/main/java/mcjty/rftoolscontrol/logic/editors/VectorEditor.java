@@ -3,13 +3,12 @@ package mcjty.rftoolscontrol.logic.editors;
 import mcjty.lib.gui.layout.HorizontalLayout;
 import mcjty.lib.gui.widgets.Label;
 import mcjty.lib.gui.widgets.Panel;
-import mcjty.rftoolscontrol.api.parameters.Parameter;
 import mcjty.rftoolscontrol.api.parameters.ParameterType;
 import mcjty.rftoolscontrol.api.parameters.ParameterValue;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 
-import java.util.ArrayList;
+import java.util.Collections;
 
 public class VectorEditor extends AbstractParameterEditor {
 
@@ -23,7 +22,7 @@ public class VectorEditor extends AbstractParameterEditor {
 
     @Override
     protected ParameterValue readConstantValue() {
-        return ParameterValue.constant(new ArrayList<Parameter>());
+        return ParameterValue.constant(Collections.emptyList());
     }
 
     @Override

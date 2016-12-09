@@ -23,6 +23,7 @@ import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class ParameterTypeTools {
@@ -177,7 +178,7 @@ public class ParameterTypeTools {
                 for (int i = 0 ; i < array.tagCount() ; i++) {
                     vector.add(ParameterTools.readFromNBT(array.getCompoundTagAt(i)));
                 }
-                return ParameterValue.constant(vector);
+                return ParameterValue.constant(Collections.unmodifiableList(vector));
         }
         return ParameterValue.constant(null);
     }
@@ -380,7 +381,7 @@ public class ParameterTypeTools {
                     ParameterType t = ParameterType.getByName(job.get("type").getAsString());
                     vector.add(Parameter.builder().type(t).value(readFromJson(t, job)).build());
                 }
-                return ParameterValue.constant(vector);
+                return ParameterValue.constant(Collections.unmodifiableList(vector));
         }
         return null;
     }

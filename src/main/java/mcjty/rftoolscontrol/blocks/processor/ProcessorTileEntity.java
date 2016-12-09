@@ -115,6 +115,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     private static final BiFunction<ParameterType, Object, BlockSide> CONVERTOR_SIDE = (type, value) -> TypeConverters.convertToSide(type, value);
     private static final BiFunction<ParameterType, Object, Inventory> CONVERTOR_INVENTORY = (type, value) -> TypeConverters.convertToInventory(type, value);
     private static final BiFunction<ParameterType, Object, Tuple> CONVERTOR_TUPLE = (type, value) -> TypeConverters.convertToTuple(type, value);
+    private static final BiFunction<ParameterType, Object, List<Parameter>> CONVERTOR_VECTOR = (type, value) -> TypeConverters.convertToVector(type, value);
     private static final BiFunction<ParameterType, Object, Integer> CONVERTOR_INTEGER = (type, value) -> TypeConverters.convertToInteger(type, value);
     private static final BiFunction<ParameterType, Object, String> CONVERTOR_STRING = (type, value) -> TypeConverters.convertToString(type, value);
     private static final BiFunction<ParameterType, Object, Boolean> CONVERTOR_BOOL = (type, value) -> TypeConverters.convertToBool(type, value);
@@ -2000,7 +2001,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         return realVar;
     }
 
-    public void call(IProgram program, String signal) {
+    public void handleCall(IProgram program, String signal) {
         RunningProgram p = (RunningProgram) program;
         CardInfo info = this.cardInfo[p.getCardIndex()];
         CompiledCard compiledCard = info.getCompiledCard();
@@ -2017,6 +2018,13 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             }
         }
         throw new ProgException(EXCEPT_MISSINGSIGNAL);
+    }
+
+
+    public IOpcodeRunnable.OpcodeResult handleLoop(IProgram program, List<Parameter> vector, int varIdx) {
+        CardInfo info = this.cardInfo[((RunningProgram)program).getCardIndex()];
+        int realVar = getRealVarSafe(varIdx, info);
+        return IOpcodeRunnable.OpcodeResult.NEGATIVE;
     }
 
     public IOpcodeRunnable.OpcodeResult handleLoop(IProgram program, int varIdx, int end) {
@@ -2078,6 +2086,13 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         variables[realVar] = program.getLastValue();
     }
 
+    @Override
+    public Parameter getVariable(IProgram program, int var) {
+        CardInfo info = this.cardInfo[((RunningProgram)program).getCardIndex()];
+        int realVar = getRealVarSafe(var, info);
+        return variables[realVar];
+    }
+
     @Nullable
     public <T> T evaluateGenericParameter(ICompiledOpcode compiledOpcode, IProgram program, int parIndex,
                                           BiFunction<ParameterType, Object, T> convertor) {
@@ -2136,6 +2151,18 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     @Override
     public Tuple evaluateTupleParameterNonNull(ICompiledOpcode compiledOpcode, IProgram program, int parIndex) {
         return evaluateGenericParameterNonNull(compiledOpcode, program, parIndex, CONVERTOR_TUPLE);
+    }
+
+    @Nullable
+    @Override
+    public List<Parameter> evaluateVectorParameter(ICompiledOpcode compiledOpcode, IProgram program, int parIndex) {
+        return evaluateGenericParameter(compiledOpcode, program, parIndex, CONVERTOR_VECTOR);
+    }
+
+    @Nonnull
+    @Override
+    public List<Parameter> evaluateVectorParameterNonNull(ICompiledOpcode compiledOpcode, IProgram program, int parIndex) {
+        return evaluateGenericParameterNonNull(compiledOpcode, program, parIndex, CONVERTOR_VECTOR);
     }
 
     @Nullable

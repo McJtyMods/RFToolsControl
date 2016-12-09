@@ -281,12 +281,7 @@ public class TypeConverters {
             case PAR_TUPLE:
                 return ((Tuple) v).getX() != 0 || ((Tuple) v).getY() != 0;
             case PAR_VECTOR:
-                for (Parameter p : ((List<Parameter>) v)) {
-                    if (convertToBool(p)) {
-                        return true;
-                    }
-                }
-                return false;
+                return !((List<Parameter>)v).isEmpty();
             case PAR_ITEM:
                 return ItemStackTools.isValid((ItemStack) v);
             case PAR_SIDE:

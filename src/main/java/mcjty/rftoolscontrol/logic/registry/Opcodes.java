@@ -4,15 +4,14 @@ import mcjty.lib.tools.ItemStackTools;
 import mcjty.rftoolscontrol.api.code.Opcode;
 import mcjty.rftoolscontrol.api.parameters.*;
 import mcjty.rftoolscontrol.blocks.processor.ProcessorTileEntity;
+import mcjty.rftoolscontrol.logic.running.ExceptionType;
+import mcjty.rftoolscontrol.logic.running.ProgException;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.items.IItemHandler;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static mcjty.rftoolscontrol.api.code.IOpcodeRunnable.OpcodeResult.*;
 import static mcjty.rftoolscontrol.api.code.OpcodeCategory.*;
@@ -984,7 +983,7 @@ public class Opcodes {
             .icon(7, 7)
             .runnable(((processor, program, opcode) -> {
                 String signal = processor.evaluateStringParameterNonNull(opcode, program, 0);
-                ((ProcessorTileEntity)processor).call(program, signal);
+                ((ProcessorTileEntity)processor).handleCall(program, signal);
                 return HOLD;
             }))
             .build();
@@ -1589,21 +1588,109 @@ public class Opcodes {
             .opcodeOutput(SINGLE)
             .icon(8, 7)
             .runnable(((processor, program, opcode) -> {
-                program.setLastValue(Parameter.builder().type(PAR_VECTOR).value(ParameterValue.constant(new ArrayList<Parameter>())).build());
+                program.setLastValue(Parameter.builder().type(PAR_VECTOR).value(ParameterValue.constant(Collections.emptyList())).build());
                 return POSITIVE;
             }))
             .build();
     public static final Opcode EVAL_VECTOR_ELEMENT = Opcode.builder()
-            .id("eval_")
+            .id("eval_vector_element")
             .description(
-                    TextFormatting.GREEN + "Eval: empty vector",
-                    "set the last value to an empty vector")
-            .outputDescription("empty vector (vector)")
+                    TextFormatting.GREEN + "Eval: evaluate element from vector",
+                    "get a specific element out of a vector")
+            .outputDescription("element (any type)")
             .opcodeOutput(SINGLE)
-            .icon(8, 7)
+            .parameter(ParameterDescription.builder().name("vector").type(PAR_VECTOR).description("vector to get item from").build())
+            .parameter(ParameterDescription.builder().name("index").type(PAR_INTEGER).description("index (starts at 0)").build())
+            .icon(10, 7)
             .runnable(((processor, program, opcode) -> {
-                program.setLastValue(Parameter.builder().type(PAR_VECTOR).value(ParameterValue.constant(new ArrayList<Parameter>())).build());
+                List<Parameter> vector = processor.evaluateVectorParameterNonNull(opcode, program, 0);
+                int index = processor.evaluateIntParameter(opcode, program, 1);
+                if (index < 0 || index >= vector.size()) {
+                    throw new ProgException(ExceptionType.EXCEPT_BADINDEX);
+                }
+                program.setLastValue(vector.get(index));
                 return POSITIVE;
+            }))
+            .build();
+    public static final Opcode DO_VECTOR_PUSH = Opcode.builder()
+            .id("do_vector_push")
+            .description(
+                    TextFormatting.GREEN + "Operation: push item to vector",
+                    "add an item in a variable to a vector and",
+                    "return a new vector")
+            .outputDescription("new vector (vector)")
+            .opcodeOutput(SINGLE)
+            .parameter(ParameterDescription.builder().name("vector").type(PAR_VECTOR).description("vector").build())
+            .parameter(ParameterDescription.builder().name("var").type(PAR_INTEGER).description("variable to add to vector").build())
+            .icon(9, 7)
+            .runnable(((processor, program, opcode) -> {
+                List<Parameter> vector = processor.evaluateVectorParameterNonNull(opcode, program, 0);
+                int var = processor.evaluateIntParameter(opcode, program, 1);
+                List<Parameter> newvector = new ArrayList<Parameter>(vector);
+                newvector.add(processor.getVariable(program, var));
+                program.setLastValue(Parameter.builder().type(PAR_VECTOR).value(ParameterValue.constant(Collections.unmodifiableList(newvector))).build());
+                return POSITIVE;
+            }))
+            .build();
+    public static final Opcode DO_VECTOR_PUSH_INT = Opcode.builder()
+            .id("do_vector_push_int")
+            .description(
+                    TextFormatting.GREEN + "Operation: push integer to vector",
+                    "add an integer to a vector and",
+                    "return a new vector")
+            .outputDescription("new vector (vector)")
+            .opcodeOutput(SINGLE)
+            .parameter(ParameterDescription.builder().name("vector").type(PAR_VECTOR).description("vector").build())
+            .parameter(ParameterDescription.builder().name("integer").type(PAR_INTEGER).description("integer to add to vector").build())
+            .icon(9, 8)
+            .runnable(((processor, program, opcode) -> {
+                List<Parameter> vector = processor.evaluateVectorParameterNonNull(opcode, program, 0);
+                int integer = processor.evaluateIntParameter(opcode, program, 1);
+                List<Parameter> newvector = new ArrayList<Parameter>(vector);
+                newvector.add(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(integer)).build());
+                program.setLastValue(Parameter.builder().type(PAR_VECTOR).value(ParameterValue.constant(Collections.unmodifiableList(newvector))).build());
+                return POSITIVE;
+            }))
+            .build();
+    public static final Opcode DO_VECTOR_POP = Opcode.builder()
+            .id("do_vector_pop")
+            .description(
+                    TextFormatting.GREEN + "Operation: pop item from vector",
+                    "remove the last item from a vector and",
+                    "return a new vector")
+            .outputDescription("new vector (vector)")
+            .opcodeOutput(SINGLE)
+            .parameter(ParameterDescription.builder().name("vector").type(PAR_VECTOR).description("vector").build())
+            .icon(11, 7)
+            .runnable(((processor, program, opcode) -> {
+                List<Parameter> vector = processor.evaluateVectorParameterNonNull(opcode, program, 0);
+                List<Parameter> newvector = new ArrayList<Parameter>(vector.size()-1);
+                for (int i = 0 ; i < newvector.size() ; i++) {
+                    newvector.add(vector.get(i));
+                }
+                program.setLastValue(Parameter.builder().type(PAR_VECTOR).value(ParameterValue.constant(Collections.unmodifiableList(newvector))).build());
+                return POSITIVE;
+            }))
+            .build();
+    public static final Opcode TEST_LOOP_VECTOR = Opcode.builder()
+            .id("test_loop_vector")
+            .description(
+                    TextFormatting.GREEN + "Test: loop vector",
+                    "loop over all elements in a vector",
+                    "In every iteration of the loop the last",
+                    "value will be set to that element",
+                    "The given variable will be used for the index",
+                    "in the loop. You can examine that during the loop",
+                    "The red output of this opcode is executed when the",
+                    "loop ends")
+            .opcodeOutput(YESNO)
+            .parameter(ParameterDescription.builder().name("vector").type(PAR_VECTOR).description("vector to iterate").build())
+            .parameter(ParameterDescription.builder().name("var").type(PAR_INTEGER).description("variable index for the loop").build())
+            .icon(7, 8)
+            .runnable(((processor, program, opcode) -> {
+                List<Parameter> vector = processor.evaluateVectorParameterNonNull(opcode, program, 0);
+                int varIdx = processor.evaluateIntParameter(opcode, program, 1);
+                return ((ProcessorTileEntity)processor).handleLoop(program, vector, varIdx);
             }))
             .build();
 
@@ -1648,12 +1735,14 @@ public class Opcodes {
         register(EVAL_GETTOKEN);
         register(EVAL_LOCK);
         register(EVAL_VECTOR);
+        register(EVAL_VECTOR_ELEMENT);
         register(TEST_GT);
         register(TEST_GT_VAR);
         register(TEST_EQ);
         register(TEST_EQ_VAR);
         register(TEST_SET);
         register(TEST_LOOP);
+        register(TEST_LOOP_VECTOR);
         register(TEST_NBT_EQ);
         register(TEST_CALL);
         register(DO_REDSTONE);
@@ -1677,6 +1766,9 @@ public class Opcodes {
         register(DO_MULTIPLY);
         register(DO_MODULO);
         register(DO_CONCAT);
+        register(DO_VECTOR_PUSH);
+        register(DO_VECTOR_PUSH_INT);
+        register(DO_VECTOR_POP);
         register(DO_CRAFTOK);
         register(DO_CRAFTFAIL);
         register(DO_GETINGREDIENTS);

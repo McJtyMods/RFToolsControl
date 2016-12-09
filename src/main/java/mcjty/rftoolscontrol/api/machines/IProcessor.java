@@ -4,6 +4,7 @@ import mcjty.rftoolscontrol.api.code.ICompiledOpcode;
 import mcjty.rftoolscontrol.api.code.IOpcodeRunnable;
 import mcjty.rftoolscontrol.api.parameters.BlockSide;
 import mcjty.rftoolscontrol.api.parameters.Inventory;
+import mcjty.rftoolscontrol.api.parameters.Parameter;
 import mcjty.rftoolscontrol.api.parameters.Tuple;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
@@ -14,6 +15,7 @@ import net.minecraftforge.items.IItemHandler;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.List;
 
 /**
  * The processor
@@ -111,6 +113,19 @@ public interface IProcessor {
     Tuple evaluateTupleParameterNonNull(ICompiledOpcode compiledOpcode, IProgram program, int parIndex);
 
     /**
+     * Evalulate a parameter with a given index and return a vector.
+     */
+    @Nullable
+    List<Parameter> evaluateVectorParameter(ICompiledOpcode compiledOpcode, IProgram program, int parIndex);
+
+    /**
+     * Evalulate a parameter with a given index and return a vector.
+     * Gives an exception if the result was null
+     */
+    @Nonnull
+    List<Parameter> evaluateVectorParameterNonNull(ICompiledOpcode compiledOpcode, IProgram program, int parIndex);
+
+    /**
      * Evaluate an integer parameter. Return 0 if the parameter was not an integer or null
      */
     int evaluateIntParameter(ICompiledOpcode compiledOpcode, IProgram program, int parIndex);
@@ -189,10 +204,16 @@ public interface IProcessor {
     ItemStack getItemInternal(IProgram program, int virtualSlot);
 
     /**
-     * Set a variable to an integer. The index of the variable
+     * Set a variable to the current last value. The index of the variable
      * is relative to how the variables are allocated for the card
      */
     void setVariable(IProgram program, int var);
+
+    /**
+     * Get a variable. The index of the variable
+     * is relative to how the variables are allocated for the card
+     */
+    Parameter getVariable(IProgram program, int var);
 
     /**
      * Get the amount of energy on a given block

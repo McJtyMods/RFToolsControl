@@ -15,6 +15,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraftforge.fluids.FluidStack;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class ParameterTools {
@@ -68,7 +69,7 @@ public class ParameterTools {
                     for (int i = 0 ; i < size ; i++) {
                         vector.add(readFromBuf(buf));
                     }
-                    builder.value(ParameterValue.constant(vector));
+                    builder.value(ParameterValue.constant(Collections.unmodifiableList(vector)));
                     break;
                 }
             }
