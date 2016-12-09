@@ -14,6 +14,9 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.fluids.FluidStack;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ParameterTools {
 
     public static Parameter readFromBuf(ByteBuf buf) {
@@ -34,12 +37,13 @@ public class ParameterTools {
                 case PAR_FLOAT:
                     builder.value(ParameterValue.constant(buf.readFloat()));
                     break;
-                case PAR_SIDE:
+                case PAR_SIDE: {
                     String nodeName = NetworkTools.readString(buf);
                     int sideIdx = buf.readByte();
                     EnumFacing side = sideIdx == -1 ? null : EnumFacing.values()[sideIdx];
                     builder.value(ParameterValue.constant(new BlockSide(nodeName, side)));
                     break;
+                }
                 case PAR_BOOLEAN:
                     builder.value(ParameterValue.constant(buf.readBoolean()));
                     break;
@@ -58,6 +62,15 @@ public class ParameterTools {
                 case PAR_TUPLE:
                     builder.value(ParameterValue.constant(new Tuple(buf.readInt(), buf.readInt())));
                     break;
+                case PAR_VECTOR: {
+                    int size = buf.readInt();
+                    List<Parameter> vector = new ArrayList<>(size);
+                    for (int i = 0 ; i < size ; i++) {
+                        vector.add(readFromBuf(buf));
+                    }
+                    builder.value(ParameterValue.constant(vector));
+                    break;
+                }
             }
         }
         return builder.build();
@@ -106,6 +119,13 @@ public class ParameterTools {
                 Tuple tuple = (Tuple) value;
                 buf.writeInt(tuple.getX());
                 buf.writeInt(tuple.getY());
+                break;
+            case PAR_VECTOR:
+                List<Parameter> vector = (List<Parameter>) value;
+                buf.writeInt(vector.size());
+                for (Parameter p : vector) {
+                    writeToBuf(buf, p);
+                }
                 break;
         }
     }

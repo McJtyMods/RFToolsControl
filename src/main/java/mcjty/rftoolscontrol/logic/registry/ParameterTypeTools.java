@@ -1,22 +1,29 @@
 package mcjty.rftoolscontrol.logic.registry;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import mcjty.lib.tools.ItemStackTools;
 import mcjty.rftoolscontrol.api.parameters.*;
+import mcjty.rftoolscontrol.logic.ParameterTools;
 import mcjty.rftoolscontrol.logic.running.ExceptionType;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.JsonToNBT;
 import net.minecraft.nbt.NBTException;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import org.apache.commons.lang3.StringUtils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ParameterTypeTools {
 
@@ -57,6 +64,8 @@ public class ParameterTypeTools {
                 return exception.getCode();
             case PAR_TUPLE:
                 return value.toString();
+            case PAR_VECTOR:
+                return "[" + ((List)value).size() + "]";
         }
         return "?";
     }
@@ -162,6 +171,13 @@ public class ParameterTypeTools {
                 return ParameterValue.constant(ExceptionType.getExceptionForCode(code));
             case PAR_TUPLE:
                 return ParameterValue.constant(new Tuple(tag.getInteger("x"), tag.getInteger("y")));
+            case PAR_VECTOR:
+                NBTTagList array = tag.getTagList("vector", Constants.NBT.TAG_COMPOUND);
+                List<Parameter> vector = new ArrayList<>();
+                for (int i = 0 ; i < array.tagCount() ; i++) {
+                    vector.add(ParameterTools.readFromNBT(array.getCompoundTagAt(i)));
+                }
+                return ParameterValue.constant(vector);
         }
         return ParameterValue.constant(null);
     }
@@ -214,6 +230,14 @@ public class ParameterTypeTools {
             case PAR_TUPLE:
                 tag.setInteger("x", ((Tuple) value).getX());
                 tag.setInteger("y", ((Tuple) value).getY());
+                break;
+            case PAR_VECTOR:
+                List<Parameter> vector = (List<Parameter>) value;
+                NBTTagList list = new NBTTagList();
+                for (Parameter p : vector) {
+                    list.appendTag(ParameterTools.writeToNBT(p));
+                }
+                tag.setTag("vector", list);
                 break;
         }
     }
@@ -279,6 +303,14 @@ public class ParameterTypeTools {
                 object.add("x", new JsonPrimitive(((Tuple) value).getX()));
                 object.add("y", new JsonPrimitive(((Tuple) value).getY()));
                 break;
+            case PAR_VECTOR:
+                List<Parameter> vector = (List<Parameter>) value;
+                JsonArray array = new JsonArray();
+                for (Parameter p : vector) {
+                    array.add(ParameterTools.getJsonElement(p));
+                }
+                object.add("vector", array);
+                break;
         }
     }
 
@@ -340,6 +372,15 @@ public class ParameterTypeTools {
                 return ParameterValue.constant(ExceptionType.getExceptionForCode(code));
             case PAR_TUPLE:
                 return ParameterValue.constant(new Tuple(object.get("x").getAsInt(), object.get("y").getAsInt()));
+            case PAR_VECTOR:
+                JsonArray array = object.get("vector").getAsJsonArray();
+                List<Parameter> vector = new ArrayList<>();
+                for (JsonElement element : array) {
+                    JsonObject job = element.getAsJsonObject();
+                    ParameterType t = ParameterType.getByName(job.get("type").getAsString());
+                    vector.add(Parameter.builder().type(t).value(readFromJson(t, job)).build());
+                }
+                return ParameterValue.constant(vector);
         }
         return null;
     }

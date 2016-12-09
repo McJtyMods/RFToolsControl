@@ -73,6 +73,13 @@ public class Functions {
             .type(PAR_TUPLE)
             .runnable((processor, program) -> TypeConverters.convertToTuple(program.getLastValue()))
             .build();
+    public static final Function LASTVECTOR = Function.builder()
+            .id("last_vector")
+            .name("last")
+            .description("The last opcode result as a vector")
+            .type(PAR_VECTOR)
+            .runnable((processor, program) -> TypeConverters.convertToVector(program.getLastValue()))
+            .build();
     public static final Function TICKET = Function.builder()
             .id("ticket")
             .name("ticket")
@@ -157,6 +164,7 @@ public class Functions {
         register(LASTINV);
         register(LASTSIDE);
         register(LASTTUPLE);
+        register(LASTVECTOR);
         register(TICKET);
         register(CRAFTRESULT);
         register(ITEMFROMCARD);

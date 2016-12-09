@@ -22,6 +22,7 @@ public class ParameterEditors {
         EDITORS.put(PAR_FLUID, new FluidEditor());
         EDITORS.put(PAR_EXCEPTION, new ExceptionEditor());
         EDITORS.put(PAR_TUPLE, new TupleEditor());
+        EDITORS.put(PAR_VECTOR, new VectorEditor());
     }
 
     public static ParameterEditor getEditor(ParameterType type) {

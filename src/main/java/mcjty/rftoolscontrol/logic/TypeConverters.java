@@ -15,6 +15,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.List;
 
 public class TypeConverters {
 
@@ -43,6 +44,7 @@ public class TypeConverters {
             case PAR_SIDE:
             case PAR_EXCEPTION:
             case PAR_TUPLE:
+            case PAR_VECTOR:
                 break;
         }
         return 0.0f;
@@ -76,6 +78,7 @@ public class TypeConverters {
             case PAR_INVENTORY:
             case PAR_EXCEPTION:
             case PAR_TUPLE:
+            case PAR_VECTOR:
                 break;
         }
         return null;
@@ -107,6 +110,7 @@ public class TypeConverters {
             case PAR_INVENTORY:
             case PAR_EXCEPTION:
             case PAR_TUPLE:
+            case PAR_VECTOR:
                 break;
         }
         return ItemStackTools.getEmptyStack();
@@ -145,6 +149,7 @@ public class TypeConverters {
             case PAR_FLUID:
             case PAR_EXCEPTION:
             case PAR_TUPLE:
+            case PAR_VECTOR:
                 break;
         }
         return null;
@@ -177,6 +182,7 @@ public class TypeConverters {
             case PAR_FLUID:
             case PAR_EXCEPTION:
             case PAR_TUPLE:
+            case PAR_VECTOR:
                 break;
         }
         return null;
@@ -198,6 +204,9 @@ public class TypeConverters {
         switch (type) {
             case PAR_TUPLE:
                 return (Tuple) v;
+            case PAR_VECTOR:
+                // @todo? Smart conversion here?
+                break;
             case PAR_STRING: {
                 String s = (String) v;
                 String[] split = StringUtils.split(s, ',');
@@ -213,6 +222,37 @@ public class TypeConverters {
             case PAR_FLUID:
             case PAR_EXCEPTION:
             case PAR_SIDE:
+                break;
+        }
+        return null;
+    }
+
+    @Nullable
+    public static List<Parameter> convertToVector(Parameter value) {
+        if (value == null || value.getParameterValue() == null) {
+            return null;
+        }
+        return convertToVector(value.getParameterType(), value.getParameterValue().getValue());
+    }
+
+    @Nullable
+    public static List<Parameter> convertToVector(ParameterType type, Object v) {
+        if (v == null) {
+            return null;
+        }
+        switch (type) {
+            case PAR_VECTOR:
+                return (List<Parameter>) v;
+            case PAR_STRING:
+            case PAR_INTEGER:
+            case PAR_FLOAT:
+            case PAR_BOOLEAN:
+            case PAR_INVENTORY:
+            case PAR_ITEM:
+            case PAR_FLUID:
+            case PAR_EXCEPTION:
+            case PAR_SIDE:
+            case PAR_TUPLE:
                 break;
         }
         return null;
@@ -240,6 +280,13 @@ public class TypeConverters {
                 return (Boolean) v;
             case PAR_TUPLE:
                 return ((Tuple) v).getX() != 0 || ((Tuple) v).getY() != 0;
+            case PAR_VECTOR:
+                for (Parameter p : ((List<Parameter>) v)) {
+                    if (convertToBool(p)) {
+                        return true;
+                    }
+                }
+                return false;
             case PAR_ITEM:
                 return ItemStackTools.isValid((ItemStack) v);
             case PAR_SIDE:
@@ -285,6 +332,8 @@ public class TypeConverters {
                 return ItemStackTools.getStackSize((ItemStack) v);
             case PAR_FLUID:
                 return ((FluidStack) v).amount;
+            case PAR_VECTOR:
+                return ((List)v).size();
             case PAR_EXCEPTION:
             case PAR_TUPLE:
             case PAR_SIDE:
@@ -337,6 +386,8 @@ public class TypeConverters {
                 return ((ExceptionType) v).getCode();
             case PAR_TUPLE:
                 return v.toString();
+            case PAR_VECTOR:
+                return "[]";    // @todo?
         }
         return null;
     }
