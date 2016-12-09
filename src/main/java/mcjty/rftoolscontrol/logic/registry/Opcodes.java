@@ -1580,6 +1580,33 @@ public class Opcodes {
             }))
             .build();
 
+    public static final Opcode EVAL_VECTOR = Opcode.builder()
+            .id("eval_vector")
+            .description(
+                    TextFormatting.GREEN + "Eval: empty vector",
+                    "set the last value to an empty vector")
+            .outputDescription("empty vector (vector)")
+            .opcodeOutput(SINGLE)
+            .icon(8, 7)
+            .runnable(((processor, program, opcode) -> {
+                program.setLastValue(Parameter.builder().type(PAR_VECTOR).value(ParameterValue.constant(new ArrayList<Parameter>())).build());
+                return POSITIVE;
+            }))
+            .build();
+    public static final Opcode EVAL_VECTOR_ELEMENT = Opcode.builder()
+            .id("eval_")
+            .description(
+                    TextFormatting.GREEN + "Eval: empty vector",
+                    "set the last value to an empty vector")
+            .outputDescription("empty vector (vector)")
+            .opcodeOutput(SINGLE)
+            .icon(8, 7)
+            .runnable(((processor, program, opcode) -> {
+                program.setLastValue(Parameter.builder().type(PAR_VECTOR).value(ParameterValue.constant(new ArrayList<Parameter>())).build());
+                return POSITIVE;
+            }))
+            .build();
+
 
     public static final Map<String, Opcode> OPCODES = new HashMap<>();
     public static final List<Opcode> SORTED_OPCODES = new ArrayList<>();
@@ -1620,6 +1647,7 @@ public class Opcodes {
         register(EVAL_FLUID);
         register(EVAL_GETTOKEN);
         register(EVAL_LOCK);
+        register(EVAL_VECTOR);
         register(TEST_GT);
         register(TEST_GT_VAR);
         register(TEST_EQ);
