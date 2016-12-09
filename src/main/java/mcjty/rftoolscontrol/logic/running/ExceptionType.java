@@ -38,6 +38,7 @@ public enum ExceptionType {
     EXCEPT_MISSINGSIGNAL("missing_signal", "Signal is missing"),
     EXCEPT_STACKOVERFLOW("stack_overflow", "Stack overflow (recursing too deep?)"),
     EXCEPT_BADINDEX("bad_index", "Bad index for vector access"),
+    EXCEPT_NOTAVECTOR("not_a_vector", "Expected a vector. Got something else"),
     ;
 
     private final String code;

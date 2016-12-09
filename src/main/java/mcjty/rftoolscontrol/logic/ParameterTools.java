@@ -5,6 +5,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import io.netty.buffer.ByteBuf;
 import mcjty.lib.network.NetworkTools;
+import mcjty.lib.tools.ItemStackTools;
 import mcjty.rftoolscontrol.api.parameters.*;
 import mcjty.rftoolscontrol.logic.registry.InventoryUtil;
 import mcjty.rftoolscontrol.logic.registry.ParameterTypeTools;
@@ -158,4 +159,111 @@ public class ParameterTools {
         jsonObject.add("value", ParameterTypeTools.writeToJson(parameter.getParameterType(), parameter.getParameterValue()));
         return jsonObject;
     }
+
+    public static int compare(Parameter par1, Parameter par2) {
+        Object v1 = par1.getParameterValue().getValue();
+        Object v2 = par2.getParameterValue().getValue();
+        if (v1 == null) {
+            return v2 == null ? 0 : 1;
+        }
+        if (v2 == null) {
+            return -1;
+        }
+
+        switch (par2.getParameterType()) {
+            case PAR_STRING:
+                return ((String)v1).compareTo((String)v2);
+            case PAR_INTEGER:
+                return ((Integer)v1).compareTo((Integer)v2);
+            case PAR_FLOAT:
+                return ((Float)v1).compareTo((Float)v2);
+            case PAR_SIDE:
+                return 0;
+            case PAR_BOOLEAN:
+                return ((Boolean)v1).compareTo((Boolean)v2);
+            case PAR_INVENTORY:
+                return 0;
+            case PAR_ITEM:
+                return Integer.compare(ItemStackTools.getStackSize((ItemStack) v1), ItemStackTools.getStackSize((ItemStack) v2));
+            case PAR_FLUID:
+                return Integer.compare(((FluidStack) v1).amount, ((FluidStack) v2).amount);
+            case PAR_EXCEPTION:
+                return 0;
+            case PAR_TUPLE: {
+                Tuple t1 = (Tuple) v1;
+                Tuple t2 = (Tuple) v2;
+                if (t1.getX() == t2.getX()) {
+                    return Integer.compare(t1.getY(), t2.getY());
+                }
+                return Integer.compare(t1.getX(), t2.getX());
+            }
+            case PAR_VECTOR: {
+                List<Parameter> t1 = (List<Parameter>) v1;
+                List<Parameter> t2 = (List<Parameter>) v2;
+                if (t1.size() == t2.size()) {
+                    for (int i = 0 ; i < t1.size() ; i++) {
+                        Parameter p1 = t1.get(i);
+                        Parameter p2 = t2.get(i);
+                        int rc = compare(p1, p2);
+                        if (rc != 0) {
+                            return rc;
+                        }
+                    }
+                    return 0;
+                } else {
+                    return Integer.compare(t1.size(), t2.size());
+                }
+            }
+        }
+        return 0;
+    }
+
+    public static int getMaxidxVector(List<Parameter> vector) {
+        int maxidx = -1;
+        Parameter max = null;
+        for (int i = 0 ; i < vector.size() ; i++) {
+            if (vector.get(i) != null) {
+                if (max == null) {
+                    max = vector.get(i);
+                    maxidx = i;
+                } else {
+                    int cmp = compare(max, vector.get(i));
+                    if (cmp > 0) {
+                        maxidx = i;
+                    }
+                }
+            }
+        }
+        return maxidx;
+    }
+
+    public static int getMinidxVector(List<Parameter> vector) {
+        int minidx = -1;
+        Parameter min = null;
+        for (int i = 0 ; i < vector.size() ; i++) {
+            if (vector.get(i) != null) {
+                if (min == null) {
+                    min = vector.get(i);
+                    minidx = i;
+                } else {
+                    int cmp = compare(min, vector.get(i));
+                    if (cmp < 0) {
+                        minidx = i;
+                    }
+                }
+            }
+        }
+        return minidx;
+    }
+
+    public static int getSumVector(List<Parameter> vector) {
+        int sum = 0;
+        for (Parameter el : vector) {
+            if (el != null) {
+                sum += TypeConverters.convertToInt(el);
+            }
+        }
+        return sum;
+    }
+
 }

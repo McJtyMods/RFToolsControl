@@ -1,15 +1,19 @@
 package mcjty.rftoolscontrol.logic.registry;
 
 import mcjty.rftoolscontrol.api.code.Function;
+import mcjty.rftoolscontrol.api.parameters.Parameter;
 import mcjty.rftoolscontrol.api.parameters.ParameterType;
 import mcjty.rftoolscontrol.api.parameters.Tuple;
 import mcjty.rftoolscontrol.blocks.processor.ProcessorTileEntity;
+import mcjty.rftoolscontrol.logic.ParameterTools;
 import mcjty.rftoolscontrol.logic.TypeConverters;
+import mcjty.rftoolscontrol.logic.running.ProgException;
 
 import javax.annotation.Nonnull;
 import java.util.*;
 
 import static mcjty.rftoolscontrol.api.parameters.ParameterType.*;
+import static mcjty.rftoolscontrol.logic.running.ExceptionType.EXCEPT_NOTAVECTOR;
 
 public class Functions {
 
@@ -79,6 +83,45 @@ public class Functions {
             .description("The last opcode result as a vector")
             .type(PAR_VECTOR)
             .runnable((processor, program) -> TypeConverters.convertToVector(program.getLastValue()))
+            .build();
+    public static final Function MAXVECTOR = Function.builder()
+            .id("max_vector")
+            .name("maximum")
+            .description("The index of the biggest item in a vector")
+            .type(PAR_INTEGER)
+            .runnable((processor, program) -> {
+                List<Parameter> vector = TypeConverters.convertToVector(program.getLastValue());
+                if (vector == null) {
+                    throw new ProgException(EXCEPT_NOTAVECTOR);
+                }
+                return ParameterTools.getMaxidxVector(vector);
+            })
+            .build();
+    public static final Function MINVECTOR = Function.builder()
+            .id("min_vector")
+            .name("minimum")
+            .description("The index of the smallest item in a vector")
+            .type(PAR_INTEGER)
+            .runnable((processor, program) -> {
+                List<Parameter> vector = TypeConverters.convertToVector(program.getLastValue());
+                if (vector == null) {
+                    throw new ProgException(EXCEPT_NOTAVECTOR);
+                }
+                return ParameterTools.getMaxidxVector(vector);
+            })
+            .build();
+    public static final Function SUMVECTOR = Function.builder()
+            .id("sum_vector")
+            .name("sum")
+            .description("Calculate the sum of all integers in a vector")
+            .type(PAR_INTEGER)
+            .runnable((processor, program) -> {
+                List<Parameter> vector = TypeConverters.convertToVector(program.getLastValue());
+                if (vector == null) {
+                    throw new ProgException(EXCEPT_NOTAVECTOR);
+                }
+                return ParameterTools.getSumVector(vector);
+            })
             .build();
     public static final Function TICKET = Function.builder()
             .id("ticket")
@@ -165,6 +208,9 @@ public class Functions {
         register(LASTSIDE);
         register(LASTTUPLE);
         register(LASTVECTOR);
+        register(MINVECTOR);
+        register(MAXVECTOR);
+        register(SUMVECTOR);
         register(TICKET);
         register(CRAFTRESULT);
         register(ITEMFROMCARD);

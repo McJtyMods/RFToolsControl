@@ -1672,27 +1672,27 @@ public class Opcodes {
                 return POSITIVE;
             }))
             .build();
-    public static final Opcode TEST_LOOP_VECTOR = Opcode.builder()
-            .id("test_loop_vector")
-            .description(
-                    TextFormatting.GREEN + "Test: loop vector",
-                    "loop over all elements in a vector",
-                    "In every iteration of the loop the last",
-                    "value will be set to that element",
-                    "The given variable will be used for the index",
-                    "in the loop. You can examine that during the loop",
-                    "The red output of this opcode is executed when the",
-                    "loop ends")
-            .opcodeOutput(YESNO)
-            .parameter(ParameterDescription.builder().name("vector").type(PAR_VECTOR).description("vector to iterate").build())
-            .parameter(ParameterDescription.builder().name("var").type(PAR_INTEGER).description("variable index for the loop").build())
-            .icon(7, 8)
-            .runnable(((processor, program, opcode) -> {
-                List<Parameter> vector = processor.evaluateVectorParameterNonNull(opcode, program, 0);
-                int varIdx = processor.evaluateIntParameter(opcode, program, 1);
-                return ((ProcessorTileEntity)processor).handleLoop(program, vector, varIdx);
-            }))
-            .build();
+//    public static final Opcode TEST_LOOP_VECTOR = Opcode.builder()
+//            .id("test_loop_vector")
+//            .description(
+//                    TextFormatting.GREEN + "Test: loop vector",
+//                    "loop over all elements in a vector",
+//                    "In every iteration of the loop the last",
+//                    "value will be set to that element",
+//                    "The given variable will be used for the index",
+//                    "in the loop. You can examine that during the loop",
+//                    "The red output of this opcode is executed when the",
+//                    "loop ends")
+//            .opcodeOutput(YESNO)
+//            .parameter(ParameterDescription.builder().name("vector").type(PAR_VECTOR).description("vector to iterate").build())
+//            .parameter(ParameterDescription.builder().name("var").type(PAR_INTEGER).description("variable index for the loop").build())
+//            .icon(7, 8)
+//            .runnable(((processor, program, opcode) -> {
+//                List<Parameter> vector = processor.evaluateVectorParameterNonNull(opcode, program, 0);
+//                int varIdx = processor.evaluateIntParameter(opcode, program, 1);
+//                return ((ProcessorTileEntity)processor).handleLoop(program, vector, varIdx);
+//            }))
+//            .build();
 
 
     public static final Map<String, Opcode> OPCODES = new HashMap<>();
@@ -1742,7 +1742,7 @@ public class Opcodes {
         register(TEST_EQ_VAR);
         register(TEST_SET);
         register(TEST_LOOP);
-        register(TEST_LOOP_VECTOR);
+//        register(TEST_LOOP_VECTOR);
         register(TEST_NBT_EQ);
         register(TEST_CALL);
         register(DO_REDSTONE);
