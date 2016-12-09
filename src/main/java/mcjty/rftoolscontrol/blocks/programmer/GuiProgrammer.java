@@ -871,7 +871,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
         makeCategoryToggle(panel, 3, 0, OpcodeCategory.CATEGORY_REDSTONE, 14, 5);
         makeCategoryToggle(panel, 0, 1, OpcodeCategory.CATEGORY_ENERGY, 12, 5);
         makeCategoryToggle(panel, 1, 1, OpcodeCategory.CATEGORY_NUMBERS, 8, 6);
-        makeCategoryToggle(panel, 2, 1, OpcodeCategory.CATEGORY_COMMUNICATION, 10, 6);
+        makeCategoryToggle(panel, 2, 1, OpcodeCategory.CATEGORY_VECTORS, 10, 6);
         makeCategoryToggle(panel, 3, 1, OpcodeCategory.CATEGORY_GRAPHICS, 6, 6);
 
         opcodeList = new WidgetList(mc, this)

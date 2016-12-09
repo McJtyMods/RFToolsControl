@@ -16,6 +16,7 @@ public enum OpcodeCategory {
     CATEGORY_GRAPHICS("graphics", "Operations related to graphics"),
     CATEGORY_COMMUNICATION("communication", "Operations related to communication"),
     CATEGORY_NUMBERS("numbers", "Operations and tests on numbers"),
+    CATEGORY_VECTORS("vectors", "Operations and tests on vectors"),
     ;
 
     private final String name;

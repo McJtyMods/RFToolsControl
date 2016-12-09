@@ -1585,6 +1585,7 @@ public class Opcodes {
                     TextFormatting.GREEN + "Eval: empty vector",
                     "set the last value to an empty vector")
             .outputDescription("empty vector (vector)")
+            .category(CATEGORY_VECTORS)
             .opcodeOutput(SINGLE)
             .icon(8, 7)
             .runnable(((processor, program, opcode) -> {
@@ -1598,6 +1599,7 @@ public class Opcodes {
                     TextFormatting.GREEN + "Eval: evaluate element from vector",
                     "get a specific element out of a vector")
             .outputDescription("element (any type)")
+            .category(CATEGORY_VECTORS)
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("vector").type(PAR_VECTOR).description("vector to get item from").build())
             .parameter(ParameterDescription.builder().name("index").type(PAR_INTEGER).description("index (starts at 0)").build())
@@ -1618,6 +1620,7 @@ public class Opcodes {
                     TextFormatting.GREEN + "Operation: push item to vector",
                     "add an item in a variable to a vector and",
                     "return a new vector")
+            .category(CATEGORY_VECTORS)
             .outputDescription("new vector (vector)")
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("vector").type(PAR_VECTOR).description("vector").build())
@@ -1638,6 +1641,7 @@ public class Opcodes {
                     TextFormatting.GREEN + "Operation: push integer to vector",
                     "add an integer to a vector and",
                     "return a new vector")
+            .category(CATEGORY_VECTORS)
             .outputDescription("new vector (vector)")
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("vector").type(PAR_VECTOR).description("vector").build())
@@ -1658,6 +1662,7 @@ public class Opcodes {
                     TextFormatting.GREEN + "Operation: pop item from vector",
                     "remove the last item from a vector and",
                     "return a new vector")
+            .category(CATEGORY_VECTORS)
             .outputDescription("new vector (vector)")
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("vector").type(PAR_VECTOR).description("vector").build())
@@ -1683,6 +1688,7 @@ public class Opcodes {
 //                    "in the loop. You can examine that during the loop",
 //                    "The red output of this opcode is executed when the",
 //                    "loop ends")
+//    .category(CATEGORY_VECTORS)
 //            .opcodeOutput(YESNO)
 //            .parameter(ParameterDescription.builder().name("vector").type(PAR_VECTOR).description("vector to iterate").build())
 //            .parameter(ParameterDescription.builder().name("var").type(PAR_INTEGER).description("variable index for the loop").build())
