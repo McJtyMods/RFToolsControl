@@ -24,6 +24,7 @@ public class GeneralConfiguration {
     public static int maxGraphicsOpcodes = 30;
     public static int maxEventQueueSize = 100;
     public static int maxCraftRequests = 200;
+    public static int maxStackSize = 100;
 
     public static void init(Configuration cfg) {
         processorMaxenergy = cfg.get(CATEGORY_GENERAL, "processorMaxRF", processorMaxenergy,
@@ -32,6 +33,8 @@ public class GeneralConfiguration {
                 "RF per tick that the processor can receive").getInt();
         processorMaxloglines = cfg.get(CATEGORY_GENERAL, "processorMaxLogLines", processorMaxloglines,
                 "Maximum number of lines to keep in the log").getInt();
+        maxStackSize = cfg.get(CATEGORY_GENERAL, "maxStackSize", maxStackSize,
+                "Maximum stack size for a program (used by 'call' opcode)").getInt();
         maxGraphicsOpcodes = cfg.get(CATEGORY_GENERAL, "maxGraphicsOpcodes", maxGraphicsOpcodes,
                 "Maximum amount of graphics opcodes that a graphics card supports").getInt();
         maxEventQueueSize = cfg.get(CATEGORY_GENERAL, "maxEventQueueSize", maxEventQueueSize,

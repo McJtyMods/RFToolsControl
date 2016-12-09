@@ -1978,6 +1978,25 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         return realVar;
     }
 
+    public void call(IProgram program, String signal) {
+        RunningProgram p = (RunningProgram) program;
+        CardInfo info = this.cardInfo[p.getCardIndex()];
+        CompiledCard compiledCard = info.getCompiledCard();
+        if (compiledCard != null) {
+            for (CompiledEvent event : compiledCard.getEvents(Opcodes.EVENT_SIGNAL)) {
+                int index = event.getIndex();
+                CompiledOpcode compiledOpcode = compiledCard.getOpcodes().get(index);
+                String sig = evaluateStringParameter(compiledOpcode, null, 0);
+                if (signal.equals(sig)) {
+                    p.pushCall(p.getCurrentOpcode(this).getPrimaryIndex());
+                    p.setCurrent(event.getIndex());
+                    return;
+                }
+            }
+        }
+        throw new ProgException(EXCEPT_MISSINGSIGNAL);
+    }
+
     public IOpcodeRunnable.OpcodeResult handleLoop(IProgram program, int varIdx, int end) {
         CardInfo info = this.cardInfo[((RunningProgram)program).getCardIndex()];
         int realVar = getRealVarSafe(varIdx, info);

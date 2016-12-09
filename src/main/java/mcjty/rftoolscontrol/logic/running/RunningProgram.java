@@ -6,6 +6,7 @@ import mcjty.rftoolscontrol.api.parameters.Parameter;
 import mcjty.rftoolscontrol.api.parameters.ParameterType;
 import mcjty.rftoolscontrol.api.parameters.ParameterValue;
 import mcjty.rftoolscontrol.blocks.processor.ProcessorTileEntity;
+import mcjty.rftoolscontrol.config.GeneralConfiguration;
 import mcjty.rftoolscontrol.logic.TypeConverters;
 import mcjty.rftoolscontrol.logic.compiled.CompiledCard;
 import mcjty.rftoolscontrol.logic.compiled.CompiledEvent;
@@ -14,7 +15,6 @@ import mcjty.rftoolscontrol.logic.registry.ParameterTypeTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraftforge.common.util.Constants;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 
@@ -51,7 +51,25 @@ public class RunningProgram implements IProgram {
     private Parameter lastValue;
 
     // Opcode index, variable index
-    private List<Pair<Integer,Integer>> loopStack = new ArrayList<>();
+    private List<FlowStack> loopStack = new ArrayList<>();
+
+    private static class FlowStack {
+        private final int current;
+        private final Integer var;
+
+        public FlowStack(int current, Integer var) {
+            this.current = current;
+            this.var = var;
+        }
+
+        public int getCurrent() {
+            return current;
+        }
+
+        public Integer getVar() {
+            return var;
+        }
+    }
 
     // Cache for the opcodes
     private List<CompiledOpcode> opcodeCache = null;
@@ -135,21 +153,37 @@ public class RunningProgram implements IProgram {
     }
 
     public void pushLoopStack(int varIndex) {
-        loopStack.add(Pair.of(current, varIndex));
+        if (loopStack.size() >= GeneralConfiguration.maxStackSize) {
+            throw new ProgException(ExceptionType.EXCEPT_STACKOVERFLOW);
+        }
+        loopStack.add(new FlowStack(current, varIndex));
+    }
+
+    public void pushCall(int returnIndex) {
+        if (loopStack.size() >= GeneralConfiguration.maxStackSize) {
+            throw new ProgException(ExceptionType.EXCEPT_STACKOVERFLOW);
+        }
+
+        loopStack.add(new FlowStack(returnIndex, null));
     }
 
     public void popLoopStack(ProcessorTileEntity processor) {
         if (loopStack.isEmpty()) {
             killMe();
         } else {
-            Pair<Integer, Integer> pair = loopStack.get(loopStack.size() - 1);
-            current = pair.getLeft();
-            int varIdx = pair.getRight();
+            FlowStack pair = loopStack.get(loopStack.size() - 1);
+            current = pair.getCurrent();
+            Integer varIdx = pair.getVar();
             loopStack.remove(loopStack.size()-1);
-            Parameter parameter = processor.getVariableArray()[varIdx];
-            int i = TypeConverters.convertToInt(parameter);
-            i++;
-            processor.getVariableArray()[varIdx] = Parameter.builder().type(ParameterType.PAR_INTEGER).value(ParameterValue.constant(i)).build();
+            if (varIdx == null) {
+                // We are returning from a function call
+            } else {
+                // We are ending a loop
+                Parameter parameter = processor.getVariableArray()[varIdx];
+                int i = TypeConverters.convertToInt(parameter);
+                i++;
+                processor.getVariableArray()[varIdx] = Parameter.builder().type(ParameterType.PAR_INTEGER).value(ParameterValue.constant(i)).build();
+            }
         }
     }
 
@@ -216,10 +250,10 @@ public class RunningProgram implements IProgram {
         }
         if (!loopStack.isEmpty()) {
             NBTTagList loopList = new NBTTagList();
-            for (Pair<Integer, Integer> pair : loopStack) {
+            for (FlowStack pair : loopStack) {
                 NBTTagCompound t = new NBTTagCompound();
-                t.setInteger("index", pair.getLeft());
-                t.setInteger("var", pair.getRight());
+                t.setInteger("index", pair.getCurrent());
+                t.setInteger("var", pair.getVar() == null ? -1 : pair.getVar());
                 loopList.appendTag(t);
             }
             tag.setTag("loopStack", loopList);
@@ -253,7 +287,8 @@ public class RunningProgram implements IProgram {
             NBTTagList loopList = tag.getTagList("loopStack", Constants.NBT.TAG_COMPOUND);
             for (int i = 0 ; i < loopList.tagCount() ; i++) {
                 NBTTagCompound t = loopList.getCompoundTagAt(i);
-                program.loopStack.add(Pair.of(tag.getInteger("index"), tag.getInteger("var")));
+                int var = tag.getInteger("var");
+                program.loopStack.add(new FlowStack(tag.getInteger("index"), var == -1 ? null : var));
             }
         }
         return program;

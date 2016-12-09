@@ -971,6 +971,22 @@ public class Opcodes {
             }))
             .build();
 
+    public static final Opcode TEST_CALL = Opcode.builder()
+            .id("test_call")
+            .description(
+                    TextFormatting.GREEN + "Test: call function",
+                    "call a function (signal). When that code has",
+                    "done executing resume execution here")
+            .opcodeOutput(SINGLE)
+            .parameter(ParameterDescription.builder().name("signal").type(PAR_STRING).description("name of the signal to call").build())
+            .icon(7, 7)
+            .runnable(((processor, program, opcode) -> {
+                String signal = processor.evaluateStringParameterNonNull(opcode, program, 0);
+                ((ProcessorTileEntity)processor).call(program, signal);
+                return HOLD;
+            }))
+            .build();
+
     public static final Opcode EVAL_INTEGER = Opcode.builder()
             .id("eval_integer")
             .description(
@@ -1609,6 +1625,7 @@ public class Opcodes {
         register(TEST_SET);
         register(TEST_LOOP);
         register(TEST_NBT_EQ);
+        register(TEST_CALL);
         register(DO_REDSTONE);
         register(DO_DELAY);
         register(DO_STOP);

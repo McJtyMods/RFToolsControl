@@ -35,6 +35,8 @@ public enum ExceptionType {
     EXCEPT_NOINTERNALFLUIDSLOT("no_internal_fluid_slot", "Missing internal fluid slot"),
     EXCEPT_NOTAWORKBENCH("not_a_workbench", "Inventory must be a workbench"),
     EXCEPT_NOTAGRID("not_a_grid", "Crafting does not match a 3x3 grid"),
+    EXCEPT_MISSINGSIGNAL("missing_signal", "Signal is missing"),
+    EXCEPT_STACKOVERFLOW("stack_overflow", "Stack overflow (recursing too deep?)"),
     ;
 
     private final String code;
