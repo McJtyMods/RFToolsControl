@@ -66,7 +66,7 @@ public class ProcessorBlock extends GenericRFToolsBlock<ProcessorTileEntity, Pro
         super.clOnNeighborChanged(state, world, pos, blockIn);
         TileEntity te = world.getTileEntity(pos);
         if (te instanceof ProcessorTileEntity) {
-            ((ProcessorTileEntity) te).updateFluidSlotsAvailability();
+            ((ProcessorTileEntity) te).markFluidSlotsDirty();
         }
     }
 
@@ -75,7 +75,7 @@ public class ProcessorBlock extends GenericRFToolsBlock<ProcessorTileEntity, Pro
         super.onNeighborChange(world, pos, neighbor);
         TileEntity te = world.getTileEntity(pos);
         if (te instanceof ProcessorTileEntity) {
-            ((ProcessorTileEntity) te).updateFluidSlotsAvailability();
+            ((ProcessorTileEntity) te).markFluidSlotsDirty();
         }
     }
 

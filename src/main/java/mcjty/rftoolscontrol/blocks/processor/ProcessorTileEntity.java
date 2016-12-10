@@ -1820,7 +1820,11 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         return maxVars;
     }
 
-    public void updateFluidSlotsAvailability() {
+    public void markFluidSlotsDirty() {
+        fluidSlotsAvailable = -1;
+    }
+
+    private void updateFluidSlotsAvailability() {
         fluidSlotsAvailable = 0;
         for (EnumFacing facing : EnumFacing.values()) {
             TileEntity te = getWorld().getTileEntity(getPos().offset(facing));
