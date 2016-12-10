@@ -1582,14 +1582,20 @@ public class Opcodes {
     public static final Opcode EVAL_VECTOR = Opcode.builder()
             .id("eval_vector")
             .description(
-                    TextFormatting.GREEN + "Eval: empty vector",
-                    "set the last value to an empty vector")
-            .outputDescription("empty vector (vector)")
+                    TextFormatting.GREEN + "Eval: vector",
+                    "set the last value to a vector",
+                    "Leave empty for empty vector")
+            .outputDescription("vector (vector)")
             .category(CATEGORY_VECTORS)
             .opcodeOutput(SINGLE)
+            .parameter(ParameterDescription.builder().name("vector").type(PAR_VECTOR).optional().description("vector").build())
             .icon(8, 7)
             .runnable(((processor, program, opcode) -> {
-                program.setLastValue(Parameter.builder().type(PAR_VECTOR).value(ParameterValue.constant(Collections.emptyList())).build());
+                List<Parameter> vector = processor.evaluateVectorParameter(opcode, program, 0);
+                if (vector == null) {
+                    vector = Collections.emptyList();
+                }
+                program.setLastValue(Parameter.builder().type(PAR_VECTOR).value(ParameterValue.constant(vector)).build());
                 return POSITIVE;
             }))
             .build();
