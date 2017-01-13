@@ -33,8 +33,7 @@ public class ConsoleClientScreenModule implements IClientScreenModule<ModuleData
             List<String> log = screenData.getLog();
             if (log != null) {
                 for (String s : log) {
-                    String strim = fontRenderer.trimStringToWidth(s, 120);
-                    fontRenderer.drawString(strim, xoffset, currenty, 0xffffffff);
+                    renderHelper.renderTextTrimmed(xoffset, currenty, 0xffffffff, renderInfo, s, 480);
                     currenty += 10;
                 }
             }

@@ -1,10 +1,7 @@
 package mcjty.rftoolscontrol.items.interactionmodule;
 
 import mcjty.lib.gui.RenderHelper;
-import mcjty.rftools.api.screens.IClientScreenModule;
-import mcjty.rftools.api.screens.IModuleGuiBuilder;
-import mcjty.rftools.api.screens.IModuleRenderHelper;
-import mcjty.rftools.api.screens.ModuleRenderInfo;
+import mcjty.rftools.api.screens.*;
 import mcjty.rftools.api.screens.data.IModuleDataBoolean;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.GlStateManager;
@@ -18,7 +15,10 @@ public class InteractionClientScreenModule implements IClientScreenModule<IModul
     private int color = 0xffffff;
     private int buttonColor = 0xffffff;
     private boolean activated = false;
-    private String signal = "";
+    private TextAlign textAlign = TextAlign.ALIGN_LEFT;
+
+    private ITextRenderHelper labelCache = null;
+    private ITextRenderHelper buttonCache = null;
 
     @Override
     public TransformMode getTransformMode() {
@@ -32,21 +32,31 @@ public class InteractionClientScreenModule implements IClientScreenModule<IModul
 
     @Override
     public void render(IModuleRenderHelper renderHelper, FontRenderer fontRenderer, int currenty, IModuleDataBoolean screenData, ModuleRenderInfo renderInfo) {
+        if (labelCache == null) {
+            labelCache = renderHelper.createTextRenderHelper().align(textAlign);
+            buttonCache = renderHelper.createTextRenderHelper();
+        }
+
         GlStateManager.disableLighting();
         GlStateManager.enableDepth();
         GlStateManager.depthMask(false);
         int xoffset;
+        int buttonWidth;
         if (!line.isEmpty()) {
-            fontRenderer.drawString(line, 7, currenty + 2, color);
+            labelCache.setup(line, 316, renderInfo);
+            labelCache.renderText(0, currenty + 2, color, renderInfo);
             xoffset = 7 + 80;
+            buttonWidth = 170;
         } else {
             xoffset = 7 + 5;
+            buttonWidth = 490;
         }
 
         boolean act = activated;
 
         RenderHelper.drawBeveledBox(xoffset - 5, currenty, 130 - 7, currenty + 12, act ? 0xff333333 : 0xffeeeeee, act ? 0xffeeeeee : 0xff333333, 0xff666666);
-        fontRenderer.drawString(fontRenderer.trimStringToWidth(button, 130 - 7 - xoffset), xoffset + (act ? 1 : 0), currenty + 2 + (act ? 1 : 0), buttonColor);
+        buttonCache.setup(button, buttonWidth, renderInfo);
+        buttonCache.renderText(xoffset -10 + (act ? 1 : 0), currenty + 2, buttonColor, renderInfo);
     }
 
     @Override
@@ -65,10 +75,11 @@ public class InteractionClientScreenModule implements IClientScreenModule<IModul
 
     @Override
     public void createGui(IModuleGuiBuilder guiBuilder) {
-        guiBuilder.
-                label("Label:").text("text", "Label text").color("color", "Label color").nl().
-                label("Button:").text("button", "Button text").color("buttonColor", "Button color").nl().
-                label("Signal:").text("signal", "Signal name").nl();
+        guiBuilder
+                .label("Label:").text("text", "Label text").color("color", "Label color").nl()
+                .label("Button:").text("button", "Button text").color("buttonColor", "Button color").nl()
+                .label("Signal:").text("signal", "Signal name").nl()
+                .choices("align", "Label alignment", "Left", "Center", "Right").nl();
     }
 
     @Override
@@ -86,7 +97,12 @@ public class InteractionClientScreenModule implements IClientScreenModule<IModul
             } else {
                 buttonColor = 0xffffff;
             }
-            signal = tagCompound.getString("signal");
+            if (tagCompound.hasKey("align")) {
+                String alignment = tagCompound.getString("align");
+                textAlign = TextAlign.get(alignment);
+            } else {
+                textAlign = TextAlign.ALIGN_LEFT;
+            }
         }
     }
 

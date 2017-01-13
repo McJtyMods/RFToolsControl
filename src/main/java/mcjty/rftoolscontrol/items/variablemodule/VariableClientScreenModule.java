@@ -1,9 +1,6 @@
 package mcjty.rftoolscontrol.items.variablemodule;
 
-import mcjty.rftools.api.screens.IClientScreenModule;
-import mcjty.rftools.api.screens.IModuleGuiBuilder;
-import mcjty.rftools.api.screens.IModuleRenderHelper;
-import mcjty.rftools.api.screens.ModuleRenderInfo;
+import mcjty.rftools.api.screens.*;
 import mcjty.rftoolscontrol.api.parameters.Parameter;
 import mcjty.rftoolscontrol.logic.TypeConverters;
 import mcjty.rftoolscontrol.rftoolssupport.ModuleDataVariable;
@@ -18,6 +15,9 @@ public class VariableClientScreenModule implements IClientScreenModule<ModuleDat
     private int color = 0xffffff;
     private int varcolor = 0xffffff;
     private int varIdx = -1;
+    private TextAlign textAlign = TextAlign.ALIGN_LEFT;
+
+    private ITextRenderHelper labelCache = null;
 
     @Override
     public TransformMode getTransformMode() {
@@ -31,10 +31,15 @@ public class VariableClientScreenModule implements IClientScreenModule<ModuleDat
 
     @Override
     public void render(IModuleRenderHelper renderHelper, FontRenderer fontRenderer, int currenty, ModuleDataVariable screenData, ModuleRenderInfo renderInfo) {
+        if (labelCache == null) {
+            labelCache = renderHelper.createTextRenderHelper().align(textAlign);
+        }
+
         GlStateManager.disableLighting();
         int xoffset;
         if (!line.isEmpty()) {
-            fontRenderer.drawString(line, 7, currenty, color);
+            labelCache.setup(line, 160, renderInfo);
+            labelCache.renderText(0, currenty, color, renderInfo);
             xoffset = 7 + 40;
         } else {
             xoffset = 7;
@@ -43,7 +48,7 @@ public class VariableClientScreenModule implements IClientScreenModule<ModuleDat
             Parameter parameter = screenData.getParameter();
             if (parameter != null && parameter.getParameterValue() != null) {
                 String str = TypeConverters.convertToString(parameter);
-                fontRenderer.drawString(str, xoffset, currenty, varcolor);
+                renderHelper.renderText(xoffset, currenty, varcolor, renderInfo, str);
             }
         }
     }
@@ -55,11 +60,12 @@ public class VariableClientScreenModule implements IClientScreenModule<ModuleDat
 
     @Override
     public void createGui(IModuleGuiBuilder guiBuilder) {
-        guiBuilder.
-                label("Label:").text("text", "Label text").color("color", "Color for the label").nl().
-                label("Stats:").color("varcolor", "Color for the variable text").nl().
-                label("Var:").integer("varIdx", "Index of the variable").nl().
-                block("monitor").nl();
+        guiBuilder
+                .label("Label:").text("text", "Label text").color("color", "Color for the label").nl()
+                .label("Stats:").color("varcolor", "Color for the variable text").nl()
+                .label("Var:").integer("varIdx", "Index of the variable").nl()
+                .choices("align", "Label alignment", "Left", "Center", "Right").nl()
+                .block("monitor").nl();
     }
 
     @Override
@@ -80,6 +86,12 @@ public class VariableClientScreenModule implements IClientScreenModule<ModuleDat
                 varcolor = tagCompound.getInteger("varcolor");
             } else {
                 varcolor = 0xffffff;
+            }
+            if (tagCompound.hasKey("align")) {
+                String alignment = tagCompound.getString("align");
+                textAlign = TextAlign.get(alignment);
+            } else {
+                textAlign = TextAlign.ALIGN_LEFT;
             }
         }
     }
