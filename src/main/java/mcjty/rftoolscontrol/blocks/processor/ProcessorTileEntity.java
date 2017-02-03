@@ -86,6 +86,8 @@ import java.util.stream.Collectors;
 
 import static mcjty.rftoolscontrol.blocks.multitank.MultiTankTileEntity.MAXCAPACITY;
 import static mcjty.rftoolscontrol.blocks.multitank.MultiTankTileEntity.TANKS;
+import static mcjty.rftoolscontrol.blocks.processor.ProcessorContainer.SLOT_BUFFER;
+import static mcjty.rftoolscontrol.blocks.processor.ProcessorContainer.SLOT_EXPANSION;
 import static mcjty.rftoolscontrol.logic.running.ExceptionType.*;
 
 public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity implements DefaultSidedInventory, ITickable, IProcessor {
@@ -278,6 +280,47 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     @Override
     public boolean isUsable(EntityPlayer player) {
         return canPlayerAccess(player);
+    }
+
+    private static int[] slots = null;
+
+    @Override
+    public int[] getSlotsForFace(EnumFacing side) {
+        if (slots == null) {
+            slots = new int[3*8];
+            for (int i = 0 ; i < 3*8 ; i++) {
+                slots[i] = SLOT_BUFFER + i;
+            }
+        }
+        return slots;
+    }
+
+    @Override
+    public boolean canInsertItem(int index, ItemStack itemStackIn, EnumFacing direction) {
+        return index >= SLOT_BUFFER && index < SLOT_BUFFER + 3*8;
+    }
+
+    @Override
+    public boolean canExtractItem(int index, ItemStack stack, EnumFacing direction) {
+        return index >= SLOT_BUFFER && index < SLOT_BUFFER + 3*8;
+    }
+
+    @Override
+    public boolean isItemValidForSlot(int index, ItemStack stack) {
+        if (ItemStackTools.isEmpty(stack)) {
+            return true;
+        }
+        Item item = stack.getItem();
+        if (isExpansionSlot(index)) {
+            Item storageCardItem = ForgeRegistries.ITEMS.getValue(new ResourceLocation("rftools", "storage_control_module"));
+            return item == ModItems.graphicsCardItem || item == ModItems.networkCardItem ||
+                    item == ModItems.advancedNetworkCardItem || item == ModItems.cpuCoreB500Item ||
+                    item == ModItems.cpuCoreS1000Item || item == ModItems.cpuCoreEX2000Item ||
+                    item == ModItems.ramChipItem || item == storageCardItem;
+        } else if (isCardSlot(index)) {
+            return item == ModItems.programCardItem;
+        }
+        return true;
     }
 
     @Override
@@ -1377,7 +1420,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             coresDirty = false;
             // @todo, keep state of current running programs?
             cpuCores.clear();
-            for (int i = ProcessorContainer.SLOT_EXPANSION ; i < ProcessorContainer.SLOT_EXPANSION + EXPANSION_SLOTS ; i++) {
+            for (int i = SLOT_EXPANSION ; i < SLOT_EXPANSION + EXPANSION_SLOTS ; i++) {
                 ItemStack expansionStack = inventoryHelper.getStackInSlot(i);
                 if (ItemStackTools.isValid(expansionStack) && expansionStack.getItem() instanceof CPUCoreItem) {
                     CPUCoreItem coreItem = (CPUCoreItem) expansionStack.getItem();
@@ -1796,7 +1839,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             hasGraphicsCard = false;
             storageCard = -1;
             Item storageCardItem = ForgeRegistries.ITEMS.getValue(new ResourceLocation("rftools", "storage_control_module"));
-            for (int i = ProcessorContainer.SLOT_EXPANSION ; i < ProcessorContainer.SLOT_EXPANSION + EXPANSION_SLOTS ; i++) {
+            for (int i = SLOT_EXPANSION ; i < SLOT_EXPANSION + EXPANSION_SLOTS ; i++) {
                 ItemStack stack = getStackInSlot(i);
                 if (ItemStackTools.isValid(stack)) {
                     if (stack.getItem() instanceof NetworkCardItem) {
@@ -2366,7 +2409,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     }
 
     private boolean isExpansionSlot(int index) {
-        return index >= ProcessorContainer.SLOT_EXPANSION && index < ProcessorContainer.SLOT_EXPANSION + EXPANSION_SLOTS;
+        return index >= SLOT_EXPANSION && index < SLOT_EXPANSION + EXPANSION_SLOTS;
     }
 
     private boolean isCardSlot(int index) {
