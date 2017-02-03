@@ -107,7 +107,7 @@ public class CraftingStationTileEntity extends GenericTileEntity implements Defa
             if (foundRequest.getTodo() <= 0) {
                 foundRequest.setOk(System.currentTimeMillis() + 1000);
             } else {
-                processor.fireCraftEvent(ticket, stack);
+                processor.fireCraftEvent(ticket, foundRequest.getStack());
             }
             if (ItemStackTools.isValid(stack)) {
                 Inventory inventory = getInventoryFromTicket(ticket);
