@@ -70,6 +70,9 @@ public abstract class AbstractParameterEditor implements ParameterEditor {
     }
 
     public static Integer parseIntSafe(String newText) {
+        if (newText == null || newText.isEmpty()) {
+            return null;
+        }
         Integer f;
         try {
             if (newText.startsWith("$")) {
