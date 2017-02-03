@@ -27,7 +27,7 @@ public class PacketSendRecipe implements IMessage {
             if (buf.readBoolean()) {
                 stacks.add(NetworkTools.readItemStack(buf));
             } else {
-                stacks.add(null);
+                stacks.add(ItemStackTools.getEmptyStack());
             }
         }
     }
@@ -36,7 +36,7 @@ public class PacketSendRecipe implements IMessage {
     public void toBytes(ByteBuf buf) {
         buf.writeInt(stacks.size());
         for (ItemStack stack : stacks) {
-            if (stack != null) {
+            if (ItemStackTools.isValid(stack)) {
                 buf.writeBoolean(true);
                 NetworkTools.writeItemStack(buf, stack);
             } else {
