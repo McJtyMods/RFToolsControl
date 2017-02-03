@@ -95,7 +95,7 @@ public class VectorArtScreenModule implements IScreenModule<ModuleDataVectorArt>
                     TileEntity te = world.getTileEntity(coordinate);
                     if (te instanceof ProcessorTileEntity) {
                         ProcessorTileEntity processor = (ProcessorTileEntity) te;
-                        processor.signal(new Tuple(x, y));
+                        processor.signal(new Tuple(x, y+7));
                     }
                 }
             } else {
