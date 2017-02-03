@@ -1,6 +1,7 @@
 package mcjty.rftoolscontrol.jei;
 
 import mcjty.lib.jei.CompatRecipeTransferHandler;
+import mcjty.lib.tools.ItemStackTools;
 import mcjty.rftoolscontrol.blocks.ModBlocks;
 import mcjty.rftoolscontrol.blocks.workbench.WorkbenchContainer;
 import mcjty.rftoolscontrol.network.RFToolsCtrlMessages;
@@ -24,7 +25,7 @@ public class RFToolsControlJeiPlugin extends BlankModPlugin {
     public static void transferRecipe(Map<Integer, ? extends IGuiIngredient<ItemStack>> guiIngredients, BlockPos pos) {
         List<ItemStack> items = new ArrayList<>(10);
         for (int i = 0 ; i < 10 ; i++) {
-            items.add(null);
+            items.add(ItemStackTools.getEmptyStack());
         }
         for (Map.Entry<Integer, ? extends IGuiIngredient<ItemStack>> entry : guiIngredients.entrySet()) {
             int recipeSlot = entry.getKey();
