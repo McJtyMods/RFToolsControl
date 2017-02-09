@@ -338,7 +338,11 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         updateCores();
         compileCards();
         processEventQueue();
-        handleEvents();
+        try {
+            handleEvents();
+        } catch (ProgException e) {
+            exception(e.getExceptionType(), null);
+        }
         run();
     }
 
@@ -1233,7 +1237,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         markDirty();
     }
 
-    public void exception(ExceptionType exception, RunningProgram program) {
+    public void exception(ExceptionType exception, @Nullable RunningProgram program) {
         // For too many events exception we don't want to queue another event for obvious reasons
         if (exception != EXCEPT_TOOMANYEVENTS) {
             for (int i = 0; i < cardInfo.length; i++) {
@@ -1245,7 +1249,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                         CompiledOpcode compiledOpcode = compiledCard.getOpcodes().get(index);
                         String code = evaluateStringParameter(compiledOpcode, null, 0);
                         if (exception.getCode().equals(code)) {
-                            runOrQueueEvent(i, event, program.getCraftTicket(), null);
+                            runOrQueueEvent(i, event, program == null ? null : program.getCraftTicket(), null);
                             return;
                         }
                     }
