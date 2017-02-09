@@ -355,7 +355,11 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                 RunningProgram program = new RunningProgram(queuedEvent.getCardIndex());
                 program.startFromEvent(compiledEvent);
                 program.setCraftTicket(queuedEvent.getTicket());
+                program.setLastValue(queuedEvent.getParameter());
                 core.startProgram(program);
+                if (compiledEvent.isSingle()) {
+                    runningEvents.add(Pair.of(queuedEvent.getCardIndex(), compiledEvent.getIndex()));
+                }
             }
         }
     }
