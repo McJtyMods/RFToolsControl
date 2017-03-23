@@ -80,17 +80,21 @@ public class GuiCraftingCard extends GenericGuiContainer {
                 Object s = slots[idx].getRenderItem();
                 if (s instanceof ItemStack) {
                     ItemStack stack = (ItemStack) s;
-                    List<String> list = stack.getTooltip(MinecraftTools.getPlayer(this.mc), this.mc.gameSettings.advancedItemTooltips);
+                    if (ItemStackTools.isValid(stack)) {
+                        List<String> list = stack.getTooltip(MinecraftTools.getPlayer(this.mc), this.mc.gameSettings.advancedItemTooltips);
 
-                    for (int i = 0; i < list.size(); ++i) {
-                        if (i == 0) {
-                            list.set(i, stack.getRarity().rarityColor + list.get(i));
-                        } else {
-                            list.set(i, TextFormatting.GRAY + list.get(i));
+                        for (int i = 0; i < list.size(); ++i) {
+                            if (i == 0) {
+                                list.set(i, stack.getRarity().rarityColor + list.get(i));
+                            } else {
+                                list.set(i, TextFormatting.GRAY + list.get(i));
+                            }
                         }
-                    }
 
-                    return list;
+                        return list;
+                    } else {
+                        return Collections.emptyList();
+                    }
                 } else {
                     return Collections.emptyList();
                 }
