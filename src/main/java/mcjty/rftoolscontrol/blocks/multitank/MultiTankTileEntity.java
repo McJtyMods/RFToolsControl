@@ -101,6 +101,8 @@ public class MultiTankTileEntity extends GenericTileEntity {
     }
 
 
+    private MultiTankHandler handler = null;
+
     @Override
     public boolean hasCapability(Capability<?> capability, EnumFacing facing) {
         if (capability == CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY) {
@@ -112,7 +114,10 @@ public class MultiTankTileEntity extends GenericTileEntity {
     @Override
     public <T> T getCapability(Capability<T> capability, EnumFacing facing) {
         if (capability == CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY) {
-            return (T) new MultiTankHandler(this);
+            if (handler == null) {
+                handler = new MultiTankHandler(this);
+            }
+            return CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY.cast(handler);
         }
         return super.getCapability(capability, facing);
     }
