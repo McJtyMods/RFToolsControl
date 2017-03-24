@@ -98,19 +98,14 @@ RFTools Control是RFtools的附属，为适应自动化任务而添加了一个�
 你可以建立一个网络.一个处理器只有六个面，但是使用网络，允许所有链接到网络的节点
 到处理器某一面的接口可以扩展处理器.
 {-------------------------------------------------------------}
-安装了网络卡之后你可以设置它. This can be done
-with the 'net setup <name>' console command (in the Processor console).
-The <name> will be the network name and is also used in all the nodes
-that want to connect to this network.
+网络卡安装之后需要设置.通过在处理器界面黑色区域的输入栏输入 'net setup <name>' 
+控制指令来设定(与原文有出入——译者注).
+<name>里的内容就是你网络的名字，并会应用在每一个链接到你网络的节点中.
 
-Setting up the network card will also initiate the scan to find all
-nodes that match the given channel name (in a 17x17x17 area with the
-processor at the center). Note that the network card is also needed
-to connect to crafting stations which this scan will also pick up.
+设定网络卡之后，会开始扫描所有链接到给定网络名的节点(以处理器为中心17x17x17的
+区域). 注意，网络卡也需要链接到合成站，扫描时也会发现它.
 
-Note: an advanced networking card supports a 33x33x33 area and can
-also supports sending messages to other processors anywhere in the
-world.
+注意: 高级的网络卡支持33x33x33的区域，支持向世界各地的处理器发信息.
 {-------------------------------------------------------------}
 If you have an advanced networking card then you can also send
 messages to other processors in the world (if they are chunkloaded).
