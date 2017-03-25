@@ -80,7 +80,7 @@ RFTools Control是RFtools的附属，为适应自动化任务而添加了一个�
 所以最大支持4个内存条.
 
 变量可以被程序使用但是你必须把变量分配给正确的卡槽. 为了正确分配，在卡槽上有6个
-小按钮.按下小按钮，界面会被切换到“分配”模式.然后你就可以在（右侧的24个槽里）选
+小按钮.按下小按钮，界面会被切换到“分配”模式.然后你就可以在（左下角的菜单里）选
 择变量并把它们标记成绿色.这张卡上的程序第一个被绿色标记的变量被指定为0，以此类
 推.注意你使用的变量索引与你如何分配变量密切相关!
 
@@ -107,89 +107,61 @@ RFTools Control是RFtools的附属，为适应自动化任务而添加了一个�
 
 注意: 高级的网络卡支持33x33x33的区域，支持向世界各地的处理器发信息.
 {-------------------------------------------------------------}
-If you have an advanced networking card then you can also send
-messages to other processors in the world (if they are chunkloaded).
-To do that you need to have a network identifier card in one
-of the internal processor slots:
+如果你有一张高级网络卡，你也可以向世界中的其他处理器发信息(只要它们所在区块被
+加载).做到这个，你需要在处理器的内部16插槽中安放一个网络识别卡:
 {ri:network_identifier}
-and then link that card to the destination processor (using sneak right
-click). That destination does not need a network card for this to work.
+然后将这张卡链接到目标处理器(潜行右击).目标处理器不需要一张相匹配的网络卡.
 
-Together with a message you can also send information in the form of
-a variable.
+你也可以把信息以变量的形式发出.
 {-------------------------------------------------------------}
-{b}Crafting Station
+{b}合成站
 {n:craftingstation}
 {rb:craftingstation}
-The Crafting Station is a device from which you can request items to
-be crafted through a program that you write yourselves and that runs
-on a nearby Processor. To have the Processor work with a Crafting
-Station it needs a network card.
+合成站是一个通过你自己写的程序请求物品以自动合成的设备，在附近的处理器上运行
+.要让合成站和处理器工作需要网络卡.
 
-Crafting operations can sometimes take a long time and the gui of
-this station shows operations that are still in progress.
+合成操作有时要费很长时间，合成站的界面会显示合成进度.
 {-------------------------------------------------------------}
-Note that what a crafting station essentially does is show you for
-which items a processor has 'craft' events enabled. As soon as you
-request the crafting of such an item the resulting program will be
-executed. But what you do in that program is fully up to you.
-In many cases you would probably make a program that actually crafts
-the desired result but you can also do other things so you can
-use the crafting station as a way to trigger various actions to
-happen. For example, you can have a 'craft redstone' event that
-actually just turns on processing of various items and then a
-'craft coal' event to turn it off again. It is up to you.
+注意合成站本质上做的就是让你看到处理器“合成”某一物品的事件被触发.只要你需要这
+样一个物品的合成，后续程序便会执行.但是你在程序里做的完全取决于你.很多情况下
+你可能编辑一个事实上用来合成，但是也可以做别的程序，所以你可以使用合成站来作为
+一种触发多个过程的方式. 例如, 你可以有一个“合成红石” 事件，自动打开不同物品的
+（合成）进程，“合成煤炭”事件将这些进程关闭. 由你决定.
 {-------------------------------------------------------------}
-{b}Crafting Card
+{b}合成卡
 {n:craftingcard}
 {ri:crafting_card}
-A crafting card is a special item that can hold a recipe. It is often
-used for the classical recipes (3x3 grid to single output) and it has
-JEI integration so that you can easily put a recipe in it. But it is
-not limited to that. In fact, if you open the GUI of the crafting card
-you'll see that there are more then 3x3 possible input slots. You can
-describe much more complex recipes then the typical 3x3 recipe.
+合成卡是能容纳合成表的特殊物品.经常用于典型合成(3x3合成格一个输出格)，有JEI的
+集成，所以往里面放入合成表很容易。但是不仅于此. 事实上，如果你打开合成卡的界面，
+你会发现有不止3x3可能的输入槽. 你可以借此表达比3*3更加复杂更多的合成。
 {-------------------------------------------------------------}
-Note also that the output slot does not have to actually correspond with
-the actual output. Let's demonstrate with an example how this can be
-useful. Say you want a recipe to craft EnderIO facade blocks. These
-require a normal recipe and then the result of that has to be smelted.
-So you could have a crafting card with as input the 3x3 slots needed
-for the intermediate result and as output the final result from the
-smelter. Of course this kind of crafting card will require support from
-a program that can do this kind of multi-step crafting.
+注意实际所需要的产物可以不一致于合成表的产物. 让我们看看一个此特性有用的实例. 
+比如你想合成Ender IO的表面方块需要一个正常的合成，该合成的产品需要被熔炼.所
+以你可以有一张写入3*3合成表的合成卡以合成中间产物，从冶炼炉输出最终产物。当然
+这种合成卡需要处理多步合成的程序的支持.
 {-------------------------------------------------------------}
-{b}Workbench
+{b}工作台
 {n:workbench}
 {rb:workbench}
-The Workbench is a normal crafting device with an internal buffer for
-items. It can be used just like that. However, it's main use is in automation
-as this workbench supports piping out the crafted result from the bottom.
-In addition a program running on a Processor can directly input ingredients
-for a recipe in the workbench from the top side.
+工作台是一个有内部物品缓存的一般合成设备. 可以当做原版工作台，但是它的主要用
+处还是自动合成，因为工作台支持从底部抽出合成产物。而且一个运行在处理器上的程
+序可以直接将一个合成的原材料从工作台顶部输入.
 
-The internal buffer of the Workbench is often used for crafting cards to
-help with autocrafting setups.
+内部缓存经常被用于合成卡辅助处理自动合成.
 {-------------------------------------------------------------}
-{b}Tank
+{b}储罐
 {n:tank}
 {rb:tank}
-The multi tank is a block that is capable of holding four types of liquids.
-When placed adjacent to the processor it gives that processor access to
-four new fluid slots (four per tank) which can be allocated to programs
-so that they can work with liquids.
+多容储罐可以容纳4种液体。当摆在处理器旁边时，会给予处理器4个新的流体槽（每个
+储罐4个）可以分配给程序，这样程序就可以处理液体了.
 
-Note that there is currently no way to interact with the multi tank except
-through the processor and a program accessing the fluids. It is meant
-purely as a directly accessible fluid storage for the processor. Placing
-it adjacent to a node is also not useful.
+注意没有其他的方式与多容储罐互动，除非是处理器和一个涉及流体的程序.很明显，这
+是直接给处理器调用的流体储存期. 放在节点旁边是没用的.
 {-------------------------------------------------------------}
-{b}Moving Items
+{b}移动物品
 {n:items}
-Many programs will move items at some point. It is important to note that
-the processor cannot move items directly from one inventory to another.
-Items always have to go through the processor itself. That's why you
-typically need 'fetch' and 'push' items after each other.
+许多程序都会在同一点移动物品. 注意处理器不能直接在容器之间移动物品，这很重要.
+物品总是会通过处理器本身. 这就是为什么你需要互相'吸引'和'推出'物品.
 
 For many opcodes where you can access a normal inventory you can
 also access a storage system linked to a storage scanner. To do that
