@@ -161,21 +161,16 @@ RFTools Control是RFtools的附属，为适应自动化任务而添加了一个�
 {b}移动物品
 {n:items}
 许多程序都会在同一点移动物品. 注意处理器不能直接在容器之间移动物品，这很重要.
-物品总是会通过处理器本身. 这就是为什么你需要互相'吸引'和'推出'物品.
+物品总是会通过处理器本身. 这就是为什么你需要互相'吸入'和'推出'物品.
 
-For many opcodes where you can access a normal inventory you can
-also access a storage system linked to a storage scanner. To do that
-you need to insert a storage screen module from RFTools into one of
-the 16 expansion slots of the Processor. Then to use this feature you
-just leave the 'inventory' parameter empty and it should access
-the storage where supported.
+能进入正常容器的操作码，也可以进入连接到存储检索器的存储系统. 做到这一点你需要
+向处理器那16个插槽中插入一个来自rftools的屏幕显示模块.你只需要清空'容器'参数，
+物品就会进入所支持的存储系统中.
 {-------------------------------------------------------------}
-{b}Graphics
+{b}绘图？
 {n:graphics}
-If you install a graphics card into your processor you will be able to do
-some limited vector graphics. You can draw lines, boxes and text and it is
-also possible to interact with your graphics in a limited way. There are
-two ways to display graphics: either you can use the built-in HUD (set
+如果你在处理器里安装了图形卡，就可以进行一些简单的矢量绘图. 你可以画线，盒子以
+及文本，以某种限定的方式与你的图形交互也是可能的. 绘图有两种方式: 既可以在处理器内建的HUD(set
 to 'Gfx' mode) or else you can use an rftools screen with a 'vector art'
 module. If you want to interact with your graphics then the rftools screen
 is the only way. When working with graphics you have to know about
