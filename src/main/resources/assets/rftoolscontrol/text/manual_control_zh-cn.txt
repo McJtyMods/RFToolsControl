@@ -21,7 +21,7 @@ Table of Contents:
 {l:variables}变量
 {l:events}事件
 {l:opcodes}操作码类型
-{l:tokens}记号（助记符？）
+{l:tokens}标记符
 {l:concurrency}并行
 {l:debugging}调试
 {l:sharing}代码分享
