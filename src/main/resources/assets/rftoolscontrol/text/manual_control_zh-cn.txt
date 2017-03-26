@@ -231,99 +231,76 @@ Rftools control程序是由安排在格子里的操作码编写的.操作码互�
 
 大多数事件都有控制何时触发它们的参数.
 
-Every program sequence (connected opcodes) on a card will need at least
-one event. Otherwise it can never run. It is possible to connect multiple
-events to the same program sequence.
+同一张卡上的每一个程序序列(连在一起的操作码)需要至少一个事件，否则无法运行.将
+多个事件链接到同一程序序列是可行的.
 
-If an event fires it is executed on an available core. If no cores are
-available then it will be put in a waiting list. Except for the timer event.
-That one is discared if there are no cores available.
+事件（操作码）被触发时，会运行在一个可用的处理器核心上. 如果没核心，就会转移
+到等待队列中，计时器除外，如果没有核心，该事件会被直接忽略.
 {-------------------------------------------------------------}
-{b}Opcode Types
+{b}操作码
 {n:opcodes}
-The following types of opcodes are available:
-  * Events: at least one of them is needed for every program
-  * Operation: the standard operations
-  * Evaluate: an evaluation opcode. These typically do some
-    calculation or check and set the result for the next
-    opcode to use
-  * Test: these opcodes perform a boolean test and then do
-    a branch based on that test. Therefore these opcodes have
-    two outputs (a green and a red output)
-  * Wire: there is only one wire opcode. It is meant to connect
-    opcodes that are not adjacent
+如下的操作码可用:
+  * Events（事件）:每个程序都需要至少一个。
+  * Operation（操作）:标准操作。
+  * Evaluate（赋值）:一个赋值操作码. 一般是做一些计算或者检查，将结果提交给
+    下一个操作码使用。
+  * Test（测试）:这些操作码执行布尔值测试，并在此测试上生成一个分支. 因此这
+    些操作码有两个输出(绿色和红色输出)。
+  * Wire（线缆）:只是一个线缆操作. 用来连接不相邻的操作码。
 {-------------------------------------------------------------}
-{b}Tokens
+{b}标记符
 {n:tokens}
 {ri:token}
 
-Tokens are items that serve no purpose except that they hold
-information. From within a program you can write any data to
-a token and then from another program read that data again.
-Tokens are regular items so you can transfer them and by doing
-that transmit the information anywhere you want.
+标记符除了存储信息没有别的效用. 你可以从某个程序写入任何数据到标记符中，从另
+一个程序重新读取这些数据。标记符是不变的物品，所以你可以转移它们并借此将信息
+带到任何地方.
 {-------------------------------------------------------------}
-{b}Concurrency
+{b}并行
 {n:concurrency}
-As soon as you have multiple cores in your processor multiple programs
-can run at the same time. There are a few problems with this. First you
-must make sure that slots and variables are properly allocated in case
-where these programs don't share that info. This is the easy case.
+当你的处理器里有多个核心时，同时也会运行一样多的程序.但是有几个问题. 首先要
+确保插槽和变量合理分配，以防程序不共享信息. 这种情况很容易发生.
 
-But sometimes you want to share data. For example, if you have one
-program putting items in some internal slots and another program getting
-them out again. To handle this safely you might sometimes want to use
-locks. A lock is global to the processor (for all programs on that
-processor) and it has a name. Only one program can hold a lock with some
-name. Other programs that want that lock will wait until the lock is
-available again. Make sure to always restore locks! If you forget
-you can use 'reset' to reset your processor and clean everything.
+但是有时你想共享信息. 例如，你有一个把物品放在内部插槽中的程序，和另一个把它
+们取出的程序. 为了安全操作，你可能有时想要上锁.一个锁对整个处理器普适(对于该
+处理器执行的所有程序而言)并且有一个名字. 只有一个程序可以持有有一些名字的锁. 
+其他需要这个锁的程序都将等待，直到该锁解除重新可用. 保证总是修复锁!如果你忘
+了你需要'reset（重置）' 以重置你的处理器，清空所有数据.
 {-------------------------------------------------------------}
-Another problem with concurrency is preventing one program to use up
-all the cores. For example, if you have a program that needs some time
-to execute and executes whenever there is a redstone signal then if
-you give two signals very quickly there might be multiple instances of
-that program running (if there are sufficient cores available).
+另一个并行的问题是，组织一个程序用尽所有的核心. 例如，如果你有一个需要经过一
+段时间并且无论何时有红石信号都执行的程序，如果你很快地给予两个红石信号，就可
+能会有很多程序实例等待执行 (如果有足够多可用的核心).
 
-Sometimes this is ok but in many cases you might want only one instance
-of a given program running at every time. To do that you can use the
-'single' parameter that you can set with every event. If you make that
-true then this event can only be fired once and it will be locked until
-the program that was attached to that event stops running.
+有时候这还可以，但是很多情况下，你想要每次执行程序只运行一个实例. 你可以使用
+'single（单事件）' 参数来设定每一个事件. 如果此参数设定为真，这个事件只会被
+触发一次并会被锁定，直到这个程序依附的事件结束运行.
 {-------------------------------------------------------------}
-Another solution to concurrency can be the 'exclusive' option that you
-can select in the GUI of the processor. If this button is pressed then
-programs on card X can only execute on core X. So that means that
-every core if exclusively dedicated to programs on a single card.
+并行的另一种解决方式是使用可以在处理器界面选择的'excl（专有）'选项 . 如果该
+按钮被按下，卡片X上的程序便只能在处理器核心X上执行. 这意味着每个处理器核心是
+否唯一对应单张卡上的程序.
 
-This feature can also be used when you have a processor that has a
-low tier and a high tier core installed. Using exclusive mode you can
-make sure that the more demanding programs only run on the high tier
-core.
+这一特性可以用于同时装有低级核心和高级核心的处理器. 使用专有选项你可以确保那
+些要求更高的程序只运行在更高级的处理器核心上.
 {-------------------------------------------------------------}
-{b}Debugging
+{b}调试
 {n:debugging}
-You will make bugs. Repeat after me: you will make bugs! So what can you
-do to fix those bugs? There are a few techniques. First there is a 'log'
-opcode that you can use to dump messages on the console. It can show
-simple messages or even the contents of variables.
+你会弄出错误. 跟我念:你会弄出错误! 怎样修复这些错误呢? 有几个技巧.首先会有一
+个'log（日志）'操作码，用来导出控制台的信息. 也可以显示简单的信息甚至是变量
+的内容.
 
-But for more advanced debugging you might want to use the internal
-debugger. To use that you simply go to the processor and type:
+但是为了更好的调试，你可能需要内置调试器. 只需要简单地进入处理器然后输入:
     db debug
 
-This will halt all programs that might currently be running and allow you
-to selectively singlestep them (i.e. execute them one instruction at a
-time).
+这会停止所有可能当前在运行的程序，允许你单步运行它们 (换句话说，一次只执行一
+个指令).
 {-------------------------------------------------------------}
-To see where a specific program is at you can use:
+看到一个特定的程序在哪可以使用:
     db info
 
-To singlestep a program running on (for example) core 0 you would type:
+单步执行一个运行在(比如) core 0的程序要输入:
     db s 0
 
-This will execute the current instruction and show you the next
-instruction that is waiting for you to execute.
+这会执行当前的指令，并给你看到下一个准备执行的指令.
 You can also examine the last result with:
     db last 0
 
