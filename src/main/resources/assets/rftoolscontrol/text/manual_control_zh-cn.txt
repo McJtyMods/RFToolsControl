@@ -301,31 +301,27 @@ Rftools control程序是由安排在格子里的操作码编写的.操作码互�
     db s 0
 
 这会执行当前的指令，并给你看到下一个准备执行的指令.
-You can also examine the last result with:
+你也可以用如下指令检查最后一个结果:
     db last 0
 
-(or 'db last' to show all last results for all current programs)
+(或者 'db last' 以显示所有当前程序的所有最终结果)
 {-------------------------------------------------------------}
-While the program is being single stepped you can of course also
-examine variables by clicking the '...' button on the left (and
-change them).
+当一个程序被设定为单步运行，你当然也可以通过点击左面的 '...' 按钮来检测变量
+(并修改它们).
 
-To resume all programs you do:
+重置所有程序需要输入:
     db resume
 {-------------------------------------------------------------}
-{b}Sharing Programs
+{b}共享程序
 {n:sharing}
-The programmer supports the clipboard. You select opcodes, you can type
-Ctrl-C and the selected grid will be copied to the clipboard. This is a
-JSON file that you can share on the web. If you have such a program in
-your clipboard you can do Ctrl-V to paste it. If the program is small
-enough you can paste it in a section of your grid by clicking on the
-grid location where you want the left-top opcode to appear. If you
-select nothing it will try to place from the top-left corner. Note that
-it will merge what is in the clipboard with what is already there.
+编程器支持剪贴板.选择操作码（程序中的）并按下Ctrl+C，操作码就会被复制到剪贴板
+中。这是一个可以分享到网络中的JSON文件.如果你的剪贴板中有程序，按下Ctrl+V以粘
+贴.如果一个程序足够小，你可以将其直接粘贴在编程器的程序格子里，会将该程序的最
+左上角那一格粘贴到你点选粘贴的那一格，以作为粘贴的位置基准（与原文有差异——译者
+注）. 如果你并没有点选粘贴点，那么程序会尝试粘贴在最左上角的格子里. 注意这会取
+代剪贴板原有的内容（谨防剪切某个重要文件不粘贴还去复制这个的愚蠢行为——译者注）.
 
-Note that you can always use Ctrl-Z to undo this.
-
-To select opcodes you can use Ctrl-A for the entire grid or else
-ctrl-click for a single opcode and ctrl-double click for a sequence.
+可以使用Ctrl+Z以撤销操作.
+按下Ctrl+A选择当前格子里所有的操作码，Ctrl+单击选择单个的操作码，Ctrl+双击选择
+连续序列操作码.
 {-------------------------------------------------------------}
