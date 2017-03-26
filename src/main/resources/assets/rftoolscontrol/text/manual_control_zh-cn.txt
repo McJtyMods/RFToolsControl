@@ -226,10 +226,10 @@ Rftools control程序是由安排在格子里的操作码编写的.操作码互�
 {-------------------------------------------------------------}
 {b}事件
 {n:events}
-用RFTools Control写的程序是'事件驱动'.也就是说，当事件发生时程序才会开始. An event can be a redstone
-pulse, a timer, a crafting request for some item and more.
+用RFTools Control写的程序是'事件驱动'.也就是说，当事件发生时程序才会开始.事
+件可以是红石信号,计时器,一个物品合成请求，等等.
 
-Most events have parameters that control when they are fired.
+大多数事件都有控制何时触发它们的参数.
 
 Every program sequence (connected opcodes) on a card will need at least
 one event. Otherwise it can never run. It is possible to connect multiple
