@@ -10,14 +10,14 @@ Table of Contents:
 {l:workbench}工作台
 {l:tank}储罐
 {l:items}移动物品
-{l:graphics}绘图？
+{l:graphics}绘图
 {/}
 
 
 
 {l:concepts}编程概念
 {l:types}分类
-{l:parameters}特征
+{l:parameters}参数
 {l:variables}变量
 {l:events}事件
 {l:opcodes}操作码类型
@@ -42,25 +42,25 @@ RFTools Control是RFtools的附属，为适应自动化任务而添加了一个�
 {ri:program_card}
 {-------------------------------------------------------------}
 编程器的界面乍一看很复杂，但并没有那么难. 在左侧你可以看到所有可以用在程序的
-操作码.你可以点击这些操作码图标，用鼠标将它们拖进中间的大格子里去.
+操作码（opcode）.你可以点击这些操作码图标，用鼠标将它们拖进中间的大格子里去.
 
 当一个操作码在主格子里你可以双击图标的某一条边来链接到邻近的操作码.如果那条边
-变绿了你就在一侧变绿的操作码和邻近的之间建立了一个连接.一些操作码(测试)有两个
-输出. 也有一个红色的输出指示错误路径(如果测试失败)。
+变绿了你就在一侧变绿的操作码和邻近的之间建立了一个连接.一些操作码(test，测试)
+有两个输出. 也有一个红色的输出指示错误路径(如果测试失败)。
 
 如果一个链接丢失，'停止' 操作码会被自动插入.
 {-------------------------------------------------------------}
-每一个程序都需要开始事件.一个事件操作码描述了程序执行的前提事件. 注意同一张卡
-上可以有多个事件(因此也会有多个程序)，甚至同一程序字符串(连接起来的操作码)在
-同一程序中也可以有多个指示不同进入点的事件.
+每一个程序都需要开始事件.一个事件（event）操作码描述了程序执行的前提事件. 注
+意同一张卡上可以有多个事件(因此也会有多个程序)，甚至同一程序字符串(连接起来的
+操作码)在同一程序中也可以有多个指示不同进入点的事件.
 
 有7种触发事件:红石脉冲开,红石脉冲关，计时器,例外,信号,合成,和合成重新开始.
 {-------------------------------------------------------------}
-很多操作码都有独特的特征. 当你在主要格子里（中间格子）里选择了一个操作码，你
-就可以在界面下方看到该操作码对应所有可能的特征.特征是固定分类的但是改变是自动
+很多操作码都有独特的参数. 当你在主要格子里（中间格子）里选择了一个操作码，你
+就可以在界面下方看到该操作码对应所有可能的参数.特征是固定分类的但是改变是自动
 完成的(例如，整数在需要的时候自动转变为字符串).
 
-你可以以三种方式指定一个特征: 使用常量, 使用变量, 或者函数. 变量存储在处理器
+你可以以三种方式指定一个参数: 使用常量, 使用变量, 或者函数. 变量存储在处理器
 中(以后详谈). 一个重要的函数是'last'，简单地返回上一个操作码的最新一个结果.
 它很重要——你可以通过这个函数访问很多操作码的结果.
 {-------------------------------------------------------------}
@@ -117,8 +117,8 @@ RFTools Control是RFtools的附属，为适应自动化任务而添加了一个�
 {b}合成站
 {n:craftingstation}
 {rb:craftingstation}
-合成站是一个通过你自己写的程序请求物品以自动合成的设备，在附近的处理器上运行
-.要让合成站和处理器工作需要网络卡.
+合成站是一个通过你自己写的程序请求物品以自动合成的设备，在附近的处理器上运行.
+要让合成站和处理器工作需要网络卡.
 
 合成操作有时要费很长时间，合成站的界面会显示合成进度.
 {-------------------------------------------------------------}
@@ -167,87 +167,66 @@ RFTools Control是RFtools的附属，为适应自动化任务而添加了一个�
 向处理器那16个插槽中插入一个来自rftools的屏幕显示模块.你只需要清空'容器'参数，
 物品就会进入所支持的存储系统中.
 {-------------------------------------------------------------}
-{b}绘图？
+{b}绘图
 {n:graphics}
 如果你在处理器里安装了图形卡，就可以进行一些简单的矢量绘图. 你可以画线，盒子以
-及文本，以某种限定的方式与你的图形交互也是可能的. 绘图有两种方式: 既可以在处理器内建的HUD(set
-to 'Gfx' mode) or else you can use an rftools screen with a 'vector art'
-module. If you want to interact with your graphics then the rftools screen
-is the only way. When working with graphics you have to know about
-three concepts: 'ids', 'colors', and 'coordinates'. I'll go over these in the
-next page.
+及文本，以某种限定的方式与你的图形交互也是可能的. 绘图有两种方式: 既可以用处理
+器内建的HUD(设定为 'Gfx' 模式) 也可以使用RFtools的屏幕配合'矢量画'模块. 如果
+你想与你画的图形交互，rftools屏幕是唯一的方式. 以图形工作时必须有三个要点: 
+'名称', '颜色', 和 '调谐'. 我会在下页交待.
 {-------------------------------------------------------------}
-{b}Ids
-Every graphics operation on a processor is identified by an 'id'. This is both
-needed to be able to modify a certain operation (i.e. replace the graphics
-represented by that id) as well as to control what operations are rendered
-first. Basically graphics operations are rendered with their id in
-alphabetical order.
+{b}名称
+一个处理器上的所有图形操作都是由一个'id（名称）'确定的. 既能用来修改一个特定的
+操作(换句话说，图形的改变体现在ID的改变上)，也能控制首先渲染什么图形操作.一般来
+说图形操作按照它们ID的字母表顺序（ABCD）渲染.
 
 {b}Colors
-Colors are integers. It is easiest to represent them in hexadecimal notation
-like this: $AARRGGBB. A few examples to clarify this: $FF00FF00. Is a fully
-non-transparent green color. $55990000 is a transparent dark red color.
+颜色是整数.用这样的十六进制记号表示它们最简单: $AARRGGBB.举几个例子说明: 
+$FF00FF00.这是完全不透明的绿色. $55990000是透明的暗红色.
 
-{b}Coordinates
-Coordinates go from 0,0 (top-left corner) to 128,128 (bottom-right corner).
+{b}调谐
+调谐范围从0,0 (最左上角)到128,128 (最右下角).
 {-------------------------------------------------------------}
-{b}Programming Concepts
+{b}编程事项
 {n:concepts}
-A program in RFTools Control is made out of 'opcodes' that are
-arranged on a grid. Opcodes connect to other opcodes (through a
-green arrow or a red arrow in case of a test opcode) and they have
-parameters that can influence what they can do.
+Rftools control程序是由安排在格子里的操作码编写的.操作码互相连接(通过绿色箭头
+或者测试操作码的红色箭头)，而且操作码是决定程序能做什么的基本参数.
 
-The tooltip on an opcode in the programmer will give more
-information (press shift for even more information)
+编程器内部操作码的提示可以给予更多信息。(按下shift访问更多信息)
 {-------------------------------------------------------------}
-{b}Types
+{b}类
 {n:types}
-Parameters and variables are typed. That means that they have a specific
-type (like integer, string, ...) and need to be converted to be used as
-something else. Many conversions are done automatically. For example,
-if you need a string but the last result was an integer then the integer
-will automatically be converted into a string.
+参数和变量已经被分类了.这意味着它们有特定的类(如整型，字符串...)并且需要转换
+成别的什么.很多转换都是自动完成的.比如你想要一个字符串但是最终结果是一个整型，
+整型会被自动转换为字符串.
 
-The following types are currently implemented: string, integer, float,
-boolean, side (represents a side of the processor or one of the connected
-nodes), inventory (represents an inventory adjacent to the processor or a
-connected node and an optional side from which to access the inventory),
-item (an itemstack), and exception.
+一般执行这些类: 字符串，整型，浮点数，布尔值, 面向 (代表处理器的某一个面，或者
+已经链接的节点), 库存(代表处理器邻近的一个容器或者一个连接的节点和任意一个可进
+入容器的面),物品(一个物品堆栈，就是箱子里的一个槽), 等等.
 {-------------------------------------------------------------}
-{b}Parameters
+{b}参数
 {n:parameters}
-As mentioned before opcodes can have multiple parameters which control
-how the opcode works. Parameters always have a specific type. Many
-parameters are optional which you can see in the tooltip.
+在操作码执行之前，可以有多个参数决定了操作码如何工作.参数总是有一个特定类型.
+你在操作码的提示中看到的参数都是可调节的。每一个参数有三个可能：既可以是常量, 
+也可以是变量引用,或者一个函数. 如果你打开了编程器里的参数编辑器(“...”按钮)，
+你可以在弹出的对话框中选择这三个选项.
 
-Every parameter can be either a constant value, a reference to a
-variable, or a function. If you open the parameter editor in the
-programmer (the ... button) you can select between these three options
-with the buttons at the top.
-
-The available list of functions depends on the type of the parameter.
-Some types have no functions defined for them (yet).
+允许的功能清单取决于参数的类型.有一些类型目前还没有为它们定义的功能.
 {-------------------------------------------------------------}
-{b}Variables
+{b}变量
 {n:variables}
-A processor can store up to 32 variables. These are also typed just
-like parameters. Make sure to allocate the variables to the card slot
-that you need them for. All programs that are on the same card slot
-will share those variables automatically.
+一个处理器最大可以存储32个变量. 变量也像参数一样分类. 确保把变量分配到需要它
+们的卡槽. 所有在同一卡槽（指的是处理器上面的6个卡槽）上的程序都会自动分享这些
+变量.
 
-You can also share variables with programs on other slots because
-it is possible to allocate a given variable to multiple cards.
+你也可以把变量分配到其他卡槽的程序中，因为允许把给定的变量分配到多张卡中.
 
-Note that accessing variables in programs needs a relative index.
-So variable 0 in a program means the first allocated variable for
-that card.
+进入程序的入口变量需要一个“相关索引”.所以一个程序里的变量0即为这张卡分配的第
+一个变量.
 {-------------------------------------------------------------}
-{b}Events
+{b}事件
 {n:events}
-Programs written with RFTools Control are 'event driven'. That means they
-only start when there is some kind of event. An event can be a redstone
+用RFTools Control写的程序是'事件驱动'.也就是说，当事件发生时程序才会开始. An event can be a redstone
 pulse, a timer, a crafting request for some item and more.
 
 Most events have parameters that control when they are fired.
