@@ -107,7 +107,7 @@ public class Functions {
                 if (vector == null) {
                     throw new ProgException(EXCEPT_NOTAVECTOR);
                 }
-                return ParameterTools.getMaxidxVector(vector);
+                return ParameterTools.getMinidxVector(vector);
             })
             .build();
     public static final Function SUMVECTOR = Function.builder()

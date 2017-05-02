@@ -228,8 +228,9 @@ public class ParameterTools {
                     maxidx = i;
                 } else {
                     int cmp = compare(max, vector.get(i));
-                    if (cmp > 0) {
+                    if (cmp < 0) {
                         maxidx = i;
+                        max = vector.get(i);
                     }
                 }
             }
@@ -247,8 +248,9 @@ public class ParameterTools {
                     minidx = i;
                 } else {
                     int cmp = compare(min, vector.get(i));
-                    if (cmp < 0) {
+                    if (cmp > 0) {
                         minidx = i;
+                        min = vector.get(i);
                     }
                 }
             }
