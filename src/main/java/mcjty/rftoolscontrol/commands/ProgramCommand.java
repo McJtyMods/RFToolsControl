@@ -29,7 +29,10 @@ public class ProgramCommand extends CompatCommandBase {
     @Override
     public String getName() {
         return "rfctrl";
-    }
+    }  
+    public String getCommandName() { 
+        return "rfctrl"; 
+    } 
 
     @Override
     public String getUsage(ICommandSender sender) {
