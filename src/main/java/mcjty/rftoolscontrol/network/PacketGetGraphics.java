@@ -40,11 +40,11 @@ public class PacketGetGraphics implements IMessage {
         }
 
         private void handle(PacketGetGraphics message, MessageContext ctx) {
-            EntityPlayerMP playerEntity = ctx.getServerHandler().playerEntity;
+            EntityPlayerMP playerEntity = ctx.getServerHandler().player;
             TileEntity te = playerEntity.getEntityWorld().getTileEntity(message.pos);
             if (te instanceof ProcessorTileEntity) {
                 ProcessorTileEntity processor = (ProcessorTileEntity) te;
-                RFToolsCtrlMessages.INSTANCE.sendTo(new PacketGraphicsReady(processor), ctx.getServerHandler().playerEntity);
+                RFToolsCtrlMessages.INSTANCE.sendTo(new PacketGraphicsReady(processor), ctx.getServerHandler().player);
             }
         }
     }

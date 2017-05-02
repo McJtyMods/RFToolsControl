@@ -29,7 +29,7 @@ public class PacketGetTankFluids extends PacketRequestServerList<FluidStack> {
 
         @Override
         protected void sendToClient(BlockPos pos, @Nonnull List<FluidStack> list, MessageContext messageContext) {
-            RFToolsCtrlMessages.INSTANCE.sendTo(new PacketTankFluidsReady(pos, MultiTankTileEntity.CLIENTCMD_GETFLUIDS, list), messageContext.getServerHandler().playerEntity);
+            RFToolsCtrlMessages.INSTANCE.sendTo(new PacketTankFluidsReady(pos, MultiTankTileEntity.CLIENTCMD_GETFLUIDS, list), messageContext.getServerHandler().player);
         }
     }
 }

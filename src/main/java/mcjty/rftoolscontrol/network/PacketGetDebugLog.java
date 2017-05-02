@@ -28,7 +28,7 @@ public class PacketGetDebugLog extends PacketRequestServerList<String> {
 
         @Override
         protected void sendToClient(BlockPos pos, @Nonnull List<String> list, MessageContext messageContext) {
-            RFToolsCtrlMessages.INSTANCE.sendTo(new PacketLogReady(pos, ProcessorTileEntity.CLIENTCMD_GETDEBUGLOG, list), messageContext.getServerHandler().playerEntity);
+            RFToolsCtrlMessages.INSTANCE.sendTo(new PacketLogReady(pos, ProcessorTileEntity.CLIENTCMD_GETDEBUGLOG, list), messageContext.getServerHandler().player);
         }
     }
 }

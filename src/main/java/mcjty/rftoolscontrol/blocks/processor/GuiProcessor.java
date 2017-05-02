@@ -640,7 +640,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
                     CompatSlot.getX(slot) + 17, CompatSlot.getY(slot) + 17,
                     border, fill);
             if (allocated) {
-                this.drawString(fontRendererObj, "" + index,
+                this.drawString(fontRenderer, "" + index,
                         CompatSlot.getX(slot)+4, CompatSlot.getY(slot)+4, 0xffffffff);
                 index++;
             }

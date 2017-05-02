@@ -29,7 +29,7 @@ public class PacketGetFluids extends PacketRequestServerList<PacketGetFluids.Flu
 
         @Override
         protected void sendToClient(BlockPos pos, @Nonnull List<PacketGetFluids.FluidEntry> list, MessageContext messageContext) {
-            RFToolsCtrlMessages.INSTANCE.sendTo(new PacketFluidsReady(pos, ProcessorTileEntity.CLIENTCMD_GETFLUIDS, list), messageContext.getServerHandler().playerEntity);
+            RFToolsCtrlMessages.INSTANCE.sendTo(new PacketFluidsReady(pos, ProcessorTileEntity.CLIENTCMD_GETFLUIDS, list), messageContext.getServerHandler().player);
         }
     }
 

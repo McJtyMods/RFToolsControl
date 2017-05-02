@@ -29,7 +29,7 @@ public class PacketGetVariables extends PacketRequestServerList<Parameter> {
 
         @Override
         protected void sendToClient(BlockPos pos, @Nonnull List<Parameter> list, MessageContext messageContext) {
-            RFToolsCtrlMessages.INSTANCE.sendTo(new PacketVariablesReady(pos, ProcessorTileEntity.CLIENTCMD_GETVARS, list), messageContext.getServerHandler().playerEntity);
+            RFToolsCtrlMessages.INSTANCE.sendTo(new PacketVariablesReady(pos, ProcessorTileEntity.CLIENTCMD_GETVARS, list), messageContext.getServerHandler().player);
         }
     }
 }

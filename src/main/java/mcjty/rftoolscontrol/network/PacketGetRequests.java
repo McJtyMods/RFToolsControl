@@ -29,7 +29,7 @@ public class PacketGetRequests extends PacketRequestServerList<CraftingRequest> 
 
         @Override
         protected void sendToClient(BlockPos pos, @Nonnull List<CraftingRequest> list, MessageContext messageContext) {
-            RFToolsCtrlMessages.INSTANCE.sendTo(new PacketRequestsReady(pos, CraftingStationTileEntity.CLIENTCMD_GETREQUESTS, list), messageContext.getServerHandler().playerEntity);
+            RFToolsCtrlMessages.INSTANCE.sendTo(new PacketRequestsReady(pos, CraftingStationTileEntity.CLIENTCMD_GETREQUESTS, list), messageContext.getServerHandler().player);
         }
     }
 }

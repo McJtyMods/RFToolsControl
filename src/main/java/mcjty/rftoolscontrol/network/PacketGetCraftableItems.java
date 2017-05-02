@@ -29,7 +29,7 @@ public class PacketGetCraftableItems extends PacketRequestServerList<ItemStack> 
 
         @Override
         protected void sendToClient(BlockPos pos, @Nonnull List<ItemStack> list, MessageContext messageContext) {
-            RFToolsCtrlMessages.INSTANCE.sendTo(new PacketCraftableItemsReady(pos, CraftingStationTileEntity.CLIENTCMD_GETCRAFTABLE, list), messageContext.getServerHandler().playerEntity);
+            RFToolsCtrlMessages.INSTANCE.sendTo(new PacketCraftableItemsReady(pos, CraftingStationTileEntity.CLIENTCMD_GETCRAFTABLE, list), messageContext.getServerHandler().player);
         }
     }
 }

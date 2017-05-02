@@ -25,7 +25,7 @@ public class GfxOpText extends GfxOp {
 
     @Override
     public void render() {
-        Minecraft.getMinecraft().fontRendererObj.drawString(text, x, y, color);
+        Minecraft.getMinecraft().fontRenderer.drawString(text, x, y, color);
     }
 
     @Override
