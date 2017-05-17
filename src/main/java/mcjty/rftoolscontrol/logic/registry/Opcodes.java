@@ -142,6 +142,9 @@ public class Opcodes {
                 int slot = processor.evaluateIntParameter(opcode, program, 1);
                 IItemHandler handler = processor.getItemHandlerAt(inv);
                 ItemStack item = handler.getStackInSlot(slot);
+                if (ItemStackTools.isValid(item)) {
+                    item = item.copy();
+                }
                 program.setLastValue(Parameter.builder().type(PAR_ITEM).value(ParameterValue.constant(item)).build());
                 return POSITIVE;
             }))
@@ -944,6 +947,9 @@ public class Opcodes {
             .runnable(((processor, program, opcode) -> {
                 int slot = processor.evaluateIntParameter(opcode, program, 0);
                 ItemStack item = processor.getItemInternal(program, slot);
+                if (ItemStackTools.isValid(item)) {
+                    item = item.copy();
+                }
                 program.setLastValue(Parameter.builder().type(PAR_ITEM).value(ParameterValue.constant(item)).build());
                 return POSITIVE;
             }))
