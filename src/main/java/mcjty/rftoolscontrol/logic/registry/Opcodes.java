@@ -1682,7 +1682,7 @@ public class Opcodes {
             .runnable(((processor, program, opcode) -> {
                 List<Parameter> vector = processor.evaluateVectorParameterNonNull(opcode, program, 0);
                 List<Parameter> newvector = new ArrayList<Parameter>(vector.size()-1);
-                for (int i = 0 ; i < newvector.size() ; i++) {
+                for (int i = 0 ; i < vector.size()-1 ; i++) {
                     newvector.add(vector.get(i));
                 }
                 program.setLastValue(Parameter.builder().type(PAR_VECTOR).value(ParameterValue.constant(Collections.unmodifiableList(newvector))).build());
