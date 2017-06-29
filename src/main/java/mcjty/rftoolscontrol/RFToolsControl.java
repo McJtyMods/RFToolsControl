@@ -24,20 +24,15 @@ import java.util.function.Function;
 @Mod(modid = RFToolsControl.MODID, name="RFTools Control",
         dependencies =
                         "required-after:mcjtylib_ng@[" + RFToolsControl.MIN_MCJTYLIB_VER + ",);" +
-                        "required-after:compatlayer@[" + RFToolsControl.COMPATLAYER_VER + ",);" +
                         "required-after:rftools@[" + RFToolsControl.MIN_RFTOOLS_VER + ",);" +
-                        "after:Forge@[" + RFToolsControl.MIN_FORGE10_VER + ",);" +
                         "after:forge@[" + RFToolsControl.MIN_FORGE11_VER + ",)",
-        version = RFToolsControl.VERSION,
-        acceptedMinecraftVersions = "[1.10,1.12)")
+        version = RFToolsControl.VERSION)
 public class RFToolsControl implements ModBase {
     public static final String MODID = "rftoolscontrol";
     public static final String VERSION = "1.6.8";
-    public static final String MIN_RFTOOLS_VER = "5.81";
-    public static final String MIN_FORGE10_VER = "12.18.1.2082";
+    public static final String MIN_RFTOOLS_VER = "6.10";
     public static final String MIN_FORGE11_VER = "13.19.0.2176";
-    public static final String MIN_MCJTYLIB_VER = "2.3.2";
-    public static final String COMPATLAYER_VER = "0.1.7";
+    public static final String MIN_MCJTYLIB_VER = "2.4.0";
 
     @SidedProxy(clientSide="mcjty.rftoolscontrol.proxy.ClientProxy", serverSide="mcjty.rftoolscontrol.proxy.ServerProxy")
     public static CommonProxy proxy;
