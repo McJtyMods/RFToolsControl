@@ -1,10 +1,9 @@
 package mcjty.rftoolscontrol.logic;
 
-import mcjty.lib.tools.FluidTools;
-import mcjty.lib.tools.ItemStackTools;
 import mcjty.rftoolscontrol.api.parameters.*;
 import mcjty.rftoolscontrol.logic.running.ExceptionType;
 import mcjty.rftoolscontrol.logic.running.ProgException;
+import mcjty.rftoolscontrol.varia.FluidTools;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fluids.FluidRegistry;
@@ -37,7 +36,7 @@ public class TypeConverters {
             case PAR_BOOLEAN:
                 return ((Boolean) v) ? 1.0f : 0.0f;
             case PAR_ITEM:
-                return ItemStackTools.getStackSize((ItemStack) v);
+                return ((ItemStack) v).getCount();
             case PAR_FLUID:
                 return ((FluidStack) v).amount;
             case PAR_INVENTORY:
@@ -86,14 +85,14 @@ public class TypeConverters {
 
     public static ItemStack convertToItem(Parameter value) {
         if (value == null) {
-            return ItemStackTools.getEmptyStack();
+            return ItemStack.EMPTY;
         }
         return convertToItem(value.getParameterType(), value.getParameterValue().getValue());
     }
 
     public static ItemStack convertToItem(ParameterType type, Object v) {
         if (v == null) {
-            return ItemStackTools.getEmptyStack();
+            return ItemStack.EMPTY;
         }
         switch (type) {
             case PAR_STRING:
@@ -113,7 +112,7 @@ public class TypeConverters {
             case PAR_VECTOR:
                 break;
         }
-        return ItemStackTools.getEmptyStack();
+        return ItemStack.EMPTY;
     }
 
 
@@ -283,7 +282,7 @@ public class TypeConverters {
             case PAR_VECTOR:
                 return !((List<Parameter>)v).isEmpty();
             case PAR_ITEM:
-                return ItemStackTools.isValid((ItemStack) v);
+                return !((ItemStack) v).isEmpty();
             case PAR_SIDE:
             case PAR_INVENTORY:
             case PAR_FLUID:
@@ -324,7 +323,7 @@ public class TypeConverters {
             case PAR_BOOLEAN:
                 return ((Boolean) v) ? 1 : 0;
             case PAR_ITEM:
-                return ItemStackTools.getStackSize((ItemStack) v);
+                return ((ItemStack) v).getCount();
             case PAR_FLUID:
                 return ((FluidStack) v).amount;
             case PAR_VECTOR:
@@ -366,7 +365,7 @@ public class TypeConverters {
             case PAR_BOOLEAN:
                 return ((Boolean) v) ? "true" : "false";
             case PAR_ITEM:
-                if (ItemStackTools.isValid((ItemStack) v)) {
+                if (!((ItemStack) v).isEmpty()) {
                     return ((ItemStack) v).getItem().getRegistryName().toString();
                 } else {
                     return null;

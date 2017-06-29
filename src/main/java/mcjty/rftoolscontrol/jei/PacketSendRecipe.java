@@ -2,7 +2,6 @@ package mcjty.rftoolscontrol.jei;
 
 import io.netty.buffer.ByteBuf;
 import mcjty.lib.network.NetworkTools;
-import mcjty.lib.tools.ItemStackTools;
 import mcjty.rftoolscontrol.items.ModItems;
 import mcjty.rftoolscontrol.items.craftingcard.CraftingCardContainer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -27,7 +26,7 @@ public class PacketSendRecipe implements IMessage {
             if (buf.readBoolean()) {
                 stacks.add(NetworkTools.readItemStack(buf));
             } else {
-                stacks.add(ItemStackTools.getEmptyStack());
+                stacks.add(ItemStack.EMPTY);
             }
         }
     }
@@ -36,7 +35,7 @@ public class PacketSendRecipe implements IMessage {
     public void toBytes(ByteBuf buf) {
         buf.writeInt(stacks.size());
         for (ItemStack stack : stacks) {
-            if (ItemStackTools.isValid(stack)) {
+            if (!stack.isEmpty()) {
                 buf.writeBoolean(true);
                 NetworkTools.writeItemStack(buf, stack);
             } else {
@@ -64,7 +63,7 @@ public class PacketSendRecipe implements IMessage {
             World world = player.getEntityWorld();
             // Handle tablet version
             ItemStack mainhand = player.getHeldItemMainhand();
-            if (ItemStackTools.isValid(mainhand) && mainhand.getItem() == ModItems.craftingCardItem) {
+            if (!mainhand.isEmpty() && mainhand.getItem() == ModItems.craftingCardItem) {
                 if (player.openContainer instanceof CraftingCardContainer) {
                     CraftingCardContainer craftingCardContainer = (CraftingCardContainer) player.openContainer;
                     craftingCardContainer.setGridContents(player, message.stacks);

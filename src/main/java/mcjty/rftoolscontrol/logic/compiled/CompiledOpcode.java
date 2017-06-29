@@ -1,10 +1,10 @@
 package mcjty.rftoolscontrol.logic.compiled;
 
 import mcjty.rftoolscontrol.api.code.ICompiledOpcode;
-import mcjty.rftoolscontrol.blocks.processor.ProcessorTileEntity;
-import mcjty.rftoolscontrol.api.parameters.Parameter;
-import mcjty.rftoolscontrol.api.code.Opcode;
 import mcjty.rftoolscontrol.api.code.IOpcodeRunnable;
+import mcjty.rftoolscontrol.api.code.Opcode;
+import mcjty.rftoolscontrol.api.parameters.Parameter;
+import mcjty.rftoolscontrol.blocks.processor.ProcessorTileEntity;
 import mcjty.rftoolscontrol.logic.running.ProgException;
 import mcjty.rftoolscontrol.logic.running.RunningProgram;
 

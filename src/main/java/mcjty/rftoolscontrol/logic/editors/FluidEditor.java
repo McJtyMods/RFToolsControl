@@ -6,8 +6,6 @@ import mcjty.lib.gui.widgets.BlockRender;
 import mcjty.lib.gui.widgets.Label;
 import mcjty.lib.gui.widgets.Panel;
 import mcjty.lib.gui.widgets.Widget;
-import mcjty.lib.tools.ItemStackTools;
-import mcjty.lib.tools.MinecraftTools;
 import mcjty.rftoolscontrol.api.parameters.ParameterType;
 import mcjty.rftoolscontrol.api.parameters.ParameterValue;
 import net.minecraft.client.Minecraft;
@@ -36,8 +34,8 @@ public class FluidEditor extends AbstractParameterEditor {
         blockRender.addSelectionEvent(new BlockRenderEvent() {
             @Override
             public void select(Widget widget) {
-                ItemStack holding = MinecraftTools.getPlayer(Minecraft.getMinecraft()).inventory.getItemStack();
-                if (ItemStackTools.isEmpty(holding)) {
+                ItemStack holding = Minecraft.getMinecraft().player.inventory.getItemStack();
+                if (holding.isEmpty()) {
                     blockRender.setRenderItem(null);
                 } else {
                     blockRender.setRenderItem(stackToFluid(holding));

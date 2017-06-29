@@ -1,9 +1,6 @@
 package mcjty.rftoolscontrol;
 
-import com.google.common.base.Function;
-import com.google.common.base.Optional;
 import mcjty.lib.base.ModBase;
-import mcjty.lib.compat.CompatCreativeTabs;
 import mcjty.lib.compat.MainCompatHandler;
 import mcjty.rftoolscontrol.api.registry.IFunctionRegistry;
 import mcjty.rftoolscontrol.api.registry.IOpcodeRegistry;
@@ -14,12 +11,15 @@ import mcjty.rftoolscontrol.logic.registry.OpcodeRegistry;
 import mcjty.rftoolscontrol.proxy.CommonProxy;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.*;
+
+import java.util.Optional;
+import java.util.function.Function;
 
 @Mod(modid = RFToolsControl.MODID, name="RFTools Control",
         dependencies =
@@ -63,10 +63,10 @@ public class RFToolsControl implements ModBase {
         FluidRegistry.enableUniversalBucket();
     }
 
-    public static CreativeTabs tabRFToolsControl = new CompatCreativeTabs("RFToolsControl") {
+    public static CreativeTabs tabRFToolsControl = new CreativeTabs("RFToolsControl") {
         @Override
-        protected Item getItem() {
-            return ModItems.rfToolsControlManualItem;
+        public ItemStack getTabIconItem() {
+            return new ItemStack(ModItems.rfToolsControlManualItem);
         }
     };
 

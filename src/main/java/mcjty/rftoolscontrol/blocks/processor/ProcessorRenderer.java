@@ -22,7 +22,7 @@ import static mcjty.rftoolscontrol.blocks.processor.ProcessorTileEntity.*;
 public class ProcessorRenderer extends TileEntitySpecialRenderer<ProcessorTileEntity> {
 
     @Override
-    public void renderTileEntityAt(ProcessorTileEntity tileEntity, double x, double y, double z, float partialTicks, int destroyStage) {
+    public void render(ProcessorTileEntity tileEntity, double x, double y, double z, float partialTicks, int destroyStage, float alpha) {
         if (tileEntity.getShowHud() == HUD_OFF) {
             return;
         }

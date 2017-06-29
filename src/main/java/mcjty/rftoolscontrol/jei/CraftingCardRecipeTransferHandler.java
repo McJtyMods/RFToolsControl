@@ -1,10 +1,10 @@
 package mcjty.rftoolscontrol.jei;
 
-import mcjty.lib.jei.CompatRecipeTransferHandler;
 import mcjty.rftoolscontrol.items.craftingcard.CraftingCardContainer;
 import mezz.jei.api.gui.IGuiIngredient;
 import mezz.jei.api.gui.IRecipeLayout;
 import mezz.jei.api.recipe.transfer.IRecipeTransferError;
+import mezz.jei.api.recipe.transfer.IRecipeTransferHandler;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.item.ItemStack;
@@ -13,7 +13,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Map;
 
-public class CraftingCardRecipeTransferHandler implements CompatRecipeTransferHandler {
+public class CraftingCardRecipeTransferHandler implements IRecipeTransferHandler {
 
     @Override
     public Class<? extends Container> getContainerClass() {

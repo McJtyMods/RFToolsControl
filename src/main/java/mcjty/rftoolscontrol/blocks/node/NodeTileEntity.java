@@ -2,7 +2,6 @@ package mcjty.rftoolscontrol.blocks.node;
 
 import mcjty.lib.entity.GenericTileEntity;
 import mcjty.lib.network.Argument;
-import mcjty.lib.tools.WorldTools;
 import mcjty.lib.varia.BlockPosTools;
 import mcjty.rftoolscontrol.blocks.processor.ProcessorTileEntity;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -65,7 +64,7 @@ public class NodeTileEntity extends GenericTileEntity {
     public void setPowerOut(EnumFacing side, int powerOut) {
         this.powerOut[side.ordinal()] = powerOut;
         markDirty();
-        WorldTools.notifyBlockOfStateChange(getWorld(), this.pos.offset(side), this.getBlockType(), this.pos);
+        getWorld().neighborChanged(this.pos.offset(side), this.getBlockType(), this.pos);
     }
 
     @Override

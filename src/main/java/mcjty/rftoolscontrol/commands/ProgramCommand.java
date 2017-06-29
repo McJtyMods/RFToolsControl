@@ -1,19 +1,19 @@
 package mcjty.rftoolscontrol.commands;
 
-import mcjty.lib.compat.CompatCommandBase;
-import mcjty.lib.tools.ChatTools;
-import mcjty.lib.tools.ItemStackTools;
-import mcjty.lib.tools.MinecraftTools;
 import mcjty.rftoolscontrol.items.ProgramCardItem;
 import mcjty.rftoolscontrol.logic.grid.ProgramCardInstance;
 import mcjty.rftoolscontrol.network.PacketItemNBTToServer;
 import mcjty.rftoolscontrol.network.RFToolsCtrlMessages;
 import net.minecraft.client.Minecraft;
+import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
+import net.minecraft.command.ICommand;
 import net.minecraft.command.ICommandSender;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 
@@ -25,7 +25,15 @@ import java.util.List;
 /**
  * Client side command
  */
-public class ProgramCommand extends CompatCommandBase {
+public class ProgramCommand extends CommandBase {
+    public static boolean canUseCommand(ICommandSender sender, int permLevel, String name) {
+        return sender.canUseCommand(permLevel, name);
+    }
+
+    public static String getCommandName(ICommand command) {
+        return command.getName();
+    }
+
     @Override
     public String getName() {
         return "rfctrl";
@@ -39,9 +47,14 @@ public class ProgramCommand extends CompatCommandBase {
     @Override
     public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
         if (args.length > 1) {
-            ItemStack item = MinecraftTools.getPlayer(Minecraft.getMinecraft()).getHeldItemMainhand();
-            if (ItemStackTools.isEmpty(item) || !(item.getItem() instanceof ProgramCardItem)) {
-                ChatTools.addChatMessage(sender, new TextComponentString(TextFormatting.RED + "You need a program card in your hand!"));
+            ItemStack item = Minecraft.getMinecraft().player.getHeldItemMainhand();
+            if (item.isEmpty() || !(item.getItem() instanceof ProgramCardItem)) {
+                ITextComponent component = new TextComponentString(TextFormatting.RED + "You need a program card in your hand!");
+                if (sender instanceof EntityPlayer) {
+                    ((EntityPlayer) sender).sendStatusMessage(component, false);
+                } else {
+                    sender.sendMessage(component);
+                }
                 return;
             }
             if ("save".equals(args[0])) {
@@ -50,7 +63,12 @@ public class ProgramCommand extends CompatCommandBase {
                 loadProgram(sender, args[1], item);
             }
         } else {
-            ChatTools.addChatMessage(sender, new TextComponentString(TextFormatting.RED + "Missing parameter (save <file> or load <file>)!"));
+            ITextComponent component = new TextComponentString(TextFormatting.RED + "Missing parameter (save <file> or load <file>)!");
+            if (sender instanceof EntityPlayer) {
+                ((EntityPlayer) sender).sendStatusMessage(component, false);
+            } else {
+                sender.sendMessage(component);
+            }
         }
     }
 
@@ -65,13 +83,23 @@ public class ProgramCommand extends CompatCommandBase {
             stream.read(data);
             json = new String(data, "UTF-8");
         } catch (IOException e) {
-            ChatTools.addChatMessage(sender, new TextComponentString(TextFormatting.RED + "Error opening file for reading!"));
+            ITextComponent component = new TextComponentString(TextFormatting.RED + "Error opening file for reading!");
+            if (sender instanceof EntityPlayer) {
+                ((EntityPlayer) sender).sendStatusMessage(component, false);
+            } else {
+                sender.sendMessage(component);
+            }
             return;
         }
         ProgramCardInstance program = ProgramCardInstance.readFromJson(json);
         program.writeToNBT(item);
         RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketItemNBTToServer(item.getTagCompound()));
-        ChatTools.addChatMessage(sender, new TextComponentString("Loaded program!"));
+        ITextComponent component = new TextComponentString("Loaded program!");
+        if (sender instanceof EntityPlayer) {
+            ((EntityPlayer) sender).sendStatusMessage(component, false);
+        } else {
+            sender.sendMessage(component);
+        }
     }
 
     private void saveProgram(ICommandSender sender, String arg, ItemStack item) {
@@ -86,12 +114,22 @@ public class ProgramCommand extends CompatCommandBase {
         try {
             writer = new PrintWriter(file);
         } catch (FileNotFoundException e) {
-            ChatTools.addChatMessage(sender, new TextComponentString(TextFormatting.RED + "Error opening file for writing!"));
+            ITextComponent component = new TextComponentString(TextFormatting.RED + "Error opening file for writing!");
+            if (sender instanceof EntityPlayer) {
+                ((EntityPlayer) sender).sendStatusMessage(component, false);
+            } else {
+                sender.sendMessage(component);
+            }
             return;
         }
         writer.print(json);
         writer.close();
-        ChatTools.addChatMessage(sender, new TextComponentString("Saved program!"));
+        ITextComponent component = new TextComponentString("Saved program!");
+        if (sender instanceof EntityPlayer) {
+            ((EntityPlayer) sender).sendStatusMessage(component, false);
+        } else {
+            sender.sendMessage(component);
+        }
     }
 
     @Override

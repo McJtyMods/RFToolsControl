@@ -6,9 +6,9 @@ import mcjty.lib.gui.layout.HorizontalLayout;
 import mcjty.lib.gui.layout.PositionalLayout;
 import mcjty.lib.gui.widgets.*;
 import mcjty.rftoolscontrol.api.code.Function;
-import mcjty.rftoolscontrol.logic.registry.Functions;
 import mcjty.rftoolscontrol.api.parameters.ParameterType;
 import mcjty.rftoolscontrol.api.parameters.ParameterValue;
+import mcjty.rftoolscontrol.logic.registry.Functions;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 

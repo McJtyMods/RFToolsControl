@@ -9,13 +9,12 @@ import mcjty.lib.gui.widgets.*;
 import mcjty.lib.gui.widgets.Button;
 import mcjty.lib.gui.widgets.Label;
 import mcjty.lib.gui.widgets.Panel;
-import mcjty.lib.tools.ItemStackList;
-import mcjty.lib.tools.ItemStackTools;
-import mcjty.lib.tools.MinecraftTools;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.network.PacketItemNBTToServer;
 import mcjty.rftoolscontrol.network.PacketTestRecipe;
 import mcjty.rftoolscontrol.network.RFToolsCtrlMessages;
+import mcjty.rftoolscontrol.varia.ItemStackList;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
@@ -80,8 +79,9 @@ public class GuiCraftingCard extends GenericGuiContainer {
                 Object s = slots[idx].getRenderItem();
                 if (s instanceof ItemStack) {
                     ItemStack stack = (ItemStack) s;
-                    if (ItemStackTools.isValid(stack)) {
-                        List<String> list = stack.getTooltip(MinecraftTools.getPlayer(this.mc), this.mc.gameSettings.advancedItemTooltips);
+                    if (!stack.isEmpty()) {
+                        ITooltipFlag flag = this.mc.gameSettings.advancedItemTooltips ? ITooltipFlag.TooltipFlags.ADVANCED : ITooltipFlag.TooltipFlags.NORMAL;
+                        List<String> list = stack.getTooltip(this.mc.player, flag);
 
                         for (int i = 0; i < list.size(); ++i) {
                             if (i == 0) {
@@ -118,9 +118,9 @@ public class GuiCraftingCard extends GenericGuiContainer {
 
     @Nonnull
     private ItemStackList getStacks() {
-        ItemStack cardItem = MinecraftTools.getPlayer(mc).getHeldItem(EnumHand.MAIN_HAND);
+        ItemStack cardItem = mc.player.getHeldItem(EnumHand.MAIN_HAND);
         ItemStackList stacks = ItemStackList.EMPTY;
-        if (ItemStackTools.isValid(cardItem) && cardItem.getItem() instanceof CraftingCardItem) {
+        if (!cardItem.isEmpty() && cardItem.getItem() instanceof CraftingCardItem) {
             stacks = CraftingCardItem.getStacksFromItem(cardItem);
         }
         return stacks;
@@ -130,12 +130,12 @@ public class GuiCraftingCard extends GenericGuiContainer {
         return new BlockRenderEvent() {
             @Override
             public void select(Widget parent) {
-                ItemStack itemstack = MinecraftTools.getPlayer(mc).inventory.getItemStack();
+                ItemStack itemstack = mc.player.inventory.getItemStack();
                 slots[idx].setRenderItem(itemstack);
                 ItemStackList stacks = getStacks();
                 if (!stacks.isEmpty()) {
                     stacks.set(idx, itemstack);
-                    ItemStack cardItem = MinecraftTools.getPlayer(mc).getHeldItem(EnumHand.MAIN_HAND);
+                    ItemStack cardItem = mc.player.getHeldItem(EnumHand.MAIN_HAND);
                     CraftingCardItem.putStacksInItem(cardItem, stacks);
                     RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketItemNBTToServer(cardItem.getTagCompound()));
                 }

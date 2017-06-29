@@ -10,6 +10,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
@@ -55,15 +56,15 @@ public class ProcessorBlock extends GenericRFToolsBlock<ProcessorTileEntity, Pro
 
     @SideOnly(Side.CLIENT)
     @Override
-    public void addInformation(ItemStack stack, EntityPlayer playerIn, List<String> list, boolean advanced) {
+    public void addInformation(ItemStack stack, World playerIn, List<String> list, ITooltipFlag advanced) {
         super.addInformation(stack, playerIn, list, advanced);
         list.add("The processor executes programs");
         list.add("for automation");
     }
 
     @Override
-    protected void clOnNeighborChanged(IBlockState state, World world, BlockPos pos, Block blockIn) {
-        super.clOnNeighborChanged(state, world, pos, blockIn);
+    public void neighborChanged(IBlockState state, World world, BlockPos pos, Block blockIn, BlockPos fromPos) {
+        super.neighborChanged(state, world, pos, blockIn, fromPos);
         TileEntity te = world.getTileEntity(pos);
         if (te instanceof ProcessorTileEntity) {
             ((ProcessorTileEntity) te).markFluidSlotsDirty();

@@ -4,8 +4,6 @@ import mcjty.lib.container.DefaultSidedInventory;
 import mcjty.lib.container.GenericCrafter;
 import mcjty.lib.container.InventoryHelper;
 import mcjty.lib.entity.GenericTileEntity;
-import mcjty.lib.tools.InventoryTools;
-import mcjty.lib.tools.ItemStackTools;
 import mcjty.lib.varia.FacedSidedInvWrapper;
 import mcjty.lib.varia.NullSidedInvWrapper;
 import net.minecraft.entity.player.EntityPlayer;
@@ -13,6 +11,7 @@ import net.minecraft.inventory.Container;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
+import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.capabilities.Capability;
@@ -92,7 +91,8 @@ public class WorkbenchTileEntity extends GenericTileEntity implements DefaultSid
     private void updateRecipe() {
         if (getStackInSlot(WorkbenchContainer.SLOT_CRAFTOUTPUT) == null || realItems == 0) {
             InventoryCrafting workInventory = makeWorkInventory();
-            ItemStack stack = CraftingManager.getInstance().findMatchingRecipe(workInventory, this.getWorld());
+            IRecipe recipe = CraftingManager.findMatchingRecipe(workInventory, this.getWorld());
+            ItemStack stack = recipe.getCraftingResult(workInventory);
             getInventoryHelper().setInventorySlotContents(getInventoryStackLimit(), WorkbenchContainer.SLOT_CRAFTOUTPUT, stack);
         }
     }
@@ -167,19 +167,20 @@ public class WorkbenchTileEntity extends GenericTileEntity implements DefaultSid
     public ItemStack decrStackSize(int index, int count) {
         if (isCraftOutput(index) && realItems == 0) {
             InventoryCrafting workInventory = makeWorkInventory();
-            List<ItemStack> remainingItems = InventoryTools.getRemainingItems(workInventory, getWorld());
+            List<ItemStack> remainingItems = CraftingManager.getRemainingItems(workInventory, getWorld());
             for (int i = 0 ; i < 9 ; i++) {
                 ItemStack s = getStackInSlot(i + WorkbenchContainer.SLOT_CRAFTINPUT);
-                if (ItemStackTools.isValid(s)) {
+                if (!s.isEmpty()) {
                     getInventoryHelper().decrStackSize(i + WorkbenchContainer.SLOT_CRAFTINPUT, 1);
                     s = getStackInSlot(i + WorkbenchContainer.SLOT_CRAFTINPUT);
                 }
 
-                if (ItemStackTools.isValid(remainingItems.get(i))) {
-                    if (ItemStackTools.isEmpty(s)) {
+                if (!remainingItems.get(i).isEmpty()) {
+                    if (s.isEmpty()) {
                         getInventoryHelper().setStackInSlot(i + WorkbenchContainer.SLOT_CRAFTINPUT, remainingItems.get(i));
                     } else if (ItemStack.areItemsEqual(s, remainingItems.get(i)) && ItemStack.areItemStackTagsEqual(s, remainingItems.get(i))) {
-                        ItemStackTools.incStackSize(remainingItems.get(i), ItemStackTools.getStackSize(s));
+                        ItemStack stack = remainingItems.get(i);
+                        stack.grow(s.getCount());
                         getInventoryHelper().setInventorySlotContents(getInventoryStackLimit(), i + WorkbenchContainer.SLOT_CRAFTINPUT, remainingItems.get(i));
                     } else {
                         // @todo
@@ -191,8 +192,8 @@ public class WorkbenchTileEntity extends GenericTileEntity implements DefaultSid
         ItemStack rc = getInventoryHelper().decrStackSize(index, count);
         if (isCraftOutput(index)) {
             ItemStack stack = getStackInSlot(index);
-            if (ItemStackTools.isValid(stack)) {
-                realItems = ItemStackTools.getStackSize(stack);
+            if (!stack.isEmpty()) {
+                realItems = stack.getCount();
             } else {
                 realItems = 0;
             }
@@ -209,7 +210,12 @@ public class WorkbenchTileEntity extends GenericTileEntity implements DefaultSid
     }
 
     @Override
-    public boolean isUsable(EntityPlayer player) {
+    public boolean isEmpty() {
+        return false;
+    }
+
+    @Override
+    public boolean isUsableByPlayer(EntityPlayer player) {
         return canPlayerAccess(player);
     }
 

@@ -4,14 +4,13 @@ import mcjty.lib.container.DefaultSidedInventory;
 import mcjty.lib.container.InventoryHelper;
 import mcjty.lib.entity.GenericTileEntity;
 import mcjty.lib.network.Argument;
-import mcjty.lib.tools.ItemStackList;
-import mcjty.lib.tools.ItemStackTools;
 import mcjty.lib.varia.BlockPosTools;
 import mcjty.rftoolscontrol.api.parameters.Inventory;
 import mcjty.rftoolscontrol.blocks.processor.ProcessorTileEntity;
 import mcjty.rftoolscontrol.config.GeneralConfiguration;
 import mcjty.rftoolscontrol.logic.running.ExceptionType;
 import mcjty.rftoolscontrol.logic.running.ProgException;
+import mcjty.rftoolscontrol.varia.ItemStackList;
 import mcjty.typed.Type;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -71,7 +70,7 @@ public class CraftingStationTileEntity extends GenericTileEntity implements Defa
                 return request.getStack();
             }
         }
-        return ItemStackTools.getEmptyStack();
+        return ItemStack.EMPTY;
     }
 
     private Pair<ProcessorTileEntity, ItemStack> findCraftableItem(int index) {
@@ -109,7 +108,7 @@ public class CraftingStationTileEntity extends GenericTileEntity implements Defa
             } else {
                 processor.fireCraftEvent(ticket, foundRequest.getStack());
             }
-            if (ItemStackTools.isValid(stack)) {
+            if (!stack.isEmpty()) {
                 Inventory inventory = getInventoryFromTicket(ticket);
                 if (inventory != null) {
                     IItemHandler handlerAt = processor.getItemHandlerAt(inventory);
@@ -151,7 +150,7 @@ public class CraftingStationTileEntity extends GenericTileEntity implements Defa
         }
         String ticket = getNewTicket(null);
         ItemStack stack = pair.getValue();
-        int count = (amount + ItemStackTools.getStackSize(stack) - 1) / ItemStackTools.getStackSize(stack);
+        int count = (amount + stack.getCount() - 1) / stack.getCount();
         CraftingRequest request = new CraftingRequest(ticket, stack, count);
 
         if (!checkRequestAmount()) {
@@ -291,7 +290,7 @@ public class CraftingStationTileEntity extends GenericTileEntity implements Defa
         for (int i = 0; i < list.tagCount(); i++) {
             NBTTagCompound requestTag = list.getCompoundTagAt(i);
             String craftId = requestTag.getString("craftId");
-            ItemStack stack = ItemStackTools.loadFromNBT(requestTag.getCompoundTag("stack"));
+            ItemStack stack = new ItemStack(requestTag.getCompoundTag("stack"));
             int count = requestTag.getInteger("count");
             CraftingRequest request = new CraftingRequest(craftId, stack, count);
             request.setFailed(requestTag.getLong("failed"));
@@ -366,7 +365,12 @@ public class CraftingStationTileEntity extends GenericTileEntity implements Defa
     }
 
     @Override
-    public boolean isUsable(EntityPlayer player) {
+    public boolean isEmpty() {
+        return false;
+    }
+
+    @Override
+    public boolean isUsableByPlayer(EntityPlayer player) {
         return canPlayerAccess(player);
     }
 

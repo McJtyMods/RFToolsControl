@@ -1,11 +1,10 @@
 package mcjty.rftoolscontrol.blocks.processor;
 
-import cofh.api.energy.IEnergyHandler;
+import mcjty.lib.compat.RedstoneFluxCompatibility;
 import mcjty.lib.container.DefaultSidedInventory;
 import mcjty.lib.container.InventoryHelper;
 import mcjty.lib.entity.GenericEnergyReceiverTileEntity;
 import mcjty.lib.network.Argument;
-import mcjty.lib.tools.ItemStackTools;
 import mcjty.lib.varia.BlockPosTools;
 import mcjty.lib.varia.WorldTools;
 import mcjty.rftools.api.storage.IStorageScanner;
@@ -266,7 +265,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         if (p.equals(pos)) {
             powerOut[facing.ordinal()] = level;
             markDirty();
-            mcjty.lib.tools.WorldTools.notifyBlockOfStateChange(getWorld(), this.pos.offset(facing), this.getBlockType(), this.pos);
+            getWorld().neighborChanged(this.pos.offset(facing), this.getBlockType(), this.pos);
         } else {
             NodeTileEntity te = (NodeTileEntity) getWorld().getTileEntity(p);
             te.setPowerOut(facing, level);
@@ -278,7 +277,12 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     }
 
     @Override
-    public boolean isUsable(EntityPlayer player) {
+    public boolean isEmpty() {
+        return false;
+    }
+
+    @Override
+    public boolean isUsableByPlayer(EntityPlayer player) {
         return canPlayerAccess(player);
     }
 
@@ -307,7 +311,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
 
     @Override
     public boolean isItemValidForSlot(int index, ItemStack stack) {
-        if (ItemStackTools.isEmpty(stack)) {
+        if (stack.isEmpty()) {
             return true;
         }
         Item item = stack.getItem();
@@ -378,22 +382,22 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                         CompiledOpcode compiledOpcode = compiledCard.getOpcodes().get(index);
                         ItemStack stack = evaluateItemParameter(compiledOpcode, null, 0);
                         Inventory inv = evaluateInventoryParameter(compiledOpcode, null, 1);
-                        if (ItemStackTools.isValid(stack) && inv != null) {
+                        if (!stack.isEmpty() && inv != null) {
                             throw new ProgException(EXCEPT_BADPARAMETERS);
                         }
-                        if (ItemStackTools.isEmpty(stack) && inv == null) {
+                        if (stack.isEmpty() && inv == null) {
                             throw new ProgException(EXCEPT_BADPARAMETERS);
                         }
-                        if (ItemStackTools.isValid(stack)) {
+                        if (!stack.isEmpty()) {
                             stacks.add(stack);
                         } else {
                             // Find all crafting cards in the inventory
                             IItemHandler handler = getItemHandlerAt(inv);
                             for (int i = 0 ; i < handler.getSlots() ; i++) {
                                 ItemStack s = handler.getStackInSlot(i);
-                                if (ItemStackTools.isValid(s) && s.getItem() == ModItems.craftingCardItem) {
+                                if (!s.isEmpty() && s.getItem() == ModItems.craftingCardItem) {
                                     ItemStack result = CraftingCardItem.getResult(s);
-                                    if (ItemStackTools.isValid(result)) {
+                                    if (!result.isEmpty()) {
                                         stacks.add(result);
                                     }
                                 }
@@ -415,7 +419,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
 
         CardInfo info = this.cardInfo[((RunningProgram)program).getCardIndex()];
         Integer realSlot = info.getRealSlot(slot);
-        ItemStack craftedItem = ItemStackTools.getEmptyStack();
+        ItemStack craftedItem = ItemStack.EMPTY;
         if (realSlot != null) {
             craftedItem = getItemHandler().getStackInSlot(realSlot);
         }
@@ -450,10 +454,10 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     }
 
     public boolean pushItemsWorkbench(IProgram program, @Nonnull BlockSide workbench, ItemStack item, int slot1, int slot2) {
-        if (ItemStackTools.isEmpty(item)) {
+        if (item.isEmpty()) {
             item = getCraftResult(program);
         }
-        if (ItemStackTools.isEmpty(item)) {
+        if (item.isEmpty()) {
             throw new ProgException(EXCEPT_MISSINGCRAFTRESULT);
         }
 
@@ -463,7 +467,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         }
         IItemHandler cardHandler = getItemHandlerAt(te, EnumFacing.EAST);
         ItemStack card = findCraftingCard(cardHandler, item);
-        if (ItemStackTools.isEmpty(card)) {
+        if (card.isEmpty()) {
             throw new ProgException(EXCEPT_MISSINGCRAFTINGCARD);
         }
 
@@ -480,17 +484,17 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         for (int i = 0 ; i < 9 ; i++) {
             ItemStack stackInWorkbench = gridHandler.getStackInSlot(i);
             ItemStack stackInIngredient = ingredients.get(i);
-            if (ItemStackTools.isValid(stackInWorkbench) && ItemStackTools.isEmpty(stackInIngredient)) {
+            if (!stackInWorkbench.isEmpty() && stackInIngredient.isEmpty()) {
                 // Can't work. There is already something in the workbench that doesn't belong
                 success = false;
-            } else if (ItemStackTools.isEmpty(stackInWorkbench) && ItemStackTools.isValid(stackInIngredient)) {
+            } else if (stackInWorkbench.isEmpty() && !stackInIngredient.isEmpty()) {
                 // Let's see if we can find the needed ingredient
                 boolean found = false;
                 for (int slot = slot1 ; slot <= slot2 ; slot++) {
                     int realSlot = info.getRealSlot(slot);
                     ItemStack localStack = itemHandler.getStackInSlot(realSlot);
                     if (stackInIngredient.isItemEqual(localStack)) {
-                        localStack = itemHandler.extractItem(realSlot, ItemStackTools.getStackSize(stackInIngredient), false);
+                        localStack = itemHandler.extractItem(realSlot, stackInIngredient.getCount(), false);
                         gridHandler.insertItem(i, localStack, false);
                         found = true;
                         break;
@@ -499,11 +503,11 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                 if (!found) {
                     success = false;
                 }
-            } else if (ItemStackTools.isValid(stackInWorkbench) && ItemStackTools.isValid(stackInIngredient)) {
+            } else if (!stackInWorkbench.isEmpty() && !stackInIngredient.isEmpty()) {
                 // See if the item matches and we have enough
                 if (!stackInIngredient.isItemEqual(stackInWorkbench)) {
                     success = false;
-                } else if (ItemStackTools.getStackSize(stackInIngredient) > ItemStackTools.getStackSize(stackInWorkbench)) {
+                } else if (stackInIngredient.getCount() > stackInWorkbench.getCount()) {
                     success = false;
                 }
             }
@@ -527,9 +531,9 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         for (int slot = slot1 ; slot <= slot2 ; slot++) {
             int realSlot = info.getRealSlot(slot);
             ItemStack stack = itemHandler.getStackInSlot(realSlot);
-            if (ItemStackTools.isValid(stack)) {
+            if (!stack.isEmpty()) {
                 ItemStack remaining = InventoryTools.insertItem(handler, scanner, stack, extSlot == null ? null : e);
-                if (ItemStackTools.isValid(remaining)) {
+                if (!remaining.isEmpty()) {
                     failed++;
                 }
                 inventoryHelper.setStackInSlot(realSlot, remaining);
@@ -540,15 +544,15 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     }
 
     public boolean checkIngredients(IProgram program, @Nonnull Inventory cardInv, ItemStack item, int slot1, int slot2) {
-        if (ItemStackTools.isEmpty(item)) {
+        if (item.isEmpty()) {
             item = getCraftResult(program);
         }
-        if (ItemStackTools.isEmpty(item)) {
+        if (item.isEmpty()) {
             throw new ProgException(EXCEPT_MISSINGCRAFTRESULT);
         }
         IItemHandler cardHandler = getItemHandlerAt(cardInv);
         ItemStack card = findCraftingCard(cardHandler, item);
-        if (ItemStackTools.isEmpty(card)) {
+        if (card.isEmpty()) {
             throw new ProgException(EXCEPT_MISSINGCRAFTINGCARD);
         }
 
@@ -569,15 +573,15 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         for (ItemStack ingredient : ingredients) {
             int realSlot = info.getRealSlot(slot);
             ItemStack localStack = itemHandler.getStackInSlot(realSlot);
-            if (ItemStackTools.isValid(ingredient)) {
+            if (!ingredient.isEmpty()) {
                 if (!ingredient.isItemEqual(localStack)) {
                     return false;
                 }
-                if (ItemStackTools.getStackSize(ingredient) != ItemStackTools.getStackSize(localStack)) {
+                if (ingredient.getCount() != localStack.getCount()) {
                     return false;
                 }
             } else {
-                if (ItemStackTools.isValid(localStack)) {
+                if (!localStack.isEmpty()) {
                     return false;
                 }
             }
@@ -591,10 +595,10 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         IStorageScanner scanner = getScannerForInv(inv);
         IItemHandler handler = getHandlerForInv(inv);
 
-        if (ItemStackTools.isEmpty(item)) {
+        if (item.isEmpty()) {
             item = getCraftResult(program);
         }
-        if (ItemStackTools.isEmpty(item)) {
+        if (item.isEmpty()) {
             throw new ProgException(EXCEPT_MISSINGCRAFTRESULT);
         }
 
@@ -605,7 +609,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
 
         IItemHandler cardHandler = getItemHandlerAt(cardInv);
         ItemStack card = findCraftingCard(cardHandler, item);
-        if (ItemStackTools.isEmpty(card)) {
+        if (card.isEmpty()) {
             throw new ProgException(EXCEPT_MISSINGCRAFTINGCARD);
         }
         CardInfo info = this.cardInfo[((RunningProgram)program).getCardIndex()];
@@ -629,9 +633,9 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
 
         for (ItemStack ingredient : ingredients) {
             int realSlot = info.getRealSlot(slot);
-            if (ItemStackTools.isValid(ingredient)) {
-                ItemStack stack = InventoryTools.extractItem(handler, scanner, ItemStackTools.getStackSize(ingredient), true, false, ingredient, null);
-                if (ItemStackTools.isValid(stack)) {
+            if (!ingredient.isEmpty()) {
+                ItemStack stack = InventoryTools.extractItem(handler, scanner, ingredient.getCount(), true, false, ingredient, null);
+                if (!stack.isEmpty()) {
                     itemHandler.insertItem(realSlot, stack, false);
                 }
             }
@@ -647,12 +651,17 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     private int checkAvailableItemsAndRequestMissing(Inventory destInv, IStorageScanner scanner, IItemHandler handler, List<ItemStack> needed) {
         int requested = 0;
         for (ItemStack ingredient : needed) {
-            if (ItemStackTools.isValid(ingredient)) {
-                int cnt = InventoryTools.countItem(handler, scanner, ingredient, false, ItemStackTools.getStackSize(ingredient));
-                if (cnt < ItemStackTools.getStackSize(ingredient)) {
+            if (!ingredient.isEmpty()) {
+                int cnt = InventoryTools.countItem(handler, scanner, ingredient, false, ingredient.getCount());
+                if (cnt < ingredient.getCount()) {
                     requested++;
                     ItemStack requestedItem = ingredient.copy();
-                    ItemStackTools.setStackSize(requestedItem, ItemStackTools.getStackSize(ingredient) - cnt);
+                    int amount = ingredient.getCount() - cnt;
+                    if (amount <= 0) {
+                        requestedItem.setCount(0);
+                    } else {
+                        requestedItem.setCount(amount);
+                    }
                     if (!isRequested(requestedItem)) {
                         if (!requestCraft(requestedItem, destInv)) {
                             // It can't be requested, total failure
@@ -670,11 +679,11 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     private List<ItemStack> combineIngredients(List<ItemStack> ingredients) {
         List<ItemStack> needed = new ArrayList<>();
         for (ItemStack ingredient : ingredients) {
-            if (ItemStackTools.isValid(ingredient)) {
+            if (!ingredient.isEmpty()) {
                 boolean found = false;
                 for (ItemStack neededStack : needed) {
                     if (neededStack.isItemEqual(ingredient)) {
-                        ItemStackTools.incStackSize(neededStack, ItemStackTools.getStackSize(ingredient));
+                        neededStack.grow(ingredient.getCount());
                         found = true;
                         break;
                     }
@@ -691,16 +700,16 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         IStorageScanner scanner = getScannerForInv(inv);
         IItemHandler handler = getHandlerForInv(inv);
 
-        if (ItemStackTools.isEmpty(item)) {
+        if (item.isEmpty()) {
             item = getCraftResult(program);
         }
-        if (ItemStackTools.isEmpty(item)) {
+        if (item.isEmpty()) {
             throw new ProgException(EXCEPT_MISSINGCRAFTRESULT);
         }
 
         IItemHandler cardHandler = getItemHandlerAt(cardInv);
         ItemStack card = findCraftingCard(cardHandler, item);
-        if (ItemStackTools.isEmpty(card)) {
+        if (card.isEmpty()) {
             throw new ProgException(EXCEPT_MISSINGCRAFTINGCARD);
         }
         CardInfo info = this.cardInfo[((RunningProgram)program).getCardIndex()];
@@ -719,11 +728,11 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         int failed = 0;
         for (ItemStack ingredient : ingredients) {
             int realSlot = info.getRealSlot(slot);
-            if (ItemStackTools.isValid(ingredient)) {
-                ItemStack stack = InventoryTools.extractItem(handler, scanner, ItemStackTools.getStackSize(ingredient), true, false, ingredient, null);
-                if (ItemStackTools.isValid(stack)) {
+            if (!ingredient.isEmpty()) {
+                ItemStack stack = InventoryTools.extractItem(handler, scanner, ingredient.getCount(), true, false, ingredient, null);
+                if (!stack.isEmpty()) {
                     ItemStack remainder = itemHandler.insertItem(realSlot, stack, false);
-                    if (ItemStackTools.isValid(remainder)) {
+                    if (!remainder.isEmpty()) {
                         InventoryTools.insertItem(handler, scanner, remainder, null);
                     }
                 } else {
@@ -743,9 +752,9 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         if (!program.hasCraftTicket()) {
             throw new ProgException(EXCEPT_MISSINGCRAFTTICKET);
         }
-        if (ItemStackTools.isEmpty(stack)) {
+        if (stack.isEmpty()) {
             stack = getCraftResult(program);
-            if (ItemStackTools.isEmpty(stack)) {
+            if (stack.isEmpty()) {
                 throw new ProgException(EXCEPT_MISSINGCRAFTRESULT);
             }
         }
@@ -758,7 +767,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         if (!program.hasCraftTicket()) {
             throw new ProgException(EXCEPT_MISSINGCRAFTTICKET);
         }
-        WaitForItem waitForItem = new WaitForItem(program.getCraftTicket(), ItemStackTools.getEmptyStack(), null);
+        WaitForItem waitForItem = new WaitForItem(program.getCraftTicket(), ItemStack.EMPTY, null);
         waitingForItems.add(waitForItem);
         markDirty();
     }
@@ -803,7 +812,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             throw new ProgException(EXCEPT_MISSINGLASTVALUE);
         }
         ItemStack itemStack = TypeConverters.convertToItem(lastValue);
-        if (ItemStackTools.isEmpty(itemStack)) {
+        if (itemStack.isEmpty()) {
             throw new ProgException(EXCEPT_NOTANITEM);
         }
         if (itemStack.getItem() instanceof CraftingCardItem) {
@@ -812,15 +821,15 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         if (itemStack.getItem() instanceof TokenItem && itemStack.hasTagCompound()) {
             NBTTagCompound tag = itemStack.getTagCompound().getCompoundTag("parameter");
             if (tag.hasNoTags()) {
-                return ItemStackTools.getEmptyStack();
+                return ItemStack.EMPTY;
             }
             Parameter parameter = ParameterTools.readFromNBT(tag);
             if (parameter == null || !parameter.isSet()) {
-                return ItemStackTools.getEmptyStack();
+                return ItemStack.EMPTY;
             }
             return TypeConverters.convertToItem(parameter);
         }
-        return ItemStackTools.getEmptyStack();
+        return ItemStack.EMPTY;
     }
 
 
@@ -828,19 +837,19 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     public ItemStack getCraftResult(IProgram program) {
         if (!program.hasCraftTicket()) {
             // @todo ? exception?
-            return ItemStackTools.getEmptyStack();
+            return ItemStack.EMPTY;
         }
         for (BlockPos p : craftingStations) {
             TileEntity te = getWorld().getTileEntity(p);
             if (te instanceof CraftingStationTileEntity) {
                 CraftingStationTileEntity craftingStation = (CraftingStationTileEntity) te;
                 ItemStack stack = craftingStation.getCraftResult(program.getCraftTicket());
-                if (ItemStackTools.isValid(stack)) {
+                if (!stack.isEmpty()) {
                     return stack;
                 }
             }
         }
-        return ItemStackTools.getEmptyStack();
+        return ItemStack.EMPTY;
     }
 
     private ItemStack findCraftingCard(IItemHandler handler, ItemStack craftResult) {
@@ -850,18 +859,18 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         }
         for (int j = 0 ; j < handler.getSlots() ; j++) {
             ItemStack s = handler.getStackInSlot(j);
-            if (ItemStackTools.isValid(s) && s.getItem() == ModItems.craftingCardItem) {
+            if (!s.isEmpty() && s.getItem() == ModItems.craftingCardItem) {
                 ItemStack result = CraftingCardItem.getResult(s);
                 if (craftResult.hasTagCompound()) {
                     if (result.hasTagCompound() && resultNBT.equalsIgnoreCase(result.serializeNBT().toString())) {
                         return s;
                     }
-                } else if (ItemStackTools.isValid(result) && result.isItemEqual(craftResult)) {
+                } else if (!result.isEmpty() && result.isItemEqual(craftResult)) {
                     return s;
                 }
             }
         }
-        return ItemStackTools.getEmptyStack();
+        return ItemStack.EMPTY;
     }
 
     public void fireCraftEvent(String ticket, ItemStack stackToCraft) {
@@ -874,7 +883,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                     CompiledOpcode compiledOpcode = compiledCard.getOpcodes().get(index);
                     ItemStack stack = evaluateItemParameter(compiledOpcode, null, 0);
                     Inventory inv = evaluateInventoryParameter(compiledOpcode, null, 1);
-                    if (ItemStackTools.isValid(stack)) {
+                    if (!stack.isEmpty()) {
                         if (stack.isItemEqual(stackToCraft)) {
                             runOrQueueEvent(i, event, ticket, null);
                             return;
@@ -882,7 +891,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                     } else if (inv != null) {
                         IItemHandler handler = getItemHandlerAt(inv);
                         ItemStack craftingCard = findCraftingCard(handler, stackToCraft);
-                        if (ItemStackTools.isValid(craftingCard)) {
+                        if (!craftingCard.isEmpty()) {
                             runOrQueueEvent(i, event, ticket, null);
                             return;
                         }
@@ -916,14 +925,14 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                     int foundIdx = -1;
                     for (int i = 0 ; i < waitingForItems.size() ; i++) {
                         WaitForItem wfi = waitingForItems.get(i);
-                        if (wfi.getInventory() == null || ItemStackTools.isEmpty(wfi.getItemStack())) {
+                        if (wfi.getInventory() == null || wfi.getItemStack().isEmpty()) {
                             foundIdx = i;
                             found = wfi;
                             break;
                         } else {
                             IItemHandler handler = getItemHandlerAt(wfi.getInventory());
                             int cnt = countItemInHandler(wfi.getItemStack(), handler);
-                            if (cnt >= ItemStackTools.getStackSize(wfi.getItemStack())) {
+                            if (cnt >= wfi.getItemStack().getCount()) {
                                 foundIdx = i;
                                 found = wfi;
                                 break;
@@ -1438,7 +1447,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             cpuCores.clear();
             for (int i = SLOT_EXPANSION ; i < SLOT_EXPANSION + EXPANSION_SLOTS ; i++) {
                 ItemStack expansionStack = inventoryHelper.getStackInSlot(i);
-                if (ItemStackTools.isValid(expansionStack) && expansionStack.getItem() instanceof CPUCoreItem) {
+                if (!expansionStack.isEmpty() && expansionStack.getItem() instanceof CPUCoreItem) {
                     CPUCoreItem coreItem = (CPUCoreItem) expansionStack.getItem();
                     CpuCore core = new CpuCore();
                     core.setTier(coreItem.getTier());
@@ -1453,7 +1462,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             cardsDirty = false;
             for (int i = ProcessorContainer.SLOT_CARD; i < ProcessorContainer.SLOT_CARD + CARD_SLOTS; i++) {
                 ItemStack cardStack = inventoryHelper.getStackInSlot(i);
-                if (ItemStackTools.isValid(cardStack)) {
+                if (!cardStack.isEmpty()) {
                     int cardIndex = i - ProcessorContainer.SLOT_CARD;
                     if (cardInfo[cardIndex].getCompiledCard() == null) {
                         // @todo validation
@@ -1468,9 +1477,8 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     @Override
     public int getEnergy(Inventory side) {
         TileEntity te = getTileEntityAt(side);
-        if (te instanceof IEnergyHandler) {
-            IEnergyHandler handler = (IEnergyHandler) te;
-            return handler.getEnergyStored(side.getIntSide() == null ? EnumFacing.DOWN : side.getIntSide());
+        if (RedstoneFluxCompatibility.isEnergyHandler(te)) {
+            return RedstoneFluxCompatibility.getEnergy(te, side.getIntSide() == null ? EnumFacing.DOWN : side.getIntSide());
         } else if (te != null && te.hasCapability(CapabilityEnergy.ENERGY, side.getIntSide())) {
             IEnergyStorage energy = te.getCapability(CapabilityEnergy.ENERGY, side.getIntSide());
             return energy.getEnergyStored();
@@ -1481,9 +1489,8 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     @Override
     public int getMaxEnergy(Inventory side) {
         TileEntity te = getTileEntityAt(side);
-        if (te instanceof IEnergyHandler) {
-            IEnergyHandler handler = (IEnergyHandler) te;
-            return handler.getMaxEnergyStored(side.getIntSide() == null ? EnumFacing.DOWN : side.getIntSide());
+        if (RedstoneFluxCompatibility.isEnergyHandler(te)) {
+            return RedstoneFluxCompatibility.getMaxEnergy(te, side.getIntSide() == null ? EnumFacing.DOWN : side.getIntSide());
         } else if (te != null && te.hasCapability(CapabilityEnergy.ENERGY, side.getIntSide())) {
             IEnergyStorage energy = te.getCapability(CapabilityEnergy.ENERGY, side.getIntSide());
             return energy.getMaxEnergyStored();
@@ -1676,19 +1683,19 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         int realSlot = info.getRealSlot(virtualSlot);
 
         ItemStack stack = InventoryTools.tryExtractItem(handler, scanner, amount, routable, oredict, itemMatcher, slot);
-        if (ItemStackTools.isEmpty(stack)) {
+        if (stack.isEmpty()) {
             // Nothing to do
             return 0;
         }
         IItemHandler capability = getItemHandler();
-        if (ItemStackTools.isValid(capability.insertItem(realSlot, stack, true))) {
+        if (!capability.insertItem(realSlot, stack, true).isEmpty()) {
             // Not enough room. Do nothing
             return 0;
         }
         // All seems ok. Do the real thing now.
         stack = InventoryTools.extractItem(handler, scanner, amount, routable, oredict, itemMatcher, slot);
         capability.insertItem(realSlot, stack, false);
-        return ItemStackTools.getStackSize(stack);
+        return stack.getCount();
     }
 
     @Override
@@ -1708,16 +1715,16 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         int realSlot = info.getRealSlot(virtualSlot);
         IItemHandler itemHandler = getItemHandler();
         ItemStack extracted = itemHandler.extractItem(realSlot, amount == null ? 64 : amount, false);
-        if (ItemStackTools.isEmpty(extracted)) {
+        if (extracted.isEmpty()) {
             // Nothing to do
             return 0;
         }
         ItemStack remaining = InventoryTools.insertItem(handler, scanner, extracted, slot);
-        if (ItemStackTools.isValid(remaining)) {
+        if (!remaining.isEmpty()) {
             itemHandler.insertItem(realSlot, remaining, false);
-            return ItemStackTools.getStackSize(extracted) - ItemStackTools.getStackSize(remaining);
+            return extracted.getCount() - remaining.getCount();
         }
-        return ItemStackTools.getStackSize(extracted);
+        return extracted.getCount();
     }
 
     @Override
@@ -1736,7 +1743,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
 
         IItemHandler handler = getItemHandler();
         ItemStack idCard = handler.getStackInSlot(realIdSlot);
-        if (ItemStackTools.isEmpty(idCard) || !(idCard.getItem() instanceof NetworkIdentifierItem)) {
+        if (idCard.isEmpty() || !(idCard.getItem() instanceof NetworkIdentifierItem)) {
             throw new ProgException(EXCEPT_NOTANIDENTIFIER);
         }
         NBTTagCompound tagCompound = idCard.getTagCompound();
@@ -1857,7 +1864,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             Item storageCardItem = ForgeRegistries.ITEMS.getValue(new ResourceLocation("rftools", "storage_control_module"));
             for (int i = SLOT_EXPANSION ; i < SLOT_EXPANSION + EXPANSION_SLOTS ; i++) {
                 ItemStack stack = getStackInSlot(i);
-                if (ItemStackTools.isValid(stack)) {
+                if (!stack.isEmpty()) {
                     if (stack.getItem() instanceof NetworkCardItem) {
                         hasNetworkCard = ((NetworkCardItem) stack.getItem()).getTier();
                     } else if (stack.getItem() instanceof RAMChipItem) {
@@ -2050,7 +2057,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         CardInfo info = this.cardInfo[((RunningProgram)program).getCardIndex()];
         int realSlot = info.getRealSlot(slot);
         ItemStack stack = getItemHandler().getStackInSlot(realSlot);
-        if (ItemStackTools.isEmpty(stack) || !(stack.getItem() instanceof TokenItem)) {
+        if (stack.isEmpty() || !(stack.getItem() instanceof TokenItem)) {
             throw new ProgException(EXCEPT_NOTATOKEN);
         }
         if (!stack.hasTagCompound()) {
@@ -2070,7 +2077,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         CardInfo info = this.cardInfo[((RunningProgram)program).getCardIndex()];
         int realSlot = info.getRealSlot(slot);
         ItemStack stack = getItemHandler().getStackInSlot(realSlot);
-        if (ItemStackTools.isEmpty(stack) || !(stack.getItem() instanceof TokenItem)) {
+        if (stack.isEmpty() || !(stack.getItem() instanceof TokenItem)) {
             throw new ProgException(EXCEPT_NOTATOKEN);
         }
         if (!stack.hasTagCompound()) {
@@ -2176,7 +2183,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         ItemStack stack = evaluateGenericParameter(compiledOpcode, program, parIndex, CONVERTOR_ITEM);
         // This can return null!
         if (stack == null) {
-            return ItemStackTools.getEmptyStack();
+            return ItemStack.EMPTY;
         }
         return stack;
     }
@@ -2185,7 +2192,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     @Override
     public ItemStack evaluateItemParameterNonNull(ICompiledOpcode compiledOpcode, IProgram program, int parIndex) {
         ItemStack stack = evaluateGenericParameterNonNull(compiledOpcode, program, parIndex, CONVERTOR_ITEM);
-        if (ItemStackTools.isEmpty(stack)) {
+        if (stack.isEmpty()) {
             throw new ProgException(EXCEPT_MISSINGPARAMETER);
         }
         return stack;
@@ -2316,25 +2323,25 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         IItemHandler handler = getItemHandlerAt(inv);
         if (slot != null) {
             ItemStack stackInSlot = handler.getStackInSlot(slot);
-            if (ItemStackTools.isEmpty(stackInSlot)) {
+            if (stackInSlot.isEmpty()) {
                 return 0;
             } else {
-                if (ItemStackTools.isValid(itemMatcher)) {
+                if (!itemMatcher.isEmpty()) {
                     if (!ItemStack.areItemsEqual(stackInSlot, itemMatcher)) {
                         return 0;
                     }
                 }
-                return ItemStackTools.getStackSize(stackInSlot);
+                return stackInSlot.getCount();
             }
-        } else if (ItemStackTools.isValid(itemMatcher)) {
+        } else if (!itemMatcher.isEmpty()) {
             return countItemInHandler(itemMatcher, handler);
         } else {
             // Just count all items
             int cnt = 0;
             for (int i = 0 ; i < handler.getSlots() ; i++) {
                 ItemStack stack = handler.getStackInSlot(i);
-                if (ItemStackTools.isValid(stack)) {
-                    cnt += ItemStackTools.getStackSize(stack);
+                if (!stack.isEmpty()) {
+                    cnt += stack.getCount();
                 }
             }
             return cnt;
@@ -2345,8 +2352,8 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         int cnt = 0;
         for (int i = 0 ; i < handler.getSlots() ; i++) {
             ItemStack stack = handler.getStackInSlot(i);
-            if (ItemStackTools.isValid(stack) && ItemStack.areItemsEqual(stack, itemMatcher)) {
-                cnt += ItemStackTools.getStackSize(stack);
+            if (!stack.isEmpty() && ItemStack.areItemsEqual(stack, itemMatcher)) {
+                cnt += stack.getCount();
             }
         }
         return cnt;
@@ -2594,9 +2601,9 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
 
             ItemStack stack;
             if (tag.hasKey("item")) {
-                stack = ItemStackTools.loadFromNBT(tag.getCompoundTag("item"));
+                stack = new ItemStack(tag.getCompoundTag("item"));
             } else {
-                stack = ItemStackTools.getEmptyStack();
+                stack = ItemStack.EMPTY;
             }
 
             Inventory inventory;
@@ -2752,7 +2759,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             if (waitingForItem.getInventory() != null) {
                 tag.setTag("inv", InventoryUtil.writeToNBT(waitingForItem.getInventory()));
             }
-            if (ItemStackTools.isValid(waitingForItem.getItemStack())) {
+            if (!waitingForItem.getItemStack().isEmpty()) {
                 tag.setTag("item", waitingForItem.getItemStack().serializeNBT());
             }
             waitingList.appendTag(tag);
@@ -2897,7 +2904,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         CardInfo info = getCardInfo(index);
         CompiledCard card = info.getCompiledCard();
         ItemStack cardStack = inventoryHelper.getStackInSlot(index + ProcessorContainer.SLOT_CARD);
-        if (card == null && ItemStackTools.isValid(cardStack)) {
+        if (card == null && !cardStack.isEmpty()) {
             card = CompiledCard.compile(ProgramCardInstance.parseInstance(cardStack));
             cardInfo[index].setCompiledCard(card);
         }

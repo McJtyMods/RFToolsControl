@@ -1,7 +1,7 @@
 package mcjty.rftoolscontrol.items.craftingcard;
 
 import mcjty.lib.container.*;
-import mcjty.lib.tools.ItemStackList;
+import mcjty.rftoolscontrol.varia.ItemStackList;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;

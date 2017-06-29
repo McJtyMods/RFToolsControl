@@ -2,7 +2,6 @@ package mcjty.rftoolscontrol.network;
 
 import io.netty.buffer.ByteBuf;
 import mcjty.lib.network.NetworkTools;
-import mcjty.lib.tools.ItemStackTools;
 import mcjty.rftoolscontrol.items.ProgramCardItem;
 import mcjty.rftoolscontrol.items.craftingcard.CraftingCardItem;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -47,7 +46,7 @@ public class PacketItemNBTToServer implements IMessage {
         private void handle(PacketItemNBTToServer message, MessageContext ctx) {
             EntityPlayerMP playerEntity = ctx.getServerHandler().player;
             ItemStack heldItem = playerEntity.getHeldItem(EnumHand.MAIN_HAND);
-            if (ItemStackTools.isEmpty(heldItem)) {
+            if (heldItem.isEmpty()) {
                 return;
             }
             if (heldItem.getItem() instanceof ProgramCardItem) {

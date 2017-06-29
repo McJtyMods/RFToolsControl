@@ -5,7 +5,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import io.netty.buffer.ByteBuf;
 import mcjty.lib.network.NetworkTools;
-import mcjty.lib.tools.ItemStackTools;
 import mcjty.rftoolscontrol.api.parameters.*;
 import mcjty.rftoolscontrol.logic.registry.InventoryUtil;
 import mcjty.rftoolscontrol.logic.registry.ParameterTypeTools;
@@ -184,7 +183,7 @@ public class ParameterTools {
             case PAR_INVENTORY:
                 return 0;
             case PAR_ITEM:
-                return Integer.compare(ItemStackTools.getStackSize((ItemStack) v1), ItemStackTools.getStackSize((ItemStack) v2));
+                return Integer.compare(((ItemStack) v1).getCount(), ((ItemStack) v2).getCount());
             case PAR_FLUID:
                 return Integer.compare(((FluidStack) v1).amount, ((FluidStack) v2).amount);
             case PAR_EXCEPTION:

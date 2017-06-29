@@ -2,7 +2,9 @@ package mcjty.rftoolscontrol.logic.editors;
 
 import mcjty.lib.gui.Window;
 import mcjty.lib.gui.layout.VerticalLayout;
-import mcjty.lib.gui.widgets.*;
+import mcjty.lib.gui.widgets.ChoiceLabel;
+import mcjty.lib.gui.widgets.Panel;
+import mcjty.lib.gui.widgets.TextField;
 import mcjty.rftoolscontrol.api.parameters.Inventory;
 import mcjty.rftoolscontrol.api.parameters.ParameterType;
 import mcjty.rftoolscontrol.api.parameters.ParameterValue;

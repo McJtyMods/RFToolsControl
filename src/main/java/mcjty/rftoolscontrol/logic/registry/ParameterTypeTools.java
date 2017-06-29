@@ -4,7 +4,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
-import mcjty.lib.tools.ItemStackTools;
 import mcjty.rftoolscontrol.api.parameters.*;
 import mcjty.rftoolscontrol.logic.ParameterTools;
 import mcjty.rftoolscontrol.logic.running.ExceptionType;
@@ -152,14 +151,18 @@ public class ParameterTypeTools {
             case PAR_ITEM:
                 if (tag.hasKey("item")) {
                     NBTTagCompound tc = (NBTTagCompound) tag.getTag("item");
-                    ItemStack stack = ItemStackTools.loadFromNBT(tc);
+                    ItemStack stack = new ItemStack(tc);
                     // Fix for 1.10 0-sized stacks
-                    if (ItemStackTools.getStackSize(stack) == 0) {
-                        ItemStackTools.setStackSize(stack, 1);
+                    if (stack.getCount() == 0) {
+                        if (1 <= 0) {
+                            stack.setCount(0);
+                        } else {
+                            stack.setCount(1);
+                        }
                     }
                     return ParameterValue.constant(stack);
                 }
-                return ParameterValue.constant(ItemStackTools.getEmptyStack());
+                return ParameterValue.constant(ItemStack.EMPTY);
             case PAR_FLUID:
                 if (tag.hasKey("fluid")) {
                     NBTTagCompound tc = (NBTTagCompound) tag.getTag("fluid");
@@ -279,8 +282,8 @@ public class ParameterTypeTools {
             case PAR_ITEM:
                 ItemStack item = (ItemStack) value;
                 object.add("item", new JsonPrimitive(item.getItem().getRegistryName().toString()));
-                if (ItemStackTools.getStackSize(item) != 1) {
-                    object.add("amount", new JsonPrimitive(ItemStackTools.getStackSize(item)));
+                if (item.getCount() != 1) {
+                    object.add("amount", new JsonPrimitive(item.getCount()));
                 }
                 object.add("meta", new JsonPrimitive(item.getItemDamage()));
                 if (item.hasTagCompound()) {

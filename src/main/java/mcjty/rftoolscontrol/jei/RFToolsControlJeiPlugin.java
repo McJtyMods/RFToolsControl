@@ -1,7 +1,5 @@
 package mcjty.rftoolscontrol.jei;
 
-import mcjty.lib.jei.CompatRecipeTransferHandler;
-import mcjty.lib.tools.ItemStackTools;
 import mcjty.rftoolscontrol.blocks.ModBlocks;
 import mcjty.rftoolscontrol.blocks.workbench.WorkbenchContainer;
 import mcjty.rftoolscontrol.network.RFToolsCtrlMessages;
@@ -25,7 +23,7 @@ public class RFToolsControlJeiPlugin extends BlankModPlugin {
     public static void transferRecipe(Map<Integer, ? extends IGuiIngredient<ItemStack>> guiIngredients, BlockPos pos) {
         List<ItemStack> items = new ArrayList<>(10);
         for (int i = 0 ; i < 10 ; i++) {
-            items.add(ItemStackTools.getEmptyStack());
+            items.add(ItemStack.EMPTY);
         }
         for (Map.Entry<Integer, ? extends IGuiIngredient<ItemStack>> entry : guiIngredients.entrySet()) {
             int recipeSlot = entry.getKey();
@@ -41,7 +39,7 @@ public class RFToolsControlJeiPlugin extends BlankModPlugin {
     @Override
     public void register(@Nonnull IModRegistry registry) {
         IRecipeTransferRegistry transferRegistry = registry.getRecipeTransferRegistry();
-        CompatRecipeTransferHandler.register(transferRegistry, new CraftingCardRecipeTransferHandler());
+        transferRegistry.addRecipeTransferHandler(new CraftingCardRecipeTransferHandler(), VanillaRecipeCategoryUid.CRAFTING);
 
         transferRegistry.addRecipeTransferHandler(WorkbenchContainer.class, VanillaRecipeCategoryUid.CRAFTING, WorkbenchContainer.SLOT_CRAFTINPUT, 9, WorkbenchContainer.SLOT_BUFFER, WorkbenchContainer.BUFFER_SIZE + 9*4);
         registry.addRecipeCategoryCraftingItem(new ItemStack(ModBlocks.workbenchBlock), VanillaRecipeCategoryUid.CRAFTING);

@@ -1,6 +1,5 @@
 package mcjty.rftoolscontrol.blocks.processor;
 
-import mcjty.lib.compat.CompatSlot;
 import mcjty.lib.container.GenericGuiContainer;
 import mcjty.lib.entity.GenericEnergyStorageTileEntity;
 import mcjty.lib.gui.RenderHelper;
@@ -322,8 +321,8 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
 
             for (int i = 0 ; i < ProcessorTileEntity.ITEM_SLOTS ; i++) {
                 Slot slot = inventorySlots.getSlot(ProcessorContainer.SLOT_BUFFER + i);
-                if (x >= CompatSlot.getX(slot) && x <= CompatSlot.getX(slot) + 17
-                        && y >= CompatSlot.getY(slot) && y <= CompatSlot.getY(slot) + 17) {
+                if (x >= slot.xPos && x <= slot.xPos + 17
+                        && y >= slot.yPos && y <= slot.yPos + 17) {
                     boolean allocated = ((itemAlloc >> i) & 1) != 0;
                     allocated = !allocated;
                     if (allocated) {
@@ -636,12 +635,12 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
             boolean allocated = ((itemAlloc >> i) & 1) != 0;
             int border = allocated ? 0xffffffff : 0xaaaaaaaa;
             int fill = allocated ? 0x7700ff00 : (tileEntity.isItemAllocated(-1, i) ? 0x77660000 : 0x77444444);
-            RenderHelper.drawFlatBox(CompatSlot.getX(slot), CompatSlot.getY(slot),
-                    CompatSlot.getX(slot) + 17, CompatSlot.getY(slot) + 17,
+            RenderHelper.drawFlatBox(slot.xPos, slot.yPos,
+                    slot.xPos + 17, slot.yPos + 17,
                     border, fill);
             if (allocated) {
                 this.drawString(fontRenderer, "" + index,
-                        CompatSlot.getX(slot)+4, CompatSlot.getY(slot)+4, 0xffffffff);
+                        slot.xPos +4, slot.yPos +4, 0xffffffff);
                 index++;
             }
         }

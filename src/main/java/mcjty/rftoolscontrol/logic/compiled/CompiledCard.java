@@ -1,13 +1,13 @@
 package mcjty.rftoolscontrol.logic.compiled;
 
+import mcjty.rftoolscontrol.api.code.Opcode;
 import mcjty.rftoolscontrol.api.parameters.Parameter;
+import mcjty.rftoolscontrol.api.parameters.ParameterDescription;
 import mcjty.rftoolscontrol.logic.TypeConverters;
 import mcjty.rftoolscontrol.logic.grid.GridInstance;
 import mcjty.rftoolscontrol.logic.grid.GridPos;
 import mcjty.rftoolscontrol.logic.grid.ProgramCardInstance;
-import mcjty.rftoolscontrol.api.code.Opcode;
 import mcjty.rftoolscontrol.logic.registry.Opcodes;
-import mcjty.rftoolscontrol.api.parameters.ParameterDescription;
 
 import javax.annotation.Nonnull;
 import java.util.*;

@@ -2,7 +2,8 @@ package mcjty.rftoolscontrol.logic;
 
 import mcjty.rftoolscontrol.logic.grid.GridPos;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 public enum Connection {
     UP("U"),

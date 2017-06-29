@@ -1,6 +1,5 @@
 package mcjty.rftoolscontrol.logic.registry;
 
-import mcjty.lib.tools.ItemStackTools;
 import mcjty.rftoolscontrol.api.code.Opcode;
 import mcjty.rftoolscontrol.api.parameters.*;
 import mcjty.rftoolscontrol.blocks.processor.ProcessorTileEntity;
@@ -142,7 +141,7 @@ public class Opcodes {
                 int slot = processor.evaluateIntParameter(opcode, program, 1);
                 IItemHandler handler = processor.getItemHandlerAt(inv);
                 ItemStack item = handler.getStackInSlot(slot);
-                if (ItemStackTools.isValid(item)) {
+                if (!item.isEmpty()) {
                     item = item.copy();
                 }
                 program.setLastValue(Parameter.builder().type(PAR_ITEM).value(ParameterValue.constant(item)).build());
@@ -417,7 +416,7 @@ public class Opcodes {
                 int slot = processor.evaluateIntParameter(opcode, program, 0);
                 ItemStack stack = processor.getItemInternal(program, slot);
                 program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(
-                        ItemStackTools.isEmpty(stack) ? 0 : ItemStackTools.getStackSize(stack))).build());
+                        stack.isEmpty() ? 0 : stack.getCount())).build());
                 return POSITIVE;
             }))
             .build();
@@ -947,7 +946,7 @@ public class Opcodes {
             .runnable(((processor, program, opcode) -> {
                 int slot = processor.evaluateIntParameter(opcode, program, 0);
                 ItemStack item = processor.getItemInternal(program, slot);
-                if (ItemStackTools.isValid(item)) {
+                if (!item.isEmpty()) {
                     item = item.copy();
                 }
                 program.setLastValue(Parameter.builder().type(PAR_ITEM).value(ParameterValue.constant(item)).build());
