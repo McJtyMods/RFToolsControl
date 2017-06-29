@@ -1,5 +1,6 @@
 package mcjty.rftoolscontrol.items;
 
+import mcjty.lib.McJtyRegister;
 import mcjty.rftoolscontrol.RFToolsControl;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.item.Item;
@@ -13,6 +14,7 @@ public class GenericRFToolsItem extends Item {
         setUnlocalizedName(RFToolsControl.MODID + "." + name);
         setRegistryName(name);
         setCreativeTab(RFToolsControl.tabRFToolsControl);
+        McJtyRegister.registerLater(this, RFToolsControl.instance);
     }
 
     @SideOnly(Side.CLIENT)

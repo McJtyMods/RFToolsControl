@@ -5,6 +5,7 @@ import mcjty.lib.McJtyRegister;
 import mcjty.lib.base.GeneralConfig;
 import mcjty.lib.network.PacketHandler;
 import mcjty.lib.varia.WrenchChecker;
+import mcjty.rftoolscontrol.ForgeEventHandlers;
 import mcjty.rftoolscontrol.ModCrafting;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.blocks.ModBlocks;
@@ -18,6 +19,7 @@ import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.world.World;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.FMLLog;
@@ -40,6 +42,7 @@ public abstract class CommonProxy {
     private Configuration mainConfig;
 
     public void preInit(FMLPreInitializationEvent e) {
+        MinecraftForge.EVENT_BUS.register(new ForgeEventHandlers());
         GeneralConfig.preInit(e);
 
         modConfigDir = e.getModConfigurationDirectory();
@@ -51,6 +54,8 @@ public abstract class CommonProxy {
 
         Opcodes.init();
         Functions.init();
+        ModBlocks.init();
+        ModItems.init();
 
 //        if (RFToolsControl.mcmpPresent) {
 //            MCMPSetup.init();
@@ -102,15 +107,5 @@ public abstract class CommonProxy {
 
     public ListenableFuture<Object> addScheduledTaskClient(Runnable runnableToSchedule) {
         throw new IllegalStateException("This should only be called from client side");
-    }
-
-    @SubscribeEvent
-    public void registerBlocks(RegistryEvent.Register<Block> event) {
-        McJtyRegister.registerBlocks(RFToolsControl.instance, event.getRegistry());
-    }
-
-    @SubscribeEvent
-    public void registerItems(RegistryEvent.Register<Item> event) {
-        McJtyRegister.registerItems(RFToolsControl.instance, event.getRegistry());
     }
 }
