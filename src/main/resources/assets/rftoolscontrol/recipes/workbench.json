@@ -1,0 +1,22 @@
+{
+  "result": {
+    "item": "rftoolscontrol:workbench"
+  },
+  "pattern": [
+    " T ",
+    " M ",
+    " C "
+  ],
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "C": {
+      "item": "minecraft:chest"
+    },
+    "T": {
+      "item": "minecraft:crafting_table"
+    },
+    "M": {
+      "item": "rftools:machine_frame"
+    }
+  }
+}

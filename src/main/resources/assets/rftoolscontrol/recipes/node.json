@@ -1,0 +1,25 @@
+{
+  "result": {
+    "item": "rftoolscontrol:node"
+  },
+  "pattern": [
+    "rer",
+    "rMr",
+    "rbr"
+  ],
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "b": {
+      "item": "rftoolscontrol:card_base"
+    },
+    "r": {
+      "item": "minecraft:redstone"
+    },
+    "e": {
+      "item": "minecraft:ender_pearl"
+    },
+    "M": {
+      "item": "rftools:machine_frame"
+    }
+  }
+}

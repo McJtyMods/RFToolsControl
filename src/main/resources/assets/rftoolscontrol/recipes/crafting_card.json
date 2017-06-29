@@ -1,0 +1,22 @@
+{
+  "result": {
+    "item": "rftoolscontrol:crafting_card",
+    "count": 8
+  },
+  "pattern": [
+    "pc",
+    "np"
+  ],
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "p": {
+      "item": "minecraft:paper"
+    },
+    "c": {
+      "item": "minecraft:crafting_table"
+    },
+    "n": {
+      "item": "rftoolscontrol:card_base"
+    }
+  }
+}

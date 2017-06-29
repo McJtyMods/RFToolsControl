@@ -1,12 +1,10 @@
 package mcjty.rftoolscontrol.proxy;
 
 import com.google.common.util.concurrent.ListenableFuture;
-import mcjty.lib.McJtyRegister;
 import mcjty.lib.base.GeneralConfig;
 import mcjty.lib.network.PacketHandler;
 import mcjty.lib.varia.WrenchChecker;
 import mcjty.rftoolscontrol.ForgeEventHandlers;
-import mcjty.rftoolscontrol.ModCrafting;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.blocks.ModBlocks;
 import mcjty.rftoolscontrol.config.GeneralConfiguration;
@@ -15,19 +13,15 @@ import mcjty.rftoolscontrol.items.ModItems;
 import mcjty.rftoolscontrol.logic.registry.Functions;
 import mcjty.rftoolscontrol.logic.registry.Opcodes;
 import mcjty.rftoolscontrol.network.RFToolsCtrlMessages;
-import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
-import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.FMLLog;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import org.apache.logging.log4j.Level;
@@ -80,7 +74,6 @@ public abstract class CommonProxy {
 
     public void init(FMLInitializationEvent e) {
         NetworkRegistry.INSTANCE.registerGuiHandler(RFToolsControl.instance, new GuiProxy());
-        ModCrafting.init();
     }
 
     public void postInit(FMLPostInitializationEvent e) {

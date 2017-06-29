@@ -1,0 +1,25 @@
+{
+  "result": {
+    "item": "rftoolscontrol:programmer"
+  },
+  "pattern": [
+    "rqr",
+    "pMp",
+    "rqr"
+  ],
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "p": {
+      "item": "minecraft:paper"
+    },
+    "q": {
+      "item": "minecraft:quartz"
+    },
+    "r": {
+      "item": "minecraft:redstone"
+    },
+    "M": {
+      "item": "rftools:machine_frame"
+    }
+  }
+}

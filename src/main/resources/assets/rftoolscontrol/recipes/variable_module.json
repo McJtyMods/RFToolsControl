@@ -1,0 +1,26 @@
+{
+  "result": {
+    "item": "rftoolscontrol:variable_module"
+  },
+  "pattern": [
+    " c ",
+    "rir",
+    " b "
+  ],
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "r": {
+      "item": "minecraft:redstone"
+    },
+    "b": {
+      "item": "minecraft:dye",
+      "data": 0
+    },
+    "c": {
+      "item": "rftoolscontrol:card_base"
+    },
+    "i": {
+      "item": "minecraft:iron_ingot"
+    }
+  }
+}

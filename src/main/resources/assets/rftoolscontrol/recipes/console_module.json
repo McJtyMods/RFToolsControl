@@ -1,0 +1,29 @@
+{
+  "result": {
+    "item": "rftoolscontrol:console_module"
+  },
+  "pattern": [
+    "pxp",
+    "rir",
+    "pbp"
+  ],
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "p": {
+      "item": "minecraft:glass_pane"
+    },
+    "r": {
+      "item": "minecraft:redstone"
+    },
+    "b": {
+      "item": "minecraft:dye",
+      "data": 0
+    },
+    "x": {
+      "item": "rftoolscontrol:card_base"
+    },
+    "i": {
+      "item": "minecraft:iron_ingot"
+    }
+  }
+}

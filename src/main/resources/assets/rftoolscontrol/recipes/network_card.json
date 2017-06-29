@@ -1,0 +1,25 @@
+{
+  "result": {
+    "item": "rftoolscontrol:network_card"
+  },
+  "pattern": [
+    "rer",
+    "pnp",
+    "rrr"
+  ],
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "p": {
+       "type": "forge:ore_dict", "ore": "nuggetGold"
+    },
+    "r": {
+      "item": "minecraft:redstone"
+    },
+    "e": {
+      "item": "minecraft:ender_pearl"
+    },
+    "n": {
+      "item": "rftoolscontrol:card_base"
+    }
+  }
+}

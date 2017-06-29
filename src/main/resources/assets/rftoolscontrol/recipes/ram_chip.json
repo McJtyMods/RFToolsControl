@@ -1,0 +1,22 @@
+{
+  "result": {
+    "item": "rftoolscontrol:ram_chip"
+  },
+  "pattern": [
+    "rrr",
+    "pnp",
+    "rrr"
+  ],
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "p": {
+      "item": "minecraft:paper"
+    },
+    "r": {
+      "item": "minecraft:redstone"
+    },
+    "n": {
+      "item": "rftoolscontrol:card_base"
+    }
+  }
+}

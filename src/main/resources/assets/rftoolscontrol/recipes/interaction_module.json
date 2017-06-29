@@ -1,0 +1,29 @@
+{
+  "result": {
+    "item": "rftoolscontrol:interaction_module"
+  },
+  "pattern": [
+    "cxc",
+    "rir",
+    " b "
+  ],
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "r": {
+      "item": "minecraft:redstone"
+    },
+    "b": {
+      "item": "minecraft:dye",
+      "data": 0
+    },
+    "c": {
+      "item": "minecraft:stone_pressure_plate"
+    },
+    "x": {
+      "item": "rftoolscontrol:card_base"
+    },
+    "i": {
+      "item": "minecraft:iron_ingot"
+    }
+  }
+}
