@@ -1426,7 +1426,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     }
 
     private void run() {
-        int rf = getEnergyStored(EnumFacing.DOWN);
+        int rf = getEnergyStored();
 
         for (CpuCore core : cpuCores) {
             if (core.hasProgram()) {
