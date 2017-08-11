@@ -26,6 +26,7 @@ import java.util.function.Function;
                         "required-after:mcjtylib_ng@[" + RFToolsControl.MIN_MCJTYLIB_VER + ",);" +
                         "required-after:rftools@[" + RFToolsControl.MIN_RFTOOLS_VER + ",);" +
                         "after:forge@[" + RFToolsControl.MIN_FORGE11_VER + ",)",
+        acceptedMinecraftVersions = "[1.12,1.13)",
         version = RFToolsControl.VERSION)
 public class RFToolsControl implements ModBase {
     public static final String MODID = "rftoolscontrol";
