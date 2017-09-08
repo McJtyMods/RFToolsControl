@@ -51,8 +51,12 @@ public class CraftingCardItem extends GenericRFToolsItem {
             }
         }
         IRecipe recipe = CraftingManager.findMatchingRecipe(workInventory, world);
-        ItemStack stack = recipe.getCraftingResult(workInventory);
-        stacks.set(INPUT_SLOTS, stack);
+        if (recipe != null) {
+            ItemStack stack = recipe.getCraftingResult(workInventory);
+            stacks.set(INPUT_SLOTS, stack);
+        } else {
+            stacks.set(INPUT_SLOTS, ItemStack.EMPTY);
+        }
         putStacksInItem(craftingCard, stacks);
     }
 

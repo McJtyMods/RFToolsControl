@@ -92,8 +92,12 @@ public class WorkbenchTileEntity extends GenericTileEntity implements DefaultSid
         if (getStackInSlot(WorkbenchContainer.SLOT_CRAFTOUTPUT) == null || realItems == 0) {
             InventoryCrafting workInventory = makeWorkInventory();
             IRecipe recipe = CraftingManager.findMatchingRecipe(workInventory, this.getWorld());
-            ItemStack stack = recipe.getCraftingResult(workInventory);
-            getInventoryHelper().setInventorySlotContents(getInventoryStackLimit(), WorkbenchContainer.SLOT_CRAFTOUTPUT, stack);
+            if (recipe != null) {
+                ItemStack stack = recipe.getCraftingResult(workInventory);
+                getInventoryHelper().setInventorySlotContents(getInventoryStackLimit(), WorkbenchContainer.SLOT_CRAFTOUTPUT, stack);
+            } else {
+                getInventoryHelper().setInventorySlotContents(getInventoryStackLimit(), WorkbenchContainer.SLOT_CRAFTOUTPUT, ItemStack.EMPTY);
+            }
         }
     }
 
