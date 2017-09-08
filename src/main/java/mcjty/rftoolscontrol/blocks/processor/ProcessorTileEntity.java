@@ -1818,7 +1818,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     public void gfxClear(IProgram program, @Nullable String id) {
         if (id == null || id.isEmpty()) {
             gfxOps.clear();
-            orderedOps.clear();
+            orderedOps = null;
         } else {
             gfxOps.remove(id);
             orderedOps = null;
