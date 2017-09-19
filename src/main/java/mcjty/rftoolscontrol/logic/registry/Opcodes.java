@@ -291,6 +291,25 @@ public class Opcodes {
             }))
             .build();
 
+    public static final Opcode TEST_ACQUIRE_LOCK = Opcode.builder()
+            .id("test_acquire_lock")
+            .description(
+                    TextFormatting.GREEN + "Test: Acquire lock",
+                    "attempt to place a named lock, but don't wait",
+                    "if it's already in use")
+            .opcodeOutput(YESNO)
+            .parameter(ParameterDescription.builder().name("name").type(PAR_STRING).description("name of the lock to acquire").build())
+            .icon(8, 8)
+            .runnable(((processor, program, opcode) -> {
+                String name = processor.evaluateStringParameter(opcode, program, 0);
+                if(processor.testLock(name)) {
+                    return NEGATIVE;
+                }
+                processor.placeLock(name);
+                return POSITIVE;
+            }))
+            .build();
+
     public static final Opcode DO_FETCHLIQUID = Opcode.builder()
             .id("do_fetchliquid")
             .description(
@@ -1758,6 +1777,7 @@ public class Opcodes {
         register(TEST_GT_VAR);
         register(TEST_EQ);
         register(TEST_EQ_VAR);
+        register(TEST_ACQUIRE_LOCK);
         register(TEST_SET);
         register(TEST_LOOP);
 //        register(TEST_LOOP_VECTOR);
