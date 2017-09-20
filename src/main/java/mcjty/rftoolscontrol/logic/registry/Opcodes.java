@@ -10,6 +10,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.items.IItemHandler;
+import mcjty.rftoolscontrol.logic.running.RunningProgram;
 
 import java.util.*;
 
@@ -182,6 +183,25 @@ public class Opcodes {
                 program.killMe();
                 return POSITIVE;
             })
+            .build();
+
+    public static final Opcode DO_BREAK = Opcode.builder()
+            .id("do_break")
+            .description(
+                    TextFormatting.GREEN + "Operation: break",
+                    "stop the currently executing loop as if it had",
+                    "ended normally")
+            .category(CATEGORY_CRAFTING)
+            .opcodeOutput(SINGLE)
+            .icon(6, 8)
+            .runnable(((processor, program, opcode) -> {
+                if(!((RunningProgram)program).isCurrentlyInLoop()) {
+                    throw new ProgException(ExceptionType.EXCEPT_NOTINLOOP);
+                }
+
+                ((RunningProgram)program).breakLoop(((ProcessorTileEntity)processor));
+                return POSITIVE;
+            }))
             .build();
 
     // Internal opcode that will stop the program or resume a loop
@@ -1786,6 +1806,7 @@ public class Opcodes {
         register(DO_REDSTONE);
         register(DO_DELAY);
         register(DO_STOP);
+        register(DO_BREAK);
         register(DO_STOP_OR_RESUME);
         register(DO_SIGNAL);
         register(DO_MESSAGE);

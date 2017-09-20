@@ -14,6 +14,7 @@ import mcjty.rftoolscontrol.logic.compiled.CompiledOpcode;
 import mcjty.rftoolscontrol.logic.registry.ParameterTypeTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.NBTTagIntArray;
 import net.minecraftforge.common.util.Constants;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -52,6 +53,13 @@ public class RunningProgram implements IProgram {
 
     // Opcode index, variable index
     private List<FlowStack> loopStack = new ArrayList<>();
+
+    // The entry point of each loop opcode we've entered, in order
+    private List<Integer> loopEntryStack = new ArrayList<>();
+
+    // Instruction pointer that will override opcode.getPrimaryIndex() / opcode.getSecondaryIndex()
+    // Intended to allow instruction internals to control a jmp from within their runnable
+    private Integer eip = null;
 
     private static class FlowStack {
         private final int current;
@@ -167,6 +175,37 @@ public class RunningProgram implements IProgram {
         loopStack.add(new FlowStack(returnIndex, null));
     }
 
+    public boolean isCurrentlyInLoop() {
+        if(loopStack.isEmpty()) {
+            return false;
+        }
+
+        FlowStack pair = loopStack.get(loopStack.size() - 1);
+        return pair.getVar() != null;
+    }
+
+    public void breakLoop(ProcessorTileEntity processor) {
+        if(loopStack.isEmpty()) {
+            return;
+        }
+
+        if(loopStack.get(loopStack.size() - 1).getVar() == null) {
+            return;
+        }
+
+        // remove the current instruction from the loop stack
+        loopStack.remove(loopStack.size()-1);
+
+        CompiledOpcode loop = opcodes(processor).get(loopEntryStack.get(loopEntryStack.size() - 1));
+        CompiledOpcode jmp = opcodes(processor).get(loop.getSecondaryIndex());
+
+        // jump to the last loop opcode's secondary
+        this.eip = opcodes(processor).get(loopEntryStack.get(loopEntryStack.size() - 1)).getSecondaryIndex();
+
+        // pop the loop from our entry point stack
+        loopEntryStack.remove(loopEntryStack.size()-1);
+    }
+
     public void popLoopStack(ProcessorTileEntity processor) {
         if (loopStack.isEmpty()) {
             killMe();
@@ -205,13 +244,37 @@ public class RunningProgram implements IProgram {
             if (DEBUG) {
                 System.out.println(opcode.getOpcode());
             }
+
+            // store this for the checks after changing current
+            int before = current;
+
             IOpcodeRunnable.OpcodeResult result = opcode.run(processor, this);
-            if (result == IOpcodeRunnable.OpcodeResult.POSITIVE) {
+            if (this.eip != null) {
+                current = this.eip;
+                this.eip = null;
+            } else if (result == IOpcodeRunnable.OpcodeResult.POSITIVE) {
                 current = opcode.getPrimaryIndex();
             } else if (result == IOpcodeRunnable.OpcodeResult.NEGATIVE){
                 current = opcode.getSecondaryIndex();
             } else {
                 // Stay at this opcode
+            }
+
+            if(opcode.getOpcode().getId() == "test_loop") {
+                int last = loopEntryStack.size() > 0 ? loopEntryStack.get(loopEntryStack.size()-1) : -1;
+
+                // we just exited a loop naturally or via eip jmp
+                if(current != opcode.getPrimaryIndex()) {
+                    // last == current in case the loop never executes because i > loopMax on the first check
+                    if(last == current) {
+                        loopEntryStack.remove(loopEntryStack.size()-1);
+                    }
+                // we just entered or re-entered a loop
+                } else {
+                    if(last != current) {
+                        loopEntryStack.add(before);
+                    }
+                }
             }
         } catch (ProgException e) {
             throw e;
@@ -248,6 +311,15 @@ public class RunningProgram implements IProgram {
             ParameterTypeTools.writeToNBT(varTag, lastValue.getParameterType(), lastValue.getParameterValue());
             tag.setTag("lastvar", varTag);
         }
+        if (!loopEntryStack.isEmpty()) {
+            int[] out = new int[loopEntryStack.size()];
+
+            for (int i = 0; i < loopEntryStack.size(); i++) {
+                out[i] = loopEntryStack.get(i);
+            }
+
+            tag.setTag("loopEntryStack", new NBTTagIntArray(out));
+        }
         if (!loopStack.isEmpty()) {
             NBTTagList loopList = new NBTTagList();
             for (FlowStack pair : loopStack) {
@@ -281,6 +353,13 @@ public class RunningProgram implements IProgram {
             int t = varTag.getInteger("type");
             ParameterType type = ParameterType.values()[t];
             program.lastValue = Parameter.builder().type(type).value(ParameterTypeTools.readFromNBT(varTag, type)).build();
+        }
+        if (tag.hasKey("loopEntryStack")) {
+            program.loopEntryStack.clear();
+            int[] loopList = tag.getIntArray("loopEntryStack");
+            for (int i = 0 ; i < loopList.length ; i++) {
+                program.loopEntryStack.add(loopList[i]);
+            }
         }
         if (tag.hasKey("loopStack")) {
             program.loopStack.clear();
