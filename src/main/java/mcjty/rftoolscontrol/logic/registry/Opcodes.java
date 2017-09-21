@@ -572,6 +572,101 @@ public class Opcodes {
             }))
             .build();
 
+    public static final Opcode DO_FLOAT_ADD = Opcode.builder()
+            .id("do_float_add")
+            .description(
+                    TextFormatting.GREEN + "Operation: add floats",
+                    "add the two given floats")
+            .outputDescription("v1 + v2 (float)")
+            .category(CATEGORY_NUMBERS)
+            .opcodeOutput(SINGLE)
+            .parameter(ParameterDescription.builder().name("v1").type(PAR_FLOAT).description("first value").build())
+            .parameter(ParameterDescription.builder().name("v2").type(PAR_FLOAT).description("second value").build())
+            .icon(4, 9)
+            .runnable(((processor, program, opcode) -> {
+                float v1 = processor.evaluateFloatParameter(opcode, program, 0);
+                float v2 = processor.evaluateFloatParameter(opcode, program, 1);
+                program.setLastValue(Parameter.builder().type(PAR_FLOAT).value(ParameterValue.constant(v1+v2)).build());
+                return POSITIVE;
+            }))
+            .build();
+
+    public static final Opcode DO_FLOAT_SUBTRACT = Opcode.builder()
+            .id("do_float_subtract")
+            .description(
+                    TextFormatting.GREEN + "Operation: subtract floats",
+                    "subtract the two given floats")
+            .outputDescription("v1 - v2 (float)")
+            .category(CATEGORY_NUMBERS)
+            .opcodeOutput(SINGLE)
+            .parameter(ParameterDescription.builder().name("v1").type(PAR_FLOAT).description("first value").build())
+            .parameter(ParameterDescription.builder().name("v2").type(PAR_FLOAT).description("second value").build())
+            .icon(5, 9)
+            .runnable(((processor, program, opcode) -> {
+                float v1 = processor.evaluateFloatParameter(opcode, program, 0);
+                float v2 = processor.evaluateFloatParameter(opcode, program, 1);
+                program.setLastValue(Parameter.builder().type(PAR_FLOAT).value(ParameterValue.constant(v1-v2)).build());
+                return POSITIVE;
+            }))
+            .build();
+
+    public static final Opcode DO_FLOAT_DIVIDE = Opcode.builder()
+            .id("do_float_divide")
+            .description(
+                    TextFormatting.GREEN + "Operation: divide floats",
+                    "divide the two given floats")
+            .outputDescription("v1 / v2 (float)")
+            .category(CATEGORY_NUMBERS)
+            .opcodeOutput(SINGLE)
+            .parameter(ParameterDescription.builder().name("v1").type(PAR_FLOAT).description("first value").build())
+            .parameter(ParameterDescription.builder().name("v2").type(PAR_FLOAT).description("second value").build())
+            .icon(6, 9)
+            .runnable(((processor, program, opcode) -> {
+                float v1 = processor.evaluateFloatParameter(opcode, program, 0);
+                float v2 = processor.evaluateFloatParameter(opcode, program, 1);
+                program.setLastValue(Parameter.builder().type(PAR_FLOAT).value(ParameterValue.constant(v1/v2)).build());
+                return POSITIVE;
+            }))
+            .build();
+
+    public static final Opcode DO_FLOAT_MULTIPLY = Opcode.builder()
+            .id("do_float_multiply")
+            .description(
+                    TextFormatting.GREEN + "Operation: multiply floats",
+                    "multiply the two given floats")
+            .outputDescription("v1 * v2 (float)")
+            .category(CATEGORY_NUMBERS)
+            .opcodeOutput(SINGLE)
+            .parameter(ParameterDescription.builder().name("v1").type(PAR_FLOAT).description("first value").build())
+            .parameter(ParameterDescription.builder().name("v2").type(PAR_FLOAT).description("second value").build())
+            .icon(7, 9)
+            .runnable(((processor, program, opcode) -> {
+                float v1 = processor.evaluateFloatParameter(opcode, program, 0);
+                float v2 = processor.evaluateFloatParameter(opcode, program, 1);
+                program.setLastValue(Parameter.builder().type(PAR_FLOAT).value(ParameterValue.constant(v1*v2)).build());
+                return POSITIVE;
+            }))
+            .build();
+
+    public static final Opcode DO_FLOAT_MODULO = Opcode.builder()
+            .id("do_float_modulo")
+            .description(
+                    TextFormatting.GREEN + "Operation: modulo",
+                    "calculate the modulo of two given floats")
+            .outputDescription("v1 % v2 (float)")
+            .category(CATEGORY_NUMBERS)
+            .opcodeOutput(SINGLE)
+            .parameter(ParameterDescription.builder().name("v1").type(PAR_FLOAT).description("first value").build())
+            .parameter(ParameterDescription.builder().name("v2").type(PAR_FLOAT).description("second value").build())
+            .icon(8, 9)
+            .runnable(((processor, program, opcode) -> {
+                float v1 = processor.evaluateFloatParameter(opcode, program, 0);
+                float v2 = processor.evaluateFloatParameter(opcode, program, 1);
+                program.setLastValue(Parameter.builder().type(PAR_FLOAT).value(ParameterValue.constant(v1%v2)).build());
+                return POSITIVE;
+            }))
+            .build();
+
     public static final Opcode DO_CONCAT = Opcode.builder()
             .id("do_concat")
             .description(
@@ -1824,6 +1919,11 @@ public class Opcodes {
         register(DO_DIVIDE);
         register(DO_MULTIPLY);
         register(DO_MODULO);
+        register(DO_FLOAT_ADD);
+        register(DO_FLOAT_SUBTRACT);
+        register(DO_FLOAT_DIVIDE);
+        register(DO_FLOAT_MULTIPLY);
+        register(DO_FLOAT_MODULO);
         register(DO_CONCAT);
         register(DO_VECTOR_PUSH);
         register(DO_VECTOR_PUSH_INT);

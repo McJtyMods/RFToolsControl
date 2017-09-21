@@ -33,6 +33,13 @@ public class Functions {
             .type(PAR_INTEGER)
             .runnable((processor, program) -> TypeConverters.convertToInt(program.getLastValue()))
             .build();
+    public static final Function LASTFLOAT = Function.builder()
+            .id("last_float")
+            .name("last")
+            .description("The last opcode result", "converted to a float")
+            .type(PAR_FLOAT)
+            .runnable((processor, program) -> TypeConverters.convertToFloat(program.getLastValue()))
+            .build();
     public static final Function LASTSTRING = Function.builder()
             .id("last_str")
             .name("last")
@@ -201,6 +208,7 @@ public class Functions {
     public static void init() {
         register(LASTBOOL);
         register(LASTINT);
+        register(LASTFLOAT);
         register(LASTSTRING);
         register(LASTITEM);
         register(LASTFLUID);

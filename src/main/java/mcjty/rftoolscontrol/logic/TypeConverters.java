@@ -26,8 +26,11 @@ public class TypeConverters {
         if (!value.isSet()) {
             return 0.0f;
         }
-        Object v = value.getParameterValue().getValue();
-        switch (value.getParameterType()) {
+        return convertToFloat(value.getParameterType(), value.getParameterValue().getValue());
+    }
+
+    public static float convertToFloat(ParameterType type, Object v) {
+        switch (type) {
             case PAR_STRING:
                 return Float.parseFloat((String) v);
             case PAR_INTEGER:
