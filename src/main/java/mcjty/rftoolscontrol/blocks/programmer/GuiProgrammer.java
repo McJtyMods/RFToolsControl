@@ -16,7 +16,6 @@ import mcjty.lib.gui.widgets.*;
 import mcjty.lib.gui.widgets.Label;
 import mcjty.lib.gui.widgets.Panel;
 import mcjty.lib.gui.widgets.TextField;
-import mcjty.lib.network.PacketUpdateNBTItemInventory;
 import mcjty.lib.tools.ItemStackTools;
 import mcjty.lib.varia.Logging;
 import mcjty.rftoolscontrol.RFToolsControl;
@@ -646,7 +645,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
         }
         ProgramCardInstance instance = makeGridInstance(false);
         instance.writeToNBT(card);
-        RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketUpdateNBTItemInventory(tileEntity.getPos(),
+        RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketUpdateNBTItemInventoryProgrammer(tileEntity.getPos(),
                 slot, card.getTagCompound()));
     }
 

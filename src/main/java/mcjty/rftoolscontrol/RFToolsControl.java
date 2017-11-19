@@ -33,10 +33,10 @@ import net.minecraftforge.fml.common.event.*;
 public class RFToolsControl implements ModBase {
     public static final String MODID = "rftoolscontrol";
     public static final String VERSION = "1.6.8";
-    public static final String MIN_RFTOOLS_VER = "5.81";
+    public static final String MIN_RFTOOLS_VER = "7.14";
     public static final String MIN_FORGE10_VER = "12.18.1.2082";
     public static final String MIN_FORGE11_VER = "13.19.0.2176";
-    public static final String MIN_MCJTYLIB_VER = "2.3.2";
+    public static final String MIN_MCJTYLIB_VER = "2.5.0";
     public static final String COMPATLAYER_VER = "0.1.7";
 
     @SidedProxy(clientSide="mcjty.rftoolscontrol.proxy.ClientProxy", serverSide="mcjty.rftoolscontrol.proxy.ServerProxy")
