@@ -16,7 +16,7 @@ import mcjty.lib.gui.widgets.*;
 import mcjty.lib.gui.widgets.Label;
 import mcjty.lib.gui.widgets.Panel;
 import mcjty.lib.gui.widgets.TextField;
-import mcjty.lib.network.PacketUpdateNBTItemInventory;
+import mcjty.lib.tools.ItemStackTools;
 import mcjty.lib.varia.Logging;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.api.code.Opcode;
@@ -621,7 +621,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
 
     private void askNameAndSave(int slot) {
         ItemStack card = tileEntity.getStackInSlot(slot);
-        if (card.isEmpty()) {
+        if (ItemStackTools.isEmpty(card)) {
             GuiTools.showMessage(mc, this, getWindowManager(), 50, 50, "No card!");
             return;
         }
@@ -645,7 +645,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
         }
         ProgramCardInstance instance = makeGridInstance(false);
         instance.writeToNBT(card);
-        RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketUpdateNBTItemInventory(tileEntity.getPos(),
+        RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketUpdateNBTItemInventoryProgrammer(tileEntity.getPos(),
                 slot, card.getTagCompound()));
     }
 
@@ -695,7 +695,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
 
     private void loadProgram(int slot) {
         ItemStack card = tileEntity.getStackInSlot(slot);
-        if (card.isEmpty()) {
+        if (ItemStackTools.isEmpty(card)) {
             return;
         }
         clearGrid(false);
