@@ -379,12 +379,14 @@ public class CraftingStationTileEntity extends GenericTileEntity implements Defa
                 ItemStackList items = ItemStackList.create();
                 processor.getCraftableItems(items);
                 for (ItemStack item : items) {
-                    if (item.hasTagCompound()) {
-                        if (nbtString.equalsIgnoreCase(item.serializeNBT().toString())) {
+                    if (item.getItemDamage() == meta && itemName.equals(item.getItem().getRegistryName().toString())) {
+                        if (item.hasTagCompound()) {
+                            if (nbtString.equalsIgnoreCase(item.serializeNBT().toString())) {
+                                return index;
+                            }
+                        } else {
                             return index;
                         }
-                    } else if (item.getItemDamage() == meta && itemName.equals(item.getItem().getRegistryName().toString())) {
-                        return index;
                     }
                     index++;
                 }
