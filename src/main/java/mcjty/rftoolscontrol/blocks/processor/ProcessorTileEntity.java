@@ -852,12 +852,15 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             ItemStack s = handler.getStackInSlot(j);
             if (ItemStackTools.isValid(s) && s.getItem() == ModItems.craftingCardItem) {
                 ItemStack result = CraftingCardItem.getResult(s);
-                if (craftResult.hasTagCompound()) {
-                    if (result.hasTagCompound() && resultNBT.equalsIgnoreCase(result.serializeNBT().toString())) {
+
+                if (ItemStackTools.isValid(result) && result.isItemEqual(craftResult)) {
+                    if (craftResult.hasTagCompound()) {
+                        if (resultNBT.equalsIgnoreCase(result.serializeNBT().toString())) {
+                            return s;
+                        }
+                    } else {
                         return s;
                     }
-                } else if (ItemStackTools.isValid(result) && result.isItemEqual(craftResult)) {
-                    return s;
                 }
             }
         }
