@@ -9,6 +9,7 @@ import mcjty.lib.gui.widgets.*;
 import mcjty.lib.gui.widgets.Button;
 import mcjty.lib.gui.widgets.Label;
 import mcjty.lib.gui.widgets.Panel;
+import mcjty.lib.network.Argument;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.network.PacketItemNBTToServer;
 import mcjty.rftoolscontrol.network.PacketTestRecipe;
@@ -61,8 +62,8 @@ public class GuiCraftingCard extends GenericGuiContainer {
                 .setText("NBT")
                 .setTooltips("Enable this if you want", "opcodes like 'get_ingredients'", "to strictly match on NBT")
                 .setLayoutHint(new PositionalLayout.PositionalHint(110, 74, 60, 14));
-        ItemStack heldItem = MinecraftTools.getPlayer(mc).getHeldItem(EnumHand.MAIN_HAND);
-        if (ItemStackTools.isValid(heldItem)) {
+        ItemStack heldItem = mc.player.getHeldItem(EnumHand.MAIN_HAND);
+        if (!heldItem.isEmpty()) {
             toggle.setPressed(CraftingCardItem.isStrictNBT(heldItem));
         }
         toggle.addButtonEvent(parent -> {

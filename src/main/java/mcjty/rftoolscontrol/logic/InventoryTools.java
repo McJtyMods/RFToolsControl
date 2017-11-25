@@ -48,7 +48,7 @@ public class InventoryTools {
                     // Just find the first available stack
                     for (int i = 0 ; i < itemHandler.getSlots() ; i++) {
                         ItemStack stack = itemHandler.getStackInSlot(i);
-                        if (ItemStackTools.isValid(stack) && (amount == null || amount <= ItemStackTools.getStackSize(stack))) {
+                        if (!stack.isEmpty() && (amount == null || amount <= stack.getCount())) {
                             return itemHandler.extractItem(i, amount == null ? 64 : amount, false);
                         }
                     }
@@ -61,11 +61,11 @@ public class InventoryTools {
                     }
                 }
             } else {
-                if (ItemStackTools.isEmpty(itemMatcher)) {
+                if (itemMatcher.isEmpty()) {
                     return itemHandler.extractItem(slot, amount == null ? 64 : amount, false);
                 } else {
                     if (!isEqualAdvanced(itemMatcher, itemHandler.getStackInSlot(slot), strictnbt)) {
-                        return ItemStackTools.getEmptyStack();
+                        return ItemStack.EMPTY;
                     }
                     return itemHandler.extractItem(slot, amount == null ? itemMatcher.getMaxStackSize() : amount, false);
                 }
@@ -77,7 +77,7 @@ public class InventoryTools {
     }
 
     public static boolean isEqualAdvanced(ItemStack itemMatcher, ItemStack stack, boolean strictnbt) {
-        if (ItemStackTools.isValid(stack) && ItemStack.areItemsEqual(stack, itemMatcher)) {
+        if (!stack.isEmpty() && ItemStack.areItemsEqual(stack, itemMatcher)) {
             if (strictnbt) {
                 if (itemMatcher.hasTagCompound() || stack.hasTagCompound()) {
                     String t1 = itemMatcher.serializeNBT().toString();

@@ -634,9 +634,9 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
 
         for (ItemStack ingredient : ingredients) {
             int realSlot = info.getRealSlot(slot);
-            if (ItemStackTools.isValid(ingredient)) {
-                ItemStack stack = InventoryTools.extractItem(handler, scanner, ItemStackTools.getStackSize(ingredient), true, false, strictnbt, ingredient, null);
-                if (ItemStackTools.isValid(stack)) {
+            if (!ingredient.isEmpty()) {
+                ItemStack stack = InventoryTools.extractItem(handler, scanner, ingredient.getCount(), true, false, strictnbt, ingredient, null);
+                if (!stack.isEmpty()) {
                     itemHandler.insertItem(realSlot, stack, false);
                 }
             }
@@ -730,9 +730,9 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         int failed = 0;
         for (ItemStack ingredient : ingredients) {
             int realSlot = info.getRealSlot(slot);
-            if (ItemStackTools.isValid(ingredient)) {
-                ItemStack stack = InventoryTools.extractItem(handler, scanner, ItemStackTools.getStackSize(ingredient), true, false, strictnbt, ingredient, null);
-                if (ItemStackTools.isValid(stack)) {
+            if (!ingredient.isEmpty()) {
+                ItemStack stack = InventoryTools.extractItem(handler, scanner, ingredient.getCount(), true, false, strictnbt, ingredient, null);
+                if (!stack.isEmpty()) {
                     ItemStack remainder = itemHandler.insertItem(realSlot, stack, false);
                     if (!remainder.isEmpty()) {
                         InventoryTools.insertItem(handler, scanner, remainder, null);
@@ -864,7 +864,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             if (!s.isEmpty() && s.getItem() == ModItems.craftingCardItem) {
                 ItemStack result = CraftingCardItem.getResult(s);
 
-                if (ItemStackTools.isValid(result) && result.isItemEqual(craftResult)) {
+                if (!result.isEmpty() && result.isItemEqual(craftResult)) {
                     if (craftResult.hasTagCompound()) {
                         if (resultNBT.equalsIgnoreCase(result.serializeNBT().toString())) {
                             return s;
