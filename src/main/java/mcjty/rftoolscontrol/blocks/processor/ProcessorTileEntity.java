@@ -621,6 +621,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         } else {
             ingredients = CraftingCardItem.getIngredients(card);
         }
+        boolean strictnbt = CraftingCardItem.isStrictNBT(card);
 
         List<ItemStack> needed = combineIngredients(ingredients);
         int requested = checkAvailableItemsAndRequestMissing(destInv, scanner, handler, needed);
@@ -633,9 +634,9 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
 
         for (ItemStack ingredient : ingredients) {
             int realSlot = info.getRealSlot(slot);
-            if (!ingredient.isEmpty()) {
-                ItemStack stack = InventoryTools.extractItem(handler, scanner, ingredient.getCount(), true, false, ingredient, null);
-                if (!stack.isEmpty()) {
+            if (ItemStackTools.isValid(ingredient)) {
+                ItemStack stack = InventoryTools.extractItem(handler, scanner, ItemStackTools.getStackSize(ingredient), true, false, strictnbt, ingredient, null);
+                if (ItemStackTools.isValid(stack)) {
                     itemHandler.insertItem(realSlot, stack, false);
                 }
             }
@@ -724,13 +725,14 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         } else {
             ingredients = CraftingCardItem.getIngredients(card);
         }
+        boolean strictnbt = CraftingCardItem.isStrictNBT(card);
 
         int failed = 0;
         for (ItemStack ingredient : ingredients) {
             int realSlot = info.getRealSlot(slot);
-            if (!ingredient.isEmpty()) {
-                ItemStack stack = InventoryTools.extractItem(handler, scanner, ingredient.getCount(), true, false, ingredient, null);
-                if (!stack.isEmpty()) {
+            if (ItemStackTools.isValid(ingredient)) {
+                ItemStack stack = InventoryTools.extractItem(handler, scanner, ItemStackTools.getStackSize(ingredient), true, false, strictnbt, ingredient, null);
+                if (ItemStackTools.isValid(stack)) {
                     ItemStack remainder = itemHandler.insertItem(realSlot, stack, false);
                     if (!remainder.isEmpty()) {
                         InventoryTools.insertItem(handler, scanner, remainder, null);
@@ -861,12 +863,15 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             ItemStack s = handler.getStackInSlot(j);
             if (!s.isEmpty() && s.getItem() == ModItems.craftingCardItem) {
                 ItemStack result = CraftingCardItem.getResult(s);
-                if (craftResult.hasTagCompound()) {
-                    if (result.hasTagCompound() && resultNBT.equalsIgnoreCase(result.serializeNBT().toString())) {
+
+                if (ItemStackTools.isValid(result) && result.isItemEqual(craftResult)) {
+                    if (craftResult.hasTagCompound()) {
+                        if (resultNBT.equalsIgnoreCase(result.serializeNBT().toString())) {
+                            return s;
+                        }
+                    } else {
                         return s;
                     }
-                } else if (!result.isEmpty() && result.isItemEqual(craftResult)) {
-                    return s;
                 }
             }
         }
@@ -1693,7 +1698,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             return 0;
         }
         // All seems ok. Do the real thing now.
-        stack = InventoryTools.extractItem(handler, scanner, amount, routable, oredict, itemMatcher, slot);
+        stack = InventoryTools.extractItem(handler, scanner, amount, routable, oredict, false, itemMatcher, slot);
         capability.insertItem(realSlot, stack, false);
         return stack.getCount();
     }
