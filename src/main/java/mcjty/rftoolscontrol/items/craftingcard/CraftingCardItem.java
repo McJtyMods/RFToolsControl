@@ -93,6 +93,8 @@ public class CraftingCardItem extends GenericRFToolsItem {
         list.add("This item can be used for auto");
         list.add("crafting. It stores ingredients");
         list.add("and end result for a recipe");
+        boolean strictnbt = CraftingCardItem.isStrictNBT(stack);
+        list.add(TextFormatting.GREEN + "Strict NBT: " + TextFormatting.WHITE + (strictnbt ? "yes" : "no"));
         ItemStack result = getResult(stack);
         if (ItemStackTools.isValid(result)) {
             if (ItemStackTools.getStackSize(result) > 1) {
@@ -152,6 +154,14 @@ public class CraftingCardItem extends GenericRFToolsItem {
             }
         }
         return true;
+    }
+
+    public static boolean isStrictNBT(ItemStack card) {
+        NBTTagCompound tagCompound = card.getTagCompound();
+        if (tagCompound == null) {
+            return false;
+        }
+        return tagCompound.getBoolean("strictnbt");
     }
 
     public static List<ItemStack> getIngredientsGrid(ItemStack card) {

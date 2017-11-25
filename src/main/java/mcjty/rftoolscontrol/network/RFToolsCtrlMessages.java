@@ -2,6 +2,7 @@ package mcjty.rftoolscontrol.network;
 
 import mcjty.lib.network.PacketHandler;
 import mcjty.rftoolscontrol.blocks.programmer.PacketUpdateNBTItemInventoryProgrammer;
+import mcjty.rftoolscontrol.items.craftingcard.PacketUpdateNBTItemCard;
 import mcjty.rftoolscontrol.jei.PacketSendRecipe;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.relauncher.Side;
@@ -26,6 +27,7 @@ public class RFToolsCtrlMessages {
         net.registerMessage(PacketTestRecipe.Handler.class, PacketTestRecipe.class, PacketHandler.nextID(), Side.SERVER);
         net.registerMessage(PacketGetGraphics.Handler.class, PacketGetGraphics.class, PacketHandler.nextID(), Side.SERVER);
         net.registerMessage(PacketUpdateNBTItemInventoryProgrammer.Handler.class, PacketUpdateNBTItemInventoryProgrammer.class, PacketHandler.nextID(), Side.SERVER);
+        net.registerMessage(PacketUpdateNBTItemCard.Handler.class, PacketUpdateNBTItemCard.class, PacketHandler.nextID(), Side.SERVER);
 
         // Client side
         net.registerMessage(PacketLogReady.Handler.class, PacketLogReady.class, PacketHandler.nextID(), Side.CLIENT);

@@ -9,6 +9,7 @@ import mcjty.lib.gui.widgets.*;
 import mcjty.lib.gui.widgets.Button;
 import mcjty.lib.gui.widgets.Label;
 import mcjty.lib.gui.widgets.Panel;
+import mcjty.lib.network.Argument;
 import mcjty.lib.tools.ItemStackList;
 import mcjty.lib.tools.ItemStackTools;
 import mcjty.lib.tools.MinecraftTools;
@@ -34,7 +35,6 @@ public class GuiCraftingCard extends GenericGuiContainer {
     public static final int HEIGHT = 198;
 
     private static final ResourceLocation iconLocation = new ResourceLocation(RFToolsControl.MODID, "textures/gui/craftingcard.png");
-    private static final ResourceLocation guiElements = new ResourceLocation(RFToolsControl.MODID, "textures/gui/guielements.png");
 
     private BlockRender[] slots = new BlockRender[1 + INPUT_SLOTS];
 
@@ -56,10 +56,22 @@ public class GuiCraftingCard extends GenericGuiContainer {
         toplevel.addChild(new Button(mc, this)
                 .setText("Update")
                 .setTooltips("Update the item in the output", "slot to the recipe in the", "3x3 grid")
-                .addButtonEvent(parent -> {
-                    RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketTestRecipe());
-                })
+                .addButtonEvent(parent -> RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketTestRecipe()))
                 .setLayoutHint(new PositionalLayout.PositionalHint(110, 57, 60, 14)));
+        ToggleButton toggle = new ToggleButton(mc, this)
+                .setCheckMarker(true)
+                .setText("NBT")
+                .setTooltips("Enable this if you want", "opcodes like 'get_ingredients'", "to strictly match on NBT")
+                .setLayoutHint(new PositionalLayout.PositionalHint(110, 74, 60, 14));
+        ItemStack heldItem = MinecraftTools.getPlayer(mc).getHeldItem(EnumHand.MAIN_HAND);
+        if (ItemStackTools.isValid(heldItem)) {
+            toggle.setPressed(CraftingCardItem.isStrictNBT(heldItem));
+        }
+        toggle.addButtonEvent(parent -> {
+            RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketUpdateNBTItemCard(new Argument("strictnbt", toggle.isPressed())));
+        });
+
+        toplevel.addChild(toggle);
 
         for (int y = 0 ; y < GRID_HEIGHT ; y++) {
             for (int x = 0 ; x < GRID_WIDTH ; x++) {

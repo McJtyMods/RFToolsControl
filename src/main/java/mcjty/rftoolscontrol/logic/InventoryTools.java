@@ -40,7 +40,7 @@ public class InventoryTools {
     }
 
     public static ItemStack extractItem(@Nullable IItemHandler itemHandler, @Nullable IStorageScanner scanner,
-                                        @Nullable Integer amount, boolean routable, boolean oredict, ItemStack itemMatcher,
+                                        @Nullable Integer amount, boolean routable, boolean oredict, boolean strictnbt, ItemStack itemMatcher,
                                         @Nullable Integer slot) {
         if (itemHandler != null) {
             // @todo implement oredict here
@@ -56,7 +56,7 @@ public class InventoryTools {
                 } else {
                     for (int i = 0; i < itemHandler.getSlots(); i++) {
                         ItemStack stack = itemHandler.getStackInSlot(i);
-                        if (ItemStackTools.isValid(stack) && ItemStack.areItemsEqual(stack, itemMatcher)) {
+                        if (isEqualAdvanced(itemMatcher, stack, strictnbt)) {
                             return itemHandler.extractItem(i, amount == null ? itemMatcher.getMaxStackSize() : amount, false);
                         }
                     }
@@ -65,7 +65,7 @@ public class InventoryTools {
                 if (ItemStackTools.isEmpty(itemMatcher)) {
                     return itemHandler.extractItem(slot, amount == null ? 64 : amount, false);
                 } else {
-                    if (!ItemStack.areItemsEqual(itemMatcher, itemHandler.getStackInSlot(slot))) {
+                    if (!isEqualAdvanced(itemMatcher, itemHandler.getStackInSlot(slot), strictnbt)) {
                         return ItemStackTools.getEmptyStack();
                     }
                     return itemHandler.extractItem(slot, amount == null ? itemMatcher.getMaxStackSize() : amount, false);
@@ -75,6 +75,25 @@ public class InventoryTools {
             return scanner.requestItem(itemMatcher, amount == null ? itemMatcher.getMaxStackSize() : amount, routable, oredict);
         }
         return ItemStackTools.getEmptyStack();
+    }
+
+    public static boolean isEqualAdvanced(ItemStack itemMatcher, ItemStack stack, boolean strictnbt) {
+        if (ItemStackTools.isValid(stack) && ItemStack.areItemsEqual(stack, itemMatcher)) {
+            if (strictnbt) {
+                if (itemMatcher.hasTagCompound() || stack.hasTagCompound()) {
+                    String t1 = itemMatcher.serializeNBT().toString();
+                    String t2 = stack.serializeNBT().toString();
+                    if (t1.equalsIgnoreCase(t2)) {
+                        return true;
+                    }
+                } else {
+                    return true;
+                }
+            } else {
+                return true;
+            }
+        }
+        return false;
     }
 
     public static ItemStack tryExtractItem(@Nullable IItemHandler itemHandler, @Nullable IStorageScanner scanner,
