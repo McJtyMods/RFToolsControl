@@ -846,18 +846,13 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     }
 
     private ItemStack findCraftingCard(IItemHandler handler, ItemStack craftResult) {
-    	String resultNBT = "";
-        if (craftResult.hasTagCompound()) {
-        	resultNBT = craftResult.serializeNBT().toString();
-        }
         for (int j = 0 ; j < handler.getSlots() ; j++) {
             ItemStack s = handler.getStackInSlot(j);
             if (ItemStackTools.isValid(s) && s.getItem() == ModItems.craftingCardItem) {
                 ItemStack result = CraftingCardItem.getResult(s);
-
                 if (ItemStackTools.isValid(result) && result.isItemEqual(craftResult)) {
                     if (craftResult.hasTagCompound()) {
-                        if (resultNBT.equalsIgnoreCase(result.serializeNBT().toString())) {
+                        if (ItemStack.areItemStackTagsEqual(craftResult, result)) {
                             return s;
                         }
                     } else {
