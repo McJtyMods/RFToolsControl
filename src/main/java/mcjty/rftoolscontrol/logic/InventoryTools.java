@@ -80,15 +80,7 @@ public class InventoryTools {
     public static boolean isEqualAdvanced(ItemStack itemMatcher, ItemStack stack, boolean strictnbt) {
         if (ItemStackTools.isValid(stack) && ItemStack.areItemsEqual(stack, itemMatcher)) {
             if (strictnbt) {
-                if (itemMatcher.hasTagCompound() || stack.hasTagCompound()) {
-                    String t1 = itemMatcher.serializeNBT().toString();
-                    String t2 = stack.serializeNBT().toString();
-                    if (t1.equalsIgnoreCase(t2)) {
-                        return true;
-                    }
-                } else {
-                    return true;
-                }
+                return (!itemMatcher.hasTagCompound() || ItemStack.areItemStackTagsEqual(stack, itemMatcher));
             } else {
                 return true;
             }
