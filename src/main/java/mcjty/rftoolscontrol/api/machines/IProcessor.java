@@ -131,6 +131,11 @@ public interface IProcessor {
     int evaluateIntParameter(ICompiledOpcode compiledOpcode, IProgram program, int parIndex);
 
     /**
+     * Evaluate a float parameter. Return 0 if the parameter was not a float or null
+     */
+    float evaluateFloatParameter(ICompiledOpcode compiledOpcode, IProgram program, int parIndex);
+
+    /**
      * Evaluate an integer parameter. Return null if the parameter was not given
      */
     @Nullable

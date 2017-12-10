@@ -39,6 +39,7 @@ public enum ExceptionType {
     EXCEPT_STACKOVERFLOW("stack_overflow", "Stack overflow (recursing too deep?)"),
     EXCEPT_BADINDEX("bad_index", "Bad index for vector access"),
     EXCEPT_NOTAVECTOR("not_a_vector", "Expected a vector. Got something else"),
+    EXCEPT_NOTINLOOP("not_in_loop", "Not currently in a loop"),
     ;
 
     private final String code;

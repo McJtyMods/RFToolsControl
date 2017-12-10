@@ -119,6 +119,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     private static final BiFunction<ParameterType, Object, Tuple> CONVERTOR_TUPLE = (type, value) -> TypeConverters.convertToTuple(type, value);
     private static final BiFunction<ParameterType, Object, List<Parameter>> CONVERTOR_VECTOR = (type, value) -> TypeConverters.convertToVector(type, value);
     private static final BiFunction<ParameterType, Object, Integer> CONVERTOR_INTEGER = (type, value) -> TypeConverters.convertToInteger(type, value);
+    private static final BiFunction<ParameterType, Object, Float> CONVERTOR_FLOAT = (type, value) -> TypeConverters.convertToFloat(type, value);
     private static final BiFunction<ParameterType, Object, String> CONVERTOR_STRING = (type, value) -> TypeConverters.convertToString(type, value);
     private static final BiFunction<ParameterType, Object, Boolean> CONVERTOR_BOOL = (type, value) -> TypeConverters.convertToBool(type, value);
 
@@ -846,9 +847,9 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     }
 
     private ItemStack findCraftingCard(IItemHandler handler, ItemStack craftResult) {
-    	String resultNBT = "";
+        String resultNBT = "";
         if (craftResult.hasTagCompound()) {
-        	resultNBT = craftResult.serializeNBT().toString();
+            resultNBT = craftResult.serializeNBT().toString();
         }
         for (int j = 0 ; j < handler.getSlots() ; j++) {
             ItemStack s = handler.getStackInSlot(j);
@@ -2235,6 +2236,15 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     @Override
     public int evaluateIntParameter(ICompiledOpcode compiledOpcode, IProgram program, int parIndex) {
         Integer value = evaluateIntegerParameter(compiledOpcode, program, parIndex);
+        if (value == null) {
+            return 0;
+        }
+        return value;
+    }
+
+    @Override
+    public float evaluateFloatParameter(ICompiledOpcode compiledOpcode, IProgram program, int parIndex) {
+        Float value = evaluateGenericParameter(compiledOpcode, program, parIndex, CONVERTOR_FLOAT);
         if (value == null) {
             return 0;
         }

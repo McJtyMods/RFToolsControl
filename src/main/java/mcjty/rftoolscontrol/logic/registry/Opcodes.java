@@ -10,6 +10,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.items.IItemHandler;
+import mcjty.rftoolscontrol.logic.running.RunningProgram;
 
 import java.util.*;
 
@@ -184,6 +185,25 @@ public class Opcodes {
             })
             .build();
 
+    public static final Opcode DO_BREAK = Opcode.builder()
+            .id("do_break")
+            .description(
+                    TextFormatting.GREEN + "Operation: break",
+                    "stop the currently executing loop as if it had",
+                    "ended normally")
+            .category(CATEGORY_CRAFTING)
+            .opcodeOutput(SINGLE)
+            .icon(6, 8)
+            .runnable(((processor, program, opcode) -> {
+                if(!((RunningProgram)program).isCurrentlyInLoop()) {
+                    throw new ProgException(ExceptionType.EXCEPT_NOTINLOOP);
+                }
+
+                ((RunningProgram)program).breakLoop(((ProcessorTileEntity)processor));
+                return POSITIVE;
+            }))
+            .build();
+
     // Internal opcode that will stop the program or resume a loop
     public static final Opcode DO_STOP_OR_RESUME = Opcode.builder()
             .id("do_stop_or_resume")
@@ -288,6 +308,25 @@ public class Opcodes {
             .runnable(((processor, program, opcode) -> {
                 int var = processor.evaluateIntParameter(opcode, program, 0);
                 return ((ProcessorTileEntity) processor).testEquality(program, var) ? POSITIVE : NEGATIVE;
+            }))
+            .build();
+
+    public static final Opcode TEST_ACQUIRE_LOCK = Opcode.builder()
+            .id("test_acquire_lock")
+            .description(
+                    TextFormatting.GREEN + "Test: Acquire lock",
+                    "attempt to place a named lock, but don't wait",
+                    "if it's already in use")
+            .opcodeOutput(YESNO)
+            .parameter(ParameterDescription.builder().name("name").type(PAR_STRING).description("name of the lock to acquire").build())
+            .icon(8, 8)
+            .runnable(((processor, program, opcode) -> {
+                String name = processor.evaluateStringParameter(opcode, program, 0);
+                if(processor.testLock(name)) {
+                    return NEGATIVE;
+                }
+                processor.placeLock(name);
+                return POSITIVE;
             }))
             .build();
 
@@ -529,6 +568,101 @@ public class Opcodes {
                 int v1 = processor.evaluateIntParameter(opcode, program, 0);
                 int v2 = processor.evaluateIntParameter(opcode, program, 1);
                 program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(v1%v2)).build());
+                return POSITIVE;
+            }))
+            .build();
+
+    public static final Opcode DO_FLOAT_ADD = Opcode.builder()
+            .id("do_float_add")
+            .description(
+                    TextFormatting.GREEN + "Operation: add floats",
+                    "add the two given floats")
+            .outputDescription("v1 + v2 (float)")
+            .category(CATEGORY_NUMBERS)
+            .opcodeOutput(SINGLE)
+            .parameter(ParameterDescription.builder().name("v1").type(PAR_FLOAT).description("first value").build())
+            .parameter(ParameterDescription.builder().name("v2").type(PAR_FLOAT).description("second value").build())
+            .icon(4, 9)
+            .runnable(((processor, program, opcode) -> {
+                float v1 = processor.evaluateFloatParameter(opcode, program, 0);
+                float v2 = processor.evaluateFloatParameter(opcode, program, 1);
+                program.setLastValue(Parameter.builder().type(PAR_FLOAT).value(ParameterValue.constant(v1+v2)).build());
+                return POSITIVE;
+            }))
+            .build();
+
+    public static final Opcode DO_FLOAT_SUBTRACT = Opcode.builder()
+            .id("do_float_subtract")
+            .description(
+                    TextFormatting.GREEN + "Operation: subtract floats",
+                    "subtract the two given floats")
+            .outputDescription("v1 - v2 (float)")
+            .category(CATEGORY_NUMBERS)
+            .opcodeOutput(SINGLE)
+            .parameter(ParameterDescription.builder().name("v1").type(PAR_FLOAT).description("first value").build())
+            .parameter(ParameterDescription.builder().name("v2").type(PAR_FLOAT).description("second value").build())
+            .icon(5, 9)
+            .runnable(((processor, program, opcode) -> {
+                float v1 = processor.evaluateFloatParameter(opcode, program, 0);
+                float v2 = processor.evaluateFloatParameter(opcode, program, 1);
+                program.setLastValue(Parameter.builder().type(PAR_FLOAT).value(ParameterValue.constant(v1-v2)).build());
+                return POSITIVE;
+            }))
+            .build();
+
+    public static final Opcode DO_FLOAT_DIVIDE = Opcode.builder()
+            .id("do_float_divide")
+            .description(
+                    TextFormatting.GREEN + "Operation: divide floats",
+                    "divide the two given floats")
+            .outputDescription("v1 / v2 (float)")
+            .category(CATEGORY_NUMBERS)
+            .opcodeOutput(SINGLE)
+            .parameter(ParameterDescription.builder().name("v1").type(PAR_FLOAT).description("first value").build())
+            .parameter(ParameterDescription.builder().name("v2").type(PAR_FLOAT).description("second value").build())
+            .icon(6, 9)
+            .runnable(((processor, program, opcode) -> {
+                float v1 = processor.evaluateFloatParameter(opcode, program, 0);
+                float v2 = processor.evaluateFloatParameter(opcode, program, 1);
+                program.setLastValue(Parameter.builder().type(PAR_FLOAT).value(ParameterValue.constant(v1/v2)).build());
+                return POSITIVE;
+            }))
+            .build();
+
+    public static final Opcode DO_FLOAT_MULTIPLY = Opcode.builder()
+            .id("do_float_multiply")
+            .description(
+                    TextFormatting.GREEN + "Operation: multiply floats",
+                    "multiply the two given floats")
+            .outputDescription("v1 * v2 (float)")
+            .category(CATEGORY_NUMBERS)
+            .opcodeOutput(SINGLE)
+            .parameter(ParameterDescription.builder().name("v1").type(PAR_FLOAT).description("first value").build())
+            .parameter(ParameterDescription.builder().name("v2").type(PAR_FLOAT).description("second value").build())
+            .icon(7, 9)
+            .runnable(((processor, program, opcode) -> {
+                float v1 = processor.evaluateFloatParameter(opcode, program, 0);
+                float v2 = processor.evaluateFloatParameter(opcode, program, 1);
+                program.setLastValue(Parameter.builder().type(PAR_FLOAT).value(ParameterValue.constant(v1*v2)).build());
+                return POSITIVE;
+            }))
+            .build();
+
+    public static final Opcode DO_FLOAT_MODULO = Opcode.builder()
+            .id("do_float_modulo")
+            .description(
+                    TextFormatting.GREEN + "Operation: modulo",
+                    "calculate the modulo of two given floats")
+            .outputDescription("v1 % v2 (float)")
+            .category(CATEGORY_NUMBERS)
+            .opcodeOutput(SINGLE)
+            .parameter(ParameterDescription.builder().name("v1").type(PAR_FLOAT).description("first value").build())
+            .parameter(ParameterDescription.builder().name("v2").type(PAR_FLOAT).description("second value").build())
+            .icon(8, 9)
+            .runnable(((processor, program, opcode) -> {
+                float v1 = processor.evaluateFloatParameter(opcode, program, 0);
+                float v2 = processor.evaluateFloatParameter(opcode, program, 1);
+                program.setLastValue(Parameter.builder().type(PAR_FLOAT).value(ParameterValue.constant(v1%v2)).build());
                 return POSITIVE;
             }))
             .build();
@@ -1758,6 +1892,7 @@ public class Opcodes {
         register(TEST_GT_VAR);
         register(TEST_EQ);
         register(TEST_EQ_VAR);
+        register(TEST_ACQUIRE_LOCK);
         register(TEST_SET);
         register(TEST_LOOP);
 //        register(TEST_LOOP_VECTOR);
@@ -1766,6 +1901,7 @@ public class Opcodes {
         register(DO_REDSTONE);
         register(DO_DELAY);
         register(DO_STOP);
+        register(DO_BREAK);
         register(DO_STOP_OR_RESUME);
         register(DO_SIGNAL);
         register(DO_MESSAGE);
@@ -1783,6 +1919,11 @@ public class Opcodes {
         register(DO_DIVIDE);
         register(DO_MULTIPLY);
         register(DO_MODULO);
+        register(DO_FLOAT_ADD);
+        register(DO_FLOAT_SUBTRACT);
+        register(DO_FLOAT_DIVIDE);
+        register(DO_FLOAT_MULTIPLY);
+        register(DO_FLOAT_MODULO);
         register(DO_CONCAT);
         register(DO_VECTOR_PUSH);
         register(DO_VECTOR_PUSH_INT);
