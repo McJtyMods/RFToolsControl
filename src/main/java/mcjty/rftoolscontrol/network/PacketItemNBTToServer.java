@@ -44,8 +44,8 @@ public class PacketItemNBTToServer implements IMessage {
         }
 
         private void handle(PacketItemNBTToServer message, MessageContext ctx) {
-            EntityPlayerMP playerEntity = ctx.getServerHandler().player;
-            ItemStack heldItem = playerEntity.getHeldItem(EnumHand.MAIN_HAND);
+            EntityPlayerMP player = ctx.getServerHandler().player;
+            ItemStack heldItem = player.getHeldItem(EnumHand.MAIN_HAND);
             if (heldItem.isEmpty()) {
                 return;
             }

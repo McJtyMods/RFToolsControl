@@ -1,8 +1,11 @@
 package mcjty.rftoolscontrol.blocks.processor;
 
+import mcjty.lib.network.Arguments;
+import mcjty.lib.network.PacketSendServerCommand;
+import mcjty.rftoolscontrol.CommandHandler;
+import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.blocks.vectorart.GfxOp;
 import mcjty.rftoolscontrol.network.PacketGetDebugLog;
-import mcjty.rftoolscontrol.network.PacketGetGraphics;
 import mcjty.rftoolscontrol.network.PacketGetLog;
 import mcjty.rftoolscontrol.network.RFToolsCtrlMessages;
 import net.minecraft.client.Minecraft;
@@ -114,7 +117,8 @@ public class ProcessorRenderer extends TileEntitySpecialRenderer<ProcessorTileEn
     private void renderGfx(ProcessorTileEntity tileEntity) {
         long t = System.currentTimeMillis();
         if (t - tileEntity.clientTime > 250) {
-            RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketGetGraphics(tileEntity.getPos()));
+            RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketSendServerCommand(RFToolsControl.MODID, CommandHandler.CMD_GETGRAPHICS,
+                    Arguments.builder().value(tileEntity.getPos()).build()));
             tileEntity.clientTime = t;
         }
         List<GfxOp> ops = tileEntity.getClientGfxOps();

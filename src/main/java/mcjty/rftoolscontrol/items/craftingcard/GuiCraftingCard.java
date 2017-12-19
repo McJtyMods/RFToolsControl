@@ -7,10 +7,12 @@ import mcjty.lib.gui.layout.HorizontalAlignment;
 import mcjty.lib.gui.layout.PositionalLayout;
 import mcjty.lib.gui.widgets.*;
 import mcjty.lib.network.Argument;
+import mcjty.lib.network.Arguments;
+import mcjty.lib.network.PacketSendServerCommand;
 import mcjty.lib.varia.ItemStackList;
+import mcjty.rftoolscontrol.CommandHandler;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.network.PacketItemNBTToServer;
-import mcjty.rftoolscontrol.network.PacketTestRecipe;
 import mcjty.rftoolscontrol.network.RFToolsCtrlMessages;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.item.ItemStack;
@@ -52,7 +54,7 @@ public class GuiCraftingCard extends GenericGuiContainer {
         toplevel.addChild(new Button(mc, this)
                 .setText("Update")
                 .setTooltips("Update the item in the output", "slot to the recipe in the", "3x3 grid")
-                .addButtonEvent(parent -> RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketTestRecipe()))
+                .addButtonEvent(parent -> RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketSendServerCommand(RFToolsControl.MODID, CommandHandler.CMD_TESTRECIPE, Arguments.EMPTY)))
                 .setLayoutHint(new PositionalLayout.PositionalHint(110, 57, 60, 14)));
         ToggleButton toggle = new ToggleButton(mc, this)
                 .setCheckMarker(true)
