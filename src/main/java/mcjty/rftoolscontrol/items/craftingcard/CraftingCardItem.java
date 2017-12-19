@@ -1,8 +1,8 @@
 package mcjty.rftoolscontrol.items.craftingcard;
 
+import mcjty.lib.varia.ItemStackList;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.items.GenericRFToolsItem;
-import mcjty.rftoolscontrol.varia.ItemStackList;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;

@@ -1,9 +1,9 @@
 package mcjty.rftoolscontrol.logic;
 
+import mcjty.lib.varia.FluidTools;
 import mcjty.rftoolscontrol.api.parameters.*;
 import mcjty.rftoolscontrol.logic.running.ExceptionType;
 import mcjty.rftoolscontrol.logic.running.ProgException;
-import mcjty.rftoolscontrol.varia.FluidTools;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fluids.FluidRegistry;

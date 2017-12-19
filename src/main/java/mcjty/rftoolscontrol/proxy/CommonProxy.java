@@ -1,6 +1,7 @@
 package mcjty.rftoolscontrol.proxy;
 
 import com.google.common.util.concurrent.ListenableFuture;
+import mcjty.lib.McJtyLib;
 import mcjty.lib.base.GeneralConfig;
 import mcjty.lib.network.PacketHandler;
 import mcjty.lib.varia.WrenchChecker;
@@ -37,6 +38,7 @@ public abstract class CommonProxy {
 
     public void preInit(FMLPreInitializationEvent e) {
         MinecraftForge.EVENT_BUS.register(new ForgeEventHandlers());
+        McJtyLib.preInit(e, RFToolsControl.instance);
         GeneralConfig.preInit(e);
 
         modConfigDir = e.getModConfigurationDirectory();

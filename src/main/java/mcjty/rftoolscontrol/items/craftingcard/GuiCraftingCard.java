@@ -6,15 +6,12 @@ import mcjty.lib.gui.events.BlockRenderEvent;
 import mcjty.lib.gui.layout.HorizontalAlignment;
 import mcjty.lib.gui.layout.PositionalLayout;
 import mcjty.lib.gui.widgets.*;
-import mcjty.lib.gui.widgets.Button;
-import mcjty.lib.gui.widgets.Label;
-import mcjty.lib.gui.widgets.Panel;
 import mcjty.lib.network.Argument;
+import mcjty.lib.varia.ItemStackList;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.network.PacketItemNBTToServer;
 import mcjty.rftoolscontrol.network.PacketTestRecipe;
 import mcjty.rftoolscontrol.network.RFToolsCtrlMessages;
-import mcjty.rftoolscontrol.varia.ItemStackList;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
@@ -22,7 +19,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextFormatting;
 
 import javax.annotation.Nonnull;
-import java.awt.*;
+import java.awt.Rectangle;
 import java.util.Collections;
 import java.util.List;
 
