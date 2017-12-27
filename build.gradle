@@ -51,7 +51,7 @@ repositories {
     }
 }
 
-version = "1.12-1.7.1"
+version = "1.12-1.8.0"
 def ENV = System.getenv()
 if (ENV.DRONE_BUILD_NUMBER) {
     version += ".n" + ENV.DRONE_BUILD_NUMBER
@@ -87,9 +87,9 @@ dependencies {
     deobfCompile "cofh:RedstoneFlux:1.12-2.0.0.1:universal"
 
     deobfCompile "com.github.mcjty:intwheel:1.12-1.2.7"
-    deobfCompile "com.github.mcjty:xnet:1.12-1.5.1"
-    deobfCompile "com.github.mcjty:mcjtylib:1.12-2.5.5-SNAPSHOT"
-    deobfCompile "com.github.mcjty:rftools:1.12-7.18"
+    deobfCompile "com.github.mcjty:xnet:1.12-1.6.0"
+    deobfCompile "com.github.mcjty:mcjtylib:1.12-2.6.0-SNAPSHOT"
+    deobfCompile "com.github.mcjty:rftools:1.12-7.20"
 
     //compile "li.cil.oc:OpenComputers:MC1.7.10-1.5.+:api"
 }
