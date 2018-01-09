@@ -6,6 +6,7 @@ import mcjty.lib.container.InventoryHelper;
 import mcjty.lib.entity.GenericEnergyReceiverTileEntity;
 import mcjty.lib.network.Argument;
 import mcjty.lib.varia.BlockPosTools;
+import mcjty.lib.varia.EnergyTools;
 import mcjty.lib.varia.WorldTools;
 import mcjty.rftools.api.storage.IStorageScanner;
 import mcjty.rftoolscontrol.api.code.Function;
@@ -1501,6 +1502,26 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             return energy.getMaxEnergyStored();
         }
         throw new ProgException(EXCEPT_NORF);
+    }
+
+    @Override
+    public long getEnergyLong(Inventory side) {
+        TileEntity te = getTileEntityAt(side);
+        EnergyTools.EnergyLevelMulti level = EnergyTools.getEnergyLevelMulti(te);
+        if (level.getMaxEnergy() >= 0) {
+            throw new ProgException(EXCEPT_NORF);
+        }
+        return level.getEnergy();
+    }
+
+    @Override
+    public long getMaxEnergyLong(Inventory side) {
+        TileEntity te = getTileEntityAt(side);
+        EnergyTools.EnergyLevelMulti level = EnergyTools.getEnergyLevelMulti(te);
+        if (level.getMaxEnergy() >= 0) {
+            throw new ProgException(EXCEPT_NORF);
+        }
+        return level.getMaxEnergy();
     }
 
     @Override

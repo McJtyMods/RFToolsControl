@@ -569,6 +569,25 @@ public class Opcodes {
                 return POSITIVE;
             }))
             .build();
+    public static final Opcode EVAL_GETRF_LONG = Opcode.builder()
+            .id("eval_getrf_long")
+            .description(
+                    TextFormatting.GREEN + "Eval: get RF in machine",
+                    "get the amount of RF/Forge Energy stored in",
+                    "a specific machine adjacent to the processor",
+                    "or a connected node")
+            .outputDescription("amount of energy (long)")
+            .category(CATEGORY_ENERGY)
+            .opcodeOutput(SINGLE)
+            .parameter(ParameterDescription.builder().name("side").type(PAR_INVENTORY).description("side of (networked) block").build())
+            .icon(4, 8)
+            .runnable(((processor, program, opcode) -> {
+                Inventory side = processor.evaluateInventoryParameterNonNull(opcode, program, 0);
+                long rf = processor.getEnergyLong(side);
+                program.setLastValue(Parameter.builder().type(PAR_LONG).value(ParameterValue.constant(rf)).build());
+                return POSITIVE;
+            }))
+            .build();
     public static final Opcode EVAL_GETMAXRF = Opcode.builder()
             .id("eval_getmaxrf")
             .description(
@@ -585,6 +604,25 @@ public class Opcodes {
                 Inventory side = processor.evaluateInventoryParameterNonNull(opcode, program, 0);
                 int rf = processor.getMaxEnergy(side);
                 program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(rf)).build());
+                return POSITIVE;
+            }))
+            .build();
+    public static final Opcode EVAL_GETMAXRF_LONG = Opcode.builder()
+            .id("eval_getmaxrf_long")
+            .description(
+                    TextFormatting.GREEN + "Eval: get max RF in machine",
+                    "get the maximum amount of RF/Forge Energy stored",
+                    "in a specific machine adjacent to the procesor",
+                    "or a connected node")
+            .outputDescription("max amount of energy (long)")
+            .category(CATEGORY_ENERGY)
+            .opcodeOutput(SINGLE)
+            .parameter(ParameterDescription.builder().name("side").type(PAR_INVENTORY).description("side of (networked) block").build())
+            .icon(5, 8)
+            .runnable(((processor, program, opcode) -> {
+                Inventory side = processor.evaluateInventoryParameterNonNull(opcode, program, 0);
+                long rf = processor.getMaxEnergyLong(side);
+                program.setLastValue(Parameter.builder().type(PAR_LONG).value(ParameterValue.constant(rf)).build());
                 return POSITIVE;
             }))
             .build();
@@ -1737,6 +1775,8 @@ public class Opcodes {
         register(EVAL_REDSTONE);
         register(EVAL_GETRF);
         register(EVAL_GETMAXRF);
+        register(EVAL_GETRF_LONG);
+        register(EVAL_GETMAXRF_LONG);
         register(EVAL_GETLIQUID);
         register(EVAL_GETMAXLIQUID);
         register(EVAL_EXAMINELIQUID);

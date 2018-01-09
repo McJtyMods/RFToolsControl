@@ -223,6 +223,13 @@ public interface IProcessor {
     int getMaxEnergy(Inventory side);
 
     /**
+     * Get the amount of energy on a given block
+     */
+    long getEnergyLong(Inventory side);
+
+    long getMaxEnergyLong(Inventory side);
+
+    /**
      * Try to place a lock. If it succeeds this returns POSITIVE and
      * the lock will be placed. Otherwise it returns HOLD
      */
