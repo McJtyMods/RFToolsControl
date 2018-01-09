@@ -27,7 +27,7 @@ public class MultiTankBlock extends GenericRFToolsBlock<MultiTankTileEntity, Emp
 
     @Override
     public RotationType getRotationType() {
-        return RotationType.HORIZROTATION;
+        return RotationType.NONE;
     }
 
     @SideOnly(Side.CLIENT)
