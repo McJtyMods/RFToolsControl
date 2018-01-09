@@ -39,6 +39,8 @@ public enum ExceptionType {
     EXCEPT_STACKOVERFLOW("stack_overflow", "Stack overflow (recursing too deep?)"),
     EXCEPT_BADINDEX("bad_index", "Bad index for vector access"),
     EXCEPT_NOTAVECTOR("not_a_vector", "Expected a vector. Got something else"),
+    EXCEPT_INVALIDMACHINE("invalid_machine", "Machine does not support this"),
+    EXCEPT_INVALIDMACHINE_INDEX("invalid_machine_index", "Wrong index for machine data"),
     ;
 
     private final String code;

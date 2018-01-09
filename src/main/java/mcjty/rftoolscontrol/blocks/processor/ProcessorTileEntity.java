@@ -1,5 +1,6 @@
 package mcjty.rftoolscontrol.blocks.processor;
 
+import mcjty.lib.api.MachineInformation;
 import mcjty.lib.compat.RedstoneFluxCompatibility;
 import mcjty.lib.container.DefaultSidedInventory;
 import mcjty.lib.container.InventoryHelper;
@@ -1478,6 +1479,19 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                     }
                 }
             }
+        }
+    }
+
+    public String getMachineInfo(Inventory side, int idx) {
+        TileEntity te = getTileEntityAt(side);
+        if (te instanceof MachineInformation) {
+            MachineInformation info = (MachineInformation) te;
+            if (idx < 0 || idx >= info.getTagCount()) {
+                throw new ProgException(EXCEPT_INVALIDMACHINE_INDEX);
+            }
+            return info.getData(idx, 0);
+        } else {
+            throw new ProgException(EXCEPT_INVALIDMACHINE);
         }
     }
 

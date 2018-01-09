@@ -641,6 +641,27 @@ public class Opcodes {
             }))
             .build();
 
+    public static final Opcode EVAL_GETMACHINEINFO = Opcode.builder()
+            .id("eval_getmachineinfo")
+            .description(
+                    TextFormatting.GREEN + "Eval: get machine specific info",
+                    "various machines in RFTools support machine",
+                    "specific info that you get using this opcode")
+            .outputDescription("info (string)")
+            .opcodeOutput(SINGLE)
+            .parameter(ParameterDescription.builder().name("side").type(PAR_INVENTORY).description("side of (networked) block").build())
+            .parameter(ParameterDescription.builder().name("index").type(PAR_INTEGER).description("index of information").build())
+            .icon(8, 8)
+            .runnable(((processor, program, opcode) -> {
+                Inventory side = processor.evaluateInventoryParameterNonNull(opcode, program, 0);
+                int idx = processor.evaluateIntParameter(opcode, program, 1);
+                String result = ((ProcessorTileEntity) processor).getMachineInfo(side, idx);
+                program.setLastValue(Parameter.builder().type(PAR_STRING).value(ParameterValue.constant(result)).build());
+                return POSITIVE;
+            }))
+            .build();
+
+
     public static final Opcode EVAL_GETRF = Opcode.builder()
             .id("eval_getrf")
             .description(
@@ -1881,6 +1902,7 @@ public class Opcodes {
         register(EVAL_GETNAME);
         register(EVAL_INGREDIENTS);
         register(EVAL_REDSTONE);
+        register(EVAL_GETMACHINEINFO);
         register(EVAL_GETRF);
         register(EVAL_GETMAXRF);
         register(EVAL_GETRF_LONG);
