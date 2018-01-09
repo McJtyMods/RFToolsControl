@@ -313,6 +313,17 @@ public class TypeConverters {
         return integer;
     }
 
+    public static long convertToLong(Parameter value) {
+        if (value == null) {
+            return 0;
+        }
+        Long l = convertToLong(value.getParameterType(), value.getParameterValue().getValue());
+        if (l == null) {
+            return 0;
+        }
+        return l;
+    }
+
     @Nullable
     public static Integer convertToInteger(ParameterType type, Object v) {
         if (v == null) {
@@ -340,6 +351,42 @@ public class TypeConverters {
                 return ((FluidStack) v).amount;
             case PAR_VECTOR:
                 return ((List)v).size();
+            case PAR_EXCEPTION:
+            case PAR_TUPLE:
+            case PAR_SIDE:
+            case PAR_INVENTORY:
+                break;
+        }
+        return null;
+    }
+
+    @Nullable
+    public static Long convertToLong(ParameterType type, Object v) {
+        if (v == null) {
+            return null;
+        }
+        switch (type) {
+            case PAR_STRING:
+                String s = (String) v;
+                if (s.startsWith("$")) {
+                    return Long.parseLong(s.substring(1), 16);
+                } else {
+                    return Long.parseLong(s);
+                }
+            case PAR_INTEGER:
+                return ((Integer) v).longValue();
+            case PAR_LONG:
+                return (Long) v;
+            case PAR_FLOAT:
+                return ((Float) v).longValue();
+            case PAR_BOOLEAN:
+                return ((Boolean) v) ? 1L : 0L;
+            case PAR_ITEM:
+                return Long.valueOf(((ItemStack) v).getCount());
+            case PAR_FLUID:
+                return Long.valueOf(((FluidStack) v).amount);
+            case PAR_VECTOR:
+                return Long.valueOf(((List)v).size());
             case PAR_EXCEPTION:
             case PAR_TUPLE:
             case PAR_SIDE:

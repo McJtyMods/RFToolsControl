@@ -33,6 +33,13 @@ public class Functions {
             .type(PAR_INTEGER)
             .runnable((processor, program) -> TypeConverters.convertToInt(program.getLastValue()))
             .build();
+    public static final Function LASTLONG = Function.builder()
+            .id("last_long")
+            .name("last")
+            .description("The last opcode result", "converted to a long")
+            .type(PAR_LONG)
+            .runnable((processor, program) -> TypeConverters.convertToLong(program.getLastValue()))
+            .build();
     public static final Function LASTSTRING = Function.builder()
             .id("last_str")
             .name("last")
@@ -201,6 +208,7 @@ public class Functions {
     public static void init() {
         register(LASTBOOL);
         register(LASTINT);
+        register(LASTLONG);
         register(LASTSTRING);
         register(LASTITEM);
         register(LASTFLUID);
