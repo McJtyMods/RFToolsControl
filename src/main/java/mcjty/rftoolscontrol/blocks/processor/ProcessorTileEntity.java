@@ -119,6 +119,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     private static final BiFunction<ParameterType, Object, Tuple> CONVERTOR_TUPLE = (type, value) -> TypeConverters.convertToTuple(type, value);
     private static final BiFunction<ParameterType, Object, List<Parameter>> CONVERTOR_VECTOR = (type, value) -> TypeConverters.convertToVector(type, value);
     private static final BiFunction<ParameterType, Object, Integer> CONVERTOR_INTEGER = (type, value) -> TypeConverters.convertToInteger(type, value);
+    private static final BiFunction<ParameterType, Object, Long> CONVERTOR_LONG = (type, value) -> TypeConverters.convertToLong(type, value);
     private static final BiFunction<ParameterType, Object, String> CONVERTOR_STRING = (type, value) -> TypeConverters.convertToString(type, value);
     private static final BiFunction<ParameterType, Object, Boolean> CONVERTOR_BOOL = (type, value) -> TypeConverters.convertToBool(type, value);
 
@@ -2270,9 +2271,24 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     }
 
     @Override
+    public long evaluateLngParameter(ICompiledOpcode compiledOpcode, IProgram program, int parIndex) {
+        Long value = evaluateLongParameter(compiledOpcode, program, parIndex);
+        if (value == null) {
+            return 0;
+        }
+        return value;
+    }
+
+    @Override
     @Nullable
     public Integer evaluateIntegerParameter(ICompiledOpcode compiledOpcode, IProgram program, int parIndex) {
         return evaluateGenericParameter(compiledOpcode, program, parIndex, CONVERTOR_INTEGER);
+    }
+
+    @Override
+    @Nullable
+    public Long evaluateLongParameter(ICompiledOpcode compiledOpcode, IProgram program, int parIndex) {
+        return evaluateGenericParameter(compiledOpcode, program, parIndex, CONVERTOR_LONG);
     }
 
     @Override

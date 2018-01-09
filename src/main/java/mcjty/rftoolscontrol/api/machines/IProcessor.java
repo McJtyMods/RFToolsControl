@@ -131,10 +131,21 @@ public interface IProcessor {
     int evaluateIntParameter(ICompiledOpcode compiledOpcode, IProgram program, int parIndex);
 
     /**
+     * Evaluate a long parameter. Return 0 if the parameter was not a long or null
+     */
+    long evaluateLngParameter(ICompiledOpcode compiledOpcode, IProgram program, int parIndex);
+
+    /**
      * Evaluate an integer parameter. Return null if the parameter was not given
      */
     @Nullable
     Integer evaluateIntegerParameter(ICompiledOpcode compiledOpcode, IProgram program, int parIndex);
+
+    /**
+     * Evaluate a long parameter. Return null if the parameter was not given
+     */
+    @Nullable
+    Long evaluateLongParameter(ICompiledOpcode compiledOpcode, IProgram program, int parIndex);
 
     @Nullable
     String evaluateStringParameter(ICompiledOpcode compiledOpcode, IProgram program, int parIndex);

@@ -232,12 +232,12 @@ public class Opcodes {
                     "then the second value")
             .opcodeOutput(YESNO)
             .category(CATEGORY_NUMBERS)
-            .parameter(ParameterDescription.builder().name("v1").type(PAR_INTEGER).description("first value").build())
-            .parameter(ParameterDescription.builder().name("v2").type(PAR_INTEGER).description("second value").build())
+            .parameter(ParameterDescription.builder().name("v1").type(PAR_LONG).description("first value").build())
+            .parameter(ParameterDescription.builder().name("v2").type(PAR_LONG).description("second value").build())
             .icon(10, 0)
             .runnable(((processor, program, opcode) -> {
-                int v1 = processor.evaluateIntParameter(opcode, program, 0);
-                int v2 = processor.evaluateIntParameter(opcode, program, 1);
+                long v1 = processor.evaluateLngParameter(opcode, program, 0);
+                long v2 = processor.evaluateLngParameter(opcode, program, 1);
                 return v1 > v2 ? POSITIVE : NEGATIVE;
             }))
             .build();
@@ -250,12 +250,12 @@ public class Opcodes {
                     "to the second value")
             .opcodeOutput(YESNO)
             .category(CATEGORY_NUMBERS)
-            .parameter(ParameterDescription.builder().name("v1").type(PAR_INTEGER).description("first value").build())
-            .parameter(ParameterDescription.builder().name("v2").type(PAR_INTEGER).description("second value").build())
+            .parameter(ParameterDescription.builder().name("v1").type(PAR_LONG).description("first value").build())
+            .parameter(ParameterDescription.builder().name("v2").type(PAR_LONG).description("second value").build())
             .icon(11, 0)
             .runnable(((processor, program, opcode) -> {
-                int v1 = processor.evaluateIntParameter(opcode, program, 0);
-                int v2 = processor.evaluateIntParameter(opcode, program, 1);
+                long v1 = processor.evaluateLngParameter(opcode, program, 0);
+                long v2 = processor.evaluateLngParameter(opcode, program, 1);
                 return v1 == v2 ? POSITIVE : NEGATIVE;
             }))
             .build();
@@ -455,6 +455,24 @@ public class Opcodes {
                 return POSITIVE;
             }))
             .build();
+    public static final Opcode DO_ADD_LONG = Opcode.builder()
+            .id("do_add_long")
+            .description(
+                    TextFormatting.GREEN + "Operation: add longs",
+                    "add the two given longs")
+            .outputDescription("v1 + v2 (long)")
+            .category(CATEGORY_NUMBERS)
+            .opcodeOutput(SINGLE)
+            .parameter(ParameterDescription.builder().name("v1").type(PAR_LONG).description("first value").build())
+            .parameter(ParameterDescription.builder().name("v2").type(PAR_LONG).description("second value").build())
+            .icon(4, 9)
+            .runnable(((processor, program, opcode) -> {
+                long v1 = processor.evaluateLngParameter(opcode, program, 0);
+                long v2 = processor.evaluateLngParameter(opcode, program, 1);
+                program.setLastValue(Parameter.builder().type(PAR_LONG).value(ParameterValue.constant(v1+v2)).build());
+                return POSITIVE;
+            }))
+            .build();
 
     public static final Opcode DO_SUBTRACT = Opcode.builder()
             .id("do_subtract")
@@ -471,6 +489,25 @@ public class Opcodes {
                 int v1 = processor.evaluateIntParameter(opcode, program, 0);
                 int v2 = processor.evaluateIntParameter(opcode, program, 1);
                 program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(v1-v2)).build());
+                return POSITIVE;
+            }))
+            .build();
+
+    public static final Opcode DO_SUBTRACT_LONG = Opcode.builder()
+            .id("do_subtract_long")
+            .description(
+                    TextFormatting.GREEN + "Operation: subtract longs",
+                    "subtract the two given longs")
+            .outputDescription("v1 - v2 (long)")
+            .category(CATEGORY_NUMBERS)
+            .opcodeOutput(SINGLE)
+            .parameter(ParameterDescription.builder().name("v1").type(PAR_LONG).description("first value").build())
+            .parameter(ParameterDescription.builder().name("v2").type(PAR_LONG).description("second value").build())
+            .icon(5, 9)
+            .runnable(((processor, program, opcode) -> {
+                long v1 = processor.evaluateLngParameter(opcode, program, 0);
+                long v2 = processor.evaluateLngParameter(opcode, program, 1);
+                program.setLastValue(Parameter.builder().type(PAR_LONG).value(ParameterValue.constant(v1-v2)).build());
                 return POSITIVE;
             }))
             .build();
@@ -493,6 +530,24 @@ public class Opcodes {
                 return POSITIVE;
             }))
             .build();
+    public static final Opcode DO_DIVIDE_LONG = Opcode.builder()
+            .id("do_divide_long")
+            .description(
+                    TextFormatting.GREEN + "Operation: divide longs",
+                    "divide the two given longs")
+            .outputDescription("v1 / v2 (long)")
+            .category(CATEGORY_NUMBERS)
+            .opcodeOutput(SINGLE)
+            .parameter(ParameterDescription.builder().name("v1").type(PAR_LONG).description("first value").build())
+            .parameter(ParameterDescription.builder().name("v2").type(PAR_LONG).description("second value").build())
+            .icon(6, 9)
+            .runnable(((processor, program, opcode) -> {
+                long v1 = processor.evaluateLngParameter(opcode, program, 0);
+                long v2 = processor.evaluateLngParameter(opcode, program, 1);
+                program.setLastValue(Parameter.builder().type(PAR_LONG).value(ParameterValue.constant(v1/v2)).build());
+                return POSITIVE;
+            }))
+            .build();
 
     public static final Opcode DO_MULTIPLY = Opcode.builder()
             .id("do_multiply")
@@ -512,6 +567,24 @@ public class Opcodes {
                 return POSITIVE;
             }))
             .build();
+    public static final Opcode DO_MULTIPLY_LONG = Opcode.builder()
+            .id("do_multiply_long")
+            .description(
+                    TextFormatting.GREEN + "Operation: multiply longs",
+                    "multiply the two given longs")
+            .outputDescription("v1 * v2 (long)")
+            .category(CATEGORY_NUMBERS)
+            .opcodeOutput(SINGLE)
+            .parameter(ParameterDescription.builder().name("v1").type(PAR_LONG).description("first value").build())
+            .parameter(ParameterDescription.builder().name("v2").type(PAR_LONG).description("second value").build())
+            .icon(7, 9)
+            .runnable(((processor, program, opcode) -> {
+                long v1 = processor.evaluateLngParameter(opcode, program, 0);
+                long v2 = processor.evaluateLngParameter(opcode, program, 1);
+                program.setLastValue(Parameter.builder().type(PAR_LONG).value(ParameterValue.constant(v1*v2)).build());
+                return POSITIVE;
+            }))
+            .build();
 
     public static final Opcode DO_MODULO = Opcode.builder()
             .id("do_modulo")
@@ -528,6 +601,24 @@ public class Opcodes {
                 int v1 = processor.evaluateIntParameter(opcode, program, 0);
                 int v2 = processor.evaluateIntParameter(opcode, program, 1);
                 program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(v1%v2)).build());
+                return POSITIVE;
+            }))
+            .build();
+    public static final Opcode DO_MODULO_LONG = Opcode.builder()
+            .id("do_modulo_long")
+            .description(
+                    TextFormatting.GREEN + "Operation: modulo",
+                    "calculate the modulo of two given longs")
+            .outputDescription("v1 % v2 (long)")
+            .category(CATEGORY_NUMBERS)
+            .opcodeOutput(SINGLE)
+            .parameter(ParameterDescription.builder().name("v1").type(PAR_LONG).description("first value").build())
+            .parameter(ParameterDescription.builder().name("v2").type(PAR_LONG).description("second value").build())
+            .icon(8, 9)
+            .runnable(((processor, program, opcode) -> {
+                long v1 = processor.evaluateLngParameter(opcode, program, 0);
+                long v2 = processor.evaluateLngParameter(opcode, program, 1);
+                program.setLastValue(Parameter.builder().type(PAR_LONG).value(ParameterValue.constant(v1%v2)).build());
                 return POSITIVE;
             }))
             .build();
@@ -1045,6 +1136,23 @@ public class Opcodes {
             .runnable(((processor, program, opcode) -> {
                 int value = processor.evaluateIntParameter(opcode, program, 0);
                 program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(value)).build());
+                return POSITIVE;
+            }))
+            .build();
+    public static final Opcode EVAL_LONG = Opcode.builder()
+            .id("eval_long")
+            .description(
+                    TextFormatting.GREEN + "Eval: long",
+                    "evaluate a long and set it as",
+                    "the result for future opcodes to use")
+            .outputDescription("long result (long)")
+            .category(CATEGORY_NUMBERS)
+            .opcodeOutput(SINGLE)
+            .parameter(ParameterDescription.builder().name("value").type(PAR_LONG).description("long value to set as result").build())
+            .icon(6, 8)
+            .runnable(((processor, program, opcode) -> {
+                long value = processor.evaluateLngParameter(opcode, program, 0);
+                program.setLastValue(Parameter.builder().type(PAR_LONG).value(ParameterValue.constant(value)).build());
                 return POSITIVE;
             }))
             .build();
@@ -1784,6 +1892,7 @@ public class Opcodes {
         register(EVAL_GETLIQUIDNAME);
         register(EVAL_RANDOM);
         register(EVAL_INTEGER);
+        register(EVAL_LONG);
         register(EVAL_STRING);
         register(EVAL_TUPLE);
         register(EVAL_INVENTORY);
@@ -1822,6 +1931,11 @@ public class Opcodes {
         register(DO_DIVIDE);
         register(DO_MULTIPLY);
         register(DO_MODULO);
+        register(DO_ADD_LONG);
+        register(DO_SUBTRACT_LONG);
+        register(DO_DIVIDE_LONG);
+        register(DO_MULTIPLY_LONG);
+        register(DO_MODULO_LONG);
         register(DO_CONCAT);
         register(DO_VECTOR_PUSH);
         register(DO_VECTOR_PUSH_INT);
