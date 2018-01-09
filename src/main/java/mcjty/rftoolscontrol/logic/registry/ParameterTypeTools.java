@@ -45,6 +45,8 @@ public class ParameterTypeTools {
                 return (String) value;
             case PAR_INTEGER:
                 return Integer.toString((Integer) value);
+            case PAR_LONG:
+                return Long.toString((Long) value);
             case PAR_FLOAT:
                 return Float.toString((Float) value);
             case PAR_SIDE:
@@ -128,6 +130,8 @@ public class ParameterTypeTools {
                 return ParameterValue.constant(tag.getString("v"));
             case PAR_INTEGER:
                 return ParameterValue.constant(tag.getInteger("v"));
+            case PAR_LONG:
+                return ParameterValue.constant(tag.getLong("v"));
             case PAR_FLOAT:
                 return ParameterValue.constant(tag.getFloat("v"));
             case PAR_SIDE:
@@ -194,6 +198,9 @@ public class ParameterTypeTools {
             case PAR_INTEGER:
                 tag.setInteger("v", (Integer) value);
                 break;
+            case PAR_LONG:
+                tag.setLong("v", (Long) value);
+                break;
             case PAR_FLOAT:
                 tag.setFloat("v", (Float) value);
                 break;
@@ -253,6 +260,9 @@ public class ParameterTypeTools {
                 break;
             case PAR_INTEGER:
                 object.add("v", new JsonPrimitive((Integer) value));
+                break;
+            case PAR_LONG:
+                object.add("v", new JsonPrimitive((Long) value));
                 break;
             case PAR_FLOAT:
                 object.add("v", new JsonPrimitive((Float) value));
@@ -324,6 +334,8 @@ public class ParameterTypeTools {
                 return ParameterValue.constant(object.get("v").getAsString());
             case PAR_INTEGER:
                 return ParameterValue.constant(object.get("v").getAsInt());
+            case PAR_LONG:
+                return ParameterValue.constant(object.get("v").getAsLong());
             case PAR_FLOAT:
                 return ParameterValue.constant(object.get("v").getAsFloat());
             case PAR_SIDE: {

@@ -31,6 +31,8 @@ public class TypeConverters {
                 return Float.parseFloat((String) v);
             case PAR_INTEGER:
                 return ((Integer) v).floatValue();
+            case PAR_LONG:
+                return ((Long) v).floatValue();
             case PAR_FLOAT:
                 return (Float) v;
             case PAR_BOOLEAN:
@@ -71,6 +73,7 @@ public class TypeConverters {
                 ItemStack itemStack = (ItemStack) v;
                 return FluidUtil.getFluidContained(itemStack);
             case PAR_INTEGER:
+            case PAR_LONG:
             case PAR_FLOAT:
             case PAR_SIDE:
             case PAR_BOOLEAN:
@@ -103,6 +106,7 @@ public class TypeConverters {
                 FluidStack fluidStack = (FluidStack) v;
                 return FluidTools.convertFluidToBucket(fluidStack);
             case PAR_INTEGER:
+            case PAR_LONG:
             case PAR_FLOAT:
             case PAR_SIDE:
             case PAR_BOOLEAN:
@@ -142,6 +146,7 @@ public class TypeConverters {
             case PAR_STRING:
                 return InventoryTools.inventoryFromString(v.toString());
             case PAR_INTEGER:
+            case PAR_LONG:
             case PAR_FLOAT:
             case PAR_BOOLEAN:
             case PAR_ITEM:
@@ -175,6 +180,7 @@ public class TypeConverters {
             case PAR_STRING:
                 return InventoryTools.blockSideFromString(v.toString());
             case PAR_INTEGER:
+            case PAR_LONG:
             case PAR_FLOAT:
             case PAR_BOOLEAN:
             case PAR_ITEM:
@@ -214,6 +220,7 @@ public class TypeConverters {
                 return new Tuple(x, y);
             }
             case PAR_INTEGER:
+            case PAR_LONG:
             case PAR_FLOAT:
             case PAR_BOOLEAN:
             case PAR_INVENTORY:
@@ -244,6 +251,7 @@ public class TypeConverters {
                 return (List<Parameter>) v;
             case PAR_STRING:
             case PAR_INTEGER:
+            case PAR_LONG:
             case PAR_FLOAT:
             case PAR_BOOLEAN:
             case PAR_INVENTORY:
@@ -273,6 +281,8 @@ public class TypeConverters {
                 return !((String) v).isEmpty();
             case PAR_INTEGER:
                 return ((Integer) v) != 0;
+            case PAR_LONG:
+                return ((Long) v) != 0;
             case PAR_FLOAT:
                 return ((Float) v) != 0;
             case PAR_BOOLEAN:
@@ -318,6 +328,8 @@ public class TypeConverters {
                 }
             case PAR_INTEGER:
                 return (Integer) v;
+            case PAR_LONG:
+                return ((Long) v).intValue();
             case PAR_FLOAT:
                 return ((Float) v).intValue();
             case PAR_BOOLEAN:
@@ -360,6 +372,8 @@ public class TypeConverters {
                 return (String) v;
             case PAR_INTEGER:
                 return Integer.toString((Integer) v);
+            case PAR_LONG:
+                return Long.toString((Long) v);
             case PAR_FLOAT:
                 return Float.toString((Float) v);
             case PAR_BOOLEAN:

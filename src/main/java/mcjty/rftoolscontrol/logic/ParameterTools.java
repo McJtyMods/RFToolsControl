@@ -35,6 +35,9 @@ public class ParameterTools {
                 case PAR_INTEGER:
                     builder.value(ParameterValue.constant(buf.readInt()));
                     break;
+                case PAR_LONG:
+                    builder.value(ParameterValue.constant(buf.readLong()));
+                    break;
                 case PAR_FLOAT:
                     builder.value(ParameterValue.constant(buf.readFloat()));
                     break;
@@ -91,6 +94,9 @@ public class ParameterTools {
                 break;
             case PAR_INTEGER:
                 buf.writeInt((Integer) value);
+                break;
+            case PAR_LONG:
+                buf.writeLong((Long) value);
                 break;
             case PAR_FLOAT:
                 buf.writeFloat((Float) value);
@@ -174,6 +180,8 @@ public class ParameterTools {
                 return ((String)v1).compareTo((String)v2);
             case PAR_INTEGER:
                 return ((Integer)v1).compareTo((Integer)v2);
+            case PAR_LONG:
+                return ((Long)v1).compareTo((Long)v2);
             case PAR_FLOAT:
                 return ((Float)v1).compareTo((Float)v2);
             case PAR_SIDE:

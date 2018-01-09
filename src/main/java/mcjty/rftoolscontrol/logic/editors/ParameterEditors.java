@@ -14,6 +14,7 @@ public class ParameterEditors {
     public static void init() {
         EDITORS.put(PAR_FLOAT, new FloatEditor());
         EDITORS.put(PAR_INTEGER, new IntegerEditor());
+        EDITORS.put(PAR_LONG, new LongEditor());
         EDITORS.put(PAR_STRING, new StringEditor());
         EDITORS.put(PAR_SIDE, new SideEditor());
         EDITORS.put(PAR_BOOLEAN, new BooleanEditor());

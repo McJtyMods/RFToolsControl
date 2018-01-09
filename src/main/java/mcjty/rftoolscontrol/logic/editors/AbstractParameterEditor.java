@@ -86,6 +86,23 @@ public abstract class AbstractParameterEditor implements ParameterEditor {
         return f;
     }
 
+    public static Long parseLongSafe(String newText) {
+        if (newText == null || newText.isEmpty()) {
+            return null;
+        }
+        Long f;
+        try {
+            if (newText.startsWith("$")) {
+                f = Long.parseLong(newText.substring(1), 16);
+            } else {
+                f = Long.parseLong(newText);
+            }
+        } catch (NumberFormatException e) {
+            f = null;
+        }
+        return f;
+    }
+
     protected abstract ParameterValue readConstantValue();
 
     protected abstract void writeConstantValue(ParameterValue value);
