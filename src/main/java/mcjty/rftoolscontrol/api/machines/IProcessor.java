@@ -147,6 +147,12 @@ public interface IProcessor {
     @Nullable
     Long evaluateLongParameter(ICompiledOpcode compiledOpcode, IProgram program, int parIndex);
 
+    /**
+     * Evaluate a number parameter. Return null if the parameter was not given
+     */
+    @Nullable
+    Number evaluateNumberParameter(ICompiledOpcode compiledOpcode, IProgram program, int parIndex);
+
     @Nullable
     String evaluateStringParameter(ICompiledOpcode compiledOpcode, IProgram program, int parIndex);
 

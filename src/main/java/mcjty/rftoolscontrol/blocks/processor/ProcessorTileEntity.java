@@ -123,6 +123,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     private static final BiFunction<ParameterType, Object, Long> CONVERTOR_LONG = (type, value) -> TypeConverters.convertToLong(type, value);
     private static final BiFunction<ParameterType, Object, String> CONVERTOR_STRING = (type, value) -> TypeConverters.convertToString(type, value);
     private static final BiFunction<ParameterType, Object, Boolean> CONVERTOR_BOOL = (type, value) -> TypeConverters.convertToBool(type, value);
+    private static final BiFunction<ParameterType, Object, Number> CONVERTOR_NUMBER = (type, value) -> TypeConverters.convertToNumber(type, value);
 
     private InventoryHelper inventoryHelper = new InventoryHelper(this, ProcessorContainer.factory, ProcessorContainer.SLOTS);
     private List<CpuCore> cpuCores = new ArrayList<>();
@@ -2303,6 +2304,12 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     @Nullable
     public Long evaluateLongParameter(ICompiledOpcode compiledOpcode, IProgram program, int parIndex) {
         return evaluateGenericParameter(compiledOpcode, program, parIndex, CONVERTOR_LONG);
+    }
+
+    @Override
+    @Nullable
+    public Number evaluateNumberParameter(ICompiledOpcode compiledOpcode, IProgram program, int parIndex) {
+        return evaluateGenericParameter(compiledOpcode, program, parIndex, CONVERTOR_NUMBER);
     }
 
     @Override

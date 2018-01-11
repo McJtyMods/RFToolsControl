@@ -35,6 +35,8 @@ public class TypeConverters {
                 return ((Long) v).floatValue();
             case PAR_FLOAT:
                 return (Float) v;
+            case PAR_NUMBER:
+                return castToFloat(v);
             case PAR_BOOLEAN:
                 return ((Boolean) v) ? 1.0f : 0.0f;
             case PAR_ITEM:
@@ -75,6 +77,7 @@ public class TypeConverters {
             case PAR_INTEGER:
             case PAR_LONG:
             case PAR_FLOAT:
+            case PAR_NUMBER:
             case PAR_SIDE:
             case PAR_BOOLEAN:
             case PAR_INVENTORY:
@@ -108,6 +111,7 @@ public class TypeConverters {
             case PAR_INTEGER:
             case PAR_LONG:
             case PAR_FLOAT:
+            case PAR_NUMBER:
             case PAR_SIDE:
             case PAR_BOOLEAN:
             case PAR_INVENTORY:
@@ -148,6 +152,7 @@ public class TypeConverters {
             case PAR_INTEGER:
             case PAR_LONG:
             case PAR_FLOAT:
+            case PAR_NUMBER:
             case PAR_BOOLEAN:
             case PAR_ITEM:
             case PAR_FLUID:
@@ -182,6 +187,7 @@ public class TypeConverters {
             case PAR_INTEGER:
             case PAR_LONG:
             case PAR_FLOAT:
+            case PAR_NUMBER:
             case PAR_BOOLEAN:
             case PAR_ITEM:
             case PAR_FLUID:
@@ -222,6 +228,7 @@ public class TypeConverters {
             case PAR_INTEGER:
             case PAR_LONG:
             case PAR_FLOAT:
+            case PAR_NUMBER:
             case PAR_BOOLEAN:
             case PAR_INVENTORY:
             case PAR_ITEM:
@@ -253,6 +260,7 @@ public class TypeConverters {
             case PAR_INTEGER:
             case PAR_LONG:
             case PAR_FLOAT:
+            case PAR_NUMBER:
             case PAR_BOOLEAN:
             case PAR_INVENTORY:
             case PAR_ITEM:
@@ -285,6 +293,8 @@ public class TypeConverters {
                 return ((Long) v) != 0;
             case PAR_FLOAT:
                 return ((Float) v) != 0;
+            case PAR_NUMBER:
+                return castToInt(v) != 0;
             case PAR_BOOLEAN:
                 return (Boolean) v;
             case PAR_TUPLE:
@@ -343,6 +353,8 @@ public class TypeConverters {
                 return ((Long) v).intValue();
             case PAR_FLOAT:
                 return ((Float) v).intValue();
+            case PAR_NUMBER:
+                return castToInt(v);
             case PAR_BOOLEAN:
                 return ((Boolean) v) ? 1 : 0;
             case PAR_ITEM:
@@ -379,6 +391,8 @@ public class TypeConverters {
                 return (Long) v;
             case PAR_FLOAT:
                 return ((Float) v).longValue();
+            case PAR_NUMBER:
+                return castToLong(v);
             case PAR_BOOLEAN:
                 return ((Boolean) v) ? 1L : 0L;
             case PAR_ITEM:
@@ -396,6 +410,42 @@ public class TypeConverters {
         return null;
     }
 
+    @Nullable
+    public static Number convertToNumber(ParameterType type, Object v) {
+        if (v == null) {
+            return null;
+        }
+        switch (type) {
+            case PAR_STRING:
+                String s = (String) v;
+                if (s.startsWith("$")) {
+                    return Long.parseLong(s.substring(1), 16);
+                } else if (s.contains(",") || s.contains(".") || s.contains("e") || s.contains("E")) {
+                    return Double.parseDouble(s);
+                } else {
+                    return Long.parseLong(s);
+                }
+            case PAR_INTEGER:
+            case PAR_LONG:
+            case PAR_FLOAT:
+            case PAR_NUMBER:
+                return (Number) v;
+            case PAR_BOOLEAN:
+                return ((Boolean) v) ? 1L : 0L;
+            case PAR_ITEM:
+                return Integer.valueOf(((ItemStack) v).getCount());
+            case PAR_FLUID:
+                return Integer.valueOf(((FluidStack) v).amount);
+            case PAR_VECTOR:
+                return Integer.valueOf(((List)v).size());
+            case PAR_EXCEPTION:
+            case PAR_TUPLE:
+            case PAR_SIDE:
+            case PAR_INVENTORY:
+                break;
+        }
+        return null;
+    }
 
     @Nonnull
     public static String convertToString(Parameter value) {
@@ -423,6 +473,19 @@ public class TypeConverters {
                 return Long.toString((Long) v);
             case PAR_FLOAT:
                 return Float.toString((Float) v);
+            case PAR_NUMBER: {
+                if (v instanceof Integer) {
+                    return Integer.toString((Integer) v);
+                } else if (v instanceof Long) {
+                    return Long.toString((Long) v);
+                } else if (v instanceof Float) {
+                    return Float.toString((Float) v);
+                } else if (v instanceof Double) {
+                    return Double.toString((Double) v);
+                } else {
+                    return "?";
+                }
+            }
             case PAR_BOOLEAN:
                 return ((Boolean) v) ? "true" : "false";
             case PAR_ITEM:
@@ -447,4 +510,73 @@ public class TypeConverters {
         return null;
     }
 
+    public static int castToInt(Object value) {
+        if (value instanceof Integer) {
+            return (int) value;
+        } else if (value instanceof Long) {
+            return ((Long) value).intValue();
+        } else if (value instanceof Float) {
+            return ((Float) value).intValue();
+        } else if (value instanceof Double) {
+            return ((Double) value).intValue();
+        } else {
+            return 0;
+        }
+    }
+
+    public static long castToLong(Object value) {
+        if (value instanceof Integer) {
+            return ((Integer) value).longValue();
+        } else if (value instanceof Long) {
+            return (long) value;
+        } else if (value instanceof Float) {
+            return ((Float) value).longValue();
+        } else if (value instanceof Double) {
+            return ((Double) value).longValue();
+        } else {
+            return 0;
+        }
+    }
+
+    public static float castToFloat(Object value) {
+        if (value instanceof Integer) {
+            return ((Integer) value).floatValue();
+        } else if (value instanceof Long) {
+            return ((Long) value).floatValue();
+        } else if (value instanceof Float) {
+            return (float) value;
+        } else if (value instanceof Double) {
+            return ((Double) value).floatValue();
+        } else {
+            return 0;
+        }
+    }
+
+    public static double castToDouble(Object value) {
+        if (value instanceof Integer) {
+            return ((Integer) value).doubleValue();
+        } else if (value instanceof Long) {
+            return ((Long) value).doubleValue();
+        } else if (value instanceof Float) {
+            return ((Float) value).doubleValue();
+        } else if (value instanceof Double) {
+            return (double) value;
+        } else {
+            return 0;
+        }
+    }
+
+    public static String castNumberToString(Object value) {
+        if (value instanceof Integer) {
+            return Integer.toString((Integer) value);
+        } else if (value instanceof Long) {
+            return Long.toString((Long) value);
+        } else if (value instanceof Float) {
+            return Float.toString((Float) value);
+        } else if (value instanceof Double) {
+            return Double.toString((Double) value);
+        } else {
+            return "?";
+        }
+    }
 }

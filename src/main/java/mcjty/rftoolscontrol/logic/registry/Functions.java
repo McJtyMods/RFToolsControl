@@ -40,6 +40,19 @@ public class Functions {
             .type(PAR_LONG)
             .runnable((processor, program) -> TypeConverters.convertToLong(program.getLastValue()))
             .build();
+    public static final Function LASTNUMBER = Function.builder()
+            .id("last_number")
+            .name("last")
+            .description("The last opcode result", "converted to the appropriate", "number type")
+            .type(PAR_NUMBER)
+            .runnable((processor, program) -> {
+                Parameter lastValue = program.getLastValue();
+                if (lastValue == null) {
+                    return 0;
+                }
+                return TypeConverters.convertToNumber(lastValue.getParameterType(), lastValue.getParameterValue().getValue());
+            })
+            .build();
     public static final Function LASTSTRING = Function.builder()
             .id("last_str")
             .name("last")
@@ -209,6 +222,7 @@ public class Functions {
         register(LASTBOOL);
         register(LASTINT);
         register(LASTLONG);
+        register(LASTNUMBER);
         register(LASTSTRING);
         register(LASTITEM);
         register(LASTFLUID);

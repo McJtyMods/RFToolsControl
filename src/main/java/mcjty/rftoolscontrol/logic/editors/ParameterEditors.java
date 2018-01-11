@@ -24,6 +24,7 @@ public class ParameterEditors {
         EDITORS.put(PAR_EXCEPTION, new ExceptionEditor());
         EDITORS.put(PAR_TUPLE, new TupleEditor());
         EDITORS.put(PAR_VECTOR, new VectorEditor());
+        EDITORS.put(PAR_NUMBER, new NumberEditor());
     }
 
     public static ParameterEditor getEditor(ParameterType type) {

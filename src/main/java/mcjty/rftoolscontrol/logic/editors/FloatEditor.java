@@ -11,16 +11,6 @@ import net.minecraft.client.gui.Gui;
 
 public class FloatEditor extends AbstractParameterEditor {
 
-    private static Float parseFloatSafe(String newText) {
-        Float f;
-        try {
-            f = Float.parseFloat(newText);
-        } catch (NumberFormatException e) {
-            f = null;
-        }
-        return f;
-    }
-
     private TextField field;
 
     @Override

@@ -41,6 +41,24 @@ public class ParameterTools {
                 case PAR_FLOAT:
                     builder.value(ParameterValue.constant(buf.readFloat()));
                     break;
+                case PAR_NUMBER: {
+                    byte t = buf.readByte();
+                    switch (t) {
+                        case 0:
+                            builder.value(ParameterValue.constant(buf.readInt()));
+                            break;
+                        case 1:
+                            builder.value(ParameterValue.constant(buf.readLong()));
+                            break;
+                        case 2:
+                            builder.value(ParameterValue.constant(buf.readFloat()));
+                            break;
+                        case 3:
+                            builder.value(ParameterValue.constant(buf.readDouble()));
+                            break;
+                    }
+                    break;
+                }
                 case PAR_SIDE: {
                     String nodeName = NetworkTools.readString(buf);
                     int sideIdx = buf.readByte();
@@ -101,6 +119,22 @@ public class ParameterTools {
             case PAR_FLOAT:
                 buf.writeFloat((Float) value);
                 break;
+            case PAR_NUMBER: {
+                if (value instanceof Integer) {
+                    buf.writeByte(0);
+                    buf.writeInt((Integer) value);
+                } else if (value instanceof Long) {
+                    buf.writeByte(1);
+                    buf.writeLong((Long) value);
+                } else if (value instanceof Float) {
+                    buf.writeByte(2);
+                    buf.writeFloat((Float) value);
+                } else if (value instanceof Double) {
+                    buf.writeByte(3);
+                    buf.writeDouble((Double) value);
+                }
+                break;
+            }
             case PAR_SIDE:
                 BlockSide bs = (BlockSide) value;
                 NetworkTools.writeString(buf, bs.getNodeName());
@@ -165,6 +199,9 @@ public class ParameterTools {
         return jsonObject;
     }
 
+    /**
+     * Warning! Only use this function when the type of the two elements is the same!
+     */
     public static int compare(Parameter par1, Parameter par2) {
         Object v1 = par1.getParameterValue().getValue();
         Object v2 = par2.getParameterValue().getValue();
@@ -184,6 +221,8 @@ public class ParameterTools {
                 return ((Long)v1).compareTo((Long)v2);
             case PAR_FLOAT:
                 return ((Float)v1).compareTo((Float)v2);
+            case PAR_NUMBER:
+                return compareNumbers(v1, v2);
             case PAR_SIDE:
                 return 0;
             case PAR_BOOLEAN:
@@ -223,6 +262,28 @@ public class ParameterTools {
             }
         }
         return 0;
+    }
+
+    public static int compareNumbers(Object n1, Object n2) {
+        if (n2 == null) {
+            n2 = 0;
+        }
+        if (n1 instanceof Integer) {
+            return ((Integer) n1).compareTo(TypeConverters.castToInt(n2));
+        }
+        if (n1 instanceof Long) {
+            return ((Long) n1).compareTo(TypeConverters.castToLong(n2));
+        }
+        if (n1 instanceof Float) {
+            return ((Float) n1).compareTo(TypeConverters.castToFloat(n2));
+        }
+        if (n1 instanceof Double) {
+            return ((Double) n1).compareTo(TypeConverters.castToDouble(n2));
+        }
+        if (n1 == null) {
+            return Integer.compare(0, TypeConverters.castToInt(n2));
+        }
+        throw new IllegalArgumentException("Can't happen!");
     }
 
     public static int getMaxidxVector(List<Parameter> vector) {
@@ -275,4 +336,63 @@ public class ParameterTools {
         return sum;
     }
 
+    public static Number addNumbers(Number n1, Number n2) {
+        if (n1 instanceof Double || n2 instanceof Double) {
+            return TypeConverters.castToDouble(n1) + TypeConverters.castToDouble(n2);
+        } else if (n1 instanceof Float || n2 instanceof Float) {
+            return TypeConverters.castToFloat(n1) + TypeConverters.castToFloat(n2);
+        } else if (n1 instanceof Long || n2 instanceof Long) {
+            return TypeConverters.castToLong(n1) + TypeConverters.castToLong(n2);
+        } else {
+            return TypeConverters.castToInt(n1) + TypeConverters.castToInt(n2);
+        }
+    }
+
+    public static Number subtractNumbers(Number n1, Number n2) {
+        if (n1 instanceof Double || n2 instanceof Double) {
+            return TypeConverters.castToDouble(n1) - TypeConverters.castToDouble(n2);
+        } else if (n1 instanceof Float || n2 instanceof Float) {
+            return TypeConverters.castToFloat(n1) - TypeConverters.castToFloat(n2);
+        } else if (n1 instanceof Long || n2 instanceof Long) {
+            return TypeConverters.castToLong(n1) - TypeConverters.castToLong(n2);
+        } else {
+            return TypeConverters.castToInt(n1) - TypeConverters.castToInt(n2);
+        }
+    }
+
+    public static Number multiplyNumbers(Number n1, Number n2) {
+        if (n1 instanceof Double || n2 instanceof Double) {
+            return TypeConverters.castToDouble(n1) * TypeConverters.castToDouble(n2);
+        } else if (n1 instanceof Float || n2 instanceof Float) {
+            return TypeConverters.castToFloat(n1) * TypeConverters.castToFloat(n2);
+        } else if (n1 instanceof Long || n2 instanceof Long) {
+            return TypeConverters.castToLong(n1) * TypeConverters.castToLong(n2);
+        } else {
+            return TypeConverters.castToInt(n1) * TypeConverters.castToInt(n2);
+        }
+    }
+
+    public static Number divideNumbers(Number n1, Number n2) {
+        if (n1 instanceof Double || n2 instanceof Double) {
+            return TypeConverters.castToDouble(n1) / TypeConverters.castToDouble(n2);
+        } else if (n1 instanceof Float || n2 instanceof Float) {
+            return TypeConverters.castToFloat(n1) / TypeConverters.castToFloat(n2);
+        } else if (n1 instanceof Long || n2 instanceof Long) {
+            return TypeConverters.castToLong(n1) / TypeConverters.castToLong(n2);
+        } else {
+            return TypeConverters.castToInt(n1) / TypeConverters.castToInt(n2);
+        }
+    }
+
+    public static Number moduloNumbers(Number n1, Number n2) {
+        if (n1 instanceof Double || n2 instanceof Double) {
+            return TypeConverters.castToDouble(n1) % TypeConverters.castToDouble(n2);
+        } else if (n1 instanceof Float || n2 instanceof Float) {
+            return TypeConverters.castToFloat(n1) % TypeConverters.castToFloat(n2);
+        } else if (n1 instanceof Long || n2 instanceof Long) {
+            return TypeConverters.castToLong(n1) % TypeConverters.castToLong(n2);
+        } else {
+            return TypeConverters.castToInt(n1) % TypeConverters.castToInt(n2);
+        }
+    }
 }

@@ -6,6 +6,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import mcjty.rftoolscontrol.api.parameters.*;
 import mcjty.rftoolscontrol.logic.ParameterTools;
+import mcjty.rftoolscontrol.logic.TypeConverters;
 import mcjty.rftoolscontrol.logic.running.ExceptionType;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -49,6 +50,8 @@ public class ParameterTypeTools {
                 return Long.toString((Long) value);
             case PAR_FLOAT:
                 return Float.toString((Float) value);
+            case PAR_NUMBER:
+                return TypeConverters.castNumberToString(value);
             case PAR_SIDE:
                 return ((BlockSide) value).getStringRepresentation();
             case PAR_BOOLEAN:
@@ -134,6 +137,17 @@ public class ParameterTypeTools {
                 return ParameterValue.constant(tag.getLong("v"));
             case PAR_FLOAT:
                 return ParameterValue.constant(tag.getFloat("v"));
+            case PAR_NUMBER:
+                if (tag.hasKey("v")) {
+                    return ParameterValue.constant(tag.getInteger("v"));
+                } else if (tag.hasKey("l")) {
+                    return ParameterValue.constant(tag.getLong("l"));
+                } else if (tag.hasKey("f")) {
+                    return ParameterValue.constant(tag.getFloat("f"));
+                } else if (tag.hasKey("d")) {
+                    return ParameterValue.constant(tag.getDouble("d"));
+                }
+                break;
             case PAR_SIDE:
                 int v = tag.getInteger("v");
                 EnumFacing facing = v == -1 ? null : EnumFacing.values()[v];
@@ -204,6 +218,17 @@ public class ParameterTypeTools {
             case PAR_FLOAT:
                 tag.setFloat("v", (Float) value);
                 break;
+            case PAR_NUMBER:
+                if (value instanceof Integer) {
+                    tag.setInteger("v", (Integer) value);
+                } else if (value instanceof Long) {
+                    tag.setLong("l", (Long) value);
+                } else if (value instanceof Float) {
+                    tag.setFloat("f", (Float) value);
+                } else if (value instanceof Double) {
+                    tag.setDouble("d", (Double) value);
+                }
+                break;
             case PAR_SIDE:
                 BlockSide side = (BlockSide) value;
                 tag.setInteger("v", side.getSide() == null ? -1 : side.getSide().ordinal());
@@ -266,6 +291,17 @@ public class ParameterTypeTools {
                 break;
             case PAR_FLOAT:
                 object.add("v", new JsonPrimitive((Float) value));
+                break;
+            case PAR_NUMBER:
+                if (value instanceof Integer) {
+                    object.add("v", new JsonPrimitive((Integer) value));
+                } else if (value instanceof Long) {
+                    object.add("l", new JsonPrimitive((Long) value));
+                } else if (value instanceof Float) {
+                    object.add("f", new JsonPrimitive((Float) value));
+                } else if (value instanceof Double) {
+                    object.add("d", new JsonPrimitive((Double) value));
+                }
                 break;
             case PAR_SIDE:
                 BlockSide side = (BlockSide) value;
@@ -338,6 +374,17 @@ public class ParameterTypeTools {
                 return ParameterValue.constant(object.get("v").getAsLong());
             case PAR_FLOAT:
                 return ParameterValue.constant(object.get("v").getAsFloat());
+            case PAR_NUMBER:
+                if (object.has("v")) {
+                    return ParameterValue.constant(object.get("v").getAsInt());
+                } else if (object.has("l")) {
+                    return ParameterValue.constant(object.get("l").getAsLong());
+                } else if (object.has("f")) {
+                    return ParameterValue.constant(object.get("f").getAsFloat());
+                } else if (object.has("d")) {
+                    return ParameterValue.constant(object.get("d").getAsDouble());
+                }
+                break;
             case PAR_SIDE: {
                 EnumFacing side = object.has("side") ? EnumFacing.byName(object.get("side").getAsString()) : null;
                 String node = object.has("node") ? object.get("node").getAsString() : null;

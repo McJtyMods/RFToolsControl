@@ -103,6 +103,26 @@ public abstract class AbstractParameterEditor implements ParameterEditor {
         return f;
     }
 
+    public static Float parseFloatSafe(String newText) {
+        Float f;
+        try {
+            f = Float.parseFloat(newText);
+        } catch (NumberFormatException e) {
+            f = null;
+        }
+        return f;
+    }
+
+    public static Double parseDoubleSafe(String newText) {
+        Double f;
+        try {
+            f = Double.parseDouble(newText);
+        } catch (NumberFormatException e) {
+            f = null;
+        }
+        return f;
+    }
+
     protected abstract ParameterValue readConstantValue();
 
     protected abstract void writeConstantValue(ParameterValue value);
