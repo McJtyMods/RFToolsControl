@@ -1087,10 +1087,15 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
                 .setHorizontalAlignment(HorizontalAlignment.ALIGH_LEFT)
                 .setDesiredHeight(13)
                 .setLayoutHint(new PositionalLayout.PositionalHint(0, 0, 53, 13));
-        String[] tooltips = parameter.getDescription().toArray(new String[parameter.getDescription().size()]);
+        List<String> description = new ArrayList<>(parameter.getDescription());
         if (parameter.isOptional()) {
-            tooltips[tooltips.length-1] = tooltips[tooltips.length-1] + TextFormatting.GOLD + " [Optional]";
+            description.set(description.size()-1, description.get(description.size()-1) + TextFormatting.GOLD + " [Optional]");
         }
+        if (tempDefault != null && !tempDefault.isEmpty()) {
+            description.add(TextFormatting.BLUE + tempDefault);
+        }
+
+        String[] tooltips = description.toArray(new String[description.size()]);
         TextField field = new TextField(mc, this)
                 .setText(tempDefault)
                 .setTooltips(tooltips)
