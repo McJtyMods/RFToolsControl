@@ -50,8 +50,10 @@ public class ParameterTypeTools {
                 return Long.toString((Long) value);
             case PAR_FLOAT:
                 return Float.toString((Float) value);
-            case PAR_NUMBER:
-                return TypeConverters.castNumberToString(value);
+            case PAR_NUMBER: {
+                String s = TypeConverters.castNumberToString(value);
+                return s + " (" + TypeConverters.getNumberType(value) + ")";
+            }
             case PAR_SIDE:
                 return ((BlockSide) value).getStringRepresentation();
             case PAR_BOOLEAN:

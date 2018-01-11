@@ -19,6 +19,12 @@ public class NumberEditor extends AbstractParameterEditor {
     private TextField field;
 
     @Override
+    public int getHeight() {
+        return 40;
+    }
+
+
+    @Override
     public void build(Minecraft mc, Gui gui, Panel panel, ParameterEditorCallback callback) {
         Panel constantPanel = new Panel(mc, gui).setLayout(new VerticalLayout());
 

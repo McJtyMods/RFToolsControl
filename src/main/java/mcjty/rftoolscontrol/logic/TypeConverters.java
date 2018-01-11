@@ -579,4 +579,18 @@ public class TypeConverters {
             return "?";
         }
     }
+
+    public static String getNumberType(Object value) {
+        if (value instanceof Integer) {
+            return "I";
+        } else if (value instanceof Long) {
+            return "L";
+        } else if (value instanceof Float) {
+            return "F";
+        } else if (value instanceof Double) {
+            return "D";
+        } else {
+            return "?";
+        }
+    }
 }

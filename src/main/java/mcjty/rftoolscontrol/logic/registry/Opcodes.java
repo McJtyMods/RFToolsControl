@@ -274,7 +274,7 @@ public class Opcodes {
             .category(CATEGORY_NUMBERS)
             .parameter(ParameterDescription.builder().name("v1").type(PAR_NUMBER).description("first value").build())
             .parameter(ParameterDescription.builder().name("v2").type(PAR_NUMBER).description("second value").build())
-            .icon(10, 0)
+            .icon(10, 8)
             .runnable(((processor, program, opcode) -> {
                 Number v1 = processor.evaluateNumberParameter(opcode, program, 0);
                 Number v2 = processor.evaluateNumberParameter(opcode, program, 1);
@@ -292,7 +292,7 @@ public class Opcodes {
             .category(CATEGORY_NUMBERS)
             .parameter(ParameterDescription.builder().name("v1").type(PAR_NUMBER).description("first value").build())
             .parameter(ParameterDescription.builder().name("v2").type(PAR_NUMBER).description("second value").build())
-            .icon(11, 0)
+            .icon(11, 8)
             .runnable(((processor, program, opcode) -> {
                 Number v1 = processor.evaluateNumberParameter(opcode, program, 0);
                 Number v2 = processor.evaluateNumberParameter(opcode, program, 1);
