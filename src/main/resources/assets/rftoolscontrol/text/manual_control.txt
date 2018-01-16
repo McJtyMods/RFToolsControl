@@ -88,7 +88,7 @@ this function.
 The Processor is the device that actually runs your programs. First you
 write a program with the Programmer and then you insert that card in
 the processor. Up to 6 program cards are supported. The Processor needs
-some more modules before it can really work though.
+some more components before it can really work though.
 {-------------------------------------------------------------}
 The most important thing that the Processor needs is at least one cpu
 core. For every core that you install in one of the 16 expansion slots
@@ -240,8 +240,8 @@ some limited vector graphics. You can draw lines, boxes and text and it is
 also possible to interact with your graphics in a limited way. There are
 two ways to display graphics: either you can use the built-in HUD (set
 to 'Gfx' mode) or else you can use an rftools screen with a 'vector art'
-module. If you want to interact with your graphics then the rftools screen
-is the only way. When working with graphics you have to know about
+screen module. If you want to interact with your graphics then the rftools
+screen is the only way. When working with graphics you have to know about
 three concepts: 'ids', 'colors', and 'coordinates'. I'll go over these in the
 next page.
 {-------------------------------------------------------------}
