@@ -150,9 +150,4 @@ public class ProcessorBlock extends GenericRFToolsBlock<ProcessorTileEntity, Pro
         return 0;
     }
 
-    @Override
-    protected BlockStateContainer createBlockState() {
-        return new BlockStateContainer(this, FACING);
-    }
-
 }
