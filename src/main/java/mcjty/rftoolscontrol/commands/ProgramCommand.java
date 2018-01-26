@@ -75,10 +75,8 @@ public class ProgramCommand extends CommandBase {
     private void loadProgram(ICommandSender sender, String arg, ItemStack item) {
 //        File file = new File("." + File.separator + "rftoolscontrol" + File.separator + arg);
         File file = new File(arg);
-        FileInputStream stream;
         String json;
-        try {
-            stream = new FileInputStream(file);
+        try(FileInputStream stream = new FileInputStream(file)) {
             byte[] data = new byte[(int) file.length()];
             stream.read(data);
             json = new String(data, "UTF-8");
@@ -110,9 +108,8 @@ public class ProgramCommand extends CommandBase {
         if (file.exists()) {
             file.delete();
         }
-        PrintWriter writer;
-        try {
-            writer = new PrintWriter(file);
+        try(PrintWriter writer = new PrintWriter(file)) {
+            writer.print(json);
         } catch (FileNotFoundException e) {
             ITextComponent component = new TextComponentString(TextFormatting.RED + "Error opening file for writing!");
             if (sender instanceof EntityPlayer) {
@@ -122,8 +119,6 @@ public class ProgramCommand extends CommandBase {
             }
             return;
         }
-        writer.print(json);
-        writer.close();
         ITextComponent component = new TextComponentString("Saved program!");
         if (sender instanceof EntityPlayer) {
             ((EntityPlayer) sender).sendStatusMessage(component, false);
