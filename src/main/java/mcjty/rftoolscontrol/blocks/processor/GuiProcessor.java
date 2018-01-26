@@ -274,7 +274,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
         }
     }
 
-    private void setupMode(Widget parent) {
+    private void setupMode(Widget<?> parent) {
         ToggleButton tb = (ToggleButton) parent;
         if (tb.isPressed()) {
             for (ToggleButton button : setupButtons) {
@@ -303,7 +303,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
         } else {
             Optional<Widget> widget = getWindowManager().findWidgetAtPosition(x, y);
             if (widget.isPresent()) {
-                Widget w = widget.get();
+                Widget<?> w = widget.get();
                 if ("allowed".equals(w.getUserObject())) {
                     super.mouseClicked(x, y, button);
                     return;
@@ -528,7 +528,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
                 EnumFacing side = EnumFacing.values()[i / TANKS];
                 String l = side.getName().substring(0, 1).toUpperCase() + (i%TANKS);
                 Panel panel = new Panel(mc, this).setLayout(new HorizontalLayout()).setDesiredWidth(40);
-                AbstractWidget label;
+                AbstractWidget<?> label;
                 if (setupMode != -1) {
                     boolean allocated = ((fluidAlloc >> i) & 1) != 0;
                     int fill = allocated ? 0x7700ff00 : (tileEntity.isFluidAllocated(-1, i) ? 0x77660000 : 0x77444444);

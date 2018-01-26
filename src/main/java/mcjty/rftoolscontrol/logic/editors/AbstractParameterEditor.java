@@ -160,7 +160,7 @@ public abstract class AbstractParameterEditor implements ParameterEditor {
         }
     }
 
-    protected Panel createLabeledPanel(Minecraft mc, Gui gui, String label, Widget object, String... tooltips) {
+    protected Panel createLabeledPanel(Minecraft mc, Gui gui, String label, Widget<?> object, String... tooltips) {
         object.setTooltips(tooltips);
         return new Panel(mc, gui).setLayout(new HorizontalLayout())
                 .addChild(new Label(mc, gui)

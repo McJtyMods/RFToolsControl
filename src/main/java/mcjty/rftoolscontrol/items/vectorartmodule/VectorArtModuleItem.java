@@ -1,9 +1,7 @@
 package mcjty.rftoolscontrol.items.vectorartmodule;
 
 import mcjty.lib.varia.Logging;
-import mcjty.rftools.api.screens.IClientScreenModule;
 import mcjty.rftools.api.screens.IModuleProvider;
-import mcjty.rftools.api.screens.IScreenModule;
 import mcjty.rftoolscontrol.blocks.ModBlocks;
 import mcjty.rftoolscontrol.config.GeneralConfiguration;
 import mcjty.rftoolscontrol.items.GenericRFToolsItem;
@@ -37,12 +35,12 @@ public class VectorArtModuleItem extends GenericRFToolsItem implements IModulePr
     }
 
     @Override
-    public Class<? extends IScreenModule> getServerScreenModule() {
+    public Class<VectorArtScreenModule> getServerScreenModule() {
         return VectorArtScreenModule.class;
     }
 
     @Override
-    public Class<? extends IClientScreenModule> getClientScreenModule() {
+    public Class<VectorArtClientScreenModule> getClientScreenModule() {
         return VectorArtClientScreenModule.class;
     }
 

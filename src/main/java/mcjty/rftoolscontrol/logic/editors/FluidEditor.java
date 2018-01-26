@@ -23,7 +23,7 @@ public class FluidEditor extends AbstractParameterEditor {
     public void build(Minecraft mc, Gui gui, Panel panel, ParameterEditorCallback callback) {
         Panel constantPanel = new Panel(mc, gui).setLayout(new HorizontalLayout());
 
-        Label label = new Label(mc, gui).setText("Drop bucket:");
+        Label<?> label = new Label(mc, gui).setText("Drop bucket:");
         constantPanel.addChild(label);
 
         blockRender = new BlockRender(mc, gui)

@@ -1,6 +1,5 @@
 package mcjty.rftoolscontrol.blocks.workbench;
 
-import mcjty.lib.container.GenericGuiContainer;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.blocks.GenericRFToolsBlock;
 import mcjty.theoneprobe.api.IProbeHitData;
@@ -25,7 +24,7 @@ public class WorkbenchBlock extends GenericRFToolsBlock<WorkbenchTileEntity, Wor
 
     @SideOnly(Side.CLIENT)
     @Override
-    public Class<? extends GenericGuiContainer> getGuiClass() {
+    public Class<GuiWorkbench> getGuiClass() {
         return GuiWorkbench.class;
     }
 

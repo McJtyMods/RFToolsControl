@@ -1,9 +1,7 @@
 package mcjty.rftoolscontrol.items.consolemodule;
 
 import mcjty.lib.varia.Logging;
-import mcjty.rftools.api.screens.IClientScreenModule;
 import mcjty.rftools.api.screens.IModuleProvider;
-import mcjty.rftools.api.screens.IScreenModule;
 import mcjty.rftoolscontrol.blocks.ModBlocks;
 import mcjty.rftoolscontrol.config.GeneralConfiguration;
 import mcjty.rftoolscontrol.items.GenericRFToolsItem;
@@ -37,12 +35,12 @@ public class ConsoleModuleItem extends GenericRFToolsItem implements IModuleProv
     }
 
     @Override
-    public Class<? extends IScreenModule> getServerScreenModule() {
+    public Class<ConsoleScreenModule> getServerScreenModule() {
         return ConsoleScreenModule.class;
     }
 
     @Override
-    public Class<? extends IClientScreenModule> getClientScreenModule() {
+    public Class<ConsoleClientScreenModule> getClientScreenModule() {
         return ConsoleClientScreenModule.class;
     }
 

@@ -1,9 +1,7 @@
 package mcjty.rftoolscontrol.items.interactionmodule;
 
 import mcjty.lib.varia.Logging;
-import mcjty.rftools.api.screens.IClientScreenModule;
 import mcjty.rftools.api.screens.IModuleProvider;
-import mcjty.rftools.api.screens.IScreenModule;
 import mcjty.rftoolscontrol.blocks.ModBlocks;
 import mcjty.rftoolscontrol.config.GeneralConfiguration;
 import mcjty.rftoolscontrol.items.GenericRFToolsItem;
@@ -37,12 +35,12 @@ public class InteractionModuleItem extends GenericRFToolsItem implements IModule
     }
 
     @Override
-    public Class<? extends IScreenModule> getServerScreenModule() {
+    public Class<InteractionScreenModule> getServerScreenModule() {
         return InteractionScreenModule.class;
     }
 
     @Override
-    public Class<? extends IClientScreenModule> getClientScreenModule() {
+    public Class<InteractionClientScreenModule> getClientScreenModule() {
         return InteractionClientScreenModule.class;
     }
 

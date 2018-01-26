@@ -589,7 +589,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
                     @Override
                     public void doubleClick(Widget parent, int index) {
                         if (errorList.getSelected() != -1) {
-                            Widget child = errorList.getChild(errorList.getSelected());
+                            Widget<?> child = errorList.getChild(errorList.getSelected());
                             GridPos pos = (GridPos) child.getUserObject();
                             if (pos != null) {
                                 window.setTextFocus(getHolder(pos.getX(), pos.getY()));
@@ -1070,7 +1070,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
         return Collections.emptyList();
     }
 
-    private void selectIcon(Window parent, Widget focused) {
+    private void selectIcon(Window parent, Widget<?> focused) {
         if (parent == window && focused instanceof IconHolder) {
             clearEditorPanel();
             IconHolder iconHolder = (IconHolder) focused;
@@ -1082,7 +1082,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
     }
 
     private Panel createValuePanel(ParameterDescription parameter, IIcon icon, IconHolder iconHolder, String tempDefault, boolean constantOnly) {
-        Label label = (Label) new Label(mc, this)
+        Label<?> label = (Label<?>) new Label(mc, this)
                 .setText(StringUtils.capitalize(parameter.getName()) + ":")
                 .setHorizontalAlignment(HorizontalAlignment.ALIGH_LEFT)
                 .setDesiredHeight(13)

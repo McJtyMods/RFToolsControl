@@ -72,7 +72,7 @@ public class ParameterTypeTools {
             case PAR_TUPLE:
                 return value.toString();
             case PAR_VECTOR:
-                return "[" + ((List)value).size() + "]";
+                return "[" + ((List<?>)value).size() + "]";
         }
         return "?";
     }

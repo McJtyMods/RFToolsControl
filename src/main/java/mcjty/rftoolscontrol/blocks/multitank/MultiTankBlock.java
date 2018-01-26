@@ -1,7 +1,6 @@
 package mcjty.rftoolscontrol.blocks.multitank;
 
 import mcjty.lib.container.EmptyContainer;
-import mcjty.lib.container.GenericGuiContainer;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.blocks.GenericRFToolsBlock;
 import mcjty.theoneprobe.api.IProbeHitData;
@@ -32,7 +31,7 @@ public class MultiTankBlock extends GenericRFToolsBlock<MultiTankTileEntity, Emp
 
     @SideOnly(Side.CLIENT)
     @Override
-    public Class<? extends GenericGuiContainer> getGuiClass() {
+    public Class<GuiMultiTank> getGuiClass() {
         return GuiMultiTank.class;
     }
 

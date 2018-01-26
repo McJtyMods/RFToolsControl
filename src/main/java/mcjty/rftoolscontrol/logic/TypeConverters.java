@@ -300,7 +300,7 @@ public class TypeConverters {
             case PAR_TUPLE:
                 return ((Tuple) v).getX() != 0 || ((Tuple) v).getY() != 0;
             case PAR_VECTOR:
-                return !((List<Parameter>)v).isEmpty();
+                return !((List<?>)v).isEmpty();
             case PAR_ITEM:
                 return !((ItemStack) v).isEmpty();
             case PAR_SIDE:
@@ -362,7 +362,7 @@ public class TypeConverters {
             case PAR_FLUID:
                 return ((FluidStack) v).amount;
             case PAR_VECTOR:
-                return ((List)v).size();
+                return ((List<?>)v).size();
             case PAR_EXCEPTION:
             case PAR_TUPLE:
             case PAR_SIDE:
@@ -400,7 +400,7 @@ public class TypeConverters {
             case PAR_FLUID:
                 return Long.valueOf(((FluidStack) v).amount);
             case PAR_VECTOR:
-                return Long.valueOf(((List)v).size());
+                return Long.valueOf(((List<?>)v).size());
             case PAR_EXCEPTION:
             case PAR_TUPLE:
             case PAR_SIDE:
@@ -437,7 +437,7 @@ public class TypeConverters {
             case PAR_FLUID:
                 return Integer.valueOf(((FluidStack) v).amount);
             case PAR_VECTOR:
-                return Integer.valueOf(((List)v).size());
+                return Integer.valueOf(((List<?>)v).size());
             case PAR_EXCEPTION:
             case PAR_TUPLE:
             case PAR_SIDE:

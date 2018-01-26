@@ -24,7 +24,7 @@ public class GuiRFToolsManual extends GuiScreen {
 
     private Window window;
     private TextPage textPage;
-    private Label pageLabel;
+    private Label<?> pageLabel;
     private Button prevButton;
     private Button nextButton;
 
@@ -63,7 +63,7 @@ public class GuiRFToolsManual extends GuiScreen {
         });
         Panel buttonPanel = new Panel(mc, this).setLayout(new HorizontalLayout()).setDesiredHeight(16).addChild(prevButton).addChild(pageLabel).addChild(nextButton);
 
-        Widget toplevel = new Panel(mc, this).setFilledRectThickness(2).setLayout(new VerticalLayout()).addChild(textPage).addChild(buttonPanel);
+        Widget<?> toplevel = new Panel(mc, this).setFilledRectThickness(2).setLayout(new VerticalLayout()).addChild(textPage).addChild(buttonPanel);
         toplevel.setBounds(new Rectangle(k, l, xSize, ySize));
 
         window = new Window(this, toplevel);

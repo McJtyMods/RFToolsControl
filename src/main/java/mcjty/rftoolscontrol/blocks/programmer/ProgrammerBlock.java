@@ -1,6 +1,5 @@
 package mcjty.rftoolscontrol.blocks.programmer;
 
-import mcjty.lib.container.GenericGuiContainer;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.blocks.GenericRFToolsBlock;
 import net.minecraft.block.material.Material;
@@ -20,7 +19,7 @@ public class ProgrammerBlock extends GenericRFToolsBlock<ProgrammerTileEntity, P
 
     @SideOnly(Side.CLIENT)
     @Override
-    public Class<? extends GenericGuiContainer> getGuiClass() {
+    public Class<GuiProgrammer> getGuiClass() {
         return GuiProgrammer.class;
     }
 

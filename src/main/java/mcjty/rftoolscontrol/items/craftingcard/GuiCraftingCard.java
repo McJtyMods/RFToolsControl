@@ -1,6 +1,7 @@
 package mcjty.rftoolscontrol.items.craftingcard;
 
 import mcjty.lib.container.GenericGuiContainer;
+import mcjty.lib.entity.GenericTileEntity;
 import mcjty.lib.gui.Window;
 import mcjty.lib.gui.events.BlockRenderEvent;
 import mcjty.lib.gui.layout.HorizontalAlignment;
@@ -28,7 +29,7 @@ import java.util.List;
 import static mcjty.rftoolscontrol.items.craftingcard.CraftingCardContainer.*;
 
 
-public class GuiCraftingCard extends GenericGuiContainer {
+public class GuiCraftingCard extends GenericGuiContainer<GenericTileEntity> {
     public static final int WIDTH = 180;
     public static final int HEIGHT = 198;
 

@@ -1862,7 +1862,7 @@ public class Opcodes {
             .runnable(((processor, program, opcode) -> {
                 List<Parameter> vector = processor.evaluateVectorParameterNonNull(opcode, program, 0);
                 int var = processor.evaluateIntParameter(opcode, program, 1);
-                List<Parameter> newvector = new ArrayList<Parameter>(vector);
+                List<Parameter> newvector = new ArrayList<>(vector);
                 newvector.add(processor.getVariable(program, var));
                 program.setLastValue(Parameter.builder().type(PAR_VECTOR).value(ParameterValue.constant(Collections.unmodifiableList(newvector))).build());
                 return POSITIVE;
@@ -1883,7 +1883,7 @@ public class Opcodes {
             .runnable(((processor, program, opcode) -> {
                 List<Parameter> vector = processor.evaluateVectorParameterNonNull(opcode, program, 0);
                 int integer = processor.evaluateIntParameter(opcode, program, 1);
-                List<Parameter> newvector = new ArrayList<Parameter>(vector);
+                List<Parameter> newvector = new ArrayList<>(vector);
                 newvector.add(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(integer)).build());
                 program.setLastValue(Parameter.builder().type(PAR_VECTOR).value(ParameterValue.constant(Collections.unmodifiableList(newvector))).build());
                 return POSITIVE;
@@ -1902,7 +1902,7 @@ public class Opcodes {
             .icon(11, 7)
             .runnable(((processor, program, opcode) -> {
                 List<Parameter> vector = processor.evaluateVectorParameterNonNull(opcode, program, 0);
-                List<Parameter> newvector = new ArrayList<Parameter>(vector.size()-1);
+                List<Parameter> newvector = new ArrayList<>(vector.size()-1);
                 for (int i = 0 ; i < newvector.size() ; i++) {
                     newvector.add(vector.get(i));
                 }

@@ -1,6 +1,5 @@
 package mcjty.rftoolscontrol.blocks.craftingstation;
 
-import mcjty.lib.container.GenericGuiContainer;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.blocks.GenericRFToolsBlock;
 import mcjty.theoneprobe.api.IProbeHitData;
@@ -25,7 +24,7 @@ public class CraftingStationBlock extends GenericRFToolsBlock<CraftingStationTil
 
     @SideOnly(Side.CLIENT)
     @Override
-    public Class<? extends GenericGuiContainer> getGuiClass() {
+    public Class<GuiCraftingStation> getGuiClass() {
         return GuiCraftingStation.class;
     }
 
