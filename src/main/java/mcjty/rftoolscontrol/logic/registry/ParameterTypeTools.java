@@ -174,11 +174,7 @@ public class ParameterTypeTools {
                     ItemStack stack = new ItemStack(tc);
                     // Fix for 1.10 0-sized stacks
                     if (stack.getCount() == 0) {
-                        if (1 <= 0) {
-                            stack.setCount(0);
-                        } else {
-                            stack.setCount(1);
-                        }
+                        stack.setCount(1);
                     }
                     return ParameterValue.constant(stack);
                 }

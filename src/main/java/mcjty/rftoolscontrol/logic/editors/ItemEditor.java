@@ -35,11 +35,7 @@ public class ItemEditor extends AbstractParameterEditor {
                     blockRender.setRenderItem(null);
                 } else {
                     ItemStack copy = holding.copy();
-                    if (1 <= 0) {
-                        copy.setCount(0);
-                    } else {
-                        copy.setCount(1);
-                    }
+                    copy.setCount(1);
                     blockRender.setRenderItem(copy);
                 }
                 callback.valueChanged(readValue());

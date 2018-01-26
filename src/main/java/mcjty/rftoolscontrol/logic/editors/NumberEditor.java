@@ -1,7 +1,6 @@
 package mcjty.rftoolscontrol.logic.editors;
 
 import mcjty.lib.gui.Window;
-import mcjty.lib.gui.layout.HorizontalLayout;
 import mcjty.lib.gui.layout.VerticalLayout;
 import mcjty.lib.gui.widgets.ChoiceLabel;
 import mcjty.lib.gui.widgets.Panel;

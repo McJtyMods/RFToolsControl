@@ -13,7 +13,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
@@ -86,15 +85,8 @@ public class InteractionScreenModule implements IScreenModule<IModuleDataBoolean
                         processor.signal(signal);
                     }
                 }
-            } else {
-                if (player != null) {
-                    ITextComponent component = new TextComponentString(TextFormatting.RED + "Module is not linked to a processor!");
-                    if (player instanceof EntityPlayer) {
-                        ((EntityPlayer) player).sendStatusMessage(component, false);
-                    } else {
-                        player.sendMessage(component);
-                    }
-                }
+            } else if (player != null) {
+                player.sendStatusMessage(new TextComponentString(TextFormatting.RED + "Module is not linked to a processor!"), false);
             }
         }
     }
