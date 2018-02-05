@@ -3,13 +3,9 @@ package mcjty.rftoolscontrol.blocks.multitank;
 import mcjty.lib.container.EmptyContainer;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.blocks.GenericRFToolsBlock;
-import mcjty.theoneprobe.api.IProbeHitData;
-import mcjty.theoneprobe.api.IProbeInfo;
-import mcjty.theoneprobe.api.ProbeMode;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.world.World;
@@ -49,12 +45,6 @@ public class MultiTankBlock extends GenericRFToolsBlock<MultiTankTileEntity, Emp
         list.add("This block is meant for the processor");
         list.add("and cannot otherwise be used directly");
     }
-
-    @Override
-    public void addProbeInfo(ProbeMode mode, IProbeInfo probeInfo, EntityPlayer player, World world, IBlockState blockState, IProbeHitData data) {
-        super.addProbeInfo(mode, probeInfo, player, world, blockState, data);
-    }
-
 
     @Override
     public boolean canRenderInLayer(IBlockState state, BlockRenderLayer layer) {
