@@ -612,7 +612,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
             GridPos p = entry.getKey();
             errorList.addChild(new Label(mc, this)
                     .setColor(0xffff0000)
-                    .setHorizontalAlignment(HorizontalAlignment.ALIGH_LEFT)
+                    .setHorizontalAlignment(HorizontalAlignment.ALIGN_LEFT)
                     .setText(entry.getValue())
                     .setUserObject(p));
         }
@@ -1084,7 +1084,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
     private Panel createValuePanel(ParameterDescription parameter, IIcon icon, IconHolder iconHolder, String tempDefault, boolean constantOnly) {
         Label<?> label = (Label<?>) new Label(mc, this)
                 .setText(StringUtils.capitalize(parameter.getName()) + ":")
-                .setHorizontalAlignment(HorizontalAlignment.ALIGH_LEFT)
+                .setHorizontalAlignment(HorizontalAlignment.ALIGN_LEFT)
                 .setDesiredHeight(13)
                 .setLayoutHint(new PositionalLayout.PositionalHint(0, 0, 53, 13));
         List<String> description = new ArrayList<>(parameter.getDescription());

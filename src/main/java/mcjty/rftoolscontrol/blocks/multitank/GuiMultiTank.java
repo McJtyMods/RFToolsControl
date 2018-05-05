@@ -50,7 +50,7 @@ public class GuiMultiTank extends GenericGuiContainer<MultiTankTileEntity> {
             toplevel.addChild(liquids[i]);
             labels[i] = new Label(mc, this);
             labels[i]
-                    .setHorizontalAlignment(HorizontalAlignment.ALIGH_LEFT)
+                    .setHorizontalAlignment(HorizontalAlignment.ALIGN_LEFT)
                     .setVerticalAlignment(VerticalAlignment.ALIGN_CENTER)
                     .setLayoutHint(new PositionalLayout.PositionalHint(32, 9 + i * 18, WIDTH-32-6, 16));
             toplevel.addChild(labels[i]);

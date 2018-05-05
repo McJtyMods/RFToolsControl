@@ -50,8 +50,8 @@ public class GuiCraftingCard extends GenericGuiContainer<GenericTileEntity> {
         Panel toplevel = new Panel(mc, this).setLayout(new PositionalLayout()).setBackground(iconLocation);
         toplevel.setBounds(new Rectangle(guiLeft, guiTop, xSize, ySize));
 
-        toplevel.addChild(new Label(mc, this).setText("Regular 3x3 crafting recipe").setHorizontalAlignment(HorizontalAlignment.ALIGH_LEFT).setLayoutHint(new PositionalLayout.PositionalHint(10, 4, 160, 14)));
-        toplevel.addChild(new Label(mc, this).setText("or more complicated recipes").setHorizontalAlignment(HorizontalAlignment.ALIGH_LEFT).setLayoutHint(new PositionalLayout.PositionalHint(10, 17, 160, 14)));
+        toplevel.addChild(new Label(mc, this).setText("Regular 3x3 crafting recipe").setHorizontalAlignment(HorizontalAlignment.ALIGN_LEFT).setLayoutHint(new PositionalLayout.PositionalHint(10, 4, 160, 14)));
+        toplevel.addChild(new Label(mc, this).setText("or more complicated recipes").setHorizontalAlignment(HorizontalAlignment.ALIGN_LEFT).setLayoutHint(new PositionalLayout.PositionalHint(10, 17, 160, 14)));
         toplevel.addChild(new Button(mc, this)
                 .setText("Update")
                 .setTooltips("Update the item in the output", "slot to the recipe in the", "3x3 grid")

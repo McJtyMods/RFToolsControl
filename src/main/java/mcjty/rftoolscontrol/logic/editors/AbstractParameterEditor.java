@@ -164,7 +164,7 @@ public abstract class AbstractParameterEditor implements ParameterEditor {
         object.setTooltips(tooltips);
         return new Panel(mc, gui).setLayout(new HorizontalLayout())
                 .addChild(new Label(mc, gui)
-                        .setHorizontalAlignment(HorizontalAlignment.ALIGH_LEFT)
+                        .setHorizontalAlignment(HorizontalAlignment.ALIGN_LEFT)
                         .setText(label)
                         .setTooltips(tooltips)
                         .setDesiredWidth(60))

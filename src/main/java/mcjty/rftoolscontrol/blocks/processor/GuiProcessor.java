@@ -267,7 +267,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
         boolean atend = log.getFirstSelected() + log.getCountSelected() >= log.getChildCount();
         log.removeChildren();
         for (String message : tileEntity.getClientLog()) {
-            log.addChild(new Label(mc, this).setColor(0xff008800).setText(message).setHorizontalAlignment(HorizontalAlignment.ALIGH_LEFT));
+            log.addChild(new Label(mc, this).setColor(0xff008800).setText(message).setHorizontalAlignment(HorizontalAlignment.ALIGN_LEFT));
         }
         if (atend) {
             log.setFirstSelected(log.getChildCount());
