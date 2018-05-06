@@ -7,7 +7,7 @@ import mcjty.lib.network.PacketListToClient;
 import mcjty.lib.varia.Logging;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.blocks.craftingstation.CraftingRequest;
-import mcjty.typed.Type;
+import mcjty.lib.typed.Type;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;

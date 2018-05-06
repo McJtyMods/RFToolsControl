@@ -2,7 +2,7 @@ package mcjty.rftoolscontrol.blocks.multitank;
 
 import mcjty.lib.entity.GenericTileEntity;
 import mcjty.lib.network.Argument;
-import mcjty.typed.Type;
+import mcjty.lib.typed.Type;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.capabilities.Capability;

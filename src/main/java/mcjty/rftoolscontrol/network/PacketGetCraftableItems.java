@@ -4,7 +4,7 @@ import mcjty.lib.network.PacketRequestServerList;
 import mcjty.lib.network.PacketRequestServerListHandler;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.blocks.craftingstation.CraftingStationTileEntity;
-import mcjty.typed.Type;
+import mcjty.lib.typed.Type;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
