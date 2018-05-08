@@ -11,7 +11,7 @@ import mcjty.lib.gui.widgets.Button;
 import mcjty.lib.gui.widgets.Label;
 import mcjty.lib.gui.widgets.Panel;
 import mcjty.lib.gui.widgets.TextField;
-import mcjty.lib.network.Argument;
+import mcjty.lib.typed.TypedMap;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.gui.GuiTools;
 import mcjty.rftoolscontrol.network.PacketGetCraftableItems;
@@ -26,6 +26,8 @@ import org.lwjgl.input.Keyboard;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+
+import static mcjty.rftoolscontrol.blocks.craftingstation.CraftingStationTileEntity.*;
 
 public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileEntity> {
 
@@ -90,7 +92,9 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
             return;
         }
         sendServerCommand(RFToolsCtrlMessages.INSTANCE, CraftingStationTileEntity.CMD_CANCEL,
-                new Argument("index", selected));
+                TypedMap.builder()
+                        .put(PARAM_INDEX, selected)
+                        .build());
     }
 
     private void initRecipeList(Panel toplevel) {
@@ -248,10 +252,12 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
 
     private void requestItem(ItemStack stack, int amount) {
         sendServerCommand(RFToolsCtrlMessages.INSTANCE, CraftingStationTileEntity.CMD_REQUEST,
-                new Argument("item", stack.getItem().getRegistryName().toString()),
-                new Argument("meta", stack.getItemDamage()),
-                new Argument("nbtData", stack.hasTagCompound() ? stack.serializeNBT().toString() : ""),
-                new Argument("amount", amount));
+                TypedMap.builder()
+                        .put(PARAM_ITEMNAME, stack.getItem().getRegistryName().toString())
+                        .put(PARAM_META, stack.getItemDamage())
+                        .put(PARAM_NBT, stack.hasTagCompound() ? stack.serializeNBT().toString() : "")
+                        .put(PARAM_AMOUNT, amount)
+                        .build());
     }
 
     @Override

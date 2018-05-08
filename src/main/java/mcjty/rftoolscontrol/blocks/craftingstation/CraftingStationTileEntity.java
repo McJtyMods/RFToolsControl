@@ -4,6 +4,9 @@ import mcjty.lib.container.DefaultSidedInventory;
 import mcjty.lib.container.InventoryHelper;
 import mcjty.lib.entity.GenericTileEntity;
 import mcjty.lib.network.Argument;
+import mcjty.lib.typed.Key;
+import mcjty.lib.typed.Type;
+import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.BlockPosTools;
 import mcjty.lib.varia.ItemStackList;
 import mcjty.rftoolscontrol.api.parameters.Inventory;
@@ -11,7 +14,6 @@ import mcjty.rftoolscontrol.blocks.processor.ProcessorTileEntity;
 import mcjty.rftoolscontrol.config.GeneralConfiguration;
 import mcjty.rftoolscontrol.logic.running.ExceptionType;
 import mcjty.rftoolscontrol.logic.running.ProgException;
-import mcjty.lib.typed.Type;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
@@ -39,8 +41,15 @@ public class CraftingStationTileEntity extends GenericTileEntity implements Defa
     public static final String CLIENTCMD_GETCRAFTABLE = "getCraftable";
     public static final String CMD_GETREQUESTS = "getRequests";
     public static final String CLIENTCMD_GETREQUESTS = "getRequests";
-    public static final String CMD_REQUEST = "request";
-    public static final String CMD_CANCEL = "cancel";
+
+    public static final String CMD_REQUEST = "station.request";
+    public static final Key<String> PARAM_ITEMNAME = new Key<>("itemname", Type.STRING);
+    public static final Key<Integer> PARAM_META = new Key<>("meta", Type.INTEGER);
+    public static final Key<String> PARAM_NBT = new Key<>("nbt", Type.STRING);
+    public static final Key<Integer> PARAM_AMOUNT = new Key<>("amount", Type.INTEGER);
+
+    public static final String CMD_CANCEL = "station.cancel";
+    public static final Key<Integer> PARAM_INDEX = new Key<>("index", Type.INTEGER);
 
     private InventoryHelper inventoryHelper = new InventoryHelper(this, CraftingStationContainer.factory, 9);
 
@@ -401,24 +410,24 @@ public class CraftingStationTileEntity extends GenericTileEntity implements Defa
 
 
     @Override
-    public boolean execute(EntityPlayerMP playerMP, String command, Map<String, Argument> args) {
-        boolean rc = super.execute(playerMP, command, args);
+    public boolean execute(EntityPlayerMP playerMP, String command, TypedMap params) {
+        boolean rc = super.execute(playerMP, command, params);
         if (rc) {
             return true;
         }
         if (CMD_REQUEST.equals(command)) {
-            String itemName = args.get("item").getString();
-            int meta = args.get("meta").getInteger();
-            String nbtString = args.get("nbtData").getString();
+            String itemName = params.get(PARAM_ITEMNAME);
+            int meta = params.get(PARAM_META);
+            String nbtString = params.get(PARAM_NBT);
             int index = findItem(itemName, meta, nbtString);
             if (index == -1) {
                 return true;
             }
-            int amount = args.get("amount").getInteger();
+            int amount = params.get(PARAM_AMOUNT);
             startCraft(index, amount);
             return true;
         } else if (CMD_CANCEL.equals(command)) {
-            int index = args.get("index").getInteger();
+            int index = params.get(PARAM_INDEX);
             cancelCraft(index);
             return true;
         }
