@@ -2,6 +2,7 @@ package mcjty.rftoolscontrol.network;
 
 import mcjty.lib.network.PacketRequestServerList;
 import mcjty.lib.network.PacketRequestServerListHandler;
+import mcjty.lib.typed.TypedMap;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.blocks.craftingstation.CraftingRequest;
 import mcjty.rftoolscontrol.blocks.craftingstation.CraftingStationTileEntity;
@@ -18,7 +19,7 @@ public class PacketGetRequests extends PacketRequestServerList<CraftingRequest> 
     }
 
     public PacketGetRequests(BlockPos pos) {
-        super(RFToolsControl.MODID, pos, CraftingStationTileEntity.CMD_GETREQUESTS);
+        super(RFToolsControl.MODID, pos, CraftingStationTileEntity.CMD_GETREQUESTS, TypedMap.EMPTY);
     }
 
     public static class Handler extends PacketRequestServerListHandler<PacketGetRequests, CraftingRequest> {

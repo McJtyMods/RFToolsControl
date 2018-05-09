@@ -2,6 +2,7 @@ package mcjty.rftoolscontrol.network;
 
 import mcjty.lib.network.PacketRequestServerList;
 import mcjty.lib.network.PacketRequestServerListHandler;
+import mcjty.lib.typed.TypedMap;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.blocks.processor.ProcessorTileEntity;
 import mcjty.lib.typed.Type;
@@ -18,7 +19,7 @@ public class PacketGetFluids extends PacketRequestServerList<PacketGetFluids.Flu
     }
 
     public PacketGetFluids(BlockPos pos) {
-        super(RFToolsControl.MODID, pos, ProcessorTileEntity.CMD_GETFLUIDS);
+        super(RFToolsControl.MODID, pos, ProcessorTileEntity.CMD_GETFLUIDS, TypedMap.EMPTY);
     }
 
     public static class Handler extends PacketRequestServerListHandler<PacketGetFluids, PacketGetFluids.FluidEntry> {

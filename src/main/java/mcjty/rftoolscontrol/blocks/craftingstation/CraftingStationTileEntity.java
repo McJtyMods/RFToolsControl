@@ -3,7 +3,6 @@ package mcjty.rftoolscontrol.blocks.craftingstation;
 import mcjty.lib.container.DefaultSidedInventory;
 import mcjty.lib.container.InventoryHelper;
 import mcjty.lib.entity.GenericTileEntity;
-import mcjty.lib.network.Argument;
 import mcjty.lib.typed.Key;
 import mcjty.lib.typed.Type;
 import mcjty.lib.typed.TypedMap;
@@ -33,7 +32,6 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 public class CraftingStationTileEntity extends GenericTileEntity implements DefaultSidedInventory {
 
@@ -436,7 +434,7 @@ public class CraftingStationTileEntity extends GenericTileEntity implements Defa
 
     @Nonnull
     @Override
-    public <T> List<T> executeWithResultList(String command, Map<String, Argument> args, Type<T> type) {
+    public <T> List<T> executeWithResultList(String command, TypedMap args, Type<T> type) {
         List<T> rc = super.executeWithResultList(command, args, type);
         if (!rc.isEmpty()) {
             return rc;

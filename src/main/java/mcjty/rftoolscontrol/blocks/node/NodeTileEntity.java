@@ -1,7 +1,9 @@
 package mcjty.rftoolscontrol.blocks.node;
 
 import mcjty.lib.entity.GenericTileEntity;
-import mcjty.lib.network.Argument;
+import mcjty.lib.typed.Key;
+import mcjty.lib.typed.Type;
+import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.BlockPosTools;
 import mcjty.rftoolscontrol.blocks.processor.ProcessorTileEntity;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -10,11 +12,11 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 
-import java.util.Map;
-
 public class NodeTileEntity extends GenericTileEntity {
 
-    public static final String CMD_UPDATE = "update";
+    public static final String CMD_UPDATE = "node.update";
+    public static final Key<String> PARAM_NODE = new Key<>("node", Type.STRING);
+    public static final Key<String> PARAM_CHANNEL = new Key<>("channel", Type.STRING);
 
     private String channel;
     private String node;
@@ -109,14 +111,14 @@ public class NodeTileEntity extends GenericTileEntity {
     }
 
     @Override
-    public boolean execute(EntityPlayerMP playerMP, String command, Map<String, Argument> args) {
+    public boolean execute(EntityPlayerMP playerMP, String command, TypedMap args) {
         boolean rc = super.execute(playerMP, command, args);
         if (rc) {
             return true;
         }
         if (CMD_UPDATE.equals(command)) {
-            this.node = args.get("node").getString();
-            this.channel = args.get("channel").getString();
+            this.node = args.get(PARAM_NODE);
+            this.channel = args.get(PARAM_CHANNEL);
             markDirtyClient();
             return true;
         }

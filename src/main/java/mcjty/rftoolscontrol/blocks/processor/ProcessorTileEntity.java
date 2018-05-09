@@ -5,7 +5,9 @@ import mcjty.lib.compat.RedstoneFluxCompatibility;
 import mcjty.lib.container.DefaultSidedInventory;
 import mcjty.lib.container.InventoryHelper;
 import mcjty.lib.entity.GenericEnergyReceiverTileEntity;
-import mcjty.lib.network.Argument;
+import mcjty.lib.typed.Key;
+import mcjty.lib.typed.Type;
+import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.BlockPosTools;
 import mcjty.lib.varia.EnergyTools;
 import mcjty.lib.varia.WorldTools;
@@ -42,7 +44,6 @@ import mcjty.rftoolscontrol.logic.running.ExceptionType;
 import mcjty.rftoolscontrol.logic.running.ProgException;
 import mcjty.rftoolscontrol.logic.running.RunningProgram;
 import mcjty.rftoolscontrol.network.PacketGetFluids;
-import mcjty.lib.typed.Type;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.IInventory;
@@ -112,6 +113,14 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     public static final String CLIENTCMD_GETVARS = "getVars";
     public static final String CMD_GETFLUIDS = "getFluids";
     public static final String CLIENTCMD_GETFLUIDS = "getFluids";
+
+    public static final Key<Integer> PARAM_CARD = new Key<>("card", Type.INTEGER);
+    public static final Key<Integer> PARAM_ITEMS = new Key<>("items", Type.INTEGER);
+    public static final Key<Integer> PARAM_VARS = new Key<>("vars", Type.INTEGER);
+    public static final Key<Integer> PARAM_FLUID = new Key<>("fluids", Type.INTEGER);
+    public static final Key<String> PARAM_CMD = new Key<>("cmd", Type.STRING);
+    public static final Key<Boolean> PARAM_EXCLUSIVE = new Key<>("exclusive", Type.BOOLEAN);
+    public static final Key<Integer> PARAM_HUDMODE = new Key<>("hudmode", Type.INTEGER);
 
     private static final BiFunction<ParameterType, Object, ItemStack> CONVERTOR_ITEM = (type, value) -> TypeConverters.convertToItem(type, value);
     private static final BiFunction<ParameterType, Object, FluidStack> CONVERTOR_FLUID = (type, value) -> TypeConverters.convertToFluid(type, value);
@@ -3053,27 +3062,27 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     }
 
     @Override
-    public boolean execute(EntityPlayerMP playerMP, String command, Map<String, Argument> args) {
+    public boolean execute(EntityPlayerMP playerMP, String command, TypedMap args) {
         boolean rc = super.execute(playerMP, command, args);
         if (rc) {
             return true;
         }
         if (CMD_ALLOCATE.equals(command)) {
-            int card = args.get("card").getInteger();
-            int itemAlloc = args.get("items").getInteger();
-            int varAlloc = args.get("vars").getInteger();
-            int fluidAlloc = args.get("fluids").getInteger();
+            int card = args.get(PARAM_CARD);
+            int itemAlloc = args.get(PARAM_ITEMS);
+            int varAlloc = args.get(PARAM_VARS);
+            int fluidAlloc = args.get(PARAM_FLUID);
             allocate(card, itemAlloc, varAlloc, fluidAlloc);
             return true;
         } else if (CMD_EXECUTE.equals(command)) {
-            Commands.executeCommand(this, args.get("cmd").getString());
+            Commands.executeCommand(this, args.get(PARAM_CMD));
             return true;
         } else if (CMD_SETEXCLUSIVE.equals(command)) {
-            boolean v = args.get("v").getBoolean();
+            boolean v = args.get(PARAM_EXCLUSIVE);
             setExclusive(v);
             return true;
         } else if (CMD_SETHUDMODE.equals(command)) {
-            int v = args.get("v").getInteger();
+            int v = args.get(PARAM_HUDMODE);
             setShowHud(v);
             return true;
         }
@@ -3082,7 +3091,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
 
     @Nonnull
     @Override
-    public <T> List<T> executeWithResultList(String command, Map<String, Argument> args, Type<T> type) {
+    public <T> List<T> executeWithResultList(String command, TypedMap args, Type<T> type) {
         List<T> rc = super.executeWithResultList(command, args, type);
         if (!rc.isEmpty()) {
             return rc;

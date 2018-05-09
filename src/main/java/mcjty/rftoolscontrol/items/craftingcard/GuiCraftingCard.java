@@ -7,9 +7,11 @@ import mcjty.lib.gui.events.BlockRenderEvent;
 import mcjty.lib.gui.layout.HorizontalAlignment;
 import mcjty.lib.gui.layout.PositionalLayout;
 import mcjty.lib.gui.widgets.*;
-import mcjty.lib.network.Argument;
 import mcjty.lib.network.Arguments;
 import mcjty.lib.network.PacketSendServerCommand;
+import mcjty.lib.typed.Key;
+import mcjty.lib.typed.Type;
+import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.ItemStackList;
 import mcjty.rftoolscontrol.CommandHandler;
 import mcjty.rftoolscontrol.RFToolsControl;
@@ -67,7 +69,10 @@ public class GuiCraftingCard extends GenericGuiContainer<GenericTileEntity> {
             toggle.setPressed(CraftingCardItem.isStrictNBT(heldItem));
         }
         toggle.addButtonEvent(parent -> {
-            RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketUpdateNBTItemCard(new Argument("strictnbt", toggle.isPressed())));
+            RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketUpdateNBTItemCard(
+                    TypedMap.builder()
+                            .put(new Key<>("strictnbt", Type.BOOLEAN), toggle.isPressed())
+                            .build()));
         });
 
         toplevel.addChild(toggle);

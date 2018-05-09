@@ -2,10 +2,11 @@ package mcjty.rftoolscontrol.network;
 
 import mcjty.lib.network.PacketRequestServerList;
 import mcjty.lib.network.PacketRequestServerListHandler;
+import mcjty.lib.typed.Type;
+import mcjty.lib.typed.TypedMap;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.api.parameters.Parameter;
 import mcjty.rftoolscontrol.blocks.processor.ProcessorTileEntity;
-import mcjty.lib.typed.Type;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
@@ -18,7 +19,7 @@ public class PacketGetVariables extends PacketRequestServerList<Parameter> {
     }
 
     public PacketGetVariables(BlockPos pos) {
-        super(RFToolsControl.MODID, pos, ProcessorTileEntity.CMD_GETVARS);
+        super(RFToolsControl.MODID, pos, ProcessorTileEntity.CMD_GETVARS, TypedMap.EMPTY);
     }
 
     public static class Handler extends PacketRequestServerListHandler<PacketGetVariables, Parameter> {

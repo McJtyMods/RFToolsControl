@@ -12,11 +12,7 @@ import mcjty.lib.gui.layout.HorizontalLayout;
 import mcjty.lib.gui.layout.PositionalLayout;
 import mcjty.lib.gui.layout.VerticalLayout;
 import mcjty.lib.gui.widgets.*;
-import mcjty.lib.gui.widgets.Button;
-import mcjty.lib.gui.widgets.Label;
-import mcjty.lib.gui.widgets.Panel;
-import mcjty.lib.gui.widgets.TextField;
-import mcjty.lib.network.Argument;
+import mcjty.lib.typed.TypedMap;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.api.parameters.Parameter;
 import mcjty.rftoolscontrol.api.parameters.ParameterType;
@@ -33,7 +29,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fluids.FluidStack;
 
-import java.awt.*;
+import java.awt.Rectangle;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -107,7 +103,8 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
         exclusive
                 .addButtonEvent(parent -> {
                     tileEntity.setExclusive(exclusive.isPressed());
-                    sendServerCommand(RFToolsCtrlMessages.INSTANCE, ProcessorTileEntity.CMD_SETEXCLUSIVE, new Argument("v", exclusive.isPressed()));
+                    sendServerCommand(RFToolsCtrlMessages.INSTANCE, ProcessorTileEntity.CMD_SETEXCLUSIVE,
+                            TypedMap.builder().put(PARAM_EXCLUSIVE, exclusive.isPressed()).build());
                 });
         toplevel.addChild(exclusive);
 
@@ -136,7 +133,8 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
             } else {
                 m = HUD_GFX;
             }
-            sendServerCommand(RFToolsCtrlMessages.INSTANCE, ProcessorTileEntity.CMD_SETHUDMODE, new Argument("v", m));
+            sendServerCommand(RFToolsCtrlMessages.INSTANCE, ProcessorTileEntity.CMD_SETHUDMODE,
+                    TypedMap.builder().put(PARAM_HUDMODE, m).build());
         });
         toplevel.addChild(hudMode);
 
@@ -219,7 +217,8 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
 
     private void executeCommand(String text) {
         dumpHistory();
-        sendServerCommand(RFToolsCtrlMessages.INSTANCE, ProcessorTileEntity.CMD_EXECUTE, new Argument("cmd", text));
+        sendServerCommand(RFToolsCtrlMessages.INSTANCE, ProcessorTileEntity.CMD_EXECUTE,
+                TypedMap.builder().put(PARAM_CMD, text).build());
 
         if (commandHistoryIndex >= 0 && commandHistoryIndex < commandHistory.size() && text.equals(commandHistory.get(commandHistoryIndex))) {
             // History command that didn't change
@@ -332,10 +331,12 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
                     }
                     cardInfo.setItemAllocation(itemAlloc);
                     sendServerCommand(RFToolsCtrlMessages.INSTANCE, ProcessorTileEntity.CMD_ALLOCATE,
-                            new Argument("card", setupMode),
-                            new Argument("items", itemAlloc),
-                            new Argument("vars", varAlloc),
-                            new Argument("fluids", fluidAlloc));
+                            TypedMap.builder()
+                                    .put(PARAM_CARD, setupMode)
+                                    .put(PARAM_ITEMS, itemAlloc)
+                                    .put(PARAM_VARS, varAlloc)
+                                    .put(PARAM_FLUID, fluidAlloc)
+                                    .build());
                     break;
                 }
             }
@@ -378,10 +379,12 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
                     cardInfo.setFluidAllocation(fluidAlloc);
 
                     sendServerCommand(RFToolsCtrlMessages.INSTANCE, ProcessorTileEntity.CMD_ALLOCATE,
-                            new Argument("card", setupMode),
-                            new Argument("items", itemAlloc),
-                            new Argument("vars", varAlloc),
-                            new Argument("fluids", fluidAlloc));
+                            TypedMap.builder()
+                                    .put(PARAM_CARD, setupMode)
+                                    .put(PARAM_ITEMS, itemAlloc)
+                                    .put(PARAM_VARS, varAlloc)
+                                    .put(PARAM_FLUID, fluidAlloc)
+                                    .build());
 
                     updateFluidList();
                     fluidList.setSelected(-1);
@@ -427,10 +430,12 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
                     cardInfo.setVarAllocation(varAlloc);
 
                     sendServerCommand(RFToolsCtrlMessages.INSTANCE, ProcessorTileEntity.CMD_ALLOCATE,
-                            new Argument("card", setupMode),
-                            new Argument("items", itemAlloc),
-                            new Argument("vars", varAlloc),
-                            new Argument("fluids", fluidAlloc));
+                            TypedMap.builder()
+                                    .put(PARAM_CARD, setupMode)
+                                    .put(PARAM_ITEMS, itemAlloc)
+                                    .put(PARAM_VARS, varAlloc)
+                                    .put(PARAM_FLUID, fluidAlloc)
+                                    .build());
 
                     updateVariableList();
 

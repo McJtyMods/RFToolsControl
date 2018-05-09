@@ -1,8 +1,8 @@
 package mcjty.rftoolscontrol.items.craftingcard;
 
-import mcjty.lib.network.Argument;
 import mcjty.lib.network.PacketUpdateNBTItem;
 import mcjty.lib.network.PacketUpdateNBTItemHandler;
+import mcjty.lib.typed.TypedMap;
 import net.minecraft.item.ItemStack;
 
 public class PacketUpdateNBTItemCard extends PacketUpdateNBTItem {
@@ -10,7 +10,7 @@ public class PacketUpdateNBTItemCard extends PacketUpdateNBTItem {
     public PacketUpdateNBTItemCard() {
     }
 
-    public PacketUpdateNBTItemCard(Argument... arguments) {
+    public PacketUpdateNBTItemCard(TypedMap arguments) {
         super(arguments);
     }
 

@@ -8,11 +8,14 @@ import mcjty.lib.gui.layout.VerticalLayout;
 import mcjty.lib.gui.widgets.Label;
 import mcjty.lib.gui.widgets.Panel;
 import mcjty.lib.gui.widgets.TextField;
-import mcjty.lib.network.Argument;
+import mcjty.lib.typed.TypedMap;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.network.RFToolsCtrlMessages;
 
-import java.awt.*;
+import java.awt.Rectangle;
+
+import static mcjty.rftoolscontrol.blocks.node.NodeTileEntity.PARAM_CHANNEL;
+import static mcjty.rftoolscontrol.blocks.node.NodeTileEntity.PARAM_NODE;
 
 public class GuiNode extends GenericGuiContainer<NodeTileEntity> {
 
@@ -51,7 +54,11 @@ public class GuiNode extends GenericGuiContainer<NodeTileEntity> {
     }
 
     private void updateNode() {
-        sendServerCommand(RFToolsCtrlMessages.INSTANCE, NodeTileEntity.CMD_UPDATE, new Argument("node", nodeNameField.getText()), new Argument("channel", channelField.getText()));
+        sendServerCommand(RFToolsCtrlMessages.INSTANCE, NodeTileEntity.CMD_UPDATE,
+                TypedMap.builder()
+                        .put(PARAM_NODE, nodeNameField.getText())
+                        .put(PARAM_CHANNEL, channelField.getText())
+                        .build());
     }
 
     @Override

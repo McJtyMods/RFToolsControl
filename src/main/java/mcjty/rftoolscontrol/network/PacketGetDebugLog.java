@@ -2,6 +2,7 @@ package mcjty.rftoolscontrol.network;
 
 import mcjty.lib.network.PacketRequestServerList;
 import mcjty.lib.network.PacketRequestServerListHandler;
+import mcjty.lib.typed.TypedMap;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.blocks.processor.ProcessorTileEntity;
 import mcjty.lib.typed.Type;
@@ -17,7 +18,7 @@ public class PacketGetDebugLog extends PacketRequestServerList<String> {
     }
 
     public PacketGetDebugLog(BlockPos pos) {
-        super(RFToolsControl.MODID, pos, ProcessorTileEntity.CMD_GETDEBUGLOG);
+        super(RFToolsControl.MODID, pos, ProcessorTileEntity.CMD_GETDEBUGLOG, TypedMap.EMPTY);
     }
 
     public static class Handler extends PacketRequestServerListHandler<PacketGetDebugLog, String> {
