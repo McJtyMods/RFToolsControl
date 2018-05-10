@@ -1,7 +1,7 @@
 package mcjty.rftoolscontrol.blocks.programmer;
 
 import mcjty.lib.base.StyleConfig;
-import mcjty.lib.container.GenericGuiContainer;
+import mcjty.lib.gui.GenericGuiContainer;
 import mcjty.lib.gui.Window;
 import mcjty.lib.gui.WindowManager;
 import mcjty.lib.gui.events.SelectionEvent;

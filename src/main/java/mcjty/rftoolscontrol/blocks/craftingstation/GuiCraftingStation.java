@@ -1,7 +1,7 @@
 package mcjty.rftoolscontrol.blocks.craftingstation;
 
 import mcjty.lib.base.StyleConfig;
-import mcjty.lib.container.GenericGuiContainer;
+import mcjty.lib.gui.GenericGuiContainer;
 import mcjty.lib.gui.Window;
 import mcjty.lib.gui.events.BlockRenderEvent;
 import mcjty.lib.gui.layout.HorizontalLayout;
