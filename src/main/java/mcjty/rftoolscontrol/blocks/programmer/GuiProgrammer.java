@@ -185,6 +185,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
                 .setLayoutHint(new PositionalLayout.PositionalHint(5, 5, 246, 130));
 
         gridList = new WidgetList(mc, this)
+                .setName("grid")
                 .setLayoutHint(new PositionalLayout.PositionalHint(0, 0, 236, 130))
                 .setPropagateEventsToChildren(true)
                 .setInvisibleSelection(true)
@@ -192,7 +193,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
                 .setRowheight(ICONSIZE+1);
         Slider slider = new Slider(mc, this)
                 .setVertical()
-                .setScrollable(gridList)
+                .setScrollableName("grid")
                 .setLayoutHint(new PositionalLayout.PositionalHint(237, 0, 9, 130));
 
         for (int y = 0; y < GRID_HEIGHT; y++) {
@@ -873,6 +874,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
         makeCategoryToggle(panel, 3, 1, OpcodeCategory.CATEGORY_GRAPHICS, 6, 6);
 
         opcodeList = new WidgetList(mc, this)
+                .setName("opcodes")
                 .setLayoutHint(new PositionalLayout.PositionalHint(0, 52, 68, 180))
                 .setPropagateEventsToChildren(true)
                 .setInvisibleSelection(true)
@@ -880,7 +882,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
                 .setRowheight(ICONSIZE+2);
         Slider slider = new Slider(mc, this)
                 .setVertical()
-                .setScrollable(opcodeList)
+                .setScrollableName("opcodes")
                 .setLayoutHint(new PositionalLayout.PositionalHint(68, 52, 8, 180));
 
         fillOpcodes();
@@ -1177,10 +1179,11 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
 
     private Panel setupEditorPanel() {
         editorList = new WidgetList(mc, this)
+                .setName("editor")
                 .setPropagateEventsToChildren(true)
                 .setRowheight(30)
                 .setLayoutHint(new PositionalLayout.PositionalHint(0, 0, 75, HEIGHT-137-3));
-        Slider slider = new Slider(mc, this).setScrollable(editorList)
+        Slider slider = new Slider(mc, this).setScrollableName("editor")
                 .setLayoutHint(new PositionalLayout.PositionalHint(76, 0, 9, HEIGHT-137-3));
         return new Panel(mc, this).setLayout(new PositionalLayout()).setLayoutHint(new PositionalLayout.PositionalHint(4, 137, 85, HEIGHT-137-3))
                 .setFilledRectThickness(-1)

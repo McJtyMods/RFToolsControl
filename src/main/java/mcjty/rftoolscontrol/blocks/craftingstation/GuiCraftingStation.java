@@ -100,15 +100,15 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
     }
 
     private void initRecipeList(Panel toplevel) {
-        recipeList = new WidgetList(mc, this).setLayoutHint(new PositionalLayout.PositionalHint(5, 23, 120, 128)).setPropagateEventsToChildren(true)
+        recipeList = new WidgetList(mc, this).setName("recipes").setLayoutHint(new PositionalLayout.PositionalHint(5, 23, 120, 128)).setPropagateEventsToChildren(true)
                 .setInvisibleSelection(true);
-        Slider slider = new Slider(mc, this).setScrollable(recipeList).setLayoutHint(new PositionalLayout.PositionalHint(126, 23, 9, 128));
+        Slider slider = new Slider(mc, this).setScrollableName("recipes").setLayoutHint(new PositionalLayout.PositionalHint(126, 23, 9, 128));
         toplevel.addChild(recipeList).addChild(slider);
     }
 
     private void initProgressList(Panel toplevel) {
-        requestList = new WidgetList(mc, this).setLayoutHint(new PositionalLayout.PositionalHint(136, 23, 80, 128));
-        Slider slider = new Slider(mc, this).setScrollable(requestList).setLayoutHint(new PositionalLayout.PositionalHint(136+80+1, 23, 9, 128));
+        requestList = new WidgetList(mc, this).setName("requests").setLayoutHint(new PositionalLayout.PositionalHint(136, 23, 80, 128));
+        Slider slider = new Slider(mc, this).setScrollableName("requests").setLayoutHint(new PositionalLayout.PositionalHint(136+80+1, 23, 9, 128));
         toplevel.addChild(requestList).addChild(slider);
     }
 

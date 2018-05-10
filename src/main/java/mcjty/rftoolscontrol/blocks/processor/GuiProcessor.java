@@ -163,7 +163,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
     }
 
     private void setupLogWindow(Panel toplevel) {
-        log = new WidgetList(mc, this).setFilledBackground(0xff000000).setFilledRectThickness(1)
+        log = new WidgetList(mc, this).setName("log").setFilledBackground(0xff000000).setFilledRectThickness(1)
                 .setLayoutHint(new PositionalLayout.PositionalHint(9, 35, 173, 98))
                 .setRowheight(14)
                 .setInvisibleSelection(true)
@@ -171,7 +171,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
 
         Slider slider = new Slider(mc, this)
                 .setVertical()
-                .setScrollable(log)
+                .setScrollableName("log")
                 .setLayoutHint(new PositionalLayout.PositionalHint(183, 35, 9, 98));
 
         command = new TextField(mc, this)
@@ -356,6 +356,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
 
     private Panel setupVariableListPanel() {
         fluidList = new WidgetList(mc, this)
+                .setName("fluids")
                 .setLayoutHint(new PositionalLayout.PositionalHint(0, 0, 62, 65))
                 .setPropagateEventsToChildren(true)
                 .setInvisibleSelection(true)
@@ -402,13 +403,14 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
 
         Slider fluidSlider = new Slider(mc, this)
                 .setVertical()
-                .setScrollable(fluidList)
+                .setScrollableName("fluids")
                 .setLayoutHint(new PositionalLayout.PositionalHint(62, 0, 9, 65))
                 .setUserObject("allowed");
 
         updateFluidList();
 
         variableList = new WidgetList(mc, this)
+                .setName("variables")
                 .setLayoutHint(new PositionalLayout.PositionalHint(0, 67, 62, 161))
                 .setPropagateEventsToChildren(true)
                 .setInvisibleSelection(true)
@@ -455,7 +457,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
 
         Slider varSlider = new Slider(mc, this)
                 .setVertical()
-                .setScrollable(variableList)
+                .setScrollableName("variables")
                 .setLayoutHint(new PositionalLayout.PositionalHint(62, 67, 9, 161))
                 .setUserObject("allowed");
 
