@@ -1,7 +1,7 @@
 package mcjty.rftoolscontrol.blocks.vectorart;
 
 import io.netty.buffer.ByteBuf;
-import mcjty.lib.gui.RenderHelper;
+import mcjty.lib.client.RenderHelper;
 import net.minecraft.nbt.NBTTagCompound;
 
 public class GfxOpBox extends GfxOp {

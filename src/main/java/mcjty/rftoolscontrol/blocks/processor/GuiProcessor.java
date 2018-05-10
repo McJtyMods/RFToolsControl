@@ -2,7 +2,7 @@ package mcjty.rftoolscontrol.blocks.processor;
 
 import mcjty.lib.gui.GenericGuiContainer;
 import mcjty.lib.tileentity.GenericEnergyStorageTileEntity;
-import mcjty.lib.gui.RenderHelper;
+import mcjty.lib.client.RenderHelper;
 import mcjty.lib.gui.Window;
 import mcjty.lib.gui.WindowManager;
 import mcjty.lib.gui.events.SelectionEvent;
