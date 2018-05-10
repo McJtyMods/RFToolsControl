@@ -72,17 +72,19 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
 
         toplevel.setBounds(new Rectangle(guiLeft, guiTop, WIDTH, HEIGHT));
         window = new Window(this, toplevel);
+
+        window.event("cancel", (source, params) -> cancelRequest());
     }
 
     private void initButtons(Panel toplevel) {
         searchField = new TextField(mc, this)
                 .setLayoutHint(new PositionalLayout.PositionalHint(5, 5, WIDTH-46-10, 16));
         cancelButton = new Button(mc, this)
+                .setChannel("cancel")
 //                .setLayoutHint(new PositionalLayout.PositionalHint(180, 5, 46, 16))
                 .setLayoutHint(new PositionalLayout.PositionalHint(WIDTH-46-5, 5, 46, 16))
                 .setText("Cancel")
-                .setTooltips(TextFormatting.YELLOW + "Cancel request", "Cancel the currently selected", "crafting request")
-                .addButtonEvent((widget -> cancelRequest()));
+                .setTooltips(TextFormatting.YELLOW + "Cancel request", "Cancel the currently selected", "crafting request");
         toplevel.addChild(cancelButton).addChild(searchField);
     }
 

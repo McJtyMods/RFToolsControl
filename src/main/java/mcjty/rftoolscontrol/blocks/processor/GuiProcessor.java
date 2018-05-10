@@ -12,6 +12,10 @@ import mcjty.lib.gui.layout.HorizontalLayout;
 import mcjty.lib.gui.layout.PositionalLayout;
 import mcjty.lib.gui.layout.VerticalLayout;
 import mcjty.lib.gui.widgets.*;
+import mcjty.lib.gui.widgets.Button;
+import mcjty.lib.gui.widgets.Label;
+import mcjty.lib.gui.widgets.Panel;
+import mcjty.lib.gui.widgets.TextField;
 import mcjty.lib.typed.TypedMap;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.api.parameters.Parameter;
@@ -29,7 +33,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fluids.FluidStack;
 
-import java.awt.Rectangle;
+import java.awt.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -504,10 +508,10 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
         panel.addChild(new Label(mc, this).setText("Var " + varIdx + ":"));
         panel.addChild(editPanel);
         panel.addChild(new Button(mc, this)
-                .addButtonEvent(w ->  {
-                    getWindowManager().closeWindow(modalWindow);
-                })
+                .setChannel("close")
                 .setText("Close"));
+
+        modalWindow.event("close", (source, params) -> getWindowManager().closeWindow(modalWindow));
     }
 
     private void updateFluidList() {
