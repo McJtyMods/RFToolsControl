@@ -1,6 +1,6 @@
 package mcjty.rftoolscontrol.blocks.multitank;
 
-import mcjty.lib.entity.GenericTileEntity;
+import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.lib.typed.Type;
 import mcjty.lib.typed.TypedMap;
 import net.minecraft.nbt.NBTTagCompound;

@@ -1,8 +1,8 @@
 package mcjty.rftoolscontrol.blocks;
 
-import mcjty.lib.container.GenericBlock;
-import mcjty.lib.container.GenericItemBlock;
-import mcjty.lib.entity.GenericTileEntity;
+import mcjty.lib.blocks.GenericBlock;
+import mcjty.lib.blocks.GenericItemBlock;
+import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.rftoolscontrol.RFToolsControl;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.player.EntityPlayer;

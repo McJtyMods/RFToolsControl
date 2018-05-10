@@ -3,7 +3,7 @@ package mcjty.rftoolscontrol.blocks.workbench;
 import mcjty.lib.container.DefaultSidedInventory;
 import mcjty.lib.container.GenericCrafter;
 import mcjty.lib.container.InventoryHelper;
-import mcjty.lib.entity.GenericTileEntity;
+import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.lib.varia.FacedSidedInvWrapper;
 import mcjty.lib.varia.NullSidedInvWrapper;
 import net.minecraft.entity.player.EntityPlayer;

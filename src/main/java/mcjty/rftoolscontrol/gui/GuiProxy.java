@@ -1,6 +1,6 @@
 package mcjty.rftoolscontrol.gui;
 
-import mcjty.lib.container.GenericBlock;
+import mcjty.lib.blocks.GenericBlock;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.items.craftingcard.CraftingCardContainer;
 import mcjty.rftoolscontrol.items.craftingcard.GuiCraftingCard;
