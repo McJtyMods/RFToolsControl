@@ -1,7 +1,7 @@
 package mcjty.rftoolscontrol.blocks.processor;
 
-import mcjty.lib.network.Arguments;
 import mcjty.lib.network.PacketSendServerCommand;
+import mcjty.lib.typed.TypedMap;
 import mcjty.rftoolscontrol.CommandHandler;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.blocks.vectorart.GfxOp;
@@ -118,7 +118,7 @@ public class ProcessorRenderer extends TileEntitySpecialRenderer<ProcessorTileEn
         long t = System.currentTimeMillis();
         if (t - tileEntity.clientTime > 250) {
             RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketSendServerCommand(RFToolsControl.MODID, CommandHandler.CMD_GETGRAPHICS,
-                    Arguments.builder().value(tileEntity.getPos()).build()));
+                    TypedMap.builder().put(CommandHandler.PARAM_POS, tileEntity.getPos()).build()));
             tileEntity.clientTime = t;
         }
         List<GfxOp> ops = tileEntity.getClientGfxOps();

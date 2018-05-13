@@ -1,14 +1,16 @@
 package mcjty.rftoolscontrol.items.craftingcard;
 
 import mcjty.lib.gui.GenericGuiContainer;
-import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.lib.gui.Window;
 import mcjty.lib.gui.events.BlockRenderEvent;
 import mcjty.lib.gui.layout.HorizontalAlignment;
 import mcjty.lib.gui.layout.PositionalLayout;
 import mcjty.lib.gui.widgets.*;
-import mcjty.lib.network.Arguments;
+import mcjty.lib.gui.widgets.Button;
+import mcjty.lib.gui.widgets.Label;
+import mcjty.lib.gui.widgets.Panel;
 import mcjty.lib.network.PacketSendServerCommand;
+import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.lib.typed.Key;
 import mcjty.lib.typed.Type;
 import mcjty.lib.typed.TypedMap;
@@ -24,7 +26,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextFormatting;
 
 import javax.annotation.Nonnull;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.util.Collections;
 import java.util.List;
 
@@ -57,7 +59,7 @@ public class GuiCraftingCard extends GenericGuiContainer<GenericTileEntity> {
         toplevel.addChild(new Button(mc, this)
                 .setText("Update")
                 .setTooltips("Update the item in the output", "slot to the recipe in the", "3x3 grid")
-                .addButtonEvent(parent -> RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketSendServerCommand(RFToolsControl.MODID, CommandHandler.CMD_TESTRECIPE, Arguments.EMPTY)))
+                .addButtonEvent(parent -> RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketSendServerCommand(RFToolsControl.MODID, CommandHandler.CMD_TESTRECIPE, TypedMap.EMPTY)))
                 .setLayoutHint(new PositionalLayout.PositionalHint(110, 57, 60, 14)));
         ToggleButton toggle = new ToggleButton(mc, this)
                 .setCheckMarker(true)
