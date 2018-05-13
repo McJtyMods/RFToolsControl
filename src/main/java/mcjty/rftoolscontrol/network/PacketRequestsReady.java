@@ -40,7 +40,7 @@ public class PacketRequestsReady extends PacketListToClient<CraftingRequest> {
                 return;
             }
             IClientCommandHandler clientCommandHandler = (IClientCommandHandler) te;
-            if (!clientCommandHandler.execute(message.command, message.list, Type.create(CraftingRequest.class))) {
+            if (!clientCommandHandler.receiveListFromServer(message.command, message.list, Type.create(CraftingRequest.class))) {
                 Logging.log("Command " + message.command + " was not handled!");
             }
         }

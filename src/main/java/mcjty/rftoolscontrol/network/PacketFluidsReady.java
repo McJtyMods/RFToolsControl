@@ -39,7 +39,7 @@ public class PacketFluidsReady extends PacketListToClient<PacketGetFluids.FluidE
                 return;
             }
             IClientCommandHandler clientCommandHandler = (IClientCommandHandler) te;
-            if (!clientCommandHandler.execute(message.command, message.list, Type.create(PacketGetFluids.FluidEntry.class))) {
+            if (!clientCommandHandler.receiveListFromServer(message.command, message.list, Type.create(PacketGetFluids.FluidEntry.class))) {
                 Logging.log("Command " + message.command + " was not handled!");
             }
         }

@@ -39,7 +39,7 @@ public class PacketTankFluidsReady extends PacketListToClient<FluidStack> {
                 return;
             }
             IClientCommandHandler clientCommandHandler = (IClientCommandHandler) te;
-            if (!clientCommandHandler.execute(message.command, message.list, Type.create(FluidStack.class))) {
+            if (!clientCommandHandler.receiveListFromServer(message.command, message.list, Type.create(FluidStack.class))) {
                 Logging.log("Command " + message.command + " was not handled!");
             }
         }

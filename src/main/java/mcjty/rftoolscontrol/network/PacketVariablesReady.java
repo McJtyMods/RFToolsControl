@@ -39,7 +39,7 @@ public class PacketVariablesReady extends PacketListToClient<Parameter> {
                 return;
             }
             IClientCommandHandler clientCommandHandler = (IClientCommandHandler) te;
-            if (!clientCommandHandler.execute(message.command, message.list, Type.create(Parameter.class))) {
+            if (!clientCommandHandler.receiveListFromServer(message.command, message.list, Type.create(Parameter.class))) {
                 Logging.log("Command " + message.command + " was not handled!");
             }
         }
