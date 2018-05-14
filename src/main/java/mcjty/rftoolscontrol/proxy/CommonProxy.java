@@ -1,10 +1,7 @@
 package mcjty.rftoolscontrol.proxy;
 
-import com.google.common.util.concurrent.ListenableFuture;
-import mcjty.lib.McJtyLib;
-import mcjty.lib.base.GeneralConfig;
 import mcjty.lib.network.PacketHandler;
-import mcjty.lib.varia.WrenchChecker;
+import mcjty.lib.proxy.AbstractCommonProxy;
 import mcjty.rftoolscontrol.CommandHandler;
 import mcjty.rftoolscontrol.ForgeEventHandlers;
 import mcjty.rftoolscontrol.RFToolsControl;
@@ -15,8 +12,6 @@ import mcjty.rftoolscontrol.items.ModItems;
 import mcjty.rftoolscontrol.logic.registry.Functions;
 import mcjty.rftoolscontrol.logic.registry.Opcodes;
 import mcjty.rftoolscontrol.network.RFToolsCtrlMessages;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.common.FMLLog;
@@ -29,21 +24,16 @@ import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import org.apache.logging.log4j.Level;
 
 import java.io.File;
-import java.util.concurrent.Callable;
 
 @Mod.EventBusSubscriber
-public abstract class CommonProxy {
+public abstract class CommonProxy extends AbstractCommonProxy {
 
-    public static File modConfigDir;
-    private Configuration mainConfig;
-
+    @Override
     public void preInit(FMLPreInitializationEvent e) {
+        super.preInit(e);
         MinecraftForge.EVENT_BUS.register(new ForgeEventHandlers());
-        McJtyLib.preInit(e);
         CommandHandler.registerCommands();
-        GeneralConfig.preInit(e);
 
-        modConfigDir = e.getModConfigurationDirectory();
         mainConfig = new Configuration(new File(modConfigDir.getPath() + File.separator + "rftools", "control.cfg"));
         readMainConfig();
 
@@ -76,33 +66,18 @@ public abstract class CommonProxy {
         }
     }
 
+    @Override
     public void init(FMLInitializationEvent e) {
+        super.init(e);
         NetworkRegistry.INSTANCE.registerGuiHandler(RFToolsControl.instance, new GuiProxy());
     }
 
+    @Override
     public void postInit(FMLPostInitializationEvent e) {
+        super.postInit(e);
         if (mainConfig.hasChanged()) {
             mainConfig.save();
         }
-
-
         mainConfig = null;
-        WrenchChecker.init();
-    }
-
-    public World getClientWorld() {
-        throw new IllegalStateException("This should only be called from client side");
-    }
-
-    public EntityPlayer getClientPlayer() {
-        throw new IllegalStateException("This should only be called from client side");
-    }
-
-    public <V> ListenableFuture<V> addScheduledTaskClient(Callable<V> callableToSchedule) {
-        throw new IllegalStateException("This should only be called from client side");
-    }
-
-    public ListenableFuture<Object> addScheduledTaskClient(Runnable runnableToSchedule) {
-        throw new IllegalStateException("This should only be called from client side");
     }
 }
