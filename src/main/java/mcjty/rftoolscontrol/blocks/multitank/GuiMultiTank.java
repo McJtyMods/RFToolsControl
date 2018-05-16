@@ -28,7 +28,7 @@ public class GuiMultiTank extends GenericGuiContainer<MultiTankTileEntity> {
     private int listDirty = 0;
 
     private BlockRender liquids[] = new BlockRender[TANKS];
-    private Label<?> labels[] = new Label<?>[TANKS];
+    private Label labels[] = new Label[TANKS];
 
     public GuiMultiTank(MultiTankTileEntity tileEntity, EmptyContainer container) {
         super(RFToolsControl.instance, RFToolsCtrlMessages.INSTANCE, tileEntity, container, RFToolsControl.GUI_MANUAL_CONTROL, "tank");

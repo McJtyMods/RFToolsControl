@@ -1084,7 +1084,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
     }
 
     private Panel createValuePanel(ParameterDescription parameter, IIcon icon, IconHolder iconHolder, String tempDefault, boolean constantOnly) {
-        Label<?> label = (Label<?>) new Label(mc, this)
+        Label label = new Label(mc, this)
                 .setText(StringUtils.capitalize(parameter.getName()) + ":")
                 .setHorizontalAlignment(HorizontalAlignment.ALIGN_LEFT)
                 .setDesiredHeight(13)
