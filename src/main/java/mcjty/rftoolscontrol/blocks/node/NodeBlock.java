@@ -26,7 +26,7 @@ import java.util.List;
 public class NodeBlock extends GenericRFToolsBlock<NodeTileEntity, EmptyContainer> {
 
     public NodeBlock() {
-        super(Material.IRON, NodeTileEntity.class, EmptyContainer.class, "node", false);
+        super(Material.IRON, NodeTileEntity.class, EmptyContainer::new, "node", false);
     }
 
     @SideOnly(Side.CLIENT)

@@ -14,7 +14,7 @@ import java.util.List;
 public class ProgrammerBlock extends GenericRFToolsBlock<ProgrammerTileEntity, ProgrammerContainer> {
 
     public ProgrammerBlock() {
-        super(Material.IRON, ProgrammerTileEntity.class, ProgrammerContainer.class, "programmer", false);
+        super(Material.IRON, ProgrammerTileEntity.class, ProgrammerContainer::new, "programmer", false);
     }
 
     @SideOnly(Side.CLIENT)

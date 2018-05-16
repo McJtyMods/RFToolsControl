@@ -17,7 +17,7 @@ import java.util.List;
 public class MultiTankBlock extends GenericRFToolsBlock<MultiTankTileEntity, EmptyContainer> {
 
     public MultiTankBlock() {
-        super(Material.IRON, MultiTankTileEntity.class, EmptyContainer.class, "tank", false);
+        super(Material.IRON, MultiTankTileEntity.class, EmptyContainer::new, "tank", false);
     }
 
     @Override

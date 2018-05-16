@@ -14,7 +14,7 @@ import java.util.List;
 public class WorkbenchBlock extends GenericRFToolsBlock<WorkbenchTileEntity, WorkbenchContainer> {
 
     public WorkbenchBlock() {
-        super(Material.IRON, WorkbenchTileEntity.class, WorkbenchContainer.class, "workbench", false);
+        super(Material.IRON, WorkbenchTileEntity.class, WorkbenchContainer::new, "workbench", false);
     }
 
     @SideOnly(Side.CLIENT)

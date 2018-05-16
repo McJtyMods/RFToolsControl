@@ -14,7 +14,7 @@ import java.util.List;
 public class CraftingStationBlock extends GenericRFToolsBlock<CraftingStationTileEntity, CraftingStationContainer> {
 
     public CraftingStationBlock() {
-        super(Material.IRON, CraftingStationTileEntity.class, CraftingStationContainer.class, "craftingstation", false);
+        super(Material.IRON, CraftingStationTileEntity.class, CraftingStationContainer::new, "craftingstation", false);
     }
 
     @SideOnly(Side.CLIENT)

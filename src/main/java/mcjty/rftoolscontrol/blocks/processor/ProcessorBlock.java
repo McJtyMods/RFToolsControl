@@ -32,7 +32,7 @@ public class ProcessorBlock extends GenericRFToolsBlock<ProcessorTileEntity, Pro
     }
 
     public ProcessorBlock() {
-        super(Material.IRON, ProcessorTileEntity.class, ProcessorContainer.class, "processor", false);
+        super(Material.IRON, ProcessorTileEntity.class, ProcessorContainer::new, "processor", false);
     }
 
     @SideOnly(Side.CLIENT)
