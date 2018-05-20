@@ -1,6 +1,7 @@
 package mcjty.rftoolscontrol.blocks.node;
 
 import mcjty.lib.container.EmptyContainer;
+import mcjty.lib.gui.GenericGuiContainer;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.blocks.GenericRFToolsBlock;
 import mcjty.theoneprobe.api.IProbeHitData;
@@ -22,6 +23,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.util.List;
+import java.util.function.BiFunction;
 
 public class NodeBlock extends GenericRFToolsBlock<NodeTileEntity, EmptyContainer> {
 
@@ -31,8 +33,8 @@ public class NodeBlock extends GenericRFToolsBlock<NodeTileEntity, EmptyContaine
 
     @SideOnly(Side.CLIENT)
     @Override
-    public Class<GuiNode> getGuiClass() {
-        return GuiNode.class;
+    public BiFunction<NodeTileEntity, EmptyContainer, GenericGuiContainer<? super NodeTileEntity>> getGuiFactory() {
+        return GuiNode::new;
     }
 
     @Override

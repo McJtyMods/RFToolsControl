@@ -1,5 +1,6 @@
 package mcjty.rftoolscontrol.blocks.processor;
 
+import mcjty.lib.gui.GenericGuiContainer;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.blocks.GenericRFToolsBlock;
 import mcjty.theoneprobe.api.IProbeHitData;
@@ -23,6 +24,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.util.List;
+import java.util.function.BiFunction;
 
 public class ProcessorBlock extends GenericRFToolsBlock<ProcessorTileEntity, ProcessorContainer> {
 
@@ -44,8 +46,8 @@ public class ProcessorBlock extends GenericRFToolsBlock<ProcessorTileEntity, Pro
 
     @SideOnly(Side.CLIENT)
     @Override
-    public Class<GuiProcessor> getGuiClass() {
-        return GuiProcessor.class;
+    public BiFunction<ProcessorTileEntity, ProcessorContainer, GenericGuiContainer<? super ProcessorTileEntity>> getGuiFactory() {
+        return GuiProcessor::new;
     }
 
     @Override

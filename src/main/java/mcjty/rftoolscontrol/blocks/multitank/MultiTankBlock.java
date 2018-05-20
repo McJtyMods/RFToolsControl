@@ -1,6 +1,7 @@
 package mcjty.rftoolscontrol.blocks.multitank;
 
 import mcjty.lib.container.EmptyContainer;
+import mcjty.lib.gui.GenericGuiContainer;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.blocks.GenericRFToolsBlock;
 import net.minecraft.block.material.Material;
@@ -13,6 +14,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.util.List;
+import java.util.function.BiFunction;
 
 public class MultiTankBlock extends GenericRFToolsBlock<MultiTankTileEntity, EmptyContainer> {
 
@@ -27,8 +29,8 @@ public class MultiTankBlock extends GenericRFToolsBlock<MultiTankTileEntity, Emp
 
     @SideOnly(Side.CLIENT)
     @Override
-    public Class<GuiMultiTank> getGuiClass() {
-        return GuiMultiTank.class;
+    public BiFunction<MultiTankTileEntity, EmptyContainer, GenericGuiContainer<? super MultiTankTileEntity>> getGuiFactory() {
+        return GuiMultiTank::new;
     }
 
     @Override

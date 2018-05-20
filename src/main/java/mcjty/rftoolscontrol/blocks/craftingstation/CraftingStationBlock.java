@@ -1,5 +1,6 @@
 package mcjty.rftoolscontrol.blocks.craftingstation;
 
+import mcjty.lib.gui.GenericGuiContainer;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.blocks.GenericRFToolsBlock;
 import net.minecraft.block.material.Material;
@@ -10,6 +11,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.util.List;
+import java.util.function.BiFunction;
 
 public class CraftingStationBlock extends GenericRFToolsBlock<CraftingStationTileEntity, CraftingStationContainer> {
 
@@ -19,8 +21,8 @@ public class CraftingStationBlock extends GenericRFToolsBlock<CraftingStationTil
 
     @SideOnly(Side.CLIENT)
     @Override
-    public Class<GuiCraftingStation> getGuiClass() {
-        return GuiCraftingStation.class;
+    public BiFunction<CraftingStationTileEntity, CraftingStationContainer, GenericGuiContainer<? super CraftingStationTileEntity>> getGuiFactory() {
+        return GuiCraftingStation::new;
     }
 
     @Override

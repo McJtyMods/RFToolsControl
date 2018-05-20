@@ -1,5 +1,6 @@
 package mcjty.rftoolscontrol.blocks.workbench;
 
+import mcjty.lib.gui.GenericGuiContainer;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.blocks.GenericRFToolsBlock;
 import net.minecraft.block.material.Material;
@@ -10,6 +11,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.util.List;
+import java.util.function.BiFunction;
 
 public class WorkbenchBlock extends GenericRFToolsBlock<WorkbenchTileEntity, WorkbenchContainer> {
 
@@ -19,8 +21,8 @@ public class WorkbenchBlock extends GenericRFToolsBlock<WorkbenchTileEntity, Wor
 
     @SideOnly(Side.CLIENT)
     @Override
-    public Class<GuiWorkbench> getGuiClass() {
-        return GuiWorkbench.class;
+    public BiFunction<WorkbenchTileEntity, WorkbenchContainer, GenericGuiContainer<? super WorkbenchTileEntity>> getGuiFactory() {
+        return GuiWorkbench::new;
     }
 
     @Override
