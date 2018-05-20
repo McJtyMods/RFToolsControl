@@ -1532,7 +1532,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     @Override
     public long getEnergyLong(Inventory side) {
         TileEntity te = getTileEntityAt(side);
-        EnergyTools.EnergyLevelMulti level = EnergyTools.getEnergyLevelMulti(te);
+        EnergyTools.EnergyLevel level = EnergyTools.getEnergyLevelMulti(te);
         if (level.getMaxEnergy() >= 0) {
             throw new ProgException(EXCEPT_NORF);
         }
@@ -1542,7 +1542,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     @Override
     public long getMaxEnergyLong(Inventory side) {
         TileEntity te = getTileEntityAt(side);
-        EnergyTools.EnergyLevelMulti level = EnergyTools.getEnergyLevelMulti(te);
+        EnergyTools.EnergyLevel level = EnergyTools.getEnergyLevelMulti(te);
         if (level.getMaxEnergy() >= 0) {
             throw new ProgException(EXCEPT_NORF);
         }
