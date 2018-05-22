@@ -620,7 +620,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
 
         drawWindow();
 
-        int currentRF = GenericEnergyStorageTileEntity.getCurrentRF();
+        long currentRF = GenericEnergyStorageTileEntity.getCurrentRF();
         energyBar.setValue(currentRF);
         tileEntity.requestRfFromServer(RFToolsControl.MODID);
 
