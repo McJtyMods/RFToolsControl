@@ -91,7 +91,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
         Panel toplevel = new Panel(mc, this).setLayout(new PositionalLayout()).setBackground(mainBackground);
         toplevel.setBounds(new Rectangle(guiLeft, guiTop, xSize, ySize));
 
-        long maxEnergyStored = tileEntity.getMaxEnergyStored();
+        long maxEnergyStored = tileEntity.getCapacity();
         energyBar = new EnergyBar(mc, this).setVertical().setMaxValue(maxEnergyStored)
                 .setLayoutHint(new PositionalLayout.PositionalHint(122, 4, 70, 10))
                 .setShowText(false).setHorizontal();
