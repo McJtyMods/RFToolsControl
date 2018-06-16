@@ -1902,11 +1902,16 @@ public class Opcodes {
             .icon(11, 7)
             .runnable(((processor, program, opcode) -> {
                 List<Parameter> vector = processor.evaluateVectorParameterNonNull(opcode, program, 0);
-                List<Parameter> newvector = new ArrayList<>(vector.size()-1);
-                for (int i = 0 ; i < newvector.size() ; i++) {
-                    newvector.add(vector.get(i));
+                if (!vector.isEmpty()) {
+                    List<Parameter> newvector = new ArrayList<>(vector.size() - 1);
+                    for (int i = 0; i < vector.size() - 1; i++) {
+                        newvector.add(vector.get(i));
+                    }
+                    program.setLastValue(Parameter.builder().type(PAR_VECTOR).value(ParameterValue.constant(Collections.unmodifiableList(newvector))).build());
+                } else {
+                    List<Parameter> newvector = new ArrayList<>();
+                    program.setLastValue(Parameter.builder().type(PAR_VECTOR).value(ParameterValue.constant(Collections.unmodifiableList(newvector))).build());
                 }
-                program.setLastValue(Parameter.builder().type(PAR_VECTOR).value(ParameterValue.constant(Collections.unmodifiableList(newvector))).build());
                 return POSITIVE;
             }))
             .build();
