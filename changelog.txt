@@ -1,3 +1,6 @@
+1.9.1:
+- Fixed a bug with the vector pop operation. It would always return an empty list
+
 1.9.0:
 - Made compatible with the latest McJtyLib (3.0.0)
 
