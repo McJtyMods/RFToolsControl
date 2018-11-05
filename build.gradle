@@ -127,6 +127,52 @@ processResources
     }
 }
 
+task("uploadJars", dependsOn: "reobf") {
+    description = "uploads JARs"
+    if (System.getenv("local_maven") != null) {
+        apply plugin: 'maven'
+        uploadArchives {
+            repositories {
+                mavenDeployer {
+                    repository(url: "file://" + System.getenv("local_maven"))
+                    pom {
+                        groupId = project.group
+                        version = project.version
+                        artifactId = project.archivesBaseName
+                        project {
+                            name project.archivesBaseName
+                            packaging 'jar'
+                            description 'RFToolsControl'
+                            scm {
+                                url 'https://github.com/McJty/RFToolsControl'
+                                connection 'scm:git:git@github.com:McJty/RFToolsControl.git'
+                                developerConnection 'scm:git:git@github.com:McJty/RFToolsControl.git'
+                            }
+                            issueManagement {
+                                system 'github'
+                                url 'https://github.com/McJty/RFToolsControl/issues'
+                            }
+                            licenses {
+                                license {
+                                    name 'MIT'
+                                    distribution 'repo'
+                                }
+                            }
+                            developers {
+                                developer {
+                                    id 'McJty'
+                                    name 'McJty'
+                                    roles { role 'developer' }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
 
 String getChangelogText() {
     def changelogFile = file('changelog.txt')
