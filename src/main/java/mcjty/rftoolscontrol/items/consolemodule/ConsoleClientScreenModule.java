@@ -1,7 +1,6 @@
 package mcjty.rftoolscontrol.items.consolemodule;
 
 import mcjty.rftools.api.screens.IClientScreenModule;
-import mcjty.rftools.api.screens.IModuleGuiBuilder;
 import mcjty.rftools.api.screens.IModuleRenderHelper;
 import mcjty.rftools.api.screens.ModuleRenderInfo;
 import mcjty.rftoolscontrol.rftoolssupport.ModuleDataLog;
@@ -43,12 +42,6 @@ public class ConsoleClientScreenModule implements IClientScreenModule<ModuleData
     @Override
     public void mouseClick(World world, int x, int y, boolean clicked) {
 
-    }
-
-    @Override
-    public void createGui(IModuleGuiBuilder guiBuilder) {
-        guiBuilder.
-                block("monitor").nl();
     }
 
     @Override

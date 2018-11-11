@@ -1,6 +1,7 @@
 package mcjty.rftoolscontrol.items.interactionmodule;
 
 import mcjty.lib.varia.Logging;
+import mcjty.rftools.api.screens.IModuleGuiBuilder;
 import mcjty.rftools.api.screens.IModuleProvider;
 import mcjty.rftoolscontrol.blocks.ModBlocks;
 import mcjty.rftoolscontrol.config.GeneralConfiguration;
@@ -47,6 +48,15 @@ public class InteractionModuleItem extends GenericRFToolsItem implements IModule
     @Override
     public String getName() {
         return "INT";
+    }
+
+    @Override
+    public void createGui(IModuleGuiBuilder guiBuilder) {
+        guiBuilder
+                .label("Label:").text("text", "Label text").color("color", "Label color").nl()
+                .label("Button:").text("button", "Button text").color("buttonColor", "Button color").nl()
+                .label("Signal:").text("signal", "Signal name").nl()
+                .choices("align", "Label alignment", "Left", "Center", "Right").nl();
     }
 
     @SideOnly(Side.CLIENT)

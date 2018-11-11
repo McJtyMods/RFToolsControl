@@ -1,7 +1,6 @@
 package mcjty.rftoolscontrol.items.vectorartmodule;
 
 import mcjty.rftools.api.screens.IClientScreenModule;
-import mcjty.rftools.api.screens.IModuleGuiBuilder;
 import mcjty.rftools.api.screens.IModuleRenderHelper;
 import mcjty.rftools.api.screens.ModuleRenderInfo;
 import mcjty.rftoolscontrol.blocks.vectorart.GfxOp;
@@ -45,12 +44,6 @@ public class VectorArtClientScreenModule implements IClientScreenModule<ModuleDa
     @Override
     public void mouseClick(World world, int x, int y, boolean clicked) {
 
-    }
-
-    @Override
-    public void createGui(IModuleGuiBuilder guiBuilder) {
-        guiBuilder
-                .block("monitor").nl();
     }
 
     @Override

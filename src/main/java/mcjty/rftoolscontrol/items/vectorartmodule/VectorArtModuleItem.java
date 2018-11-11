@@ -1,6 +1,7 @@
 package mcjty.rftoolscontrol.items.vectorartmodule;
 
 import mcjty.lib.varia.Logging;
+import mcjty.rftools.api.screens.IModuleGuiBuilder;
 import mcjty.rftools.api.screens.IModuleProvider;
 import mcjty.rftoolscontrol.blocks.ModBlocks;
 import mcjty.rftoolscontrol.config.GeneralConfiguration;
@@ -47,6 +48,12 @@ public class VectorArtModuleItem extends GenericRFToolsItem implements IModulePr
     @Override
     public String getName() {
         return "VAR";
+    }
+
+    @Override
+    public void createGui(IModuleGuiBuilder guiBuilder) {
+        guiBuilder
+                .block("monitor").nl();
     }
 
     @SideOnly(Side.CLIENT)

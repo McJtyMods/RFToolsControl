@@ -74,15 +74,6 @@ public class InteractionClientScreenModule implements IClientScreenModule<IModul
     }
 
     @Override
-    public void createGui(IModuleGuiBuilder guiBuilder) {
-        guiBuilder
-                .label("Label:").text("text", "Label text").color("color", "Label color").nl()
-                .label("Button:").text("button", "Button text").color("buttonColor", "Button color").nl()
-                .label("Signal:").text("signal", "Signal name").nl()
-                .choices("align", "Label alignment", "Left", "Center", "Right").nl();
-    }
-
-    @Override
     public void setupFromNBT(NBTTagCompound tagCompound, int dim, BlockPos pos) {
         if (tagCompound != null) {
             line = tagCompound.getString("text");

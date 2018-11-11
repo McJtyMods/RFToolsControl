@@ -1,6 +1,7 @@
 package mcjty.rftoolscontrol.items.variablemodule;
 
 import mcjty.lib.varia.Logging;
+import mcjty.rftools.api.screens.IModuleGuiBuilder;
 import mcjty.rftools.api.screens.IModuleProvider;
 import mcjty.rftoolscontrol.blocks.ModBlocks;
 import mcjty.rftoolscontrol.config.GeneralConfiguration;
@@ -47,6 +48,16 @@ public class VariableModuleItem extends GenericRFToolsItem implements IModulePro
     @Override
     public String getName() {
         return "VAR";
+    }
+
+    @Override
+    public void createGui(IModuleGuiBuilder guiBuilder) {
+        guiBuilder
+                .label("Label:").text("text", "Label text").color("color", "Color for the label").nl()
+                .label("Stats:").color("varcolor", "Color for the variable text").nl()
+                .label("Var:").integer("varIdx", "Index of the variable").nl()
+                .choices("align", "Label alignment", "Left", "Center", "Right").nl()
+                .block("monitor").nl();
     }
 
     @SideOnly(Side.CLIENT)

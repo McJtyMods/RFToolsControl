@@ -59,16 +59,6 @@ public class VariableClientScreenModule implements IClientScreenModule<ModuleDat
     }
 
     @Override
-    public void createGui(IModuleGuiBuilder guiBuilder) {
-        guiBuilder
-                .label("Label:").text("text", "Label text").color("color", "Color for the label").nl()
-                .label("Stats:").color("varcolor", "Color for the variable text").nl()
-                .label("Var:").integer("varIdx", "Index of the variable").nl()
-                .choices("align", "Label alignment", "Left", "Center", "Right").nl()
-                .block("monitor").nl();
-    }
-
-    @Override
     public void setupFromNBT(NBTTagCompound tagCompound, int dim, BlockPos pos) {
         if (tagCompound != null) {
             if (tagCompound.hasKey("varIdx")) {
