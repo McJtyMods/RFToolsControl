@@ -30,7 +30,7 @@ import java.util.function.Function;
         version = RFToolsControl.VERSION)
 public class RFToolsControl implements ModBase {
     public static final String MODID = "rftoolscontrol";
-    public static final String VERSION = "1.9.1";
+    public static final String VERSION = "1.9.2";
     public static final String MIN_RFTOOLS_VER = "7.58";
     public static final String MIN_FORGE11_VER = "13.19.0.2176";
     public static final String MIN_MCJTYLIB_VER = "3.0.5";

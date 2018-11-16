@@ -1,3 +1,6 @@
+1.9.2:
+- Made compatible with RFTools 7.58
+
 1.9.1:
 - Fixed a bug with the vector pop operation. It would always return an empty list
 
