@@ -1,7 +1,6 @@
 package mcjty.rftoolscontrol.blocks.processor;
 
 import mcjty.lib.api.MachineInformation;
-import mcjty.lib.compat.RedstoneFluxCompatibility;
 import mcjty.lib.container.DefaultSidedInventory;
 import mcjty.lib.container.InventoryHelper;
 import mcjty.lib.tileentity.GenericEnergyReceiverTileEntity;
@@ -1508,9 +1507,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     @Override
     public int getEnergy(Inventory side) {
         TileEntity te = getTileEntityAt(side);
-        if (RedstoneFluxCompatibility.isEnergyHandler(te)) {
-            return RedstoneFluxCompatibility.getEnergy(te, side.getIntSide() == null ? EnumFacing.DOWN : side.getIntSide());
-        } else if (te != null && te.hasCapability(CapabilityEnergy.ENERGY, side.getIntSide())) {
+        if (te != null && te.hasCapability(CapabilityEnergy.ENERGY, side.getIntSide())) {
             IEnergyStorage energy = te.getCapability(CapabilityEnergy.ENERGY, side.getIntSide());
             return energy.getEnergyStored();
         }
@@ -1520,9 +1517,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     @Override
     public int getMaxEnergy(Inventory side) {
         TileEntity te = getTileEntityAt(side);
-        if (RedstoneFluxCompatibility.isEnergyHandler(te)) {
-            return RedstoneFluxCompatibility.getMaxEnergy(te, side.getIntSide() == null ? EnumFacing.DOWN : side.getIntSide());
-        } else if (te != null && te.hasCapability(CapabilityEnergy.ENERGY, side.getIntSide())) {
+        if (te != null && te.hasCapability(CapabilityEnergy.ENERGY, side.getIntSide())) {
             IEnergyStorage energy = te.getCapability(CapabilityEnergy.ENERGY, side.getIntSide());
             return energy.getMaxEnergyStored();
         }
