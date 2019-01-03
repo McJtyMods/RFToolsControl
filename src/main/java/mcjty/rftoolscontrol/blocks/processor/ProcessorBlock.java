@@ -18,7 +18,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.Optional;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -37,10 +36,9 @@ public class ProcessorBlock extends GenericRFToolsBlock<ProcessorTileEntity, Pro
         super(Material.IRON, ProcessorTileEntity.class, ProcessorContainer::new, "processor", false);
     }
 
-    @SideOnly(Side.CLIENT)
     @Override
     public void initModel() {
-        ClientRegistry.bindTileEntitySpecialRenderer(ProcessorTileEntity.class, new ProcessorRenderer());
+        ProcessorRenderer.register();
         super.initModel();
     }
 
