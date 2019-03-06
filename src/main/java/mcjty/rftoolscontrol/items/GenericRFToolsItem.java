@@ -13,7 +13,7 @@ public class GenericRFToolsItem extends Item {
     public GenericRFToolsItem(String name) {
         setUnlocalizedName(RFToolsControl.MODID + "." + name);
         setRegistryName(name);
-        setCreativeTab(RFToolsControl.tabRFToolsControl);
+        setCreativeTab(RFToolsControl.setup.getTab());
         McJtyRegister.registerLater(this, RFToolsControl.instance);
     }
 

@@ -13,6 +13,7 @@ import mcjty.lib.gui.widgets.Panel;
 import mcjty.lib.gui.widgets.TextField;
 import mcjty.lib.typed.TypedMap;
 import mcjty.rftoolscontrol.RFToolsControl;
+import mcjty.rftoolscontrol.gui.GuiProxy;
 import mcjty.rftoolscontrol.gui.GuiTools;
 import mcjty.rftoolscontrol.network.PacketGetCraftableItems;
 import mcjty.rftoolscontrol.network.PacketGetRequests;
@@ -54,7 +55,7 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
     private int listDirty = 0;
 
     public GuiCraftingStation(CraftingStationTileEntity tileEntity, CraftingStationContainer container) {
-        super(RFToolsControl.instance, RFToolsCtrlMessages.INSTANCE, tileEntity, container, RFToolsControl.GUI_MANUAL_CONTROL, "craftingstation");
+        super(RFToolsControl.instance, RFToolsCtrlMessages.INSTANCE, tileEntity, container, GuiProxy.GUI_MANUAL_CONTROL, "craftingstation");
 
         xSize = WIDTH;
         ySize = HEIGHT;

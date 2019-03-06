@@ -17,6 +17,7 @@ import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.ItemStackList;
 import mcjty.rftoolscontrol.CommandHandler;
 import mcjty.rftoolscontrol.RFToolsControl;
+import mcjty.rftoolscontrol.gui.GuiProxy;
 import mcjty.rftoolscontrol.network.PacketItemNBTToServer;
 import mcjty.rftoolscontrol.network.RFToolsCtrlMessages;
 import net.minecraft.client.util.ITooltipFlag;
@@ -42,7 +43,7 @@ public class GuiCraftingCard extends GenericGuiContainer<GenericTileEntity> {
     private BlockRender[] slots = new BlockRender[1 + INPUT_SLOTS];
 
     public GuiCraftingCard(CraftingCardContainer container) {
-        super(RFToolsControl.instance, RFToolsCtrlMessages.INSTANCE, null, container, RFToolsControl.GUI_MANUAL_CONTROL, "craftingcard");
+        super(RFToolsControl.instance, RFToolsCtrlMessages.INSTANCE, null, container, GuiProxy.GUI_MANUAL_CONTROL, "craftingcard");
         xSize = WIDTH;
         ySize = HEIGHT;
     }

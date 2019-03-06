@@ -2,8 +2,8 @@ package mcjty.rftoolscontrol.blocks.multitank;
 
 import mcjty.lib.container.EmptyContainer;
 import mcjty.lib.gui.GenericGuiContainer;
-import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.blocks.GenericRFToolsBlock;
+import mcjty.rftoolscontrol.gui.GuiProxy;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.util.ITooltipFlag;
@@ -35,7 +35,7 @@ public class MultiTankBlock extends GenericRFToolsBlock<MultiTankTileEntity, Emp
 
     @Override
     public int getGuiID() {
-        return RFToolsControl.GUI_TANK;
+        return GuiProxy.GUI_TANK;
     }
 
     @SideOnly(Side.CLIENT)

@@ -20,6 +20,7 @@ import mcjty.lib.typed.TypedMap;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.api.parameters.Parameter;
 import mcjty.rftoolscontrol.api.parameters.ParameterType;
+import mcjty.rftoolscontrol.gui.GuiProxy;
 import mcjty.rftoolscontrol.gui.GuiTools;
 import mcjty.rftoolscontrol.logic.editors.ParameterEditor;
 import mcjty.rftoolscontrol.logic.editors.ParameterEditors;
@@ -77,7 +78,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
     private int listDirty = 0;
 
     public GuiProcessor(ProcessorTileEntity tileEntity, ProcessorContainer container) {
-        super(RFToolsControl.instance, RFToolsCtrlMessages.INSTANCE, tileEntity, container, RFToolsControl.GUI_MANUAL_CONTROL, "processor");
+        super(RFToolsControl.instance, RFToolsCtrlMessages.INSTANCE, tileEntity, container, GuiProxy.GUI_MANUAL_CONTROL, "processor");
 
         xSize = WIDTH;
         ySize = HEIGHT;

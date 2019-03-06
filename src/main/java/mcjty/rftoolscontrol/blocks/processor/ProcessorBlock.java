@@ -1,8 +1,8 @@
 package mcjty.rftoolscontrol.blocks.processor;
 
 import mcjty.lib.gui.GenericGuiContainer;
-import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.blocks.GenericRFToolsBlock;
+import mcjty.rftoolscontrol.gui.GuiProxy;
 import mcjty.theoneprobe.api.IProbeHitData;
 import mcjty.theoneprobe.api.IProbeInfo;
 import mcjty.theoneprobe.api.ProbeMode;
@@ -50,7 +50,7 @@ public class ProcessorBlock extends GenericRFToolsBlock<ProcessorTileEntity, Pro
 
     @Override
     public int getGuiID() {
-        return RFToolsControl.GUI_PROCESSOR;
+        return GuiProxy.GUI_PROCESSOR;
     }
 
     @SideOnly(Side.CLIENT)

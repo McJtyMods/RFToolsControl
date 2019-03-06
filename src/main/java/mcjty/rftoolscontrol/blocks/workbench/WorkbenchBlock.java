@@ -1,8 +1,8 @@
 package mcjty.rftoolscontrol.blocks.workbench;
 
 import mcjty.lib.gui.GenericGuiContainer;
-import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.blocks.GenericRFToolsBlock;
+import mcjty.rftoolscontrol.gui.GuiProxy;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.item.ItemStack;
@@ -27,7 +27,7 @@ public class WorkbenchBlock extends GenericRFToolsBlock<WorkbenchTileEntity, Wor
 
     @Override
     public int getGuiID() {
-        return RFToolsControl.GUI_WORKBENCH;
+        return GuiProxy.GUI_WORKBENCH;
     }
 
     @SideOnly(Side.CLIENT)

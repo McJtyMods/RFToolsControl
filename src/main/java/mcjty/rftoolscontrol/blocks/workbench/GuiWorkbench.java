@@ -5,6 +5,7 @@ import mcjty.lib.gui.Window;
 import mcjty.lib.gui.layout.PositionalLayout;
 import mcjty.lib.gui.widgets.Panel;
 import mcjty.rftoolscontrol.RFToolsControl;
+import mcjty.rftoolscontrol.gui.GuiProxy;
 import mcjty.rftoolscontrol.network.RFToolsCtrlMessages;
 import net.minecraft.util.ResourceLocation;
 
@@ -18,7 +19,7 @@ public class GuiWorkbench extends GenericGuiContainer<WorkbenchTileEntity> {
     private static final ResourceLocation mainBackground = new ResourceLocation(RFToolsControl.MODID, "textures/gui/workbench.png");
 
     public GuiWorkbench(WorkbenchTileEntity tileEntity, WorkbenchContainer container) {
-        super(RFToolsControl.instance, RFToolsCtrlMessages.INSTANCE, tileEntity, container, RFToolsControl.GUI_MANUAL_CONTROL, "workbench");
+        super(RFToolsControl.instance, RFToolsCtrlMessages.INSTANCE, tileEntity, container, GuiProxy.GUI_MANUAL_CONTROL, "workbench");
 
         xSize = WIDTH;
         ySize = HEIGHT;

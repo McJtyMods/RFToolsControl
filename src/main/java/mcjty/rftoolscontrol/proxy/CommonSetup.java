@@ -1,7 +1,8 @@
 package mcjty.rftoolscontrol.proxy;
 
+import mcjty.lib.compat.MainCompatHandler;
 import mcjty.lib.network.PacketHandler;
-import mcjty.lib.proxy.AbstractCommonProxy;
+import mcjty.lib.setup.DefaultCommonSetup;
 import mcjty.rftoolscontrol.CommandHandler;
 import mcjty.rftoolscontrol.ForgeEventHandlers;
 import mcjty.rftoolscontrol.RFToolsControl;
@@ -12,11 +13,14 @@ import mcjty.rftoolscontrol.items.ModItems;
 import mcjty.rftoolscontrol.logic.registry.Functions;
 import mcjty.rftoolscontrol.logic.registry.Opcodes;
 import mcjty.rftoolscontrol.network.RFToolsCtrlMessages;
+import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.common.FMLLog;
+import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLInterModComms;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
@@ -26,13 +30,17 @@ import org.apache.logging.log4j.Level;
 import java.io.File;
 
 @Mod.EventBusSubscriber
-public abstract class CommonProxy extends AbstractCommonProxy {
+public class CommonSetup extends DefaultCommonSetup {
+
+    public static boolean mcmpPresent = false;
 
     @Override
     public void preInit(FMLPreInitializationEvent e) {
         super.preInit(e);
         MinecraftForge.EVENT_BUS.register(new ForgeEventHandlers());
         CommandHandler.registerCommands();
+
+        mcmpPresent = Loader.isModLoaded("mcmultipart");
 
         mainConfig = new Configuration(new File(modConfigDir.getPath() + File.separator + "rftools", "control.cfg"));
         readMainConfig();
@@ -48,6 +56,14 @@ public abstract class CommonProxy extends AbstractCommonProxy {
 //        if (RFToolsControl.mcmpPresent) {
 //            MCMPSetup.init();
 //        }
+        MainCompatHandler.registerWaila();
+        MainCompatHandler.registerTOP();
+        FMLInterModComms.sendFunctionMessage("rftools", "getScreenModuleRegistry", "mcjty.rftoolscontrol.rftoolssupport.RFToolsSupport$GetScreenModuleRegistry");
+    }
+
+    @Override
+    public void createTabs() {
+        createTab("RFToolsControl", new ItemStack(ModItems.rfToolsControlManualItem));
     }
 
     private void readMainConfig() {

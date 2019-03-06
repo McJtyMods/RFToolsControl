@@ -1,7 +1,7 @@
 package mcjty.rftoolscontrol.items;
 
-import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.api.parameters.Parameter;
+import mcjty.rftoolscontrol.gui.GuiProxy;
 import mcjty.rftoolscontrol.logic.ParameterTools;
 import mcjty.rftoolscontrol.logic.registry.ParameterTypeTools;
 import net.minecraft.client.util.ITooltipFlag;
@@ -46,7 +46,7 @@ public class TokenItem extends GenericRFToolsItem {
             list.add(TextFormatting.WHITE + "not do anything but it can store");
             list.add(TextFormatting.WHITE + "information");
         } else {
-            list.add(TextFormatting.WHITE + RFToolsControl.SHIFT_MESSAGE);
+            list.add(TextFormatting.WHITE + GuiProxy.SHIFT_MESSAGE);
         }
     }
 }

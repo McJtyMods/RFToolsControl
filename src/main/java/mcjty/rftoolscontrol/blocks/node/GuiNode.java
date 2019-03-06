@@ -10,6 +10,7 @@ import mcjty.lib.gui.widgets.Panel;
 import mcjty.lib.gui.widgets.TextField;
 import mcjty.lib.typed.TypedMap;
 import mcjty.rftoolscontrol.RFToolsControl;
+import mcjty.rftoolscontrol.gui.GuiProxy;
 import mcjty.rftoolscontrol.network.RFToolsCtrlMessages;
 
 import java.awt.Rectangle;
@@ -26,7 +27,7 @@ public class GuiNode extends GenericGuiContainer<NodeTileEntity> {
     private TextField nodeNameField;
 
     public GuiNode(NodeTileEntity tileEntity, EmptyContainer container) {
-        super(RFToolsControl.instance, RFToolsCtrlMessages.INSTANCE, tileEntity, container, RFToolsControl.GUI_MANUAL_CONTROL, "networking");
+        super(RFToolsControl.instance, RFToolsCtrlMessages.INSTANCE, tileEntity, container, GuiProxy.GUI_MANUAL_CONTROL, "networking");
 
         xSize = WIDTH;
         ySize = HEIGHT;

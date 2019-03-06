@@ -2,8 +2,8 @@ package mcjty.rftoolscontrol.blocks.node;
 
 import mcjty.lib.container.EmptyContainer;
 import mcjty.lib.gui.GenericGuiContainer;
-import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.blocks.GenericRFToolsBlock;
+import mcjty.rftoolscontrol.gui.GuiProxy;
 import mcjty.theoneprobe.api.IProbeHitData;
 import mcjty.theoneprobe.api.IProbeInfo;
 import mcjty.theoneprobe.api.ProbeMode;
@@ -39,7 +39,7 @@ public class NodeBlock extends GenericRFToolsBlock<NodeTileEntity, EmptyContaine
 
     @Override
     public int getGuiID() {
-        return RFToolsControl.GUI_NODE;
+        return GuiProxy.GUI_NODE;
     }
 
     @Override

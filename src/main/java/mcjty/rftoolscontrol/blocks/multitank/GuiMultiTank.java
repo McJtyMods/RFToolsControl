@@ -10,6 +10,7 @@ import mcjty.lib.gui.widgets.BlockRender;
 import mcjty.lib.gui.widgets.Label;
 import mcjty.lib.gui.widgets.Panel;
 import mcjty.rftoolscontrol.RFToolsControl;
+import mcjty.rftoolscontrol.gui.GuiProxy;
 import mcjty.rftoolscontrol.network.PacketGetTankFluids;
 import mcjty.rftoolscontrol.network.RFToolsCtrlMessages;
 import net.minecraft.util.ResourceLocation;
@@ -31,7 +32,7 @@ public class GuiMultiTank extends GenericGuiContainer<MultiTankTileEntity> {
     private Label labels[] = new Label[TANKS];
 
     public GuiMultiTank(MultiTankTileEntity tileEntity, EmptyContainer container) {
-        super(RFToolsControl.instance, RFToolsCtrlMessages.INSTANCE, tileEntity, container, RFToolsControl.GUI_MANUAL_CONTROL, "tank");
+        super(RFToolsControl.instance, RFToolsCtrlMessages.INSTANCE, tileEntity, container, GuiProxy.GUI_MANUAL_CONTROL, "tank");
 
         xSize = WIDTH;
         ySize = HEIGHT;

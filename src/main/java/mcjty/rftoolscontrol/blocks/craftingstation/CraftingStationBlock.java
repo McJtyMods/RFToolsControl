@@ -1,8 +1,8 @@
 package mcjty.rftoolscontrol.blocks.craftingstation;
 
 import mcjty.lib.gui.GenericGuiContainer;
-import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.blocks.GenericRFToolsBlock;
+import mcjty.rftoolscontrol.gui.GuiProxy;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.item.ItemStack;
@@ -27,7 +27,7 @@ public class CraftingStationBlock extends GenericRFToolsBlock<CraftingStationTil
 
     @Override
     public int getGuiID() {
-        return RFToolsControl.GUI_CRAFTINGSTATION;
+        return GuiProxy.GUI_CRAFTINGSTATION;
     }
 
     @SideOnly(Side.CLIENT)

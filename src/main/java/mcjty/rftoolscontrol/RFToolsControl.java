@@ -1,19 +1,15 @@
 package mcjty.rftoolscontrol;
 
 import mcjty.lib.base.ModBase;
-import mcjty.lib.compat.MainCompatHandler;
+import mcjty.lib.proxy.IProxy;
 import mcjty.rftoolscontrol.api.registry.IFunctionRegistry;
 import mcjty.rftoolscontrol.api.registry.IOpcodeRegistry;
-import mcjty.rftoolscontrol.items.ModItems;
 import mcjty.rftoolscontrol.items.manual.GuiRFToolsManual;
 import mcjty.rftoolscontrol.logic.registry.FunctionRegistry;
 import mcjty.rftoolscontrol.logic.registry.OpcodeRegistry;
-import mcjty.rftoolscontrol.proxy.CommonProxy;
-import net.minecraft.creativetab.CreativeTabs;
+import mcjty.rftoolscontrol.proxy.CommonSetup;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
 import net.minecraftforge.fluids.FluidRegistry;
-import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.*;
@@ -36,37 +32,16 @@ public class RFToolsControl implements ModBase {
     public static final String MIN_MCJTYLIB_VER = "3.1.0";
 
     @SidedProxy(clientSide="mcjty.rftoolscontrol.proxy.ClientProxy", serverSide="mcjty.rftoolscontrol.proxy.ServerProxy")
-    public static CommonProxy proxy;
+    public static IProxy proxy;
+    public static CommonSetup setup = new CommonSetup();
 
     @Mod.Instance(MODID)
     public static RFToolsControl instance;
-
-    public static boolean mcmpPresent = false;
-
-    /** This is used to keep track of GUIs that we make*/
-    private static int modGuiIndex = 0;
-    public static final int GUI_MANUAL_CONTROL = modGuiIndex++;
-    public static final int GUI_PROGRAMMER = modGuiIndex++;
-    public static final int GUI_PROCESSOR = modGuiIndex++;
-    public static final int GUI_NODE = modGuiIndex++;
-    public static final int GUI_CRAFTINGSTATION = modGuiIndex++;
-    public static final int GUI_CRAFTINGCARD = modGuiIndex++;
-    public static final int GUI_WORKBENCH = modGuiIndex++;
-    public static final int GUI_TANK = modGuiIndex++;
 
     public RFToolsControl() {
         // This has to be done VERY early
         FluidRegistry.enableUniversalBucket();
     }
-
-    public static CreativeTabs tabRFToolsControl = new CreativeTabs("RFToolsControl") {
-        @Override
-        public ItemStack getTabIconItem() {
-            return new ItemStack(ModItems.rfToolsControlManualItem);
-        }
-    };
-
-    public static final String SHIFT_MESSAGE = "<Press Shift>";
 
     /**
      * Run before anything else. Read your config, create blocks, items, etc, and
@@ -74,15 +49,8 @@ public class RFToolsControl implements ModBase {
      */
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent e) {
-        mcmpPresent = Loader.isModLoaded("mcmultipart");
-
+        setup.preInit(e);
         proxy.preInit(e);
-        MainCompatHandler.registerWaila();
-        MainCompatHandler.registerTOP();
-        FMLInterModComms.sendFunctionMessage("rftools", "getScreenModuleRegistry", "mcjty.rftoolscontrol.rftoolssupport.RFToolsSupport$GetScreenModuleRegistry");
-
-//        FMLInterModComms.sendFunctionMessage("rftools", "getTeleportationManager", "mcjty.RFToolsControl.RFToolsControl$GetTeleportationManager");
-//        FMLInterModComms.sendFunctionMessage("theoneprobe", "getTheOneProbe", "mcjty.RFToolsControl.theoneprobe.TheOneProbeSupport");
     }
 
     /**
@@ -90,10 +58,17 @@ public class RFToolsControl implements ModBase {
      */
     @Mod.EventHandler
     public void init(FMLInitializationEvent e) {
+        setup.init(e);
         proxy.init(e);
+    }
 
-//        Achievements.init();
-        // @todo
+    /**
+     * Handle interaction with other mods, complete your setup based on this.
+     */
+    @Mod.EventHandler
+    public void postInit(FMLPostInitializationEvent e) {
+        setup.postInit(e);
+        proxy.postInit(e);
     }
 
     @Mod.EventHandler
@@ -121,13 +96,6 @@ public class RFToolsControl implements ModBase {
             }
         }
 
-    }
-    /**
-     * Handle interaction with other mods, complete your setup based on this.
-     */
-    @Mod.EventHandler
-    public void postInit(FMLPostInitializationEvent e) {
-        proxy.postInit(e);
     }
 
     @Override

@@ -2,6 +2,7 @@ package mcjty.rftoolscontrol.items.craftingcard;
 
 import mcjty.lib.varia.ItemStackList;
 import mcjty.rftoolscontrol.RFToolsControl;
+import mcjty.rftoolscontrol.gui.GuiProxy;
 import mcjty.rftoolscontrol.items.GenericRFToolsItem;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.EntityPlayer;
@@ -119,7 +120,7 @@ public class CraftingCardItem extends GenericRFToolsItem {
             return new ActionResult<>(EnumActionResult.PASS, stack);
         }
         if (!world.isRemote) {
-            player.openGui(RFToolsControl.instance, RFToolsControl.GUI_CRAFTINGCARD, player.getEntityWorld(), (int) player.posX, (int) player.posY, (int) player.posZ);
+            player.openGui(RFToolsControl.instance, GuiProxy.GUI_CRAFTINGCARD, player.getEntityWorld(), (int) player.posX, (int) player.posY, (int) player.posZ);
             return new ActionResult<>(EnumActionResult.SUCCESS, stack);
         }
         return new ActionResult<>(EnumActionResult.SUCCESS, stack);
