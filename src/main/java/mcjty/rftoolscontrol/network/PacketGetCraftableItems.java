@@ -1,36 +1,65 @@
 package mcjty.rftoolscontrol.network;
 
-import mcjty.lib.network.PacketRequestServerList;
-import mcjty.lib.network.PacketRequestServerListHandler;
-import mcjty.lib.typed.TypedMap;
-import mcjty.rftoolscontrol.RFToolsControl;
-import mcjty.rftoolscontrol.blocks.craftingstation.CraftingStationTileEntity;
+import io.netty.buffer.ByteBuf;
+import mcjty.lib.network.ICommandHandler;
+import mcjty.lib.network.NetworkTools;
+import mcjty.lib.network.TypedMapTools;
 import mcjty.lib.typed.Type;
+import mcjty.lib.typed.TypedMap;
+import mcjty.lib.varia.Logging;
+import mcjty.rftoolscontrol.blocks.craftingstation.CraftingStationTileEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 
-public class PacketGetCraftableItems extends PacketRequestServerList<ItemStack> {
+public class PacketGetCraftableItems implements IMessage {
+
+    protected BlockPos pos;
+    protected TypedMap params;
 
     public PacketGetCraftableItems() {
     }
 
     public PacketGetCraftableItems(BlockPos pos) {
-        super(RFToolsControl.MODID, pos, CraftingStationTileEntity.CMD_GETCRAFTABLE, TypedMap.EMPTY);
+        this.pos = pos;
+        this.params = TypedMap.EMPTY;
     }
 
-    public static class Handler extends PacketRequestServerListHandler<PacketGetCraftableItems, ItemStack> {
+    @Override
+    public void fromBytes(ByteBuf buf) {
+        pos = NetworkTools.readPos(buf);
+        params = TypedMapTools.readArguments(buf);
+    }
 
-        public Handler() {
-            super(Type.create(ItemStack.class));
-        }
+    @Override
+    public void toBytes(ByteBuf buf) {
+        NetworkTools.writePos(buf, pos);
+        TypedMapTools.writeArguments(buf, params);
+    }
+
+    public static class Handler implements IMessageHandler<PacketGetCraftableItems, IMessage> {
 
         @Override
-        protected void sendToClient(BlockPos pos, @Nonnull List<ItemStack> list, MessageContext messageContext) {
-            RFToolsCtrlMessages.INSTANCE.sendTo(new PacketCraftableItemsReady(pos, CraftingStationTileEntity.CLIENTCMD_GETCRAFTABLE, list), messageContext.getServerHandler().player);
+        public IMessage onMessage(mcjty.rftoolscontrol.network.PacketGetCraftableItems message, MessageContext ctx) {
+            FMLCommonHandler.instance().getWorldThread(ctx.netHandler).addScheduledTask(() -> handle(message, ctx));
+            return null;
+        }
+
+        private void handle(mcjty.rftoolscontrol.network.PacketGetCraftableItems message, MessageContext ctx) {
+            TileEntity te = ctx.getServerHandler().player.getEntityWorld().getTileEntity(message.pos);
+            if(!(te instanceof ICommandHandler)) {
+                Logging.log("TileEntity is not a CommandHandler!");
+                return;
+            }
+            ICommandHandler commandHandler = (ICommandHandler) te;
+            List<ItemStack> list = commandHandler.executeWithResultList(CraftingStationTileEntity.CMD_GETCRAFTABLE, message.params, Type.create(ItemStack.class));
+            RFToolsCtrlMessages.INSTANCE.sendTo(new PacketCraftableItemsReady(message.pos, CraftingStationTileEntity.CLIENTCMD_GETCRAFTABLE, list), ctx.getServerHandler().player);
         }
     }
 }

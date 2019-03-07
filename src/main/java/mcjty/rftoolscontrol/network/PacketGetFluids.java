@@ -1,36 +1,65 @@
 package mcjty.rftoolscontrol.network;
 
-import mcjty.lib.network.PacketRequestServerList;
-import mcjty.lib.network.PacketRequestServerListHandler;
-import mcjty.lib.typed.TypedMap;
-import mcjty.rftoolscontrol.RFToolsControl;
-import mcjty.rftoolscontrol.blocks.processor.ProcessorTileEntity;
+import io.netty.buffer.ByteBuf;
+import mcjty.lib.network.ICommandHandler;
+import mcjty.lib.network.NetworkTools;
+import mcjty.lib.network.TypedMapTools;
 import mcjty.lib.typed.Type;
+import mcjty.lib.typed.TypedMap;
+import mcjty.lib.varia.Logging;
+import mcjty.rftoolscontrol.blocks.processor.ProcessorTileEntity;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 
-public class PacketGetFluids extends PacketRequestServerList<PacketGetFluids.FluidEntry> {
+public class PacketGetFluids implements IMessage {
+
+    protected BlockPos pos;
+    protected TypedMap params;
 
     public PacketGetFluids() {
     }
 
     public PacketGetFluids(BlockPos pos) {
-        super(RFToolsControl.MODID, pos, ProcessorTileEntity.CMD_GETFLUIDS, TypedMap.EMPTY);
+        this.pos = pos;
+        this.params = TypedMap.EMPTY;
     }
 
-    public static class Handler extends PacketRequestServerListHandler<PacketGetFluids, PacketGetFluids.FluidEntry> {
+    @Override
+    public void fromBytes(ByteBuf buf) {
+        pos = NetworkTools.readPos(buf);
+        params = TypedMapTools.readArguments(buf);
+    }
 
-        public Handler() {
-            super(Type.create(PacketGetFluids.FluidEntry.class));
-        }
+    @Override
+    public void toBytes(ByteBuf buf) {
+        NetworkTools.writePos(buf, pos);
+        TypedMapTools.writeArguments(buf, params);
+    }
+
+    public static class Handler implements IMessageHandler<PacketGetFluids, IMessage> {
 
         @Override
-        protected void sendToClient(BlockPos pos, @Nonnull List<PacketGetFluids.FluidEntry> list, MessageContext messageContext) {
-            RFToolsCtrlMessages.INSTANCE.sendTo(new PacketFluidsReady(pos, ProcessorTileEntity.CLIENTCMD_GETFLUIDS, list), messageContext.getServerHandler().player);
+        public IMessage onMessage(mcjty.rftoolscontrol.network.PacketGetFluids message, MessageContext ctx) {
+            FMLCommonHandler.instance().getWorldThread(ctx.netHandler).addScheduledTask(() -> handle(message, ctx));
+            return null;
+        }
+
+        private void handle(mcjty.rftoolscontrol.network.PacketGetFluids message, MessageContext ctx) {
+            TileEntity te = ctx.getServerHandler().player.getEntityWorld().getTileEntity(message.pos);
+            if(!(te instanceof ICommandHandler)) {
+                Logging.log("TileEntity is not a CommandHandler!");
+                return;
+            }
+            ICommandHandler commandHandler = (ICommandHandler) te;
+            List<FluidEntry> list = commandHandler.executeWithResultList(ProcessorTileEntity.CMD_GETFLUIDS, message.params, Type.create(FluidEntry.class));
+            RFToolsCtrlMessages.INSTANCE.sendTo(new PacketFluidsReady(message.pos, ProcessorTileEntity.CLIENTCMD_GETFLUIDS, list), ctx.getServerHandler().player);
         }
     }
 
