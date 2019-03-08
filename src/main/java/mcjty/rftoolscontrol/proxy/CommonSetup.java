@@ -1,7 +1,6 @@
 package mcjty.rftoolscontrol.proxy;
 
 import mcjty.lib.compat.MainCompatHandler;
-import mcjty.lib.network.PacketHandler;
 import mcjty.lib.setup.DefaultCommonSetup;
 import mcjty.rftoolscontrol.CommandHandler;
 import mcjty.rftoolscontrol.ForgeEventHandlers;
@@ -24,7 +23,6 @@ import net.minecraftforge.fml.common.event.FMLInterModComms;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
-import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import org.apache.logging.log4j.Level;
 
 import java.io.File;
@@ -45,8 +43,7 @@ public class CommonSetup extends DefaultCommonSetup {
         mainConfig = new Configuration(new File(modConfigDir.getPath() + File.separator + "rftools", "control.cfg"));
         readMainConfig();
 
-        SimpleNetworkWrapper network = PacketHandler.registerMessages(RFToolsControl.MODID, "rftoolsctrl");
-        RFToolsCtrlMessages.registerNetworkMessages(network);
+        RFToolsCtrlMessages.registerMessages("rftoolsctrl");
 
         Opcodes.init();
         Functions.init();

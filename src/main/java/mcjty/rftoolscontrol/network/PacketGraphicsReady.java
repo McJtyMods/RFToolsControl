@@ -2,19 +2,19 @@ package mcjty.rftoolscontrol.network;
 
 import io.netty.buffer.ByteBuf;
 import mcjty.lib.network.NetworkTools;
+import mcjty.lib.thirteen.Context;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.blocks.processor.ProcessorTileEntity;
 import mcjty.rftoolscontrol.blocks.vectorart.GfxOp;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
 public class PacketGraphicsReady implements IMessage {
 
@@ -57,25 +57,25 @@ public class PacketGraphicsReady implements IMessage {
     public PacketGraphicsReady() {
     }
 
+    public PacketGraphicsReady(ByteBuf buf) {
+        fromBytes(buf);
+    }
+
     public PacketGraphicsReady(ProcessorTileEntity processor) {
         pos = processor.getPos();
         gfxOps = processor.getGfxOps();
         orderedOps = processor.getOrderedOps();
     }
 
-    public static class Handler implements IMessageHandler<PacketGraphicsReady, IMessage> {
-        @Override
-        public IMessage onMessage(PacketGraphicsReady message, MessageContext ctx) {
-            RFToolsControl.proxy.addScheduledTaskClient(() -> handle(message, ctx));
-            return null;
-        }
-
-        private void handle(PacketGraphicsReady message, MessageContext ctx) {
-            TileEntity te = RFToolsControl.proxy.getClientWorld().getTileEntity(message.pos);
+    public void handle(Supplier<Context> supplier) {
+        Context ctx = supplier.get();
+        ctx.enqueueWork(() -> {
+            TileEntity te = RFToolsControl.proxy.getClientWorld().getTileEntity(pos);
             if (te instanceof ProcessorTileEntity) {
                 ProcessorTileEntity processor = (ProcessorTileEntity) te;
-                processor.setClientOrderedGfx(message.gfxOps, message.orderedOps);
+                processor.setClientOrderedGfx(gfxOps, orderedOps);
             }
-        }
+        });
+        ctx.setPacketHandled(true);
     }
 }

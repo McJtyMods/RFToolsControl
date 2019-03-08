@@ -2,16 +2,16 @@ package mcjty.rftoolscontrol.network;
 
 import io.netty.buffer.ByteBuf;
 import mcjty.lib.network.NetworkTools;
+import mcjty.lib.thirteen.Context;
 import mcjty.rftoolscontrol.items.ProgramCardItem;
 import mcjty.rftoolscontrol.items.craftingcard.CraftingCardItem;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumHand;
-import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+
+import java.util.function.Supplier;
 
 /**
  * This packet will update the held item NBT from client to server
@@ -32,28 +32,28 @@ public class PacketItemNBTToServer implements IMessage {
     public PacketItemNBTToServer() {
     }
 
+    public PacketItemNBTToServer(ByteBuf buf) {
+        fromBytes(buf);
+    }
+
     public PacketItemNBTToServer(NBTTagCompound tagCompound) {
         this.tagCompound = tagCompound;
     }
 
-    public static class Handler implements IMessageHandler<PacketItemNBTToServer, IMessage> {
-        @Override
-        public IMessage onMessage(PacketItemNBTToServer message, MessageContext ctx) {
-            FMLCommonHandler.instance().getWorldThread(ctx.netHandler).addScheduledTask(() -> handle(message, ctx));
-            return null;
-        }
-
-        private void handle(PacketItemNBTToServer message, MessageContext ctx) {
-            EntityPlayerMP player = ctx.getServerHandler().player;
+    public void handle(Supplier<Context> supplier) {
+        Context ctx = supplier.get();
+        ctx.enqueueWork(() -> {
+            EntityPlayerMP player = ctx.getSender();
             ItemStack heldItem = player.getHeldItem(EnumHand.MAIN_HAND);
             if (heldItem.isEmpty()) {
                 return;
             }
             if (heldItem.getItem() instanceof ProgramCardItem) {
-                heldItem.setTagCompound(message.tagCompound);
+                heldItem.setTagCompound(tagCompound);
             } else if (heldItem.getItem() instanceof CraftingCardItem) {
-                heldItem.setTagCompound(message.tagCompound);
+                heldItem.setTagCompound(tagCompound);
             }
-        }
+        });
+        ctx.setPacketHandled(true);
     }
 }

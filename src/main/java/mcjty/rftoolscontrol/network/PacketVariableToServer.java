@@ -2,6 +2,7 @@ package mcjty.rftoolscontrol.network;
 
 import io.netty.buffer.ByteBuf;
 import mcjty.lib.network.NetworkTools;
+import mcjty.lib.thirteen.Context;
 import mcjty.rftoolscontrol.api.parameters.Parameter;
 import mcjty.rftoolscontrol.api.parameters.ParameterType;
 import mcjty.rftoolscontrol.api.parameters.ParameterValue;
@@ -11,10 +12,9 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+
+import java.util.function.Supplier;
 
 public class PacketVariableToServer implements IMessage {
     private BlockPos pos;
@@ -38,36 +38,36 @@ public class PacketVariableToServer implements IMessage {
     public PacketVariableToServer() {
     }
 
+    public PacketVariableToServer(ByteBuf buf) {
+        fromBytes(buf);
+    }
+
     public PacketVariableToServer(BlockPos pos, int varIndex, NBTTagCompound tagCompound) {
         this.pos = pos;
         this.varIndex = varIndex;
         this.tagCompound = tagCompound;
     }
 
-    public static class Handler implements IMessageHandler<PacketVariableToServer, IMessage> {
-        @Override
-        public IMessage onMessage(PacketVariableToServer message, MessageContext ctx) {
-            FMLCommonHandler.instance().getWorldThread(ctx.netHandler).addScheduledTask(() -> handle(message, ctx));
-            return null;
-        }
-
-        private void handle(PacketVariableToServer message, MessageContext ctx) {
-            EntityPlayerMP playerEntity = ctx.getServerHandler().player;
-            TileEntity te = playerEntity.getEntityWorld().getTileEntity(message.pos);
+    public void handle(Supplier<Context> supplier) {
+        Context ctx = supplier.get();
+        ctx.enqueueWork(() -> {
+            EntityPlayerMP playerEntity = ctx.getSender();
+            TileEntity te = playerEntity.getEntityWorld().getTileEntity(pos);
             if (te instanceof ProcessorTileEntity) {
                 ProcessorTileEntity processor = (ProcessorTileEntity) te;
                 Parameter[] variables = processor.getVariableArray();
-                if (message.varIndex < variables.length) {
-                    Parameter parameter = variables[message.varIndex];
+                if (varIndex < variables.length) {
+                    Parameter parameter = variables[varIndex];
                     ParameterType type = parameter.getParameterType();
-                    ParameterValue value = ParameterTypeTools.readFromNBT(message.tagCompound, type);
-                    variables[message.varIndex] = Parameter.builder()
+                    ParameterValue value = ParameterTypeTools.readFromNBT(tagCompound, type);
+                    variables[varIndex] = Parameter.builder()
                             .type(type)
                             .value(value)
                             .build();
                     processor.markDirty();
                 }
             }
-        }
+        });
+        ctx.setPacketHandled(true);
     }
 }
