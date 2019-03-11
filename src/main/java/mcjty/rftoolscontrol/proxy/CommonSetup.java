@@ -40,7 +40,6 @@ public class CommonSetup extends DefaultCommonSetup {
 
         mcmpPresent = Loader.isModLoaded("mcmultipart");
 
-        mainConfig = new Configuration(new File(modConfigDir.getPath() + File.separator + "rftools", "control.cfg"));
         readMainConfig();
 
         RFToolsCtrlMessages.registerMessages("rftoolsctrl");
@@ -63,7 +62,10 @@ public class CommonSetup extends DefaultCommonSetup {
         createTab("RFToolsControl", new ItemStack(ModItems.rfToolsControlManualItem));
     }
 
+    private Configuration mainConfig;
+
     private void readMainConfig() {
+        mainConfig = new Configuration(new File(modConfigDir.getPath() + File.separator + "rftools", "control.cfg"));
         Configuration cfg = mainConfig;
         try {
             cfg.load();
