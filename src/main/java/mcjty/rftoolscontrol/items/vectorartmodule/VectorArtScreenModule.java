@@ -7,7 +7,7 @@ import mcjty.rftools.api.screens.IScreenModule;
 import mcjty.rftoolscontrol.api.parameters.Tuple;
 import mcjty.rftoolscontrol.blocks.ModBlocks;
 import mcjty.rftoolscontrol.blocks.processor.ProcessorTileEntity;
-import mcjty.rftoolscontrol.config.GeneralConfiguration;
+import mcjty.rftoolscontrol.config.ConfigSetup;
 import mcjty.rftoolscontrol.rftoolssupport.ModuleDataVectorArt;
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
@@ -73,7 +73,7 @@ public class VectorArtScreenModule implements IScreenModule<ModuleDataVectorArt>
 
     @Override
     public int getRfPerTick() {
-        return GeneralConfiguration.VECTORARTMODULE_RFPERTICK;
+        return ConfigSetup.VECTORARTMODULE_RFPERTICK;
     }
 
     @Override

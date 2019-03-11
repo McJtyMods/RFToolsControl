@@ -1,6 +1,6 @@
 package mcjty.rftoolscontrol.items;
 
-import mcjty.rftoolscontrol.config.GeneralConfiguration;
+import mcjty.rftoolscontrol.config.ConfigSetup;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.TextFormatting;
@@ -30,7 +30,7 @@ public class CPUCoreItem extends GenericRFToolsItem {
         super.addInformation(stack, playerIn, list, advanced);
         list.add("This CPU core can be used in the");
         list.add("processor to allow it to run programs");
-        list.add(TextFormatting.GREEN + "" + GeneralConfiguration.coreSpeed[tier] + " operations per tick");
-        list.add(TextFormatting.GREEN + "" + GeneralConfiguration.coreRFPerTick[tier] + " RF per tick");
+        list.add(TextFormatting.GREEN + "" + ConfigSetup.coreSpeed[tier] + " operations per tick");
+        list.add(TextFormatting.GREEN + "" + ConfigSetup.coreRFPerTick[tier] + " RF per tick");
     }
 }

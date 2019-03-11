@@ -26,7 +26,7 @@ import mcjty.rftoolscontrol.blocks.vectorart.GfxOpBox;
 import mcjty.rftoolscontrol.blocks.vectorart.GfxOpLine;
 import mcjty.rftoolscontrol.blocks.vectorart.GfxOpText;
 import mcjty.rftoolscontrol.blocks.workbench.WorkbenchTileEntity;
-import mcjty.rftoolscontrol.config.GeneralConfiguration;
+import mcjty.rftoolscontrol.config.ConfigSetup;
 import mcjty.rftoolscontrol.items.*;
 import mcjty.rftoolscontrol.items.craftingcard.CraftingCardItem;
 import mcjty.rftoolscontrol.logic.InventoryTools;
@@ -195,7 +195,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     private Set<String> locks = new HashSet<>();
 
     public ProcessorTileEntity() {
-        super(GeneralConfiguration.processorMaxenergy, GeneralConfiguration.processorReceivepertick);
+        super(ConfigSetup.processorMaxenergy, ConfigSetup.processorReceivepertick);
         for (int i = 0 ; i < cardInfo.length ; i++) {
             cardInfo[i] = new CardInfo();
         }
@@ -1101,7 +1101,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     }
 
     private void queueEvent(int cardIndex, CompiledEvent event, @Nullable String ticket, @Nullable Parameter parameter) {
-        if (eventQueue.size() >= GeneralConfiguration.maxEventQueueSize) {
+        if (eventQueue.size() >= ConfigSetup.maxEventQueueSize) {
             // Too many events
             throw new ProgException(ExceptionType.EXCEPT_TOOMANYEVENTS);
         }
@@ -1317,7 +1317,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             return;
         }
         logMessages.add(message);
-        while (logMessages.size() > GeneralConfiguration.processorMaxloglines) {
+        while (logMessages.size() > ConfigSetup.processorMaxloglines) {
             logMessages.remove();
         }
     }
@@ -1447,7 +1447,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
 
         for (CpuCore core : cpuCores) {
             if (core.hasProgram()) {
-                int rft = GeneralConfiguration.coreRFPerTick[core.getTier()];
+                int rft = ConfigSetup.coreRFPerTick[core.getTier()];
                 if (rft < rf) {
                     core.run(this);
                     consumeEnergy(rft);
@@ -1818,7 +1818,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             throw new ProgException(EXCEPT_MISSINGGRAPHICSCARD);
         }
         if (!gfxOps.containsKey(id)) {
-            if (gfxOps.size() >= GeneralConfiguration.maxGraphicsOpcodes) {
+            if (gfxOps.size() >= ConfigSetup.maxGraphicsOpcodes) {
                 throw new ProgException(EXCEPT_MISSINGNETWORKCARD);
             }
             orderedOps = null;

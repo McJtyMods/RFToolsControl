@@ -10,7 +10,7 @@ import mcjty.lib.varia.BlockPosTools;
 import mcjty.lib.varia.ItemStackList;
 import mcjty.rftoolscontrol.api.parameters.Inventory;
 import mcjty.rftoolscontrol.blocks.processor.ProcessorTileEntity;
-import mcjty.rftoolscontrol.config.GeneralConfiguration;
+import mcjty.rftoolscontrol.config.ConfigSetup;
 import mcjty.rftoolscontrol.logic.running.ExceptionType;
 import mcjty.rftoolscontrol.logic.running.ProgException;
 import net.minecraft.entity.player.EntityPlayer;
@@ -174,10 +174,10 @@ public class CraftingStationTileEntity extends GenericTileEntity implements Defa
     }
 
     private boolean checkRequestAmount() {
-        if (activeCraftingRequests.size() >= GeneralConfiguration.maxCraftRequests) {
+        if (activeCraftingRequests.size() >= ConfigSetup.maxCraftRequests) {
             cleanupCounter = 50;
             cleanupStaleRequests();
-            if (activeCraftingRequests.size() >= GeneralConfiguration.maxCraftRequests) {
+            if (activeCraftingRequests.size() >= ConfigSetup.maxCraftRequests) {
                 // To many requests
                 return false;
             }

@@ -4,7 +4,7 @@ import mcjty.lib.varia.Logging;
 import mcjty.rftools.api.screens.IModuleGuiBuilder;
 import mcjty.rftools.api.screens.IModuleProvider;
 import mcjty.rftoolscontrol.blocks.ModBlocks;
-import mcjty.rftoolscontrol.config.GeneralConfiguration;
+import mcjty.rftoolscontrol.config.ConfigSetup;
 import mcjty.rftoolscontrol.items.GenericRFToolsItem;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
@@ -60,7 +60,7 @@ public class ConsoleModuleItem extends GenericRFToolsItem implements IModuleProv
     @Override
     public void addInformation(ItemStack itemStack, World player, List<String> list, ITooltipFlag whatIsThis) {
         super.addInformation(itemStack, player, list, whatIsThis);
-        list.add(TextFormatting.GREEN + "Uses " + GeneralConfiguration.CONSOLEMODULE_RFPERTICK + " RF/tick");
+        list.add(TextFormatting.GREEN + "Uses " + ConfigSetup.CONSOLEMODULE_RFPERTICK + " RF/tick");
         boolean hasTarget = false;
         NBTTagCompound tagCompound = itemStack.getTagCompound();
         if (tagCompound != null) {

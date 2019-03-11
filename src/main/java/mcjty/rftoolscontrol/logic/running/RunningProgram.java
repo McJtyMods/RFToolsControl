@@ -6,7 +6,7 @@ import mcjty.rftoolscontrol.api.parameters.Parameter;
 import mcjty.rftoolscontrol.api.parameters.ParameterType;
 import mcjty.rftoolscontrol.api.parameters.ParameterValue;
 import mcjty.rftoolscontrol.blocks.processor.ProcessorTileEntity;
-import mcjty.rftoolscontrol.config.GeneralConfiguration;
+import mcjty.rftoolscontrol.config.ConfigSetup;
 import mcjty.rftoolscontrol.logic.TypeConverters;
 import mcjty.rftoolscontrol.logic.compiled.CompiledCard;
 import mcjty.rftoolscontrol.logic.compiled.CompiledEvent;
@@ -153,14 +153,14 @@ public class RunningProgram implements IProgram {
     }
 
     public void pushLoopStack(int varIndex) {
-        if (loopStack.size() >= GeneralConfiguration.maxStackSize) {
+        if (loopStack.size() >= ConfigSetup.maxStackSize) {
             throw new ProgException(ExceptionType.EXCEPT_STACKOVERFLOW);
         }
         loopStack.add(new FlowStack(current, varIndex));
     }
 
     public void pushCall(int returnIndex) {
-        if (loopStack.size() >= GeneralConfiguration.maxStackSize) {
+        if (loopStack.size() >= ConfigSetup.maxStackSize) {
             throw new ProgException(ExceptionType.EXCEPT_STACKOVERFLOW);
         }
 
