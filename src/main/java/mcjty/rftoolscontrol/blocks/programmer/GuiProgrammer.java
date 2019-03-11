@@ -25,7 +25,7 @@ import mcjty.rftoolscontrol.api.parameters.Parameter;
 import mcjty.rftoolscontrol.api.parameters.ParameterDescription;
 import mcjty.rftoolscontrol.api.parameters.ParameterValue;
 import mcjty.rftoolscontrol.config.ConfigSetup;
-import mcjty.rftoolscontrol.gui.GuiProxy;
+import mcjty.rftoolscontrol.proxy.GuiProxy;
 import mcjty.rftoolscontrol.gui.GuiTools;
 import mcjty.rftoolscontrol.items.ProgramCardItem;
 import mcjty.rftoolscontrol.logic.Connection;

@@ -10,7 +10,7 @@ import mcjty.lib.gui.widgets.Panel;
 import mcjty.lib.gui.widgets.TextField;
 import mcjty.lib.typed.TypedMap;
 import mcjty.rftoolscontrol.RFToolsControl;
-import mcjty.rftoolscontrol.gui.GuiProxy;
+import mcjty.rftoolscontrol.proxy.GuiProxy;
 import mcjty.rftoolscontrol.network.RFToolsCtrlMessages;
 
 import java.awt.Rectangle;

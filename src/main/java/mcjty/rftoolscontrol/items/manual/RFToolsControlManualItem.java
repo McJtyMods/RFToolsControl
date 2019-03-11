@@ -1,7 +1,7 @@
 package mcjty.rftoolscontrol.items.manual;
 
 import mcjty.rftoolscontrol.RFToolsControl;
-import mcjty.rftoolscontrol.gui.GuiProxy;
+import mcjty.rftoolscontrol.proxy.GuiProxy;
 import mcjty.rftoolscontrol.items.GenericRFToolsItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;

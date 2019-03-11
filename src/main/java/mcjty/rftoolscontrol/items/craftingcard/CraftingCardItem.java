@@ -2,7 +2,7 @@ package mcjty.rftoolscontrol.items.craftingcard;
 
 import mcjty.lib.varia.ItemStackList;
 import mcjty.rftoolscontrol.RFToolsControl;
-import mcjty.rftoolscontrol.gui.GuiProxy;
+import mcjty.rftoolscontrol.proxy.GuiProxy;
 import mcjty.rftoolscontrol.items.GenericRFToolsItem;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.EntityPlayer;

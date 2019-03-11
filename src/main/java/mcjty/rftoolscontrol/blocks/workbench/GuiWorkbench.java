@@ -5,7 +5,7 @@ import mcjty.lib.gui.Window;
 import mcjty.lib.gui.layout.PositionalLayout;
 import mcjty.lib.gui.widgets.Panel;
 import mcjty.rftoolscontrol.RFToolsControl;
-import mcjty.rftoolscontrol.gui.GuiProxy;
+import mcjty.rftoolscontrol.proxy.GuiProxy;
 import mcjty.rftoolscontrol.network.RFToolsCtrlMessages;
 import net.minecraft.util.ResourceLocation;
 
