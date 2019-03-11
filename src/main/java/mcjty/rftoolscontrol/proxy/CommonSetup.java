@@ -35,8 +35,6 @@ public class CommonSetup extends DefaultCommonSetup {
 
         CommandHandler.registerCommands();
 
-        setupModCompat();
-
         RFToolsCtrlMessages.registerMessages("rftoolsctrl");
 
         ConfigSetup.init();
@@ -46,7 +44,8 @@ public class CommonSetup extends DefaultCommonSetup {
         ModItems.init();
     }
 
-    private void setupModCompat() {
+    @Override
+    protected void setupModCompat() {
         mcmpPresent = Loader.isModLoaded("mcmultipart");
 //        if (RFToolsControl.mcmpPresent) {
 //            MCMPSetup.init();
