@@ -48,7 +48,7 @@ public class ModSetup extends DefaultModSetup {
 //        }
         MainCompatHandler.registerWaila();
         MainCompatHandler.registerTOP();
-        FMLInterModComms.sendFunctionMessage("rftools", "getScreenModuleRegistry", "mcjty.rftoolscontrol.rftoolssupport.RFToolsSupport$GetScreenModuleRegistry");
+        FMLInterModComms.sendFunctionMessage("rftools", "getScreenModuleRegistry", "mcjty.rftoolscontrol.compat.rftoolssupport.RFToolsSupport$GetScreenModuleRegistry");
     }
 
     @Override
