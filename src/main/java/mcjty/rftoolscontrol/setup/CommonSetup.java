@@ -3,7 +3,6 @@ package mcjty.rftoolscontrol.setup;
 import mcjty.lib.compat.MainCompatHandler;
 import mcjty.lib.setup.DefaultCommonSetup;
 import mcjty.rftoolscontrol.CommandHandler;
-import mcjty.rftoolscontrol.ForgeEventHandlers;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.blocks.ModBlocks;
 import mcjty.rftoolscontrol.config.ConfigSetup;
@@ -12,7 +11,6 @@ import mcjty.rftoolscontrol.logic.registry.Functions;
 import mcjty.rftoolscontrol.logic.registry.Opcodes;
 import mcjty.rftoolscontrol.network.RFToolsCtrlMessages;
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInterModComms;
@@ -29,7 +27,6 @@ public class CommonSetup extends DefaultCommonSetup {
     public void preInit(FMLPreInitializationEvent e) {
         super.preInit(e);
 
-        MinecraftForge.EVENT_BUS.register(new ForgeEventHandlers());
         NetworkRegistry.INSTANCE.registerGuiHandler(RFToolsControl.instance, new GuiProxy());
 
         CommandHandler.registerCommands();
