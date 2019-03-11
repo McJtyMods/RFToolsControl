@@ -1,4 +1,4 @@
-package mcjty.rftoolscontrol.jei;
+package mcjty.rftoolscontrol.compat.jei;
 
 import io.netty.buffer.ByteBuf;
 import mcjty.lib.network.NetworkTools;

@@ -1,4 +1,4 @@
-package mcjty.rftoolscontrol.rftoolssupport;
+package mcjty.rftoolscontrol.compat.rftoolssupport;
 
 import io.netty.buffer.ByteBuf;
 import mcjty.lib.network.NetworkTools;

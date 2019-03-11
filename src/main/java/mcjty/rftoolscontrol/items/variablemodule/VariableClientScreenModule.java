@@ -3,7 +3,7 @@ package mcjty.rftoolscontrol.items.variablemodule;
 import mcjty.rftools.api.screens.*;
 import mcjty.rftoolscontrol.api.parameters.Parameter;
 import mcjty.rftoolscontrol.logic.TypeConverters;
-import mcjty.rftoolscontrol.rftoolssupport.ModuleDataVariable;
+import mcjty.rftoolscontrol.compat.rftoolssupport.ModuleDataVariable;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.nbt.NBTTagCompound;

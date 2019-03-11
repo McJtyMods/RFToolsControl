@@ -8,7 +8,7 @@ import mcjty.rftoolscontrol.api.parameters.Parameter;
 import mcjty.rftoolscontrol.blocks.ModBlocks;
 import mcjty.rftoolscontrol.blocks.processor.ProcessorTileEntity;
 import mcjty.rftoolscontrol.config.ConfigSetup;
-import mcjty.rftoolscontrol.rftoolssupport.ModuleDataVariable;
+import mcjty.rftoolscontrol.compat.rftoolssupport.ModuleDataVariable;
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;

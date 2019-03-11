@@ -1,4 +1,4 @@
-package mcjty.rftoolscontrol.jei;
+package mcjty.rftoolscontrol.compat.jei;
 
 import mcjty.rftoolscontrol.items.craftingcard.CraftingCardContainer;
 import mezz.jei.api.gui.IGuiIngredient;

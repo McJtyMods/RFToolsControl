@@ -1,4 +1,4 @@
-package mcjty.rftoolscontrol.rftoolssupport;
+package mcjty.rftoolscontrol.compat.rftoolssupport;
 
 import com.google.common.base.Function;
 import io.netty.buffer.ByteBuf;

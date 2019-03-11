@@ -1,4 +1,4 @@
-package mcjty.rftoolscontrol.jei;
+package mcjty.rftoolscontrol.compat.jei;
 
 import mcjty.rftoolscontrol.blocks.ModBlocks;
 import mcjty.rftoolscontrol.blocks.workbench.WorkbenchContainer;

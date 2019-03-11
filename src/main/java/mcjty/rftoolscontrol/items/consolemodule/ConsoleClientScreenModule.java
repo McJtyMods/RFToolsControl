@@ -3,7 +3,7 @@ package mcjty.rftoolscontrol.items.consolemodule;
 import mcjty.rftools.api.screens.IClientScreenModule;
 import mcjty.rftools.api.screens.IModuleRenderHelper;
 import mcjty.rftools.api.screens.ModuleRenderInfo;
-import mcjty.rftoolscontrol.rftoolssupport.ModuleDataLog;
+import mcjty.rftoolscontrol.compat.rftoolssupport.ModuleDataLog;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.nbt.NBTTagCompound;

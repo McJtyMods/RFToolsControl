@@ -8,7 +8,7 @@ import mcjty.rftoolscontrol.api.parameters.Tuple;
 import mcjty.rftoolscontrol.blocks.ModBlocks;
 import mcjty.rftoolscontrol.blocks.processor.ProcessorTileEntity;
 import mcjty.rftoolscontrol.config.ConfigSetup;
-import mcjty.rftoolscontrol.rftoolssupport.ModuleDataVectorArt;
+import mcjty.rftoolscontrol.compat.rftoolssupport.ModuleDataVectorArt;
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;

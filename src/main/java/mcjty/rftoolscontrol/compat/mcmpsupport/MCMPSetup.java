@@ -1,4 +1,4 @@
-package mcjty.rftoolscontrol.mcmpsupport;
+package mcjty.rftoolscontrol.compat.mcmpsupport;
 
 //import mcmultipart.multipart.MultipartRegistry;
 
