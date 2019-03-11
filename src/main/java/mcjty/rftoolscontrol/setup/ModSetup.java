@@ -1,7 +1,7 @@
 package mcjty.rftoolscontrol.setup;
 
 import mcjty.lib.compat.MainCompatHandler;
-import mcjty.lib.setup.DefaultCommonSetup;
+import mcjty.lib.setup.DefaultModSetup;
 import mcjty.rftoolscontrol.CommandHandler;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.blocks.ModBlocks;
@@ -19,7 +19,7 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 
 @Mod.EventBusSubscriber
-public class CommonSetup extends DefaultCommonSetup {
+public class ModSetup extends DefaultModSetup {
 
     public static boolean mcmpPresent = false;
 

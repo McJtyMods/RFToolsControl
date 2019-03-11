@@ -7,7 +7,7 @@ import mcjty.rftoolscontrol.api.registry.IOpcodeRegistry;
 import mcjty.rftoolscontrol.items.manual.GuiRFToolsManual;
 import mcjty.rftoolscontrol.logic.registry.FunctionRegistry;
 import mcjty.rftoolscontrol.logic.registry.OpcodeRegistry;
-import mcjty.rftoolscontrol.setup.CommonSetup;
+import mcjty.rftoolscontrol.setup.ModSetup;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fml.common.Mod;
@@ -33,7 +33,7 @@ public class RFToolsControl implements ModBase {
 
     @SidedProxy(clientSide="mcjty.rftoolscontrol.setup.ClientProxy", serverSide="mcjty.rftoolscontrol.setup.ServerProxy")
     public static IProxy proxy;
-    public static CommonSetup setup = new CommonSetup();
+    public static ModSetup setup = new ModSetup();
 
     @Mod.Instance(MODID)
     public static RFToolsControl instance;
