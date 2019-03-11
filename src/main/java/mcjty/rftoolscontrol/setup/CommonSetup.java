@@ -1,4 +1,4 @@
-package mcjty.rftoolscontrol.proxy;
+package mcjty.rftoolscontrol.setup;
 
 import mcjty.lib.compat.MainCompatHandler;
 import mcjty.lib.setup.DefaultCommonSetup;

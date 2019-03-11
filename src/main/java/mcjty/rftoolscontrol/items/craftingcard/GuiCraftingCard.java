@@ -17,7 +17,7 @@ import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.ItemStackList;
 import mcjty.rftoolscontrol.CommandHandler;
 import mcjty.rftoolscontrol.RFToolsControl;
-import mcjty.rftoolscontrol.proxy.GuiProxy;
+import mcjty.rftoolscontrol.setup.GuiProxy;
 import mcjty.rftoolscontrol.network.PacketItemNBTToServer;
 import mcjty.rftoolscontrol.network.RFToolsCtrlMessages;
 import net.minecraft.client.util.ITooltipFlag;

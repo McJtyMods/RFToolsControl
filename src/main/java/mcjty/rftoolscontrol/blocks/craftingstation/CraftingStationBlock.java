@@ -2,7 +2,7 @@ package mcjty.rftoolscontrol.blocks.craftingstation;
 
 import mcjty.lib.gui.GenericGuiContainer;
 import mcjty.rftoolscontrol.blocks.GenericRFToolsBlock;
-import mcjty.rftoolscontrol.proxy.GuiProxy;
+import mcjty.rftoolscontrol.setup.GuiProxy;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.item.ItemStack;

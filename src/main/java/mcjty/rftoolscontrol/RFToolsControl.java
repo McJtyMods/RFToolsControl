@@ -7,7 +7,7 @@ import mcjty.rftoolscontrol.api.registry.IOpcodeRegistry;
 import mcjty.rftoolscontrol.items.manual.GuiRFToolsManual;
 import mcjty.rftoolscontrol.logic.registry.FunctionRegistry;
 import mcjty.rftoolscontrol.logic.registry.OpcodeRegistry;
-import mcjty.rftoolscontrol.proxy.CommonSetup;
+import mcjty.rftoolscontrol.setup.CommonSetup;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fml.common.Mod;

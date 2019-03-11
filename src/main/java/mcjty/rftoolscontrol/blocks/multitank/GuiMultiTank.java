@@ -10,7 +10,7 @@ import mcjty.lib.gui.widgets.BlockRender;
 import mcjty.lib.gui.widgets.Label;
 import mcjty.lib.gui.widgets.Panel;
 import mcjty.rftoolscontrol.RFToolsControl;
-import mcjty.rftoolscontrol.proxy.GuiProxy;
+import mcjty.rftoolscontrol.setup.GuiProxy;
 import mcjty.rftoolscontrol.network.PacketGetTankFluids;
 import mcjty.rftoolscontrol.network.RFToolsCtrlMessages;
 import net.minecraft.util.ResourceLocation;

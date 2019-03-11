@@ -1,4 +1,4 @@
-package mcjty.rftoolscontrol.proxy;
+package mcjty.rftoolscontrol.setup;
 
 import mcjty.lib.blocks.GenericBlock;
 import mcjty.rftoolscontrol.items.craftingcard.CraftingCardContainer;

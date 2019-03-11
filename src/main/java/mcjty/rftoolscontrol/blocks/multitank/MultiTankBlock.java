@@ -3,7 +3,7 @@ package mcjty.rftoolscontrol.blocks.multitank;
 import mcjty.lib.container.EmptyContainer;
 import mcjty.lib.gui.GenericGuiContainer;
 import mcjty.rftoolscontrol.blocks.GenericRFToolsBlock;
-import mcjty.rftoolscontrol.proxy.GuiProxy;
+import mcjty.rftoolscontrol.setup.GuiProxy;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.util.ITooltipFlag;
