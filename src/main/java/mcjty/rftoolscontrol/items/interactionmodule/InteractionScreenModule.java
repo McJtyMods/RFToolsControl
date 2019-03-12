@@ -56,7 +56,7 @@ public class InteractionScreenModule implements IScreenModule<IModuleDataBoolean
 
     @Override
     public int getRfPerTick() {
-        return ConfigSetup.INTERACTMODULE_RFPERTICK;
+        return ConfigSetup.INTERACTMODULE_RFPERTICK.get();
     }
 
     @Override

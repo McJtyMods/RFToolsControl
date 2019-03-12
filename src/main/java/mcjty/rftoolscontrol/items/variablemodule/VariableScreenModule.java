@@ -82,7 +82,7 @@ public class VariableScreenModule implements IScreenModule<ModuleDataVariable> {
 
     @Override
     public int getRfPerTick() {
-        return ConfigSetup.VARIABLEMODULE_RFPERTICK;
+        return ConfigSetup.VARIABLEMODULE_RFPERTICK.get();
     }
 
     @Override

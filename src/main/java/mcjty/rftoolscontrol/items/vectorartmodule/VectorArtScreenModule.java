@@ -73,7 +73,7 @@ public class VectorArtScreenModule implements IScreenModule<ModuleDataVectorArt>
 
     @Override
     public int getRfPerTick() {
-        return ConfigSetup.VECTORARTMODULE_RFPERTICK;
+        return ConfigSetup.VECTORARTMODULE_RFPERTICK.get();
     }
 
     @Override

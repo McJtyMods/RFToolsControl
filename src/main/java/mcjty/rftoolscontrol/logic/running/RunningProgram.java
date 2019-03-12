@@ -153,14 +153,14 @@ public class RunningProgram implements IProgram {
     }
 
     public void pushLoopStack(int varIndex) {
-        if (loopStack.size() >= ConfigSetup.maxStackSize) {
+        if (loopStack.size() >= ConfigSetup.maxStackSize.get()) {
             throw new ProgException(ExceptionType.EXCEPT_STACKOVERFLOW);
         }
         loopStack.add(new FlowStack(current, varIndex));
     }
 
     public void pushCall(int returnIndex) {
-        if (loopStack.size() >= ConfigSetup.maxStackSize) {
+        if (loopStack.size() >= ConfigSetup.maxStackSize.get()) {
             throw new ProgException(ExceptionType.EXCEPT_STACKOVERFLOW);
         }
 

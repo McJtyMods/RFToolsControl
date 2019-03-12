@@ -195,7 +195,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     private Set<String> locks = new HashSet<>();
 
     public ProcessorTileEntity() {
-        super(ConfigSetup.processorMaxenergy, ConfigSetup.processorReceivepertick);
+        super(ConfigSetup.processorMaxenergy.get(), ConfigSetup.processorReceivepertick.get());
         for (int i = 0 ; i < cardInfo.length ; i++) {
             cardInfo[i] = new CardInfo();
         }
@@ -1101,7 +1101,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     }
 
     private void queueEvent(int cardIndex, CompiledEvent event, @Nullable String ticket, @Nullable Parameter parameter) {
-        if (eventQueue.size() >= ConfigSetup.maxEventQueueSize) {
+        if (eventQueue.size() >= ConfigSetup.maxEventQueueSize.get()) {
             // Too many events
             throw new ProgException(ExceptionType.EXCEPT_TOOMANYEVENTS);
         }
@@ -1317,7 +1317,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             return;
         }
         logMessages.add(message);
-        while (logMessages.size() > ConfigSetup.processorMaxloglines) {
+        while (logMessages.size() > ConfigSetup.processorMaxloglines.get()) {
             logMessages.remove();
         }
     }
@@ -1447,7 +1447,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
 
         for (CpuCore core : cpuCores) {
             if (core.hasProgram()) {
-                int rft = ConfigSetup.coreRFPerTick[core.getTier()];
+                int rft = ConfigSetup.coreRFPerTick[core.getTier()].get();
                 if (rft < rf) {
                     core.run(this);
                     consumeEnergy(rft);
@@ -1818,7 +1818,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             throw new ProgException(EXCEPT_MISSINGGRAPHICSCARD);
         }
         if (!gfxOps.containsKey(id)) {
-            if (gfxOps.size() >= ConfigSetup.maxGraphicsOpcodes) {
+            if (gfxOps.size() >= ConfigSetup.maxGraphicsOpcodes.get()) {
                 throw new ProgException(EXCEPT_MISSINGNETWORKCARD);
             }
             orderedOps = null;

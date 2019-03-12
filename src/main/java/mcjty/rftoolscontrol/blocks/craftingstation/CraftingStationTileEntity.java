@@ -174,10 +174,10 @@ public class CraftingStationTileEntity extends GenericTileEntity implements Defa
     }
 
     private boolean checkRequestAmount() {
-        if (activeCraftingRequests.size() >= ConfigSetup.maxCraftRequests) {
+        if (activeCraftingRequests.size() >= ConfigSetup.maxCraftRequests.get()) {
             cleanupCounter = 50;
             cleanupStaleRequests();
-            if (activeCraftingRequests.size() >= ConfigSetup.maxCraftRequests) {
+            if (activeCraftingRequests.size() >= ConfigSetup.maxCraftRequests.get()) {
                 // To many requests
                 return false;
             }

@@ -29,7 +29,7 @@ public class CpuCore {
         if (debug) {
             return;
         }
-        for (int i = 0; i < ConfigSetup.coreSpeed[tier]; i++) {
+        for (int i = 0; i < ConfigSetup.coreSpeed[tier].get(); i++) {
             boolean rc = false;
             try {
                 rc = program.run(processor);

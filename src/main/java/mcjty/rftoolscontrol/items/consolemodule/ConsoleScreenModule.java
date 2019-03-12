@@ -73,7 +73,7 @@ public class ConsoleScreenModule implements IScreenModule<ModuleDataLog> {
 
     @Override
     public int getRfPerTick() {
-        return ConfigSetup.CONSOLEMODULE_RFPERTICK;
+        return ConfigSetup.CONSOLEMODULE_RFPERTICK.get();
     }
 
     @Override
