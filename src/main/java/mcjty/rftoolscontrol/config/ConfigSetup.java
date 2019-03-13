@@ -9,6 +9,7 @@ import org.apache.logging.log4j.Level;
 import java.io.File;
 
 public class ConfigSetup {
+
     public static final String CATEGORY_GENERAL = "general";
 
     public static ConfigSpec.IntValue processorMaxenergy;
