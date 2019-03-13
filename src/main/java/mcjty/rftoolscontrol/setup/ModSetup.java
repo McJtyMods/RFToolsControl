@@ -29,8 +29,6 @@ public class ModSetup extends DefaultModSetup {
 
         NetworkRegistry.INSTANCE.registerGuiHandler(RFToolsControl.instance, new GuiProxy());
 
-        ConfigSetup.init();
-
         CommandHandler.registerCommands();
 
         RFToolsCtrlMessages.registerMessages("rftoolsctrl");
@@ -50,6 +48,11 @@ public class ModSetup extends DefaultModSetup {
         MainCompatHandler.registerWaila();
         MainCompatHandler.registerTOP();
         FMLInterModComms.sendFunctionMessage("rftools", "getScreenModuleRegistry", "mcjty.rftoolscontrol.compat.rftoolssupport.RFToolsSupport$GetScreenModuleRegistry");
+    }
+
+    @Override
+    protected void setupConfig() {
+        ConfigSetup.init();
     }
 
     @Override
