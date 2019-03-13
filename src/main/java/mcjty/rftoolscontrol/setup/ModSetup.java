@@ -29,11 +29,12 @@ public class ModSetup extends DefaultModSetup {
 
         NetworkRegistry.INSTANCE.registerGuiHandler(RFToolsControl.instance, new GuiProxy());
 
+        ConfigSetup.init();
+
         CommandHandler.registerCommands();
 
         RFToolsCtrlMessages.registerMessages("rftoolsctrl");
 
-        ConfigSetup.init();
         Opcodes.init();
         Functions.init();
         ModBlocks.init();
