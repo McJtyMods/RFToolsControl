@@ -64,6 +64,15 @@ public class FluidEditor extends AbstractParameterEditor {
     }
 
     private FluidStack stackToFluid(ItemStack stack) {
+        if (stack.hasCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY, null)) {
+            IFluidHandler handler = stack.getCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY, null);
+            if (handler.getTankProperties() != null && handler.getTankProperties().length > 0) {
+                if (handler.getTankProperties()[0] != null) {
+                    return handler.getTankProperties()[0].getContents();
+                }
+            }
+        }
+
         if (stack.hasCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null)) {
             IFluidHandler handler = stack.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null);
             if (handler.getTankProperties() != null && handler.getTankProperties().length > 0) {
@@ -72,6 +81,7 @@ public class FluidEditor extends AbstractParameterEditor {
                 }
             }
         }
+
         return null;
     }
 
