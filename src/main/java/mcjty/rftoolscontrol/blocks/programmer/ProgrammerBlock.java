@@ -17,6 +17,7 @@ public class ProgrammerBlock extends GenericRFToolsBlock<ProgrammerTileEntity, P
 
     public ProgrammerBlock() {
         super(Material.IRON, ProgrammerTileEntity.class, ProgrammerContainer::new, "programmer", false);
+        setNeedsRedstoneCheck(true);
     }
 
     @SideOnly(Side.CLIENT)
@@ -35,6 +36,6 @@ public class ProgrammerBlock extends GenericRFToolsBlock<ProgrammerTileEntity, P
     public void addInformation(ItemStack stack, World playerIn, List<String> list, ITooltipFlag advanced) {
         super.addInformation(stack, playerIn, list, advanced);
         list.add("Use this block to make programs");
-        list.add("on a program card for the programmer");
+        list.add("on a program card for the processor");
     }
 }
