@@ -1300,7 +1300,10 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                 CompiledOpcode opcode = program.getCurrentOpcode(this);
                 int gridX = opcode.getGridX();
                 int gridY = opcode.getGridY();
-                message = TextFormatting.RED + "[" + gridX + "," + gridY + "] " + exception.getDescription();
+
+
+
+                message = TextFormatting.RED + "[" + gridX + "," + gridY + "] " + exception.getDescription() + " (" + program.getCardIndex() + ")";
             }
         } else {
             message = TextFormatting.RED + exception.getDescription();

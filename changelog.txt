@@ -1,5 +1,6 @@
 Upcoming:
 - Fixed dropping liquid buckets in the fluid opcodes
+- Small improvement on error logging. The index of the program card that is causing the error is now also printed
 
 1.9.3:
 - Needs McJtyLib 3.1.0
