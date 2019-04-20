@@ -1,6 +1,7 @@
 Upcoming:
 - Fixed dropping liquid buckets in the fluid opcodes
 - Small improvement on error logging. The index of the program card that is causing the error is now also printed
+- If the programmer gets a redstone signal it will save the current program to the card. This allows automation to save a program to many cards
 
 1.9.3:
 - Needs McJtyLib 3.1.0
