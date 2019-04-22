@@ -57,7 +57,7 @@ public class ModSetup extends DefaultModSetup {
 
     @Override
     public void createTabs() {
-        createTab("RFToolsControl", new ItemStack(ModItems.rfToolsControlManualItem));
+        createTab("RFToolsControl", () -> new ItemStack(ModItems.rfToolsControlManualItem));
     }
 
     @Override
