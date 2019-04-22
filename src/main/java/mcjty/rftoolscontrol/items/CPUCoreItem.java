@@ -30,7 +30,7 @@ public class CPUCoreItem extends GenericRFToolsItem {
         super.addInformation(stack, playerIn, list, advanced);
         list.add("This CPU core can be used in the");
         list.add("processor to allow it to run programs");
-        list.add(TextFormatting.GREEN + "" + ConfigSetup.coreSpeed[tier] + " operations per tick");
-        list.add(TextFormatting.GREEN + "" + ConfigSetup.coreRFPerTick[tier] + " RF per tick");
+        list.add(TextFormatting.GREEN + "" + ConfigSetup.coreSpeed[tier].get() + " operations per tick");
+        list.add(TextFormatting.GREEN + "" + ConfigSetup.coreRFPerTick[tier].get() + " RF per tick");
     }
 }
