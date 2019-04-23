@@ -4,19 +4,34 @@ import net.minecraft.util.EnumFacing;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Nullable;
+import java.util.Objects;
 
 /**
  * This class identifies a side of a network blocked. This basically
  * is an optional nodename and an optional side. If side is null then
  * it means the node or processor itself.
  */
-public class BlockSide {
+public class BlockSide implements Comparable<BlockSide> {
     @Nullable private final String nodeName;          // An inventory on a network
     @Nullable private final EnumFacing side;      // The side at which the inventory can be found
 
     public BlockSide(@Nullable String name, @Nullable EnumFacing side) {
         this.nodeName = (name == null || name.isEmpty()) ? null : name;
         this.side = side;
+    }
+
+    @Override
+    public int compareTo(BlockSide blockSide) {
+        if (nodeName == null && blockSide.nodeName != null) {
+            return -1;
+        }
+        if (nodeName != null && blockSide.nodeName == null) {
+            return 1;
+        }
+        if (nodeName == null) {
+            return 0;
+        }
+        return nodeName.compareTo(blockSide.nodeName);
     }
 
     @Nullable

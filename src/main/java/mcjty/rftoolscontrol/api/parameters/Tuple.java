@@ -1,12 +1,29 @@
 package mcjty.rftoolscontrol.api.parameters;
 
-public class Tuple {
+public class Tuple implements Comparable<Tuple> {
     private final int x;
     private final int y;
 
     public Tuple(int x, int y) {
         this.x = x;
         this.y = y;
+    }
+
+    @Override
+    public int compareTo(Tuple tuple) {
+        if (x < tuple.x) {
+            return -1;
+        } else if (x > tuple.x) {
+            return 1;
+        } else {
+            if (y < tuple.y) {
+                return -1;
+            } else if (y > tuple.y) {
+                return 1;
+            } else {
+                return 0;
+            }
+        }
     }
 
     public int getX() {

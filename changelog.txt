@@ -3,6 +3,7 @@ Upcoming:
 - Small improvement on error logging. The index of the program card that is causing the error is now also printed
 - If the programmer gets a redstone signal it will save the current program to the card. This allows automation to save a program to many cards
 - New opcode ('eval_countcrafts') to count the possible number of crafting operations given a card and an inventory
+- New opcode ('do_vector_sort') to sort a vector
 
 1.9.3:
 - Needs McJtyLib 3.1.0

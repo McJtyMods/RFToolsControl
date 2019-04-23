@@ -10,8 +10,11 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.items.IItemHandler;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static mcjty.rftoolscontrol.api.code.IOpcodeRunnable.OpcodeResult.*;
 import static mcjty.rftoolscontrol.api.code.OpcodeCategory.*;
@@ -1850,6 +1853,39 @@ public class Opcodes {
                 return POSITIVE;
             }))
             .build();
+
+    public static final Opcode DO_VECTOR_SORT = Opcode.builder()
+            .id("do_vector_sort")
+            .description(
+                    TextFormatting.GREEN + "Operation: vector sort",
+                    "sort the last value (vector) and set the",
+                    "last value to the sorted vector.",
+                    "If the optional second vector is given",
+                    "it should have the same length and it will",
+                    "be used as the sort criteria instead")
+            .outputDescription("sorted vector (vector)")
+            .category(CATEGORY_VECTORS)
+            .opcodeOutput(SINGLE)
+            .parameter(ParameterDescription.builder().name("vector").type(PAR_VECTOR).description("vector to sort").build())
+            .parameter(ParameterDescription.builder().name("compare").type(PAR_VECTOR).optional().description("vector to use for comparison").build())
+            .icon(10, 9)
+            .runnable(((processor, program, opcode) -> {
+                List<Parameter> vector = processor.evaluateVectorParameterNonNull(opcode, program, 0);
+                List<Parameter> compare = processor.evaluateVectorParameter(opcode, program, 0);
+                if (compare == null) {
+                    vector.sort(Comparator.naturalOrder());
+                    program.setLastValue(Parameter.builder().type(PAR_VECTOR).value(ParameterValue.constant(vector)).build());
+                } else {
+                    List<Parameter> result = IntStream.range(0, vector.size())
+                            .mapToObj(i -> Pair.of(vector.get(i), compare.get(i)))
+                            .sorted(Comparator.comparing(Pair::getRight))
+                            .map(Pair::getLeft)
+                            .collect(Collectors.toList());
+                    program.setLastValue(Parameter.builder().type(PAR_VECTOR).value(ParameterValue.constant(result)).build());
+                }
+                return POSITIVE;
+            }))
+            .build();
     public static final Opcode EVAL_VECTOR_ELEMENT = Opcode.builder()
             .id("eval_vector_element")
             .description(
@@ -2049,6 +2085,7 @@ public class Opcodes {
         register(DO_VECTOR_PUSH);
         register(DO_VECTOR_PUSH_INT);
         register(DO_VECTOR_POP);
+        register(DO_VECTOR_SORT);
         register(DO_CRAFTOK);
         register(DO_CRAFTFAIL);
         register(DO_GETINGREDIENTS);

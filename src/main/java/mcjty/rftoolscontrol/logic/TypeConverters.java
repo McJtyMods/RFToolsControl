@@ -89,6 +89,7 @@ public class TypeConverters {
         return null;
     }
 
+    @Nonnull
     public static ItemStack convertToItem(Parameter value) {
         if (value == null) {
             return ItemStack.EMPTY;
@@ -96,6 +97,7 @@ public class TypeConverters {
         return convertToItem(value.getParameterType(), value.getParameterValue().getValue());
     }
 
+    @Nonnull
     public static ItemStack convertToItem(ParameterType type, Object v) {
         if (v == null) {
             return ItemStack.EMPTY;
@@ -328,6 +330,18 @@ public class TypeConverters {
             return 0;
         }
         Long l = convertToLong(value.getParameterType(), value.getParameterValue().getValue());
+        if (l == null) {
+            return 0;
+        }
+        return l;
+    }
+
+    @Nonnull
+    public static Number convertToNumber(Parameter value) {
+        if (value == null) {
+            return 0;
+        }
+        Number l = convertToNumber(value.getParameterType(), value.getParameterValue().getValue());
         if (l == null) {
             return 0;
         }
