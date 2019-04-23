@@ -1290,8 +1290,8 @@ public class Opcodes {
             .outputDescription("number of possible crafting operations (integer)")
             .category(CATEGORY_CRAFTING)
             .opcodeOutput(SINGLE)
-            .parameter(ParameterDescription.builder().name("inv").type(PAR_INVENTORY).description("inventory adjacent to (networked) block", "with ingredients").build())
-            .parameter(ParameterDescription.builder().name("card").type(PAR_ITEM).optional().description("the crafting card to check").build())
+            .parameter(ParameterDescription.builder().name("inv").type(PAR_INVENTORY).optional().description("inventory adjacent to (networked) block", "with ingredients").build())
+            .parameter(ParameterDescription.builder().name("card").type(PAR_ITEM).description("the crafting card to check").build())
             .icon(9, 9)
             .runnable(((processor, program, opcode) -> {
                 Inventory inv = processor.evaluateInventoryParameter(opcode, program, 0);

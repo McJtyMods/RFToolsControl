@@ -555,7 +555,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         return failed;
     }
 
-    public int countCardIngredients(IProgram program, @Nonnull Inventory inv, ItemStack card) {
+    public int countCardIngredients(IProgram program, @Nullable Inventory inv, ItemStack card) {
         IStorageScanner scanner = getScannerForInv(inv);
         IItemHandler handler = getHandlerForInv(inv);
         List<ItemStack> ingredients = CraftingCardItem.getIngredients(card);
