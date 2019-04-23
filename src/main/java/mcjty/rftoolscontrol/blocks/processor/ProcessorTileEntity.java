@@ -555,6 +555,15 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         return failed;
     }
 
+    public int countCardIngredients(IProgram program, @Nonnull Inventory inv, ItemStack card) {
+        IStorageScanner scanner = getScannerForInv(inv);
+        IItemHandler handler = getHandlerForInv(inv);
+        List<ItemStack> ingredients = CraftingCardItem.getIngredients(card);
+        boolean strictnbt = CraftingCardItem.isStrictNBT(card); // @todo
+        List<ItemStack> needed = combineIngredients(ingredients);
+        return countPossibleCrafts(scanner, handler, needed);
+    }
+
     public boolean checkIngredients(IProgram program, @Nonnull Inventory cardInv, ItemStack item, int slot1, int slot2) {
         if (item.isEmpty()) {
             item = getCraftResult(program);
@@ -685,6 +694,21 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             }
         }
         return requested;
+    }
+
+    // Check the storage scanner or handler for a list of ingredients and count them
+    private int countPossibleCrafts(IStorageScanner scanner, IItemHandler handler, List<ItemStack> needed) {
+        int maxPossible = Integer.MAX_VALUE;
+        for (ItemStack ingredient : needed) {
+            if (!ingredient.isEmpty()) {
+                int cnt = InventoryTools.countItem(handler, scanner, ingredient, false, -1);
+                int possible = cnt / ingredient.getCount();
+                if (possible < maxPossible) {
+                    maxPossible = possible;
+                }
+            }
+        }
+        return maxPossible;
     }
 
     // Given a list of ingredients make a combined list where all identical

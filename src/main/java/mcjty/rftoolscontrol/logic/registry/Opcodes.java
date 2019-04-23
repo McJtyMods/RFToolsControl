@@ -1275,6 +1275,30 @@ public class Opcodes {
             }))
             .build();
 
+    public static final Opcode EVAL_COUNTCRAFTS = Opcode.builder()
+            .id("eval_countcrafts")
+            .description(
+                    TextFormatting.GREEN + "Eval: count crafts",
+                    "Given a crafting card and an inventory adjacent",
+                    "to the processor or a connected node, return how",
+                    "many times the crafting operation can be performed",
+                    "given the contents of the inventory.",
+                    "Can also be used on a storage system")
+            .outputDescription("number of possible crafting operations (integer)")
+            .category(CATEGORY_CRAFTING)
+            .opcodeOutput(SINGLE)
+            .parameter(ParameterDescription.builder().name("inv").type(PAR_INVENTORY).description("inventory adjacent to (networked) block", "with ingredients").build())
+            .parameter(ParameterDescription.builder().name("card").type(PAR_ITEM).optional().description("the crafting card to check").build())
+            .icon(9, 9)
+            .runnable(((processor, program, opcode) -> {
+                Inventory inv = processor.evaluateInventoryParameter(opcode, program, 0);
+                ItemStack cardItem = processor.evaluateItemParameterNonNull(opcode, program, 1);
+                int amount = ((ProcessorTileEntity)processor).countCardIngredients(program, inv, cardItem);
+                program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(amount)).build());
+                return POSITIVE;
+            }))
+            .build();
+
     public static final Opcode EVAL_INVENTORY = Opcode.builder()
             .id("eval_inventory")
             .description(
@@ -1961,6 +1985,7 @@ public class Opcodes {
         register(EVAL_GETDAMAGE);
         register(EVAL_GETNAME);
         register(EVAL_INGREDIENTS);
+        register(EVAL_COUNTCRAFTS);
         register(EVAL_REDSTONE);
         register(EVAL_GETMACHINEINFO);
         register(EVAL_GETRF);
