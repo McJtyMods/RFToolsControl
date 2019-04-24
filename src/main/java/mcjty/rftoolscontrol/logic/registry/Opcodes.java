@@ -1854,6 +1854,28 @@ public class Opcodes {
             }))
             .build();
 
+    public static final Opcode EVAL_VECTOR_INDICES = Opcode.builder()
+            .id("eval_vector_indices")
+            .description(
+                    TextFormatting.GREEN + "Eval: vector indices",
+                    "generate a vector starting of the given length",
+                    "with integers starting at 0")
+            .outputDescription("vector (vector)")
+            .category(CATEGORY_VECTORS)
+            .opcodeOutput(SINGLE)
+            .parameter(ParameterDescription.builder().name("length").type(PAR_INTEGER).description("length").build())
+            .icon(10, 10)
+            .runnable(((processor, program, opcode) -> {
+                int length = processor.evaluateIntParameter(opcode, program, 0);
+                List<Parameter> indices = new ArrayList<>(length);
+                for (int i = 0 ; i < length ; i++) {
+                    indices.add(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(i)).build());
+                }
+                program.setLastValue(Parameter.builder().type(PAR_VECTOR).value(ParameterValue.constant(indices)).build());
+                return POSITIVE;
+            }))
+            .build();
+
     public static final Opcode DO_VECTOR_SORT = Opcode.builder()
             .id("do_vector_sort")
             .description(
@@ -2087,6 +2109,7 @@ public class Opcodes {
         register(EVAL_LOCK);
         register(EVAL_VECTOR);
         register(EVAL_VECTOR_ELEMENT);
+        register(EVAL_VECTOR_INDICES);
         register(TEST_GT);
         register(TEST_GT_NUMBER);
         register(TEST_GT_VAR);
