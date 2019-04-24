@@ -64,6 +64,7 @@ public class PacketUpdateNBTItemInventoryProgrammer implements IMessage {
                 if (!stack.isEmpty()) {
                     stack.setTagCompound(tagCompound);
                 }
+                te.markDirty();
             }
         });
         ctx.setPacketHandled(true);
