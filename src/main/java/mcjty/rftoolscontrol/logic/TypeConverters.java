@@ -519,9 +519,28 @@ public class TypeConverters {
             case PAR_TUPLE:
                 return v.toString();
             case PAR_VECTOR:
-                return "[]";    // @todo?
+                return vectorToString((List<Parameter>) v, 50);
         }
         return null;
+    }
+
+    private static String vectorToString(List<Parameter> v, int max) {
+        StringBuilder builder = new StringBuilder('[');
+        List<Parameter> vector = v;
+        boolean first = true;
+        for (Parameter par : vector) {
+            if (!first) {
+                builder.append(',');
+            }
+            if (builder.length() >= max) {
+                builder.append("...");
+                break;
+            }
+            builder.append(convertToString(par));
+            first = false;
+        }
+        builder.append(']');
+        return builder.toString();
     }
 
     public static int castToInt(Object value) {
