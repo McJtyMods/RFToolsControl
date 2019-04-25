@@ -7,20 +7,23 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
+import net.minecraftforge.oredict.OreDictionary;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.HashSet;
+import java.util.Set;
 
 public class InventoryTools {
 
     public static int countItem(@Nullable IItemHandler itemHandler, @Nullable IStorageScanner scanner, ItemStack itemMatcher, boolean oredict, int maxToCount) {
         if (itemHandler != null) {
-            // @todo implement oredict here
+            Set<Integer> oredictMatchers = getOredictMatchers(itemMatcher, oredict);
             int cnt = 0;
             for (int i = 0; i < itemHandler.getSlots(); i++) {
                 ItemStack stack = itemHandler.getStackInSlot(i);
-                if (!stack.isEmpty() && ItemStack.areItemsEqual(stack, itemMatcher)) {
+                if (isItemEqual(stack, itemMatcher, oredictMatchers)) {
                     cnt += stack.getCount();
                     if (maxToCount != -1 && cnt >= maxToCount) {
                         return maxToCount;
@@ -37,6 +40,34 @@ public class InventoryTools {
         }
         return 0;
     }
+
+    private static Set<Integer> getOredictMatchers(ItemStack stack, boolean oredict) {
+        Set<Integer> oredictMatches = new HashSet<>();
+        if (oredict) {
+            for (int id : OreDictionary.getOreIDs(stack)) {
+                oredictMatches.add(id);
+            }
+        }
+        return oredictMatches;
+    }
+
+    private static boolean isItemEqual(ItemStack thisItem, ItemStack other, Set<Integer> oreDictMatchers) {
+        if (other.isEmpty()) {
+            return false;
+        }
+        if (oreDictMatchers.isEmpty()) {
+            return thisItem.isItemEqual(other);
+        } else {
+            int[] oreIDs = OreDictionary.getOreIDs(other);
+            for (int id : oreIDs) {
+                if (oreDictMatchers.contains(id)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
 
     public static ItemStack extractItem(@Nullable IItemHandler itemHandler, @Nullable IStorageScanner scanner,
                                         @Nullable Integer amount, boolean routable, boolean oredict, boolean strictnbt, ItemStack itemMatcher,

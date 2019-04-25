@@ -612,7 +612,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     }
 
     public int getIngredientsSmart(IProgram program, Inventory inv, @Nonnull Inventory cardInv,
-                                   ItemStack item, int slot1, int slot2, @Nonnull Inventory destInv) {
+                                   ItemStack item, int slot1, int slot2, @Nonnull Inventory destInv, boolean oredict) {
         IStorageScanner scanner = getScannerForInv(inv);
         IItemHandler handler = getHandlerForInv(inv);
 
@@ -645,7 +645,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         boolean strictnbt = CraftingCardItem.isStrictNBT(card);
 
         List<ItemStack> needed = combineIngredients(ingredients);
-        int requested = checkAvailableItemsAndRequestMissing(destInv, scanner, handler, needed);
+        int requested = checkAvailableItemsAndRequestMissing(destInv, scanner, handler, needed, oredict);
         if (requested != 0) {
             return requested;
         }
@@ -656,7 +656,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         for (ItemStack ingredient : ingredients) {
             int realSlot = info.getRealSlot(slot);
             if (!ingredient.isEmpty()) {
-                ItemStack stack = InventoryTools.extractItem(handler, scanner, ingredient.getCount(), true, false, strictnbt, ingredient, null);
+                ItemStack stack = InventoryTools.extractItem(handler, scanner, ingredient.getCount(), true, oredict, strictnbt, ingredient, null);
                 if (!stack.isEmpty()) {
                     itemHandler.insertItem(realSlot, stack, false);
                 }
@@ -670,11 +670,11 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     // ingredient is requested if possible. Returns -1 if there were ingredients that
     // could not be requested. Returns 0 if nothing had to be requested and otherwise
     // returns the amount of requested items
-    private int checkAvailableItemsAndRequestMissing(Inventory destInv, IStorageScanner scanner, IItemHandler handler, List<ItemStack> needed) {
+    private int checkAvailableItemsAndRequestMissing(Inventory destInv, IStorageScanner scanner, IItemHandler handler, List<ItemStack> needed, boolean oredict) {
         int requested = 0;
         for (ItemStack ingredient : needed) {
             if (!ingredient.isEmpty()) {
-                int cnt = InventoryTools.countItem(handler, scanner, ingredient, false, ingredient.getCount());
+                int cnt = InventoryTools.countItem(handler, scanner, ingredient, oredict, ingredient.getCount());
                 if (cnt < ingredient.getCount()) {
                     requested++;
                     ItemStack requestedItem = ingredient.copy();

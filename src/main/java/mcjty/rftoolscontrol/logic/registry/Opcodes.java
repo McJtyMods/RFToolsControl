@@ -906,6 +906,7 @@ public class Opcodes {
             .parameter(ParameterDescription.builder().name("slot1").type(PAR_INTEGER).description("start of internal slot range for ingredients").build())
             .parameter(ParameterDescription.builder().name("slot2").type(PAR_INTEGER).description("last slot of that range").build())
             .parameter(ParameterDescription.builder().name("destInv").type(PAR_INVENTORY).description("inventory adjacent to (networked) block", "for end result of requests").build())
+            .parameter(ParameterDescription.builder().name("oredict").type(PAR_BOOLEAN).optional().description("use oredictionary to match items").build())
             .icon(11, 3)
             .runnable(((processor, program, opcode) -> {
                 Inventory inv = processor.evaluateInventoryParameter(opcode, program, 0);
@@ -914,7 +915,8 @@ public class Opcodes {
                 int slot1 = processor.evaluateIntParameter(opcode, program, 3);
                 int slot2 = processor.evaluateIntParameter(opcode, program, 4);
                 Inventory destInv = processor.evaluateInventoryParameterNonNull(opcode, program, 5);
-                int failed = ((ProcessorTileEntity)processor).getIngredientsSmart(program, inv, cardInv, item, slot1, slot2, destInv);
+                boolean oredict = processor.evaluateBoolParameter(opcode, program, 6);
+                int failed = ((ProcessorTileEntity)processor).getIngredientsSmart(program, inv, cardInv, item, slot1, slot2, destInv, oredict);
                 program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(failed)).build());
                 return POSITIVE;
             }))
