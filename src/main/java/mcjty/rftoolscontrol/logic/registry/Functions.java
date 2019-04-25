@@ -147,7 +147,7 @@ public class Functions {
     public static final Function LENGTH = Function.builder()
             .id("length")
             .name("length")
-            .description("The length of the last opcode", "result")
+            .description("The length of the last value")
             .type(PAR_INTEGER)
             .runnable((processor, program) -> ParameterTools.getLength(program.getLastValue()))
             .build();

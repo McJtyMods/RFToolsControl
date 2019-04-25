@@ -1,11 +1,11 @@
 Upcoming:
 - Fixed dropping liquid buckets in the fluid opcodes
 - Small improvement on error logging. The index of the program card that is causing the error is now also printed
+- There was a chance that a programmer would not correctly save its current program on exit. Loading the world again would revert to an older program. This has now been fixed
 - If the programmer gets a redstone signal it will save the current program to the card. This allows automation to save a program to many cards
 - New opcode ('eval_countcrafts') to count the possible number of crafting operations given a card and an inventory
 - New opcode ('do_vector_sort') to sort a vector
 - New opcode ('eval_vector_indices') to generate a vector of integers starting with 0
-- There was a chance that a programmer would not correctly save its current program on exit. Loading the world again would revert to an older program. This has now been fixed
 - Converting a vector to a string will now give a short summary of its contents instead of just []
 - New 'length' function which is a more convenient way to calculate the length of a string or vector
 
