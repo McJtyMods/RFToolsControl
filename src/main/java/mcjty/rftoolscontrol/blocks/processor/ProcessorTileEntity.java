@@ -1427,6 +1427,20 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         return pars;
     }
 
+    public WatchInfo[] getWatchInfos() {
+        return watchInfos;
+    }
+
+    public void setWatch(int varIndex, boolean br) {
+        watchInfos[varIndex] = new WatchInfo(br);
+        markDirtyQuick();
+    }
+
+    public void clearWatch(int varIndex) {
+        watchInfos[varIndex] = null;
+        markDirtyQuick();
+    }
+
     public List<PacketGetFluids.FluidEntry> getFluids() {
         List<PacketGetFluids.FluidEntry> pars = new ArrayList<>();
         for (int i = 0 ; i < MAXFLUIDVARS ; i++) {
@@ -1858,12 +1872,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
 
     private void sortOps() {
         orderedOps = new ArrayList<>(gfxOps.keySet());
-        orderedOps.sort(new Comparator<String>() {
-            @Override
-            public int compare(String s, String t1) {
-                return s.compareTo(t1);
-            }
-        });
+        orderedOps.sort(String::compareTo);
     }
 
     @Override
@@ -2191,11 +2200,11 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         if (old == value) {
             return false;
         } else if (old == null) {
-            return false;
+            return true;
         } else if (value == null) {
-            return false;
+            return true;
         } else {
-            return value.compareTo(old) == 0;
+            return value.compareTo(old) != 0;
         }
     }
 

@@ -9,6 +9,7 @@ Upcoming:
 - Converting a vector to a string will now give a short summary of its contents instead of just []
 - New 'length' function which is a more convenient way to calculate the length of a string or vector
 - The 'do_getingredients_smart' and 'do_getingredients' opcodes now have optional 'oredict' parameters so that you can enable oredictionary support for checking ingredients
+- New 'watch' commands that can help debug a program by watching when a variable changes. You can then log that change or set the program in debug mode
 
 1.9.3:
 - Needs McJtyLib 3.1.0

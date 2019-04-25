@@ -61,13 +61,50 @@ public class Commands {
     private static void handleWatchCommand(ProcessorTileEntity processor, String[] splitted) {
         String sub = splitted[1].toLowerCase();
         if ("set".equals(sub)) {
-
+            if (splitted.length <= 2) {
+                processor.log(TextFormatting.RED + "Missing variable index!");
+                return;
+            }
+            int index = Integer.parseInt(splitted[2]);
+            if (index < 0 || index >= ProcessorTileEntity.MAXVARS) {
+                processor.log(TextFormatting.RED + "Wrong variable index!");
+                return;
+            }
+            processor.setWatch(index, false);
         } else if ("list".equals(sub)) {
-
+            boolean hasWatches = false;
+            for (int i = 0 ; i < ProcessorTileEntity.MAXVARS ; i++) {
+                WatchInfo info = processor.getWatchInfos()[i];
+                if (info != null) {
+                    processor.log("Watch " + i + (info.isBreakOnChange() ? " (break)" : ""));
+                    hasWatches = true;
+                }
+            }
+            if (!hasWatches) {
+                processor.log("No watches");
+            }
         } else if ("break".equals(sub)) {
-
+            if (splitted.length <= 2) {
+                processor.log(TextFormatting.RED + "Missing variable index!");
+                return;
+            }
+            int index = Integer.parseInt(splitted[2]);
+            if (index < 0 || index >= ProcessorTileEntity.MAXVARS) {
+                processor.log(TextFormatting.RED + "Wrong variable index!");
+                return;
+            }
+            processor.setWatch(index, true);
         } else if ("clear".equals(sub)) {
-
+            if (splitted.length <= 2) {
+                processor.log(TextFormatting.RED + "Missing variable index!");
+                return;
+            }
+            int index = Integer.parseInt(splitted[2]);
+            if (index < 0 || index >= ProcessorTileEntity.MAXVARS) {
+                processor.log(TextFormatting.RED + "Wrong variable index!");
+                return;
+            }
+            processor.clearWatch(index);
         } else {
             processor.log("Unknown 'watch' command!");
         }
