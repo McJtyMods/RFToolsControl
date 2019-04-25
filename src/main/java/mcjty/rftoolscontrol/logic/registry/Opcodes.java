@@ -1893,7 +1893,7 @@ public class Opcodes {
             .icon(10, 9)
             .runnable(((processor, program, opcode) -> {
                 List<Parameter> vector = processor.evaluateVectorParameterNonNull(opcode, program, 0);
-                List<Parameter> compare = processor.evaluateVectorParameter(opcode, program, 0);
+                List<Parameter> compare = processor.evaluateVectorParameter(opcode, program, 1);
                 if (compare == null) {
                     vector.sort(Comparator.naturalOrder());
                     program.setLastValue(Parameter.builder().type(PAR_VECTOR).value(ParameterValue.constant(vector)).build());
