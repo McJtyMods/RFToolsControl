@@ -1908,48 +1908,6 @@ public class Opcodes {
                 return POSITIVE;
             }))
             .build();
-    public static final Opcode DO_VECTOR_MAX = Opcode.builder()
-            .id("do_vector_max")
-            .description(
-                    TextFormatting.GREEN + "Operation: vector maximum",
-                    "search the last value (vector) for the maximum",
-                    "value and set the index of that as the last value.")
-            .outputDescription("index of largest value (integer)")
-            .category(CATEGORY_VECTORS)
-            .opcodeOutput(SINGLE)
-            .parameter(ParameterDescription.builder().name("vector").type(PAR_VECTOR).description("vector to search").build())
-            .icon(11, 9)
-            .runnable(((processor, program, opcode) -> {
-                List<Parameter> vector = processor.evaluateVectorParameterNonNull(opcode, program, 0);
-                Optional<Pair<Parameter, Integer>> max = IntStream.range(0, vector.size())
-                        .mapToObj(i -> Pair.of(vector.get(i), i))
-                        .max(Comparator.comparing(Pair::getLeft));
-                Integer index = max.map(Pair::getRight).orElse(-1);
-                program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(index)).build());
-                return POSITIVE;
-            }))
-            .build();
-    public static final Opcode DO_VECTOR_MIN = Opcode.builder()
-            .id("do_vector_min")
-            .description(
-                    TextFormatting.GREEN + "Operation: vector minimum",
-                    "search the last value (vector) for the minimum",
-                    "value and set the index of that as the last value.")
-            .outputDescription("index of smallest value (integer)")
-            .category(CATEGORY_VECTORS)
-            .opcodeOutput(SINGLE)
-            .parameter(ParameterDescription.builder().name("vector").type(PAR_VECTOR).description("vector to search").build())
-            .icon(11, 10)
-            .runnable(((processor, program, opcode) -> {
-                List<Parameter> vector = processor.evaluateVectorParameterNonNull(opcode, program, 0);
-                Optional<Pair<Parameter, Integer>> min = IntStream.range(0, vector.size())
-                        .mapToObj(i -> Pair.of(vector.get(i), i))
-                        .min(Comparator.comparing(Pair::getLeft));
-                Integer index = min.map(Pair::getRight).orElse(-1);
-                program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(index)).build());
-                return POSITIVE;
-            }))
-            .build();
     public static final Opcode EVAL_VECTOR_ELEMENT = Opcode.builder()
             .id("eval_vector_element")
             .description(
@@ -2151,8 +2109,6 @@ public class Opcodes {
         register(DO_VECTOR_PUSH_INT);
         register(DO_VECTOR_POP);
         register(DO_VECTOR_SORT);
-        register(DO_VECTOR_MAX);
-        register(DO_VECTOR_MIN);
         register(DO_CRAFTOK);
         register(DO_CRAFTFAIL);
         register(DO_GETINGREDIENTS);
