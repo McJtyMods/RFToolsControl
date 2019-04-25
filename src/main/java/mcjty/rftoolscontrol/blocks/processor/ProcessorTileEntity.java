@@ -733,7 +733,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         return needed;
     }
 
-    public int getIngredients(IProgram program, Inventory inv, Inventory cardInv, ItemStack item, int slot1, int slot2) {
+    public int getIngredients(IProgram program, Inventory inv, Inventory cardInv, ItemStack item, int slot1, int slot2, boolean oredict) {
         IStorageScanner scanner = getScannerForInv(inv);
         IItemHandler handler = getHandlerForInv(inv);
 
@@ -767,7 +767,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         for (ItemStack ingredient : ingredients) {
             int realSlot = info.getRealSlot(slot);
             if (!ingredient.isEmpty()) {
-                ItemStack stack = InventoryTools.extractItem(handler, scanner, ingredient.getCount(), true, false, strictnbt, ingredient, null);
+                ItemStack stack = InventoryTools.extractItem(handler, scanner, ingredient.getCount(), true, oredict, strictnbt, ingredient, null);
                 if (!stack.isEmpty()) {
                     ItemStack remainder = itemHandler.insertItem(realSlot, stack, false);
                     if (!remainder.isEmpty()) {

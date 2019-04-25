@@ -8,7 +8,7 @@ Upcoming:
 - New opcode ('eval_vector_indices') to generate a vector of integers starting with 0
 - Converting a vector to a string will now give a short summary of its contents instead of just []
 - New 'length' function which is a more convenient way to calculate the length of a string or vector
-- The 'do_getingredients_smart' now has an optional 'oredict' parameter so that you can enable oredictionary support for checking ingredients
+- The 'do_getingredients_smart' and 'do_getingredients' opcodes now have optional 'oredict' parameters so that you can enable oredictionary support for checking ingredients
 
 1.9.3:
 - Needs McJtyLib 3.1.0

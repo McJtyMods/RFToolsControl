@@ -875,6 +875,7 @@ public class Opcodes {
             .parameter(ParameterDescription.builder().name("item").type(PAR_ITEM).optional().description("the item to craft or empty", "for default from ticket").build())
             .parameter(ParameterDescription.builder().name("slot1").type(PAR_INTEGER).description("start of internal slot range for ingredients").build())
             .parameter(ParameterDescription.builder().name("slot2").type(PAR_INTEGER).description("last slot of that range").build())
+            .parameter(ParameterDescription.builder().name("oredict").type(PAR_BOOLEAN).optional().description("use oredict matching").build())
             .icon(8, 2)
             .runnable(((processor, program, opcode) -> {
                 Inventory inv = processor.evaluateInventoryParameter(opcode, program, 0);
@@ -882,7 +883,8 @@ public class Opcodes {
                 ItemStack item = processor.evaluateItemParameter(opcode, program, 2);
                 int slot1 = processor.evaluateIntParameter(opcode, program, 3);
                 int slot2 = processor.evaluateIntParameter(opcode, program, 4);
-                int failed = ((ProcessorTileEntity)processor).getIngredients(program, inv, cardInv, item, slot1, slot2);
+                boolean oredict = processor.evaluateBoolParameter(opcode, program, 5);
+                int failed = ((ProcessorTileEntity)processor).getIngredients(program, inv, cardInv, item, slot1, slot2, oredict);
                 program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(failed)).build());
                 return POSITIVE;
             }))
