@@ -1,4 +1,4 @@
-package mcjty.rftoolscontrol.logic.registry;
+package mcjty.rftoolscontrol.logic;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -7,6 +7,7 @@ import com.google.gson.JsonPrimitive;
 import mcjty.rftoolscontrol.api.parameters.*;
 import mcjty.rftoolscontrol.logic.ParameterTools;
 import mcjty.rftoolscontrol.logic.TypeConverters;
+import mcjty.rftoolscontrol.logic.registry.Functions;
 import mcjty.rftoolscontrol.logic.running.ExceptionType;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;

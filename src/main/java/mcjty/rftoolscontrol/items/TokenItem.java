@@ -3,7 +3,7 @@ package mcjty.rftoolscontrol.items;
 import mcjty.rftoolscontrol.api.parameters.Parameter;
 import mcjty.rftoolscontrol.setup.GuiProxy;
 import mcjty.rftoolscontrol.logic.ParameterTools;
-import mcjty.rftoolscontrol.logic.registry.ParameterTypeTools;
+import mcjty.rftoolscontrol.logic.ParameterTypeTools;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;

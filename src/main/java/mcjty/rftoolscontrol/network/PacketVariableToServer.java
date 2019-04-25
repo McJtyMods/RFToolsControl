@@ -7,7 +7,7 @@ import mcjty.rftoolscontrol.api.parameters.Parameter;
 import mcjty.rftoolscontrol.api.parameters.ParameterType;
 import mcjty.rftoolscontrol.api.parameters.ParameterValue;
 import mcjty.rftoolscontrol.blocks.processor.ProcessorTileEntity;
-import mcjty.rftoolscontrol.logic.registry.ParameterTypeTools;
+import mcjty.rftoolscontrol.logic.ParameterTypeTools;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;

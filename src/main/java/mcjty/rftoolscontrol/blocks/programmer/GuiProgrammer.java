@@ -36,7 +36,7 @@ import mcjty.rftoolscontrol.logic.grid.GridInstance;
 import mcjty.rftoolscontrol.logic.grid.GridPos;
 import mcjty.rftoolscontrol.logic.grid.ProgramCardInstance;
 import mcjty.rftoolscontrol.logic.registry.Opcodes;
-import mcjty.rftoolscontrol.logic.registry.ParameterTypeTools;
+import mcjty.rftoolscontrol.logic.ParameterTypeTools;
 import mcjty.rftoolscontrol.network.RFToolsCtrlMessages;
 import net.minecraft.inventory.ClickType;
 import net.minecraft.inventory.Slot;

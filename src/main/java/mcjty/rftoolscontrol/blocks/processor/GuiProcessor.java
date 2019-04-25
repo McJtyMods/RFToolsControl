@@ -24,7 +24,7 @@ import mcjty.rftoolscontrol.setup.GuiProxy;
 import mcjty.rftoolscontrol.gui.GuiTools;
 import mcjty.rftoolscontrol.logic.editors.ParameterEditor;
 import mcjty.rftoolscontrol.logic.editors.ParameterEditors;
-import mcjty.rftoolscontrol.logic.registry.ParameterTypeTools;
+import mcjty.rftoolscontrol.logic.ParameterTypeTools;
 import mcjty.rftoolscontrol.network.*;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.inventory.Slot;

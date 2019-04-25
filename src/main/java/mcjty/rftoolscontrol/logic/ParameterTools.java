@@ -7,13 +7,13 @@ import io.netty.buffer.ByteBuf;
 import mcjty.lib.network.NetworkTools;
 import mcjty.rftoolscontrol.api.parameters.*;
 import mcjty.rftoolscontrol.logic.registry.InventoryUtil;
-import mcjty.rftoolscontrol.logic.registry.ParameterTypeTools;
 import mcjty.rftoolscontrol.logic.running.ExceptionType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.fluids.FluidStack;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -334,6 +334,43 @@ public class ParameterTools {
             }
         }
         return sum;
+    }
+
+    public static int getLength(@Nullable Parameter parameter) {
+        if (parameter == null) {
+            return 0;
+        }
+        ParameterValue value = parameter.getParameterValue();
+        if (value == null) {
+            return 0;
+        }
+        Object v = value.getValue();
+        switch (parameter.getParameterType()) {
+            case PAR_STRING:
+                return ((String) v).length();
+            case PAR_INTEGER:
+                return 0;
+            case PAR_LONG:
+                return 0;
+            case PAR_FLOAT:
+                return 0;
+            case PAR_NUMBER:
+                return 0;
+            case PAR_BOOLEAN:
+                return 0;
+            case PAR_TUPLE:
+                return 2;
+            case PAR_VECTOR:
+                return ((List<?>)v).size();
+            case PAR_ITEM:
+                return ((ItemStack) v).getCount();
+            case PAR_SIDE:
+            case PAR_INVENTORY:
+            case PAR_FLUID:
+            case PAR_EXCEPTION:
+                return 0;
+        }
+        return 0;
     }
 
     public static Number addNumbers(Number n1, Number n2) {

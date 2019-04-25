@@ -11,7 +11,7 @@ import mcjty.rftoolscontrol.logic.TypeConverters;
 import mcjty.rftoolscontrol.logic.compiled.CompiledCard;
 import mcjty.rftoolscontrol.logic.compiled.CompiledEvent;
 import mcjty.rftoolscontrol.logic.compiled.CompiledOpcode;
-import mcjty.rftoolscontrol.logic.registry.ParameterTypeTools;
+import mcjty.rftoolscontrol.logic.ParameterTypeTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraftforge.common.util.Constants;

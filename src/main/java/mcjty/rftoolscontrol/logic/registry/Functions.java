@@ -1,6 +1,7 @@
 package mcjty.rftoolscontrol.logic.registry;
 
 import mcjty.rftoolscontrol.api.code.Function;
+import mcjty.rftoolscontrol.api.machines.IProcessor;
 import mcjty.rftoolscontrol.api.parameters.Parameter;
 import mcjty.rftoolscontrol.api.parameters.ParameterType;
 import mcjty.rftoolscontrol.api.parameters.Tuple;
@@ -143,6 +144,13 @@ public class Functions {
                 return ParameterTools.getSumVector(vector);
             })
             .build();
+    public static final Function LENGTH = Function.builder()
+            .id("length")
+            .name("length")
+            .description("The length of the last opcode", "result")
+            .type(PAR_INTEGER)
+            .runnable((processor, program) -> ParameterTools.getLength(program.getLastValue()))
+            .build();
     public static final Function TICKET = Function.builder()
             .id("ticket")
             .name("ticket")
@@ -155,7 +163,7 @@ public class Functions {
             .name("craftresult")
             .description("The current desired crafting result")
             .type(PAR_ITEM)
-            .runnable((processor, program) -> processor.getCraftResult(program))
+            .runnable(IProcessor::getCraftResult)
             .build();
     public static final Function ITEMFROMCARD = Function.builder()
             .id("itemfromcard")
@@ -238,6 +246,7 @@ public class Functions {
         register(ITEMFROMCARD);
         register(RANDOMINT);
         register(RANDOMFLOAT);
+        register(LENGTH);
         register(TUPLE_X);
         register(TUPLE_Y);
     }
