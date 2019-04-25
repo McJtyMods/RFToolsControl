@@ -555,13 +555,13 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         return failed;
     }
 
-    public int countCardIngredients(IProgram program, @Nullable Inventory inv, ItemStack card) {
+    public int countCardIngredients(IProgram program, @Nullable Inventory inv, ItemStack card, boolean oredict) {
         IStorageScanner scanner = getScannerForInv(inv);
         IItemHandler handler = getHandlerForInv(inv);
         List<ItemStack> ingredients = CraftingCardItem.getIngredients(card);
         boolean strictnbt = CraftingCardItem.isStrictNBT(card); // @todo
         List<ItemStack> needed = combineIngredients(ingredients);
-        return countPossibleCrafts(scanner, handler, needed);
+        return countPossibleCrafts(scanner, handler, needed, oredict);
     }
 
     public boolean checkIngredients(IProgram program, @Nonnull Inventory cardInv, ItemStack item, int slot1, int slot2) {
@@ -697,11 +697,11 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     }
 
     // Check the storage scanner or handler for a list of ingredients and count them
-    private int countPossibleCrafts(IStorageScanner scanner, IItemHandler handler, List<ItemStack> needed) {
+    private int countPossibleCrafts(IStorageScanner scanner, IItemHandler handler, List<ItemStack> needed, boolean oredict) {
         int maxPossible = Integer.MAX_VALUE;
         for (ItemStack ingredient : needed) {
             if (!ingredient.isEmpty()) {
-                int cnt = InventoryTools.countItem(handler, scanner, ingredient, false, -1);
+                int cnt = InventoryTools.countItem(handler, scanner, ingredient, oredict, -1);
                 int possible = cnt / ingredient.getCount();
                 if (possible < maxPossible) {
                     maxPossible = possible;

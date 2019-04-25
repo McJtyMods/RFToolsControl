@@ -906,7 +906,7 @@ public class Opcodes {
             .parameter(ParameterDescription.builder().name("slot1").type(PAR_INTEGER).description("start of internal slot range for ingredients").build())
             .parameter(ParameterDescription.builder().name("slot2").type(PAR_INTEGER).description("last slot of that range").build())
             .parameter(ParameterDescription.builder().name("destInv").type(PAR_INVENTORY).description("inventory adjacent to (networked) block", "for end result of requests").build())
-            .parameter(ParameterDescription.builder().name("oredict").type(PAR_BOOLEAN).optional().description("use oredictionary to match items").build())
+            .parameter(ParameterDescription.builder().name("oredict").type(PAR_BOOLEAN).optional().description("use oredict matching").build())
             .icon(11, 3)
             .runnable(((processor, program, opcode) -> {
                 Inventory inv = processor.evaluateInventoryParameter(opcode, program, 0);
@@ -1294,11 +1294,13 @@ public class Opcodes {
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("inv").type(PAR_INVENTORY).optional().description("inventory adjacent to (networked) block", "with ingredients").build())
             .parameter(ParameterDescription.builder().name("card").type(PAR_ITEM).description("the crafting card to check").build())
+            .parameter(ParameterDescription.builder().name("oredict").type(PAR_BOOLEAN).optional().description("use oredict matching").build())
             .icon(9, 9)
             .runnable(((processor, program, opcode) -> {
                 Inventory inv = processor.evaluateInventoryParameter(opcode, program, 0);
                 ItemStack cardItem = processor.evaluateItemParameterNonNull(opcode, program, 1);
-                int amount = ((ProcessorTileEntity)processor).countCardIngredients(program, inv, cardItem);
+                boolean oredict = processor.evaluateBoolParameter(opcode, program, 2);
+                int amount = ((ProcessorTileEntity)processor).countCardIngredients(program, inv, cardItem, oredict);
                 program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(amount)).build());
                 return POSITIVE;
             }))
