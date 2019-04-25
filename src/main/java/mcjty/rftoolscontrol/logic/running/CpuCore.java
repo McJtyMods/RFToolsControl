@@ -47,7 +47,7 @@ public class CpuCore {
         }
     }
 
-    public void step(ProcessorTileEntity processor) {
+    public void step(ProcessorTileEntity processor, CpuCore core) {
         try {
             program.run(processor);
         } catch (ProgException e) {
@@ -88,6 +88,7 @@ public class CpuCore {
             System.out.println("Core: starting program = " + program);
         }
         this.program = program;
+        program.setCore(this);
     }
 
     public NBTTagCompound writeToNBT() {
@@ -102,6 +103,9 @@ public class CpuCore {
 
     public void readFromNBT(NBTTagCompound tag) {
         program = RunningProgram.readFromNBT(tag);
+        if (program != null) {
+            program.setCore(this);
+        }
         tier = tag.getInteger("tier");
         debug = tag.getBoolean("debug");
     }

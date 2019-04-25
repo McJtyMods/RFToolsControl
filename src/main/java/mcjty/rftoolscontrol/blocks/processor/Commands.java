@@ -47,11 +47,29 @@ public class Commands {
             handleNetworkCommand(processor, splitted);
         } else if ("db".equals(cmd)) {
             handleDebugCommand(processor, splitted);
+        } else if ("watch".equals(cmd)) {
+            handleWatchCommand(processor, splitted);
         } else {
             processor.log("Commands: clear/stop/reset/list");
             processor.log("    signal <name>");
             processor.log("    net setup/list/info");
+            processor.log("    watch set/break/list/clear");
             processor.log("    db debug/s/info/last/resume");
+        }
+    }
+
+    private static void handleWatchCommand(ProcessorTileEntity processor, String[] splitted) {
+        String sub = splitted[1].toLowerCase();
+        if ("set".equals(sub)) {
+
+        } else if ("list".equals(sub)) {
+
+        } else if ("break".equals(sub)) {
+
+        } else if ("clear".equals(sub)) {
+
+        } else {
+            processor.log("Unknown 'watch' command!");
         }
     }
 
@@ -166,7 +184,7 @@ public class Commands {
                 processor.log(TextFormatting.RED + "Core " + c + ": " + "not running");
                 return;
             }
-            core.step(processor);
+            core.step(processor, core);
             showCurrent(processor, c, program);
         } else {
             processor.log("Unknown 'db' command!");

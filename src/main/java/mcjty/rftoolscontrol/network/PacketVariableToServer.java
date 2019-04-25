@@ -60,6 +60,7 @@ public class PacketVariableToServer implements IMessage {
                     Parameter parameter = variables[varIndex];
                     ParameterType type = parameter.getParameterType();
                     ParameterValue value = ParameterTypeTools.readFromNBT(tagCompound, type);
+                    // Here we don't want to trigger the watch
                     variables[varIndex] = Parameter.builder()
                             .type(type)
                             .value(value)

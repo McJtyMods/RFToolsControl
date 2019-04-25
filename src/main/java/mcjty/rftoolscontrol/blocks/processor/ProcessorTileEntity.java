@@ -174,6 +174,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     private int tickCount = 0;
 
     private Parameter[] variables = new Parameter[MAXVARS];
+    private WatchInfo[] watchInfos = new WatchInfo[MAXVARS];
     private int fluidSlotsAvailable = -1;    // Bitmask indexed by side (6 bits), -1 means unset
 
     private CardInfo[] cardInfo = new CardInfo[CARD_SLOTS];
@@ -201,6 +202,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         }
         for (int i = 0 ; i < MAXVARS ; i++) {
             variables[i] = null;
+            watchInfos[i] = null;
         }
         fluidSlotsAvailable = -1;
     }
@@ -2168,7 +2170,33 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     public void setVariable(IProgram program, int var) {
         CardInfo info = this.cardInfo[((RunningProgram)program).getCardIndex()];
         int realVar = getRealVarSafe(var, info);
-        variables[realVar] = program.getLastValue();
+        setVariableInternal(program, realVar, program.getLastValue());
+    }
+
+    public void setVariableInternal(IProgram program, int realVar, Parameter value) {
+        if (watchInfos[realVar] != null) {
+            Parameter oldValue = variables[realVar];
+            if (isWatchTriggered(oldValue, value)) {
+                log(TextFormatting.BLUE + "W"+realVar+": " + TypeConverters.convertToString(value));
+                if (watchInfos[realVar].isBreakOnChange()) {
+                    CpuCore core = ((RunningProgram) program).getCore();    // @todo ugly cast
+                    core.setDebug(true);
+                }
+            }
+        }
+        variables[realVar] = value;
+    }
+
+    private boolean isWatchTriggered(Parameter old, Parameter value) {
+        if (old == value) {
+            return false;
+        } else if (old == null) {
+            return false;
+        } else if (value == null) {
+            return false;
+        } else {
+            return value.compareTo(old) == 0;
+        }
     }
 
     @Override
@@ -2737,12 +2765,17 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     private void readVariables(NBTTagCompound tagCompound) {
         for (int i = 0 ; i < MAXVARS ; i++) {
             variables[i] = null;
+            watchInfos[i] = null;
         }
         NBTTagList varList = tagCompound.getTagList("vars", Constants.NBT.TAG_COMPOUND);
         for (int i = 0 ; i < varList.tagCount() ; i++) {
             NBTTagCompound var = varList.getCompoundTagAt(i);
             int index = var.getInteger("varidx");
             variables[index] = ParameterTools.readFromNBT(var);
+            if (var.hasKey("watch")) {
+                WatchInfo info = new WatchInfo(var.getBoolean("watch"));
+                watchInfos[index] = info;
+            }
         }
     }
 
@@ -2893,6 +2926,9 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             if (variables[i] != null) {
                 NBTTagCompound var = ParameterTools.writeToNBT(variables[i]);
                 var.setInteger("varidx", i);
+                if (watchInfos[i] != null) {
+                    var.setBoolean("watch", watchInfos[i].isBreakOnChange());
+                }
                 varList.appendTag(var);
             }
         }

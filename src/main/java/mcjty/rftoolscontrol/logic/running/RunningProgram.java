@@ -7,11 +7,11 @@ import mcjty.rftoolscontrol.api.parameters.ParameterType;
 import mcjty.rftoolscontrol.api.parameters.ParameterValue;
 import mcjty.rftoolscontrol.blocks.processor.ProcessorTileEntity;
 import mcjty.rftoolscontrol.config.ConfigSetup;
+import mcjty.rftoolscontrol.logic.ParameterTypeTools;
 import mcjty.rftoolscontrol.logic.TypeConverters;
 import mcjty.rftoolscontrol.logic.compiled.CompiledCard;
 import mcjty.rftoolscontrol.logic.compiled.CompiledEvent;
 import mcjty.rftoolscontrol.logic.compiled.CompiledOpcode;
-import mcjty.rftoolscontrol.logic.ParameterTypeTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraftforge.common.util.Constants;
@@ -50,6 +50,9 @@ public class RunningProgram implements IProgram {
     // Last value result
     private Parameter lastValue;
 
+    // The core we are running on
+    private CpuCore core;
+
     // Opcode index, variable index
     private List<FlowStack> loopStack = new ArrayList<>();
 
@@ -85,6 +88,14 @@ public class RunningProgram implements IProgram {
 
     public void setCurrent(int current) {
         this.current = current;
+    }
+
+    public void setCore(CpuCore core) {
+        this.core = core;
+    }
+
+    public CpuCore getCore() {
+        return core;
     }
 
     public int getEventIndex() {
@@ -182,7 +193,7 @@ public class RunningProgram implements IProgram {
                 Parameter parameter = processor.getVariableArray()[varIdx];
                 int i = TypeConverters.convertToInt(parameter);
                 i++;
-                processor.getVariableArray()[varIdx] = Parameter.builder().type(ParameterType.PAR_INTEGER).value(ParameterValue.constant(i)).build();
+                processor.setVariableInternal(this, varIdx, Parameter.builder().type(ParameterType.PAR_INTEGER).value(ParameterValue.constant(i)).build());
             }
         }
     }
