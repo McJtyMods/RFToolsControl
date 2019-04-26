@@ -1026,7 +1026,10 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
                     String name = parameter.getName();
                     ParameterValue value = (ParameterValue) data.get(name);
                     if (value != null) {
-                        tooltips.add(TextFormatting.BLUE + ParameterTypeTools.stringRepresentation(parameter.getType(), value));
+                        String s = ParameterTypeTools.stringRepresentation(parameter.getType(), value);
+                        if (!s.isEmpty()) {
+                            tooltips.add(TextFormatting.BLUE + s);
+                        }
                     }
                 }
             } else if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT)) {

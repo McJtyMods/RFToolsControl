@@ -3,6 +3,7 @@ package mcjty.rftoolscontrol.logic.registry;
 import mcjty.rftoolscontrol.api.code.Opcode;
 import mcjty.rftoolscontrol.api.parameters.*;
 import mcjty.rftoolscontrol.blocks.processor.ProcessorTileEntity;
+import mcjty.rftoolscontrol.logic.InventoryTools;
 import mcjty.rftoolscontrol.logic.ParameterTools;
 import mcjty.rftoolscontrol.logic.running.ExceptionType;
 import mcjty.rftoolscontrol.logic.running.ProgException;
@@ -299,6 +300,30 @@ public class Opcodes {
                 Number v1 = processor.evaluateNumberParameter(opcode, program, 0);
                 Number v2 = processor.evaluateNumberParameter(opcode, program, 1);
                 return ParameterTools.compareNumbers(v1, v2) == 0 ? POSITIVE : NEGATIVE;
+            }))
+            .build();
+
+    public static final Opcode TEST_EQ_ITEM = Opcode.builder()
+            .id("test_eq_item")
+            .description(
+                    TextFormatting.GREEN + "Test: equality",
+                    "check if the first item is equal",
+                    "to the second item")
+            .opcodeOutput(YESNO)
+            .category(CATEGORY_ITEMS)
+            .parameter(ParameterDescription.builder().name("item1").type(PAR_ITEM).description("first item").build())
+            .parameter(ParameterDescription.builder().name("item2").type(PAR_ITEM).description("second item").build())
+            .parameter(ParameterDescription.builder().name("meta").type(PAR_BOOLEAN).optional().description("check meta").build())
+            .parameter(ParameterDescription.builder().name("nbt").type(PAR_BOOLEAN).optional().description("check nbt").build())
+            .parameter(ParameterDescription.builder().name("oredict").type(PAR_BOOLEAN).optional().description("use oredictionary").build())
+            .icon(11, 10)
+            .runnable(((processor, program, opcode) -> {
+                ItemStack item1 = processor.evaluateItemParameterNonNull(opcode, program, 0);
+                ItemStack item2 = processor.evaluateItemParameterNonNull(opcode, program, 1);
+                boolean meta = processor.evaluateBoolParameter(opcode, program, 2);
+                boolean nbt = processor.evaluateBoolParameter(opcode, program, 3);
+                boolean oredict = processor.evaluateBoolParameter(opcode, program, 4);
+                return InventoryTools.areItemsEqual(item1, item2, meta, nbt, oredict) ? POSITIVE : NEGATIVE;
             }))
             .build();
 
@@ -2097,6 +2122,7 @@ public class Opcodes {
         register(TEST_EQ);
         register(TEST_EQ_NUMBER);
         register(TEST_EQ_VAR);
+        register(TEST_EQ_ITEM);
         register(TEST_SET);
         register(TEST_LOOP);
 //        register(TEST_LOOP_VECTOR);

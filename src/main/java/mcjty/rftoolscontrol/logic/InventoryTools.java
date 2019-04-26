@@ -41,6 +41,25 @@ public class InventoryTools {
         return 0;
     }
 
+    public static boolean areItemsEqual(ItemStack item1, ItemStack item2, boolean meta, boolean nbt, boolean oredict) {
+        if (oredict) {
+            if (!OreDictionary.itemMatches(item1, item2, false)) {
+                return false;
+            }
+        } else {
+            if (item1.getItem() != item2.getItem()) {
+                return false;
+            }
+        }
+        if (meta && item1.getItemDamage() != item2.getItemDamage()) {
+            return false;
+        }
+        if (nbt && !ItemStack.areItemStackTagsEqual(item1, item2)) {
+            return false;
+        }
+        return true;
+    }
+
     private static Set<Integer> getOredictMatchers(ItemStack stack, boolean oredict) {
         Set<Integer> oredictMatches = new HashSet<>();
         if (oredict) {
