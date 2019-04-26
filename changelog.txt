@@ -1,4 +1,5 @@
-Upcoming:
+2.0.0:
+- Depends on McJtyLib 3.5.0!
 - Fixed dropping liquid buckets in the fluid opcodes
 - Small improvement on error logging. The index of the program card that is causing the error is now also printed
 - There was a chance that a programmer would not correctly save its current program on exit. Loading the world again would revert to an older program. This has now been fixed
