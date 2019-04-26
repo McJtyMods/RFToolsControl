@@ -1019,7 +1019,17 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
             Opcode opcode = Opcodes.OPCODES.get(icon.getID());
             List<String> description = opcode.getDescription();
             List<String> tooltips = new ArrayList<>();
-            if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT)) {
+            boolean isComment = Opcodes.DO_COMMENT.getId().equals(opcode.getId());
+            if (isComment) {
+                Map<String, Object> data = icon.getData() == null ? Collections.emptyMap() : icon.getData();
+                for (ParameterDescription parameter : opcode.getParameters()) {
+                    String name = parameter.getName();
+                    ParameterValue value = (ParameterValue) data.get(name);
+                    if (value != null) {
+                        tooltips.add(TextFormatting.BLUE + ParameterTypeTools.stringRepresentation(parameter.getType(), value));
+                    }
+                }
+            } else if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT)) {
                 tooltips.add(description.get(0) + TextFormatting.WHITE + " [" + x + "," + y + "]");
                 Map<String, Object> data = icon.getData() == null ? Collections.emptyMap() : icon.getData();
                 for (ParameterDescription parameter : opcode.getParameters()) {

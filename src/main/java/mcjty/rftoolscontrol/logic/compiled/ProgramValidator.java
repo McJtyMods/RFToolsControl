@@ -32,9 +32,11 @@ public class ProgramValidator {
         for (Map.Entry<GridPos, GridInstance> entry : grid.entrySet()) {
             GridInstance g = entry.getValue();
             Opcode opcode = Opcodes.OPCODES.get(g.getId());
-            GridPos p = entry.getKey();
-            if (!opcode.isEvent() && !reachableLocations.contains(p)) {
-                errors.add(Pair.of(p, "Unreachable: " + p.getX() + "," + p.getY()));
+            if (!Opcodes.DO_COMMENT.getId().equals(opcode.getId())) {
+                GridPos p = entry.getKey();
+                if (!opcode.isEvent() && !reachableLocations.contains(p)) {
+                    errors.add(Pair.of(p, "Unreachable: " + p.getX() + "," + p.getY()));
+                }
             }
         }
 

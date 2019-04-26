@@ -807,6 +807,22 @@ public class Opcodes {
                 return POSITIVE;
             }))
             .build();
+    public static final Opcode DO_COMMENT = Opcode.builder()
+            .id("do_comment")
+            .description(
+                    TextFormatting.GREEN + "Operation: comment",
+                    "this acts like a wire except that you",
+                    "can also add some comments. These",
+                    "don't do anything in the program")
+            .opcodeOutput(SINGLE)
+            .parameter(ParameterDescription.builder().name("comment1").type(PAR_STRING).description("first comment line").build())
+            .parameter(ParameterDescription.builder().name("comment2").type(PAR_STRING).optional().description("second comment line").build())
+            .parameter(ParameterDescription.builder().name("comment3").type(PAR_STRING).optional().description("third comment line").build())
+            .icon(11, 9)
+            .runnable(((processor, program, opcode) -> {
+                return POSITIVE;
+            }))
+            .build();
 
     public static final Opcode EVENT_CRAFT = Opcode.builder()
             .id("ev_craft")
@@ -2041,6 +2057,7 @@ public class Opcodes {
         register(EVENT_CRAFTRESUME);
         register(EVENT_EXCEPTION);
         register(DO_WIRE);
+        register(DO_COMMENT);
         register(EVAL_COUNTINV);
         register(EVAL_COUNTINVINT);
         register(EVAL_SLOTS);
