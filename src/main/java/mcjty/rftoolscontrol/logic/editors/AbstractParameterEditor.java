@@ -192,6 +192,14 @@ public abstract class AbstractParameterEditor implements ParameterEditor {
             functionLabel.addChoices(function.getId());
             functionLabel.setChoiceTooltip(function.getId(), function.getDescription().toArray(new String[function.getDescription().size()]));
         }
+        if (type == ParameterType.PAR_NUMBER) {
+            functions = Functions.getFunctionsByType(ParameterType.PAR_INTEGER);
+            for (Function function : functions) {
+                functionLabel.addChoices(function.getId());
+                functionLabel.setChoiceTooltip(function.getId(), function.getDescription().toArray(new String[function.getDescription().size()]));
+            }
+        }
+
         functionPanel.addChild(functionLabel);
         functionLabel.addChoiceEvent(((parent, newChoice) -> callback.valueChanged(readValue())));
 

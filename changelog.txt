@@ -13,6 +13,8 @@
 - New 'watch' commands that can help debug a program by watching when a variable changes. You can then log that change or set the program in debug mode
 - Added new 'comment' opcode that acts like a wire but has the extra ability to attach three comment lines. This makes it easier to document your programs
 - New 'test_eq_item' opcode which is a more flexible way to test for item equality. It can optionally use metadata, NBT, and oredictionary to do the equality test
+- Fixed a problem where opcodes that work with 'numbers' didn't have access to functions that return integers
+- The 'eval_tuple' opcode now also has a way to get a tuple from a variable
 
 1.9.3:
 - Needs McJtyLib 3.1.0

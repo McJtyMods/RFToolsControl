@@ -306,7 +306,7 @@ public class Opcodes {
     public static final Opcode TEST_EQ_ITEM = Opcode.builder()
             .id("test_eq_item")
             .description(
-                    TextFormatting.GREEN + "Test: equality",
+                    TextFormatting.GREEN + "Test: item equality",
                     "check if the first item is equal",
                     "to the second item")
             .opcodeOutput(YESNO)
@@ -318,8 +318,8 @@ public class Opcodes {
             .parameter(ParameterDescription.builder().name("oredict").type(PAR_BOOLEAN).optional().description("use oredictionary").build())
             .icon(11, 10)
             .runnable(((processor, program, opcode) -> {
-                ItemStack item1 = processor.evaluateItemParameterNonNull(opcode, program, 0);
-                ItemStack item2 = processor.evaluateItemParameterNonNull(opcode, program, 1);
+                ItemStack item1 = processor.evaluateItemParameter(opcode, program, 0);
+                ItemStack item2 = processor.evaluateItemParameter(opcode, program, 1);
                 boolean meta = processor.evaluateBoolParameter(opcode, program, 2);
                 boolean nbt = processor.evaluateBoolParameter(opcode, program, 3);
                 boolean oredict = processor.evaluateBoolParameter(opcode, program, 4);
@@ -1802,13 +1802,19 @@ public class Opcodes {
                     "as the result for future opcodes to use")
             .outputDescription("tuple result (tuple)")
             .opcodeOutput(SINGLE)
-            .parameter(ParameterDescription.builder().name("x").type(PAR_INTEGER).description("x (or first) value for the tuple").build())
-            .parameter(ParameterDescription.builder().name("y").type(PAR_INTEGER).description("y (or second) value for the tuple").build())
+            .parameter(ParameterDescription.builder().name("x").type(PAR_INTEGER).optional().description("x (or first) value for the tuple").build())
+            .parameter(ParameterDescription.builder().name("y").type(PAR_INTEGER).optional().description("y (or second) value for the tuple").build())
+            .parameter(ParameterDescription.builder().name("tuple").type(PAR_INTEGER).optional().description("the entire tuple (from variable or so)").build())
             .icon(4, 6)
             .runnable(((processor, program, opcode) -> {
-                int x = processor.evaluateIntParameter(opcode, program, 0);
-                int y = processor.evaluateIntParameter(opcode, program, 1);
-                program.setLastValue(Parameter.builder().type(PAR_TUPLE).value(ParameterValue.constant(new Tuple(x, y))).build());
+                Integer x = processor.evaluateIntegerParameter(opcode, program, 0);
+                Integer y = processor.evaluateIntegerParameter(opcode, program, 1);
+                Tuple tuple = processor.evaluateTupleParameter(opcode, program, 2);
+                if (tuple != null) {
+                    program.setLastValue(Parameter.builder().type(PAR_TUPLE).value(ParameterValue.constant(tuple)).build());
+                } else {
+                    program.setLastValue(Parameter.builder().type(PAR_TUPLE).value(ParameterValue.constant(new Tuple(x, y))).build());
+                }
                 return POSITIVE;
             }))
             .build();
