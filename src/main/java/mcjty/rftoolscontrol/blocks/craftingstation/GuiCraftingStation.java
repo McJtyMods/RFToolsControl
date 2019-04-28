@@ -135,21 +135,21 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
             Panel panel = new Panel(mc, this).setLayout(new HorizontalLayout()).setDesiredWidth(16);
             requestList.addChild(panel);
             BlockRender blockRender = new BlockRender(mc, this) {
-                @Override
-                public List<String> getTooltips() {
-                    ITooltipFlag flag = this.mc.gameSettings.advancedItemTooltips ? ITooltipFlag.TooltipFlags.ADVANCED : ITooltipFlag.TooltipFlags.NORMAL;
-                    List<String> list = stack.getTooltip(this.mc.player, flag);
-
-                    for (int i = 0; i < list.size(); ++i) {
-                        if (i == 0) {
-                            list.set(i, stack.getRarity().rarityColor + list.get(i));
-                        } else {
-                            list.set(i, TextFormatting.GRAY + list.get(i));
-                        }
-                    }
-
-                    return list;
-                }
+//                @Override
+//                public List<String> getTooltips() {
+//                    ITooltipFlag flag = this.mc.gameSettings.advancedItemTooltips ? ITooltipFlag.TooltipFlags.ADVANCED : ITooltipFlag.TooltipFlags.NORMAL;
+//                    List<String> list = stack.getTooltip(this.mc.player, flag);
+//
+//                    for (int i = 0; i < list.size(); ++i) {
+//                        if (i == 0) {
+//                            list.set(i, stack.getRarity().rarityColor + list.get(i));
+//                        } else {
+//                            list.set(i, TextFormatting.GRAY + list.get(i));
+//                        }
+//                    }
+//
+//                    return list;
+//                }
             }
                     .setRenderItem(stack)
                     .setOffsetX(-1)
@@ -162,6 +162,21 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
                     .setText(failed ? "Failed!" : (ok ? "Ok" : "Wait (" + request.getTodo() + ")")));
         }
     }
+
+    @Override
+    protected List<String> addCustomLines(List<String> oldList, BlockRender blockRender, ItemStack stack) {
+        if (blockRender.getUserObject() instanceof Integer) {
+            List<String> newlist = new ArrayList<>();
+            newlist.add(TextFormatting.GREEN + "Click: "+ TextFormatting.WHITE + "craft single");
+            newlist.add(TextFormatting.GREEN + "Shift + click: "+ TextFormatting.WHITE + "craft amount");
+            newlist.add("");
+            newlist.addAll(oldList);
+            return newlist;
+        } else {
+            return oldList;
+        }
+    }
+
 
     private void updateRecipeList() {
         String filterText = searchField.getText().toLowerCase().trim();
@@ -185,26 +200,26 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
                 recipeList.addChild(panel);
             }
             BlockRender blockRender = new BlockRender(mc, this) {
-                @Override
-                public List<String> getTooltips() {
-                    ITooltipFlag flag = this.mc.gameSettings.advancedItemTooltips ? ITooltipFlag.TooltipFlags.ADVANCED : ITooltipFlag.TooltipFlags.NORMAL;
-                    List<String> list = stack.getTooltip(this.mc.player, flag);
-
-                    for (int i = 0; i < list.size(); ++i) {
-                        if (i == 0) {
-                            list.set(i, stack.getRarity().rarityColor + list.get(i));
-                        } else {
-                            list.set(i, TextFormatting.GRAY + list.get(i));
-                        }
-                    }
-
-                    List<String> newlist = new ArrayList<>();
-                    newlist.add(TextFormatting.GREEN + "Click: "+ TextFormatting.WHITE + "craft single");
-                    newlist.add(TextFormatting.GREEN + "Shift + click: "+ TextFormatting.WHITE + "craft amount");
-                    newlist.add("");
-                    newlist.addAll(list);
-                    return newlist;
-                }
+//                @Override
+//                public List<String> getTooltips() {
+//                    ITooltipFlag flag = this.mc.gameSettings.advancedItemTooltips ? ITooltipFlag.TooltipFlags.ADVANCED : ITooltipFlag.TooltipFlags.NORMAL;
+//                    List<String> list = stack.getTooltip(this.mc.player, flag);
+//
+//                    for (int i = 0; i < list.size(); ++i) {
+//                        if (i == 0) {
+//                            list.set(i, stack.getRarity().rarityColor + list.get(i));
+//                        } else {
+//                            list.set(i, TextFormatting.GRAY + list.get(i));
+//                        }
+//                    }
+//
+//                    List<String> newlist = new ArrayList<>();
+//                    newlist.add(TextFormatting.GREEN + "Click: "+ TextFormatting.WHITE + "craft single");
+//                    newlist.add(TextFormatting.GREEN + "Shift + click: "+ TextFormatting.WHITE + "craft amount");
+//                    newlist.add("");
+//                    newlist.addAll(list);
+//                    return newlist;
+//                }
             }
                     .setRenderItem(stack)
                     .setHilightOnHover(true)
