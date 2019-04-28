@@ -13,12 +13,11 @@ import mcjty.lib.gui.widgets.Panel;
 import mcjty.lib.gui.widgets.TextField;
 import mcjty.lib.typed.TypedMap;
 import mcjty.rftoolscontrol.RFToolsControl;
-import mcjty.rftoolscontrol.setup.GuiProxy;
 import mcjty.rftoolscontrol.gui.GuiTools;
 import mcjty.rftoolscontrol.network.PacketGetCraftableItems;
 import mcjty.rftoolscontrol.network.PacketGetRequests;
 import mcjty.rftoolscontrol.network.RFToolsCtrlMessages;
-import net.minecraft.client.util.ITooltipFlag;
+import mcjty.rftoolscontrol.setup.GuiProxy;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextFormatting;
@@ -134,23 +133,7 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
 
             Panel panel = new Panel(mc, this).setLayout(new HorizontalLayout()).setDesiredWidth(16);
             requestList.addChild(panel);
-            BlockRender blockRender = new BlockRender(mc, this) {
-//                @Override
-//                public List<String> getTooltips() {
-//                    ITooltipFlag flag = this.mc.gameSettings.advancedItemTooltips ? ITooltipFlag.TooltipFlags.ADVANCED : ITooltipFlag.TooltipFlags.NORMAL;
-//                    List<String> list = stack.getTooltip(this.mc.player, flag);
-//
-//                    for (int i = 0; i < list.size(); ++i) {
-//                        if (i == 0) {
-//                            list.set(i, stack.getRarity().rarityColor + list.get(i));
-//                        } else {
-//                            list.set(i, TextFormatting.GRAY + list.get(i));
-//                        }
-//                    }
-//
-//                    return list;
-//                }
-            }
+            BlockRender blockRender = new BlockRender(mc, this)
                     .setRenderItem(stack)
                     .setOffsetX(-1)
                     .setOffsetY(-1);
@@ -199,28 +182,7 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
                         .setDesiredHeight(16);
                 recipeList.addChild(panel);
             }
-            BlockRender blockRender = new BlockRender(mc, this) {
-//                @Override
-//                public List<String> getTooltips() {
-//                    ITooltipFlag flag = this.mc.gameSettings.advancedItemTooltips ? ITooltipFlag.TooltipFlags.ADVANCED : ITooltipFlag.TooltipFlags.NORMAL;
-//                    List<String> list = stack.getTooltip(this.mc.player, flag);
-//
-//                    for (int i = 0; i < list.size(); ++i) {
-//                        if (i == 0) {
-//                            list.set(i, stack.getRarity().rarityColor + list.get(i));
-//                        } else {
-//                            list.set(i, TextFormatting.GRAY + list.get(i));
-//                        }
-//                    }
-//
-//                    List<String> newlist = new ArrayList<>();
-//                    newlist.add(TextFormatting.GREEN + "Click: "+ TextFormatting.WHITE + "craft single");
-//                    newlist.add(TextFormatting.GREEN + "Shift + click: "+ TextFormatting.WHITE + "craft amount");
-//                    newlist.add("");
-//                    newlist.addAll(list);
-//                    return newlist;
-//                }
-            }
+            BlockRender blockRender = new BlockRender(mc, this)
                     .setRenderItem(stack)
                     .setHilightOnHover(true)
                     .setOffsetX(-1)
