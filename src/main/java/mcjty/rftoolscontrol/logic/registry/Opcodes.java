@@ -1863,7 +1863,7 @@ public class Opcodes {
             .parameter(ParameterDescription.builder().name("item").type(PAR_ITEM).description("an item").build())
             .icon(9, 6)
             .runnable(((processor, program, opcode) -> {
-                ItemStack stack = processor.evaluateItemParameterNonNull(opcode, program, 0);
+                ItemStack stack = processor.evaluateItemParameter(opcode, program, 0);
                 program.setLastValue(Parameter.builder().type(PAR_ITEM).value(ParameterValue.constant(stack)).build());
                 return POSITIVE;
             }))

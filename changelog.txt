@@ -1,6 +1,7 @@
 2.0.1:
 - Fixed a bug where oredictionary matching was broken for 'get_ingredients_smart'
 - Fixed a problem with the item tooltip in the crafting station
+- The 'eval_item' opcode will no longer give an error if it returns an empty item. An empty item is valid too
 
 2.0.0:
 - Depends on McJtyLib 3.5.0!
