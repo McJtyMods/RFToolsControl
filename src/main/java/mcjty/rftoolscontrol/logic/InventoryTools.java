@@ -23,7 +23,7 @@ public class InventoryTools {
             int cnt = 0;
             for (int i = 0; i < itemHandler.getSlots(); i++) {
                 ItemStack stack = itemHandler.getStackInSlot(i);
-                if (isItemEqual(stack, itemMatcher, oredictMatchers)) {
+                if (isItemEqual(itemMatcher, stack, oredictMatchers)) {
                     cnt += stack.getCount();
                     if (maxToCount != -1 && cnt >= maxToCount) {
                         return maxToCount;
