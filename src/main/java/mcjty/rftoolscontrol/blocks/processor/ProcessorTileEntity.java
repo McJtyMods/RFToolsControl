@@ -2605,8 +2605,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             removeCard(index-ProcessorContainer.SLOT_CARD);
             cardsDirty = true;
         } else if (isExpansionSlot(index)) {
-            coresDirty = true;
-            maxVars = -1;
+            clearExpansions();
         }
         getInventoryHelper().setInventorySlotContents(getInventoryStackLimit(), index, stack);
     }
@@ -2617,10 +2616,16 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             removeCard(index-ProcessorContainer.SLOT_CARD);
             cardsDirty = true;
         } else if (isExpansionSlot(index)) {
-            coresDirty = true;
-            maxVars = -1;
+            clearExpansions();
         }
         return getInventoryHelper().decrStackSize(index, count);
+    }
+
+    private void clearExpansions() {
+        coresDirty = true;
+        maxVars = -1;
+        storageCard = -2;
+        hasNetworkCard = -1;
     }
 
     public int getShowHud() {
