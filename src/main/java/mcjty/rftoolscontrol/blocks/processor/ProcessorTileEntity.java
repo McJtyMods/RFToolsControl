@@ -3070,11 +3070,14 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     }
 
     public void listNodes() {
-        if (networkNodes.isEmpty()) {
-            log("No nodes!");
+        if (networkNodes.isEmpty() && craftingStations.isEmpty()) {
+            log("No nodes or crafting stations!");
         } else {
             for (Map.Entry<String, BlockPos> entry : networkNodes.entrySet()) {
-                log("Node " + entry.getKey() + " at " + BlockPosTools.toString(entry.getValue()));
+                log(TextFormatting.GREEN + "Node " + TextFormatting.YELLOW + entry.getKey() + TextFormatting.GREEN + " at " + TextFormatting.YELLOW + BlockPosTools.toString(entry.getValue()));
+            }
+            for (BlockPos station : craftingStations) {
+                log(TextFormatting.GREEN + "Crafting station at " + TextFormatting.YELLOW + BlockPosTools.toString(station));
             }
         }
     }
