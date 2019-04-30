@@ -1,5 +1,8 @@
 2.0.2:
 - Fixed a bug where the storage card module wouldn't always get recognized by the processor
+- Added a new 'eval_getcraftingcard'. This can get the crafting card out of an inventory that can craft the given item
+- Added ore dictionary support for 'do_pushworkbench'
+- Added ore dictionary support for 'eval_ingredients'
 
 2.0.1:
 - Fixed a bug where oredictionary matching was broken for 'get_ingredients_smart'
