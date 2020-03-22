@@ -4,6 +4,7 @@ import mcjty.lib.api.MachineInformation;
 
 import mcjty.lib.container.InventoryHelper;
 import mcjty.lib.tileentity.GenericEnergyReceiverTileEntity;
+import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.lib.typed.Key;
 import mcjty.lib.typed.Type;
 import mcjty.lib.typed.TypedMap;
@@ -50,6 +51,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
+import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
@@ -82,7 +84,7 @@ import static mcjty.rftoolscontrol.blocks.processor.ProcessorContainer.SLOT_BUFF
 import static mcjty.rftoolscontrol.blocks.processor.ProcessorContainer.SLOT_EXPANSION;
 import static mcjty.rftoolscontrol.logic.running.ExceptionType.*;
 
-public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity implements DefaultSidedInventory, ITickable, IProcessor {
+public class ProcessorTileEntity extends GenericTileEntity implements ITickableTileEntity, IProcessor {
 
     // Number of card slots the processor supports
     public static final int CARD_SLOTS = 6;
@@ -112,17 +114,17 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     public static final Key<Boolean> PARAM_EXCLUSIVE = new Key<>("exclusive", Type.BOOLEAN);
     public static final Key<Integer> PARAM_HUDMODE = new Key<>("hudmode", Type.INTEGER);
 
-    private static final BiFunction<ParameterType, Object, ItemStack> CONVERTOR_ITEM = (type, value) -> TypeConverters.convertToItem(type, value);
-    private static final BiFunction<ParameterType, Object, FluidStack> CONVERTOR_FLUID = (type, value) -> TypeConverters.convertToFluid(type, value);
-    private static final BiFunction<ParameterType, Object, BlockSide> CONVERTOR_SIDE = (type, value) -> TypeConverters.convertToSide(type, value);
-    private static final BiFunction<ParameterType, Object, Inventory> CONVERTOR_INVENTORY = (type, value) -> TypeConverters.convertToInventory(type, value);
-    private static final BiFunction<ParameterType, Object, Tuple> CONVERTOR_TUPLE = (type, value) -> TypeConverters.convertToTuple(type, value);
-    private static final BiFunction<ParameterType, Object, List<Parameter>> CONVERTOR_VECTOR = (type, value) -> TypeConverters.convertToVector(type, value);
-    private static final BiFunction<ParameterType, Object, Integer> CONVERTOR_INTEGER = (type, value) -> TypeConverters.convertToInteger(type, value);
-    private static final BiFunction<ParameterType, Object, Long> CONVERTOR_LONG = (type, value) -> TypeConverters.convertToLong(type, value);
-    private static final BiFunction<ParameterType, Object, String> CONVERTOR_STRING = (type, value) -> TypeConverters.convertToString(type, value);
-    private static final BiFunction<ParameterType, Object, Boolean> CONVERTOR_BOOL = (type, value) -> TypeConverters.convertToBool(type, value);
-    private static final BiFunction<ParameterType, Object, Number> CONVERTOR_NUMBER = (type, value) -> TypeConverters.convertToNumber(type, value);
+    private static final BiFunction<ParameterType, Object, ItemStack> CONVERTOR_ITEM = TypeConverters::convertToItem;
+    private static final BiFunction<ParameterType, Object, FluidStack> CONVERTOR_FLUID = TypeConverters::convertToFluid;
+    private static final BiFunction<ParameterType, Object, BlockSide> CONVERTOR_SIDE = TypeConverters::convertToSide;
+    private static final BiFunction<ParameterType, Object, Inventory> CONVERTOR_INVENTORY = TypeConverters::convertToInventory;
+    private static final BiFunction<ParameterType, Object, Tuple> CONVERTOR_TUPLE = TypeConverters::convertToTuple;
+    private static final BiFunction<ParameterType, Object, List<Parameter>> CONVERTOR_VECTOR = TypeConverters::convertToVector;
+    private static final BiFunction<ParameterType, Object, Integer> CONVERTOR_INTEGER = TypeConverters::convertToInteger;
+    private static final BiFunction<ParameterType, Object, Long> CONVERTOR_LONG = TypeConverters::convertToLong;
+    private static final BiFunction<ParameterType, Object, String> CONVERTOR_STRING = TypeConverters::convertToString;
+    private static final BiFunction<ParameterType, Object, Boolean> CONVERTOR_BOOL = TypeConverters::convertToBool;
+    private static final BiFunction<ParameterType, Object, Number> CONVERTOR_NUMBER = TypeConverters::convertToNumber;
 
     private InventoryHelper inventoryHelper = new InventoryHelper(this, ProcessorContainer.factory, ProcessorContainer.SLOTS);
     private List<CpuCore> cpuCores = new ArrayList<>();

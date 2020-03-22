@@ -1,37 +1,34 @@
 package mcjty.rftoolscontrol.blocks.craftingstation;
 
 import mcjty.lib.blocks.BaseBlock;
-import mcjty.lib.gui.GenericGuiContainer;
-import mcjty.rftoolscontrol.setup.GuiProxy;
-import net.minecraft.block.material.Material;
+import mcjty.lib.builder.BlockBuilder;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.item.ItemStack;
-import net.minecraft.world.World;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.world.IBlockReader;
 
+import javax.annotation.Nullable;
 import java.util.List;
-import java.util.function.BiFunction;
 
 public class CraftingStationBlock extends BaseBlock {
 
     public CraftingStationBlock() {
-        super(Material.IRON, CraftingStationTileEntity.class, CraftingStationContainer::new, "craftingstation", false);
+        super(new BlockBuilder()
+        .tileEntitySupplier(CraftingStationTileEntity::new));
+//        super(Material.IRON, CraftingStationTileEntity.class, CraftingStationContainer::new, "craftingstation", false);
     }
 
-    @Override
-    public BiFunction<CraftingStationTileEntity, CraftingStationContainer, GenericGuiContainer<? super CraftingStationTileEntity>> getGuiFactory() {
-        return GuiCraftingStation::new;
-    }
-
-    @Override
-    public int getGuiID() {
-        return GuiProxy.GUI_CRAFTINGSTATION;
-    }
+//    @Override
+//    public BiFunction<CraftingStationTileEntity, CraftingStationContainer, GenericGuiContainer<? super CraftingStationTileEntity>> getGuiFactory() {
+//        return GuiCraftingStation::new;
+//    }
 
 
     @Override
-    public void addInformation(ItemStack stack, World playerIn, List<String> list, ITooltipFlag advanced) {
-        super.addInformation(stack, playerIn, list, advanced);
-        list.add("This block assists in auto crafting");
-        list.add("operations for a Processor");
+    public void addInformation(ItemStack stack, @Nullable IBlockReader world, List<ITextComponent> tooltip, ITooltipFlag advanced) {
+        super.addInformation(stack, world, tooltip, advanced);
+        tooltip.add(new StringTextComponent("This block assists in auto crafting"));
+        tooltip.add(new StringTextComponent("operations for a Processor"));
     }
 }

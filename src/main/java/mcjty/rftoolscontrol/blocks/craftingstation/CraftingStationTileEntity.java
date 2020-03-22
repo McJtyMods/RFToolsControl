@@ -55,11 +55,6 @@ public class CraftingStationTileEntity extends GenericTileEntity {
     private List<CraftingRequest> activeCraftingRequests = new ArrayList<>();
     private int cleanupCounter = 50;
 
-    @Override
-    protected boolean needsCustomInvWrapper() {
-        return true;
-    }
-
     public void registerProcessor(BlockPos pos) {
         if (!processorList.contains(pos)) {
             processorList.add(pos);
