@@ -2,24 +2,24 @@ package mcjty.rftoolscontrol.network;
 
 import io.netty.buffer.ByteBuf;
 import mcjty.lib.network.NetworkTools;
-import mcjty.lib.thirteen.Context;
+
 import mcjty.rftoolscontrol.api.parameters.Parameter;
 import mcjty.rftoolscontrol.api.parameters.ParameterType;
 import mcjty.rftoolscontrol.api.parameters.ParameterValue;
 import mcjty.rftoolscontrol.blocks.processor.ProcessorTileEntity;
 import mcjty.rftoolscontrol.logic.ParameterTypeTools;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.nbt.NBTTagCompound;
+
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
+
 
 import java.util.function.Supplier;
 
 public class PacketVariableToServer implements IMessage {
     private BlockPos pos;
     private int varIndex;
-    private NBTTagCompound tagCompound;
+    private CompoundNBT tagCompound;
 
     @Override
     public void fromBytes(ByteBuf buf) {
@@ -42,7 +42,7 @@ public class PacketVariableToServer implements IMessage {
         fromBytes(buf);
     }
 
-    public PacketVariableToServer(BlockPos pos, int varIndex, NBTTagCompound tagCompound) {
+    public PacketVariableToServer(BlockPos pos, int varIndex, CompoundNBT tagCompound) {
         this.pos = pos;
         this.varIndex = varIndex;
         this.tagCompound = tagCompound;

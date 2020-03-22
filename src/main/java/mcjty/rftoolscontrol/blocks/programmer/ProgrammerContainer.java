@@ -5,7 +5,7 @@ import mcjty.lib.container.GenericContainer;
 import mcjty.lib.container.SlotDefinition;
 import mcjty.lib.container.SlotType;
 import mcjty.rftoolscontrol.items.ModItems;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 
@@ -24,7 +24,7 @@ public class ProgrammerContainer extends GenericContainer {
     };
 
 
-    public ProgrammerContainer(EntityPlayer player, IInventory containerInventory) {
+    public ProgrammerContainer(PlayerEntity player, IInventory containerInventory) {
         super(factory);
         addInventory(CONTAINER_INVENTORY, containerInventory);
         addInventory(ContainerFactory.CONTAINER_PLAYER, player.inventory);

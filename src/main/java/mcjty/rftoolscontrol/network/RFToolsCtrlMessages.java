@@ -5,8 +5,8 @@ import mcjty.lib.thirteen.ChannelBuilder;
 import mcjty.lib.thirteen.SimpleChannel;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.blocks.programmer.PacketUpdateNBTItemInventoryProgrammer;
-import mcjty.rftoolscontrol.items.craftingcard.PacketUpdateNBTItemCard;
 import mcjty.rftoolscontrol.compat.jei.PacketSendRecipe;
+import mcjty.rftoolscontrol.items.craftingcard.PacketUpdateNBTItemCard;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 

@@ -1,15 +1,15 @@
 package mcjty.rftoolscontrol.blocks.programmer;
 
-import mcjty.lib.container.DefaultSidedInventory;
+
 import mcjty.lib.container.InventoryHelper;
 import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.rftoolscontrol.items.ModItems;
 import mcjty.rftoolscontrol.items.ProgramCardItem;
 import mcjty.rftoolscontrol.logic.grid.ProgramCardInstance;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTBase;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
+
 
 public class ProgrammerTileEntity extends GenericTileEntity implements DefaultSidedInventory {
 
@@ -62,18 +62,18 @@ public class ProgrammerTileEntity extends GenericTileEntity implements DefaultSi
     }
 
     @Override
-    public boolean isUsableByPlayer(EntityPlayer player) {
+    public boolean isUsableByPlayer(PlayerEntity player) {
         return canPlayerAccess(player);
     }
 
     @Override
-    public void readRestorableFromNBT(NBTTagCompound tagCompound) {
+    public void readRestorableFromNBT(CompoundNBT tagCompound) {
         super.readRestorableFromNBT(tagCompound);
         readBufferFromNBT(tagCompound, inventoryHelper);
     }
 
     @Override
-    public void writeRestorableToNBT(NBTTagCompound tagCompound) {
+    public void writeRestorableToNBT(CompoundNBT tagCompound) {
         super.writeRestorableToNBT(tagCompound);
         writeBufferToNBT(tagCompound, inventoryHelper);
     }

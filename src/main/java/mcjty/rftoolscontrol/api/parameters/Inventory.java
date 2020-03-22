@@ -1,6 +1,6 @@
 package mcjty.rftoolscontrol.api.parameters;
 
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Nonnull;
@@ -15,9 +15,9 @@ import javax.annotation.Nullable;
  */
 public class Inventory extends BlockSide {
 
-    @Nullable private final EnumFacing intSide;   // The side at which we are accessing the inventory (can be null)
+    @Nullable private final Direction intSide;   // The side at which we are accessing the inventory (can be null)
 
-    public Inventory(@Nullable String name, @Nonnull EnumFacing side, @Nullable EnumFacing intSide) {
+    public Inventory(@Nullable String name, @Nonnull Direction side, @Nullable Direction intSide) {
         super(name, side);
         this.intSide = intSide;
     }
@@ -28,18 +28,18 @@ public class Inventory extends BlockSide {
 
     public static Inventory deserialize(String s) {
         String[] splitted = StringUtils.split(s, '#');
-        return new Inventory("-".equals(splitted[0]) ? null : splitted[0], EnumFacing.byName(splitted[1]),
-                "-".equals(splitted[2]) ? null : EnumFacing.byName(splitted[2]));
+        return new Inventory("-".equals(splitted[0]) ? null : splitted[0], Direction.byName(splitted[1]),
+                "-".equals(splitted[2]) ? null : Direction.byName(splitted[2]));
     }
 
     @Override
     @Nonnull
-    public EnumFacing getSide() {
+    public Direction getSide() {
         return super.getSide();
     }
 
     @Nullable
-    public EnumFacing getIntSide() {
+    public Direction getIntSide() {
         return intSide;
     }
 

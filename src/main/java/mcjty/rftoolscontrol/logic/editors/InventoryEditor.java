@@ -10,7 +10,7 @@ import mcjty.rftoolscontrol.api.parameters.ParameterType;
 import mcjty.rftoolscontrol.api.parameters.ParameterValue;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import org.apache.commons.lang3.StringUtils;
 
 public class InventoryEditor extends AbstractParameterEditor {
@@ -20,17 +20,17 @@ public class InventoryEditor extends AbstractParameterEditor {
     private ChoiceLabel intSideLabel;
 
     private static Inventory parseInventorySafe(String name, String sideS, String intSideS) {
-        EnumFacing side;
+        Direction side;
         if ("*".equals(sideS)) {
             return null;
         } else {
-            side = EnumFacing.byName(StringUtils.lowerCase(sideS));
+            side = Direction.byName(StringUtils.lowerCase(sideS));
         }
-        EnumFacing intSide;
+        Direction intSide;
         if ("*".equals(intSideS)) {
             intSide = null;
         } else {
-            intSide = EnumFacing.byName(StringUtils.lowerCase(intSideS));
+            intSide = Direction.byName(StringUtils.lowerCase(intSideS));
         }
         return new Inventory(name, side, intSide);
     }

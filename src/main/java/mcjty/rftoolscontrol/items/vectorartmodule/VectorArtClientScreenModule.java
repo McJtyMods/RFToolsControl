@@ -6,8 +6,8 @@ import mcjty.rftools.api.screens.ModuleRenderInfo;
 import mcjty.rftoolscontrol.blocks.vectorart.GfxOp;
 import mcjty.rftoolscontrol.compat.rftoolssupport.ModuleDataVectorArt;
 import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.nbt.NBTTagCompound;
+
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
@@ -47,7 +47,7 @@ public class VectorArtClientScreenModule implements IClientScreenModule<ModuleDa
     }
 
     @Override
-    public void setupFromNBT(NBTTagCompound tagCompound, int dim, BlockPos pos) {
+    public void setupFromNBT(CompoundNBT tagCompound, int dim, BlockPos pos) {
     }
 
     @Override

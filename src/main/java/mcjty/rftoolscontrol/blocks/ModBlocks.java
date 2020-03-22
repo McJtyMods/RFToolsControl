@@ -6,8 +6,8 @@ import mcjty.rftoolscontrol.blocks.node.NodeBlock;
 import mcjty.rftoolscontrol.blocks.processor.ProcessorBlock;
 import mcjty.rftoolscontrol.blocks.programmer.ProgrammerBlock;
 import mcjty.rftoolscontrol.blocks.workbench.WorkbenchBlock;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+
+
 
 public final class ModBlocks {
 
@@ -27,7 +27,7 @@ public final class ModBlocks {
         multiTankBlock = new MultiTankBlock();
     }
 
-    @SideOnly(Side.CLIENT)
+
     public static void initClient() {
         programmerBlock.initModel();
         processorBlock.initModel();

@@ -2,15 +2,15 @@ package mcjty.rftoolscontrol.items.craftingcard;
 
 import io.netty.buffer.ByteBuf;
 import mcjty.lib.network.TypedMapTools;
-import mcjty.lib.thirteen.Context;
+
 import mcjty.lib.typed.Key;
 import mcjty.lib.typed.Type;
 import mcjty.lib.typed.TypedMap;
-import net.minecraft.entity.player.EntityPlayerMP;
+
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumHand;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.Hand;
+
 
 import java.util.function.Supplier;
 
@@ -47,7 +47,7 @@ public class PacketUpdateNBTItemCard implements IMessage {
         Context ctx = supplier.get();
         ctx.enqueueWork(() -> {
             EntityPlayerMP playerEntity = ctx.getSender();
-            ItemStack heldItem = playerEntity.getHeldItem(EnumHand.MAIN_HAND);
+            ItemStack heldItem = playerEntity.getHeldItem(Hand.MAIN_HAND);
             if (heldItem.isEmpty()) {
                 return;
             }
@@ -55,9 +55,9 @@ public class PacketUpdateNBTItemCard implements IMessage {
             if (!isValidItem(heldItem)) {
                 return;
             }
-            NBTTagCompound tagCompound = heldItem.getTagCompound();
+            CompoundNBT tagCompound = heldItem.getTagCompound();
             if (tagCompound == null) {
-                tagCompound = new NBTTagCompound();
+                tagCompound = new CompoundNBT();
                 heldItem.setTagCompound(tagCompound);
             }
             for (Key<?> akey : args.getKeys()) {

@@ -4,7 +4,7 @@ import mcjty.rftools.api.storage.IStorageScanner;
 import mcjty.rftoolscontrol.api.parameters.BlockSide;
 import mcjty.rftoolscontrol.api.parameters.Inventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
 import net.minecraftforge.oredict.OreDictionary;
@@ -247,12 +247,12 @@ public class InventoryTools {
         if (s.length() <= indexOf+1) {
             return null;
         }
-        EnumFacing side = getSideFromChar(s.charAt(indexOf-1));
+        Direction side = getSideFromChar(s.charAt(indexOf-1));
         if (side == null) {
             // Side == null is invalid for Inventory
             return null;
         }
-        EnumFacing intSide = getSideFromChar(s.charAt(indexOf+1));
+        Direction intSide = getSideFromChar(s.charAt(indexOf+1));
 
         int indexSpace = s.lastIndexOf(' ');
         if (indexSpace <= 0) {
@@ -262,15 +262,15 @@ public class InventoryTools {
         return new Inventory(s.substring(0, indexSpace), side, intSide);
     }
 
-    public static EnumFacing getSideFromChar(char is) {
+    public static Direction getSideFromChar(char is) {
         switch (is) {
             case '*': return null;
-            case 'D': return EnumFacing.DOWN;
-            case 'U': return EnumFacing.UP;
-            case 'W': return EnumFacing.WEST;
-            case 'E': return EnumFacing.EAST;
-            case 'S': return EnumFacing.SOUTH;
-            case 'N': return EnumFacing.NORTH;
+            case 'D': return Direction.DOWN;
+            case 'U': return Direction.UP;
+            case 'W': return Direction.WEST;
+            case 'E': return Direction.EAST;
+            case 'S': return Direction.SOUTH;
+            case 'N': return Direction.NORTH;
         }
         return null;
     }
@@ -297,7 +297,7 @@ public class InventoryTools {
         if (s.isEmpty()) {
             return null;
         }
-        EnumFacing side = getSideFromChar(s.charAt(s.length()-1));
+        Direction side = getSideFromChar(s.charAt(s.length()-1));
         int indexOf = s.lastIndexOf(' ');
         if (indexOf <= 0) {
             return new BlockSide(null, side);

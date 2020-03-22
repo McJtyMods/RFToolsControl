@@ -12,10 +12,10 @@ import mcjty.lib.gui.layout.HorizontalLayout;
 import mcjty.lib.gui.layout.PositionalLayout;
 import mcjty.lib.gui.layout.VerticalLayout;
 import mcjty.lib.gui.widgets.Button;
-import mcjty.lib.gui.widgets.*;
 import mcjty.lib.gui.widgets.Label;
 import mcjty.lib.gui.widgets.Panel;
 import mcjty.lib.gui.widgets.TextField;
+import mcjty.lib.gui.widgets.*;
 import mcjty.lib.varia.Logging;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.api.code.Opcode;
@@ -25,10 +25,10 @@ import mcjty.rftoolscontrol.api.parameters.Parameter;
 import mcjty.rftoolscontrol.api.parameters.ParameterDescription;
 import mcjty.rftoolscontrol.api.parameters.ParameterValue;
 import mcjty.rftoolscontrol.config.ConfigSetup;
-import mcjty.rftoolscontrol.setup.GuiProxy;
 import mcjty.rftoolscontrol.gui.GuiTools;
 import mcjty.rftoolscontrol.items.ProgramCardItem;
 import mcjty.rftoolscontrol.logic.Connection;
+import mcjty.rftoolscontrol.logic.ParameterTypeTools;
 import mcjty.rftoolscontrol.logic.compiled.ProgramValidator;
 import mcjty.rftoolscontrol.logic.editors.ParameterEditor;
 import mcjty.rftoolscontrol.logic.editors.ParameterEditors;
@@ -36,16 +36,15 @@ import mcjty.rftoolscontrol.logic.grid.GridInstance;
 import mcjty.rftoolscontrol.logic.grid.GridPos;
 import mcjty.rftoolscontrol.logic.grid.ProgramCardInstance;
 import mcjty.rftoolscontrol.logic.registry.Opcodes;
-import mcjty.rftoolscontrol.logic.ParameterTypeTools;
 import mcjty.rftoolscontrol.network.RFToolsCtrlMessages;
-import net.minecraft.inventory.ClickType;
-import net.minecraft.inventory.Slot;
+import mcjty.rftoolscontrol.setup.GuiProxy;
+
+
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextFormatting;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.lwjgl.input.Keyboard;
 
 import java.awt.*;
 import java.awt.datatransfer.Clipboard;
@@ -53,8 +52,8 @@ import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.IOException;
-import java.util.*;
 import java.util.List;
+import java.util.*;
 
 public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
     public static final int SIDEWIDTH = 80;

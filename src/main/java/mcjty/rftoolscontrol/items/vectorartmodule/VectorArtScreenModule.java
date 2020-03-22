@@ -7,14 +7,14 @@ import mcjty.rftools.api.screens.IScreenModule;
 import mcjty.rftoolscontrol.api.parameters.Tuple;
 import mcjty.rftoolscontrol.blocks.ModBlocks;
 import mcjty.rftoolscontrol.blocks.processor.ProcessorTileEntity;
-import mcjty.rftoolscontrol.config.ConfigSetup;
 import mcjty.rftoolscontrol.compat.rftoolssupport.ModuleDataVectorArt;
+import mcjty.rftoolscontrol.config.ConfigSetup;
 import net.minecraft.block.Block;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.TextComponentString;
+
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.common.DimensionManager;
@@ -48,7 +48,7 @@ public class VectorArtScreenModule implements IScreenModule<ModuleDataVectorArt>
     }
 
     @Override
-    public void setupFromNBT(NBTTagCompound tagCompound, int dim, BlockPos pos) {
+    public void setupFromNBT(CompoundNBT tagCompound, int dim, BlockPos pos) {
         if (tagCompound != null) {
             coordinate = BlockPosTools.INVALID;
             if (tagCompound.hasKey("monitorx")) {
@@ -77,7 +77,7 @@ public class VectorArtScreenModule implements IScreenModule<ModuleDataVectorArt>
     }
 
     @Override
-    public void mouseClick(World world, int x, int y, boolean clicked, EntityPlayer player) {
+    public void mouseClick(World world, int x, int y, boolean clicked, PlayerEntity player) {
         int xoffset = 0;
         if (x >= xoffset) {
             if (coordinate.getY() != -1) {

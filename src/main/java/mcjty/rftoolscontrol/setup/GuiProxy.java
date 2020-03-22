@@ -5,7 +5,7 @@ import mcjty.rftoolscontrol.items.craftingcard.CraftingCardContainer;
 import mcjty.rftoolscontrol.items.craftingcard.GuiCraftingCard;
 import mcjty.rftoolscontrol.items.manual.GuiRFToolsManual;
 import net.minecraft.block.Block;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -26,7 +26,7 @@ public class GuiProxy implements IGuiHandler {
     public static final int GUI_MANUAL_CONTROL = modGuiIndex++;
 
     @Override
-    public Object getServerGuiElement(int guiid, EntityPlayer entityPlayer, World world, int x, int y, int z) {
+    public Object getServerGuiElement(int guiid, PlayerEntity entityPlayer, World world, int x, int y, int z) {
         if (guiid == GUI_MANUAL_CONTROL) {
             return null;
         } else if (guiid == GUI_CRAFTINGCARD) {
@@ -44,7 +44,7 @@ public class GuiProxy implements IGuiHandler {
     }
 
     @Override
-    public Object getClientGuiElement(int guiid, EntityPlayer entityPlayer, World world, int x, int y, int z) {
+    public Object getClientGuiElement(int guiid, PlayerEntity entityPlayer, World world, int x, int y, int z) {
         if (guiid == GUI_MANUAL_CONTROL) {
             return new GuiRFToolsManual(GuiRFToolsManual.MANUAL_CONTROL);
         } else if (guiid == GUI_CRAFTINGCARD) {

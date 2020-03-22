@@ -10,10 +10,10 @@ import mcjty.lib.gui.widgets.Panel;
 import mcjty.lib.gui.widgets.TextField;
 import mcjty.lib.typed.TypedMap;
 import mcjty.rftoolscontrol.RFToolsControl;
-import mcjty.rftoolscontrol.setup.GuiProxy;
 import mcjty.rftoolscontrol.network.RFToolsCtrlMessages;
+import mcjty.rftoolscontrol.setup.GuiProxy;
 
-import java.awt.Rectangle;
+import java.awt.*;
 
 import static mcjty.rftoolscontrol.blocks.node.NodeTileEntity.PARAM_CHANNEL;
 import static mcjty.rftoolscontrol.blocks.node.NodeTileEntity.PARAM_NODE;

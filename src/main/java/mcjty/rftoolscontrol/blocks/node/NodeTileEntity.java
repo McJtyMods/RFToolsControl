@@ -6,10 +6,10 @@ import mcjty.lib.typed.Type;
 import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.BlockPosTools;
 import mcjty.rftoolscontrol.blocks.processor.ProcessorTileEntity;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.nbt.NBTTagCompound;
+
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 
 public class NodeTileEntity extends GenericTileEntity {
@@ -59,18 +59,18 @@ public class NodeTileEntity extends GenericTileEntity {
         super.setPowerInput(powered);
     }
 
-    public int getPowerOut(EnumFacing side) {
+    public int getPowerOut(Direction side) {
         return powerOut[side.ordinal()];
     }
 
-    public void setPowerOut(EnumFacing side, int powerOut) {
+    public void setPowerOut(Direction side, int powerOut) {
         this.powerOut[side.ordinal()] = powerOut;
         markDirty();
         getWorld().neighborChanged(this.pos.offset(side), this.getBlockType(), this.pos);
     }
 
     @Override
-    public void readFromNBT(NBTTagCompound tagCompound) {
+    public void readFromNBT(CompoundNBT tagCompound) {
         super.readFromNBT(tagCompound);
         prevIn = tagCompound.getInteger("prevIn");
         for (int i = 0 ; i < 6 ; i++) {
@@ -79,7 +79,7 @@ public class NodeTileEntity extends GenericTileEntity {
     }
 
     @Override
-    public NBTTagCompound writeToNBT(NBTTagCompound tagCompound) {
+    public CompoundNBT writeToNBT(CompoundNBT tagCompound) {
         super.writeToNBT(tagCompound);
         tagCompound.setInteger("prevIn", prevIn);
         for (int i = 0 ; i < 6 ; i++) {
@@ -89,7 +89,7 @@ public class NodeTileEntity extends GenericTileEntity {
     }
 
     @Override
-    public void readRestorableFromNBT(NBTTagCompound tagCompound) {
+    public void readRestorableFromNBT(CompoundNBT tagCompound) {
         super.readRestorableFromNBT(tagCompound);
         channel = tagCompound.getString("channel");
         node = tagCompound.getString("node");
@@ -97,7 +97,7 @@ public class NodeTileEntity extends GenericTileEntity {
     }
 
     @Override
-    public void writeRestorableToNBT(NBTTagCompound tagCompound) {
+    public void writeRestorableToNBT(CompoundNBT tagCompound) {
         super.writeRestorableToNBT(tagCompound);
         if (channel != null) {
             tagCompound.setString("channel", channel);

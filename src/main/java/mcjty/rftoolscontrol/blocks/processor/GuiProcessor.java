@@ -1,8 +1,7 @@
 package mcjty.rftoolscontrol.blocks.processor;
 
-import mcjty.lib.gui.GenericGuiContainer;
-import mcjty.lib.tileentity.GenericEnergyStorageTileEntity;
 import mcjty.lib.client.RenderHelper;
+import mcjty.lib.gui.GenericGuiContainer;
 import mcjty.lib.gui.Window;
 import mcjty.lib.gui.WindowManager;
 import mcjty.lib.gui.events.SelectionEvent;
@@ -11,25 +10,26 @@ import mcjty.lib.gui.layout.HorizontalAlignment;
 import mcjty.lib.gui.layout.HorizontalLayout;
 import mcjty.lib.gui.layout.PositionalLayout;
 import mcjty.lib.gui.layout.VerticalLayout;
-import mcjty.lib.gui.widgets.*;
 import mcjty.lib.gui.widgets.Button;
 import mcjty.lib.gui.widgets.Label;
 import mcjty.lib.gui.widgets.Panel;
 import mcjty.lib.gui.widgets.TextField;
+import mcjty.lib.gui.widgets.*;
+
 import mcjty.lib.typed.TypedMap;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.api.parameters.Parameter;
 import mcjty.rftoolscontrol.api.parameters.ParameterType;
-import mcjty.rftoolscontrol.setup.GuiProxy;
 import mcjty.rftoolscontrol.gui.GuiTools;
+import mcjty.rftoolscontrol.logic.ParameterTypeTools;
 import mcjty.rftoolscontrol.logic.editors.ParameterEditor;
 import mcjty.rftoolscontrol.logic.editors.ParameterEditors;
-import mcjty.rftoolscontrol.logic.ParameterTypeTools;
 import mcjty.rftoolscontrol.network.*;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.inventory.Slot;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumFacing;
+import mcjty.rftoolscontrol.setup.GuiProxy;
+
+
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fluids.FluidStack;
@@ -492,7 +492,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
             editPanel = new Panel(mc, this).setLayout(new PositionalLayout())
                     .setFilledRectThickness(1);
             editor.build(mc, this, editPanel, o -> {
-                NBTTagCompound tag = new NBTTagCompound();
+                CompoundNBT tag = new CompoundNBT();
                 ParameterTypeTools.writeToNBT(tag, type, o);
                 RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketVariableToServer(tileEntity.getPos(), varIdx, tag));
             });
@@ -537,7 +537,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
             PacketGetFluids.FluidEntry entry = fromServer_fluids.get(i);
             if (entry.isAllocated()) {
                 fluidListMapping[fluidList.getChildCount()] = i;
-                EnumFacing side = EnumFacing.values()[i / TANKS];
+                Direction side = Direction.values()[i / TANKS];
                 String l = side.getName().substring(0, 1).toUpperCase() + (i%TANKS);
                 Panel panel = new Panel(mc, this).setLayout(new HorizontalLayout()).setDesiredWidth(40);
                 AbstractWidget<?> label;

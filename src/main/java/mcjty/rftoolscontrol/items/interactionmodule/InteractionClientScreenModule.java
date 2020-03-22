@@ -4,8 +4,8 @@ import mcjty.lib.client.RenderHelper;
 import mcjty.rftools.api.screens.*;
 import mcjty.rftools.api.screens.data.IModuleDataBoolean;
 import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.nbt.NBTTagCompound;
+
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
@@ -74,7 +74,7 @@ public class InteractionClientScreenModule implements IClientScreenModule<IModul
     }
 
     @Override
-    public void setupFromNBT(NBTTagCompound tagCompound, int dim, BlockPos pos) {
+    public void setupFromNBT(CompoundNBT tagCompound, int dim, BlockPos pos) {
         if (tagCompound != null) {
             line = tagCompound.getString("text");
             button = tagCompound.getString("button");

@@ -2,14 +2,14 @@ package mcjty.rftoolscontrol.network;
 
 import io.netty.buffer.ByteBuf;
 import mcjty.lib.network.NetworkTools;
-import mcjty.lib.thirteen.Context;
+
 import mcjty.rftoolscontrol.items.ProgramCardItem;
 import mcjty.rftoolscontrol.items.craftingcard.CraftingCardItem;
-import net.minecraft.entity.player.EntityPlayerMP;
+
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumHand;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.Hand;
+
 
 import java.util.function.Supplier;
 
@@ -17,7 +17,7 @@ import java.util.function.Supplier;
  * This packet will update the held item NBT from client to server
  */
 public class PacketItemNBTToServer implements IMessage {
-    private NBTTagCompound tagCompound;
+    private CompoundNBT tagCompound;
 
     @Override
     public void fromBytes(ByteBuf buf) {
@@ -36,7 +36,7 @@ public class PacketItemNBTToServer implements IMessage {
         fromBytes(buf);
     }
 
-    public PacketItemNBTToServer(NBTTagCompound tagCompound) {
+    public PacketItemNBTToServer(CompoundNBT tagCompound) {
         this.tagCompound = tagCompound;
     }
 
@@ -44,7 +44,7 @@ public class PacketItemNBTToServer implements IMessage {
         Context ctx = supplier.get();
         ctx.enqueueWork(() -> {
             EntityPlayerMP player = ctx.getSender();
-            ItemStack heldItem = player.getHeldItem(EnumHand.MAIN_HAND);
+            ItemStack heldItem = player.getHeldItem(Hand.MAIN_HAND);
             if (heldItem.isEmpty()) {
                 return;
             }

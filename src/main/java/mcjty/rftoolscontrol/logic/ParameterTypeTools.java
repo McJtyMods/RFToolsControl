@@ -5,22 +5,20 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import mcjty.rftoolscontrol.api.parameters.*;
-import mcjty.rftoolscontrol.logic.ParameterTools;
-import mcjty.rftoolscontrol.logic.TypeConverters;
 import mcjty.rftoolscontrol.logic.registry.Functions;
 import mcjty.rftoolscontrol.logic.running.ExceptionType;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.JsonToNBT;
+import net.minecraft.nbt.ListNBT;
 import net.minecraft.nbt.NBTException;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fml.common.registry.ForgeRegistries;
+
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
@@ -105,7 +103,7 @@ public class ParameterTypeTools {
         }
     }
 
-    public static void writeToNBT(NBTTagCompound tag, ParameterType type, ParameterValue value) {
+    public static void writeToNBT(CompoundNBT tag, ParameterType type, ParameterValue value) {
         if (value.isVariable()) {
             tag.setInteger("varIdx", value.getVariableIndex());
         } else if (value.isFunction()) {
@@ -118,7 +116,7 @@ public class ParameterTypeTools {
         }
     }
 
-    public static ParameterValue readFromNBT(NBTTagCompound tag, ParameterType type) {
+    public static ParameterValue readFromNBT(CompoundNBT tag, ParameterType type) {
         if (tag.hasKey("varIdx")) {
             return ParameterValue.variable(tag.getInteger("varIdx"));
         } else if (tag.hasKey("funId")) {
@@ -130,7 +128,7 @@ public class ParameterTypeTools {
         }
     }
 
-    private static ParameterValue readFromNBTInternal(NBTTagCompound tag, ParameterType type) {
+    private static ParameterValue readFromNBTInternal(CompoundNBT tag, ParameterType type) {
         switch (type) {
             case PAR_STRING:
                 return ParameterValue.constant(tag.getString("v"));
@@ -153,25 +151,25 @@ public class ParameterTypeTools {
                 break;
             case PAR_SIDE:
                 int v = tag.getInteger("v");
-                EnumFacing facing = v == -1 ? null : EnumFacing.values()[v];
+                Direction facing = v == -1 ? null : Direction.values()[v];
                 String node = tag.getString("node");
                 return ParameterValue.constant(new BlockSide(node, facing));
             case PAR_BOOLEAN:
                 return ParameterValue.constant(tag.getBoolean("v"));
             case PAR_INVENTORY:
-                EnumFacing side = EnumFacing.values()[tag.getInteger("side")];
+                Direction side = Direction.values()[tag.getInteger("side")];
                 String name = null;
-                EnumFacing intSide = null;
+                Direction intSide = null;
                 if (tag.hasKey("nodeName")) {
                     name = tag.getString("nodeName");
                 }
                 if (tag.hasKey("intSide")) {
-                    intSide = EnumFacing.values()[tag.getInteger("intSide")];
+                    intSide = Direction.values()[tag.getInteger("intSide")];
                 }
                 return ParameterValue.constant(new Inventory(name, side, intSide));
             case PAR_ITEM:
                 if (tag.hasKey("item")) {
-                    NBTTagCompound tc = (NBTTagCompound) tag.getTag("item");
+                    CompoundNBT tc = (CompoundNBT) tag.getTag("item");
                     ItemStack stack = new ItemStack(tc);
                     // Fix for 1.10 0-sized stacks
                     if (stack.getCount() == 0) {
@@ -182,7 +180,7 @@ public class ParameterTypeTools {
                 return ParameterValue.constant(ItemStack.EMPTY);
             case PAR_FLUID:
                 if (tag.hasKey("fluid")) {
-                    NBTTagCompound tc = (NBTTagCompound) tag.getTag("fluid");
+                    CompoundNBT tc = (CompoundNBT) tag.getTag("fluid");
                     FluidStack stack = FluidStack.loadFluidStackFromNBT(tc);
                     return ParameterValue.constant(stack);
                 }
@@ -193,7 +191,7 @@ public class ParameterTypeTools {
             case PAR_TUPLE:
                 return ParameterValue.constant(new Tuple(tag.getInteger("x"), tag.getInteger("y")));
             case PAR_VECTOR:
-                NBTTagList array = tag.getTagList("vector", Constants.NBT.TAG_COMPOUND);
+                ListNBT array = tag.getTagList("vector", Constants.NBT.TAG_COMPOUND);
                 List<Parameter> vector = new ArrayList<>();
                 for (int i = 0 ; i < array.tagCount() ; i++) {
                     vector.add(ParameterTools.readFromNBT(array.getCompoundTagAt(i)));
@@ -203,7 +201,7 @@ public class ParameterTypeTools {
         return ParameterValue.constant(null);
     }
 
-    private static void writeToNBTInternal(NBTTagCompound tag, ParameterType type, Object value) {
+    private static void writeToNBTInternal(CompoundNBT tag, ParameterType type, Object value) {
         switch (type) {
             case PAR_STRING:
                 tag.setString("v", (String) value);
@@ -248,13 +246,13 @@ public class ParameterTypeTools {
                 break;
             case PAR_ITEM:
                 ItemStack itemStack = (ItemStack) value;
-                NBTTagCompound tc = new NBTTagCompound();
+                CompoundNBT tc = new CompoundNBT();
                 itemStack.writeToNBT(tc);
                 tag.setTag("item", tc);
                 break;
             case PAR_FLUID:
                 FluidStack fluidStack = (FluidStack) value;
-                NBTTagCompound fluidTc = new NBTTagCompound();
+                CompoundNBT fluidTc = new CompoundNBT();
                 fluidStack.writeToNBT(fluidTc);
                 tag.setTag("fluid", fluidTc);
                 break;
@@ -268,7 +266,7 @@ public class ParameterTypeTools {
                 break;
             case PAR_VECTOR:
                 List<Parameter> vector = (List<Parameter>) value;
-                NBTTagList list = new NBTTagList();
+                ListNBT list = new ListNBT();
                 for (Parameter p : vector) {
                     list.appendTag(ParameterTools.writeToNBT(p));
                 }
@@ -385,15 +383,15 @@ public class ParameterTypeTools {
                 }
                 break;
             case PAR_SIDE: {
-                EnumFacing side = object.has("side") ? EnumFacing.byName(object.get("side").getAsString()) : null;
+                Direction side = object.has("side") ? Direction.byName(object.get("side").getAsString()) : null;
                 String node = object.has("node") ? object.get("node").getAsString() : null;
                 return ParameterValue.constant(new BlockSide(node, side));
             }
             case PAR_BOOLEAN:
                 return ParameterValue.constant(object.get("v").getAsBoolean());
             case PAR_INVENTORY: {
-                EnumFacing side = EnumFacing.byName(object.get("side").getAsString());
-                EnumFacing intSide = object.has("intside") ? EnumFacing.byName(object.get("intside").getAsString()) : null;
+                Direction side = Direction.byName(object.get("side").getAsString());
+                Direction intSide = object.has("intside") ? Direction.byName(object.get("intside").getAsString()) : null;
                 String node = object.has("node") ? object.get("node").getAsString() : null;
                 return ParameterValue.constant(new Inventory(node, side, intSide));
             }
@@ -405,7 +403,7 @@ public class ParameterTypeTools {
                 ItemStack stack = new ItemStack(item, amount, meta);
                 if (object.has("nbt")) {
                     String nbt = object.get("nbt").getAsString();
-                    NBTTagCompound tagCompound = null;
+                    CompoundNBT tagCompound = null;
                     try {
                         tagCompound = JsonToNBT.getTagFromJson(nbt);
                     } catch (NBTException e) {

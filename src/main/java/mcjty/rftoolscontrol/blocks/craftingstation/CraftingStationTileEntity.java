@@ -1,6 +1,5 @@
 package mcjty.rftoolscontrol.blocks.craftingstation;
 
-import mcjty.lib.container.DefaultSidedInventory;
 import mcjty.lib.container.InventoryHelper;
 import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.lib.typed.Key;
@@ -13,11 +12,11 @@ import mcjty.rftoolscontrol.blocks.processor.ProcessorTileEntity;
 import mcjty.rftoolscontrol.config.ConfigSetup;
 import mcjty.rftoolscontrol.logic.running.ExceptionType;
 import mcjty.rftoolscontrol.logic.running.ProgException;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
+
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.util.Constants;
@@ -33,7 +32,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class CraftingStationTileEntity extends GenericTileEntity implements DefaultSidedInventory {
+public class CraftingStationTileEntity extends GenericTileEntity {
 
     public static final String CMD_GETCRAFTABLE = "getCraftable";
     public static final String CLIENTCMD_GETCRAFTABLE = "getCraftable";
@@ -285,17 +284,17 @@ public class CraftingStationTileEntity extends GenericTileEntity implements Defa
     }
 
     @Override
-    public void readFromNBT(NBTTagCompound tagCompound) {
+    public void readFromNBT(CompoundNBT tagCompound) {
         super.readFromNBT(tagCompound);
         readProcessorList(tagCompound);
         readRequests(tagCompound);
     }
 
-    private void readRequests(NBTTagCompound tagCompound) {
-        NBTTagList list = tagCompound.getTagList("requests", Constants.NBT.TAG_COMPOUND);
+    private void readRequests(CompoundNBT tagCompound) {
+        ListNBT list = tagCompound.getTagList("requests", Constants.NBT.TAG_COMPOUND);
         activeCraftingRequests.clear();
         for (int i = 0; i < list.tagCount(); i++) {
-            NBTTagCompound requestTag = list.getCompoundTagAt(i);
+            CompoundNBT requestTag = list.getCompoundTagAt(i);
             String craftId = requestTag.getString("craftId");
             ItemStack stack = new ItemStack(requestTag.getCompoundTag("stack"));
             int count = requestTag.getInteger("count");
@@ -306,29 +305,29 @@ public class CraftingStationTileEntity extends GenericTileEntity implements Defa
         }
     }
 
-    private void readProcessorList(NBTTagCompound tagCompound) {
-        NBTTagList list = tagCompound.getTagList("processors", Constants.NBT.TAG_COMPOUND);
+    private void readProcessorList(CompoundNBT tagCompound) {
+        ListNBT list = tagCompound.getTagList("processors", Constants.NBT.TAG_COMPOUND);
         processorList.clear();
         for (int i = 0; i < list.tagCount(); i++) {
-            NBTTagCompound tag = list.getCompoundTagAt(i);
+            CompoundNBT tag = list.getCompoundTagAt(i);
             processorList.add(new BlockPos(tag.getInteger("x"), tag.getInteger("y"), tag.getInteger("z")));
         }
     }
 
     @Override
-    public NBTTagCompound writeToNBT(NBTTagCompound tagCompound) {
+    public CompoundNBT writeToNBT(CompoundNBT tagCompound) {
         super.writeToNBT(tagCompound);
         writeProcessorList(tagCompound);
         writeRequests(tagCompound);
         return tagCompound;
     }
 
-    private void writeRequests(NBTTagCompound tagCompound) {
-        NBTTagList list = new NBTTagList();
+    private void writeRequests(CompoundNBT tagCompound) {
+        ListNBT list = new ListNBT();
         for (CraftingRequest request : activeCraftingRequests) {
-            NBTTagCompound requestTag = new NBTTagCompound();
+            CompoundNBT requestTag = new CompoundNBT();
             requestTag.setString("craftId", request.getTicket());
-            NBTTagCompound stackNbt = new NBTTagCompound();
+            CompoundNBT stackNbt = new CompoundNBT();
             request.getStack().writeToNBT(stackNbt);
             requestTag.setTag("stack", stackNbt);
             requestTag.setInteger("count", request.getTodo());
@@ -340,10 +339,10 @@ public class CraftingStationTileEntity extends GenericTileEntity implements Defa
         tagCompound.setTag("requests", list);
     }
 
-    private void writeProcessorList(NBTTagCompound tagCompound) {
-        NBTTagList list = new NBTTagList();
+    private void writeProcessorList(CompoundNBT tagCompound) {
+        ListNBT list = new ListNBT();
         for (BlockPos p : processorList) {
-            NBTTagCompound tag = new NBTTagCompound();
+            CompoundNBT tag = new CompoundNBT();
             tag.setInteger("x", p.getX());
             tag.setInteger("y", p.getY());
             tag.setInteger("z", p.getZ());
@@ -353,14 +352,14 @@ public class CraftingStationTileEntity extends GenericTileEntity implements Defa
     }
 
     @Override
-    public void readRestorableFromNBT(NBTTagCompound tagCompound) {
+    public void readRestorableFromNBT(CompoundNBT tagCompound) {
         super.readRestorableFromNBT(tagCompound);
         readBufferFromNBT(tagCompound, inventoryHelper);
         currentTicket = tagCompound.getInteger("craftId");
     }
 
     @Override
-    public void writeRestorableToNBT(NBTTagCompound tagCompound) {
+    public void writeRestorableToNBT(CompoundNBT tagCompound) {
         super.writeRestorableToNBT(tagCompound);
         writeBufferToNBT(tagCompound, inventoryHelper);
         tagCompound.setInteger("craftId", currentTicket);
@@ -377,7 +376,7 @@ public class CraftingStationTileEntity extends GenericTileEntity implements Defa
     }
 
     @Override
-    public boolean isUsableByPlayer(EntityPlayer player) {
+    public boolean isUsableByPlayer(PlayerEntity player) {
         return canPlayerAccess(player);
     }
 

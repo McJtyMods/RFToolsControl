@@ -9,8 +9,8 @@ import mcjty.rftoolscontrol.api.parameters.*;
 import mcjty.rftoolscontrol.logic.registry.InventoryUtil;
 import mcjty.rftoolscontrol.logic.running.ExceptionType;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.Direction;
 import net.minecraftforge.fluids.FluidStack;
 
 import javax.annotation.Nullable;
@@ -62,7 +62,7 @@ public class ParameterTools {
                 case PAR_SIDE: {
                     String nodeName = NetworkTools.readString(buf);
                     int sideIdx = buf.readByte();
-                    EnumFacing side = sideIdx == -1 ? null : EnumFacing.values()[sideIdx];
+                    Direction side = sideIdx == -1 ? null : Direction.values()[sideIdx];
                     builder.value(ParameterValue.constant(new BlockSide(nodeName, side)));
                     break;
                 }
@@ -171,16 +171,16 @@ public class ParameterTools {
         }
     }
 
-    public static NBTTagCompound writeToNBT(Parameter parameter) {
+    public static CompoundNBT writeToNBT(Parameter parameter) {
         ParameterType type = parameter.getParameterType();
         ParameterValue value = parameter.getParameterValue();
-        NBTTagCompound parTag = new NBTTagCompound();
+        CompoundNBT parTag = new CompoundNBT();
         parTag.setInteger("type", type.ordinal());
         ParameterTypeTools.writeToNBT(parTag, type, value);
         return parTag;
     }
 
-    public static Parameter readFromNBT(NBTTagCompound parTag) {
+    public static Parameter readFromNBT(CompoundNBT parTag) {
         ParameterType type = ParameterType.values()[parTag.getInteger("type")];
         ParameterValue value = ParameterTypeTools.readFromNBT(parTag, type);
         return Parameter.builder().type(type).value(value).build();

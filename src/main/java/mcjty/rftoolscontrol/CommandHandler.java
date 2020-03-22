@@ -7,10 +7,10 @@ import mcjty.rftoolscontrol.blocks.processor.ProcessorTileEntity;
 import mcjty.rftoolscontrol.items.craftingcard.CraftingCardItem;
 import mcjty.rftoolscontrol.network.PacketGraphicsReady;
 import mcjty.rftoolscontrol.network.RFToolsCtrlMessages;
-import net.minecraft.entity.player.EntityPlayerMP;
+
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumHand;
+import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 
 public class CommandHandler {
@@ -22,7 +22,7 @@ public class CommandHandler {
 
     public static void registerCommands() {
         McJtyLib.registerCommand(RFToolsControl.MODID, CMD_TESTRECIPE, (player, arguments) -> {
-            ItemStack heldItem = player.getHeldItem(EnumHand.MAIN_HAND);
+            ItemStack heldItem = player.getHeldItem(Hand.MAIN_HAND);
             if (heldItem.isEmpty()) {
                 return false;
             }

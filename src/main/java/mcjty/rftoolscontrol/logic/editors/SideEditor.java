@@ -10,7 +10,7 @@ import mcjty.rftoolscontrol.api.parameters.ParameterType;
 import mcjty.rftoolscontrol.api.parameters.ParameterValue;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import org.apache.commons.lang3.StringUtils;
 
 public class SideEditor extends AbstractParameterEditor {
@@ -18,11 +18,11 @@ public class SideEditor extends AbstractParameterEditor {
     private TextField nameLabel;
     private ChoiceLabel label;
 
-    private static EnumFacing parseFacingSafe(String t) {
+    private static Direction parseFacingSafe(String t) {
         if ("*".equals(t)) {
             return null;
         }
-        return EnumFacing.byName(StringUtils.lowerCase(t));
+        return Direction.byName(StringUtils.lowerCase(t));
     }
 
     @Override

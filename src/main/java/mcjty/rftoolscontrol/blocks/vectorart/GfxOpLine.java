@@ -2,10 +2,10 @@ package mcjty.rftoolscontrol.blocks.vectorart;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.GlStateManager;
+
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
 import org.lwjgl.opengl.GL11;
 
 public class GfxOpLine extends GfxOp {
@@ -54,7 +54,7 @@ public class GfxOpLine extends GfxOp {
     }
 
     @Override
-    protected void readFromNBTInternal(NBTTagCompound tag) {
+    protected void readFromNBTInternal(CompoundNBT tag) {
         x1 = tag.getByte("x1");
         y1 = tag.getByte("y1");
         x2 = tag.getByte("x2");
@@ -63,7 +63,7 @@ public class GfxOpLine extends GfxOp {
     }
 
     @Override
-    protected void writeToNBTInternal(NBTTagCompound tag) {
+    protected void writeToNBTInternal(CompoundNBT tag) {
         tag.setByte("x1", (byte) x1);
         tag.setByte("y1", (byte) y1);
         tag.setByte("x2", (byte) x2);

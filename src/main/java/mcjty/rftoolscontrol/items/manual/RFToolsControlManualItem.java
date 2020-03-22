@@ -1,13 +1,13 @@
 package mcjty.rftoolscontrol.items.manual;
 
 import mcjty.rftoolscontrol.RFToolsControl;
-import mcjty.rftoolscontrol.setup.GuiProxy;
 import mcjty.rftoolscontrol.items.GenericRFToolsItem;
-import net.minecraft.entity.player.EntityPlayer;
+import mcjty.rftoolscontrol.setup.GuiProxy;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ActionResult;
-import net.minecraft.util.EnumActionResult;
-import net.minecraft.util.EnumHand;
+
+import net.minecraft.util.Hand;
 import net.minecraft.world.World;
 
 public class RFToolsControlManualItem extends GenericRFToolsItem {
@@ -23,7 +23,7 @@ public class RFToolsControlManualItem extends GenericRFToolsItem {
     }
 
     @Override
-    public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand) {
+    public ActionResult<ItemStack> onItemRightClick(World world, PlayerEntity player, Hand hand) {
         ItemStack stack = player.getHeldItem(hand);
         if (world.isRemote) {
             player.openGui(RFToolsControl.instance, GuiProxy.GUI_MANUAL_CONTROL, player.getEntityWorld(), (int) player.posX, (int) player.posY, (int) player.posZ);

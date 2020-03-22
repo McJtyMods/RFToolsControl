@@ -6,8 +6,8 @@ import mcjty.rftoolscontrol.items.interactionmodule.InteractionModuleItem;
 import mcjty.rftoolscontrol.items.manual.RFToolsControlManualItem;
 import mcjty.rftoolscontrol.items.variablemodule.VariableModuleItem;
 import mcjty.rftoolscontrol.items.vectorartmodule.VectorArtModuleItem;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+
+
 
 public class ModItems {
 
@@ -51,7 +51,7 @@ public class ModItems {
         vectorArtModuleItem = new VectorArtModuleItem();
     }
 
-    @SideOnly(Side.CLIENT)
+
     public static void initClient() {
         rfToolsControlManualItem.initModel();
         programCardItem.initModel();

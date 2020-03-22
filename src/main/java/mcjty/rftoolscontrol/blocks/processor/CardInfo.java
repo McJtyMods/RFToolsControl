@@ -3,7 +3,7 @@ package mcjty.rftoolscontrol.blocks.processor;
 import mcjty.rftoolscontrol.blocks.multitank.MultiTankTileEntity;
 import mcjty.rftoolscontrol.logic.compiled.CompiledCard;
 import mcjty.rftoolscontrol.logic.running.ProgException;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
 
 import static mcjty.rftoolscontrol.logic.running.ExceptionType.EXCEPT_NOINTERNALFLUIDSLOT;
 import static mcjty.rftoolscontrol.logic.running.ExceptionType.EXCEPT_NOINTERNALSLOT;
@@ -149,15 +149,15 @@ public class CardInfo {
         return getRealVar((int)virtualVar);
     }
 
-    public NBTTagCompound writeToNBT() {
-        NBTTagCompound tag = new NBTTagCompound();
+    public CompoundNBT writeToNBT() {
+        CompoundNBT tag = new CompoundNBT();
         tag.setInteger("itemAlloc", itemAllocation);
         tag.setInteger("varAlloc", varAllocation);
         tag.setInteger("fluidAlloc", fluidAllocation);
         return tag;
     }
 
-    public static CardInfo readFromNBT(NBTTagCompound tag) {
+    public static CardInfo readFromNBT(CompoundNBT tag) {
         CardInfo cardInfo = new CardInfo();
         cardInfo.itemAllocation = tag.getInteger("itemAlloc");
         cardInfo.varAllocation = tag.getInteger("varAlloc");

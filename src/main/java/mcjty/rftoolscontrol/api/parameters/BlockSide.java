@@ -1,10 +1,9 @@
 package mcjty.rftoolscontrol.api.parameters;
 
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Nullable;
-import java.util.Objects;
 
 /**
  * This class identifies a side of a network blocked. This basically
@@ -13,9 +12,9 @@ import java.util.Objects;
  */
 public class BlockSide implements Comparable<BlockSide> {
     @Nullable private final String nodeName;          // An inventory on a network
-    @Nullable private final EnumFacing side;      // The side at which the inventory can be found
+    @Nullable private final Direction side;      // The side at which the inventory can be found
 
-    public BlockSide(@Nullable String name, @Nullable EnumFacing side) {
+    public BlockSide(@Nullable String name, @Nullable Direction side) {
         this.nodeName = (name == null || name.isEmpty()) ? null : name;
         this.side = side;
     }
@@ -44,7 +43,7 @@ public class BlockSide implements Comparable<BlockSide> {
     }
 
     @Nullable
-    public EnumFacing getSide() {
+    public Direction getSide() {
         return side;
     }
 
@@ -86,7 +85,7 @@ public class BlockSide implements Comparable<BlockSide> {
     }
 
     public String getStringRepresentation() {
-        EnumFacing facing = getSide();
+        Direction facing = getSide();
 
         String s = facing == null ? "" : StringUtils.left(facing.getName().toUpperCase(), 1);
         if (getNodeName() == null) {

@@ -1,19 +1,16 @@
 package mcjty.rftoolscontrol.blocks.workbench;
 
-import mcjty.lib.container.DefaultSidedInventory;
+
 import mcjty.lib.container.GenericCrafter;
 import mcjty.lib.container.InventoryHelper;
 import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.lib.varia.FacedSidedInvWrapper;
 import mcjty.lib.varia.NullSidedInvWrapper;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.Container;
-import net.minecraft.inventory.InventoryCrafting;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.Direction;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.items.CapabilityItemHandler;
 
@@ -51,26 +48,26 @@ public class WorkbenchTileEntity extends GenericTileEntity implements DefaultSid
     }
 
     @Override
-    public void readFromNBT(NBTTagCompound tagCompound) {
+    public void readFromNBT(CompoundNBT tagCompound) {
         super.readFromNBT(tagCompound);
     }
 
     @Override
-    public NBTTagCompound writeToNBT(NBTTagCompound tagCompound) {
+    public CompoundNBT writeToNBT(CompoundNBT tagCompound) {
         super.writeToNBT(tagCompound);
         return tagCompound;
     }
 
 
     @Override
-    public void readRestorableFromNBT(NBTTagCompound tagCompound) {
+    public void readRestorableFromNBT(CompoundNBT tagCompound) {
         super.readRestorableFromNBT(tagCompound);
         readBufferFromNBT(tagCompound, inventoryHelper);
         realItems = tagCompound.getInteger("realItems");
     }
 
     @Override
-    public void writeRestorableToNBT(NBTTagCompound tagCompound) {
+    public void writeRestorableToNBT(CompoundNBT tagCompound) {
         super.writeRestorableToNBT(tagCompound);
         writeBufferToNBT(tagCompound, inventoryHelper);
         tagCompound.setInteger("realItems", realItems);
@@ -104,7 +101,7 @@ public class WorkbenchTileEntity extends GenericTileEntity implements DefaultSid
     private InventoryCrafting makeWorkInventory() {
         InventoryCrafting workInventory = new InventoryCrafting(new Container() {
             @Override
-            public boolean canInteractWith(EntityPlayer var1) {
+            public boolean canInteractWith(PlayerEntity var1) {
                 return false;
             }
         }, 3, 3);
@@ -127,12 +124,12 @@ public class WorkbenchTileEntity extends GenericTileEntity implements DefaultSid
     }
 
     @Override
-    public boolean canInsertItem(int index, ItemStack itemStackIn, EnumFacing direction) {
+    public boolean canInsertItem(int index, ItemStack itemStackIn, Direction direction) {
         if (direction == null) {
             return !isCraftOutput(index);
-        } else if (direction == EnumFacing.DOWN) {
+        } else if (direction == Direction.DOWN) {
             return false;
-        } else if (direction == EnumFacing.UP) {
+        } else if (direction == Direction.UP) {
             return isCraftInputSlot(index);
         } else {
             return isBufferSlot(index);
@@ -140,12 +137,12 @@ public class WorkbenchTileEntity extends GenericTileEntity implements DefaultSid
     }
 
     @Override
-    public boolean canExtractItem(int index, ItemStack stack, EnumFacing direction) {
+    public boolean canExtractItem(int index, ItemStack stack, Direction direction) {
         if (direction == null) {
             return true;
-        } else if (direction == EnumFacing.DOWN) {
+        } else if (direction == Direction.DOWN) {
             return isCraftOutput(index);
-        } else if (direction == EnumFacing.UP) {
+        } else if (direction == Direction.UP) {
             return isCraftInputSlot(index);
         } else {
             return isBufferSlot(index);
@@ -153,12 +150,12 @@ public class WorkbenchTileEntity extends GenericTileEntity implements DefaultSid
     }
 
     @Override
-    public int[] getSlotsForFace(EnumFacing side) {
+    public int[] getSlotsForFace(Direction side) {
         if (side == null) {
             return ALL_SLOTS;
-        } else if (side == EnumFacing.DOWN) {
+        } else if (side == Direction.DOWN) {
             return DOWN_SLOTS;
-        } else if (side == EnumFacing.UP) {
+        } else if (side == Direction.UP) {
             return UP_SLOTS;
         } else {
             return SIDE_SLOTS;
@@ -219,14 +216,14 @@ public class WorkbenchTileEntity extends GenericTileEntity implements DefaultSid
     }
 
     @Override
-    public boolean isUsableByPlayer(EntityPlayer player) {
+    public boolean isUsableByPlayer(PlayerEntity player) {
         return canPlayerAccess(player);
     }
 
     protected FacedSidedInvWrapper[] handler = new FacedSidedInvWrapper[] { null, null, null, null, null, null };
 
     @Override
-    public boolean hasCapability(Capability<?> capability, EnumFacing facing) {
+    public boolean hasCapability(Capability<?> capability, Direction facing) {
         if (capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) {
             return true;
         }
@@ -234,7 +231,7 @@ public class WorkbenchTileEntity extends GenericTileEntity implements DefaultSid
     }
 
     @Override
-    public <T> T getCapability(Capability<T> capability, EnumFacing facing) {
+    public <T> T getCapability(Capability<T> capability, Direction facing) {
         if (capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) {
             if (facing == null) {
                 if (invHandlerNull == null) {

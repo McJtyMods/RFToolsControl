@@ -8,7 +8,7 @@ import mcjty.rftoolscontrol.items.manual.GuiRFToolsManual;
 import mcjty.rftoolscontrol.logic.registry.FunctionRegistry;
 import mcjty.rftoolscontrol.logic.registry.OpcodeRegistry;
 import mcjty.rftoolscontrol.setup.ModSetup;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
@@ -104,7 +104,7 @@ public class RFToolsControl implements ModBase {
     }
 
     @Override
-    public void openManual(EntityPlayer player, int bookIndex, String page) {
+    public void openManual(PlayerEntity player, int bookIndex, String page) {
         GuiRFToolsManual.locatePage = page;
         player.openGui(RFToolsControl.instance, bookIndex, player.getEntityWorld(), (int) player.posX, (int) player.posY, (int) player.posZ);
     }

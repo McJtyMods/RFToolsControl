@@ -5,10 +5,10 @@ import mcjty.lib.gui.Window;
 import mcjty.lib.gui.events.BlockRenderEvent;
 import mcjty.lib.gui.layout.HorizontalAlignment;
 import mcjty.lib.gui.layout.PositionalLayout;
-import mcjty.lib.gui.widgets.*;
 import mcjty.lib.gui.widgets.Button;
 import mcjty.lib.gui.widgets.Label;
 import mcjty.lib.gui.widgets.Panel;
+import mcjty.lib.gui.widgets.*;
 import mcjty.lib.network.PacketSendServerCommand;
 import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.lib.typed.Key;
@@ -17,12 +17,12 @@ import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.ItemStackList;
 import mcjty.rftoolscontrol.CommandHandler;
 import mcjty.rftoolscontrol.RFToolsControl;
-import mcjty.rftoolscontrol.setup.GuiProxy;
 import mcjty.rftoolscontrol.network.PacketItemNBTToServer;
 import mcjty.rftoolscontrol.network.RFToolsCtrlMessages;
+import mcjty.rftoolscontrol.setup.GuiProxy;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumHand;
+import net.minecraft.util.Hand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextFormatting;
 
@@ -67,7 +67,7 @@ public class GuiCraftingCard extends GenericGuiContainer<GenericTileEntity> {
                 .setText("NBT")
                 .setTooltips("Enable this if you want", "opcodes like 'get_ingredients'", "to strictly match on NBT")
                 .setLayoutHint(new PositionalLayout.PositionalHint(110, 74, 60, 14));
-        ItemStack heldItem = mc.player.getHeldItem(EnumHand.MAIN_HAND);
+        ItemStack heldItem = mc.player.getHeldItem(Hand.MAIN_HAND);
         if (!heldItem.isEmpty()) {
             toggle.setPressed(CraftingCardItem.isStrictNBT(heldItem));
         }
@@ -138,7 +138,7 @@ public class GuiCraftingCard extends GenericGuiContainer<GenericTileEntity> {
 
     @Nonnull
     private ItemStackList getStacks() {
-        ItemStack cardItem = mc.player.getHeldItem(EnumHand.MAIN_HAND);
+        ItemStack cardItem = mc.player.getHeldItem(Hand.MAIN_HAND);
         ItemStackList stacks = ItemStackList.EMPTY;
         if (!cardItem.isEmpty() && cardItem.getItem() instanceof CraftingCardItem) {
             stacks = CraftingCardItem.getStacksFromItem(cardItem);
@@ -155,7 +155,7 @@ public class GuiCraftingCard extends GenericGuiContainer<GenericTileEntity> {
                 ItemStackList stacks = getStacks();
                 if (!stacks.isEmpty()) {
                     stacks.set(idx, itemstack);
-                    ItemStack cardItem = mc.player.getHeldItem(EnumHand.MAIN_HAND);
+                    ItemStack cardItem = mc.player.getHeldItem(Hand.MAIN_HAND);
                     CraftingCardItem.putStacksInItem(cardItem, stacks);
                     RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketItemNBTToServer(cardItem.getTagCompound()));
                 }

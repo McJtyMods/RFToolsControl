@@ -20,7 +20,6 @@
 package mcjty.rftoolscontrol.blocks.multitank;
 
 import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.capability.IFluidTankProperties;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;

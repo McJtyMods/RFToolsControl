@@ -1,7 +1,7 @@
 package mcjty.rftoolscontrol.blocks.processor;
 
 import mcjty.lib.api.MachineInformation;
-import mcjty.lib.container.DefaultSidedInventory;
+
 import mcjty.lib.container.InventoryHelper;
 import mcjty.lib.tileentity.GenericEnergyReceiverTileEntity;
 import mcjty.lib.typed.Key;
@@ -43,25 +43,20 @@ import mcjty.rftoolscontrol.logic.running.ExceptionType;
 import mcjty.rftoolscontrol.logic.running.ProgException;
 import mcjty.rftoolscontrol.logic.running.RunningProgram;
 import mcjty.rftoolscontrol.network.PacketGetFluids;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTBase;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
-import net.minecraft.nbt.NBTTagString;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.ITickable;
+import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.energy.CapabilityEnergy;
@@ -69,10 +64,6 @@ import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler;
-import net.minecraftforge.fluids.capability.IFluidTankProperties;
-import net.minecraftforge.fml.common.registry.ForgeRegistries;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.wrapper.InvWrapper;
@@ -254,7 +245,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
 
     @Override
     public int readRedstoneIn(@Nonnull BlockSide side) {
-        EnumFacing facing = side.getSide();
+        Direction facing = side.getSide();
         BlockPos p = getAdjacentPosition(side);
         if (p == null) {
             return 0;
@@ -264,7 +255,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
 
     @Override
     public void setPowerOut(@Nonnull BlockSide side, int level) {
-        EnumFacing facing = side.getSide();
+        Direction facing = side.getSide();
         BlockPos p = getAdjacentPosition(side);
         if (p == null) {
             return;
@@ -286,7 +277,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
 }
     }
 
-    public int getPowerOut(EnumFacing side) {
+    public int getPowerOut(Direction side) {
         return powerOut[side.ordinal()];
     }
 
@@ -296,14 +287,14 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     }
 
     @Override
-    public boolean isUsableByPlayer(EntityPlayer player) {
+    public boolean isUsableByPlayer(PlayerEntity player) {
         return canPlayerAccess(player);
     }
 
     private static int[] slots = null;
 
     @Override
-    public int[] getSlotsForFace(EnumFacing side) {
+    public int[] getSlotsForFace(Direction side) {
         if (slots == null) {
             slots = new int[3*8];
             for (int i = 0 ; i < 3*8 ; i++) {
@@ -314,12 +305,12 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     }
 
     @Override
-    public boolean canInsertItem(int index, ItemStack itemStackIn, EnumFacing direction) {
+    public boolean canInsertItem(int index, ItemStack itemStackIn, Direction direction) {
         return index >= SLOT_BUFFER && index < SLOT_BUFFER + 3*8;
     }
 
     @Override
-    public boolean canExtractItem(int index, ItemStack stack, EnumFacing direction) {
+    public boolean canExtractItem(int index, ItemStack stack, Direction direction) {
         return index >= SLOT_BUFFER && index < SLOT_BUFFER + 3*8;
     }
 
@@ -479,7 +470,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         if (!(te instanceof WorkbenchTileEntity)) {
             throw new ProgException(EXCEPT_NOTAWORKBENCH);
         }
-        IItemHandler cardHandler = getItemHandlerAt(te, EnumFacing.EAST);
+        IItemHandler cardHandler = getItemHandlerAt(te, Direction.EAST);
         ItemStack card = findCraftingCard(cardHandler, item, oredict);
         if (card.isEmpty()) {
             throw new ProgException(EXCEPT_MISSINGCRAFTINGCARD);
@@ -492,7 +483,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         CardInfo info = this.cardInfo[((RunningProgram)program).getCardIndex()];
         IItemHandler itemHandler = getItemHandler();
 
-        IItemHandler gridHandler = getItemHandlerAt(te, EnumFacing.UP);
+        IItemHandler gridHandler = getItemHandlerAt(te, Direction.UP);
         List<ItemStack> ingredients = CraftingCardItem.getIngredientsGrid(card);
         boolean success = true;
         for (int i = 0 ; i < 9 ; i++) {
@@ -859,7 +850,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             return CraftingCardItem.getResult(itemStack);
         }
         if (itemStack.getItem() instanceof TokenItem && itemStack.hasTagCompound()) {
-            NBTTagCompound tag = itemStack.getTagCompound().getCompoundTag("parameter");
+            CompoundNBT tag = itemStack.getTagCompound().getCompoundTag("parameter");
             if (tag.hasNoTags()) {
                 return ItemStack.EMPTY;
             }
@@ -1012,7 +1003,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                 CompiledOpcode compiledOpcode = compiledCard.getOpcodes().get(index);
                 BlockSide side = evaluateSideParameter(compiledOpcode, null, 0);
                 if (side == null || !side.hasNodeName()) {
-                    EnumFacing facing = side == null ? null : side.getSide();
+                    Direction facing = side == null ? null : side.getSide();
                     if (facing == null || ((redstoneOffMask >> facing.ordinal()) & 1) == 1) {
                         runOrQueueEvent(i, event, null, null);
                     }
@@ -1029,7 +1020,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                 CompiledOpcode compiledOpcode = compiledCard.getOpcodes().get(index);
                 BlockSide side = evaluateSideParameter(compiledOpcode, null, 0);
                 if (side == null || !side.hasNodeName()) {
-                    EnumFacing facing = side == null ? null : side.getSide();
+                    Direction facing = side == null ? null : side.getSide();
                     if (facing == null || ((redstoneOnMask >> facing.ordinal()) & 1) == 1) {
                         runOrQueueEvent(i, event, null, null);
                     }
@@ -1046,7 +1037,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                 CompiledOpcode compiledOpcode = compiledCard.getOpcodes().get(index);
                 BlockSide side = evaluateSideParameter(compiledOpcode, null, 0);
                 if (side != null && node.equals(side.getNodeName())) {
-                    EnumFacing facing = side.getSide();
+                    Direction facing = side.getSide();
                     if (facing == null || ((redstoneOffMask >> facing.ordinal()) & 1) == 1) {
                         runOrQueueEvent(i, event, null, null);
                     }
@@ -1063,7 +1054,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                 CompiledOpcode compiledOpcode = compiledCard.getOpcodes().get(index);
                 BlockSide side = evaluateSideParameter(compiledOpcode, null, 0);
                 if (side != null && node.equals(side.getNodeName())) {
-                    EnumFacing facing = side.getSide();
+                    Direction facing = side.getSide();
                     if (facing == null || ((redstoneOnMask >> facing.ordinal()) & 1) == 1) {
                         runOrQueueEvent(i, event, null, null);
                     }
@@ -1253,14 +1244,14 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         waitingForItems.clear();
         eventQueue.clear();
         stopPrograms();
-        for (EnumFacing facing : EnumFacing.values()) {
+        for (Direction facing : Direction.values()) {
             powerOut[facing.ordinal()] = 0;
         }
         for (BlockPos np : networkNodes.values()) {
             TileEntity te = getWorld().getTileEntity(np);
             if (te instanceof NodeTileEntity) {
                 NodeTileEntity tileEntity = (NodeTileEntity) te;
-                for (EnumFacing facing : EnumFacing.values()) {
+                for (Direction facing : Direction.values()) {
                     tileEntity.setPowerOut(facing, 0);
                 }
             }
@@ -1447,7 +1438,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         List<PacketGetFluids.FluidEntry> pars = new ArrayList<>();
         for (int i = 0 ; i < MAXFLUIDVARS ; i++) {
             if (isFluidSlotAvailable(i)) {
-                EnumFacing side = EnumFacing.values()[i / TANKS];
+                Direction side = Direction.values()[i / TANKS];
                 TileEntity te = getWorld().getTileEntity(getPos().offset(side));
                 if (te instanceof MultiTankTileEntity) {
                     MultiTankTileEntity mtank = (MultiTankTileEntity) te;
@@ -1643,7 +1634,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         return false;
     }
 
-    private MultiTankFluidProperties getFluidPropertiesFromMultiTank(EnumFacing side, int idx) {
+    private MultiTankFluidProperties getFluidPropertiesFromMultiTank(Direction side, int idx) {
         TileEntity te = getWorld().getTileEntity(getPos().offset(side));
         if (te instanceof MultiTankTileEntity) {
             MultiTankTileEntity mtank = (MultiTankTileEntity) te;
@@ -1669,7 +1660,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     public FluidStack examineLiquidInternal(IProgram program, int virtualSlot) {
         CardInfo info = this.cardInfo[((RunningProgram)program).getCardIndex()];
         int realSlot = info.getRealFluidSlot(virtualSlot);
-        EnumFacing side = EnumFacing.values()[realSlot / TANKS];
+        Direction side = Direction.values()[realSlot / TANKS];
         int idx = realSlot % TANKS;
         MultiTankFluidProperties properties = getFluidPropertiesFromMultiTank(side, idx);
         if (properties == null) {
@@ -1682,7 +1673,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         IFluidHandler handler = getFluidHandlerAt(inv);
         CardInfo info = this.cardInfo[((RunningProgram)program).getCardIndex()];
         int realSlot = info.getRealFluidSlot(virtualSlot);
-        EnumFacing side = EnumFacing.values()[realSlot / TANKS];
+        Direction side = Direction.values()[realSlot / TANKS];
         int idx = realSlot % TANKS;
         MultiTankFluidProperties properties = getFluidPropertiesFromMultiTank(side, idx);
         if (properties == null) {
@@ -1704,7 +1695,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         IFluidHandler handler = getFluidHandlerAt(inv);
         CardInfo info = this.cardInfo[((RunningProgram)program).getCardIndex()];
         int realSlot = info.getRealFluidSlot(virtualSlot);
-        EnumFacing side = EnumFacing.values()[realSlot / TANKS];
+        Direction side = Direction.values()[realSlot / TANKS];
         int idx = realSlot % TANKS;
         MultiTankFluidProperties properties = getFluidPropertiesFromMultiTank(side, idx);
         if (properties == null) {
@@ -1837,7 +1828,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         if (idCard.isEmpty() || !(idCard.getItem() instanceof NetworkIdentifierItem)) {
             throw new ProgException(EXCEPT_NOTANIDENTIFIER);
         }
-        NBTTagCompound tagCompound = idCard.getTagCompound();
+        CompoundNBT tagCompound = idCard.getTagCompound();
         if (tagCompound == null || !tagCompound.hasKey("monitorx")) {
             throw new ProgException(EXCEPT_INVALIDDESTINATION);
         }
@@ -1978,7 +1969,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
 
     private void updateFluidSlotsAvailability() {
         fluidSlotsAvailable = 0;
-        for (EnumFacing facing : EnumFacing.values()) {
+        for (Direction facing : Direction.values()) {
             TileEntity te = getWorld().getTileEntity(getPos().offset(facing));
             if (te instanceof MultiTankTileEntity) {
                 fluidSlotsAvailable |= 1 << facing.ordinal();
@@ -2147,13 +2138,13 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             throw new ProgException(EXCEPT_NOTATOKEN);
         }
         if (!stack.hasTagCompound()) {
-            stack.setTagCompound(new NBTTagCompound());
+            stack.setTagCompound(new CompoundNBT());
         }
         Parameter lastValue = program.getLastValue();
         if (lastValue == null) {
             stack.getTagCompound().removeTag("parameter");
         } else {
-            NBTTagCompound tag = ParameterTools.writeToNBT(lastValue);
+            CompoundNBT tag = ParameterTools.writeToNBT(lastValue);
             stack.getTagCompound().setTag("parameter", tag);
         }
     }
@@ -2169,7 +2160,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         if (!stack.hasTagCompound()) {
             return null;
         }
-        NBTTagCompound tag = stack.getTagCompound().getCompoundTag("parameter");
+        CompoundNBT tag = stack.getTagCompound().getCompoundTag("parameter");
         if (tag.hasNoTags()) {
             return null;
         }
@@ -2420,7 +2411,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         if (!storageStack.hasTagCompound()) {
             throw new ProgException(EXCEPT_MISSINGSTORAGECARD);
         }
-        NBTTagCompound tagCompound = storageStack.getTagCompound();
+        CompoundNBT tagCompound = storageStack.getTagCompound();
         BlockPos c = new BlockPos(tagCompound.getInteger("monitorx"), tagCompound.getInteger("monitory"), tagCompound.getInteger("monitorz"));
         int dim = tagCompound.getInteger("monitordim");
         World world = DimensionManager.getWorld(dim);
@@ -2541,12 +2532,12 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     @Override
     @Nonnull
     public IItemHandler getItemHandlerAt(@Nonnull Inventory inv) {
-        EnumFacing intSide = inv.getIntSide();
+        Direction intSide = inv.getIntSide();
         TileEntity te = getTileEntityAt(inv);
         return getItemHandlerAt(te, intSide);
     }
 
-    private IItemHandler getItemHandlerAt(@Nonnull TileEntity te, EnumFacing intSide) {
+    private IItemHandler getItemHandlerAt(@Nonnull TileEntity te, Direction intSide) {
         if (te != null && te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, intSide)) {
             IItemHandler handler = te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, intSide);
             if (handler != null) {
@@ -2640,21 +2631,21 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     }
 
     @Override
-    public void readClientDataFromNBT(NBTTagCompound tagCompound) {
+    public void readClientDataFromNBT(CompoundNBT tagCompound) {
         exclusive = tagCompound.getBoolean("exclusive");
         showHud = tagCompound.getByte("hud");
         readCardInfo(tagCompound);
     }
 
     @Override
-    public void writeClientDataToNBT(NBTTagCompound tagCompound) {
+    public void writeClientDataToNBT(CompoundNBT tagCompound) {
         tagCompound.setBoolean("exclusive", exclusive);
         tagCompound.setByte("hud", (byte) showHud);
         writeCardInfo(tagCompound);
     }
 
     @Override
-    public void readFromNBT(NBTTagCompound tagCompound) {
+    public void readFromNBT(CompoundNBT tagCompound) {
         super.readFromNBT(tagCompound);
         prevIn = tagCompound.getInteger("prevIn");
         for (int i = 0 ; i < 6 ; i++) {
@@ -2663,7 +2654,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     }
 
     @Override
-    public NBTTagCompound writeToNBT(NBTTagCompound tagCompound) {
+    public CompoundNBT writeToNBT(CompoundNBT tagCompound) {
         super.writeToNBT(tagCompound);
         tagCompound.setInteger("prevIn", prevIn);
         for (int i = 0 ; i < 6 ; i++) {
@@ -2673,7 +2664,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     }
 
     @Override
-    public void readRestorableFromNBT(NBTTagCompound tagCompound) {
+    public void readRestorableFromNBT(CompoundNBT tagCompound) {
         super.readRestorableFromNBT(tagCompound);
         tickCount = tagCompound.getInteger("tickCount");
         channel = tagCompound.getString("channel");
@@ -2701,40 +2692,40 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         readGraphicsOperations(tagCompound);
     }
 
-    private void readGraphicsOperations(NBTTagCompound tagCompound) {
+    private void readGraphicsOperations(CompoundNBT tagCompound) {
         gfxOps.clear();
-        NBTTagCompound opTag = tagCompound.getCompoundTag("gfxop");
+        CompoundNBT opTag = tagCompound.getCompoundTag("gfxop");
         for (String key : opTag.getKeySet()) {
             gfxOps.put(key, GfxOp.readFromNBT(opTag.getCompoundTag(key)));
         }
         sortOps();
     }
 
-    private void readRunningEvents(NBTTagCompound tagCompound) {
+    private void readRunningEvents(CompoundNBT tagCompound) {
         runningEvents.clear();
-        NBTTagList evList = tagCompound.getTagList("singev", Constants.NBT.TAG_COMPOUND);
+        ListNBT evList = tagCompound.getTagList("singev", Constants.NBT.TAG_COMPOUND);
         for (int i = 0 ; i < evList.tagCount() ; i++) {
-            NBTTagCompound tag = evList.getCompoundTagAt(i);
+            CompoundNBT tag = evList.getCompoundTagAt(i);
             int cardIndex = tag.getInteger("card");
             int eventIndex = tag.getInteger("event");
             runningEvents.add(Pair.of(cardIndex, eventIndex));
         }
     }
 
-    private void readLocks(NBTTagCompound tagCompound) {
+    private void readLocks(CompoundNBT tagCompound) {
         locks.clear();
-        NBTTagList lockList = tagCompound.getTagList("locks", Constants.NBT.TAG_STRING);
+        ListNBT lockList = tagCompound.getTagList("locks", Constants.NBT.TAG_STRING);
         for (int i = 0 ; i < lockList.tagCount() ; i++) {
             String name = lockList.getStringTagAt(i);
             locks.add(name);
         }
     }
 
-    private void readWaitingForItems(NBTTagCompound tagCompound) {
+    private void readWaitingForItems(CompoundNBT tagCompound) {
         waitingForItems.clear();
-        NBTTagList waitingList = tagCompound.getTagList("waiting", Constants.NBT.TAG_COMPOUND);
+        ListNBT waitingList = tagCompound.getTagList("waiting", Constants.NBT.TAG_COMPOUND);
         for (int i = 0 ; i < waitingList.tagCount() ; i++) {
-            NBTTagCompound tag = waitingList.getCompoundTagAt(i);
+            CompoundNBT tag = waitingList.getCompoundTagAt(i);
             String ticket = tag.getString("ticket");
 
             ItemStack stack;
@@ -2757,35 +2748,35 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     }
 
 
-    private void readCraftingStations(NBTTagCompound tagCompound) {
+    private void readCraftingStations(CompoundNBT tagCompound) {
         craftingStations.clear();
-        NBTTagList stationList = tagCompound.getTagList("stations", Constants.NBT.TAG_COMPOUND);
+        ListNBT stationList = tagCompound.getTagList("stations", Constants.NBT.TAG_COMPOUND);
         for (int i = 0 ; i < stationList.tagCount() ; i++) {
-            NBTTagCompound tag = stationList.getCompoundTagAt(i);
+            CompoundNBT tag = stationList.getCompoundTagAt(i);
             BlockPos nodePos = new BlockPos(tag.getInteger("nodex"), tag.getInteger("nodey"), tag.getInteger("nodez"));
             craftingStations.add(nodePos);
         }
     }
 
-    private void readNetworkNodes(NBTTagCompound tagCompound) {
+    private void readNetworkNodes(CompoundNBT tagCompound) {
         networkNodes.clear();
-        NBTTagList networkList = tagCompound.getTagList("nodes", Constants.NBT.TAG_COMPOUND);
+        ListNBT networkList = tagCompound.getTagList("nodes", Constants.NBT.TAG_COMPOUND);
         for (int i = 0 ; i < networkList.tagCount() ; i++) {
-            NBTTagCompound tag = networkList.getCompoundTagAt(i);
+            CompoundNBT tag = networkList.getCompoundTagAt(i);
             String name = tag.getString("name");
             BlockPos nodePos = new BlockPos(tag.getInteger("nodex"), tag.getInteger("nodey"), tag.getInteger("nodez"));
             networkNodes.put(name, nodePos);
         }
     }
 
-    private void readVariables(NBTTagCompound tagCompound) {
+    private void readVariables(CompoundNBT tagCompound) {
         for (int i = 0 ; i < MAXVARS ; i++) {
             variables[i] = null;
             watchInfos[i] = null;
         }
-        NBTTagList varList = tagCompound.getTagList("vars", Constants.NBT.TAG_COMPOUND);
+        ListNBT varList = tagCompound.getTagList("vars", Constants.NBT.TAG_COMPOUND);
         for (int i = 0 ; i < varList.tagCount() ; i++) {
-            NBTTagCompound var = varList.getCompoundTagAt(i);
+            CompoundNBT var = varList.getCompoundTagAt(i);
             int index = var.getInteger("varidx");
             variables[index] = ParameterTools.readFromNBT(var);
             if (var.hasKey("watch")) {
@@ -2795,16 +2786,16 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         }
     }
 
-    private void readLog(NBTTagCompound tagCompound) {
+    private void readLog(CompoundNBT tagCompound) {
         logMessages.clear();
-        NBTTagList logList = tagCompound.getTagList("log", Constants.NBT.TAG_STRING);
+        ListNBT logList = tagCompound.getTagList("log", Constants.NBT.TAG_STRING);
         for (int i = 0 ; i < logList.tagCount() ; i++) {
             logMessages.add(logList.getStringTagAt(i));
         }
     }
 
-    private void readCores(NBTTagCompound tagCompound) {
-        NBTTagList coreList = tagCompound.getTagList("cores", Constants.NBT.TAG_COMPOUND);
+    private void readCores(CompoundNBT tagCompound) {
+        ListNBT coreList = tagCompound.getTagList("cores", Constants.NBT.TAG_COMPOUND);
         cpuCores.clear();
         coresDirty = false;
         for (int i = 0 ; i < coreList.tagCount() ; i++) {
@@ -2817,11 +2808,11 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         }
     }
 
-    private void readEventQueue(NBTTagCompound tagCompound) {
+    private void readEventQueue(CompoundNBT tagCompound) {
         eventQueue.clear();
-        NBTTagList eventQueueList = tagCompound.getTagList("events", Constants.NBT.TAG_COMPOUND);
+        ListNBT eventQueueList = tagCompound.getTagList("events", Constants.NBT.TAG_COMPOUND);
         for (int i = 0 ; i < eventQueueList.tagCount() ; i++) {
-            NBTTagCompound tag = eventQueueList.getCompoundTagAt(i);
+            CompoundNBT tag = eventQueueList.getCompoundTagAt(i);
             int card = tag.getInteger("card");
             int index = tag.getInteger("index");
             boolean single = tag.getBoolean("single");
@@ -2834,15 +2825,15 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         }
     }
 
-    private void readCardInfo(NBTTagCompound tagCompound) {
-        NBTTagList cardInfoList = tagCompound.getTagList("cardInfo", Constants.NBT.TAG_COMPOUND);
+    private void readCardInfo(CompoundNBT tagCompound) {
+        ListNBT cardInfoList = tagCompound.getTagList("cardInfo", Constants.NBT.TAG_COMPOUND);
         for (int i = 0 ; i < cardInfoList.tagCount() ; i++) {
             cardInfo[i] = CardInfo.readFromNBT(cardInfoList.getCompoundTagAt(i));
         }
     }
 
     @Override
-    public void writeRestorableToNBT(NBTTagCompound tagCompound) {
+    public void writeRestorableToNBT(CompoundNBT tagCompound) {
         super.writeRestorableToNBT(tagCompound);
         tagCompound.setInteger("tickCount", tickCount);
         tagCompound.setString("channel", channel == null ? "" : channel);
@@ -2867,18 +2858,18 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         writeGraphicsOperation(tagCompound);
     }
 
-    private void writeGraphicsOperation(NBTTagCompound tagCompound) {
-        NBTTagCompound opTag = new NBTTagCompound();
+    private void writeGraphicsOperation(CompoundNBT tagCompound) {
+        CompoundNBT opTag = new CompoundNBT();
         for (Map.Entry<String, GfxOp> entry : gfxOps.entrySet()) {
             opTag.setTag(entry.getKey(), entry.getValue().writeToNBT());
         }
         tagCompound.setTag("gfxop", opTag);
     }
 
-    private void writeRunningEvents(NBTTagCompound tagCompound) {
-        NBTTagList evList = new NBTTagList();
+    private void writeRunningEvents(CompoundNBT tagCompound) {
+        ListNBT evList = new ListNBT();
         for (Pair<Integer, Integer> pair : runningEvents) {
-            NBTTagCompound tag = new NBTTagCompound();
+            CompoundNBT tag = new CompoundNBT();
             tag.setInteger("card", pair.getLeft());
             tag.setInteger("event", pair.getRight());
             evList.appendTag(tag);
@@ -2886,18 +2877,18 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         tagCompound.setTag("singev", evList);
     }
 
-    private void writeLocks(NBTTagCompound tagCompound) {
-        NBTTagList lockList = new NBTTagList();
+    private void writeLocks(CompoundNBT tagCompound) {
+        ListNBT lockList = new ListNBT();
         for (String name : locks) {
             lockList.appendTag(new NBTTagString(name));
         }
         tagCompound.setTag("locks", lockList);
     }
 
-    private void writeWaitingForItems(NBTTagCompound tagCompound) {
-        NBTTagList waitingList = new NBTTagList();
+    private void writeWaitingForItems(CompoundNBT tagCompound) {
+        ListNBT waitingList = new ListNBT();
         for (WaitForItem waitingForItem : waitingForItems) {
-            NBTTagCompound tag = new NBTTagCompound();
+            CompoundNBT tag = new CompoundNBT();
             tag.setString("ticket", waitingForItem.getTicket());
             if (waitingForItem.getInventory() != null) {
                 tag.setTag("inv", InventoryUtil.writeToNBT(waitingForItem.getInventory()));
@@ -2911,10 +2902,10 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     }
 
 
-    private void writeCraftingStations(NBTTagCompound tagCompound) {
-        NBTTagList stationList = new NBTTagList();
+    private void writeCraftingStations(CompoundNBT tagCompound) {
+        ListNBT stationList = new ListNBT();
         for (BlockPos pos : craftingStations) {
-            NBTTagCompound tag = new NBTTagCompound();
+            CompoundNBT tag = new CompoundNBT();
             tag.setInteger("nodex", pos.getX());
             tag.setInteger("nodey", pos.getY());
             tag.setInteger("nodez", pos.getZ());
@@ -2923,10 +2914,10 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         tagCompound.setTag("stations", stationList);
     }
 
-    private void writeNetworkNodes(NBTTagCompound tagCompound) {
-        NBTTagList networkList = new NBTTagList();
+    private void writeNetworkNodes(CompoundNBT tagCompound) {
+        ListNBT networkList = new ListNBT();
         for (Map.Entry<String, BlockPos> entry : networkNodes.entrySet()) {
-            NBTTagCompound tag = new NBTTagCompound();
+            CompoundNBT tag = new CompoundNBT();
             tag.setString("name", entry.getKey());
             tag.setInteger("nodex", entry.getValue().getX());
             tag.setInteger("nodey", entry.getValue().getY());
@@ -2936,11 +2927,11 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         tagCompound.setTag("nodes", networkList);
     }
 
-    private void writeVariables(NBTTagCompound tagCompound) {
-        NBTTagList varList = new NBTTagList();
+    private void writeVariables(CompoundNBT tagCompound) {
+        ListNBT varList = new ListNBT();
         for (int i = 0 ; i < MAXVARS ; i++) {
             if (variables[i] != null) {
-                NBTTagCompound var = ParameterTools.writeToNBT(variables[i]);
+                CompoundNBT var = ParameterTools.writeToNBT(variables[i]);
                 var.setInteger("varidx", i);
                 if (watchInfos[i] != null) {
                     var.setBoolean("watch", watchInfos[i].isBreakOnChange());
@@ -2951,26 +2942,26 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         tagCompound.setTag("vars", varList);
     }
 
-    private void writeLog(NBTTagCompound tagCompound) {
-        NBTTagList logList = new NBTTagList();
+    private void writeLog(CompoundNBT tagCompound) {
+        ListNBT logList = new ListNBT();
         for (String message : logMessages) {
             logList.appendTag(new NBTTagString(message));
         }
         tagCompound.setTag("log", logList);
     }
 
-    private void writeCores(NBTTagCompound tagCompound) {
-        NBTTagList coreList = new NBTTagList();
+    private void writeCores(CompoundNBT tagCompound) {
+        ListNBT coreList = new ListNBT();
         for (CpuCore core : cpuCores) {
             coreList.appendTag(core.writeToNBT());
         }
         tagCompound.setTag("cores", coreList);
     }
 
-    private void writeEventQueue(NBTTagCompound tagCompound) {
-        NBTTagList eventQueueList = new NBTTagList();
+    private void writeEventQueue(CompoundNBT tagCompound) {
+        ListNBT eventQueueList = new ListNBT();
         for (QueuedEvent queuedEvent : eventQueue) {
-            NBTTagCompound tag = new NBTTagCompound();
+            CompoundNBT tag = new CompoundNBT();
             tag.setInteger("card", queuedEvent.getCardIndex());
             tag.setInteger("index", queuedEvent.getCompiledEvent().getIndex());
             tag.setBoolean("single", queuedEvent.getCompiledEvent().isSingle());
@@ -2978,7 +2969,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
                 tag.setString("ticket", queuedEvent.getTicket());
             }
             if (queuedEvent.getParameter() != null) {
-                NBTTagCompound parTag = ParameterTools.writeToNBT(queuedEvent.getParameter());
+                CompoundNBT parTag = ParameterTools.writeToNBT(queuedEvent.getParameter());
                 tag.setTag("parameter", parTag);
             }
             eventQueueList.appendTag(tag);
@@ -2986,8 +2977,8 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         tagCompound.setTag("events", eventQueueList);
     }
 
-    private void writeCardInfo(NBTTagCompound tagCompound) {
-        NBTTagList cardInfoList = new NBTTagList();
+    private void writeCardInfo(CompoundNBT tagCompound) {
+        ListNBT cardInfoList = new ListNBT();
         for (CardInfo info : cardInfo) {
             cardInfoList.appendTag(info.writeToNBT());
         }
@@ -3208,7 +3199,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     }
 
     @SuppressWarnings("NullableProblems")
-    @SideOnly(Side.CLIENT)
+
     @Override
     public AxisAlignedBB getRenderBoundingBox() {
         int xCoord = getPos().getX();

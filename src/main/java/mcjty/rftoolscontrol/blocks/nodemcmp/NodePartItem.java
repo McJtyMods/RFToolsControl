@@ -11,7 +11,7 @@ public class NodePartItem {}
     }
 
     @Override
-    public IMultipart createPart(World world, BlockPos pos, EnumFacing side, Vec3d hit, ItemStack stack, EntityPlayer player) {
+    public IMultipart createPart(World world, BlockPos pos, Direction side, Vec3d hit, ItemStack stack, PlayerEntity player) {
         return new NodePart();
     }
 }

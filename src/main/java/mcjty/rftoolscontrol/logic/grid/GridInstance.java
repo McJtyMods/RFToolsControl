@@ -11,8 +11,8 @@ import mcjty.rftoolscontrol.api.parameters.ParameterValue;
 import mcjty.rftoolscontrol.logic.Connection;
 import mcjty.rftoolscontrol.logic.ParameterTools;
 import mcjty.rftoolscontrol.logic.registry.Opcodes;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
 import net.minecraftforge.common.util.Constants;
 
 import java.util.ArrayList;
@@ -105,8 +105,8 @@ public class GridInstance {
         return builder.build();
     }
 
-    public NBTTagCompound writeToNBT(int x, int y) {
-        NBTTagCompound tag = new NBTTagCompound();
+    public CompoundNBT writeToNBT(int x, int y) {
+        CompoundNBT tag = new CompoundNBT();
         tag.setInteger("x", x);
         tag.setInteger("y", y);
         tag.setString("id", getId());
@@ -117,9 +117,9 @@ public class GridInstance {
             tag.setString("sec", secondaryConnection.getId());
         }
 
-        NBTTagList parList = new NBTTagList();
+        ListNBT parList = new ListNBT();
         for (Parameter parameter : getParameters()) {
-            NBTTagCompound nbt = ParameterTools.writeToNBT(parameter);
+            CompoundNBT nbt = ParameterTools.writeToNBT(parameter);
 
             parList.appendTag(nbt);
         }
@@ -127,7 +127,7 @@ public class GridInstance {
         return tag;
     }
 
-    public static GridInstance readFromNBT(NBTTagCompound tag) {
+    public static GridInstance readFromNBT(CompoundNBT tag) {
         String opcodeid = tag.getString("id");
         GridInstance.Builder builder = GridInstance.builder(opcodeid);
         if (tag.hasKey("prim")) {
@@ -144,9 +144,9 @@ public class GridInstance {
         }
         List<ParameterDescription> parameters = opcode.getParameters();
 
-        NBTTagList parList = tag.getTagList("pars", Constants.NBT.TAG_COMPOUND);
+        ListNBT parList = tag.getTagList("pars", Constants.NBT.TAG_COMPOUND);
         for (int i = 0 ; i < parList.tagCount() ; i++) {
-            NBTTagCompound parTag = (NBTTagCompound) parList.get(i);
+            CompoundNBT parTag = (CompoundNBT) parList.get(i);
             Parameter parameter = ParameterTools.readFromNBT(parTag);
             if (parameter.getParameterType() != parameters.get(i).getType()) {
                 // Sanity check

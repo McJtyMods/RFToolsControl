@@ -1,17 +1,14 @@
 package mcjty.rftoolscontrol.items;
 
 import mcjty.rftoolscontrol.api.parameters.Parameter;
-import mcjty.rftoolscontrol.setup.GuiProxy;
 import mcjty.rftoolscontrol.logic.ParameterTools;
 import mcjty.rftoolscontrol.logic.ParameterTypeTools;
+import mcjty.rftoolscontrol.setup.GuiProxy;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
-import org.lwjgl.input.Keyboard;
 
 import java.util.List;
 
@@ -22,14 +19,14 @@ public class TokenItem extends GenericRFToolsItem {
         setMaxStackSize(64);
     }
 
-    @SideOnly(Side.CLIENT)
+
     @Override
     public void addInformation(ItemStack stack, World playerIn, List<String> list, ITooltipFlag advanced) {
         super.addInformation(stack, playerIn, list, advanced);
 
         boolean hasContents = false;
         if (stack.hasTagCompound()) {
-            NBTTagCompound parameter = stack.getTagCompound().getCompoundTag("parameter");
+            CompoundNBT parameter = stack.getTagCompound().getCompoundTag("parameter");
             if (!parameter.hasNoTags()) {
                 Parameter par = ParameterTools.readFromNBT(parameter);
                 hasContents = true;

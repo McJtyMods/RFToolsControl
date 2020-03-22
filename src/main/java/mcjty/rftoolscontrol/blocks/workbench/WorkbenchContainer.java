@@ -1,7 +1,7 @@
 package mcjty.rftoolscontrol.blocks.workbench;
 
 import mcjty.lib.container.*;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.IInventory;
 
 public class WorkbenchContainer extends GenericContainer {
@@ -23,7 +23,7 @@ public class WorkbenchContainer extends GenericContainer {
     };
 
 //    @Override
-//    public ItemStack transferStackInSlot(EntityPlayer player, int index) {
+//    public ItemStack transferStackInSlot(PlayerEntity player, int index) {
 //        if (index == SLOT_CRAFTOUTPUT) {
 //            Slot slot = this.inventorySlots.get(index);
 //            if (slot != null && slot.getHasStack()) {
@@ -39,7 +39,7 @@ public class WorkbenchContainer extends GenericContainer {
 //        return super.transferStackInSlot(player, index);
 //    }
 
-    public WorkbenchContainer(EntityPlayer player, IInventory containerInventory) {
+    public WorkbenchContainer(PlayerEntity player, IInventory containerInventory) {
         super(factory);
         setCrafter((GenericCrafter) containerInventory);
         addInventory(CONTAINER_INVENTORY, containerInventory);

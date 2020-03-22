@@ -3,8 +3,8 @@ package mcjty.rftoolscontrol.logic.registry;
 import io.netty.buffer.ByteBuf;
 import mcjty.lib.network.NetworkTools;
 import mcjty.rftoolscontrol.api.parameters.Inventory;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.Direction;
 
 public class InventoryUtil {
 
@@ -17,26 +17,26 @@ public class InventoryUtil {
     public static Inventory readBuf(ByteBuf buf) {
         String nodeName = NetworkTools.readString(buf);
         int sideIdx = buf.readByte();
-        EnumFacing side = EnumFacing.values()[sideIdx];
+        Direction side = Direction.values()[sideIdx];
         sideIdx = buf.readByte();
-        EnumFacing intSide = sideIdx == -1 ? null : EnumFacing.values()[sideIdx];
+        Direction intSide = sideIdx == -1 ? null : Direction.values()[sideIdx];
         return new Inventory(nodeName, side, intSide);
     }
 
-    public static Inventory readFromNBT(NBTTagCompound tag) {
+    public static Inventory readFromNBT(CompoundNBT tag) {
         String nodeName = null;
         if (tag.hasKey("node")) {
             nodeName = tag.getString("node");
         }
         int sideIdx = tag.getByte("side");
-        EnumFacing side = EnumFacing.values()[sideIdx];
+        Direction side = Direction.values()[sideIdx];
         sideIdx = tag.getByte("intside");
-        EnumFacing intSide = sideIdx == -1 ? null : EnumFacing.values()[sideIdx];
+        Direction intSide = sideIdx == -1 ? null : Direction.values()[sideIdx];
         return new Inventory(nodeName, side, intSide);
     }
 
-    public static NBTTagCompound writeToNBT(Inventory inv) {
-        NBTTagCompound tag = new NBTTagCompound();
+    public static CompoundNBT writeToNBT(Inventory inv) {
+        CompoundNBT tag = new CompoundNBT();
         if (inv.hasNodeName()) {
             tag.setString("node", inv.getNodeName());
         }

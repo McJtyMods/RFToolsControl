@@ -5,11 +5,10 @@ import mcjty.lib.gui.Window;
 import mcjty.lib.gui.layout.PositionalLayout;
 import mcjty.lib.gui.widgets.Panel;
 import mcjty.rftoolscontrol.RFToolsControl;
-import mcjty.rftoolscontrol.setup.GuiProxy;
 import mcjty.rftoolscontrol.network.RFToolsCtrlMessages;
+import mcjty.rftoolscontrol.setup.GuiProxy;
 import net.minecraft.util.ResourceLocation;
 
-import java.awt.*;
 
 public class GuiWorkbench extends GenericGuiContainer<WorkbenchTileEntity> {
 

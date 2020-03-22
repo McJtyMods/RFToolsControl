@@ -1,25 +1,22 @@
 package mcjty.rftoolscontrol.blocks.craftingstation;
 
+import mcjty.lib.blocks.BaseBlock;
 import mcjty.lib.gui.GenericGuiContainer;
-import mcjty.rftoolscontrol.blocks.GenericRFToolsBlock;
 import mcjty.rftoolscontrol.setup.GuiProxy;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.util.List;
 import java.util.function.BiFunction;
 
-public class CraftingStationBlock extends GenericRFToolsBlock<CraftingStationTileEntity, CraftingStationContainer> {
+public class CraftingStationBlock extends BaseBlock {
 
     public CraftingStationBlock() {
         super(Material.IRON, CraftingStationTileEntity.class, CraftingStationContainer::new, "craftingstation", false);
     }
 
-    @SideOnly(Side.CLIENT)
     @Override
     public BiFunction<CraftingStationTileEntity, CraftingStationContainer, GenericGuiContainer<? super CraftingStationTileEntity>> getGuiFactory() {
         return GuiCraftingStation::new;
@@ -30,7 +27,7 @@ public class CraftingStationBlock extends GenericRFToolsBlock<CraftingStationTil
         return GuiProxy.GUI_CRAFTINGSTATION;
     }
 
-    @SideOnly(Side.CLIENT)
+
     @Override
     public void addInformation(ItemStack stack, World playerIn, List<String> list, ITooltipFlag advanced) {
         super.addInformation(stack, playerIn, list, advanced);

@@ -10,19 +10,17 @@ import mcjty.rftoolscontrol.network.PacketGetLog;
 import mcjty.rftoolscontrol.network.RFToolsCtrlMessages;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.renderer.GlStateManager;
+
 import net.minecraft.client.renderer.RenderHelper;
-import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
+
 import net.minecraftforge.fml.client.registry.ClientRegistry;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.opengl.GL11;
 
 import java.util.List;
 
 import static mcjty.rftoolscontrol.blocks.processor.ProcessorTileEntity.*;
 
-@SideOnly(Side.CLIENT)
+
 public class ProcessorRenderer extends TileEntitySpecialRenderer<ProcessorTileEntity> {
 
     @Override

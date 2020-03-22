@@ -2,11 +2,11 @@ package mcjty.rftoolscontrol.items.variablemodule;
 
 import mcjty.rftools.api.screens.*;
 import mcjty.rftoolscontrol.api.parameters.Parameter;
-import mcjty.rftoolscontrol.logic.TypeConverters;
 import mcjty.rftoolscontrol.compat.rftoolssupport.ModuleDataVariable;
+import mcjty.rftoolscontrol.logic.TypeConverters;
 import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.nbt.NBTTagCompound;
+
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
@@ -59,7 +59,7 @@ public class VariableClientScreenModule implements IClientScreenModule<ModuleDat
     }
 
     @Override
-    public void setupFromNBT(NBTTagCompound tagCompound, int dim, BlockPos pos) {
+    public void setupFromNBT(CompoundNBT tagCompound, int dim, BlockPos pos) {
         if (tagCompound != null) {
             if (tagCompound.hasKey("varIdx")) {
                 varIdx = tagCompound.getInteger("varIdx");

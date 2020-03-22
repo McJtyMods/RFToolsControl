@@ -6,11 +6,11 @@ import mcjty.rftools.api.screens.IScreenDataHelper;
 import mcjty.rftools.api.screens.IScreenModule;
 import mcjty.rftoolscontrol.blocks.ModBlocks;
 import mcjty.rftoolscontrol.blocks.processor.ProcessorTileEntity;
-import mcjty.rftoolscontrol.config.ConfigSetup;
 import mcjty.rftoolscontrol.compat.rftoolssupport.ModuleDataLog;
+import mcjty.rftoolscontrol.config.ConfigSetup;
 import net.minecraft.block.Block;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -48,7 +48,7 @@ public class ConsoleScreenModule implements IScreenModule<ModuleDataLog> {
     }
 
     @Override
-    public void setupFromNBT(NBTTagCompound tagCompound, int dim, BlockPos pos) {
+    public void setupFromNBT(CompoundNBT tagCompound, int dim, BlockPos pos) {
         if (tagCompound != null) {
             coordinate = BlockPosTools.INVALID;
             if (tagCompound.hasKey("monitorx")) {
@@ -77,6 +77,6 @@ public class ConsoleScreenModule implements IScreenModule<ModuleDataLog> {
     }
 
     @Override
-    public void mouseClick(World world, int x, int y, boolean clicked, EntityPlayer player) {
+    public void mouseClick(World world, int x, int y, boolean clicked, PlayerEntity player) {
     }
 }

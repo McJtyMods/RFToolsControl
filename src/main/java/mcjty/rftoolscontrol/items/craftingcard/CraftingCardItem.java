@@ -2,25 +2,20 @@ package mcjty.rftoolscontrol.items.craftingcard;
 
 import mcjty.lib.varia.ItemStackList;
 import mcjty.rftoolscontrol.RFToolsControl;
-import mcjty.rftoolscontrol.setup.GuiProxy;
 import mcjty.rftoolscontrol.items.GenericRFToolsItem;
+import mcjty.rftoolscontrol.setup.GuiProxy;
 import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.Container;
-import net.minecraft.inventory.InventoryCrafting;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
 import net.minecraft.util.ActionResult;
-import net.minecraft.util.EnumActionResult;
-import net.minecraft.util.EnumHand;
+
+import net.minecraft.util.Hand;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -40,7 +35,7 @@ public class CraftingCardItem extends GenericRFToolsItem {
 
         InventoryCrafting workInventory = new InventoryCrafting(new Container() {
             @Override
-            public boolean canInteractWith(EntityPlayer var1) {
+            public boolean canInteractWith(PlayerEntity var1) {
                 return false;
             }
         }, 3, 3);
@@ -62,29 +57,29 @@ public class CraftingCardItem extends GenericRFToolsItem {
     }
 
     public static ItemStackList getStacksFromItem(ItemStack craftingCard) {
-        NBTTagCompound tagCompound = craftingCard.getTagCompound();
+        CompoundNBT tagCompound = craftingCard.getTagCompound();
         if (tagCompound == null) {
-            tagCompound = new NBTTagCompound();
+            tagCompound = new CompoundNBT();
             craftingCard.setTagCompound(tagCompound);
         }
         ItemStackList stacks = ItemStackList.create(CraftingCardContainer.INPUT_SLOTS+1);
-        NBTTagList bufferTagList = tagCompound.getTagList("Items", Constants.NBT.TAG_COMPOUND);
+        ListNBT bufferTagList = tagCompound.getTagList("Items", Constants.NBT.TAG_COMPOUND);
         for (int i = 0 ; i < bufferTagList.tagCount() ; i++) {
-            NBTTagCompound nbtTagCompound = bufferTagList.getCompoundTagAt(i);
+            CompoundNBT nbtTagCompound = bufferTagList.getCompoundTagAt(i);
             stacks.set(i, new ItemStack(nbtTagCompound));
         }
         return stacks;
     }
 
     public static void putStacksInItem(ItemStack craftingCard, ItemStackList stacks) {
-        NBTTagCompound tagCompound = craftingCard.getTagCompound();
+        CompoundNBT tagCompound = craftingCard.getTagCompound();
         if (tagCompound == null) {
-            tagCompound = new NBTTagCompound();
+            tagCompound = new CompoundNBT();
             craftingCard.setTagCompound(tagCompound);
         }
-        NBTTagList bufferTagList = new NBTTagList();
+        ListNBT bufferTagList = new ListNBT();
         for (ItemStack stack : stacks) {
-            NBTTagCompound nbtTagCompound = new NBTTagCompound();
+            CompoundNBT nbtTagCompound = new CompoundNBT();
             if (!stack.isEmpty()) {
                 stack.writeToNBT(nbtTagCompound);
             }
@@ -93,7 +88,7 @@ public class CraftingCardItem extends GenericRFToolsItem {
         tagCompound.setTag("Items", bufferTagList);
     }
 
-    @SideOnly(Side.CLIENT)
+
     @Override
     public void addInformation(ItemStack stack, World playerIn, List<String> list, ITooltipFlag advanced) {
         super.addInformation(stack, playerIn, list, advanced);
@@ -114,9 +109,9 @@ public class CraftingCardItem extends GenericRFToolsItem {
     }
 
     @Override
-    public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand) {
+    public ActionResult<ItemStack> onItemRightClick(World world, PlayerEntity player, Hand hand) {
         ItemStack stack = player.getHeldItem(hand);
-        if (hand != EnumHand.MAIN_HAND) {
+        if (hand != Hand.MAIN_HAND) {
             return new ActionResult<>(EnumActionResult.PASS, stack);
         }
         if (!world.isRemote) {
@@ -127,12 +122,12 @@ public class CraftingCardItem extends GenericRFToolsItem {
     }
 
     public static ItemStack getResult(ItemStack card) {
-        NBTTagCompound tagCompound = card.getTagCompound();
+        CompoundNBT tagCompound = card.getTagCompound();
         if (tagCompound == null) {
             return ItemStack.EMPTY;
         }
-        NBTTagList bufferTagList = tagCompound.getTagList("Items", Constants.NBT.TAG_COMPOUND);
-        NBTTagCompound nbtTagCompound = bufferTagList.getCompoundTagAt(CraftingCardContainer.SLOT_OUT);
+        ListNBT bufferTagList = tagCompound.getTagList("Items", Constants.NBT.TAG_COMPOUND);
+        CompoundNBT nbtTagCompound = bufferTagList.getCompoundTagAt(CraftingCardContainer.SLOT_OUT);
         return new ItemStack(nbtTagCompound);
     }
 
@@ -144,14 +139,14 @@ public class CraftingCardItem extends GenericRFToolsItem {
 
     // Return true if this crafting card fits a 3x3 crafting grid nicely
     public static boolean fitsGrid(ItemStack card) {
-        NBTTagCompound tagCompound = card.getTagCompound();
+        CompoundNBT tagCompound = card.getTagCompound();
         if (tagCompound == null) {
             return false;
         }
-        NBTTagList bufferTagList = tagCompound.getTagList("Items", Constants.NBT.TAG_COMPOUND);
+        ListNBT bufferTagList = tagCompound.getTagList("Items", Constants.NBT.TAG_COMPOUND);
         for (int i = 0 ; i < bufferTagList.tagCount() ; i++) {
             if (i < CraftingCardContainer.INPUT_SLOTS) {
-                NBTTagCompound nbtTagCompound = bufferTagList.getCompoundTagAt(i);
+                CompoundNBT nbtTagCompound = bufferTagList.getCompoundTagAt(i);
                 ItemStack s = new ItemStack(nbtTagCompound);
                 if (!s.isEmpty()) {
                     if (!isInGrid(i)) {
@@ -164,7 +159,7 @@ public class CraftingCardItem extends GenericRFToolsItem {
     }
 
     public static boolean isStrictNBT(ItemStack card) {
-        NBTTagCompound tagCompound = card.getTagCompound();
+        CompoundNBT tagCompound = card.getTagCompound();
         if (tagCompound == null) {
             return false;
         }
@@ -172,15 +167,15 @@ public class CraftingCardItem extends GenericRFToolsItem {
     }
 
     public static List<ItemStack> getIngredientsGrid(ItemStack card) {
-        NBTTagCompound tagCompound = card.getTagCompound();
+        CompoundNBT tagCompound = card.getTagCompound();
         if (tagCompound == null) {
             return Collections.emptyList();
         }
-        NBTTagList bufferTagList = tagCompound.getTagList("Items", Constants.NBT.TAG_COMPOUND);
+        ListNBT bufferTagList = tagCompound.getTagList("Items", Constants.NBT.TAG_COMPOUND);
         List<ItemStack> stacks = new ArrayList<>();
         for (int i = 0 ; i < bufferTagList.tagCount() ; i++) {
             if (i < CraftingCardContainer.INPUT_SLOTS) {
-                NBTTagCompound nbtTagCompound = bufferTagList.getCompoundTagAt(i);
+                CompoundNBT nbtTagCompound = bufferTagList.getCompoundTagAt(i);
                 ItemStack s = new ItemStack(nbtTagCompound);
                 if (isInGrid(i)) {
                     stacks.add(s);
@@ -191,15 +186,15 @@ public class CraftingCardItem extends GenericRFToolsItem {
     }
 
     public static List<ItemStack> getIngredients(ItemStack card) {
-        NBTTagCompound tagCompound = card.getTagCompound();
+        CompoundNBT tagCompound = card.getTagCompound();
         if (tagCompound == null) {
             return Collections.emptyList();
         }
-        NBTTagList bufferTagList = tagCompound.getTagList("Items", Constants.NBT.TAG_COMPOUND);
+        ListNBT bufferTagList = tagCompound.getTagList("Items", Constants.NBT.TAG_COMPOUND);
         List<ItemStack> stacks = new ArrayList<>();
         for (int i = 0 ; i < bufferTagList.tagCount() ; i++) {
             if (i < CraftingCardContainer.INPUT_SLOTS) {
-                NBTTagCompound nbtTagCompound = bufferTagList.getCompoundTagAt(i);
+                CompoundNBT nbtTagCompound = bufferTagList.getCompoundTagAt(i);
                 ItemStack s = new ItemStack(nbtTagCompound);
                 if (!s.isEmpty()) {
                     stacks.add(s);

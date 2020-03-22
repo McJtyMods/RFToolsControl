@@ -5,15 +5,15 @@ import mcjty.rftoolscontrol.logic.grid.ProgramCardInstance;
 import mcjty.rftoolscontrol.network.PacketItemNBTToServer;
 import mcjty.rftoolscontrol.network.RFToolsCtrlMessages;
 import net.minecraft.client.Minecraft;
-import net.minecraft.command.CommandBase;
-import net.minecraft.command.ICommand;
-import net.minecraft.command.ICommandSender;
-import net.minecraft.entity.player.EntityPlayer;
+
+
+
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextComponentString;
+
 import net.minecraft.util.text.TextFormatting;
 
 import javax.annotation.Nullable;
@@ -49,8 +49,8 @@ public class ProgramCommand extends CommandBase {
             ItemStack item = Minecraft.getMinecraft().player.getHeldItemMainhand();
             if (item.isEmpty() || !(item.getItem() instanceof ProgramCardItem)) {
                 ITextComponent component = new TextComponentString(TextFormatting.RED + "You need a program card in your hand!");
-                if (sender instanceof EntityPlayer) {
-                    ((EntityPlayer) sender).sendStatusMessage(component, false);
+                if (sender instanceof PlayerEntity) {
+                    ((PlayerEntity) sender).sendStatusMessage(component, false);
                 } else {
                     sender.sendMessage(component);
                 }
@@ -63,8 +63,8 @@ public class ProgramCommand extends CommandBase {
             }
         } else {
             ITextComponent component = new TextComponentString(TextFormatting.RED + "Missing parameter (save <file> or load <file>)!");
-            if (sender instanceof EntityPlayer) {
-                ((EntityPlayer) sender).sendStatusMessage(component, false);
+            if (sender instanceof PlayerEntity) {
+                ((PlayerEntity) sender).sendStatusMessage(component, false);
             } else {
                 sender.sendMessage(component);
             }
@@ -81,8 +81,8 @@ public class ProgramCommand extends CommandBase {
             json = new String(data, "UTF-8");
         } catch (IOException e) {
             ITextComponent component = new TextComponentString(TextFormatting.RED + "Error opening file for reading!");
-            if (sender instanceof EntityPlayer) {
-                ((EntityPlayer) sender).sendStatusMessage(component, false);
+            if (sender instanceof PlayerEntity) {
+                ((PlayerEntity) sender).sendStatusMessage(component, false);
             } else {
                 sender.sendMessage(component);
             }
@@ -92,8 +92,8 @@ public class ProgramCommand extends CommandBase {
         program.writeToNBT(item);
         RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketItemNBTToServer(item.getTagCompound()));
         ITextComponent component = new TextComponentString("Loaded program!");
-        if (sender instanceof EntityPlayer) {
-            ((EntityPlayer) sender).sendStatusMessage(component, false);
+        if (sender instanceof PlayerEntity) {
+            ((PlayerEntity) sender).sendStatusMessage(component, false);
         } else {
             sender.sendMessage(component);
         }
@@ -111,16 +111,16 @@ public class ProgramCommand extends CommandBase {
             writer.print(json);
         } catch (FileNotFoundException e) {
             ITextComponent component = new TextComponentString(TextFormatting.RED + "Error opening file for writing!");
-            if (sender instanceof EntityPlayer) {
-                ((EntityPlayer) sender).sendStatusMessage(component, false);
+            if (sender instanceof PlayerEntity) {
+                ((PlayerEntity) sender).sendStatusMessage(component, false);
             } else {
                 sender.sendMessage(component);
             }
             return;
         }
         ITextComponent component = new TextComponentString("Saved program!");
-        if (sender instanceof EntityPlayer) {
-            ((EntityPlayer) sender).sendStatusMessage(component, false);
+        if (sender instanceof PlayerEntity) {
+            ((PlayerEntity) sender).sendStatusMessage(component, false);
         } else {
             sender.sendMessage(component);
         }

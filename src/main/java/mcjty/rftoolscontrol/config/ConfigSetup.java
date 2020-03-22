@@ -1,9 +1,9 @@
 package mcjty.rftoolscontrol.config;
 
-import mcjty.lib.thirteen.ConfigSpec;
+
 import mcjty.rftoolscontrol.RFToolsControl;
-import net.minecraftforge.common.config.Configuration;
-import net.minecraftforge.fml.common.FMLLog;
+
+
 import org.apache.logging.log4j.Level;
 
 import java.io.File;

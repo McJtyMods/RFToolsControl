@@ -2,13 +2,13 @@ package mcjty.rftoolscontrol.compat.jei;
 
 import io.netty.buffer.ByteBuf;
 import mcjty.lib.network.NetworkTools;
-import mcjty.lib.thirteen.Context;
+
 import mcjty.rftoolscontrol.items.ModItems;
 import mcjty.rftoolscontrol.items.craftingcard.CraftingCardContainer;
-import net.minecraft.entity.player.EntityPlayerMP;
+
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
+
 
 import java.util.List;
 import java.util.function.Supplier;

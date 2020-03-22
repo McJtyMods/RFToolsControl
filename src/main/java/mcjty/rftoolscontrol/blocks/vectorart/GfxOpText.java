@@ -3,7 +3,7 @@ package mcjty.rftoolscontrol.blocks.vectorart;
 import io.netty.buffer.ByteBuf;
 import mcjty.lib.network.NetworkTools;
 import net.minecraft.client.Minecraft;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
 
 public class GfxOpText extends GfxOp {
 
@@ -34,7 +34,7 @@ public class GfxOpText extends GfxOp {
     }
 
     @Override
-    protected void readFromNBTInternal(NBTTagCompound tag) {
+    protected void readFromNBTInternal(CompoundNBT tag) {
         x = tag.getByte("x");
         y = tag.getByte("y");
         text = tag.getString("text");
@@ -42,7 +42,7 @@ public class GfxOpText extends GfxOp {
     }
 
     @Override
-    protected void writeToNBTInternal(NBTTagCompound tag) {
+    protected void writeToNBTInternal(CompoundNBT tag) {
         tag.setByte("x", (byte) x);
         tag.setByte("y", (byte) y);
         tag.setString("text", text);

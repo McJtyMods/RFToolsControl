@@ -6,7 +6,7 @@ import mcjty.lib.gui.layout.VerticalLayout;
 import mcjty.lib.gui.widgets.Button;
 import mcjty.lib.gui.widgets.Label;
 import mcjty.lib.gui.widgets.Panel;
-import mcjty.lib.gui.widgets.*;
+import mcjty.lib.gui.widgets.TextPage;
 import mcjty.rftoolscontrol.RFToolsControl;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;

@@ -2,14 +2,14 @@ package mcjty.rftoolscontrol.blocks.programmer;
 
 import io.netty.buffer.ByteBuf;
 import mcjty.lib.network.NetworkTools;
-import mcjty.lib.thirteen.Context;
+
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
+
 
 import java.util.function.Supplier;
 
@@ -17,7 +17,7 @@ public class PacketUpdateNBTItemInventoryProgrammer implements IMessage {
 
     public BlockPos pos;
     public int slotIndex;
-    public NBTTagCompound tagCompound;
+    public CompoundNBT tagCompound;
 
     public PacketUpdateNBTItemInventoryProgrammer() {
     }
@@ -26,7 +26,7 @@ public class PacketUpdateNBTItemInventoryProgrammer implements IMessage {
         fromBytes(buf);
     }
 
-    public PacketUpdateNBTItemInventoryProgrammer(BlockPos pos, int slotIndex, NBTTagCompound tagCompound) {
+    public PacketUpdateNBTItemInventoryProgrammer(BlockPos pos, int slotIndex, CompoundNBT tagCompound) {
         this.pos = pos;
         this.slotIndex = slotIndex;
         this.tagCompound = tagCompound;

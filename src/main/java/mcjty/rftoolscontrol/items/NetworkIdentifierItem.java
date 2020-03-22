@@ -3,19 +3,16 @@ package mcjty.rftoolscontrol.items;
 import mcjty.lib.varia.Logging;
 import mcjty.rftoolscontrol.blocks.ModBlocks;
 import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumActionResult;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.Direction;
+
+import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.util.List;
 
@@ -31,12 +28,12 @@ public class NetworkIdentifierItem extends GenericRFToolsItem {
         return 1;
     }
 
-    @SideOnly(Side.CLIENT)
+
     @Override
     public void addInformation(ItemStack itemStack, World player, List<String> list, ITooltipFlag whatIsThis) {
         super.addInformation(itemStack, player, list, whatIsThis);
         boolean hasTarget = false;
-        NBTTagCompound tagCompound = itemStack.getTagCompound();
+        CompoundNBT tagCompound = itemStack.getTagCompound();
         if (tagCompound != null) {
             if (tagCompound.hasKey("monitorx")) {
                 int monitordim = tagCompound.getInteger("monitordim");
@@ -55,13 +52,13 @@ public class NetworkIdentifierItem extends GenericRFToolsItem {
     }
 
     @Override
-    public EnumActionResult onItemUse(EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
+    public EnumActionResult onItemUse(PlayerEntity player, World world, BlockPos pos, Hand hand, Direction facing, float hitX, float hitY, float hitZ) {
         ItemStack stack = player.getHeldItem(hand);
-        IBlockState state = world.getBlockState(pos);
+        BlockState state = world.getBlockState(pos);
         Block block = state.getBlock();
-        NBTTagCompound tagCompound = stack.getTagCompound();
+        CompoundNBT tagCompound = stack.getTagCompound();
         if (tagCompound == null) {
-            tagCompound = new NBTTagCompound();
+            tagCompound = new CompoundNBT();
         }
 
         if (block == ModBlocks.processorBlock) {

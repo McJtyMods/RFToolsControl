@@ -1,14 +1,11 @@
 package mcjty.rftoolscontrol.blocks.programmer;
 
 import mcjty.lib.gui.GenericGuiContainer;
-import mcjty.rftoolscontrol.blocks.GenericRFToolsBlock;
 import mcjty.rftoolscontrol.setup.GuiProxy;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.util.List;
 import java.util.function.BiFunction;
@@ -20,7 +17,7 @@ public class ProgrammerBlock extends GenericRFToolsBlock<ProgrammerTileEntity, P
         setNeedsRedstoneCheck(true);
     }
 
-    @SideOnly(Side.CLIENT)
+
     @Override
     public BiFunction<ProgrammerTileEntity, ProgrammerContainer, GenericGuiContainer<? super ProgrammerTileEntity>> getGuiFactory() {
         return GuiProgrammer::new;
@@ -31,7 +28,7 @@ public class ProgrammerBlock extends GenericRFToolsBlock<ProgrammerTileEntity, P
         return GuiProxy.GUI_PROGRAMMER;
     }
 
-    @SideOnly(Side.CLIENT)
+
     @Override
     public void addInformation(ItemStack stack, World playerIn, List<String> list, ITooltipFlag advanced) {
         super.addInformation(stack, playerIn, list, advanced);

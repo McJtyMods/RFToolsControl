@@ -7,11 +7,11 @@ import mcjty.rftools.api.screens.IScreenModule;
 import mcjty.rftoolscontrol.api.parameters.Parameter;
 import mcjty.rftoolscontrol.blocks.ModBlocks;
 import mcjty.rftoolscontrol.blocks.processor.ProcessorTileEntity;
-import mcjty.rftoolscontrol.config.ConfigSetup;
 import mcjty.rftoolscontrol.compat.rftoolssupport.ModuleDataVariable;
+import mcjty.rftoolscontrol.config.ConfigSetup;
 import net.minecraft.block.Block;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -52,7 +52,7 @@ public class VariableScreenModule implements IScreenModule<ModuleDataVariable> {
     }
 
     @Override
-    public void setupFromNBT(NBTTagCompound tagCompound, int dim, BlockPos pos) {
+    public void setupFromNBT(CompoundNBT tagCompound, int dim, BlockPos pos) {
         if (tagCompound != null) {
             if (tagCompound.hasKey("varIdx")) {
                 varIdx = tagCompound.getInteger("varIdx");
@@ -86,6 +86,6 @@ public class VariableScreenModule implements IScreenModule<ModuleDataVariable> {
     }
 
     @Override
-    public void mouseClick(World world, int x, int y, boolean clicked, EntityPlayer player) {
+    public void mouseClick(World world, int x, int y, boolean clicked, PlayerEntity player) {
     }
 }
