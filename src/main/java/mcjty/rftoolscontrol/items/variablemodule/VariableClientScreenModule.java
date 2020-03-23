@@ -1,14 +1,17 @@
 package mcjty.rftoolscontrol.items.variablemodule;
 
-import mcjty.rftools.api.screens.*;
+import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.platform.GlStateManager;
+import mcjty.rftoolsbase.api.screens.*;
 import mcjty.rftoolscontrol.api.parameters.Parameter;
 import mcjty.rftoolscontrol.compat.rftoolssupport.ModuleDataVariable;
 import mcjty.rftoolscontrol.logic.TypeConverters;
 import net.minecraft.client.gui.FontRenderer;
-
+import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraft.world.dimension.DimensionType;
 
 public class VariableClientScreenModule implements IClientScreenModule<ModuleDataVariable> {
     private String line = "";
@@ -30,7 +33,7 @@ public class VariableClientScreenModule implements IClientScreenModule<ModuleDat
     }
 
     @Override
-    public void render(IModuleRenderHelper renderHelper, FontRenderer fontRenderer, int currenty, ModuleDataVariable screenData, ModuleRenderInfo renderInfo) {
+    public void render(MatrixStack matrixStack, IRenderTypeBuffer buffer, IModuleRenderHelper renderHelper, FontRenderer fontRenderer, int currenty, ModuleDataVariable screenData, ModuleRenderInfo renderInfo) {
         if (labelCache == null) {
             labelCache = renderHelper.createTextRenderHelper().align(textAlign);
         }
@@ -39,7 +42,8 @@ public class VariableClientScreenModule implements IClientScreenModule<ModuleDat
         int xoffset;
         if (!line.isEmpty()) {
             labelCache.setup(line, 160, renderInfo);
-            labelCache.renderText(0, currenty, color, renderInfo);
+            // @todo 1.15 render system
+//            labelCache.renderText(0, currenty, color, renderInfo);
             xoffset = 7 + 40;
         } else {
             xoffset = 7;
@@ -48,7 +52,8 @@ public class VariableClientScreenModule implements IClientScreenModule<ModuleDat
             Parameter parameter = screenData.getParameter();
             if (parameter != null && parameter.getParameterValue() != null) {
                 String str = TypeConverters.convertToString(parameter);
-                renderHelper.renderText(xoffset, currenty, varcolor, renderInfo, str);
+                // @todo 1.15 render system
+//                renderHelper.renderText(xoffset, currenty, varcolor, renderInfo, str);
             }
         }
     }
@@ -59,25 +64,25 @@ public class VariableClientScreenModule implements IClientScreenModule<ModuleDat
     }
 
     @Override
-    public void setupFromNBT(CompoundNBT tagCompound, int dim, BlockPos pos) {
+    public void setupFromNBT(CompoundNBT tagCompound, DimensionType dim, BlockPos pos) {
         if (tagCompound != null) {
-            if (tagCompound.hasKey("varIdx")) {
-                varIdx = tagCompound.getInteger("varIdx");
+            if (tagCompound.contains("varIdx")) {
+                varIdx = tagCompound.getInt("varIdx");
             } else {
                 varIdx = -1;
             }
             line = tagCompound.getString("text");
-            if (tagCompound.hasKey("color")) {
-                color = tagCompound.getInteger("color");
+            if (tagCompound.contains("color")) {
+                color = tagCompound.getInt("color");
             } else {
                 color = 0xffffff;
             }
-            if (tagCompound.hasKey("varcolor")) {
-                varcolor = tagCompound.getInteger("varcolor");
+            if (tagCompound.contains("varcolor")) {
+                varcolor = tagCompound.getInt("varcolor");
             } else {
                 varcolor = 0xffffff;
             }
-            if (tagCompound.hasKey("align")) {
+            if (tagCompound.contains("align")) {
                 String alignment = tagCompound.getString("align");
                 textAlign = TextAlign.get(alignment);
             } else {

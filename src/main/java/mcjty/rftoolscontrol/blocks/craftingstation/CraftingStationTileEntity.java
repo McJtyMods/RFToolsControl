@@ -12,7 +12,7 @@ import mcjty.rftoolscontrol.blocks.processor.ProcessorTileEntity;
 import mcjty.rftoolscontrol.config.ConfigSetup;
 import mcjty.rftoolscontrol.logic.running.ExceptionType;
 import mcjty.rftoolscontrol.logic.running.ProgException;
-
+import mcjty.rftoolscontrol.setup.Registration;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
@@ -54,6 +54,10 @@ public class CraftingStationTileEntity extends GenericTileEntity {
     private int currentTicket = 0;
     private List<CraftingRequest> activeCraftingRequests = new ArrayList<>();
     private int cleanupCounter = 50;
+
+    public CraftingStationTileEntity() {
+        super(Registration.CRAFTING_STATION_TILE.get());
+    }
 
     public void registerProcessor(BlockPos pos) {
         if (!processorList.contains(pos)) {
@@ -118,7 +122,9 @@ public class CraftingStationTileEntity extends GenericTileEntity {
                     }
                     return ItemHandlerHelper.insertItem(handlerAt, stack, false);
                 } else {
-                    return ItemHandlerHelper.insertItem(getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null), stack, false);
+                    getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY)
+                            .map(h -> ItemHandlerHelper.insertItem(h, stack, false))
+                            .orElse(ItemStack.EMPTY);
                 }
             }
         }
@@ -279,20 +285,21 @@ public class CraftingStationTileEntity extends GenericTileEntity {
     }
 
     @Override
-    public void readFromNBT(CompoundNBT tagCompound) {
-        super.readFromNBT(tagCompound);
+    public void read(CompoundNBT tagCompound) {
+        super.read(tagCompound);
+        readRestorableFromNBT(tagCompound);
         readProcessorList(tagCompound);
         readRequests(tagCompound);
     }
 
     private void readRequests(CompoundNBT tagCompound) {
-        ListNBT list = tagCompound.getTagList("requests", Constants.NBT.TAG_COMPOUND);
+        ListNBT list = tagCompound.getList("requests", Constants.NBT.TAG_COMPOUND);
         activeCraftingRequests.clear();
-        for (int i = 0; i < list.tagCount(); i++) {
-            CompoundNBT requestTag = list.getCompoundTagAt(i);
+        for (int i = 0; i < list.size(); i++) {
+            CompoundNBT requestTag = list.getCompound(i);
             String craftId = requestTag.getString("craftId");
-            ItemStack stack = new ItemStack(requestTag.getCompoundTag("stack"));
-            int count = requestTag.getInteger("count");
+            ItemStack stack = ItemStack.read(requestTag.getCompound("stack"));
+            int count = requestTag.getInt("count");
             CraftingRequest request = new CraftingRequest(craftId, stack, count);
             request.setFailed(requestTag.getLong("failed"));
             request.setOk(requestTag.getLong("ok"));
@@ -301,17 +308,18 @@ public class CraftingStationTileEntity extends GenericTileEntity {
     }
 
     private void readProcessorList(CompoundNBT tagCompound) {
-        ListNBT list = tagCompound.getTagList("processors", Constants.NBT.TAG_COMPOUND);
+        ListNBT list = tagCompound.getList("processors", Constants.NBT.TAG_COMPOUND);
         processorList.clear();
-        for (int i = 0; i < list.tagCount(); i++) {
-            CompoundNBT tag = list.getCompoundTagAt(i);
-            processorList.add(new BlockPos(tag.getInteger("x"), tag.getInteger("y"), tag.getInteger("z")));
+        for (int i = 0; i < list.size(); i++) {
+            CompoundNBT tag = list.getCompound(i);
+            processorList.add(new BlockPos(tag.getInt("x"), tag.getInt("y"), tag.getInt("z")));
         }
     }
 
     @Override
-    public CompoundNBT writeToNBT(CompoundNBT tagCompound) {
-        super.writeToNBT(tagCompound);
+    public CompoundNBT write(CompoundNBT tagCompound) {
+        super.write(tagCompound);
+        writeRestorableToNBT(tagCompound);
         writeProcessorList(tagCompound);
         writeRequests(tagCompound);
         return tagCompound;
@@ -321,60 +329,42 @@ public class CraftingStationTileEntity extends GenericTileEntity {
         ListNBT list = new ListNBT();
         for (CraftingRequest request : activeCraftingRequests) {
             CompoundNBT requestTag = new CompoundNBT();
-            requestTag.setString("craftId", request.getTicket());
+            requestTag.putString("craftId", request.getTicket());
             CompoundNBT stackNbt = new CompoundNBT();
-            request.getStack().writeToNBT(stackNbt);
-            requestTag.setTag("stack", stackNbt);
-            requestTag.setInteger("count", request.getTodo());
-            requestTag.setLong("failed", request.getFailed());
-            requestTag.setLong("ok", request.getOk());
-            list.appendTag(requestTag);
+            request.getStack().write(stackNbt);
+            requestTag.put("stack", stackNbt);
+            requestTag.putInt("count", request.getTodo());
+            requestTag.putLong("failed", request.getFailed());
+            requestTag.putLong("ok", request.getOk());
+            list.add(requestTag);
         }
 
-        tagCompound.setTag("requests", list);
+        tagCompound.put("requests", list);
     }
 
     private void writeProcessorList(CompoundNBT tagCompound) {
         ListNBT list = new ListNBT();
         for (BlockPos p : processorList) {
             CompoundNBT tag = new CompoundNBT();
-            tag.setInteger("x", p.getX());
-            tag.setInteger("y", p.getY());
-            tag.setInteger("z", p.getZ());
-            list.appendTag(tag);
+            tag.putInt("x", p.getX());
+            tag.putInt("y", p.getY());
+            tag.putInt("z", p.getZ());
+            list.add(tag);
         }
-        tagCompound.setTag("processors", list);
+        tagCompound.put("processors", list);
     }
 
-    @Override
+    // @todo 1.15 loot tables
     public void readRestorableFromNBT(CompoundNBT tagCompound) {
-        super.readRestorableFromNBT(tagCompound);
-        readBufferFromNBT(tagCompound, inventoryHelper);
-        currentTicket = tagCompound.getInteger("craftId");
+//        readBufferFromNBT(tagCompound, inventoryHelper);
+        currentTicket = tagCompound.getInt("craftId");
     }
-
-    @Override
     public void writeRestorableToNBT(CompoundNBT tagCompound) {
-        super.writeRestorableToNBT(tagCompound);
-        writeBufferToNBT(tagCompound, inventoryHelper);
-        tagCompound.setInteger("craftId", currentTicket);
+//        writeBufferToNBT(tagCompound, inventoryHelper);
+        tagCompound.putInt("craftId", currentTicket);
     }
 
-    @Override
-    public InventoryHelper getInventoryHelper() {
-        return inventoryHelper;
-    }
-
-    @Override
-    public boolean isEmpty() {
-        return false;
-    }
-
-    @Override
-    public boolean isUsableByPlayer(PlayerEntity player) {
-        return canPlayerAccess(player);
-    }
-
+    // @todo 1.15 remove meta?
     private int findItem(String itemName, int meta, String nbtString) {
         int index = 0;
         for (BlockPos p : processorList) {
@@ -384,8 +374,8 @@ public class CraftingStationTileEntity extends GenericTileEntity {
                 ItemStackList items = ItemStackList.create();
                 processor.getCraftableItems(items);
                 for (ItemStack item : items) {
-                    if (item.getItemDamage() == meta && itemName.equals(item.getItem().getRegistryName().toString())) {
-                        if (item.hasTagCompound()) {
+                    if (/*@todo 1.15 meta item.getItemDamage() == meta && */itemName.equals(item.getItem().getRegistryName().toString())) {
+                        if (item.hasTag()) {
                             if (nbtString.equalsIgnoreCase(item.serializeNBT().toString())) {
                                 return index;
                             }
@@ -402,7 +392,7 @@ public class CraftingStationTileEntity extends GenericTileEntity {
 
 
     @Override
-    public boolean execute(EntityPlayerMP playerMP, String command, TypedMap params) {
+    public boolean execute(PlayerEntity playerMP, String command, TypedMap params) {
         boolean rc = super.execute(playerMP, command, params);
         if (rc) {
             return true;

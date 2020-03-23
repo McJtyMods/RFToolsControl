@@ -1,29 +1,26 @@
 package mcjty.rftoolscontrol.blocks.programmer;
 
-import io.netty.buffer.ByteBuf;
-import mcjty.lib.network.NetworkTools;
-
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-
+import net.minecraftforge.fml.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
-public class PacketUpdateNBTItemInventoryProgrammer implements IMessage {
+public class PacketUpdateNBTItemInventoryProgrammer {
 
     public BlockPos pos;
     public int slotIndex;
     public CompoundNBT tagCompound;
 
-    public PacketUpdateNBTItemInventoryProgrammer() {
-    }
-
-    public PacketUpdateNBTItemInventoryProgrammer(ByteBuf buf) {
-        fromBytes(buf);
+    public PacketUpdateNBTItemInventoryProgrammer(PacketBuffer buf) {
+        pos = buf.readBlockPos();
+        slotIndex = buf.readInt();
+        tagCompound = buf.readCompoundTag();
     }
 
     public PacketUpdateNBTItemInventoryProgrammer(BlockPos pos, int slotIndex, CompoundNBT tagCompound) {
@@ -36,22 +33,14 @@ public class PacketUpdateNBTItemInventoryProgrammer implements IMessage {
         return tileEntity instanceof ProgrammerTileEntity;
     }
 
-    @Override
-    public void fromBytes(ByteBuf buf) {
-        pos = NetworkTools.readPos(buf);
-        slotIndex = buf.readInt();
-        tagCompound = NetworkTools.readTag(buf);
-    }
-
-    @Override
-    public void toBytes(ByteBuf buf) {
-        NetworkTools.writePos(buf, pos);
+    public void toBytes(PacketBuffer buf) {
+        buf.writeBlockPos(pos);
         buf.writeInt(slotIndex);
-        NetworkTools.writeTag(buf, tagCompound);
+        buf.writeCompoundTag(tagCompound);
     }
 
-    public void handle(Supplier<Context> supplier) {
-        Context ctx = supplier.get();
+    public void handle(Supplier<NetworkEvent.Context> supplier) {
+        NetworkEvent.Context ctx = supplier.get();
         ctx.enqueueWork(() -> {
             World world = ctx.getSender().getEntityWorld();
             TileEntity te = world.getTileEntity(pos);
@@ -62,7 +51,7 @@ public class PacketUpdateNBTItemInventoryProgrammer implements IMessage {
                 IInventory inv = (IInventory) te;
                 ItemStack stack = inv.getStackInSlot(slotIndex);
                 if (!stack.isEmpty()) {
-                    stack.setTagCompound(tagCompound);
+                    stack.setTag(tagCompound);
                 }
                 te.markDirty();
             }

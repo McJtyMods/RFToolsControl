@@ -1,24 +1,30 @@
 package mcjty.rftoolscontrol.blocks.workbench;
 
 
+import mcjty.lib.McJtyLib;
+import mcjty.lib.container.AutomationFilterItemHander;
 import mcjty.lib.container.GenericCrafter;
-import mcjty.lib.container.InventoryHelper;
+import mcjty.lib.container.NoDirectionItemHander;
 import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.lib.varia.FacedSidedInvWrapper;
-import mcjty.lib.varia.NullSidedInvWrapper;
+import mcjty.rftoolscontrol.setup.Registration;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.CraftingInventory;
+import net.minecraft.inventory.container.Container;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
+import net.minecraft.item.crafting.IRecipeType;
 import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.Direction;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.items.CapabilityItemHandler;
+import net.minecraftforge.common.util.LazyOptional;
 
-import java.util.List;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
-public class WorkbenchTileEntity extends GenericTileEntity implements DefaultSidedInventory, GenericCrafter {
+public class WorkbenchTileEntity extends GenericTileEntity implements GenericCrafter {
 
-    private InventoryHelper inventoryHelper = new InventoryHelper(this, WorkbenchContainer.factory, WorkbenchContainer.BUFFER_SIZE + 10);
+    private NoDirectionItemHander items = createItemHandler();
+    private LazyOptional<NoDirectionItemHander> itemHandler = LazyOptional.of(() -> items);
+    private LazyOptional<AutomationFilterItemHander> automationItemHandler = LazyOptional.of(() -> new AutomationFilterItemHander(items));
 
     // This field contains the number of real items in the craft output slot. i.e. these are
     // items that are already crafted but only (partially) consumed.
@@ -31,46 +37,50 @@ public class WorkbenchTileEntity extends GenericTileEntity implements DefaultSid
 
     static {
         UP_SLOTS = new int[9];
-        for (int i = 0 ; i < 9 ; i++) {
+        for (int i = 0; i < 9; i++) {
             UP_SLOTS[i] = i + WorkbenchContainer.SLOT_CRAFTINPUT;
         }
         SIDE_SLOTS = new int[WorkbenchContainer.BUFFER_SIZE];
-        for (int i = 0 ; i < WorkbenchContainer.BUFFER_SIZE ; i++) {
+        for (int i = 0; i < WorkbenchContainer.BUFFER_SIZE; i++) {
             SIDE_SLOTS[i] = i + WorkbenchContainer.SLOT_BUFFER;
         }
         ALL_SLOTS = new int[WorkbenchContainer.BUFFER_SIZE + 9];
-        for (int i = 0 ; i < 9 ; i++) {
+        for (int i = 0; i < 9; i++) {
             ALL_SLOTS[i] = i + WorkbenchContainer.SLOT_CRAFTINPUT;
         }
-        for (int i = 0 ; i < WorkbenchContainer.BUFFER_SIZE ; i++) {
-            ALL_SLOTS[i+9] = i + WorkbenchContainer.SLOT_BUFFER;
+        for (int i = 0; i < WorkbenchContainer.BUFFER_SIZE; i++) {
+            ALL_SLOTS[i + 9] = i + WorkbenchContainer.SLOT_BUFFER;
         }
     }
 
-    @Override
-    public void readFromNBT(CompoundNBT tagCompound) {
-        super.readFromNBT(tagCompound);
+    public WorkbenchTileEntity() {
+        super(Registration.WORKBENCH_TILE.get());
     }
 
     @Override
-    public CompoundNBT writeToNBT(CompoundNBT tagCompound) {
-        super.writeToNBT(tagCompound);
+    public void read(CompoundNBT tagCompound) {
+        super.read(tagCompound);
+        readRestorableFromNBT(tagCompound);
+    }
+
+    @Override
+    public CompoundNBT write(CompoundNBT tagCompound) {
+        super.write(tagCompound);
+        writeRestorableToNBT(tagCompound);
         return tagCompound;
     }
 
 
-    @Override
+    // @todo 1.15 loot tables
     public void readRestorableFromNBT(CompoundNBT tagCompound) {
-        super.readRestorableFromNBT(tagCompound);
-        readBufferFromNBT(tagCompound, inventoryHelper);
-        realItems = tagCompound.getInteger("realItems");
+//        readBufferFromNBT(tagCompound, inventoryHelper);
+        realItems = tagCompound.getInt("realItems");
     }
 
-    @Override
+    // @todo 1.15 loot tables
     public void writeRestorableToNBT(CompoundNBT tagCompound) {
-        super.writeRestorableToNBT(tagCompound);
-        writeBufferToNBT(tagCompound, inventoryHelper);
-        tagCompound.setInteger("realItems", realItems);
+//        writeBufferToNBT(tagCompound, inventoryHelper);
+        tagCompound.putInt("realItems", realItems);
     }
 
     private boolean isCraftInputSlot(int slot) {
@@ -85,166 +95,176 @@ public class WorkbenchTileEntity extends GenericTileEntity implements DefaultSid
         return slot == WorkbenchContainer.SLOT_CRAFTOUTPUT;
     }
 
+    @Nullable
+    private IRecipe findRecipe(CraftingInventory workInventory) {
+        for (IRecipe r : McJtyLib.proxy.getRecipeManager(world).getRecipes()) {
+            if (r != null && IRecipeType.CRAFTING.equals(r.getType()) && r.matches(workInventory, world)) {
+                return r;
+            }
+        }
+        return null;
+    }
+
     private void updateRecipe() {
-        if (getStackInSlot(WorkbenchContainer.SLOT_CRAFTOUTPUT) == null || realItems == 0) {
-            InventoryCrafting workInventory = makeWorkInventory();
-            IRecipe recipe = CraftingManager.findMatchingRecipe(workInventory, this.getWorld());
+        if (items.getStackInSlot(WorkbenchContainer.SLOT_CRAFTOUTPUT) == null || realItems == 0) {
+            CraftingInventory workInventory = makeWorkInventory();
+            IRecipe recipe = findRecipe(workInventory);
             if (recipe != null) {
                 ItemStack stack = recipe.getCraftingResult(workInventory);
-                getInventoryHelper().setInventorySlotContents(getInventoryStackLimit(), WorkbenchContainer.SLOT_CRAFTOUTPUT, stack);
+                items.setStackInSlot(WorkbenchContainer.SLOT_CRAFTOUTPUT, stack);
             } else {
-                getInventoryHelper().setInventorySlotContents(getInventoryStackLimit(), WorkbenchContainer.SLOT_CRAFTOUTPUT, ItemStack.EMPTY);
+                items.setStackInSlot(WorkbenchContainer.SLOT_CRAFTOUTPUT, ItemStack.EMPTY);
             }
         }
     }
 
-    private InventoryCrafting makeWorkInventory() {
-        InventoryCrafting workInventory = new InventoryCrafting(new Container() {
+    private CraftingInventory makeWorkInventory() {
+        CraftingInventory workInventory = new CraftingInventory(new Container(null, -1) {
+            @SuppressWarnings("NullableProblems")
             @Override
             public boolean canInteractWith(PlayerEntity var1) {
                 return false;
             }
         }, 3, 3);
-        for (int i = 0 ; i < 9 ; i++) {
-            workInventory.setInventorySlotContents(i, getStackInSlot(i + WorkbenchContainer.SLOT_CRAFTINPUT));
+        for (int i = 0; i < 9; i++) {
+            workInventory.setInventorySlotContents(i, items.getStackInSlot(i + WorkbenchContainer.SLOT_CRAFTINPUT));
         }
         return workInventory;
     }
 
-    @Override
-    public void setInventorySlotContents(int index, ItemStack stack) {
-        getInventoryHelper().setInventorySlotContents(getInventoryStackLimit(), index, stack);
-        if (isCraftInputSlot(index)) {
-            updateRecipe();
-        }
-    }
+    // @todo 1.15
+//    @Override
+//    public void setInventorySlotContents(int index, ItemStack stack) {
+//        getInventoryHelper().setInventorySlotContents(getInventoryStackLimit(), index, stack);
+//        if (isCraftInputSlot(index)) {
+//            updateRecipe();
+//        }
+//    }
 
     @Override
     public void craftItem() {
     }
 
-    @Override
-    public boolean canInsertItem(int index, ItemStack itemStackIn, Direction direction) {
-        if (direction == null) {
-            return !isCraftOutput(index);
-        } else if (direction == Direction.DOWN) {
-            return false;
-        } else if (direction == Direction.UP) {
-            return isCraftInputSlot(index);
-        } else {
-            return isBufferSlot(index);
-        }
-    }
+    // @todo 1.15
+//    @Override
+//    public boolean canInsertItem(int index, ItemStack itemStackIn, Direction direction) {
+//        if (direction == null) {
+//            return !isCraftOutput(index);
+//        } else if (direction == Direction.DOWN) {
+//            return false;
+//        } else if (direction == Direction.UP) {
+//            return isCraftInputSlot(index);
+//        } else {
+//            return isBufferSlot(index);
+//        }
+//    }
 
-    @Override
-    public boolean canExtractItem(int index, ItemStack stack, Direction direction) {
-        if (direction == null) {
-            return true;
-        } else if (direction == Direction.DOWN) {
-            return isCraftOutput(index);
-        } else if (direction == Direction.UP) {
-            return isCraftInputSlot(index);
-        } else {
-            return isBufferSlot(index);
-        }
-    }
+    // @todo 1.15
+//    @Override
+//    public boolean canExtractItem(int index, ItemStack stack, Direction direction) {
+//        if (direction == null) {
+//            return true;
+//        } else if (direction == Direction.DOWN) {
+//            return isCraftOutput(index);
+//        } else if (direction == Direction.UP) {
+//            return isCraftInputSlot(index);
+//        } else {
+//            return isBufferSlot(index);
+//        }
+//    }
 
-    @Override
-    public int[] getSlotsForFace(Direction side) {
-        if (side == null) {
-            return ALL_SLOTS;
-        } else if (side == Direction.DOWN) {
-            return DOWN_SLOTS;
-        } else if (side == Direction.UP) {
-            return UP_SLOTS;
-        } else {
-            return SIDE_SLOTS;
-        }
-    }
+    // @todo 1.15
+//    @Override
+//    public int[] getSlotsForFace(Direction side) {
+//        if (side == null) {
+//            return ALL_SLOTS;
+//        } else if (side == Direction.DOWN) {
+//            return DOWN_SLOTS;
+//        } else if (side == Direction.UP) {
+//            return UP_SLOTS;
+//        } else {
+//            return SIDE_SLOTS;
+//        }
+//    }
 
 
+// @todo 1.15
+//    @Override
+//    public ItemStack decrStackSize(int index, int count) {
+//        if (isCraftOutput(index) && realItems == 0) {
+//            CraftingInventory workInventory = makeWorkInventory();
+//            List<ItemStack> remainingItems = CraftingManager.getRemainingItems(workInventory, getWorld());
+//            for (int i = 0 ; i < 9 ; i++) {
+//                ItemStack s = getStackInSlot(i + WorkbenchContainer.SLOT_CRAFTINPUT);
+//                if (!s.isEmpty()) {
+//                    getInventoryHelper().decrStackSize(i + WorkbenchContainer.SLOT_CRAFTINPUT, 1);
+//                    s = getStackInSlot(i + WorkbenchContainer.SLOT_CRAFTINPUT);
+//                }
+//
+//                if (!remainingItems.get(i).isEmpty()) {
+//                    if (s.isEmpty()) {
+//                        getInventoryHelper().setStackInSlot(i + WorkbenchContainer.SLOT_CRAFTINPUT, remainingItems.get(i));
+//                    } else if (ItemStack.areItemsEqual(s, remainingItems.get(i)) && ItemStack.areItemStackTagsEqual(s, remainingItems.get(i))) {
+//                        ItemStack stack = remainingItems.get(i);
+//                        stack.grow(s.getCount());
+//                        getInventoryHelper().setInventorySlotContents(getInventoryStackLimit(), i + WorkbenchContainer.SLOT_CRAFTINPUT, remainingItems.get(i));
+//                    } else {
+//                        // @todo
+//                        // Not enough room!
+//                    }
+//                }
+//            }
+//        }
+//        ItemStack rc = getInventoryHelper().decrStackSize(index, count);
+//        if (isCraftOutput(index)) {
+//            ItemStack stack = getStackInSlot(index);
+//            if (!stack.isEmpty()) {
+//                realItems = stack.getCount();
+//            } else {
+//                realItems = 0;
+//            }
+//        }
+//        if (isCraftInputSlot(index) || isCraftOutput(index)) {
+//            updateRecipe();
+//        }
+//        return rc;
+//    }
 
-    @Override
-    public ItemStack decrStackSize(int index, int count) {
-        if (isCraftOutput(index) && realItems == 0) {
-            InventoryCrafting workInventory = makeWorkInventory();
-            List<ItemStack> remainingItems = CraftingManager.getRemainingItems(workInventory, getWorld());
-            for (int i = 0 ; i < 9 ; i++) {
-                ItemStack s = getStackInSlot(i + WorkbenchContainer.SLOT_CRAFTINPUT);
-                if (!s.isEmpty()) {
-                    getInventoryHelper().decrStackSize(i + WorkbenchContainer.SLOT_CRAFTINPUT, 1);
-                    s = getStackInSlot(i + WorkbenchContainer.SLOT_CRAFTINPUT);
-                }
+    protected FacedSidedInvWrapper[] handler = new FacedSidedInvWrapper[]{null, null, null, null, null, null};
 
-                if (!remainingItems.get(i).isEmpty()) {
-                    if (s.isEmpty()) {
-                        getInventoryHelper().setStackInSlot(i + WorkbenchContainer.SLOT_CRAFTINPUT, remainingItems.get(i));
-                    } else if (ItemStack.areItemsEqual(s, remainingItems.get(i)) && ItemStack.areItemStackTagsEqual(s, remainingItems.get(i))) {
-                        ItemStack stack = remainingItems.get(i);
-                        stack.grow(s.getCount());
-                        getInventoryHelper().setInventorySlotContents(getInventoryStackLimit(), i + WorkbenchContainer.SLOT_CRAFTINPUT, remainingItems.get(i));
-                    } else {
-                        // @todo
-                        // Not enough room!
-                    }
-                }
+    // @todo 1.15
+//    @Override
+//    public <T> T getCapabilixty(Capability<T> capability, Direction facing) {
+//        if (capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) {
+//            if (facing == null) {
+//                if (invHandlerNull == null) {
+//                    invHandlerNull = new NullSidedInvWrapper(this);
+//                }
+//                return (T) invHandlerNull;
+//            } else {
+//                if (handler[facing.ordinal()] == null) {
+//                    handler[facing.ordinal()] = new FacedSidedInvWrapper(this, facing);
+//                }
+//                return (T) handler[facing.ordinal()];
+//            }
+//        }
+//        return super.getCapability(capability, facing);
+//    }
+
+    private NoDirectionItemHander createItemHandler() {
+        return new NoDirectionItemHander(WorkbenchTileEntity.this, WorkbenchContainer.CONTAINER_FACTORY) {
+
+            @Override
+            protected void onUpdate(int index) {
+                // @todo 1.15
             }
-        }
-        ItemStack rc = getInventoryHelper().decrStackSize(index, count);
-        if (isCraftOutput(index)) {
-            ItemStack stack = getStackInSlot(index);
-            if (!stack.isEmpty()) {
-                realItems = stack.getCount();
-            } else {
-                realItems = 0;
+
+            @Override
+            public boolean isItemValid(int slot, @Nonnull ItemStack stack) {
+                // @todo 1.15
+                return true;
             }
-        }
-        if (isCraftInputSlot(index) || isCraftOutput(index)) {
-            updateRecipe();
-        }
-        return rc;
+        };
     }
 
-    @Override
-    public InventoryHelper getInventoryHelper() {
-        return inventoryHelper;
-    }
-
-    @Override
-    public boolean isEmpty() {
-        return false;
-    }
-
-    @Override
-    public boolean isUsableByPlayer(PlayerEntity player) {
-        return canPlayerAccess(player);
-    }
-
-    protected FacedSidedInvWrapper[] handler = new FacedSidedInvWrapper[] { null, null, null, null, null, null };
-
-    @Override
-    public boolean hasCapability(Capability<?> capability, Direction facing) {
-        if (capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) {
-            return true;
-        }
-        return super.hasCapability(capability, facing);
-    }
-
-    @Override
-    public <T> T getCapability(Capability<T> capability, Direction facing) {
-        if (capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) {
-            if (facing == null) {
-                if (invHandlerNull == null) {
-                    invHandlerNull = new NullSidedInvWrapper(this);
-                }
-                return (T) invHandlerNull;
-            } else {
-                if (handler[facing.ordinal()] == null) {
-                    handler[facing.ordinal()] = new FacedSidedInvWrapper(this, facing);
-                }
-                return (T) handler[facing.ordinal()];
-            }
-        }
-        return super.getCapability(capability, facing);
-    }
 }

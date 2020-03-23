@@ -1,11 +1,12 @@
 package mcjty.rftoolscontrol.compat.rftoolssupport;
 
-import io.netty.buffer.ByteBuf;
+import mcjty.rftoolsbase.api.screens.data.IModuleData;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.api.parameters.Parameter;
 import mcjty.rftoolscontrol.logic.ParameterTools;
+import net.minecraft.network.PacketBuffer;
 
-public class ModuleDataVariable implements mcjty.rftools.api.screens.data.IModuleData {
+public class ModuleDataVariable implements IModuleData {
 
     public static final String ID = RFToolsControl.MODID + ":VAR";
 
@@ -25,7 +26,7 @@ public class ModuleDataVariable implements mcjty.rftools.api.screens.data.IModul
     }
 
     @Override
-    public void writeToBuf(ByteBuf buf) {
+    public void writeToBuf(PacketBuffer buf) {
         if (parameter == null) {
             buf.writeByte(-1);
             return;

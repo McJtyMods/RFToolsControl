@@ -6,7 +6,8 @@ import mcjty.lib.typed.Type;
 import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.BlockPosTools;
 import mcjty.rftoolscontrol.blocks.processor.ProcessorTileEntity;
-
+import mcjty.rftoolscontrol.setup.Registration;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
@@ -26,6 +27,10 @@ public class NodeTileEntity extends GenericTileEntity {
     // Bitmask for all six sides
     private int prevIn = 0;
     private int powerOut[] = new int[] { 0, 0, 0, 0, 0, 0 };
+
+    public NodeTileEntity() {
+        super(Registration.NODE_TILE.get());
+    }
 
     public String getNodeName() {
         return node;
@@ -66,52 +71,52 @@ public class NodeTileEntity extends GenericTileEntity {
     public void setPowerOut(Direction side, int powerOut) {
         this.powerOut[side.ordinal()] = powerOut;
         markDirty();
-        getWorld().neighborChanged(this.pos.offset(side), this.getBlockType(), this.pos);
+        getWorld().neighborChanged(this.pos.offset(side), this.getBlockState().getBlock(), this.pos);
     }
 
     @Override
-    public void readFromNBT(CompoundNBT tagCompound) {
-        super.readFromNBT(tagCompound);
-        prevIn = tagCompound.getInteger("prevIn");
+    public void read(CompoundNBT tagCompound) {
+        super.read(tagCompound);
+        prevIn = tagCompound.getInt("prevIn");
         for (int i = 0 ; i < 6 ; i++) {
             powerOut[i] = tagCompound.getByte("p" + i);
         }
+        readRestorableFromNBT(tagCompound);
     }
 
     @Override
-    public CompoundNBT writeToNBT(CompoundNBT tagCompound) {
-        super.writeToNBT(tagCompound);
-        tagCompound.setInteger("prevIn", prevIn);
+    public CompoundNBT write(CompoundNBT tagCompound) {
+        super.write(tagCompound);
+        tagCompound.putInt("prevIn", prevIn);
         for (int i = 0 ; i < 6 ; i++) {
-            tagCompound.setByte("p" + i, (byte) powerOut[i]);
+            tagCompound.putByte("p" + i, (byte) powerOut[i]);
         }
+        writeRestorableToNBT(tagCompound);
         return tagCompound;
     }
 
-    @Override
+    // @todo 1.15 loot tables
     public void readRestorableFromNBT(CompoundNBT tagCompound) {
-        super.readRestorableFromNBT(tagCompound);
         channel = tagCompound.getString("channel");
         node = tagCompound.getString("node");
-        processor = BlockPosTools.readFromNBT(tagCompound, "processor");
+        processor = BlockPosTools.read(tagCompound, "processor");
     }
 
-    @Override
+    // @todo 1.15 loot tables
     public void writeRestorableToNBT(CompoundNBT tagCompound) {
-        super.writeRestorableToNBT(tagCompound);
         if (channel != null) {
-            tagCompound.setString("channel", channel);
+            tagCompound.putString("channel", channel);
         }
         if (node != null) {
-            tagCompound.setString("node", node);
+            tagCompound.putString("node", node);
         }
         if (processor != null) {
-            BlockPosTools.writeToNBT(tagCompound, "processor", processor);
+            BlockPosTools.write(tagCompound, "processor", processor);
         }
     }
 
     @Override
-    public boolean execute(EntityPlayerMP playerMP, String command, TypedMap args) {
+    public boolean execute(PlayerEntity playerMP, String command, TypedMap args) {
         boolean rc = super.execute(playerMP, command, args);
         if (rc) {
             return true;

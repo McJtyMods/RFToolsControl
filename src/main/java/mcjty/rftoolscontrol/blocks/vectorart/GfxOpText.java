@@ -1,9 +1,8 @@
 package mcjty.rftoolscontrol.blocks.vectorart;
 
-import io.netty.buffer.ByteBuf;
-import mcjty.lib.network.NetworkTools;
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.network.PacketBuffer;
 
 public class GfxOpText extends GfxOp {
 
@@ -25,7 +24,7 @@ public class GfxOpText extends GfxOp {
 
     @Override
     public void render() {
-        Minecraft.getMinecraft().fontRenderer.drawString(text, x, y, color);
+        Minecraft.getInstance().fontRenderer.drawString(text, x, y, color);
     }
 
     @Override
@@ -38,30 +37,30 @@ public class GfxOpText extends GfxOp {
         x = tag.getByte("x");
         y = tag.getByte("y");
         text = tag.getString("text");
-        color = tag.getInteger("color");
+        color = tag.getInt("color");
     }
 
     @Override
     protected void writeToNBTInternal(CompoundNBT tag) {
-        tag.setByte("x", (byte) x);
-        tag.setByte("y", (byte) y);
-        tag.setString("text", text);
-        tag.setInteger("color", color);
+        tag.putByte("x", (byte) x);
+        tag.putByte("y", (byte) y);
+        tag.putString("text", text);
+        tag.putInt("color", color);
     }
 
     @Override
-    protected void readFromBufInternal(ByteBuf buf) {
+    protected void readFromBufInternal(PacketBuffer buf) {
         x = buf.readByte();
         y = buf.readByte();
-        text = NetworkTools.readString(buf);
+        text = buf.readString(32767);
         color = buf.readInt();
     }
 
     @Override
-    protected void writeToBufInternal(ByteBuf buf) {
+    protected void writeToBufInternal(PacketBuffer buf) {
         buf.writeByte(x);
         buf.writeByte(y);
-        NetworkTools.writeString(buf, text);
+        buf.writeString(text);
         buf.writeInt(color);
     }
 }

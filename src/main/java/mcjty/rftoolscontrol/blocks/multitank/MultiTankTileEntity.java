@@ -3,9 +3,11 @@ package mcjty.rftoolscontrol.blocks.multitank;
 import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.lib.typed.Type;
 import mcjty.lib.typed.TypedMap;
+import mcjty.rftoolscontrol.setup.Registration;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.Direction;
 import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 
@@ -25,7 +27,10 @@ public class MultiTankTileEntity extends GenericTileEntity {
     private final MultiTankFluidProperties properties[] = new MultiTankFluidProperties[TANKS];
     private final FluidStack fluids[] = new FluidStack[TANKS];
 
+    private LazyOptional<MultiTankHandler> fluidHandler = LazyOptional.of(this::createFluidHandler);
+
     public MultiTankTileEntity() {
+        super(Registration.MULTITANK_TILE.get());
         for (int i = 0 ; i < TANKS ; i++) {
             properties[i] = new MultiTankFluidProperties(this, null, MAXCAPACITY);
         }
@@ -36,33 +41,33 @@ public class MultiTankTileEntity extends GenericTileEntity {
     }
 
     @Override
-    public void readFromNBT(CompoundNBT tagCompound) {
-        super.readFromNBT(tagCompound);
+    public void read(CompoundNBT tagCompound) {
+        super.read(tagCompound);
+        readRestorableFromNBT(tagCompound);
     }
 
     @Override
-    public CompoundNBT writeToNBT(CompoundNBT tagCompound) {
-        super.writeToNBT(tagCompound);
+    public CompoundNBT write(CompoundNBT tagCompound) {
+        super.write(tagCompound);
+        writeRestorableToNBT(tagCompound);
         return tagCompound;
     }
 
-    @Override
+    // @todo 1.15 loot tables
     public void readRestorableFromNBT(CompoundNBT tagCompound) {
-        super.readRestorableFromNBT(tagCompound);
         for (int i = 0 ; i < TANKS ; i++) {
-            properties[i] = new MultiTankFluidProperties(this, FluidStack.loadFluidStackFromNBT(tagCompound.getCompoundTag("f" + i)), MAXCAPACITY);
+            properties[i] = new MultiTankFluidProperties(this, FluidStack.loadFluidStackFromNBT(tagCompound.getCompound("f" + i)), MAXCAPACITY);
         }
     }
 
-    @Override
+    // @todo 1.15 loot tables
     public void writeRestorableToNBT(CompoundNBT tagCompound) {
-        super.writeRestorableToNBT(tagCompound);
         for (int i = 0 ; i < TANKS ; i++) {
             FluidStack contents = properties[i].getContents();
             if (contents != null) {
                 CompoundNBT tag = new CompoundNBT();
                 contents.writeToNBT(tag);
-                tagCompound.setTag("f" + i, tag);
+                tagCompound.put("f" + i, tag);
             }
         }
     }
@@ -102,23 +107,17 @@ public class MultiTankTileEntity extends GenericTileEntity {
 
     private MultiTankHandler handler = null;
 
-    @Override
-    public boolean hasCapability(Capability<?> capability, Direction facing) {
-        if (capability == CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY) {
-            return true;
-        }
-        return super.hasCapability(capability, facing);
+    private MultiTankHandler createFluidHandler() {
+        return new MultiTankHandler(this);
     }
 
+    @Nonnull
     @Override
-    public <T> T getCapability(Capability<T> capability, Direction facing) {
-        if (capability == CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY) {
-            if (handler == null) {
-                handler = new MultiTankHandler(this);
-            }
-            return CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY.cast(handler);
+    public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, Direction facing) {
+        if (cap == CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY) {
+            return fluidHandler.cast();
         }
-        return super.getCapability(capability, facing);
+        return super.getCapability(cap, facing);
     }
 
 }

@@ -10,13 +10,14 @@ import mcjty.lib.gui.widgets.Panel;
 import mcjty.lib.gui.widgets.TextField;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.screen.Screen;
 
 import java.awt.*;
 import java.util.function.Consumer;
 
 public class GuiTools {
 
-    public static void askSomething(Minecraft mc, Gui gui, WindowManager windowManager, int x, int y, String title, String initialValue, Consumer<String> callback) {
+    public static void askSomething(Minecraft mc, Screen gui, WindowManager windowManager, int x, int y, String title, String initialValue, Consumer<String> callback) {
         Panel ask = new Panel(mc, gui)
                 .setLayout(new VerticalLayout())
                 .setFilledBackground(0xff666666, 0xffaaaaaa)
@@ -41,7 +42,7 @@ public class GuiTools {
         ask.addChild(buttons);
     }
 
-    public static void showMessage(Minecraft mc, Gui gui, WindowManager windowManager, int x, int y, String title) {
+    public static void showMessage(Minecraft mc, Screen gui, WindowManager windowManager, int x, int y, String title) {
         Panel ask = new Panel(mc, gui)
                 .setLayout(new VerticalLayout())
                 .setFilledBackground(0xff666666, 0xffaaaaaa)

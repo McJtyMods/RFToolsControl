@@ -1,14 +1,17 @@
 package mcjty.rftoolscontrol.items.consolemodule;
 
-import mcjty.rftools.api.screens.IClientScreenModule;
-import mcjty.rftools.api.screens.IModuleRenderHelper;
-import mcjty.rftools.api.screens.ModuleRenderInfo;
+import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.platform.GlStateManager;
+import mcjty.rftoolsbase.api.screens.IClientScreenModule;
+import mcjty.rftoolsbase.api.screens.IModuleRenderHelper;
+import mcjty.rftoolsbase.api.screens.ModuleRenderInfo;
 import mcjty.rftoolscontrol.compat.rftoolssupport.ModuleDataLog;
 import net.minecraft.client.gui.FontRenderer;
-
+import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraft.world.dimension.DimensionType;
 
 import java.util.List;
 
@@ -25,14 +28,16 @@ public class ConsoleClientScreenModule implements IClientScreenModule<ModuleData
     }
 
     @Override
-    public void render(IModuleRenderHelper renderHelper, FontRenderer fontRenderer, int currenty, ModuleDataLog screenData, ModuleRenderInfo renderInfo) {
+    public void render(MatrixStack matrixStack, IRenderTypeBuffer buffer, IModuleRenderHelper renderHelper, FontRenderer fontRenderer, int currenty, ModuleDataLog screenData, ModuleRenderInfo renderInfo) {
+        // @todo 1.15 render system
         GlStateManager.disableLighting();
         int xoffset = 7;
         if (screenData != null) {
             List<String> log = screenData.getLog();
             if (log != null) {
                 for (String s : log) {
-                    renderHelper.renderTextTrimmed(xoffset, currenty, 0xffffffff, renderInfo, s, 480);
+                    // @todo 1.15
+//                    renderHelper.renderTextTrimmed(xoffset, currenty, 0xffffffff, renderInfo, s, 480);
                     currenty += 10;
                 }
             }
@@ -40,12 +45,13 @@ public class ConsoleClientScreenModule implements IClientScreenModule<ModuleData
     }
 
     @Override
-    public void mouseClick(World world, int x, int y, boolean clicked) {
+    public void setupFromNBT(CompoundNBT tagCompound, DimensionType dim, BlockPos pos) {
 
     }
 
     @Override
-    public void setupFromNBT(CompoundNBT tagCompound, int dim, BlockPos pos) {
+    public void mouseClick(World world, int x, int y, boolean clicked) {
+
     }
 
     @Override

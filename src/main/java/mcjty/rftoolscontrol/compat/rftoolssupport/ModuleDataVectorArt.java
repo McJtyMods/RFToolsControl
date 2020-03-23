@@ -1,13 +1,14 @@
 package mcjty.rftoolscontrol.compat.rftoolssupport;
 
-import io.netty.buffer.ByteBuf;
+import mcjty.rftoolsbase.api.screens.data.IModuleData;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.blocks.vectorart.GfxOp;
+import net.minecraft.network.PacketBuffer;
 
 import java.util.List;
 import java.util.Map;
 
-public class ModuleDataVectorArt implements mcjty.rftools.api.screens.data.IModuleData {
+public class ModuleDataVectorArt implements IModuleData {
 
     public static final String ID = RFToolsControl.MODID + ":VECTOR";
 
@@ -45,7 +46,7 @@ public class ModuleDataVectorArt implements mcjty.rftools.api.screens.data.IModu
     }
 
     @Override
-    public void writeToBuf(ByteBuf buf) {
+    public void writeToBuf(PacketBuffer buf) {
         if (operations == null) {
             buf.writeInt(0);
             return;

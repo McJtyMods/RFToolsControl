@@ -1,12 +1,12 @@
 package mcjty.rftoolscontrol.compat.rftoolssupport;
 
-import io.netty.buffer.ByteBuf;
-import mcjty.lib.network.NetworkTools;
+import mcjty.rftoolsbase.api.screens.data.IModuleData;
 import mcjty.rftoolscontrol.RFToolsControl;
+import net.minecraft.network.PacketBuffer;
 
 import java.util.List;
 
-public class ModuleDataLog implements mcjty.rftools.api.screens.data.IModuleData {
+public class ModuleDataLog implements IModuleData {
 
     public static final String ID = RFToolsControl.MODID + ":LOG";
 
@@ -26,14 +26,14 @@ public class ModuleDataLog implements mcjty.rftools.api.screens.data.IModuleData
     }
 
     @Override
-    public void writeToBuf(ByteBuf buf) {
+    public void writeToBuf(PacketBuffer buf) {
         if (log == null) {
             buf.writeInt(0);
             return;
         }
         buf.writeInt(log.size());
         for (String s : log) {
-            NetworkTools.writeString(buf, s);
+            buf.writeString(s);
         }
     }
 }

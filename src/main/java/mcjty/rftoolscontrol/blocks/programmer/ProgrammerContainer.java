@@ -3,31 +3,39 @@ package mcjty.rftoolscontrol.blocks.programmer;
 import mcjty.lib.container.ContainerFactory;
 import mcjty.lib.container.GenericContainer;
 import mcjty.lib.container.SlotDefinition;
-import mcjty.lib.container.SlotType;
+import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.rftoolscontrol.items.ModItems;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.IInventory;
+import mcjty.rftoolscontrol.setup.Registration;
+import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.wrapper.InvWrapper;
+
+import javax.annotation.Nullable;
 
 public class ProgrammerContainer extends GenericContainer {
     public static final String CONTAINER_INVENTORY = "container";
     public static final int SLOT_CARD = 0;
     public static final int SLOT_DUMMY = 1;
 
-    public static final ContainerFactory factory = new ContainerFactory() {
+    public static final ContainerFactory CONTAINER_FACTORY = new ContainerFactory(2) {
         @Override
         protected void setup() {
-            addSlotBox(new SlotDefinition(SlotType.SLOT_SPECIFICITEM, new ItemStack(ModItems.programCardItem)), CONTAINER_INVENTORY, SLOT_CARD, 91, 136, 1, 18, 1, 18);
-            addSlotBox(new SlotDefinition(SlotType.SLOT_CONTAINER), CONTAINER_INVENTORY, SLOT_DUMMY, -1000, -1000, 1, 18, 1, 18);
-            layoutPlayerInventorySlots(91, 157);
+            box(SlotDefinition.specific(new ItemStack(ModItems.programCardItem)), CONTAINER_INVENTORY, SLOT_CARD, 91, 136, 1, 1);
+            box(SlotDefinition.container(), CONTAINER_INVENTORY, SLOT_DUMMY, -1000, -1000, 1, 1);
+            playerSlots(91, 157);
         }
     };
 
+    public ProgrammerContainer(int id, ContainerFactory factory, BlockPos pos, @Nullable GenericTileEntity te) {
+        super(Registration.PROGRAMMER_CONTAINER.get(), id, factory, pos, te);
+    }
 
-    public ProgrammerContainer(PlayerEntity player, IInventory containerInventory) {
-        super(factory);
-        addInventory(CONTAINER_INVENTORY, containerInventory);
-        addInventory(ContainerFactory.CONTAINER_PLAYER, player.inventory);
+    @Override
+    public void setupInventories(IItemHandler itemHandler, PlayerInventory inventory) {
+        addInventory(CONTAINER_INVENTORY, itemHandler);
+        addInventory(ContainerFactory.CONTAINER_PLAYER, new InvWrapper(inventory));
         generateSlots();
     }
 }

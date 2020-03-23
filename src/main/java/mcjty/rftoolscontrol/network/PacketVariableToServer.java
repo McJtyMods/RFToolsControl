@@ -1,45 +1,38 @@
 package mcjty.rftoolscontrol.network;
 
-import io.netty.buffer.ByteBuf;
-import mcjty.lib.network.NetworkTools;
 
 import mcjty.rftoolscontrol.api.parameters.Parameter;
 import mcjty.rftoolscontrol.api.parameters.ParameterType;
 import mcjty.rftoolscontrol.api.parameters.ParameterValue;
 import mcjty.rftoolscontrol.blocks.processor.ProcessorTileEntity;
 import mcjty.rftoolscontrol.logic.ParameterTypeTools;
-
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
-
+import net.minecraftforge.fml.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
-public class PacketVariableToServer implements IMessage {
+public class PacketVariableToServer {
     private BlockPos pos;
     private int varIndex;
     private CompoundNBT tagCompound;
 
-    @Override
-    public void fromBytes(ByteBuf buf) {
-        pos = NetworkTools.readPos(buf);
-        varIndex = buf.readInt();
-        tagCompound = NetworkTools.readTag(buf);
-    }
-
-    @Override
-    public void toBytes(ByteBuf buf) {
-        NetworkTools.writePos(buf, pos);
+    public void toBytes(PacketBuffer buf) {
+        buf.writeBlockPos(pos);
         buf.writeInt(varIndex);
-        NetworkTools.writeTag(buf, tagCompound);
+        buf.writeCompoundTag(tagCompound);
     }
 
     public PacketVariableToServer() {
     }
 
-    public PacketVariableToServer(ByteBuf buf) {
-        fromBytes(buf);
+    public PacketVariableToServer(PacketBuffer buf) {
+        pos = buf.readBlockPos();
+        varIndex = buf.readInt();
+        tagCompound = buf.readCompoundTag();
     }
 
     public PacketVariableToServer(BlockPos pos, int varIndex, CompoundNBT tagCompound) {
@@ -48,10 +41,10 @@ public class PacketVariableToServer implements IMessage {
         this.tagCompound = tagCompound;
     }
 
-    public void handle(Supplier<Context> supplier) {
-        Context ctx = supplier.get();
+    public void handle(Supplier<NetworkEvent.Context> supplier) {
+        NetworkEvent.Context ctx = supplier.get();
         ctx.enqueueWork(() -> {
-            EntityPlayerMP playerEntity = ctx.getSender();
+            PlayerEntity playerEntity = ctx.getSender();
             TileEntity te = playerEntity.getEntityWorld().getTileEntity(pos);
             if (te instanceof ProcessorTileEntity) {
                 ProcessorTileEntity processor = (ProcessorTileEntity) te;

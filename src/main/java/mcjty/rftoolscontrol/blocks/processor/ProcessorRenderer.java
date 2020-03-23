@@ -1,5 +1,7 @@
 package mcjty.rftoolscontrol.blocks.processor;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.platform.GlStateManager;
 import mcjty.lib.network.PacketSendServerCommand;
 import mcjty.lib.typed.TypedMap;
 import mcjty.rftoolscontrol.CommandHandler;
@@ -8,11 +10,13 @@ import mcjty.rftoolscontrol.blocks.vectorart.GfxOp;
 import mcjty.rftoolscontrol.network.PacketGetDebugLog;
 import mcjty.rftoolscontrol.network.PacketGetLog;
 import mcjty.rftoolscontrol.network.RFToolsCtrlMessages;
+import mcjty.rftoolscontrol.setup.Registration;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
-
+import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.RenderHelper;
-
+import net.minecraft.client.renderer.tileentity.TileEntityRenderer;
+import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import org.lwjgl.opengl.GL11;
 
@@ -21,44 +25,53 @@ import java.util.List;
 import static mcjty.rftoolscontrol.blocks.processor.ProcessorTileEntity.*;
 
 
-public class ProcessorRenderer extends TileEntitySpecialRenderer<ProcessorTileEntity> {
+public class ProcessorRenderer extends TileEntityRenderer<ProcessorTileEntity> {
+
+    public ProcessorRenderer(TileEntityRendererDispatcher rendererDispatcherIn) {
+        super(rendererDispatcherIn);
+    }
 
     @Override
-    public void render(ProcessorTileEntity tileEntity, double x, double y, double z, float partialTicks, int destroyStage, float alpha) {
+    public void render(ProcessorTileEntity tileEntity, float partialTicks, MatrixStack matrixStack, IRenderTypeBuffer buffer, int combinedLightIn, int combinedOverlayIn) {
         if (tileEntity.getShowHud() == HUD_OFF) {
             return;
         }
 
+        // @todo 1.15 no state manager
         GlStateManager.pushMatrix();
-        float f3;
+        float f3 = 0.0f;
 
-        int meta = tileEntity.getBlockMetadata();
+        // @todo 1.15 no meta
+//        int meta = tileEntity.getBlockMetadata();
+//
+//        if (meta == 2) {
+//            f3 = 180.0F;
+//        } else if (meta == 4) {
+//            f3 = 90.0F;
+//        } else if (meta == 5) {
+//            f3 = -90.0F;
+//        } else {
+//            f3 = 0.0F;
+//        }
 
-        if (meta == 2) {
-            f3 = 180.0F;
-        } else if (meta == 4) {
-            f3 = 90.0F;
-        } else if (meta == 5) {
-            f3 = -90.0F;
+        // @todo 1.15
+//        GlStateManager.translatef((float) x + 0.5F, (float) y + 1.75F, (float) z + 0.5F);
+        GlStateManager.rotatef(-f3, 0.0F, 1.0F, 0.0F);
+        if (tileEntity.getWorld().isAirBlock(tileEntity.getPos().up())) {
+            GlStateManager.translatef(0.0F, -0.2500F, -0.4375F + .4f);
         } else {
-            f3 = 0.0F;
-        }
-
-        GlStateManager.translate((float) x + 0.5F, (float) y + 1.75F, (float) z + 0.5F);
-        GlStateManager.rotate(-f3, 0.0F, 1.0F, 0.0F);
-        if (getWorld().isAirBlock(tileEntity.getPos().up())) {
-            GlStateManager.translate(0.0F, -0.2500F, -0.4375F + .4);
-        } else {
-            GlStateManager.translate(0.0F, -0.2500F, -0.4375F + .9);
+            GlStateManager.translatef(0.0F, -0.2500F, -0.4375F + .9f);
         }
 
         RenderHelper.disableStandardItemLighting();
-        Minecraft.getMinecraft().entityRenderer.disableLightmap();
+// @todo 1.15
+        //        Minecraft.getInstance().getItemRenderer().disableLightmap();
         GlStateManager.disableBlend();
         GlStateManager.disableLighting();
 
-        renderText(this.getFontRenderer(), tileEntity);
-        Minecraft.getMinecraft().entityRenderer.enableLightmap();
+        renderText(Minecraft.getInstance().fontRenderer, tileEntity);
+// @todo 1.15
+        //        Minecraft.getInstance().entityRenderer.enableLightmap();
 
 //        RenderHelper.enableStandardItemLighting();
         GlStateManager.enableLighting();
@@ -73,11 +86,11 @@ public class ProcessorRenderer extends TileEntitySpecialRenderer<ProcessorTileEn
         float factor = 0 + 1.0f;
         int currenty = 7;
 
-        GlStateManager.translate(-0.5F, 0.5F, 0.07F);
+        GlStateManager.translatef(-0.5F, 0.5F, 0.07F);
         f3 = 0.0075F;
-        GlStateManager.scale(f3 * factor, -f3 * factor, f3);
-        GlStateManager.glNormal3f(0.0F, 0.0F, 1.0F);
-        GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+        GlStateManager.scalef(f3 * factor, -f3 * factor, f3);
+        GlStateManager.normal3f(0.0F, 0.0F, 1.0F);
+        GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
 
         if (tileEntity.getShowHud() == HUD_GFX) {
             renderGfx(tileEntity);
@@ -129,6 +142,6 @@ public class ProcessorRenderer extends TileEntitySpecialRenderer<ProcessorTileEn
     }
 
     public static void register() {
-        ClientRegistry.bindTileEntitySpecialRenderer(ProcessorTileEntity.class, new ProcessorRenderer());
+        ClientRegistry.bindTileEntityRenderer(Registration.PROCESSOR_TILE.get(), ProcessorRenderer::new);
     }
 }

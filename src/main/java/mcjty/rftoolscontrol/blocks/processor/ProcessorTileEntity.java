@@ -1,9 +1,8 @@
 package mcjty.rftoolscontrol.blocks.processor;
 
-import mcjty.lib.api.MachineInformation;
-
-import mcjty.lib.container.InventoryHelper;
-import mcjty.lib.tileentity.GenericEnergyReceiverTileEntity;
+import mcjty.lib.container.AutomationFilterItemHander;
+import mcjty.lib.container.NoDirectionItemHander;
+import mcjty.lib.tileentity.GenericEnergyStorage;
 import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.lib.typed.Key;
 import mcjty.lib.typed.Type;
@@ -11,7 +10,8 @@ import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.BlockPosTools;
 import mcjty.lib.varia.EnergyTools;
 import mcjty.lib.varia.WorldTools;
-import mcjty.rftools.api.storage.IStorageScanner;
+import mcjty.rftoolsbase.api.machineinfo.CapabilityMachineInformation;
+import mcjty.rftoolsbase.api.storage.IStorageScanner;
 import mcjty.rftoolscontrol.api.code.Function;
 import mcjty.rftoolscontrol.api.code.ICompiledOpcode;
 import mcjty.rftoolscontrol.api.code.IOpcodeRunnable;
@@ -44,13 +44,14 @@ import mcjty.rftoolscontrol.logic.running.ExceptionType;
 import mcjty.rftoolscontrol.logic.running.ProgException;
 import mcjty.rftoolscontrol.logic.running.RunningProgram;
 import mcjty.rftoolscontrol.network.PacketGetFluids;
+import mcjty.rftoolscontrol.setup.Registration;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.INBT;
 import net.minecraft.nbt.ListNBT;
+import net.minecraft.nbt.StringNBT;
 import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
@@ -59,8 +60,10 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
-import net.minecraftforge.common.DimensionManager;
+import net.minecraft.world.dimension.DimensionType;
+import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.fluids.FluidStack;
@@ -68,8 +71,7 @@ import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.wrapper.InvWrapper;
-import net.minecraftforge.items.wrapper.SidedInvWrapper;
+import net.minecraftforge.registries.ForgeRegistries;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nonnull;
@@ -80,7 +82,7 @@ import java.util.stream.Collectors;
 
 import static mcjty.rftoolscontrol.blocks.multitank.MultiTankTileEntity.MAXCAPACITY;
 import static mcjty.rftoolscontrol.blocks.multitank.MultiTankTileEntity.TANKS;
-import static mcjty.rftoolscontrol.blocks.processor.ProcessorContainer.SLOT_BUFFER;
+import static mcjty.rftoolscontrol.blocks.processor.ProcessorContainer.CONTAINER_FACTORY;
 import static mcjty.rftoolscontrol.blocks.processor.ProcessorContainer.SLOT_EXPANSION;
 import static mcjty.rftoolscontrol.logic.running.ExceptionType.*;
 
@@ -88,10 +90,10 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
 
     // Number of card slots the processor supports
     public static final int CARD_SLOTS = 6;
-    public static final int ITEM_SLOTS = 3*8;
-    public static final int EXPANSION_SLOTS = 4*4;
+    public static final int ITEM_SLOTS = 3 * 8;
+    public static final int EXPANSION_SLOTS = 4 * 4;
     public static final int MAXVARS = 32;
-    public static final int MAXFLUIDVARS = 4*6;
+    public static final int MAXFLUIDVARS = 4 * 6;
 
     public static final String CMD_ALLOCATE = "allocate";
     public static final String CMD_EXECUTE = "execute";
@@ -126,7 +128,12 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
     private static final BiFunction<ParameterType, Object, Boolean> CONVERTOR_BOOL = TypeConverters::convertToBool;
     private static final BiFunction<ParameterType, Object, Number> CONVERTOR_NUMBER = TypeConverters::convertToNumber;
 
-    private InventoryHelper inventoryHelper = new InventoryHelper(this, ProcessorContainer.factory, ProcessorContainer.SLOTS);
+    private NoDirectionItemHander items = createItemHandler();
+    private LazyOptional<NoDirectionItemHander> itemHandler = LazyOptional.of(() -> items);
+    private LazyOptional<AutomationFilterItemHander> automationItemHandler = LazyOptional.of(() -> new AutomationFilterItemHander(items));
+
+    private LazyOptional<GenericEnergyStorage> energyHandler = LazyOptional.of(() -> new GenericEnergyStorage(this, true, ConfigSetup.processorMaxenergy.get(), ConfigSetup.processorReceivepertick.get()));
+
     private List<CpuCore> cpuCores = new ArrayList<>();
 
     public static final int HUD_OFF = 0;
@@ -162,7 +169,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
 
     // Bitmask for all six sides
     private int prevIn = 0;
-    private int powerOut[] = new int[] { 0, 0, 0, 0, 0, 0 };
+    private int powerOut[] = new int[]{0, 0, 0, 0, 0, 0};
 
     private int tickCount = 0;
 
@@ -184,25 +191,22 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
     private List<String> clientDebugLog = new ArrayList<>();
 
     // Card index, Opcode index
-    private Set<Pair<Integer,Integer>> runningEvents = new HashSet<>();
+    private Set<Pair<Integer, Integer>> runningEvents = new HashSet<>();
 
     private Set<String> locks = new HashSet<>();
 
+
     public ProcessorTileEntity() {
-        super(ConfigSetup.processorMaxenergy.get(), ConfigSetup.processorReceivepertick.get());
-        for (int i = 0 ; i < cardInfo.length ; i++) {
+        super(Registration.PROCESSOR_TILE.get());
+//        super(ConfigSetup.processorMaxenergy.get(), ConfigSetup.processorReceivepertick.get());
+        for (int i = 0; i < cardInfo.length; i++) {
             cardInfo[i] = new CardInfo();
         }
-        for (int i = 0 ; i < MAXVARS ; i++) {
+        for (int i = 0; i < MAXVARS; i++) {
             variables[i] = null;
             watchInfos[i] = null;
         }
         fluidSlotsAvailable = -1;
-    }
-
-    @Override
-    public InventoryHelper getInventoryHelper() {
-        return inventoryHelper;
     }
 
     public boolean isExclusive() {
@@ -221,11 +225,6 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
     public boolean isFluidSlotAvailable(int idx) {
         int sideIndex = idx / TANKS;
         return (getFluidSlotsAvailable() & (1 << sideIndex)) != 0;
-    }
-
-    @Override
-    protected boolean needsCustomInvWrapper() {
-        return true;
     }
 
     private BlockPos getAdjacentPosition(@Nonnull BlockSide side) {
@@ -272,70 +271,64 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
         if (p.equals(pos)) {
             powerOut[facing.ordinal()] = level;
             markDirty();
-            getWorld().neighborChanged(this.pos.offset(facing), this.getBlockType(), this.pos);
+            getWorld().neighborChanged(this.pos.offset(facing), this.getBlockState().getBlock(), this.pos);
         } else {
             NodeTileEntity te = (NodeTileEntity) getWorld().getTileEntity(p);
             te.setPowerOut(facing, level);
-}
+        }
     }
 
     public int getPowerOut(Direction side) {
         return powerOut[side.ordinal()];
     }
 
-    @Override
-    public boolean isEmpty() {
-        return false;
-    }
-
-    @Override
-    public boolean isUsableByPlayer(PlayerEntity player) {
-        return canPlayerAccess(player);
-    }
-
     private static int[] slots = null;
 
-    @Override
-    public int[] getSlotsForFace(Direction side) {
-        if (slots == null) {
-            slots = new int[3*8];
-            for (int i = 0 ; i < 3*8 ; i++) {
-                slots[i] = SLOT_BUFFER + i;
-            }
-        }
-        return slots;
-    }
+    // @todo 1.15
+//    @Override
+//    public int[] getSlotsForFace(Direction side) {
+//        if (slots == null) {
+//            slots = new int[3*8];
+//            for (int i = 0 ; i < 3*8 ; i++) {
+//                slots[i] = SLOT_BUFFER + i;
+//            }
+//        }
+//        return slots;
+//    }
+
+    // @todo 1.15
+//    @Override
+//    public boolean canInsertItem(int index, ItemStack itemStackIn, Direction direction) {
+//        return index >= SLOT_BUFFER && index < SLOT_BUFFER + 3*8;
+//    }
+
+    // @todo 1.15
+//    @Override
+//    public boolean canExtractItem(int index, ItemStack stack, Direction direction) {
+//        return index >= SLOT_BUFFER && index < SLOT_BUFFER + 3*8;
+//    }
+
+    // @todo 1.15
+//    @Override
+//    public boolean isItemValidForSlot(int index, ItemStack stack) {
+//        if (stack.isEmpty()) {
+//            return true;
+//        }
+//        Item item = stack.getItem();
+//        if (isExpansionSlot(index)) {
+//            Item storageCardItem = ForgeRegistries.ITEMS.getValue(new ResourceLocation("rftools", "storage_control_module"));
+//            return item == ModItems.graphicsCardItem || item == ModItems.networkCardItem ||
+//                    item == ModItems.advancedNetworkCardItem || item == ModItems.cpuCoreB500Item ||
+//                    item == ModItems.cpuCoreS1000Item || item == ModItems.cpuCoreEX2000Item ||
+//                    item == ModItems.ramChipItem || item == storageCardItem;
+//        } else if (isCardSlot(index)) {
+//            return item == ModItems.programCardItem;
+//        }
+//        return true;
+//    }
 
     @Override
-    public boolean canInsertItem(int index, ItemStack itemStackIn, Direction direction) {
-        return index >= SLOT_BUFFER && index < SLOT_BUFFER + 3*8;
-    }
-
-    @Override
-    public boolean canExtractItem(int index, ItemStack stack, Direction direction) {
-        return index >= SLOT_BUFFER && index < SLOT_BUFFER + 3*8;
-    }
-
-    @Override
-    public boolean isItemValidForSlot(int index, ItemStack stack) {
-        if (stack.isEmpty()) {
-            return true;
-        }
-        Item item = stack.getItem();
-        if (isExpansionSlot(index)) {
-            Item storageCardItem = ForgeRegistries.ITEMS.getValue(new ResourceLocation("rftools", "storage_control_module"));
-            return item == ModItems.graphicsCardItem || item == ModItems.networkCardItem ||
-                    item == ModItems.advancedNetworkCardItem || item == ModItems.cpuCoreB500Item ||
-                    item == ModItems.cpuCoreS1000Item || item == ModItems.cpuCoreEX2000Item ||
-                    item == ModItems.ramChipItem || item == storageCardItem;
-        } else if (isCardSlot(index)) {
-            return item == ModItems.programCardItem;
-        }
-        return true;
-    }
-
-    @Override
-    public void update() {
+    public void tick() {
         if (!getWorld().isRemote) {
             process();
             prevIn = powerLevel;
@@ -399,16 +392,17 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
                             stacks.add(stack);
                         } else {
                             // Find all crafting cards in the inventory
-                            IItemHandler handler = getItemHandlerAt(inv);
-                            for (int i = 0 ; i < handler.getSlots() ; i++) {
-                                ItemStack s = handler.getStackInSlot(i);
-                                if (!s.isEmpty() && s.getItem() == ModItems.craftingCardItem) {
-                                    ItemStack result = CraftingCardItem.getResult(s);
-                                    if (!result.isEmpty()) {
-                                        stacks.add(result);
+                            getItemHandlerAt(inv).ifPresent(handler -> {
+                                for (int i = 0; i < handler.getSlots(); i++) {
+                                    ItemStack s = handler.getStackInSlot(i);
+                                    if (!s.isEmpty() && s.getItem() == ModItems.craftingCardItem) {
+                                        ItemStack result = CraftingCardItem.getResult(s);
+                                        if (!result.isEmpty()) {
+                                            stacks.add(result);
+                                        }
                                     }
                                 }
-                            }
+                            });
                         }
                     }
                 }
@@ -424,11 +418,11 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
         }
         String ticket = program.getCraftTicket();
 
-        CardInfo info = this.cardInfo[((RunningProgram)program).getCardIndex()];
+        CardInfo info = this.cardInfo[((RunningProgram) program).getCardIndex()];
         Integer realSlot = info.getRealSlot(slot);
         ItemStack craftedItem = ItemStack.EMPTY;
         if (realSlot != null) {
-            craftedItem = getItemHandler().getStackInSlot(realSlot);
+            craftedItem = ((IItemHandler) items).getStackInSlot(realSlot);
         }
 
         for (BlockPos p : craftingStations) {
@@ -441,7 +435,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
 
         if (realSlot != null) {
             // Put back what could not be accepted
-            getInventoryHelper().setStackInSlot(realSlot, craftedItem);
+            items.setStackInSlot(realSlot, craftedItem);
         }
     }
 
@@ -472,8 +466,8 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
         if (!(te instanceof WorkbenchTileEntity)) {
             throw new ProgException(EXCEPT_NOTAWORKBENCH);
         }
-        IItemHandler cardHandler = getItemHandlerAt(te, Direction.EAST);
-        ItemStack card = findCraftingCard(cardHandler, item, oredict);
+        ItemStack finalItem = item;
+        ItemStack card = getItemHandlerAt(te, Direction.EAST).map(handler -> findCraftingCard(handler, finalItem, oredict)).orElse(ItemStack.EMPTY);
         if (card.isEmpty()) {
             throw new ProgException(EXCEPT_MISSINGCRAFTINGCARD);
         }
@@ -482,81 +476,84 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
             throw new ProgException(EXCEPT_NOTAGRID);
         }
 
-        CardInfo info = this.cardInfo[((RunningProgram)program).getCardIndex()];
-        IItemHandler itemHandler = getItemHandler();
+        CardInfo info = this.cardInfo[((RunningProgram) program).getCardIndex()];
+        IItemHandler itemHandler = items;
 
-        IItemHandler gridHandler = getItemHandlerAt(te, Direction.UP);
-        List<ItemStack> ingredients = CraftingCardItem.getIngredientsGrid(card);
-        boolean success = true;
-        for (int i = 0 ; i < 9 ; i++) {
-            ItemStack stackInWorkbench = gridHandler.getStackInSlot(i);
-            ItemStack stackInIngredient = ingredients.get(i);
-            if (!stackInWorkbench.isEmpty() && stackInIngredient.isEmpty()) {
-                // Can't work. There is already something in the workbench that doesn't belong
-                success = false;
-            } else if (stackInWorkbench.isEmpty() && !stackInIngredient.isEmpty()) {
-                // Let's see if we can find the needed ingredient
-                boolean found = false;
-                for (int slot = slot1 ; slot <= slot2 ; slot++) {
-                    int realSlot = info.getRealSlot(slot);
-                    ItemStack localStack = itemHandler.getStackInSlot(realSlot);
-                    if (stackInIngredient.isItemEqual(localStack)) {
-                        localStack = itemHandler.extractItem(realSlot, stackInIngredient.getCount(), false);
-                        gridHandler.insertItem(i, localStack, false);
-                        found = true;
-                        break;
+        return getItemHandlerAt(te, Direction.UP).map(gridHandler -> {
+            List<ItemStack> ingredients = CraftingCardItem.getIngredientsGrid(card);
+            boolean success = true;
+            for (int i = 0; i < 9; i++) {
+                ItemStack stackInWorkbench = gridHandler.getStackInSlot(i);
+                ItemStack stackInIngredient = ingredients.get(i);
+                if (!stackInWorkbench.isEmpty() && stackInIngredient.isEmpty()) {
+                    // Can't work. There is already something in the workbench that doesn't belong
+                    success = false;
+                } else if (stackInWorkbench.isEmpty() && !stackInIngredient.isEmpty()) {
+                    // Let's see if we can find the needed ingredient
+                    boolean found = false;
+                    for (int slot = slot1; slot <= slot2; slot++) {
+                        int realSlot = info.getRealSlot(slot);
+                        ItemStack localStack = itemHandler.getStackInSlot(realSlot);
+                        if (stackInIngredient.isItemEqual(localStack)) {
+                            localStack = itemHandler.extractItem(realSlot, stackInIngredient.getCount(), false);
+                            gridHandler.insertItem(i, localStack, false);
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found) {
+                        success = false;
+                    }
+                } else if (!stackInWorkbench.isEmpty() && !stackInIngredient.isEmpty()) {
+                    // See if the item matches and we have enough
+                    if (!stackInIngredient.isItemEqual(stackInWorkbench)) {
+                        success = false;
+                    } else if (stackInIngredient.getCount() > stackInWorkbench.getCount()) {
+                        success = false;
                     }
                 }
-                if (!found) {
-                    success = false;
-                }
-            } else if (!stackInWorkbench.isEmpty() && !stackInIngredient.isEmpty()) {
-                // See if the item matches and we have enough
-                if (!stackInIngredient.isItemEqual(stackInWorkbench)) {
-                    success = false;
-                } else if (stackInIngredient.getCount() > stackInWorkbench.getCount()) {
-                    success = false;
-                }
             }
-        }
 
-        return success;
+            return success;
+        }).orElse(false);
     }
 
     public int pushItemsMulti(IProgram program, @Nullable Inventory inv, int slot1, int slot2, @Nullable Integer extSlot) {
-        IItemHandler handler = getHandlerForInv(inv);
-        IStorageScanner scanner = getScannerForInv(inv);
+        return getHandlerForInv(inv).map(handler -> {
+            IStorageScanner scanner = getScannerForInv(inv);
 
-        CardInfo info = this.cardInfo[((RunningProgram)program).getCardIndex()];
-        IItemHandler itemHandler = getItemHandler();
-        int e = 0;
-        if (extSlot != null) {
-            e = extSlot;
-        }
-
-        int failed = 0;
-        for (int slot = slot1 ; slot <= slot2 ; slot++) {
-            int realSlot = info.getRealSlot(slot);
-            ItemStack stack = itemHandler.getStackInSlot(realSlot);
-            if (!stack.isEmpty()) {
-                ItemStack remaining = InventoryTools.insertItem(handler, scanner, stack, extSlot == null ? null : e);
-                if (!remaining.isEmpty()) {
-                    failed++;
-                }
-                inventoryHelper.setStackInSlot(realSlot, remaining);
+            CardInfo info = this.cardInfo[((RunningProgram) program).getCardIndex()];
+            IItemHandler itemHandler = items;
+            int e = 0;
+            if (extSlot != null) {
+                e = extSlot;
             }
-            e++;
-        }
-        return failed;
+
+            int failed = 0;
+            for (int slot = slot1; slot <= slot2; slot++) {
+                int realSlot = info.getRealSlot(slot);
+                ItemStack stack = itemHandler.getStackInSlot(realSlot);
+                if (!stack.isEmpty()) {
+                    ItemStack remaining = InventoryTools.insertItem(handler, scanner, stack, extSlot == null ? null : e);
+                    if (!remaining.isEmpty()) {
+                        failed++;
+                    }
+                    items.setStackInSlot(realSlot, remaining);
+                }
+                e++;
+            }
+            return failed;
+        }).orElse(0);
     }
 
     public int countCardIngredients(IProgram program, @Nullable Inventory inv, ItemStack card, boolean oredict) {
         IStorageScanner scanner = getScannerForInv(inv);
-        IItemHandler handler = getHandlerForInv(inv);
-        List<ItemStack> ingredients = CraftingCardItem.getIngredients(card);
-        boolean strictnbt = CraftingCardItem.isStrictNBT(card); // @todo
-        List<ItemStack> needed = combineIngredients(ingredients);
-        return countPossibleCrafts(scanner, handler, needed, oredict);
+        return getHandlerForInv(inv).map(handler -> {
+            List<ItemStack> ingredients = CraftingCardItem.getIngredients(card);
+            boolean strictnbt = CraftingCardItem.isStrictNBT(card); // @todo
+            List<ItemStack> needed = combineIngredients(ingredients);
+            return countPossibleCrafts(scanner, handler, needed, oredict);
+        }).orElse(0);
     }
 
     public boolean checkIngredients(IProgram program, @Nonnull Inventory cardInv, ItemStack item, int slot1, int slot2, boolean oredict) {
@@ -566,19 +563,21 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
         if (item.isEmpty()) {
             throw new ProgException(EXCEPT_MISSINGCRAFTRESULT);
         }
-        IItemHandler cardHandler = getItemHandlerAt(cardInv);
-        ItemStack card = findCraftingCard(cardHandler, item, oredict);
+        ItemStack finalItem = item;
+        ItemStack card = getItemHandlerAt(cardInv)
+                .map(cardHandler -> findCraftingCard(cardHandler, finalItem, oredict))
+                .orElse(ItemStack.EMPTY);
         if (card.isEmpty()) {
             throw new ProgException(EXCEPT_MISSINGCRAFTINGCARD);
         }
 
-        CardInfo info = this.cardInfo[((RunningProgram)program).getCardIndex()];
+        CardInfo info = this.cardInfo[((RunningProgram) program).getCardIndex()];
 
-        IItemHandler itemHandler = getItemHandler();
+        IItemHandler itemHandler = items;
         int slot = slot1;
 
         List<ItemStack> ingredients;
-        if (CraftingCardItem.fitsGrid(card) && (slot2-slot1 >= 8)) {
+        if (CraftingCardItem.fitsGrid(card) && (slot2 - slot1 >= 8)) {
             // We have something that fits a crafting grid and we have enough room for a 3x3 grid
             ingredients = CraftingCardItem.getIngredientsGrid(card);
         } else {
@@ -607,58 +606,58 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
     }
 
     public int getIngredientsSmart(IProgram program, Inventory inv, @Nonnull Inventory cardInv,
-                                   ItemStack item, int slot1, int slot2, @Nonnull Inventory destInv, boolean oredict) {
+                                   ItemStack inputStack, int slot1, int slot2, @Nonnull Inventory destInv, boolean oredict) {
         IStorageScanner scanner = getScannerForInv(inv);
-        IItemHandler handler = getHandlerForInv(inv);
-
-        if (item.isEmpty()) {
-            item = getCraftResult(program);
-        }
-        if (item.isEmpty()) {
-            throw new ProgException(EXCEPT_MISSINGCRAFTRESULT);
-        }
-
-        IItemHandler destHandler = getHandlerForInv(destInv);
-        if (destHandler == null) {
-            throw new ProgException(EXCEPT_INVALIDINVENTORY);
-        }
-
-        IItemHandler cardHandler = getItemHandlerAt(cardInv);
-        ItemStack card = findCraftingCard(cardHandler, item, oredict);
-        if (card.isEmpty()) {
-            throw new ProgException(EXCEPT_MISSINGCRAFTINGCARD);
-        }
-        CardInfo info = this.cardInfo[((RunningProgram)program).getCardIndex()];
-
-        List<ItemStack> ingredients;
-        if (CraftingCardItem.fitsGrid(card) && (slot2 - slot1 >= 8)) {
-            // We have something that fits a crafting grid and we have enough room for a 3x3 grid
-            ingredients = CraftingCardItem.getIngredientsGrid(card);
-        } else {
-            ingredients = CraftingCardItem.getIngredients(card);
-        }
-        boolean strictnbt = CraftingCardItem.isStrictNBT(card);
-
-        List<ItemStack> needed = combineIngredients(ingredients);
-        int requested = checkAvailableItemsAndRequestMissing(destInv, scanner, handler, needed, oredict);
-        if (requested != 0) {
-            return requested;
-        }
-        // We got everything;
-        IItemHandler itemHandler = getItemHandler();
-        int slot = slot1;
-
-        for (ItemStack ingredient : ingredients) {
-            int realSlot = info.getRealSlot(slot);
-            if (!ingredient.isEmpty()) {
-                ItemStack stack = InventoryTools.extractItem(handler, scanner, ingredient.getCount(), true, oredict, strictnbt, ingredient, null);
-                if (!stack.isEmpty()) {
-                    itemHandler.insertItem(realSlot, stack, false);
-                }
+        return getHandlerForInv(inv).map(handler -> {
+            ItemStack item = inputStack;
+            if (item.isEmpty()) {
+                item = getCraftResult(program);
             }
-            slot++;
-        }
-        return 0;
+            if (item.isEmpty()) {
+                throw new ProgException(EXCEPT_MISSINGCRAFTRESULT);
+            }
+
+            ItemStack finalItem = item;
+            return getHandlerForInv(destInv).map(destHandler -> {
+                ItemStack card = getItemHandlerAt(cardInv)
+                        .map(cardHandler -> findCraftingCard(cardHandler, finalItem, oredict))
+                        .orElse(ItemStack.EMPTY);
+                if (card.isEmpty()) {
+                    throw new ProgException(EXCEPT_MISSINGCRAFTINGCARD);
+                }
+                CardInfo info = this.cardInfo[((RunningProgram) program).getCardIndex()];
+
+                List<ItemStack> ingredients;
+                if (CraftingCardItem.fitsGrid(card) && (slot2 - slot1 >= 8)) {
+                    // We have something that fits a crafting grid and we have enough room for a 3x3 grid
+                    ingredients = CraftingCardItem.getIngredientsGrid(card);
+                } else {
+                    ingredients = CraftingCardItem.getIngredients(card);
+                }
+                boolean strictnbt = CraftingCardItem.isStrictNBT(card);
+
+                List<ItemStack> needed = combineIngredients(ingredients);
+                int requested = checkAvailableItemsAndRequestMissing(destInv, scanner, handler, needed, oredict);
+                if (requested != 0) {
+                    return requested;
+                }
+                // We got everything;
+                IItemHandler itemHandler = items;
+                int slot = slot1;
+
+                for (ItemStack ingredient : ingredients) {
+                    int realSlot = info.getRealSlot(slot);
+                    if (!ingredient.isEmpty()) {
+                        ItemStack stack = InventoryTools.extractItem(handler, scanner, ingredient.getCount(), true, oredict, strictnbt, ingredient, null);
+                        if (!stack.isEmpty()) {
+                            itemHandler.insertItem(realSlot, stack, false);
+                        }
+                    }
+                    slot++;
+                }
+                return 0;
+            }).orElseThrow(() -> new ProgException(EXCEPT_INVALIDINVENTORY));
+        }).orElse(0);
     }
 
     // Check the storage scanner or handler for a list of ingredients. Any missing
@@ -728,57 +727,56 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
         return needed;
     }
 
-    public int getIngredients(IProgram program, Inventory inv, Inventory cardInv, ItemStack item, int slot1, int slot2, boolean oredict) {
+    public int getIngredients(IProgram program, Inventory inv, Inventory cardInv, ItemStack inputStack, int slot1, int slot2, boolean oredict) {
         IStorageScanner scanner = getScannerForInv(inv);
-        IItemHandler handler = getHandlerForInv(inv);
-
-        if (item.isEmpty()) {
-            item = getCraftResult(program);
-        }
-        if (item.isEmpty()) {
-            throw new ProgException(EXCEPT_MISSINGCRAFTRESULT);
-        }
-
-        IItemHandler cardHandler = getItemHandlerAt(cardInv);
-        ItemStack card = findCraftingCard(cardHandler, item, oredict);
-        if (card.isEmpty()) {
-            throw new ProgException(EXCEPT_MISSINGCRAFTINGCARD);
-        }
-        CardInfo info = this.cardInfo[((RunningProgram)program).getCardIndex()];
-
-        IItemHandler itemHandler = getItemHandler();
-        int slot = slot1;
-
-        List<ItemStack> ingredients;
-        if (CraftingCardItem.fitsGrid(card) && (slot2-slot1 >= 8)) {
-            // We have something that fits a crafting grid and we have enough room for a 3x3 grid
-            ingredients = CraftingCardItem.getIngredientsGrid(card);
-        } else {
-            ingredients = CraftingCardItem.getIngredients(card);
-        }
-        boolean strictnbt = CraftingCardItem.isStrictNBT(card);
-
-        int failed = 0;
-        for (ItemStack ingredient : ingredients) {
-            int realSlot = info.getRealSlot(slot);
-            if (!ingredient.isEmpty()) {
-                ItemStack stack = InventoryTools.extractItem(handler, scanner, ingredient.getCount(), true, oredict, strictnbt, ingredient, null);
-                if (!stack.isEmpty()) {
-                    ItemStack remainder = itemHandler.insertItem(realSlot, stack, false);
-                    if (!remainder.isEmpty()) {
-                        InventoryTools.insertItem(handler, scanner, remainder, null);
-                    }
-                } else {
-                    failed++;
-                }
+        return getHandlerForInv(inv).map(handler -> {
+            ItemStack item = inputStack;
+            if (item.isEmpty()) {
+                item = getCraftResult(program);
             }
-            slot++;
-        }
-        return failed;
-    }
+            if (item.isEmpty()) {
+                throw new ProgException(EXCEPT_MISSINGCRAFTRESULT);
+            }
 
-    private IItemHandler getItemHandler() {
-        return getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
+            ItemStack finalItem = item;
+            ItemStack card = getItemHandlerAt(cardInv)
+                    .map(cardHandler -> findCraftingCard(cardHandler, finalItem, oredict))
+                    .orElse(ItemStack.EMPTY);
+            if (card.isEmpty()) {
+                throw new ProgException(EXCEPT_MISSINGCRAFTINGCARD);
+            }
+            CardInfo info = this.cardInfo[((RunningProgram) program).getCardIndex()];
+
+            IItemHandler itemHandler = items;
+            int slot = slot1;
+
+            List<ItemStack> ingredients;
+            if (CraftingCardItem.fitsGrid(card) && (slot2 - slot1 >= 8)) {
+                // We have something that fits a crafting grid and we have enough room for a 3x3 grid
+                ingredients = CraftingCardItem.getIngredientsGrid(card);
+            } else {
+                ingredients = CraftingCardItem.getIngredients(card);
+            }
+            boolean strictnbt = CraftingCardItem.isStrictNBT(card);
+
+            int failed = 0;
+            for (ItemStack ingredient : ingredients) {
+                int realSlot = info.getRealSlot(slot);
+                if (!ingredient.isEmpty()) {
+                    ItemStack stack = InventoryTools.extractItem(handler, scanner, ingredient.getCount(), true, oredict, strictnbt, ingredient, null);
+                    if (!stack.isEmpty()) {
+                        ItemStack remainder = itemHandler.insertItem(realSlot, stack, false);
+                        if (!remainder.isEmpty()) {
+                            InventoryTools.insertItem(handler, scanner, remainder, null);
+                        }
+                    } else {
+                        failed++;
+                    }
+                }
+                slot++;
+            }
+            return failed;
+        }).orElse(0);
     }
 
     public void craftWait(IProgram program, @Nonnull Inventory inv, ItemStack stack) {
@@ -836,7 +834,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
     }
 
     public void setCraftTicket(IProgram program, String ticket) {
-        ((RunningProgram)program).setCraftTicket(ticket);
+        ((RunningProgram) program).setCraftTicket(ticket);
     }
 
     public ItemStack getItemFromCard(IProgram program) {
@@ -851,9 +849,9 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
         if (itemStack.getItem() instanceof CraftingCardItem) {
             return CraftingCardItem.getResult(itemStack);
         }
-        if (itemStack.getItem() instanceof TokenItem && itemStack.hasTagCompound()) {
-            CompoundNBT tag = itemStack.getTagCompound().getCompoundTag("parameter");
-            if (tag.hasNoTags()) {
+        if (itemStack.getItem() instanceof TokenItem && itemStack.hasTag()) {
+            CompoundNBT tag = itemStack.getTag().getCompound("parameter");
+            if (tag.isEmpty()) {
                 return ItemStack.EMPTY;
             }
             Parameter parameter = ParameterTools.readFromNBT(tag);
@@ -889,15 +887,13 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
         if (stack.isEmpty()) {
             return ItemStack.EMPTY;
         }
-        IItemHandler handler = getHandlerForInv(inventory);
-        if (handler == null) {
-            throw new ProgException(EXCEPT_INVALIDINVENTORY);
-        }
-        return findCraftingCard(handler, stack, oredict);
+        return getHandlerForInv(inventory)
+                .map(handler -> findCraftingCard(handler, stack, oredict))
+                .orElseThrow(() -> new ProgException(EXCEPT_INVALIDINVENTORY));
     }
 
     private ItemStack findCraftingCard(IItemHandler handler, ItemStack craftResult, boolean oredict) {
-        for (int j = 0 ; j < handler.getSlots() ; j++) {
+        for (int j = 0; j < handler.getSlots(); j++) {
             ItemStack s = handler.getStackInSlot(j);
             if (!s.isEmpty() && s.getItem() == ModItems.craftingCardItem) {
                 ItemStack result = CraftingCardItem.getResult(s);
@@ -912,7 +908,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
     }
 
     public void fireCraftEvent(String ticket, ItemStack stackToCraft) {
-        for (int i = 0 ; i < cardInfo.length ; i++) {
+        for (int i = 0; i < cardInfo.length; i++) {
             CardInfo info = cardInfo[i];
             CompiledCard compiledCard = info.getCompiledCard();
             if (compiledCard != null) {
@@ -927,8 +923,9 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
                             return;
                         }
                     } else if (inv != null) {
-                        IItemHandler handler = getItemHandlerAt(inv);
-                        ItemStack craftingCard = findCraftingCard(handler, stackToCraft, false);
+                        ItemStack craftingCard = getItemHandlerAt(inv)
+                                .map(handler -> findCraftingCard(handler, stackToCraft, false))
+                                .orElse(ItemStack.EMPTY);
                         if (!craftingCard.isEmpty()) {
                             runOrQueueEvent(i, event, ticket, null);
                             return;
@@ -940,7 +937,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
     }
 
     private void handleEvents() {
-        for (int i = 0 ; i < cardInfo.length ; i++) {
+        for (int i = 0; i < cardInfo.length; i++) {
             CardInfo info = cardInfo[i];
             CompiledCard compiledCard = info.getCompiledCard();
             if (compiledCard != null) {
@@ -961,15 +958,16 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
                 if (!waitingForItems.isEmpty()) {
                     WaitForItem found = null;
                     int foundIdx = -1;
-                    for (int i = 0 ; i < waitingForItems.size() ; i++) {
+                    for (int i = 0; i < waitingForItems.size(); i++) {
                         WaitForItem wfi = waitingForItems.get(i);
                         if (wfi.getInventory() == null || wfi.getItemStack().isEmpty()) {
                             foundIdx = i;
                             found = wfi;
                             break;
                         } else {
-                            IItemHandler handler = getItemHandlerAt(wfi.getInventory());
-                            int cnt = countItemInHandler(wfi.getItemStack(), handler);
+                            int cnt = getItemHandlerAt(wfi.getInventory())
+                                    .map(handler -> countItemInHandler(wfi.getItemStack(), handler))
+                                    .orElse(0);
                             if (cnt >= wfi.getItemStack().getCount()) {
                                 foundIdx = i;
                                 found = wfi;
@@ -1064,6 +1062,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
             }
         }
     }
+
     public void clearRunningEvent(int cardIndex, int eventIndex) {
         runningEvents.remove(Pair.of(cardIndex, eventIndex));
     }
@@ -1132,7 +1131,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
     @Override
     public int signal(String signal) {
         int cnt = 0;
-        for (int i = 0 ; i < cardInfo.length ; i++) {
+        for (int i = 0; i < cardInfo.length; i++) {
             CardInfo info = cardInfo[i];
             CompiledCard compiledCard = info.getCompiledCard();
             if (compiledCard != null) {
@@ -1153,16 +1152,16 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
     @Override
     public int signal(Tuple location) {
         int cnt = 0;
-        for (int i = 0 ; i < cardInfo.length ; i++) {
+        for (int i = 0; i < cardInfo.length; i++) {
             CardInfo info = cardInfo[i];
             CompiledCard compiledCard = info.getCompiledCard();
             if (compiledCard != null) {
                 for (CompiledEvent event : compiledCard.getEvents(Opcodes.EVENT_GFX_SELECT)) {
                     int index = event.getIndex();
                     runOrQueueEvent(i, event, null, Parameter.builder()
-                        .type(ParameterType.PAR_TUPLE)
-                        .value(ParameterValue.constant(location))
-                        .build());
+                            .type(ParameterType.PAR_TUPLE)
+                            .value(ParameterValue.constant(location))
+                            .build());
                     cnt++;
                 }
             }
@@ -1171,7 +1170,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
     }
 
     public void receiveMessage(String name, @Nullable Parameter value) {
-        for (int i = 0 ; i < cardInfo.length ; i++) {
+        for (int i = 0; i < cardInfo.length; i++) {
             CardInfo info = cardInfo[i];
             CompiledCard compiledCard = info.getCompiledCard();
             if (compiledCard != null) {
@@ -1217,12 +1216,12 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
         if (lastException != null) {
             long dt = System.currentTimeMillis() - lastExceptionTime;
             log("Last: " + TextFormatting.RED + lastException);
-            if (dt > 60000*60) {
-                log("(" + (dt / (60000/60)) + "hours ago)");
+            if (dt > 60000 * 60) {
+                log("(" + (dt / (60000 / 60)) + "hours ago)");
             } else if (dt > 60000) {
-                log("(" + (dt/60000) + "min ago)");
+                log("(" + (dt / 60000) + "min ago)");
             } else if (dt > 1000) {
-                log("(" + (dt/1000) + "sec ago)");
+                log("(" + (dt / 1000) + "sec ago)");
             } else {
                 log("(" + dt + "ms ago)");
             }
@@ -1323,7 +1322,6 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
                 int gridY = opcode.getGridY();
 
 
-
                 message = TextFormatting.RED + "[" + gridX + "," + gridY + "] " + exception.getDescription() + " (" + program.getCardIndex() + ")";
             }
         } else {
@@ -1348,7 +1346,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
 
     private List<String> getDebugLog() {
         List<String> result = new ArrayList<>();
-        for (int i = 0 ; i < Math.min(5, cpuCores.size()) ; i++) {
+        for (int i = 0; i < Math.min(5, cpuCores.size()); i++) {
             result.add(TextFormatting.BLUE + "Core " + i + " " + TextFormatting.WHITE + getStatus(i));
         }
 
@@ -1359,12 +1357,12 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
         if (lastException != null) {
             long dt = System.currentTimeMillis() - lastExceptionTime;
             result.add(TextFormatting.RED + lastException);
-            if (dt > 60000*60) {
-                result.add("(" + (dt / (60000/60)) + "hours ago)");
+            if (dt > 60000 * 60) {
+                result.add("(" + (dt / (60000 / 60)) + "hours ago)");
             } else if (dt > 60000) {
-                result.add("(" + (dt/60000) + "min ago)");
+                result.add("(" + (dt / 60000) + "min ago)");
             } else if (dt > 1000) {
-                result.add("(" + (dt/1000) + "sec ago)");
+                result.add("(" + (dt / 1000) + "sec ago)");
             } else {
                 result.add("(" + dt + "ms ago)");
             }
@@ -1397,7 +1395,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
         List<String> rc = new ArrayList<>();
         int i = 0;
         for (String s : logMessages) {
-            if (i >= logMessages.size()-n) {
+            if (i >= logMessages.size() - n) {
                 rc.add(s);
             }
             i++;
@@ -1418,7 +1416,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
 
     public List<Parameter> getVariables() {
         List<Parameter> pars = new ArrayList<>();
-        Collections.addAll(pars,variables);
+        Collections.addAll(pars, variables);
         return pars;
     }
 
@@ -1438,14 +1436,14 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
 
     public List<PacketGetFluids.FluidEntry> getFluids() {
         List<PacketGetFluids.FluidEntry> pars = new ArrayList<>();
-        for (int i = 0 ; i < MAXFLUIDVARS ; i++) {
+        for (int i = 0; i < MAXFLUIDVARS; i++) {
             if (isFluidSlotAvailable(i)) {
                 Direction side = Direction.values()[i / TANKS];
                 TileEntity te = getWorld().getTileEntity(getPos().offset(side));
                 if (te instanceof MultiTankTileEntity) {
                     MultiTankTileEntity mtank = (MultiTankTileEntity) te;
                     MultiTankFluidProperties[] propertyList = mtank.getProperties();
-                    IFluidTankProperties properties = propertyList[i % TANKS];
+                    MultiTankFluidProperties properties = propertyList[i % TANKS];
                     FluidStack fluidStack = properties == null ? null : properties.getContents();
                     pars.add(new PacketGetFluids.FluidEntry(fluidStack, true));
                 } else {
@@ -1481,18 +1479,20 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
     }
 
     private void run() {
-        long rf = getStoredPower();
+        energyHandler.ifPresent(h -> {
+            long rf = h.getEnergy();
 
-        for (CpuCore core : cpuCores) {
-            if (core.hasProgram()) {
-                int rft = ConfigSetup.coreRFPerTick[core.getTier()].get();
-                if (rft < rf) {
-                    core.run(this);
-                    consumeEnergy(rft);
-                    rf -= rft;
+            for (CpuCore core : cpuCores) {
+                if (core.hasProgram()) {
+                    int rft = ConfigSetup.coreRFPerTick[core.getTier()].get();
+                    if (rft < rf) {
+                        core.run(this);
+                        h.consumeEnergy(rft);
+                        rf -= rft;
+                    }
                 }
             }
-        }
+        });
     }
 
     private void updateCores() {
@@ -1500,8 +1500,8 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
             coresDirty = false;
             // @todo, keep state of current running programs?
             cpuCores.clear();
-            for (int i = SLOT_EXPANSION ; i < SLOT_EXPANSION + EXPANSION_SLOTS ; i++) {
-                ItemStack expansionStack = inventoryHelper.getStackInSlot(i);
+            for (int i = SLOT_EXPANSION; i < SLOT_EXPANSION + EXPANSION_SLOTS; i++) {
+                ItemStack expansionStack = items.getStackInSlot(i);
                 if (!expansionStack.isEmpty() && expansionStack.getItem() instanceof CPUCoreItem) {
                     CPUCoreItem coreItem = (CPUCoreItem) expansionStack.getItem();
                     CpuCore core = new CpuCore();
@@ -1516,7 +1516,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
         if (cardsDirty) {
             cardsDirty = false;
             for (int i = ProcessorContainer.SLOT_CARD; i < ProcessorContainer.SLOT_CARD + CARD_SLOTS; i++) {
-                ItemStack cardStack = inventoryHelper.getStackInSlot(i);
+                ItemStack cardStack = items.getStackInSlot(i);
                 if (!cardStack.isEmpty()) {
                     int cardIndex = i - ProcessorContainer.SLOT_CARD;
                     if (cardInfo[cardIndex].getCompiledCard() == null) {
@@ -1531,35 +1531,32 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
 
     public String getMachineInfo(Inventory side, int idx) {
         TileEntity te = getTileEntityAt(side);
-        if (te instanceof MachineInformation) {
-            MachineInformation info = (MachineInformation) te;
-            if (idx < 0 || idx >= info.getTagCount()) {
+        return te.getCapability(CapabilityMachineInformation.MACHINE_INFORMATION_CAPABILITY).map(h -> {
+            if (idx < 0 || idx >= h.getTagCount()) {
                 throw new ProgException(EXCEPT_INVALIDMACHINE_INDEX);
             }
-            return info.getData(idx, 0);
-        } else {
-            throw new ProgException(EXCEPT_INVALIDMACHINE);
-        }
+            return h.getData(idx, 0);
+        }).orElseThrow(() -> new ProgException(EXCEPT_INVALIDMACHINE));
     }
 
     @Override
     public int getEnergy(Inventory side) {
         TileEntity te = getTileEntityAt(side);
-        if (te != null && te.hasCapability(CapabilityEnergy.ENERGY, side.getIntSide())) {
-            IEnergyStorage energy = te.getCapability(CapabilityEnergy.ENERGY, side.getIntSide());
-            return energy.getEnergyStored();
+        if (te == null) {
+            throw new ProgException(EXCEPT_NORF);
         }
-        throw new ProgException(EXCEPT_NORF);
+        return te.getCapability(CapabilityEnergy.ENERGY, side.getIntSide())
+                .map(IEnergyStorage::getEnergyStored).orElseThrow(() -> new ProgException(EXCEPT_NORF));
     }
 
     @Override
     public int getMaxEnergy(Inventory side) {
         TileEntity te = getTileEntityAt(side);
-        if (te != null && te.hasCapability(CapabilityEnergy.ENERGY, side.getIntSide())) {
-            IEnergyStorage energy = te.getCapability(CapabilityEnergy.ENERGY, side.getIntSide());
-            return energy.getMaxEnergyStored();
+        if (te == null) {
+            throw new ProgException(EXCEPT_NORF);
         }
-        throw new ProgException(EXCEPT_NORF);
+        return te.getCapability(CapabilityEnergy.ENERGY, side.getIntSide())
+                .map(IEnergyStorage::getMaxEnergyStored).orElseThrow(() -> new ProgException(EXCEPT_NORF));
     }
 
     @Override
@@ -1584,25 +1581,25 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
 
     @Override
     public int getLiquid(@Nonnull Inventory side) {
-        IFluidHandler handler = getFluidHandlerAt(side);
-        IFluidTankProperties[] properties = handler.getTankProperties();
-        if (properties != null && properties.length > 0) {
-            FluidStack contents = properties[0].getContents();
-            if (contents != null) {
-                return contents.amount;
+        return getFluidHandlerAt(side).map(handler -> {
+            if (handler.getTanks() > 0) {
+                FluidStack contents = handler.getFluidInTank(0);
+                if (!contents.isEmpty()) {
+                    return contents.getAmount();
+                }
             }
-        }
-        return 0;
+            return 0;
+        }).orElse(0);
     }
 
     @Override
     public int getMaxLiquid(@Nonnull Inventory side) {
-        IFluidHandler handler = getFluidHandlerAt(side);
-        IFluidTankProperties[] properties = handler.getTankProperties();
-        if (properties != null && properties.length > 0) {
-            return properties[0].getCapacity();
-        }
-        return 0;
+        return getFluidHandlerAt(side).map(handler -> {
+            if (handler.getTanks() > 0) {
+                return handler.getTankCapacity(0);
+            }
+            return 0;
+        }).orElse(0);
     }
 
     private IStorageScanner getScannerForInv(@Nullable Inventory inv) {
@@ -1613,20 +1610,20 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
         }
     }
 
-    private IItemHandler getHandlerForInv(@Nullable Inventory inv) {
+    private LazyOptional<IItemHandler> getHandlerForInv(@Nullable Inventory inv) {
         if (inv == null) {
-            return null;
+            return LazyOptional.empty();
         } else {
             return getItemHandlerAt(inv);
         }
     }
 
     public boolean compareNBTTag(@Nonnull ItemStack v1, @Nonnull ItemStack v2, @Nonnull String tag) {
-        if ((!v1.hasTagCompound()) || (!v2.hasTagCompound())) {
-            return v1.hasTagCompound() == v2.hasTagCompound();
+        if ((!v1.hasTag()) || (!v2.hasTag())) {
+            return v1.hasTag() == v2.hasTag();
         }
-        NBTBase tag1 = v1.getTagCompound().getTag(tag);
-        NBTBase tag2 = v2.getTagCompound().getTag(tag);
+        INBT tag1 = v1.getTag().get(tag);
+        INBT tag2 = v2.getTag().get(tag);
         if (tag1 == tag2) {
             return true;
         }
@@ -1645,22 +1642,23 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
         return null;
     }
 
-    @Nullable
+    @Nonnull
     public FluidStack examineLiquid(@Nonnull Inventory inv, @Nullable Integer slot) {
-        IFluidHandler handler = getFluidHandlerAt(inv);
         if (slot == null) {
             slot = 0;
         }
-        IFluidTankProperties[] properties = handler.getTankProperties();
-        if (properties != null && slot < properties.length) {
-            return properties[slot].getContents();
-        }
-        return null;
+        Integer finalSlot = slot;
+        return getFluidHandlerAt(inv).map(handler -> {
+            if (finalSlot < handler.getTanks()) {
+                return handler.getFluidInTank(finalSlot);
+            }
+            return FluidStack.EMPTY;
+        }).orElse(FluidStack.EMPTY);
     }
 
     @Nullable
     public FluidStack examineLiquidInternal(IProgram program, int virtualSlot) {
-        CardInfo info = this.cardInfo[((RunningProgram)program).getCardIndex()];
+        CardInfo info = this.cardInfo[((RunningProgram) program).getCardIndex()];
         int realSlot = info.getRealFluidSlot(virtualSlot);
         Direction side = Direction.values()[realSlot / TANKS];
         int idx = realSlot % TANKS;
@@ -1672,86 +1670,89 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
     }
 
     public int pushLiquid(IProgram program, @Nonnull Inventory inv, int amount, int virtualSlot) {
-        IFluidHandler handler = getFluidHandlerAt(inv);
-        CardInfo info = this.cardInfo[((RunningProgram)program).getCardIndex()];
-        int realSlot = info.getRealFluidSlot(virtualSlot);
-        Direction side = Direction.values()[realSlot / TANKS];
-        int idx = realSlot % TANKS;
-        MultiTankFluidProperties properties = getFluidPropertiesFromMultiTank(side, idx);
-        if (properties == null) {
-            return 0;
-        }
-        if (!properties.hasContents()) {
-            return 0;
-        }
-
-        amount = Math.min(amount, properties.getContentsInternal().amount);
-        FluidStack topush = properties.getContents();   // getContents() already does a copy()
-        topush.amount = amount;
-        int filled = handler.fill(topush, true);
-        properties.drain(filled);
-        return filled;
-    }
-
-    public int fetchLiquid(IProgram program, @Nonnull Inventory inv, int amount, @Nullable FluidStack fluidStack, int virtualSlot) {
-        IFluidHandler handler = getFluidHandlerAt(inv);
-        CardInfo info = this.cardInfo[((RunningProgram)program).getCardIndex()];
-        int realSlot = info.getRealFluidSlot(virtualSlot);
-        Direction side = Direction.values()[realSlot / TANKS];
-        int idx = realSlot % TANKS;
-        MultiTankFluidProperties properties = getFluidPropertiesFromMultiTank(side, idx);
-        if (properties == null) {
-            return 0;
-        }
-
-        int internalAmount = 0;
-        if (properties.hasContents()) {
-            // There is already some fluid in the slot
-            if (fluidStack != null) {
-                // This has to match
-                if (!fluidStack.isFluidEqual(properties.getContentsInternal())) {
-                    return 0;
-                }
-            }
-            internalAmount = properties.getContentsInternal().amount;
-        }
-
-        // Make sure we only drain what can fit in the internal slot
-        if (internalAmount + amount > MAXCAPACITY) {
-            amount = MAXCAPACITY - internalAmount;
-        }
-        if (amount <= 0) {
-            return 0;
-        }
-
-        if (fluidStack == null) {
-            // Just drain any fluid
-            FluidStack drained = handler.drain(amount, false);
-            if (drained != null) {
-                // Check if the fluid matches
-                if ((!properties.hasContents()) || properties.getContentsInternal().isFluidEqual(drained)) {
-                    drained = handler.drain(amount, true);
-                    properties.fill(drained);
-                    return drained.amount;
-                }
+        return getFluidHandlerAt(inv).map(handler -> {
+            CardInfo info = this.cardInfo[((RunningProgram) program).getCardIndex()];
+            int realSlot = info.getRealFluidSlot(virtualSlot);
+            Direction side = Direction.values()[realSlot / TANKS];
+            int idx = realSlot % TANKS;
+            MultiTankFluidProperties properties = getFluidPropertiesFromMultiTank(side, idx);
+            if (properties == null) {
                 return 0;
             }
-        } else {
-            // Drain only that fluid
-            FluidStack todrain = fluidStack.copy();
-            todrain.amount = amount;
-            FluidStack drained = handler.drain(todrain, true);
-            if (drained != null) {
-                int drainedAmount = drained.amount;
-                if (properties.hasContents()) {
-                    drained.amount += properties.getContentsInternal().amount;
-                }
-                properties.fill(drained);
-                return drainedAmount;
+            if (!properties.hasContents()) {
+                return 0;
             }
-        }
 
-        return 0;
+            int newAmount = Math.min(amount, properties.getContentsInternal().getAmount());
+            FluidStack topush = properties.getContents();   // getContents() already does a copy()
+            topush.setAmount(newAmount);
+            int filled = handler.fill(topush, IFluidHandler.FluidAction.EXECUTE);
+            properties.drain(filled);
+            return filled;
+        }).orElse(0);
+    }
+
+    public int fetchLiquid(IProgram program, @Nonnull Inventory inv, final int amount, @Nullable FluidStack fluidStack, int virtualSlot) {
+        return getFluidHandlerAt(inv).map(handler -> {
+            CardInfo info = this.cardInfo[((RunningProgram) program).getCardIndex()];
+            int realSlot = info.getRealFluidSlot(virtualSlot);
+            Direction side = Direction.values()[realSlot / TANKS];
+            int idx = realSlot % TANKS;
+            MultiTankFluidProperties properties = getFluidPropertiesFromMultiTank(side, idx);
+            if (properties == null) {
+                return 0;
+            }
+
+            int internalAmount = 0;
+            if (properties.hasContents()) {
+                // There is already some fluid in the slot
+                if (fluidStack != null) {
+                    // This has to match
+                    if (!fluidStack.isFluidEqual(properties.getContentsInternal())) {
+                        return 0;
+                    }
+                }
+                internalAmount = properties.getContentsInternal().getAmount();
+            }
+
+            // Make sure we only drain what can fit in the internal slot
+            int newAmount = amount;
+            if (internalAmount + newAmount > MAXCAPACITY) {
+                newAmount = MAXCAPACITY - internalAmount;
+            }
+            if (newAmount <= 0) {
+                return 0;
+            }
+
+            if (fluidStack == null) {
+                // Just drain any fluid
+                FluidStack drained = handler.drain(newAmount, IFluidHandler.FluidAction.SIMULATE);
+                if (drained != null) {
+                    // Check if the fluid matches
+                    if ((!properties.hasContents()) || properties.getContentsInternal().isFluidEqual(drained)) {
+                        drained = handler.drain(newAmount, IFluidHandler.FluidAction.EXECUTE);
+                        properties.fill(drained);
+                        return drained.getAmount();
+                    }
+                    return 0;
+                }
+            } else {
+                // Drain only that fluid
+                FluidStack todrain = fluidStack.copy();
+                todrain.setAmount(newAmount);
+                FluidStack drained = handler.drain(todrain, IFluidHandler.FluidAction.EXECUTE);
+                if (drained != null) {
+                    int drainedAmount = drained.getAmount();
+                    if (properties.hasContents()) {
+                        drained.setAmount(drained.getAmount() + properties.getContentsInternal().getAmount());
+                    }
+                    properties.fill(drained);
+                    return drainedAmount;
+                }
+            }
+
+            return 0;
+        }).orElse(0);
     }
 
     public int fetchItems(IProgram program, Inventory inv, Integer slot, ItemStack itemMatcher, boolean routable, boolean oredict, @Nullable Integer amount, int virtualSlot) {
@@ -1761,54 +1762,54 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
         }
 
         IStorageScanner scanner = getScannerForInv(inv);
-        IItemHandler handler = getHandlerForInv(inv);
+        return getHandlerForInv(inv).map(handler -> {
+            CardInfo info = this.cardInfo[((RunningProgram) program).getCardIndex()];
+            int realSlot = info.getRealSlot(virtualSlot);
 
-        CardInfo info = this.cardInfo[((RunningProgram)program).getCardIndex()];
-        int realSlot = info.getRealSlot(virtualSlot);
-
-        ItemStack stack = InventoryTools.tryExtractItem(handler, scanner, amount, routable, oredict, itemMatcher, slot);
-        if (stack.isEmpty()) {
-            // Nothing to do
-            return 0;
-        }
-        IItemHandler capability = getItemHandler();
-        if (!capability.insertItem(realSlot, stack, true).isEmpty()) {
-            // Not enough room. Do nothing
-            return 0;
-        }
-        // All seems ok. Do the real thing now.
-        stack = InventoryTools.extractItem(handler, scanner, amount, routable, oredict, false, itemMatcher, slot);
-        capability.insertItem(realSlot, stack, false);
-        return stack.getCount();
+            ItemStack stack = InventoryTools.tryExtractItem(handler, scanner, amount, routable, oredict, itemMatcher, slot);
+            if (stack.isEmpty()) {
+                // Nothing to do
+                return 0;
+            }
+            IItemHandler capability = items;
+            if (!capability.insertItem(realSlot, stack, true).isEmpty()) {
+                // Not enough room. Do nothing
+                return 0;
+            }
+            // All seems ok. Do the real thing now.
+            stack = InventoryTools.extractItem(handler, scanner, amount, routable, oredict, false, itemMatcher, slot);
+            capability.insertItem(realSlot, stack, false);
+            return stack.getCount();
+        }).orElse(0);
     }
 
     @Override
     @Nullable
     public ItemStack getItemInternal(IProgram program, int virtualSlot) {
-        CardInfo info = this.cardInfo[((RunningProgram)program).getCardIndex()];
+        CardInfo info = this.cardInfo[((RunningProgram) program).getCardIndex()];
         int realSlot = info.getRealSlot(virtualSlot);
-        IItemHandler capability = getItemHandler();
+        IItemHandler capability = items;
         return capability.getStackInSlot(realSlot);
     }
 
     public int pushItems(IProgram program, Inventory inv, Integer slot, @Nullable Integer amount, int virtualSlot) {
         IStorageScanner scanner = getScannerForInv(inv);
-        IItemHandler handler = getHandlerForInv(inv);
-
-        CardInfo info = this.cardInfo[((RunningProgram)program).getCardIndex()];
-        int realSlot = info.getRealSlot(virtualSlot);
-        IItemHandler itemHandler = getItemHandler();
-        ItemStack extracted = itemHandler.extractItem(realSlot, amount == null ? 64 : amount, false);
-        if (extracted.isEmpty()) {
-            // Nothing to do
-            return 0;
-        }
-        ItemStack remaining = InventoryTools.insertItem(handler, scanner, extracted, slot);
-        if (!remaining.isEmpty()) {
-            itemHandler.insertItem(realSlot, remaining, false);
-            return extracted.getCount() - remaining.getCount();
-        }
-        return extracted.getCount();
+        return getHandlerForInv(inv).map(handler -> {
+            CardInfo info = this.cardInfo[((RunningProgram) program).getCardIndex()];
+            int realSlot = info.getRealSlot(virtualSlot);
+            IItemHandler itemHandler = items;
+            ItemStack extracted = itemHandler.extractItem(realSlot, amount == null ? 64 : amount, false);
+            if (extracted.isEmpty()) {
+                // Nothing to do
+                return 0;
+            }
+            ItemStack remaining = InventoryTools.insertItem(handler, scanner, extracted, slot);
+            if (!remaining.isEmpty()) {
+                itemHandler.insertItem(realSlot, remaining, false);
+                return extracted.getCount() - remaining.getCount();
+            }
+            return extracted.getCount();
+        }).orElse(0);
     }
 
     @Override
@@ -1820,25 +1821,25 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
             throw new ProgException(EXCEPT_NEEDSADVANCEDNETWORK);
         }
 
-        CardInfo info = this.cardInfo[((RunningProgram)program).getCardIndex()];
+        CardInfo info = this.cardInfo[((RunningProgram) program).getCardIndex()];
         int realIdSlot = info.getRealSlot(idSlot);
 
         Integer realVariable = info.getRealVar(variableSlot);
 
-        IItemHandler handler = getItemHandler();
+        IItemHandler handler = items;
         ItemStack idCard = handler.getStackInSlot(realIdSlot);
         if (idCard.isEmpty() || !(idCard.getItem() instanceof NetworkIdentifierItem)) {
             throw new ProgException(EXCEPT_NOTANIDENTIFIER);
         }
-        CompoundNBT tagCompound = idCard.getTagCompound();
-        if (tagCompound == null || !tagCompound.hasKey("monitorx")) {
+        CompoundNBT tagCompound = idCard.getTag();
+        if (tagCompound == null || !tagCompound.contains("monitorx")) {
             throw new ProgException(EXCEPT_INVALIDDESTINATION);
         }
-        int monitordim = tagCompound.getInteger("monitordim");
-        int monitorx = tagCompound.getInteger("monitorx");
-        int monitory = tagCompound.getInteger("monitory");
-        int monitorz = tagCompound.getInteger("monitorz");
-        WorldServer world = DimensionManager.getWorld(monitordim);
+        String monitordim = tagCompound.getString("monitordim");
+        int monitorx = tagCompound.getInt("monitorx");
+        int monitory = tagCompound.getInt("monitory");
+        int monitorz = tagCompound.getInt("monitorz");
+        ServerWorld world = WorldTools.getWorld(DimensionType.byName(new ResourceLocation(monitordim)));
         BlockPos dest = new BlockPos(monitorx, monitory, monitorz);
         if (!WorldTools.chunkLoaded(world, dest)) {
             throw new ProgException(EXCEPT_INVALIDDESTINATION);
@@ -1940,9 +1941,10 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
             hasNetworkCard = -1;
             hasGraphicsCard = false;
             storageCard = -1;
-            Item storageCardItem = ForgeRegistries.ITEMS.getValue(new ResourceLocation("rftools", "storage_control_module"));
-            for (int i = SLOT_EXPANSION ; i < SLOT_EXPANSION + EXPANSION_SLOTS ; i++) {
-                ItemStack stack = getStackInSlot(i);
+            // @todo 1.15 do this with objectholder!
+            Item storageCardItem = ForgeRegistries.ITEMS.getValue(new ResourceLocation("rftoolsutility", "storage_control_module"));
+            for (int i = SLOT_EXPANSION; i < SLOT_EXPANSION + EXPANSION_SLOTS; i++) {
+                ItemStack stack = items.getStackInSlot(i);
                 if (!stack.isEmpty()) {
                     if (stack.getItem() instanceof NetworkCardItem) {
                         hasNetworkCard = ((NetworkCardItem) stack.getItem()).getTier();
@@ -1984,7 +1986,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
     private void fixCardInfoForSlotAvailability() {
         for (CardInfo info : cardInfo) {
             int alloc = info.getFluidAllocation();
-            for (int i = 0; i < MultiTankTileEntity.TANKS * 6 ; i++) {
+            for (int i = 0; i < MultiTankTileEntity.TANKS * 6; i++) {
                 if ((fluidSlotsAvailable & (1 << (i / TANKS))) == 0) {
                     alloc &= ~(1 << i);
                 }
@@ -2023,7 +2025,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
     }
 
     public void stopOrResume(IProgram program) {
-        ((RunningProgram)program).popLoopStack(this);
+        ((RunningProgram) program).popLoopStack(this);
     }
 
     public boolean testGreater(IProgram program, int var) {
@@ -2112,14 +2114,14 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
     }
 
 
-//    public IOpcodeRunnable.OpcodeResult handleLoop(IProgram program, List<Parameter> vector, int varIdx) {
+    //    public IOpcodeRunnable.OpcodeResult handleLoop(IProgram program, List<Parameter> vector, int varIdx) {
 //        CardInfo info = this.cardInfo[((RunningProgram)program).getCardIndex()];
 //        int realVar = getRealVarSafe(varIdx, info);
 //        return IOpcodeRunnable.OpcodeResult.NEGATIVE;
 //    }
 //
     public IOpcodeRunnable.OpcodeResult handleLoop(IProgram program, int varIdx, int end) {
-        CardInfo info = this.cardInfo[((RunningProgram)program).getCardIndex()];
+        CardInfo info = this.cardInfo[((RunningProgram) program).getCardIndex()];
         int realVar = getRealVarSafe(varIdx, info);
 
         Parameter parameter = getVariableArray()[realVar];
@@ -2127,43 +2129,43 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
         if (i > end) {
             return IOpcodeRunnable.OpcodeResult.NEGATIVE;
         } else {
-            ((RunningProgram)program).pushLoopStack(realVar);
+            ((RunningProgram) program).pushLoopStack(realVar);
             return IOpcodeRunnable.OpcodeResult.POSITIVE;
         }
     }
 
     public void setValueInToken(IProgram program, int slot) {
-        CardInfo info = this.cardInfo[((RunningProgram)program).getCardIndex()];
+        CardInfo info = this.cardInfo[((RunningProgram) program).getCardIndex()];
         int realSlot = info.getRealSlot(slot);
-        ItemStack stack = getItemHandler().getStackInSlot(realSlot);
+        ItemStack stack = ((IItemHandler) items).getStackInSlot(realSlot);
         if (stack.isEmpty() || !(stack.getItem() instanceof TokenItem)) {
             throw new ProgException(EXCEPT_NOTATOKEN);
         }
-        if (!stack.hasTagCompound()) {
-            stack.setTagCompound(new CompoundNBT());
+        if (!stack.hasTag()) {
+            stack.setTag(new CompoundNBT());
         }
         Parameter lastValue = program.getLastValue();
         if (lastValue == null) {
-            stack.getTagCompound().removeTag("parameter");
+            stack.getTag().remove("parameter");
         } else {
             CompoundNBT tag = ParameterTools.writeToNBT(lastValue);
-            stack.getTagCompound().setTag("parameter", tag);
+            stack.getTag().put("parameter", tag);
         }
     }
 
     @Nullable
     public Parameter getParameterFromToken(IProgram program, int slot) {
-        CardInfo info = this.cardInfo[((RunningProgram)program).getCardIndex()];
+        CardInfo info = this.cardInfo[((RunningProgram) program).getCardIndex()];
         int realSlot = info.getRealSlot(slot);
-        ItemStack stack = getItemHandler().getStackInSlot(realSlot);
+        ItemStack stack = ((IItemHandler) items).getStackInSlot(realSlot);
         if (stack.isEmpty() || !(stack.getItem() instanceof TokenItem)) {
             throw new ProgException(EXCEPT_NOTATOKEN);
         }
-        if (!stack.hasTagCompound()) {
+        if (!stack.hasTag()) {
             return null;
         }
-        CompoundNBT tag = stack.getTagCompound().getCompoundTag("parameter");
-        if (tag.hasNoTags()) {
+        CompoundNBT tag = stack.getTag().getCompound("parameter");
+        if (tag.isEmpty()) {
             return null;
         }
         return ParameterTools.readFromNBT(tag);
@@ -2172,7 +2174,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
 
     @Override
     public void setVariable(IProgram program, int var) {
-        CardInfo info = this.cardInfo[((RunningProgram)program).getCardIndex()];
+        CardInfo info = this.cardInfo[((RunningProgram) program).getCardIndex()];
         int realVar = getRealVarSafe(var, info);
         setVariableInternal(program, realVar, program.getLastValue());
     }
@@ -2181,7 +2183,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
         if (watchInfos[realVar] != null) {
             Parameter oldValue = variables[realVar];
             if (isWatchTriggered(oldValue, value)) {
-                log(TextFormatting.BLUE + "W"+realVar+": " + TypeConverters.convertToString(value));
+                log(TextFormatting.BLUE + "W" + realVar + ": " + TypeConverters.convertToString(value));
                 if (watchInfos[realVar].isBreakOnChange()) {
                     CpuCore core = ((RunningProgram) program).getCore();    // @todo ugly cast
                     core.setDebug(true);
@@ -2205,7 +2207,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
 
     @Override
     public Parameter getVariable(IProgram program, int var) {
-        CardInfo info = this.cardInfo[((RunningProgram)program).getCardIndex()];
+        CardInfo info = this.cardInfo[((RunningProgram) program).getCardIndex()];
         int realVar = getRealVarSafe(var, info);
         return variables[realVar];
     }
@@ -2226,7 +2228,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
             Object v = function.getFunctionRunnable().run(this, program);
             return convertor.apply(function.getReturnType(), v);
         } else {
-            CardInfo info = this.cardInfo[((RunningProgram)program).getCardIndex()];
+            CardInfo info = this.cardInfo[((RunningProgram) program).getCardIndex()];
             int realVar = getRealVarSafe(value.getVariableIndex(), info);
             Parameter par = variables[realVar];
             if (par == null || par.getParameterValue() == null) {
@@ -2238,7 +2240,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
 
     @Nonnull
     public <T> T evaluateGenericParameterNonNull(ICompiledOpcode compiledOpcode, IProgram program, int parIndex,
-                                          BiFunction<ParameterType, Object, T> convertor) {
+                                                 BiFunction<ParameterType, Object, T> convertor) {
         T rc = evaluateGenericParameter(compiledOpcode, program, parIndex, convertor);
         if (rc == null) {
             throw new ProgException(EXCEPT_MISSINGPARAMETER);
@@ -2409,14 +2411,14 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
         if (card == -1) {
             throw new ProgException(EXCEPT_MISSINGSTORAGECARD);
         }
-        ItemStack storageStack = getStackInSlot(card);
-        if (!storageStack.hasTagCompound()) {
+        ItemStack storageStack = items.getStackInSlot(card);
+        if (!storageStack.hasTag()) {
             throw new ProgException(EXCEPT_MISSINGSTORAGECARD);
         }
-        CompoundNBT tagCompound = storageStack.getTagCompound();
-        BlockPos c = new BlockPos(tagCompound.getInteger("monitorx"), tagCompound.getInteger("monitory"), tagCompound.getInteger("monitorz"));
-        int dim = tagCompound.getInteger("monitordim");
-        World world = DimensionManager.getWorld(dim);
+        CompoundNBT tagCompound = storageStack.getTag();
+        BlockPos c = new BlockPos(tagCompound.getInt("monitorx"), tagCompound.getInt("monitory"), tagCompound.getInt("monitorz"));
+        String dim = tagCompound.getString("monitordim");
+        World world = WorldTools.getWorld(DimensionType.byName(new ResourceLocation(dim)));
         if (world == null) {
             throw new ProgException(EXCEPT_MISSINGSTORAGE);
         }
@@ -2437,8 +2439,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
     }
 
     public int countSlots(Inventory inv, IProgram program) {
-        IItemHandler handler = getItemHandlerAt(inv);
-        return handler.getSlots();
+        return getItemHandlerAt(inv).map(IItemHandler::getSlots).orElse(0);
     }
 
     public int countItem(Inventory inv, Integer slot, ItemStack itemMatcher, boolean oredict, boolean routable, IProgram program) {
@@ -2446,37 +2447,38 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
             return countItemStorage(itemMatcher, routable, oredict);
         }
         // @todo support oredict here?
-        IItemHandler handler = getItemHandlerAt(inv);
-        if (slot != null) {
-            ItemStack stackInSlot = handler.getStackInSlot(slot);
-            if (stackInSlot.isEmpty()) {
-                return 0;
+        return getItemHandlerAt(inv).map(handler -> {
+            if (slot != null) {
+                ItemStack stackInSlot = handler.getStackInSlot(slot);
+                if (stackInSlot.isEmpty()) {
+                    return 0;
+                } else {
+                    if (!itemMatcher.isEmpty()) {
+                        if (!ItemStack.areItemsEqual(stackInSlot, itemMatcher)) {
+                            return 0;
+                        }
+                    }
+                    return stackInSlot.getCount();
+                }
+            } else if (!itemMatcher.isEmpty()) {
+                return countItemInHandler(itemMatcher, handler);
             } else {
-                if (!itemMatcher.isEmpty()) {
-                    if (!ItemStack.areItemsEqual(stackInSlot, itemMatcher)) {
-                        return 0;
+                // Just count all items
+                int cnt = 0;
+                for (int i = 0; i < handler.getSlots(); i++) {
+                    ItemStack stack = handler.getStackInSlot(i);
+                    if (!stack.isEmpty()) {
+                        cnt += stack.getCount();
                     }
                 }
-                return stackInSlot.getCount();
+                return cnt;
             }
-        } else if (!itemMatcher.isEmpty()) {
-            return countItemInHandler(itemMatcher, handler);
-        } else {
-            // Just count all items
-            int cnt = 0;
-            for (int i = 0 ; i < handler.getSlots() ; i++) {
-                ItemStack stack = handler.getStackInSlot(i);
-                if (!stack.isEmpty()) {
-                    cnt += stack.getCount();
-                }
-            }
-            return cnt;
-        }
+        }).orElse(0);
     }
 
     private int countItemInHandler(ItemStack itemMatcher, IItemHandler handler) {
         int cnt = 0;
-        for (int i = 0 ; i < handler.getSlots() ; i++) {
+        for (int i = 0; i < handler.getSlots(); i++) {
             ItemStack stack = handler.getStackInSlot(i);
             if (!stack.isEmpty() && ItemStack.areItemsEqual(stack, itemMatcher)) {
                 cnt += stack.getCount();
@@ -2520,41 +2522,35 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
 
     @Override
     @Nonnull
-    public IFluidHandler getFluidHandlerAt(@Nonnull Inventory inv) {
+    public LazyOptional<IFluidHandler> getFluidHandlerAt(@Nonnull Inventory inv) {
         TileEntity te = getTileEntityAt(inv);
-        if (te != null && te.hasCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, inv.getIntSide())) {
-            IFluidHandler handler = te.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, inv.getIntSide());
-            if (handler != null) {
-                return handler;
-            }
+        if (te == null) {
+            throw new ProgException(EXCEPT_NOLIQUID);
         }
-        throw new ProgException(EXCEPT_NOLIQUID);
+        LazyOptional<IFluidHandler> capability = te.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, inv.getIntSide());
+        if (!capability.isPresent()) {
+            throw new ProgException(EXCEPT_NOLIQUID);
+        }
+        return capability;
     }
 
     @Override
     @Nonnull
-    public IItemHandler getItemHandlerAt(@Nonnull Inventory inv) {
+    public LazyOptional<IItemHandler> getItemHandlerAt(@Nonnull Inventory inv) {
         Direction intSide = inv.getIntSide();
         TileEntity te = getTileEntityAt(inv);
         return getItemHandlerAt(te, intSide);
     }
 
-    private IItemHandler getItemHandlerAt(@Nonnull TileEntity te, Direction intSide) {
-        if (te != null && te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, intSide)) {
-            IItemHandler handler = te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, intSide);
-            if (handler != null) {
-                return handler;
-            }
-        } else if (te instanceof ISidedInventory) {
-            // Support for old inventory
-            ISidedInventory sidedInventory = (ISidedInventory) te;
-            return new SidedInvWrapper(sidedInventory, intSide);
-        } else if (te instanceof IInventory) {
-            // Support for old inventory
-            IInventory inventory = (IInventory) te;
-            return new InvWrapper(inventory);
+    private LazyOptional<IItemHandler> getItemHandlerAt(@Nonnull TileEntity te, Direction intSide) {
+        if (te == null) {
+            throw new ProgException(EXCEPT_INVALIDINVENTORY);
         }
-        throw new ProgException(EXCEPT_INVALIDINVENTORY);
+        LazyOptional<IItemHandler> capability = te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, intSide);
+        if (!capability.isPresent()) {
+            throw new ProgException(EXCEPT_INVALIDINVENTORY);
+        }
+        return capability;
     }
 
     private boolean isExpansionSlot(int index) {
@@ -2594,27 +2590,29 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
         runningEvents = newRunningEvents;
     }
 
-    @Override
-    public void setInventorySlotContents(int index, ItemStack stack) {
-        if (isCardSlot(index)) {
-            removeCard(index-ProcessorContainer.SLOT_CARD);
-            cardsDirty = true;
-        } else if (isExpansionSlot(index)) {
-            clearExpansions();
-        }
-        getInventoryHelper().setInventorySlotContents(getInventoryStackLimit(), index, stack);
-    }
+    // @todo 1.15
+//    @Override
+//    public void setInventorySlotContents(int index, ItemStack stack) {
+//        if (isCardSlot(index)) {
+//            removeCard(index - ProcessorContainer.SLOT_CARD);
+//            cardsDirty = true;
+//        } else if (isExpansionSlot(index)) {
+//            clearExpansions();
+//        }
+//        getInventoryHelper().setInventorySlotContents(getInventoryStackLimit(), index, stack);
+//    }
 
-    @Override
-    public ItemStack decrStackSize(int index, int count) {
-        if (isCardSlot(index)) {
-            removeCard(index-ProcessorContainer.SLOT_CARD);
-            cardsDirty = true;
-        } else if (isExpansionSlot(index)) {
-            clearExpansions();
-        }
-        return getInventoryHelper().decrStackSize(index, count);
-    }
+    // @todo 1.15
+//    @Override
+//    public ItemStack decrStackSize(int index, int count) {
+//        if (isCardSlot(index)) {
+//            removeCard(index - ProcessorContainer.SLOT_CARD);
+//            cardsDirty = true;
+//        } else if (isExpansionSlot(index)) {
+//            clearExpansions();
+//        }
+//        return getInventoryHelper().decrStackSize(index, count);
+//    }
 
     private void clearExpansions() {
         coresDirty = true;
@@ -2641,45 +2639,47 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
 
     @Override
     public void writeClientDataToNBT(CompoundNBT tagCompound) {
-        tagCompound.setBoolean("exclusive", exclusive);
-        tagCompound.setByte("hud", (byte) showHud);
+        tagCompound.putBoolean("exclusive", exclusive);
+        tagCompound.putByte("hud", (byte) showHud);
         writeCardInfo(tagCompound);
     }
 
     @Override
-    public void readFromNBT(CompoundNBT tagCompound) {
-        super.readFromNBT(tagCompound);
-        prevIn = tagCompound.getInteger("prevIn");
-        for (int i = 0 ; i < 6 ; i++) {
+    public void read(CompoundNBT tagCompound) {
+        super.read(tagCompound);
+        prevIn = tagCompound.getInt("prevIn");
+        for (int i = 0; i < 6; i++) {
             powerOut[i] = tagCompound.getByte("p" + i);
         }
+        readRestorableFromNBT(tagCompound);
     }
 
     @Override
-    public CompoundNBT writeToNBT(CompoundNBT tagCompound) {
-        super.writeToNBT(tagCompound);
-        tagCompound.setInteger("prevIn", prevIn);
-        for (int i = 0 ; i < 6 ; i++) {
-            tagCompound.setByte("p" + i, (byte) powerOut[i]);
+    public CompoundNBT write(CompoundNBT tagCompound) {
+        super.write(tagCompound);
+        tagCompound.putInt("prevIn", prevIn);
+        for (int i = 0; i < 6; i++) {
+            tagCompound.putByte("p" + i, (byte) powerOut[i]);
         }
+        writeRestorableToNBT(tagCompound);
         return tagCompound;
     }
 
-    @Override
+    // @todo 1.15 loot tables
     public void readRestorableFromNBT(CompoundNBT tagCompound) {
-        super.readRestorableFromNBT(tagCompound);
-        tickCount = tagCompound.getInteger("tickCount");
+        tickCount = tagCompound.getInt("tickCount");
         channel = tagCompound.getString("channel");
         exclusive = tagCompound.getBoolean("exclusive");
         showHud = tagCompound.getByte("hud");
-        if (tagCompound.hasKey("lastExc")) {
+        if (tagCompound.contains("lastExc")) {
             lastException = tagCompound.getString("lastExc");
             lastExceptionTime = tagCompound.getLong("lastExcT");
         } else {
             lastException = null;
             lastExceptionTime = 0;
         }
-        readBufferFromNBT(tagCompound, inventoryHelper);
+        // @todo 1.15
+//        readBufferFromNBT(tagCompound, items);
 
         readCardInfo(tagCompound);
         readCores(tagCompound);
@@ -2696,50 +2696,50 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
 
     private void readGraphicsOperations(CompoundNBT tagCompound) {
         gfxOps.clear();
-        CompoundNBT opTag = tagCompound.getCompoundTag("gfxop");
-        for (String key : opTag.getKeySet()) {
-            gfxOps.put(key, GfxOp.readFromNBT(opTag.getCompoundTag(key)));
+        CompoundNBT opTag = tagCompound.getCompound("gfxop");
+        for (String key : opTag.keySet()) {
+            gfxOps.put(key, GfxOp.readFromNBT(opTag.getCompound(key)));
         }
         sortOps();
     }
 
     private void readRunningEvents(CompoundNBT tagCompound) {
         runningEvents.clear();
-        ListNBT evList = tagCompound.getTagList("singev", Constants.NBT.TAG_COMPOUND);
-        for (int i = 0 ; i < evList.tagCount() ; i++) {
-            CompoundNBT tag = evList.getCompoundTagAt(i);
-            int cardIndex = tag.getInteger("card");
-            int eventIndex = tag.getInteger("event");
+        ListNBT evList = tagCompound.getList("singev", Constants.NBT.TAG_COMPOUND);
+        for (int i = 0; i < evList.size(); i++) {
+            CompoundNBT tag = evList.getCompound(i);
+            int cardIndex = tag.getInt("card");
+            int eventIndex = tag.getInt("event");
             runningEvents.add(Pair.of(cardIndex, eventIndex));
         }
     }
 
     private void readLocks(CompoundNBT tagCompound) {
         locks.clear();
-        ListNBT lockList = tagCompound.getTagList("locks", Constants.NBT.TAG_STRING);
-        for (int i = 0 ; i < lockList.tagCount() ; i++) {
-            String name = lockList.getStringTagAt(i);
+        ListNBT lockList = tagCompound.getList("locks", Constants.NBT.TAG_STRING);
+        for (int i = 0; i < lockList.size(); i++) {
+            String name = lockList.getString(i);
             locks.add(name);
         }
     }
 
     private void readWaitingForItems(CompoundNBT tagCompound) {
         waitingForItems.clear();
-        ListNBT waitingList = tagCompound.getTagList("waiting", Constants.NBT.TAG_COMPOUND);
-        for (int i = 0 ; i < waitingList.tagCount() ; i++) {
-            CompoundNBT tag = waitingList.getCompoundTagAt(i);
+        ListNBT waitingList = tagCompound.getList("waiting", Constants.NBT.TAG_COMPOUND);
+        for (int i = 0; i < waitingList.size(); i++) {
+            CompoundNBT tag = waitingList.getCompound(i);
             String ticket = tag.getString("ticket");
 
             ItemStack stack;
-            if (tag.hasKey("item")) {
-                stack = new ItemStack(tag.getCompoundTag("item"));
+            if (tag.contains("item")) {
+                stack = ItemStack.read(tag.getCompound("item"));
             } else {
                 stack = ItemStack.EMPTY;
             }
 
             Inventory inventory;
-            if (tag.hasKey("inv")) {
-                inventory = InventoryUtil.readFromNBT(tag.getCompoundTag("inv"));
+            if (tag.contains("inv")) {
+                inventory = InventoryUtil.readFromNBT(tag.getCompound("inv"));
             } else {
                 inventory = null;
             }
@@ -2752,36 +2752,36 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
 
     private void readCraftingStations(CompoundNBT tagCompound) {
         craftingStations.clear();
-        ListNBT stationList = tagCompound.getTagList("stations", Constants.NBT.TAG_COMPOUND);
-        for (int i = 0 ; i < stationList.tagCount() ; i++) {
-            CompoundNBT tag = stationList.getCompoundTagAt(i);
-            BlockPos nodePos = new BlockPos(tag.getInteger("nodex"), tag.getInteger("nodey"), tag.getInteger("nodez"));
+        ListNBT stationList = tagCompound.getList("stations", Constants.NBT.TAG_COMPOUND);
+        for (int i = 0; i < stationList.size(); i++) {
+            CompoundNBT tag = stationList.getCompound(i);
+            BlockPos nodePos = new BlockPos(tag.getInt("nodex"), tag.getInt("nodey"), tag.getInt("nodez"));
             craftingStations.add(nodePos);
         }
     }
 
     private void readNetworkNodes(CompoundNBT tagCompound) {
         networkNodes.clear();
-        ListNBT networkList = tagCompound.getTagList("nodes", Constants.NBT.TAG_COMPOUND);
-        for (int i = 0 ; i < networkList.tagCount() ; i++) {
-            CompoundNBT tag = networkList.getCompoundTagAt(i);
+        ListNBT networkList = tagCompound.getList("nodes", Constants.NBT.TAG_COMPOUND);
+        for (int i = 0; i < networkList.size(); i++) {
+            CompoundNBT tag = networkList.getCompound(i);
             String name = tag.getString("name");
-            BlockPos nodePos = new BlockPos(tag.getInteger("nodex"), tag.getInteger("nodey"), tag.getInteger("nodez"));
+            BlockPos nodePos = new BlockPos(tag.getInt("nodex"), tag.getInt("nodey"), tag.getInt("nodez"));
             networkNodes.put(name, nodePos);
         }
     }
 
     private void readVariables(CompoundNBT tagCompound) {
-        for (int i = 0 ; i < MAXVARS ; i++) {
+        for (int i = 0; i < MAXVARS; i++) {
             variables[i] = null;
             watchInfos[i] = null;
         }
-        ListNBT varList = tagCompound.getTagList("vars", Constants.NBT.TAG_COMPOUND);
-        for (int i = 0 ; i < varList.tagCount() ; i++) {
-            CompoundNBT var = varList.getCompoundTagAt(i);
-            int index = var.getInteger("varidx");
+        ListNBT varList = tagCompound.getList("vars", Constants.NBT.TAG_COMPOUND);
+        for (int i = 0; i < varList.size(); i++) {
+            CompoundNBT var = varList.getCompound(i);
+            int index = var.getInt("varidx");
             variables[index] = ParameterTools.readFromNBT(var);
-            if (var.hasKey("watch")) {
+            if (var.contains("watch")) {
                 WatchInfo info = new WatchInfo(var.getBoolean("watch"));
                 watchInfos[index] = info;
             }
@@ -2790,19 +2790,19 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
 
     private void readLog(CompoundNBT tagCompound) {
         logMessages.clear();
-        ListNBT logList = tagCompound.getTagList("log", Constants.NBT.TAG_STRING);
-        for (int i = 0 ; i < logList.tagCount() ; i++) {
-            logMessages.add(logList.getStringTagAt(i));
+        ListNBT logList = tagCompound.getList("log", Constants.NBT.TAG_STRING);
+        for (int i = 0; i < logList.size(); i++) {
+            logMessages.add(logList.getString(i));
         }
     }
 
     private void readCores(CompoundNBT tagCompound) {
-        ListNBT coreList = tagCompound.getTagList("cores", Constants.NBT.TAG_COMPOUND);
+        ListNBT coreList = tagCompound.getList("cores", Constants.NBT.TAG_COMPOUND);
         cpuCores.clear();
         coresDirty = false;
-        for (int i = 0 ; i < coreList.tagCount() ; i++) {
+        for (int i = 0; i < coreList.size(); i++) {
             CpuCore core = new CpuCore();
-            core.readFromNBT(coreList.getCompoundTagAt(i));
+            core.readFromNBT(coreList.getCompound(i));
             cpuCores.add(core);
         }
         if (cpuCores.isEmpty()) {
@@ -2812,40 +2812,40 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
 
     private void readEventQueue(CompoundNBT tagCompound) {
         eventQueue.clear();
-        ListNBT eventQueueList = tagCompound.getTagList("events", Constants.NBT.TAG_COMPOUND);
-        for (int i = 0 ; i < eventQueueList.tagCount() ; i++) {
-            CompoundNBT tag = eventQueueList.getCompoundTagAt(i);
-            int card = tag.getInteger("card");
-            int index = tag.getInteger("index");
+        ListNBT eventQueueList = tagCompound.getList("events", Constants.NBT.TAG_COMPOUND);
+        for (int i = 0; i < eventQueueList.size(); i++) {
+            CompoundNBT tag = eventQueueList.getCompound(i);
+            int card = tag.getInt("card");
+            int index = tag.getInt("index");
             boolean single = tag.getBoolean("single");
-            String ticket = tag.hasKey("ticket") ? tag.getString("ticket") : null;
+            String ticket = tag.contains("ticket") ? tag.getString("ticket") : null;
             Parameter parameter = null;
-            if (tag.hasKey("parameter")) {
-                parameter = ParameterTools.readFromNBT(tag.getCompoundTag("parameter"));
+            if (tag.contains("parameter")) {
+                parameter = ParameterTools.readFromNBT(tag.getCompound("parameter"));
             }
             eventQueue.add(new QueuedEvent(card, new CompiledEvent(index, single), ticket, parameter));
         }
     }
 
     private void readCardInfo(CompoundNBT tagCompound) {
-        ListNBT cardInfoList = tagCompound.getTagList("cardInfo", Constants.NBT.TAG_COMPOUND);
-        for (int i = 0 ; i < cardInfoList.tagCount() ; i++) {
-            cardInfo[i] = CardInfo.readFromNBT(cardInfoList.getCompoundTagAt(i));
+        ListNBT cardInfoList = tagCompound.getList("cardInfo", Constants.NBT.TAG_COMPOUND);
+        for (int i = 0; i < cardInfoList.size(); i++) {
+            cardInfo[i] = CardInfo.readFromNBT(cardInfoList.getCompound(i));
         }
     }
 
-    @Override
+    // @todo 1.15 loot tables
     public void writeRestorableToNBT(CompoundNBT tagCompound) {
-        super.writeRestorableToNBT(tagCompound);
-        tagCompound.setInteger("tickCount", tickCount);
-        tagCompound.setString("channel", channel == null ? "" : channel);
-        tagCompound.setBoolean("exclusive", exclusive);
-        tagCompound.setByte("hud", (byte) showHud);
+        tagCompound.putInt("tickCount", tickCount);
+        tagCompound.putString("channel", channel == null ? "" : channel);
+        tagCompound.putBoolean("exclusive", exclusive);
+        tagCompound.putByte("hud", (byte) showHud);
         if (lastException != null) {
-            tagCompound.setString("lastExc", lastException);
-            tagCompound.setLong("lastExcT", lastExceptionTime);
+            tagCompound.putString("lastExc", lastException);
+            tagCompound.putLong("lastExcT", lastExceptionTime);
         }
-        writeBufferToNBT(tagCompound, inventoryHelper);
+        // @todo 1.15
+//        writeBufferToNBT(tagCompound, items);
 
         writeCardInfo(tagCompound);
         writeCores(tagCompound);
@@ -2863,44 +2863,44 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
     private void writeGraphicsOperation(CompoundNBT tagCompound) {
         CompoundNBT opTag = new CompoundNBT();
         for (Map.Entry<String, GfxOp> entry : gfxOps.entrySet()) {
-            opTag.setTag(entry.getKey(), entry.getValue().writeToNBT());
+            opTag.put(entry.getKey(), entry.getValue().writeToNBT());
         }
-        tagCompound.setTag("gfxop", opTag);
+        tagCompound.put("gfxop", opTag);
     }
 
     private void writeRunningEvents(CompoundNBT tagCompound) {
         ListNBT evList = new ListNBT();
         for (Pair<Integer, Integer> pair : runningEvents) {
             CompoundNBT tag = new CompoundNBT();
-            tag.setInteger("card", pair.getLeft());
-            tag.setInteger("event", pair.getRight());
-            evList.appendTag(tag);
+            tag.putInt("card", pair.getLeft());
+            tag.putInt("event", pair.getRight());
+            evList.add(tag);
         }
-        tagCompound.setTag("singev", evList);
+        tagCompound.put("singev", evList);
     }
 
     private void writeLocks(CompoundNBT tagCompound) {
         ListNBT lockList = new ListNBT();
         for (String name : locks) {
-            lockList.appendTag(new NBTTagString(name));
+            lockList.add(StringNBT.valueOf(name));
         }
-        tagCompound.setTag("locks", lockList);
+        tagCompound.put("locks", lockList);
     }
 
     private void writeWaitingForItems(CompoundNBT tagCompound) {
         ListNBT waitingList = new ListNBT();
         for (WaitForItem waitingForItem : waitingForItems) {
             CompoundNBT tag = new CompoundNBT();
-            tag.setString("ticket", waitingForItem.getTicket());
+            tag.putString("ticket", waitingForItem.getTicket());
             if (waitingForItem.getInventory() != null) {
-                tag.setTag("inv", InventoryUtil.writeToNBT(waitingForItem.getInventory()));
+                tag.put("inv", InventoryUtil.writeToNBT(waitingForItem.getInventory()));
             }
             if (!waitingForItem.getItemStack().isEmpty()) {
-                tag.setTag("item", waitingForItem.getItemStack().serializeNBT());
+                tag.put("item", waitingForItem.getItemStack().serializeNBT());
             }
-            waitingList.appendTag(tag);
+            waitingList.add(tag);
         }
-        tagCompound.setTag("waiting", waitingList);
+        tagCompound.put("waiting", waitingList);
     }
 
 
@@ -2908,83 +2908,83 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
         ListNBT stationList = new ListNBT();
         for (BlockPos pos : craftingStations) {
             CompoundNBT tag = new CompoundNBT();
-            tag.setInteger("nodex", pos.getX());
-            tag.setInteger("nodey", pos.getY());
-            tag.setInteger("nodez", pos.getZ());
-            stationList.appendTag(tag);
+            tag.putInt("nodex", pos.getX());
+            tag.putInt("nodey", pos.getY());
+            tag.putInt("nodez", pos.getZ());
+            stationList.add(tag);
         }
-        tagCompound.setTag("stations", stationList);
+        tagCompound.put("stations", stationList);
     }
 
     private void writeNetworkNodes(CompoundNBT tagCompound) {
         ListNBT networkList = new ListNBT();
         for (Map.Entry<String, BlockPos> entry : networkNodes.entrySet()) {
             CompoundNBT tag = new CompoundNBT();
-            tag.setString("name", entry.getKey());
-            tag.setInteger("nodex", entry.getValue().getX());
-            tag.setInteger("nodey", entry.getValue().getY());
-            tag.setInteger("nodez", entry.getValue().getZ());
-            networkList.appendTag(tag);
+            tag.putString("name", entry.getKey());
+            tag.putInt("nodex", entry.getValue().getX());
+            tag.putInt("nodey", entry.getValue().getY());
+            tag.putInt("nodez", entry.getValue().getZ());
+            networkList.add(tag);
         }
-        tagCompound.setTag("nodes", networkList);
+        tagCompound.put("nodes", networkList);
     }
 
     private void writeVariables(CompoundNBT tagCompound) {
         ListNBT varList = new ListNBT();
-        for (int i = 0 ; i < MAXVARS ; i++) {
+        for (int i = 0; i < MAXVARS; i++) {
             if (variables[i] != null) {
                 CompoundNBT var = ParameterTools.writeToNBT(variables[i]);
-                var.setInteger("varidx", i);
+                var.putInt("varidx", i);
                 if (watchInfos[i] != null) {
-                    var.setBoolean("watch", watchInfos[i].isBreakOnChange());
+                    var.putBoolean("watch", watchInfos[i].isBreakOnChange());
                 }
-                varList.appendTag(var);
+                varList.add(var);
             }
         }
-        tagCompound.setTag("vars", varList);
+        tagCompound.put("vars", varList);
     }
 
     private void writeLog(CompoundNBT tagCompound) {
         ListNBT logList = new ListNBT();
         for (String message : logMessages) {
-            logList.appendTag(new NBTTagString(message));
+            logList.add(StringNBT.valueOf(message));
         }
-        tagCompound.setTag("log", logList);
+        tagCompound.put("log", logList);
     }
 
     private void writeCores(CompoundNBT tagCompound) {
         ListNBT coreList = new ListNBT();
         for (CpuCore core : cpuCores) {
-            coreList.appendTag(core.writeToNBT());
+            coreList.add(core.writeToNBT());
         }
-        tagCompound.setTag("cores", coreList);
+        tagCompound.put("cores", coreList);
     }
 
     private void writeEventQueue(CompoundNBT tagCompound) {
         ListNBT eventQueueList = new ListNBT();
         for (QueuedEvent queuedEvent : eventQueue) {
             CompoundNBT tag = new CompoundNBT();
-            tag.setInteger("card", queuedEvent.getCardIndex());
-            tag.setInteger("index", queuedEvent.getCompiledEvent().getIndex());
-            tag.setBoolean("single", queuedEvent.getCompiledEvent().isSingle());
+            tag.putInt("card", queuedEvent.getCardIndex());
+            tag.putInt("index", queuedEvent.getCompiledEvent().getIndex());
+            tag.putBoolean("single", queuedEvent.getCompiledEvent().isSingle());
             if (queuedEvent.getTicket() != null) {
-                tag.setString("ticket", queuedEvent.getTicket());
+                tag.putString("ticket", queuedEvent.getTicket());
             }
             if (queuedEvent.getParameter() != null) {
                 CompoundNBT parTag = ParameterTools.writeToNBT(queuedEvent.getParameter());
-                tag.setTag("parameter", parTag);
+                tag.put("parameter", parTag);
             }
-            eventQueueList.appendTag(tag);
+            eventQueueList.add(tag);
         }
-        tagCompound.setTag("events", eventQueueList);
+        tagCompound.put("events", eventQueueList);
     }
 
     private void writeCardInfo(CompoundNBT tagCompound) {
         ListNBT cardInfoList = new ListNBT();
         for (CardInfo info : cardInfo) {
-            cardInfoList.appendTag(info.writeToNBT());
+            cardInfoList.add(info.writeToNBT());
         }
-        tagCompound.setTag("cardInfo", cardInfoList);
+        tagCompound.put("cardInfo", cardInfoList);
     }
 
     public boolean isFluidAllocated(int cardIndex, int fluidIndex) {
@@ -3042,7 +3042,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
     public CompiledCard getCompiledCard(int index) {
         CardInfo info = getCardInfo(index);
         CompiledCard card = info.getCompiledCard();
-        ItemStack cardStack = inventoryHelper.getStackInSlot(index + ProcessorContainer.SLOT_CARD);
+        ItemStack cardStack = items.getStackInSlot(index + ProcessorContainer.SLOT_CARD);
         if (card == null && !cardStack.isEmpty()) {
             card = CompiledCard.compile(ProgramCardInstance.parseInstance(cardStack));
             cardInfo[index].setCompiledCard(card);
@@ -3081,7 +3081,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
     }
 
     public void redstoneNodeChange(int previousMask, int newMask, String node) {
-        for (int i = 0 ; i < cardInfo.length ; i++) {
+        for (int i = 0; i < cardInfo.length; i++) {
             CardInfo info = cardInfo[i];
             CompiledCard compiledCard = info.getCompiledCard();
             if (compiledCard != null) {
@@ -3132,7 +3132,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
     }
 
     @Override
-    public boolean execute(EntityPlayerMP playerMP, String command, TypedMap args) {
+    public boolean execute(PlayerEntity playerMP, String command, TypedMap args) {
         boolean rc = super.execute(playerMP, command, args);
         if (rc) {
             return true;
@@ -3209,4 +3209,21 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
         int zCoord = getPos().getZ();
         return new AxisAlignedBB(xCoord, yCoord, zCoord, xCoord + 1, yCoord + 21, zCoord + 1);
     }
+
+    private NoDirectionItemHander createItemHandler() {
+        return new NoDirectionItemHander(ProcessorTileEntity.this, CONTAINER_FACTORY) {
+
+            @Override
+            protected void onUpdate(int index) {
+                // @todo 1.15
+            }
+
+            @Override
+            public boolean isItemValid(int slot, @Nonnull ItemStack stack) {
+                // @todo 1.15
+                return true;
+            }
+        };
+    }
+
 }

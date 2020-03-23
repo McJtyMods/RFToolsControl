@@ -151,17 +151,17 @@ public class CardInfo {
 
     public CompoundNBT writeToNBT() {
         CompoundNBT tag = new CompoundNBT();
-        tag.setInteger("itemAlloc", itemAllocation);
-        tag.setInteger("varAlloc", varAllocation);
-        tag.setInteger("fluidAlloc", fluidAllocation);
+        tag.putInt("itemAlloc", itemAllocation);
+        tag.putInt("varAlloc", varAllocation);
+        tag.putInt("fluidAlloc", fluidAllocation);
         return tag;
     }
 
     public static CardInfo readFromNBT(CompoundNBT tag) {
         CardInfo cardInfo = new CardInfo();
-        cardInfo.itemAllocation = tag.getInteger("itemAlloc");
-        cardInfo.varAllocation = tag.getInteger("varAlloc");
-        cardInfo.fluidAllocation = tag.getInteger("fluidAlloc");
+        cardInfo.itemAllocation = tag.getInt("itemAlloc");
+        cardInfo.varAllocation = tag.getInt("varAlloc");
+        cardInfo.fluidAllocation = tag.getInt("fluidAlloc");
         cardInfo.slotCache = null;
         cardInfo.varCache = null;
         cardInfo.fluidCache = null;

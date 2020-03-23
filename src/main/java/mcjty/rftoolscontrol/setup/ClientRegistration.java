@@ -1,7 +1,6 @@
 package mcjty.rftoolscontrol.setup;
 
 
-import mcjty.rftoolscontrol.blocks.ModBlocks;
 import mcjty.rftoolscontrol.items.ModItems;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.fml.common.Mod;

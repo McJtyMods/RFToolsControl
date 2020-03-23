@@ -1,13 +1,12 @@
 package mcjty.rftoolscontrol.logic;
 
-import mcjty.rftools.api.storage.IStorageScanner;
+import mcjty.rftoolsbase.api.storage.IStorageScanner;
 import mcjty.rftoolscontrol.api.parameters.BlockSide;
 import mcjty.rftoolscontrol.api.parameters.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Direction;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
-import net.minecraftforge.oredict.OreDictionary;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Nonnull;
@@ -43,15 +42,16 @@ public class InventoryTools {
 
     public static boolean areItemsEqual(ItemStack item1, ItemStack item2, boolean meta, boolean nbt, boolean oredict) {
         if (oredict) {
-            if (!OreDictionary.itemMatches(item1, item2, false)) {
-                return false;
-            }
+            // @todo 1.15 ore dict
+//            if (!OreDictionary.itemMatches(item1, item2, false)) {
+//                return false;
+//            }
         } else {
             if (item1.getItem() != item2.getItem()) {
                 return false;
             }
         }
-        if (meta && item1.getItemDamage() != item2.getItemDamage()) {
+        if (meta && item1.getDamage() != item2.getDamage()) {
             return false;
         }
         if (nbt && !ItemStack.areItemStackTagsEqual(item1, item2)) {
@@ -63,9 +63,10 @@ public class InventoryTools {
     private static Set<Integer> getOredictMatchers(ItemStack stack, boolean oredict) {
         Set<Integer> oredictMatches = new HashSet<>();
         if (oredict) {
-            for (int id : OreDictionary.getOreIDs(stack)) {
-                oredictMatches.add(id);
-            }
+// @todo 1.15
+            //            for (int id : OreDictionary.getOreIDs(stack)) {
+//                oredictMatches.add(id);
+//            }
         }
         return oredictMatches;
     }
@@ -77,12 +78,13 @@ public class InventoryTools {
         if (oreDictMatchers.isEmpty()) {
             return thisItem.isItemEqual(other);
         } else {
-            int[] oreIDs = OreDictionary.getOreIDs(other);
-            for (int id : oreIDs) {
-                if (oreDictMatchers.contains(id)) {
-                    return true;
-                }
-            }
+// @todo 1.15 ore dict
+            //            int[] oreIDs = OreDictionary.getOreIDs(other);
+//            for (int id : oreIDs) {
+//                if (oreDictMatchers.contains(id)) {
+//                    return true;
+//                }
+//            }
         }
         return false;
     }
@@ -129,7 +131,7 @@ public class InventoryTools {
     public static boolean isEqualAdvanced(ItemStack itemMatcher, ItemStack stack, boolean strictnbt) {
         if (!stack.isEmpty() && ItemStack.areItemsEqual(stack, itemMatcher)) {
             if (strictnbt) {
-                if (itemMatcher.hasTagCompound() || stack.hasTagCompound()) {
+                if (itemMatcher.hasTag() || stack.hasTag()) {
                     String t1 = itemMatcher.serializeNBT().toString();
                     String t2 = stack.serializeNBT().toString();
                     if (t1.equalsIgnoreCase(t2)) {

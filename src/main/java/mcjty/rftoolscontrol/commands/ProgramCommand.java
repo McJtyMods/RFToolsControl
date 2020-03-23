@@ -1,30 +1,9 @@
 package mcjty.rftoolscontrol.commands;
 
-import mcjty.rftoolscontrol.items.ProgramCardItem;
-import mcjty.rftoolscontrol.logic.grid.ProgramCardInstance;
-import mcjty.rftoolscontrol.network.PacketItemNBTToServer;
-import mcjty.rftoolscontrol.network.RFToolsCtrlMessages;
-import net.minecraft.client.Minecraft;
-
-
-
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.ITextComponent;
-
-import net.minecraft.util.text.TextFormatting;
-
-import javax.annotation.Nullable;
-import java.io.*;
-import java.util.Collections;
-import java.util.List;
-
 /**
  * Client side command
  */
-public class ProgramCommand extends CommandBase {
+public class ProgramCommand {} /* @todo 1.15 extends CommandBase {
     public static boolean canUseCommand(ICommandSender sender, int permLevel, String name) {
         return sender.canUseCommand(permLevel, name);
     }
@@ -139,3 +118,4 @@ public class ProgramCommand extends CommandBase {
         return Collections.emptyList();
     }
 }
+*/

@@ -1,5 +1,6 @@
 package mcjty.rftoolscontrol.blocks.programmer;
 
+import mcjty.lib.McJtyLib;
 import mcjty.lib.base.StyleConfig;
 import mcjty.lib.gui.GenericGuiContainer;
 import mcjty.lib.gui.Window;
@@ -37,25 +38,25 @@ import mcjty.rftoolscontrol.logic.grid.GridPos;
 import mcjty.rftoolscontrol.logic.grid.ProgramCardInstance;
 import mcjty.rftoolscontrol.logic.registry.Opcodes;
 import mcjty.rftoolscontrol.network.RFToolsCtrlMessages;
-import mcjty.rftoolscontrol.setup.GuiProxy;
-
-
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.inventory.container.ClickType;
+import net.minecraft.inventory.container.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextFormatting;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.lwjgl.glfw.GLFW;
 
 import java.awt.*;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.UnsupportedFlavorException;
-import java.io.IOException;
 import java.util.List;
 import java.util.*;
 
-public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
+public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, ProgrammerContainer> {
     public static final int SIDEWIDTH = 80;
     public static final int WIDTH = 256;
     public static final int HEIGHT = 236;
@@ -120,8 +121,8 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
         errorIcon2 = new ImageIcon("E2").setDimensions(ICONSIZE, ICONSIZE).setImage(icons, 2*ICONSIZE, 8*ICONSIZE);
     }
 
-    public GuiProgrammer(ProgrammerTileEntity tileEntity, ProgrammerContainer container) {
-        super(RFToolsControl.instance, RFToolsCtrlMessages.INSTANCE, tileEntity, container, GuiProxy.GUI_MANUAL_CONTROL, "programmer");
+    public GuiProgrammer(ProgrammerTileEntity te, ProgrammerContainer container, PlayerInventory inventory) {
+        super(RFToolsControl.instance, te, container, inventory, /*@todo 1.15 GuiProxy.GUI_MANUAL_CONTROL*/0, "programmer");
 
         xSize = WIDTH;
         ySize = HEIGHT;
@@ -144,14 +145,14 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
     }
 
     @Override
-    public void initGui() {
-        super.initGui();
+    public void init() {
+        super.init();
 
         // --- Main window ---
         Panel editorPanel = setupEditorPanel();
         Panel controlPanel = setupControlPanel();
         Panel gridPanel = setupGridPanel();
-        Panel toplevel = new Panel(mc, this).setLayout(new PositionalLayout()).setBackground(mainBackground)
+        Panel toplevel = new Panel(minecraft, this).setLayout(new PositionalLayout()).setBackground(mainBackground)
                 .addChild(editorPanel)
                 .addChild(controlPanel)
                 .addChild(gridPanel);
@@ -160,7 +161,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
 
         // --- Side window ---
         Panel listPanel = setupListPanel();
-        Panel sidePanel = new Panel(mc, this).setLayout(new PositionalLayout()).setBackground(sideBackground)
+        Panel sidePanel = new Panel(minecraft, this).setLayout(new PositionalLayout()).setBackground(sideBackground)
                 .addChild(listPanel);
         sidePanel.setBounds(new Rectangle(guiLeft-SIDEWIDTH, guiTop, SIDEWIDTH, ySize));
         sideWindow = new Window(this, sidePanel);
@@ -181,27 +182,27 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
 
     private Panel setupGridPanel() {
 
-        Panel panel = new Panel(mc, this).setLayout(new PositionalLayout())
+        Panel panel = new Panel(minecraft, this).setLayout(new PositionalLayout())
                 .setLayoutHint(new PositionalLayout.PositionalHint(5, 5, 246, 130));
 
-        gridList = new WidgetList(mc, this)
+        gridList = new WidgetList(minecraft, this)
                 .setName("grid")
                 .setLayoutHint(new PositionalLayout.PositionalHint(0, 0, 236, 130))
                 .setPropagateEventsToChildren(true)
                 .setInvisibleSelection(true)
                 .setDrawHorizontalLines(false)
                 .setRowheight(ICONSIZE+1);
-        Slider slider = new Slider(mc, this)
+        Slider slider = new Slider(minecraft, this)
                 .setVertical()
                 .setScrollableName("grid")
                 .setLayoutHint(new PositionalLayout.PositionalHint(237, 0, 9, 130));
 
         for (int y = 0; y < GRID_HEIGHT; y++) {
-            Panel rowPanel = new Panel(mc, this).setLayout(new HorizontalLayout().setSpacing(-1).setHorizontalMargin(0).setVerticalMargin(0));
+            Panel rowPanel = new Panel(minecraft, this).setLayout(new HorizontalLayout().setSpacing(-1).setHorizontalMargin(0).setVerticalMargin(0));
             for (int x = 0; x < GRID_WIDTH; x++) {
                 int finalX = x;
                 int finalY = y;
-                IconHolder holder = new IconHolder(mc, this) {
+                IconHolder holder = new IconHolder(minecraft, this) {
                     @Override
                     public List<String> getTooltips() {
                         return getGridIconTooltips(finalX, finalY);
@@ -242,7 +243,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
     }
 
     private List<String> getGridIconTooltips(int finalX, int finalY) {
-        if (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) || Keyboard.isKeyDown(Keyboard.KEY_RCONTROL)) {
+        if (McJtyLib.proxy.isCtrlKeyDown()) {
             List<String> tooltips = new ArrayList<>();
             if (ConfigSetup.tooltipVerbosityLevel.get() >= 2) {
                 tooltips.add(TextFormatting.GREEN + "Ctrl-Click to add or remove selection");
@@ -302,7 +303,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
     }
 
     private void gridIconClicked(IIcon icon, int x, int y, int dx, int dy) {
-        if (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) || Keyboard.isKeyDown(Keyboard.KEY_RCONTROL)) {
+        if (McJtyLib.proxy.isCtrlKeyDown()) {
             long time = System.currentTimeMillis();
             boolean doubleclick = false;
             if (prevTime != -1L && time - prevTime < 250L) {
@@ -575,13 +576,13 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
     }
 
     private void validateProgram() {
-        Panel panel = new Panel(mc, this)
+        Panel panel = new Panel(minecraft, this)
                 .setLayout(new VerticalLayout())
                 .setFilledBackground(0xff666666, 0xffaaaaaa)
                 .setFilledRectThickness(1);
         panel.setBounds(new Rectangle(60, 10, 200, 130));
         Window modalWindow = getWindowManager().createModalWindow(panel);
-        WidgetList errorList = new WidgetList(mc, this);
+        WidgetList errorList = new WidgetList(minecraft, this);
         errorList.addSelectionEvent(new SelectionEvent() {
                     @Override
                     public void select(Widget parent, int index) {
@@ -600,7 +601,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
                     }
                 });
         panel.addChild(errorList);
-        panel.addChild(new Button(mc, this)
+        panel.addChild(new Button(minecraft, this)
                 .addButtonEvent(w ->  {
                     getWindowManager().closeWindow(modalWindow);
                 })
@@ -611,7 +612,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
         List<Pair<GridPos, String>> errors = ProgramValidator.validate(instance);
         for (Pair<GridPos, String> entry : errors) {
             GridPos p = entry.getKey();
-            errorList.addChild(new Label(mc, this)
+            errorList.addChild(new Label(minecraft, this)
                     .setColor(0xffff0000)
                     .setHorizontalAlignment(HorizontalAlignment.ALIGN_LEFT)
                     .setText(entry.getValue())
@@ -620,14 +621,14 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
     }
 
     private void askNameAndSave(int slot) {
-        ItemStack card = tileEntity.getStackInSlot(slot);
+        ItemStack card = tileEntity.getItems().getStackInSlot(slot);
         if (card.isEmpty()) {
-            GuiTools.showMessage(mc, this, getWindowManager(), 50, 50, "No card!");
+            GuiTools.showMessage(minecraft, this, getWindowManager(), 50, 50, "No card!");
             return;
         }
         String cardName = ProgramCardItem.getCardName(card);
-        if (cardName.isEmpty() || Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT)) {
-            GuiTools.askSomething(mc, this, getWindowManager(), 50, 50, "Card name:", cardName, s -> {
+        if (cardName.isEmpty() || McJtyLib.proxy.isShiftKeyDown()) {
+            GuiTools.askSomething(minecraft, this, getWindowManager(), 50, 50, "Card name:", cardName, s -> {
                 saveProgram(slot, s);
             });
         } else {
@@ -636,7 +637,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
     }
 
     private void saveProgram(int slot, String name) {
-        ItemStack card = tileEntity.getStackInSlot(slot);
+        ItemStack card = tileEntity.getItems().getStackInSlot(slot);
         if (card.isEmpty()) {
             return;
         }
@@ -646,7 +647,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
         ProgramCardInstance instance = makeGridInstance(false);
         instance.writeToNBT(card);
         RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketUpdateNBTItemInventoryProgrammer(tileEntity.getPos(),
-                slot, card.getTagCompound()));
+                slot, card.getTag()));
     }
 
     private ProgramCardInstance makeGridInstance(boolean selectionOnly) {
@@ -694,7 +695,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
     }
 
     private void loadProgram(int slot) {
-        ItemStack card = tileEntity.getStackInSlot(slot);
+        ItemStack card = tileEntity.getItems().getStackInSlot(slot);
         if (card.isEmpty()) {
             return;
         }
@@ -750,11 +751,11 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
             int x = entry.getKey().getX() - leftTop.getX() + posx;
             int y = entry.getKey().getY() - leftTop.getY() + posy;
             if (!checkValidGridPos(new GridPos(x, y))) {
-                GuiTools.showMessage(mc, this, getWindowManager(), 50, 50, TextFormatting.RED + "No room for clipboard here!");
+                GuiTools.showMessage(minecraft, this, getWindowManager(), 50, 50, TextFormatting.RED + "No room for clipboard here!");
                 return;
             }
             if (getHolder(x, y).getIcon() != null) {
-                GuiTools.showMessage(mc, this, getWindowManager(), 50, 50, TextFormatting.RED + "No room for clipboard here!");
+                GuiTools.showMessage(minecraft, this, getWindowManager(), 50, 50, TextFormatting.RED + "No room for clipboard here!");
                 return;
             }
         }
@@ -803,27 +804,27 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
     }
 
     private Panel setupControlPanel() {
-        trashcan = new IconHolder(mc, this)
+        trashcan = new IconHolder(minecraft, this)
                 .setDesiredWidth(14)
                 .setDesiredHeight(14)
                 .setBorder(1)
                 .setBorderColor(0xffff0000)
                 .setTooltips(TextFormatting.YELLOW + "Delete opcode", "Drop opcodes here to", "delete them")
                 .setSelectable(false);
-        return new Panel(mc, this).setLayout(new HorizontalLayout().setSpacing(2).setHorizontalMargin(1)).setLayoutHint(new PositionalLayout.PositionalHint(108, 136, 145, 18))
-                .addChild(new Button(mc, this).setText("Load")
+        return new Panel(minecraft, this).setLayout(new HorizontalLayout().setSpacing(2).setHorizontalMargin(1)).setLayoutHint(new PositionalLayout.PositionalHint(108, 136, 145, 18))
+                .addChild(new Button(minecraft, this).setText("Load")
                         .setTooltips(TextFormatting.YELLOW + "Load program", "Load the current program", "from a program card")
                         .setDesiredHeight(15).addButtonEvent(w -> loadProgram(ProgrammerContainer.SLOT_CARD)))
-                .addChild(new Button(mc, this).setText("Save")
+                .addChild(new Button(minecraft, this).setText("Save")
                         .setTooltips(TextFormatting.YELLOW + "Save program",
                                 "Save the current program",
                                 "to a program card",
                                 TextFormatting.GREEN + "Press shift to change name")
                         .setDesiredHeight(15).addButtonEvent(w -> askNameAndSave(ProgrammerContainer.SLOT_CARD)))
-                .addChild(new Button(mc, this).setText("Clear")
+                .addChild(new Button(minecraft, this).setText("Clear")
                         .setTooltips(TextFormatting.YELLOW + "Clear program", "Remove all opcodes on the grid", "(press Ctrl-Z if this was a mistake)")
                         .setDesiredHeight(15).addButtonEvent(w -> clearProgram()))
-                .addChild(new Button(mc, this).setText("Val")
+                .addChild(new Button(minecraft, this).setText("Val")
                         .setTooltips(TextFormatting.YELLOW + "Validate program", "Perform some basic validations on", "the current program", "Double click on error", "to highlight opcode")
                         .setDesiredHeight(15)
                         .addButtonEvent(w -> validateProgram()))
@@ -839,7 +840,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
     }
 
     private void makeCategoryToggle(Panel panel, int cx, int cy, OpcodeCategory category, int u, int v) {
-        ImageChoiceLabel catLabel = new ImageChoiceLabel(mc, this)
+        ImageChoiceLabel catLabel = new ImageChoiceLabel(minecraft, this)
                 .setLayoutHint(new PositionalLayout.PositionalHint(cx * 18 + 3, cy * 18 + 14, 16, 16))
                 .addChoice("off", "Filter on category " + category.getName() + " (off)", guiElements, u*16, v*16)
                 .addChoice("on", "Filter on category " + category.getName() + " (on)", guiElements, u*16 + 16, v*16);
@@ -858,10 +859,10 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
     }
 
     private Panel setupListPanel() {
-        Panel panel = new Panel(mc, this)
+        Panel panel = new Panel(minecraft, this)
                 .setLayout(new PositionalLayout())
                 .setLayoutHint(new PositionalLayout.PositionalHint(2, 2, 78, 232))
-                .addChild(new Label(mc, this).setText("Opcodes:")
+                .addChild(new Label(minecraft, this).setText("Opcodes:")
                     .setLayoutHint(new PositionalLayout.PositionalHint(0, 0, 70, 12)));
 
         makeCategoryToggle(panel, 0, 0, OpcodeCategory.CATEGORY_ITEMS, 8, 5);
@@ -873,14 +874,14 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
         makeCategoryToggle(panel, 2, 1, OpcodeCategory.CATEGORY_VECTORS, 10, 6);
         makeCategoryToggle(panel, 3, 1, OpcodeCategory.CATEGORY_GRAPHICS, 6, 6);
 
-        opcodeList = new WidgetList(mc, this)
+        opcodeList = new WidgetList(minecraft, this)
                 .setName("opcodes")
                 .setLayoutHint(new PositionalLayout.PositionalHint(0, 52, 68, 180))
                 .setPropagateEventsToChildren(true)
                 .setInvisibleSelection(true)
                 .setDrawHorizontalLines(false)
                 .setRowheight(ICONSIZE+2);
-        Slider slider = new Slider(mc, this)
+        Slider slider = new Slider(minecraft, this)
                 .setVertical()
                 .setScrollableName("opcodes")
                 .setLayoutHint(new PositionalLayout.PositionalHint(68, 52, 8, 180));
@@ -903,10 +904,10 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
             }
             String key = opcode.getId();
             if (childPanel == null) {
-                childPanel = new Panel(mc, this).setLayout(new HorizontalLayout().setVerticalMargin(1).setSpacing(1).setHorizontalMargin(0)).setDesiredHeight(ICONSIZE+1);
+                childPanel = new Panel(minecraft, this).setLayout(new HorizontalLayout().setVerticalMargin(1).setSpacing(1).setHorizontalMargin(0)).setDesiredHeight(ICONSIZE+1);
                 opcodeList.addChild(childPanel);
             }
-            IconHolder holder = new IconHolder(mc, this) {
+            IconHolder holder = new IconHolder(minecraft, this) {
                 @Override
                 public List<String> getTooltips() {
                     return getIconTooltip(getIcon());
@@ -926,28 +927,28 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
     }
 
     @Override
-    protected void keyTyped(char typedChar, int keyCode) throws IOException {
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         if (handleClipboard(keyCode)) {
-            return;
+            return true;
         }
-        super.keyTyped(typedChar, keyCode);
+        return super.keyPressed(keyCode, scanCode, modifiers);
     }
 
     @Override
-    public void keyTypedFromEvent(char typedChar, int keyCode) {
+    public void keyTypedFromEvent(int keyCode, int scanCode) {
         if (handleClipboard(keyCode)) {
             return;
         }
-        super.keyTypedFromEvent(typedChar, keyCode);
+        super.keyTypedFromEvent(keyCode, keyCode);
     }
 
     private boolean handleClipboard(int keyCode) {
-        if (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) || Keyboard.isKeyDown(Keyboard.KEY_RCONTROL)) {
-            if (keyCode == Keyboard.KEY_A) {
+        if (McJtyLib.proxy.isCtrlKeyDown()) {
+            if (keyCode == GLFW.GLFW_KEY_A) {
                 selectAll();
-            } else if (keyCode == Keyboard.KEY_C) {
+            } else if (keyCode == GLFW.GLFW_KEY_C) {
                 if (!checkSelection()) {
-                    GuiTools.showMessage(mc, this, getWindowManager(), 50, 50, TextFormatting.RED + "Nothing is selected!");
+                    GuiTools.showMessage(minecraft, this, getWindowManager(), 50, 50, TextFormatting.RED + "Nothing is selected!");
                 } else {
                     ProgramCardInstance instance = makeGridInstance(true);
                     String json = instance.writeToJson();
@@ -956,11 +957,11 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
                         Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
                         clipboard.setContents(selection, selection);
                     } catch (Exception e) {
-                        GuiTools.showMessage(mc, this, getWindowManager(), 50, 50, TextFormatting.RED + "Error copying to clipboard!");
+                        GuiTools.showMessage(minecraft, this, getWindowManager(), 50, 50, TextFormatting.RED + "Error copying to clipboard!");
                     }
                 }
                 return true;
-            } else if (keyCode == Keyboard.KEY_Z) {
+            } else if (keyCode == GLFW.GLFW_KEY_Z) {
                 if (undoProgram != null) {
                     ProgramCardInstance curProgram = makeGridInstance(false);
                     clearGrid(false);
@@ -968,9 +969,9 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
                     undoProgram = curProgram;
                 }
                 return true;
-            } else if (keyCode == Keyboard.KEY_X) {
+            } else if (keyCode == GLFW.GLFW_KEY_X) {
                 if (!checkSelection()) {
-                    GuiTools.showMessage(mc, this, getWindowManager(), 50, 50, TextFormatting.RED + "Nothing is selected!");
+                    GuiTools.showMessage(minecraft, this, getWindowManager(), 50, 50, TextFormatting.RED + "Nothing is selected!");
                 } else {
                     ProgramCardInstance instance = makeGridInstance(true);
                     String json = instance.writeToJson();
@@ -981,11 +982,11 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
                         undoProgram = makeGridInstance(false);
                         clearGrid(checkSelection());
                     } catch (Exception e) {
-                        GuiTools.showMessage(mc, this, getWindowManager(), 50, 50, TextFormatting.RED + "Error copying to clipboard!");
+                        GuiTools.showMessage(minecraft, this, getWindowManager(), 50, 50, TextFormatting.RED + "Error copying to clipboard!");
                     }
                 }
                 return true;
-            } else if (keyCode == Keyboard.KEY_V) {
+            } else if (keyCode == GLFW.GLFW_KEY_V) {
                 try {
                     Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
                     String data = (String) clipboard.getData(DataFlavor.stringFlavor);
@@ -993,9 +994,9 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
                     undoProgram = makeGridInstance(false);
                     mergeProgram(program, getSelectedGridHolder());
                 } catch (UnsupportedFlavorException e) {
-                    GuiTools.showMessage(mc, this, getWindowManager(), 50, 50, TextFormatting.RED + "Clipboard does not contain program!");
+                    GuiTools.showMessage(minecraft, this, getWindowManager(), 50, 50, TextFormatting.RED + "Clipboard does not contain program!");
                 } catch (Exception e) {
-                    GuiTools.showMessage(mc, this, getWindowManager(), 50, 50, TextFormatting.RED + "Error reading from clipboard!");
+                    GuiTools.showMessage(minecraft, this, getWindowManager(), 50, 50, TextFormatting.RED + "Error reading from clipboard!");
                 }
             }
         }
@@ -1031,7 +1032,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
                         }
                     }
                 }
-            } else if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT)) {
+            } else if (McJtyLib.proxy.isShiftKeyDown()) {
                 tooltips.add(description.get(0) + TextFormatting.WHITE + " [" + x + "," + y + "]");
                 Map<String, Object> data = icon.getData() == null ? Collections.emptyMap() : icon.getData();
                 for (ParameterDescription parameter : opcode.getParameters()) {
@@ -1057,7 +1058,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
             Opcode opcode = Opcodes.OPCODES.get(icon.getID());
             List<String> description = opcode.getDescription();
             List<String> tooltips = new ArrayList<>();
-            if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT)) {
+            if (McJtyLib.proxy.isShiftKeyDown()) {
                 tooltips.addAll(description);
                 for (ParameterDescription parameter : opcode.getParameters()) {
                     boolean first = true;
@@ -1097,7 +1098,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
     }
 
     private Panel createValuePanel(ParameterDescription parameter, IIcon icon, IconHolder iconHolder, String tempDefault, boolean constantOnly) {
-        Label label = new Label(mc, this)
+        Label label = new Label(minecraft, this)
                 .setText(StringUtils.capitalize(parameter.getName()) + ":")
                 .setHorizontalAlignment(HorizontalAlignment.ALIGN_LEFT)
                 .setDesiredHeight(13)
@@ -1111,20 +1112,20 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
         }
 
         String[] tooltips = description.toArray(new String[description.size()]);
-        TextField field = new TextField(mc, this)
+        TextField field = new TextField(minecraft, this)
                 .setText(tempDefault)
                 .setTooltips(tooltips)
                 .setDesiredHeight(13)
                 .setEditable(false)
                 .setLayoutHint(new PositionalLayout.PositionalHint(0, 12, 68, 13));
-        Button button = new Button(mc, this)
+        Button button = new Button(minecraft, this)
                 .setText("...")
                 .setDesiredHeight(13)
                 .setTooltips(tooltips)
                 .addButtonEvent(w -> openValueEditor(icon, iconHolder, parameter, field, constantOnly))
                 .setLayoutHint(new PositionalLayout.PositionalHint(58, 0, 11, 13));
 
-        return new Panel(mc, this).setLayout(new PositionalLayout())
+        return new Panel(minecraft, this).setLayout(new PositionalLayout())
                 .addChild(label)
                 .addChild(field)
                 .addChild(button)
@@ -1135,10 +1136,10 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
         ParameterEditor editor = ParameterEditors.getEditor(parameter.getType());
         Panel editPanel;
         if (editor != null) {
-            editPanel = new Panel(mc, this).setLayout(new PositionalLayout())
+            editPanel = new Panel(minecraft, this).setLayout(new PositionalLayout())
                     .setFilledRectThickness(1);
             Map<String, Object> data = icon.getData() == null ? Collections.emptyMap() : icon.getData();
-            editor.build(mc, this, editPanel, o -> {
+            editor.build(minecraft, this, editPanel, o -> {
                 icon.addData(parameter.getName(), o);
                 field.setText(ParameterTypeTools.stringRepresentation(parameter.getType(), o));
             });
@@ -1150,15 +1151,15 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
             return;
         }
 
-        Panel panel = new Panel(mc, this)
+        Panel panel = new Panel(minecraft, this)
                 .setLayout(new VerticalLayout())
                 .setFilledBackground(0xff666666, 0xffaaaaaa)
                 .setFilledRectThickness(1);
         panel.setBounds(new Rectangle(50, 25, 200, 60 + editor.getHeight()));
         Window modalWindow = getWindowManager().createModalWindow(panel);
-        panel.addChild(new Label(mc, this).setText(StringUtils.capitalize(parameter.getName()) + ":"));
+        panel.addChild(new Label(minecraft, this).setText(StringUtils.capitalize(parameter.getName()) + ":"));
         panel.addChild(editPanel);
-        panel.addChild(new Button(mc, this)
+        panel.addChild(new Button(minecraft, this)
                 .addButtonEvent(w ->  {
                     getWindowManager().closeWindow(modalWindow);
                     window.setTextFocus(iconHolder);
@@ -1191,14 +1192,14 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity> {
     }
 
     private Panel setupEditorPanel() {
-        editorList = new WidgetList(mc, this)
+        editorList = new WidgetList(minecraft, this)
                 .setName("editor")
                 .setPropagateEventsToChildren(true)
                 .setRowheight(30)
                 .setLayoutHint(new PositionalLayout.PositionalHint(0, 0, 75, HEIGHT-137-3));
-        Slider slider = new Slider(mc, this).setScrollableName("editor")
+        Slider slider = new Slider(minecraft, this).setScrollableName("editor")
                 .setLayoutHint(new PositionalLayout.PositionalHint(76, 0, 9, HEIGHT-137-3));
-        return new Panel(mc, this).setLayout(new PositionalLayout()).setLayoutHint(new PositionalLayout.PositionalHint(4, 137, 85, HEIGHT-137-3))
+        return new Panel(minecraft, this).setLayout(new PositionalLayout()).setLayoutHint(new PositionalLayout.PositionalHint(4, 137, 85, HEIGHT-137-3))
                 .setFilledRectThickness(-1)
                 .setFilledBackground(StyleConfig.colorListBackground)
                 .addChild(editorList)

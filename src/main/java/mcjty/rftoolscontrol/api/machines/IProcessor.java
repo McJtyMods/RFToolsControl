@@ -9,6 +9,7 @@ import mcjty.rftoolscontrol.api.parameters.Tuple;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.items.IItemHandler;
@@ -198,13 +199,13 @@ public interface IProcessor {
      * Get a fluidhandler for a tank at a given position on the network
      */
     @Nonnull
-    IFluidHandler getFluidHandlerAt(@Nonnull Inventory inv);
+    LazyOptional<IFluidHandler> getFluidHandlerAt(@Nonnull Inventory inv);
 
     /**
      * Get an itemhandler for an inventory at a given position on the network
      */
     @Nonnull
-    IItemHandler getItemHandlerAt(@Nonnull Inventory inv);
+    LazyOptional<IItemHandler> getItemHandlerAt(@Nonnull Inventory inv);
 
     /**
      * Log a message on the console. This message can

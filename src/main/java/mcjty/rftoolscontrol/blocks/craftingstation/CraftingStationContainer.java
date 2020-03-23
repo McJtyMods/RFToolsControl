@@ -12,6 +12,8 @@ import net.minecraftforge.items.wrapper.InvWrapper;
 
 import javax.annotation.Nullable;
 
+import static mcjty.rftoolscontrol.setup.Registration.CRAFTING_STATION_CONTAINER;
+
 public class CraftingStationContainer extends GenericContainer {
     public static final String CONTAINER_INVENTORY = "container";
 
@@ -25,8 +27,8 @@ public class CraftingStationContainer extends GenericContainer {
         }
     };
 
-    public CraftingStationContainer(@Nullable ContainerType<?> type, int id, ContainerFactory factory, BlockPos pos, @Nullable GenericTileEntity te) {
-        super(type, id, factory, pos, te);
+    public CraftingStationContainer(int id, ContainerFactory factory, BlockPos pos, @Nullable GenericTileEntity te) {
+        super(CRAFTING_STATION_CONTAINER.get(), id, factory, pos, te);
     }
 
     @Override

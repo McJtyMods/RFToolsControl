@@ -1,35 +1,39 @@
 package mcjty.rftoolscontrol.items.variablemodule;
 
 import mcjty.lib.varia.Logging;
-import mcjty.rftools.api.screens.IModuleGuiBuilder;
-import mcjty.rftools.api.screens.IModuleProvider;
-import mcjty.rftoolscontrol.blocks.ModBlocks;
+import mcjty.rftoolsbase.api.screens.IModuleGuiBuilder;
+import mcjty.rftoolsbase.api.screens.IModuleProvider;
+import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.config.ConfigSetup;
-import mcjty.rftoolscontrol.items.GenericRFToolsItem;
+import mcjty.rftoolscontrol.setup.Registration;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.ItemUseContext;
 import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.Direction;
-
+import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 
+import javax.annotation.Nullable;
 import java.util.List;
 
-public class VariableModuleItem extends GenericRFToolsItem implements IModuleProvider {
+public class VariableModuleItem extends Item implements IModuleProvider {
 
     public VariableModuleItem() {
-        super("variable_module");
-        setMaxStackSize(1);
-    }
+        super(new Properties()
+                .maxStackSize(1)
+                .maxDamage(1)
+                .group(RFToolsControl.setup.getTab()));
 
-    @Override
-    public int getMaxItemUseDuration(ItemStack stack) {
-        return 1;
+//        super("variable_module");
     }
 
     @Override
@@ -43,7 +47,7 @@ public class VariableModuleItem extends GenericRFToolsItem implements IModulePro
     }
 
     @Override
-    public String getName() {
+    public String getModuleName() {
         return "VAR";
     }
 
@@ -57,59 +61,62 @@ public class VariableModuleItem extends GenericRFToolsItem implements IModulePro
                 .block("monitor").nl();
     }
 
-
     @Override
-    public void addInformation(ItemStack itemStack, World player, List<String> list, ITooltipFlag whatIsThis) {
-        super.addInformation(itemStack, player, list, whatIsThis);
-        list.add(TextFormatting.GREEN + "Uses " + ConfigSetup.VARIABLEMODULE_RFPERTICK.get() + " RF/tick");
+    public void addInformation(ItemStack itemStack, @Nullable World world, List<ITextComponent> list, ITooltipFlag flagIn) {
+        super.addInformation(itemStack, world, list, flagIn);
+        list.add(new StringTextComponent(TextFormatting.GREEN + "Uses " + ConfigSetup.VARIABLEMODULE_RFPERTICK.get() + " RF/tick"));
         boolean hasTarget = false;
-        CompoundNBT tagCompound = itemStack.getTagCompound();
+        CompoundNBT tagCompound = itemStack.getTag();
         if (tagCompound != null) {
-            list.add(TextFormatting.YELLOW + "Label: " + tagCompound.getString("text"));
-            if (tagCompound.hasKey("monitorx")) {
-                int monitorx = tagCompound.getInteger("monitorx");
-                int monitory = tagCompound.getInteger("monitory");
-                int monitorz = tagCompound.getInteger("monitorz");
+            list.add(new StringTextComponent(TextFormatting.YELLOW + "Label: " + tagCompound.getString("text")));
+            if (tagCompound.contains("monitorx")) {
+                int monitorx = tagCompound.getInt("monitorx");
+                int monitory = tagCompound.getInt("monitory");
+                int monitorz = tagCompound.getInt("monitorz");
                 String monitorname = tagCompound.getString("monitorname");
-                list.add(TextFormatting.YELLOW + "Monitoring: " + monitorname + " (at " + monitorx + "," + monitory + "," + monitorz + ")");
+                list.add(new StringTextComponent(TextFormatting.YELLOW + "Monitoring: " + monitorname + " (at " + monitorx + "," + monitory + "," + monitorz + ")"));
                 hasTarget = true;
             }
         }
         if (!hasTarget) {
-            list.add(TextFormatting.YELLOW + "Sneak right-click on a processor to set the");
-            list.add(TextFormatting.YELLOW + "target for this module");
+            list.add(new StringTextComponent(TextFormatting.YELLOW + "Sneak right-click on a processor to set the"));
+            list.add(new StringTextComponent(TextFormatting.YELLOW + "target for this module"));
         }
     }
 
     @Override
-    public EnumActionResult onItemUse(PlayerEntity player, World world, BlockPos pos, Hand hand, Direction facing, float hitX, float hitY, float hitZ) {
+    public ActionResultType onItemUse(ItemUseContext context) {
+        PlayerEntity player = context.getPlayer();
+        Hand hand = context.getHand();
+        World world = context.getWorld();
+        BlockPos pos = context.getPos();
         ItemStack stack = player.getHeldItem(hand);
         BlockState state = world.getBlockState(pos);
         Block block = state.getBlock();
-        CompoundNBT tagCompound = stack.getTagCompound();
+        CompoundNBT tagCompound = stack.getTag();
         if (tagCompound == null) {
             tagCompound = new CompoundNBT();
         }
 
-        if (block == ModBlocks.processorBlock) {
-            tagCompound.setInteger("monitordim", world.provider.getDimension());
-            tagCompound.setInteger("monitorx", pos.getX());
-            tagCompound.setInteger("monitory", pos.getY());
-            tagCompound.setInteger("monitorz", pos.getZ());
+        if (block == Registration.PROCESSOR.get()) {
+            tagCompound.putString("monitordim", world.getDimension().getType().getRegistryName().toString());
+            tagCompound.putInt("monitorx", pos.getX());
+            tagCompound.putInt("monitory", pos.getY());
+            tagCompound.putInt("monitorz", pos.getZ());
             if (world.isRemote) {
                 Logging.message(player, "Variable module is set to block");
             }
         } else {
-            tagCompound.removeTag("monitordim");
-            tagCompound.removeTag("monitorx");
-            tagCompound.removeTag("monitory");
-            tagCompound.removeTag("monitorz");
+            tagCompound.remove("monitordim");
+            tagCompound.remove("monitorx");
+            tagCompound.remove("monitory");
+            tagCompound.remove("monitorz");
             if (world.isRemote) {
                 Logging.message(player, "Variable module is cleared");
             }
         }
-        stack.setTagCompound(tagCompound);
-        return EnumActionResult.SUCCESS;
+        stack.setTag(tagCompound);
+        return ActionResultType.SUCCESS;
     }
 
 }

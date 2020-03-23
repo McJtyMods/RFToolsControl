@@ -2,23 +2,25 @@ package mcjty.rftoolscontrol.items.interactionmodule;
 
 import mcjty.lib.varia.BlockPosTools;
 import mcjty.lib.varia.WorldTools;
-import mcjty.rftools.api.screens.IScreenDataHelper;
-import mcjty.rftools.api.screens.IScreenModule;
-import mcjty.rftools.api.screens.data.IModuleDataBoolean;
-import mcjty.rftoolscontrol.blocks.ModBlocks;
+import mcjty.rftoolsbase.api.screens.IScreenDataHelper;
+import mcjty.rftoolsbase.api.screens.IScreenModule;
+import mcjty.rftoolsbase.api.screens.data.IModuleDataBoolean;
 import mcjty.rftoolscontrol.blocks.processor.ProcessorTileEntity;
 import mcjty.rftoolscontrol.config.ConfigSetup;
+import mcjty.rftoolscontrol.setup.Registration;
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
-
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
+import net.minecraft.world.dimension.DimensionType;
 
 public class InteractionScreenModule implements IScreenModule<IModuleDataBoolean> {
-    private int dim = 0;
+    private DimensionType dim = DimensionType.OVERWORLD;
     private BlockPos coordinate = BlockPosTools.INVALID;
     private String line = "";
     private String signal = "";
@@ -29,20 +31,20 @@ public class InteractionScreenModule implements IScreenModule<IModuleDataBoolean
     }
 
     @Override
-    public void setupFromNBT(CompoundNBT tagCompound, int dim, BlockPos pos) {
+    public void setupFromNBT(CompoundNBT tagCompound, DimensionType dim, BlockPos pos) {
         if (tagCompound != null) {
             line = tagCompound.getString("text");
             signal = tagCompound.getString("signal");
             coordinate = BlockPosTools.INVALID;
-            if (tagCompound.hasKey("monitorx")) {
-                if (tagCompound.hasKey("monitordim")) {
-                    this.dim = tagCompound.getInteger("monitordim");
+            if (tagCompound.contains("monitorx")) {
+                if (tagCompound.contains("monitordim")) {
+                    this.dim = DimensionType.byName(new ResourceLocation(tagCompound.getString("monitordim")));
                 } else {
                     // Compatibility reasons
-                    this.dim = tagCompound.getInteger("dim");
+                    this.dim = DimensionType.byName(new ResourceLocation(tagCompound.getString("dim")));
                 }
                 if (dim == this.dim) {
-                    BlockPos c = new BlockPos(tagCompound.getInteger("monitorx"), tagCompound.getInteger("monitory"), tagCompound.getInteger("monitorz"));
+                    BlockPos c = new BlockPos(tagCompound.getInt("monitorx"), tagCompound.getInt("monitory"), tagCompound.getInt("monitorz"));
                     int dx = Math.abs(c.getX() - pos.getX());
                     int dy = Math.abs(c.getY() - pos.getY());
                     int dz = Math.abs(c.getZ() - pos.getZ());
@@ -74,7 +76,7 @@ public class InteractionScreenModule implements IScreenModule<IModuleDataBoolean
                 }
 
                 Block block = world.getBlockState(coordinate).getBlock();
-                if (block != ModBlocks.processorBlock) {
+                if (block != Registration.PROCESSOR.get()) {
                     return;
                 }
 
@@ -86,7 +88,7 @@ public class InteractionScreenModule implements IScreenModule<IModuleDataBoolean
                     }
                 }
             } else if (player != null) {
-                player.sendStatusMessage(new TextComponentString(TextFormatting.RED + "Module is not linked to a processor!"), false);
+                player.sendStatusMessage(new StringTextComponent(TextFormatting.RED + "Module is not linked to a processor!"), false);
             }
         }
     }

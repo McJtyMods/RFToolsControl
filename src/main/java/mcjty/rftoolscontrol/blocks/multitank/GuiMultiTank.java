@@ -12,7 +12,7 @@ import mcjty.lib.gui.widgets.Panel;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.network.PacketGetTankFluids;
 import mcjty.rftoolscontrol.network.RFToolsCtrlMessages;
-import mcjty.rftoolscontrol.setup.GuiProxy;
+import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fluids.FluidStack;
 
@@ -20,7 +20,7 @@ import java.awt.*;
 
 import static mcjty.rftoolscontrol.blocks.multitank.MultiTankTileEntity.TANKS;
 
-public class GuiMultiTank extends GenericGuiContainer<MultiTankTileEntity> {
+public class GuiMultiTank extends GenericGuiContainer<MultiTankTileEntity, EmptyContainer> {
 
     public static final int WIDTH = 180;
     public static final int HEIGHT = 87;
@@ -31,25 +31,25 @@ public class GuiMultiTank extends GenericGuiContainer<MultiTankTileEntity> {
     private BlockRender liquids[] = new BlockRender[TANKS];
     private Label labels[] = new Label[TANKS];
 
-    public GuiMultiTank(MultiTankTileEntity tileEntity, EmptyContainer container) {
-        super(RFToolsControl.instance, RFToolsCtrlMessages.INSTANCE, tileEntity, container, GuiProxy.GUI_MANUAL_CONTROL, "tank");
+    public GuiMultiTank(MultiTankTileEntity te, EmptyContainer container, PlayerInventory inventory) {
+        super(RFToolsControl.instance, te, container, inventory, /*@todo 1.15 GuiProxy.GUI_MANUAL_CONTROL*/0, "tank");
 
         xSize = WIDTH;
         ySize = HEIGHT;
     }
 
     @Override
-    public void initGui() {
-        super.initGui();
+    public void init() {
+        super.init();
 
-        Panel toplevel = new Panel(mc, this).setLayout(new PositionalLayout()).setBackground(iconLocation);
+        Panel toplevel = new Panel(minecraft, this).setLayout(new PositionalLayout()).setBackground(iconLocation);
         toplevel.setBounds(new Rectangle(guiLeft, guiTop, xSize, ySize));
 
         for (int i = 0 ; i < TANKS ; i++) {
-            liquids[i] = new BlockRender(mc, this)
+            liquids[i] = new BlockRender(minecraft, this)
                     .setLayoutHint(new PositionalLayout.PositionalHint(10, 9 + i * 18, 16, 16));
             toplevel.addChild(liquids[i]);
-            labels[i] = new Label(mc, this);
+            labels[i] = new Label(minecraft, this);
             labels[i]
                     .setHorizontalAlignment(HorizontalAlignment.ALIGN_LEFT)
                     .setVerticalAlignment(VerticalAlignment.ALIGN_CENTER)
@@ -79,7 +79,7 @@ public class GuiMultiTank extends GenericGuiContainer<MultiTankTileEntity> {
                 FluidStack stack = properties[i].getContents();
                 if (stack != null) {
                     liquids[i].setRenderItem(stack);
-                    labels[i].setText(stack.getLocalizedName() + " (" + stack.amount + "mb)");
+                    labels[i].setText(stack.getDisplayName().getFormattedText() + " (" + stack.getAmount() + "mb)");
                     continue;
                 }
             }

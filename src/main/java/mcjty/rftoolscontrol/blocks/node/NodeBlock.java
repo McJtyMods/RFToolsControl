@@ -1,68 +1,60 @@
 package mcjty.rftoolscontrol.blocks.node;
 
-import mcjty.lib.container.EmptyContainer;
-import mcjty.lib.gui.GenericGuiContainer;
-import mcjty.rftoolscontrol.setup.GuiProxy;
-import mcjty.theoneprobe.api.IProbeHitData;
-import mcjty.theoneprobe.api.IProbeInfo;
-import mcjty.theoneprobe.api.ProbeMode;
-import net.minecraft.block.material.Material;
+import mcjty.lib.blocks.BaseBlock;
+import mcjty.lib.builder.BlockBuilder;
+import net.minecraft.block.BlockState;
 import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.TextFormatting;
-
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
 
-
+import javax.annotation.Nullable;
 import java.util.List;
-import java.util.function.BiFunction;
 
-public class NodeBlock extends GenericRFToolsBlock<NodeTileEntity, EmptyContainer> {
+public class NodeBlock extends BaseBlock {
 
     public NodeBlock() {
-        super(Material.IRON, NodeTileEntity.class, EmptyContainer::new, "node", false);
+        super(new BlockBuilder()
+                .tileEntitySupplier(NodeTileEntity::new));
     }
+
+
+//    @Override
+//    public BiFunction<NodeTileEntity, EmptyContainer, GenericGuiContainer<? super NodeTileEntity>> getGuiFactory() {
+//        return GuiNode::new;
+//    }
+
+//    @Override
+//    public boolean needsRedstoneCheck() {
+//        return true;
+//    }
 
 
     @Override
-    public BiFunction<NodeTileEntity, EmptyContainer, GenericGuiContainer<? super NodeTileEntity>> getGuiFactory() {
-        return GuiNode::new;
+    public void addInformation(ItemStack stack, @Nullable IBlockReader world, List<ITextComponent> list, ITooltipFlag advanced) {
+        super.addInformation(stack, world, list, advanced);
+        list.add(new StringTextComponent("This node can be remotely accessed"));
+        list.add(new StringTextComponent("by the processor that has a network"));
+        list.add(new StringTextComponent("card installed"));
     }
 
-    @Override
-    public int getGuiID() {
-        return GuiProxy.GUI_NODE;
-    }
-
-    @Override
-    public boolean needsRedstoneCheck() {
-        return true;
-    }
-
-
-    @Override
-    public void addInformation(ItemStack stack, World playerIn, List<String> list, ITooltipFlag advanced) {
-        super.addInformation(stack, playerIn, list, advanced);
-        list.add("This node can be remotely accessed");
-        list.add("by the processor that has a network");
-        list.add("card installed");
-    }
-
-    @Override
-    @Optional.Method(modid = "theoneprobe")
-    public void addProbeInfo(ProbeMode mode, IProbeInfo probeInfo, PlayerEntity player, World world, BlockState blockState, IProbeHitData data) {
-        super.addProbeInfo(mode, probeInfo, player, world, blockState, data);
-        TileEntity te = world.getTileEntity(data.getPos());
-        if (te instanceof NodeTileEntity) {
-            NodeTileEntity node = (NodeTileEntity) te;
-            probeInfo.text(TextFormatting.GREEN + "Channel: " + node.getChannelName());
-            probeInfo.text(TextFormatting.GREEN + "Name: " + node.getNodeName());
-        }
-    }
+    // @todo 1.15
+//    @Override
+//    @Optional.Method(modid = "theoneprobe")
+//    public void addProbeInfo(ProbeMode mode, IProbeInfo probeInfo, PlayerEntity player, World world, BlockState blockState, IProbeHitData data) {
+//        super.addProbeInfo(mode, probeInfo, player, world, blockState, data);
+//        TileEntity te = world.getTileEntity(data.getPos());
+//        if (te instanceof NodeTileEntity) {
+//            NodeTileEntity node = (NodeTileEntity) te;
+//            probeInfo.text(TextFormatting.GREEN + "Channel: " + node.getChannelName());
+//            probeInfo.text(TextFormatting.GREEN + "Name: " + node.getNodeName());
+//        }
+//    }
 
 
     private int getInputStrength(World world, BlockPos pos, Direction side) {
@@ -99,12 +91,13 @@ public class NodeBlock extends GenericRFToolsBlock<NodeTileEntity, EmptyContaine
     }
 
     @Override
-    public boolean canConnectRedstone(BlockState state, IBlockAccess world, BlockPos pos, Direction side) {
+    public boolean canConnectRedstone(BlockState state, IBlockReader world, BlockPos pos, @Nullable Direction side) {
         return true;
     }
 
+    // @todo 1.15 is this right?
     @Override
-    protected int getRedstoneOutput(BlockState state, IBlockAccess world, BlockPos pos, Direction side) {
+    public int getStrongPower(BlockState state, IBlockReader world, BlockPos pos, Direction side) {
         TileEntity te = world.getTileEntity(pos);
         if (state.getBlock() instanceof NodeBlock && te instanceof NodeTileEntity) {
             NodeTileEntity processor = (NodeTileEntity) te;

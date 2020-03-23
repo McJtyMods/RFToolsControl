@@ -1,15 +1,14 @@
 package mcjty.rftoolscontrol.compat.rftoolssupport;
 
-import com.google.common.base.Function;
-import io.netty.buffer.ByteBuf;
-import mcjty.lib.network.NetworkTools;
-import mcjty.rftools.api.screens.IScreenModuleRegistry;
+import mcjty.rftoolsbase.api.screens.IScreenModuleRegistry;
 import mcjty.rftoolscontrol.blocks.vectorart.GfxOp;
 import mcjty.rftoolscontrol.logic.ParameterTools;
+import net.minecraft.network.PacketBuffer;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
 public class RFToolsSupport {
 
@@ -30,7 +29,7 @@ public class RFToolsSupport {
         }
     }
 
-    private static List<GfxOp> readGfxOp(ByteBuf buf) {
+    private static List<GfxOp> readGfxOp(PacketBuffer buf) {
         int size = buf.readInt();
         if (size == 0) {
             return null;
@@ -44,14 +43,14 @@ public class RFToolsSupport {
         return operations;
     }
 
-    private static List<String> readLog(ByteBuf buf) {
+    private static List<String> readLog(PacketBuffer buf) {
         int size = buf.readInt();
         if (size == 0) {
             return null;
         }
         List<String> rc = new ArrayList<>(size);
         for (int i = 0 ; i < size ; i++) {
-            rc.add(NetworkTools.readString(buf));
+            rc.add(buf.readString(32767));
         }
         return rc;
     }

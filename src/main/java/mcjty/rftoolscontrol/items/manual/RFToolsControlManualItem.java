@@ -1,16 +1,6 @@
 package mcjty.rftoolscontrol.items.manual;
 
-import mcjty.rftoolscontrol.RFToolsControl;
-import mcjty.rftoolscontrol.items.GenericRFToolsItem;
-import mcjty.rftoolscontrol.setup.GuiProxy;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ActionResult;
-
-import net.minecraft.util.Hand;
-import net.minecraft.world.World;
-
-public class RFToolsControlManualItem extends GenericRFToolsItem {
+public class RFToolsControlManualItem {} /* @todo 1.15 extends GenericRFToolsItem {
 
     public RFToolsControlManualItem() {
         super("rftoolscontrol_manual");
@@ -33,3 +23,4 @@ public class RFToolsControlManualItem extends GenericRFToolsItem {
     }
 
 }
+*/

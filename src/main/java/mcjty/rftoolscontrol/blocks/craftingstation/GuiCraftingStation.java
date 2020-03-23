@@ -1,5 +1,6 @@
 package mcjty.rftoolscontrol.blocks.craftingstation;
 
+import mcjty.lib.McJtyLib;
 import mcjty.lib.base.StyleConfig;
 import mcjty.lib.gui.GenericGuiContainer;
 import mcjty.lib.gui.Window;
@@ -17,18 +18,19 @@ import mcjty.rftoolscontrol.gui.GuiTools;
 import mcjty.rftoolscontrol.network.PacketGetCraftableItems;
 import mcjty.rftoolscontrol.network.PacketGetRequests;
 import mcjty.rftoolscontrol.network.RFToolsCtrlMessages;
-import mcjty.rftoolscontrol.setup.GuiProxy;
+import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextFormatting;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import static mcjty.rftoolscontrol.blocks.craftingstation.CraftingStationTileEntity.*;
 
-public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileEntity> {
+public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileEntity, CraftingStationContainer> {
 
     public static final int WIDTH = 231;
     public static final int HEIGHT = 236;
@@ -52,18 +54,18 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
 
     private int listDirty = 0;
 
-    public GuiCraftingStation(CraftingStationTileEntity tileEntity, CraftingStationContainer container) {
-        super(RFToolsControl.instance, RFToolsCtrlMessages.INSTANCE, tileEntity, container, GuiProxy.GUI_MANUAL_CONTROL, "craftingstation");
+    public GuiCraftingStation(CraftingStationTileEntity te, CraftingStationContainer container, PlayerInventory inventory) {
+        super(RFToolsControl.instance, te, container, inventory, /*@todo 1.15 GuiProxy.GUI_MANUAL_CONTROL*/0, "craftingstation");
 
         xSize = WIDTH;
         ySize = HEIGHT;
     }
 
     @Override
-    public void initGui() {
-        super.initGui();
+    public void init() {
+        super.init();
 
-        Panel toplevel = new Panel(mc, this).setLayout(new PositionalLayout()).setBackground(mainBackground);
+        Panel toplevel = new Panel(minecraft, this).setLayout(new PositionalLayout()).setBackground(mainBackground);
 
         initRecipeList(toplevel);
         initProgressList(toplevel);
@@ -76,9 +78,9 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
     }
 
     private void initButtons(Panel toplevel) {
-        searchField = new TextField(mc, this)
+        searchField = new TextField(minecraft, this)
                 .setLayoutHint(new PositionalLayout.PositionalHint(5, 5, WIDTH-46-10, 16));
-        cancelButton = new Button(mc, this)
+        cancelButton = new Button(minecraft, this)
                 .setChannel("cancel")
 //                .setLayoutHint(new PositionalLayout.PositionalHint(180, 5, 46, 16))
                 .setLayoutHint(new PositionalLayout.PositionalHint(WIDTH-46-5, 5, 46, 16))
@@ -92,22 +94,22 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
         if (selected == -1) {
             return;
         }
-        sendServerCommand(RFToolsCtrlMessages.INSTANCE, CraftingStationTileEntity.CMD_CANCEL,
+        sendServerCommand(RFToolsCtrlMessages.INSTANCE, RFToolsControl.MODID, CraftingStationTileEntity.CMD_CANCEL,
                 TypedMap.builder()
                         .put(PARAM_INDEX, selected)
                         .build());
     }
 
     private void initRecipeList(Panel toplevel) {
-        recipeList = new WidgetList(mc, this).setName("recipes").setLayoutHint(new PositionalLayout.PositionalHint(5, 23, 120, 128)).setPropagateEventsToChildren(true)
+        recipeList = new WidgetList(minecraft, this).setName("recipes").setLayoutHint(new PositionalLayout.PositionalHint(5, 23, 120, 128)).setPropagateEventsToChildren(true)
                 .setInvisibleSelection(true);
-        Slider slider = new Slider(mc, this).setScrollableName("recipes").setLayoutHint(new PositionalLayout.PositionalHint(126, 23, 9, 128));
+        Slider slider = new Slider(minecraft, this).setScrollableName("recipes").setLayoutHint(new PositionalLayout.PositionalHint(126, 23, 9, 128));
         toplevel.addChild(recipeList).addChild(slider);
     }
 
     private void initProgressList(Panel toplevel) {
-        requestList = new WidgetList(mc, this).setName("requests").setLayoutHint(new PositionalLayout.PositionalHint(136, 23, 80, 128));
-        Slider slider = new Slider(mc, this).setScrollableName("requests").setLayoutHint(new PositionalLayout.PositionalHint(136+80+1, 23, 9, 128));
+        requestList = new WidgetList(minecraft, this).setName("requests").setLayoutHint(new PositionalLayout.PositionalHint(136, 23, 80, 128));
+        Slider slider = new Slider(minecraft, this).setScrollableName("requests").setLayoutHint(new PositionalLayout.PositionalHint(136+80+1, 23, 9, 128));
         toplevel.addChild(requestList).addChild(slider);
     }
 
@@ -130,16 +132,16 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
         for (CraftingRequest request : fromServer_requests) {
             final ItemStack stack = request.getStack();
 
-            Panel panel = new Panel(mc, this).setLayout(new HorizontalLayout()).setDesiredWidth(16);
+            Panel panel = new Panel(minecraft, this).setLayout(new HorizontalLayout()).setDesiredWidth(16);
             requestList.addChild(panel);
-            BlockRender blockRender = new BlockRender(mc, this)
+            BlockRender blockRender = new BlockRender(minecraft, this)
                     .setRenderItem(stack)
                     .setOffsetX(-1)
                     .setOffsetY(-1);
             panel.addChild(blockRender);
             boolean failed = request.getFailed() != -1;
             boolean ok = request.getOk() != -1;
-            panel.addChild(new Label(mc, this)
+            panel.addChild(new Label(minecraft, this)
                     .setColor(failed ? 0xffff3030 : (ok ? 0xff30ff30 : StyleConfig.colorTextNormal))
                     .setText(failed ? "Failed!" : (ok ? "Ok" : "Wait (" + request.getTodo() + ")")));
         }
@@ -163,25 +165,23 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
     private void updateRecipeList() {
         String filterText = searchField.getText().toLowerCase().trim();
 
-        fromServer_craftables.sort((r1, r2) -> {
-            return r1.getDisplayName().compareTo(r2.getDisplayName());
-        });
+        fromServer_craftables.sort(Comparator.comparing(r -> r.getDisplayName().getFormattedText()));
 
         recipeList.removeChildren();
         Panel panel = null;
         int index = 0;
         for (ItemStack stack : fromServer_craftables) {
-            String displayName = stack.getDisplayName();
+            String displayName = stack.getDisplayName().getFormattedText();
             if ((!filterText.isEmpty()) && !displayName.toLowerCase().contains(filterText)) {
                 continue;
             }
 
             if (panel == null || panel.getChildCount() >= 6) {
-                panel = new Panel(mc, this).setLayout(new HorizontalLayout().setSpacing(3).setHorizontalMargin(1))
+                panel = new Panel(minecraft, this).setLayout(new HorizontalLayout().setSpacing(3).setHorizontalMargin(1))
                         .setDesiredHeight(16);
                 recipeList.addChild(panel);
             }
-            BlockRender blockRender = new BlockRender(mc, this)
+            BlockRender blockRender = new BlockRender(minecraft, this)
                     .setRenderItem(stack)
                     .setHilightOnHover(true)
                     .setOffsetX(-1)
@@ -194,7 +194,7 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
                     BlockRender br = (BlockRender) widget;
                     Object item = br.getRenderItem();
                     if (item != null) {
-                        boolean shift = Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT);
+                        boolean shift = McJtyLib.proxy.isShiftKeyDown();
                         Object index = br.getUserObject();
                         if (shift) {
                             askAmountToCraft(stack);
@@ -221,7 +221,7 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
     }
 
     private void askAmountToCraft(ItemStack stack) {
-        GuiTools.askSomething(mc, this, getWindowManager(), 220, 50, "Craft amount:", "", s -> {
+        GuiTools.askSomething(minecraft, this, getWindowManager(), 220, 50, "Craft amount:", "", s -> {
             Integer a = safeParse(s);
             if (a != null) {
                 requestItem(stack, a);
@@ -230,11 +230,11 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
     }
 
     private void requestItem(ItemStack stack, int amount) {
-        sendServerCommand(RFToolsCtrlMessages.INSTANCE, CraftingStationTileEntity.CMD_REQUEST,
+        sendServerCommand(RFToolsCtrlMessages.INSTANCE, RFToolsControl.MODID, CraftingStationTileEntity.CMD_REQUEST,
                 TypedMap.builder()
                         .put(PARAM_ITEMNAME, stack.getItem().getRegistryName().toString())
-                        .put(PARAM_META, stack.getItemDamage())
-                        .put(PARAM_NBT, stack.hasTagCompound() ? stack.serializeNBT().toString() : "")
+                        .put(PARAM_META, stack.getDamage())     // @todo 1.15 meta?
+                        .put(PARAM_NBT, stack.hasTag() ? stack.serializeNBT().toString() : "")
                         .put(PARAM_AMOUNT, amount)
                         .build());
     }

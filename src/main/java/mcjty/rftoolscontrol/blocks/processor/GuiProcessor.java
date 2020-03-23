@@ -1,5 +1,6 @@
 package mcjty.rftoolscontrol.blocks.processor;
 
+import com.mojang.blaze3d.platform.GlStateManager;
 import mcjty.lib.client.RenderHelper;
 import mcjty.lib.gui.GenericGuiContainer;
 import mcjty.lib.gui.Window;
@@ -15,7 +16,7 @@ import mcjty.lib.gui.widgets.Label;
 import mcjty.lib.gui.widgets.Panel;
 import mcjty.lib.gui.widgets.TextField;
 import mcjty.lib.gui.widgets.*;
-
+import mcjty.lib.tileentity.GenericEnergyStorage;
 import mcjty.lib.typed.TypedMap;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.api.parameters.Parameter;
@@ -25,17 +26,16 @@ import mcjty.rftoolscontrol.logic.ParameterTypeTools;
 import mcjty.rftoolscontrol.logic.editors.ParameterEditor;
 import mcjty.rftoolscontrol.logic.editors.ParameterEditors;
 import mcjty.rftoolscontrol.network.*;
-import mcjty.rftoolscontrol.setup.GuiProxy;
-
-
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.inventory.container.Slot;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextFormatting;
+import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.fluids.FluidStack;
 
 import java.awt.*;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -43,7 +43,7 @@ import java.util.Optional;
 import static mcjty.rftoolscontrol.blocks.multitank.MultiTankTileEntity.TANKS;
 import static mcjty.rftoolscontrol.blocks.processor.ProcessorTileEntity.*;
 
-public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
+public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity, ProcessorContainer> {
     public static final int SIDEWIDTH = 80;
     public static final int WIDTH = 256;
     public static final int HEIGHT = 236;
@@ -77,29 +77,27 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
     }
     private int listDirty = 0;
 
-    public GuiProcessor(ProcessorTileEntity tileEntity, ProcessorContainer container) {
-        super(RFToolsControl.instance, RFToolsCtrlMessages.INSTANCE, tileEntity, container, GuiProxy.GUI_MANUAL_CONTROL, "processor");
+    public GuiProcessor(ProcessorTileEntity te, ProcessorContainer container, PlayerInventory inventory) {
+        super(RFToolsControl.instance, te, container, inventory, /*@todo 1.15 GuiProxy.GUI_MANUAL_CONTROL*/0, "processor");
 
         xSize = WIDTH;
         ySize = HEIGHT;
     }
 
     @Override
-    public void initGui() {
-        super.initGui();
+    public void init() {
+        super.init();
 
         // --- Main window ---
-        Panel toplevel = new Panel(mc, this).setLayout(new PositionalLayout()).setBackground(mainBackground);
+        Panel toplevel = new Panel(minecraft, this).setLayout(new PositionalLayout()).setBackground(mainBackground);
         toplevel.setBounds(new Rectangle(guiLeft, guiTop, xSize, ySize));
 
-        long maxEnergyStored = tileEntity.getCapacity();
-        energyBar = new EnergyBar(mc, this).setVertical().setMaxValue(maxEnergyStored)
+        energyBar = new EnergyBar(minecraft, this).setVertical()
                 .setLayoutHint(new PositionalLayout.PositionalHint(122, 4, 70, 10))
                 .setShowText(false).setHorizontal();
-        energyBar.setValue(GenericEnergyStorageTileEntity.getCurrentRF());
         toplevel.addChild(energyBar);
 
-        exclusive = new ToggleButton(mc, this)
+        exclusive = new ToggleButton(minecraft, this)
                 .setLayoutHint(new PositionalLayout.PositionalHint(122, 16, 40, 15))
                 .setCheckMarker(true)
                 .setText("Excl.")
@@ -108,12 +106,12 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
         exclusive
                 .addButtonEvent(parent -> {
                     tileEntity.setExclusive(exclusive.isPressed());
-                    sendServerCommand(RFToolsCtrlMessages.INSTANCE, ProcessorTileEntity.CMD_SETEXCLUSIVE,
+                    sendServerCommand(RFToolsCtrlMessages.INSTANCE, RFToolsControl.MODID, ProcessorTileEntity.CMD_SETEXCLUSIVE,
                             TypedMap.builder().put(PARAM_EXCLUSIVE, exclusive.isPressed()).build());
                 });
         toplevel.addChild(exclusive);
 
-        hudMode = new ChoiceLabel(mc, this)
+        hudMode = new ChoiceLabel(minecraft, this)
                 .setLayoutHint(new PositionalLayout.PositionalHint(122+40+1, 16, 28, 15))
                 .addChoices("Off", "Log", "Db", "Gfx")
                 .setChoiceTooltip("Off", "No overhead log")
@@ -138,7 +136,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
             } else {
                 m = HUD_GFX;
             }
-            sendServerCommand(RFToolsCtrlMessages.INSTANCE, ProcessorTileEntity.CMD_SETHUDMODE,
+            sendServerCommand(RFToolsCtrlMessages.INSTANCE, RFToolsControl.MODID, ProcessorTileEntity.CMD_SETHUDMODE,
                     TypedMap.builder().put(PARAM_HUDMODE, m).build());
         });
         toplevel.addChild(hudMode);
@@ -146,7 +144,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
         setupLogWindow(toplevel);
 
         for (int i = 0; i < ProcessorTileEntity.CARD_SLOTS ; i++) {
-            setupButtons[i] = new ToggleButton(mc, this)
+            setupButtons[i] = new ToggleButton(minecraft, this)
                 .addButtonEvent(this::setupMode)
                 .setTooltips(TextFormatting.YELLOW + "Resource allocation", "Setup item and variable", "allocation for this card")
                 .setLayoutHint(new PositionalLayout.PositionalHint(11 + i * 18, 6, 15, 7))
@@ -157,25 +155,25 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
 
         // --- Side window ---
         Panel listPanel = setupVariableListPanel();
-        Panel sidePanel = new Panel(mc, this).setLayout(new PositionalLayout()).setBackground(sideBackground)
+        Panel sidePanel = new Panel(minecraft, this).setLayout(new PositionalLayout()).setBackground(sideBackground)
                 .addChild(listPanel);
         sidePanel.setBounds(new Rectangle(guiLeft-SIDEWIDTH, guiTop, SIDEWIDTH, ySize));
         sideWindow = new Window(this, sidePanel);
     }
 
     private void setupLogWindow(Panel toplevel) {
-        log = new WidgetList(mc, this).setName("log").setFilledBackground(0xff000000).setFilledRectThickness(1)
+        log = new WidgetList(minecraft, this).setName("log").setFilledBackground(0xff000000).setFilledRectThickness(1)
                 .setLayoutHint(new PositionalLayout.PositionalHint(9, 35, 173, 98))
                 .setRowheight(14)
                 .setInvisibleSelection(true)
                 .setDrawHorizontalLines(false);
 
-        Slider slider = new Slider(mc, this)
+        Slider slider = new Slider(minecraft, this)
                 .setVertical()
                 .setScrollableName("log")
                 .setLayoutHint(new PositionalLayout.PositionalHint(183, 35, 9, 98));
 
-        command = new TextField(mc, this)
+        command = new TextField(minecraft, this)
                 .setLayoutHint(new PositionalLayout.PositionalHint(9, 35+99, 183, 15))
                 .addTextEnterEvent((e, text) -> executeCommand(text))
                 .addSpecialKeyEvent(new TextSpecialKeyEvent() {
@@ -222,7 +220,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
 
     private void executeCommand(String text) {
         dumpHistory();
-        sendServerCommand(RFToolsCtrlMessages.INSTANCE, ProcessorTileEntity.CMD_EXECUTE,
+        sendServerCommand(RFToolsCtrlMessages.INSTANCE, RFToolsControl.MODID, ProcessorTileEntity.CMD_EXECUTE,
                 TypedMap.builder().put(PARAM_CMD, text).build());
 
         if (commandHistoryIndex >= 0 && commandHistoryIndex < commandHistory.size() && text.equals(commandHistory.get(commandHistoryIndex))) {
@@ -271,7 +269,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
         boolean atend = log.getFirstSelected() + log.getCountSelected() >= log.getChildCount();
         log.removeChildren();
         for (String message : tileEntity.getClientLog()) {
-            log.addChild(new Label(mc, this).setColor(0xff008800).setText(message).setHorizontalAlignment(HorizontalAlignment.ALIGN_LEFT));
+            log.addChild(new Label(minecraft, this).setColor(0xff008800).setText(message).setHorizontalAlignment(HorizontalAlignment.ALIGN_LEFT));
         }
         if (atend) {
             log.setFirstSelected(log.getChildCount());
@@ -300,17 +298,16 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
     }
 
     @Override
-    protected void mouseClicked(int x, int y, int button) throws IOException {
+    public boolean mouseClicked(double x, double y, int button) {
         int setupMode = getSetupMode();
         if (setupMode == -1) {
             super.mouseClicked(x, y, button);
         } else {
-            Optional<Widget<?>> widget = getWindowManager().findWidgetAtPosition(x, y);
+            Optional<Widget<?>> widget = getWindowManager().findWidgetAtPosition((int)x, (int)y);
             if (widget.isPresent()) {
                 Widget<?> w = widget.get();
                 if ("allowed".equals(w.getUserObject())) {
-                    super.mouseClicked(x, y, button);
-                    return;
+                    return super.mouseClicked(x, y, button);
                 }
             }
 
@@ -324,7 +321,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
             int fluidAlloc = cardInfo.getFluidAllocation();
 
             for (int i = 0 ; i < ProcessorTileEntity.ITEM_SLOTS ; i++) {
-                Slot slot = inventorySlots.getSlot(ProcessorContainer.SLOT_BUFFER + i);
+                Slot slot = container.getSlot(ProcessorContainer.SLOT_BUFFER + i);
                 if (x >= slot.xPos && x <= slot.xPos + 17
                         && y >= slot.yPos && y <= slot.yPos + 17) {
                     boolean allocated = ((itemAlloc >> i) & 1) != 0;
@@ -335,7 +332,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
                         itemAlloc = itemAlloc & ~(1 << i);
                     }
                     cardInfo.setItemAllocation(itemAlloc);
-                    sendServerCommand(RFToolsCtrlMessages.INSTANCE, ProcessorTileEntity.CMD_ALLOCATE,
+                    sendServerCommand(RFToolsCtrlMessages.INSTANCE, RFToolsControl.MODID, ProcessorTileEntity.CMD_ALLOCATE,
                             TypedMap.builder()
                                     .put(PARAM_CARD, setupMode)
                                     .put(PARAM_ITEMS, itemAlloc)
@@ -346,6 +343,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
                 }
             }
         }
+        return true;    // @todo 1.15 right return?
     }
 
     @Override
@@ -356,7 +354,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
     }
 
     private Panel setupVariableListPanel() {
-        fluidList = new WidgetList(mc, this)
+        fluidList = new WidgetList(minecraft, this)
                 .setName("fluids")
                 .setLayoutHint(new PositionalLayout.PositionalHint(0, 0, 62, 65))
                 .setPropagateEventsToChildren(true)
@@ -384,7 +382,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
                     }
                     cardInfo.setFluidAllocation(fluidAlloc);
 
-                    sendServerCommand(RFToolsCtrlMessages.INSTANCE, ProcessorTileEntity.CMD_ALLOCATE,
+                    sendServerCommand(RFToolsCtrlMessages.INSTANCE, RFToolsControl.MODID, ProcessorTileEntity.CMD_ALLOCATE,
                             TypedMap.builder()
                                     .put(PARAM_CARD, setupMode)
                                     .put(PARAM_ITEMS, itemAlloc)
@@ -402,7 +400,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
             }
         });
 
-        Slider fluidSlider = new Slider(mc, this)
+        Slider fluidSlider = new Slider(minecraft, this)
                 .setVertical()
                 .setScrollableName("fluids")
                 .setLayoutHint(new PositionalLayout.PositionalHint(62, 0, 9, 65))
@@ -410,7 +408,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
 
         updateFluidList();
 
-        variableList = new WidgetList(mc, this)
+        variableList = new WidgetList(minecraft, this)
                 .setName("variables")
                 .setLayoutHint(new PositionalLayout.PositionalHint(0, 67, 62, 161))
                 .setPropagateEventsToChildren(true)
@@ -436,7 +434,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
                     }
                     cardInfo.setVarAllocation(varAlloc);
 
-                    sendServerCommand(RFToolsCtrlMessages.INSTANCE, ProcessorTileEntity.CMD_ALLOCATE,
+                    sendServerCommand(RFToolsCtrlMessages.INSTANCE, RFToolsControl.MODID, ProcessorTileEntity.CMD_ALLOCATE,
                             TypedMap.builder()
                                     .put(PARAM_CARD, setupMode)
                                     .put(PARAM_ITEMS, itemAlloc)
@@ -456,7 +454,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
             }
         });
 
-        Slider varSlider = new Slider(mc, this)
+        Slider varSlider = new Slider(minecraft, this)
                 .setVertical()
                 .setScrollableName("variables")
                 .setLayoutHint(new PositionalLayout.PositionalHint(62, 67, 9, 161))
@@ -464,7 +462,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
 
         updateVariableList();
 
-        return new Panel(mc, this).setLayout(new PositionalLayout()).setLayoutHint(new PositionalLayout.PositionalHint(5, 5, 72, 220))
+        return new Panel(minecraft, this).setLayout(new PositionalLayout()).setLayoutHint(new PositionalLayout.PositionalHint(5, 5, 72, 220))
                 .addChild(variableList)
                 .addChild(varSlider)
                 .addChild(fluidList)
@@ -477,21 +475,21 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
             return;
         }
         if (fromServer_vars.get(varIdx) == null) {
-            GuiTools.showMessage(mc, this, getWindowManager(), 50, 50, "Variable is not defined!");
+            GuiTools.showMessage(minecraft, this, getWindowManager(), 50, 50, "Variable is not defined!");
             return;
         }
         Parameter parameter = fromServer_vars.get(varIdx);
         if (parameter == null) {
-            GuiTools.showMessage(mc, this, getWindowManager(), 50, 50, "Variable is not defined!");
+            GuiTools.showMessage(minecraft, this, getWindowManager(), 50, 50, "Variable is not defined!");
             return;
         }
         ParameterType type = parameter.getParameterType();
         ParameterEditor editor = ParameterEditors.getEditor(type);
         Panel editPanel;
         if (editor != null) {
-            editPanel = new Panel(mc, this).setLayout(new PositionalLayout())
+            editPanel = new Panel(minecraft, this).setLayout(new PositionalLayout())
                     .setFilledRectThickness(1);
-            editor.build(mc, this, editPanel, o -> {
+            editor.build(minecraft, this, editPanel, o -> {
                 CompoundNBT tag = new CompoundNBT();
                 ParameterTypeTools.writeToNBT(tag, type, o);
                 RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketVariableToServer(tileEntity.getPos(), varIdx, tag));
@@ -502,15 +500,15 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
             return;
         }
 
-        Panel panel = new Panel(mc, this)
+        Panel panel = new Panel(minecraft, this)
                 .setLayout(new VerticalLayout())
                 .setFilledBackground(0xff666666, 0xffaaaaaa)
                 .setFilledRectThickness(1);
         panel.setBounds(new Rectangle(50, 50, 200, 60 + editor.getHeight()));
         Window modalWindow = getWindowManager().createModalWindow(panel);
-        panel.addChild(new Label(mc, this).setText("Var " + varIdx + ":"));
+        panel.addChild(new Label(minecraft, this).setText("Var " + varIdx + ":"));
         panel.addChild(editPanel);
-        panel.addChild(new Button(mc, this)
+        panel.addChild(new Button(minecraft, this)
                 .setChannel("close")
                 .setText("Close"));
 
@@ -539,29 +537,29 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
                 fluidListMapping[fluidList.getChildCount()] = i;
                 Direction side = Direction.values()[i / TANKS];
                 String l = side.getName().substring(0, 1).toUpperCase() + (i%TANKS);
-                Panel panel = new Panel(mc, this).setLayout(new HorizontalLayout()).setDesiredWidth(40);
+                Panel panel = new Panel(minecraft, this).setLayout(new HorizontalLayout()).setDesiredWidth(40);
                 AbstractWidget<?> label;
                 if (setupMode != -1) {
                     boolean allocated = ((fluidAlloc >> i) & 1) != 0;
                     int fill = allocated ? 0x7700ff00 : (tileEntity.isFluidAllocated(-1, i) ? 0x77660000 : 0x77444444);
                     panel.setFilledBackground(fill);
                     if (allocated) {
-                        label = new Label(mc, this).setColor(0xffffffff).setText(String.valueOf(index)).setDesiredWidth(26).setUserObject("allowed");
+                        label = new Label(minecraft, this).setColor(0xffffffff).setText(String.valueOf(index)).setDesiredWidth(26).setUserObject("allowed");
                         index++;
                     } else {
-                        label = new Label(mc, this).setText("/").setDesiredWidth(26).setUserObject("allowed");
+                        label = new Label(minecraft, this).setText("/").setDesiredWidth(26).setUserObject("allowed");
                     }
                 } else {
-                    label = new Label(mc, this).setText(l).setDesiredWidth(26).setUserObject("allowed");
+                    label = new Label(minecraft, this).setText(l).setDesiredWidth(26).setUserObject("allowed");
                 }
                 label.setUserObject("allowed");
                 panel.addChild(label);
                 FluidStack fluidStack = entry.getFluidStack();
                 if (fluidStack != null) {
-                    BlockRender fluid = new BlockRender(mc, this).setRenderItem(fluidStack);
+                    BlockRender fluid = new BlockRender(minecraft, this).setRenderItem(fluidStack);
                     fluid.setTooltips(
-                            TextFormatting.GREEN + "Fluid: " + TextFormatting.WHITE + fluidStack.getLocalizedName(),
-                            TextFormatting.GREEN + "Amount: " + TextFormatting.WHITE + fluidStack.amount + "mb");
+                            TextFormatting.GREEN + "Fluid: " + TextFormatting.WHITE + fluidStack.getDisplayName().getFormattedText(),
+                            TextFormatting.GREEN + "Amount: " + TextFormatting.WHITE + fluidStack.getAmount() + "mb");
                     fluid.setUserObject("allowed");
                     panel.addChild(fluid);
                 }
@@ -584,22 +582,22 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
 
         int index = 0;
         for (int i = 0 ; i < tileEntity.getMaxvars() ; i++) {
-            Panel panel = new Panel(mc, this).setLayout(new HorizontalLayout()).setDesiredWidth(40);
+            Panel panel = new Panel(minecraft, this).setLayout(new HorizontalLayout()).setDesiredWidth(40);
             if (setupMode != -1) {
                 boolean allocated = ((varAlloc >> i) & 1) != 0;
                 int fill = allocated ? 0x7700ff00 : (tileEntity.isVarAllocated(-1, i) ? 0x77660000 : 0x77444444);
                 panel.setFilledBackground(fill);
                 if (allocated) {
-                    panel.addChild(new Label(mc, this).setColor(0xffffffff).setText(String.valueOf(index)).setDesiredWidth(26).setUserObject("allowed"));
+                    panel.addChild(new Label(minecraft, this).setColor(0xffffffff).setText(String.valueOf(index)).setDesiredWidth(26).setUserObject("allowed"));
                     index++;
                 } else {
-                    panel.addChild(new Label(mc, this).setText("/").setDesiredWidth(26).setUserObject("allowed"));
+                    panel.addChild(new Label(minecraft, this).setText("/").setDesiredWidth(26).setUserObject("allowed"));
                 }
             } else {
-                panel.addChild(new Label(mc, this).setText(String.valueOf(i)).setDesiredWidth(26).setUserObject("allowed"));
+                panel.addChild(new Label(minecraft, this).setText(String.valueOf(i)).setDesiredWidth(26).setUserObject("allowed"));
             }
             int finalI = i;
-            panel.addChild(new Button(mc, this)
+            panel.addChild(new Button(minecraft, this)
                     .addButtonEvent(w -> openValueEditor(finalI))
                     .setText("...")
                     .setUserObject("allowed"));
@@ -621,9 +619,10 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
 
         drawWindow();
 
-        long currentRF = GenericEnergyStorageTileEntity.getCurrentRF();
-        energyBar.setValue(currentRF);
-        tileEntity.requestRfFromServer(RFToolsControl.MODID);
+        tileEntity.getCapability(CapabilityEnergy.ENERGY).ifPresent(e -> {
+            energyBar.setMaxValue(((GenericEnergyStorage)e).getCapacity());
+            energyBar.setValue(((GenericEnergyStorage)e).getEnergy());
+        });
 
         drawAllocatedSlots();
     }
@@ -635,14 +634,14 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
         }
 
         GlStateManager.pushMatrix();
-        GlStateManager.translate(guiLeft, guiTop, 0.0F);
+        GlStateManager.translatef(guiLeft, guiTop, 0.0F);
 
         CardInfo cardInfo = tileEntity.getCardInfo(setupMode);
         int itemAlloc = cardInfo.getItemAllocation();
 
         int index = 0;
         for (int i = 0 ; i < ProcessorTileEntity.ITEM_SLOTS ; i++) {
-            Slot slot = inventorySlots.getSlot(ProcessorContainer.SLOT_BUFFER + i);
+            Slot slot = container.getSlot(ProcessorContainer.SLOT_BUFFER + i);
 
             boolean allocated = ((itemAlloc >> i) & 1) != 0;
             int border = allocated ? 0xffffffff : 0xaaaaaaaa;
@@ -651,7 +650,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity> {
                     slot.xPos + 17, slot.yPos + 17,
                     border, fill);
             if (allocated) {
-                this.drawString(fontRenderer, "" + index,
+                this.drawString(minecraft.fontRenderer, "" + index,
                         slot.xPos +4, slot.yPos +4, 0xffffffff);
                 index++;
             }

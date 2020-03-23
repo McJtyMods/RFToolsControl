@@ -19,14 +19,15 @@
 
 package mcjty.rftoolscontrol.blocks.multitank;
 
+import com.sun.istack.internal.NotNull;
 import net.minecraftforge.fluids.FluidStack;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class MultiTankFluidProperties implements IFluidTankProperties {
+public class MultiTankFluidProperties {
 
-    @Nullable private FluidStack contents;
+    @Nonnull private FluidStack contents = FluidStack.EMPTY;
     private final int capacity;
     private final boolean canFill;
     private final boolean canDrain;
@@ -45,74 +46,69 @@ public class MultiTankFluidProperties implements IFluidTankProperties {
         this.canDrain = canDrain;
     }
 
-    @Nullable
-    @Override
+    @NotNull
     public FluidStack getContents() {
-        return contents == null ? null : contents.copy();
+        return contents.copy();
     }
 
+    @NotNull
     public FluidStack getContentsInternal() {
         return contents;
     }
 
     public boolean hasContents() {
-        return contents != null;
+        return !contents.isEmpty();
     }
 
     public void drain(int amount) {
-        if (contents == null) {
+        if (contents.isEmpty()) {
             return;
         }
-        contents.amount -= amount;
-        if (contents.amount <= 0) {
-            contents = null;
+        contents.shrink(amount);
+        if (contents.getAmount() <= 0) {
+            contents = FluidStack.EMPTY;
         }
         tankTileEntity.markDirty();
     }
 
     // Warning! Doesn't check if amount fits and is right liquid!
-    public void fill(FluidStack stack) {
-        if (stack == null) {
+    public void fill(@NotNull FluidStack stack) {
+        if (stack.isEmpty()) {
             return;
         }
-        if (contents == null) {
+        if (contents.isEmpty()) {
             contents = stack;
         } else {
-            contents.amount += stack.amount;
+            contents.setAmount(contents.getAmount() + stack.getAmount());
         }
         tankTileEntity.markDirty();
     }
 
-    public void set(FluidStack stack) {
-        if (stack == null) {
-            contents = null;
+    public void set(@NotNull FluidStack stack) {
+        if (stack.isEmpty()) {
+            contents = FluidStack.EMPTY;
         } else {
             contents = stack.copy();
         }
         tankTileEntity.markDirty();
     }
 
-    @Override
     public int getCapacity() {
         return capacity;
     }
 
-    @Override
     public boolean canFill() {
         return canFill;
     }
 
-    @Override
     public boolean canDrain() {
         return canDrain;
     }
 
-    @Override
     public boolean canFillFluidType(FluidStack fluidStack) {
         return canFill;
     }
 
-    @Override
     public boolean canDrainFluidType(FluidStack fluidStack) {
         return canDrain;
     }

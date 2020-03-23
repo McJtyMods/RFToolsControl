@@ -1,65 +1,60 @@
 package mcjty.rftoolscontrol.blocks.processor;
 
-import mcjty.lib.gui.GenericGuiContainer;
-import mcjty.rftoolscontrol.setup.GuiProxy;
-import mcjty.theoneprobe.api.IProbeHitData;
-import mcjty.theoneprobe.api.IProbeInfo;
-import mcjty.theoneprobe.api.ProbeMode;
+import mcjty.lib.blocks.BaseBlock;
+import mcjty.lib.builder.BlockBuilder;
 import net.minecraft.block.Block;
-import net.minecraft.block.material.Material;
+import net.minecraft.block.BlockState;
 import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.TextFormatting;
-
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.world.IBlockReader;
+import net.minecraft.world.IWorldReader;
 import net.minecraft.world.World;
 
-
+import javax.annotation.Nullable;
 import java.util.List;
-import java.util.function.BiFunction;
 
-public class ProcessorBlock extends GenericRFToolsBlock<ProcessorTileEntity, ProcessorContainer> {
+public class ProcessorBlock extends BaseBlock {
 
-    @Override
-    public boolean needsRedstoneCheck() {
-        return true;
-    }
+    // @todo 1.15
+//    @Override
+//    public boolean needsRedstoneCheck() {
+//        return true;
+//    }
 
     public ProcessorBlock() {
-        super(Material.IRON, ProcessorTileEntity.class, ProcessorContainer::new, "processor", false);
+        super(new BlockBuilder()
+                .tileEntitySupplier(ProcessorTileEntity::new));
     }
 
-    @Override
-    public void initModel() {
-        ProcessorRenderer.register();
-        super.initModel();
-    }
+    // @todo 1.15
+//    @Override
+//    public void initModel() {
+//        ProcessorRenderer.register();
+//        super.initModel();
+//    }
 
 
-    @Override
-    public BiFunction<ProcessorTileEntity, ProcessorContainer, GenericGuiContainer<? super ProcessorTileEntity>> getGuiFactory() {
-        return GuiProcessor::new;
-    }
-
-    @Override
-    public int getGuiID() {
-        return GuiProxy.GUI_PROCESSOR;
-    }
+//    @Override
+//    public BiFunction<ProcessorTileEntity, ProcessorContainer, GenericGuiContainer<? super ProcessorTileEntity>> getGuiFactory() {
+//        return GuiProcessor::new;
+//    }
 
 
     @Override
-    public void addInformation(ItemStack stack, World playerIn, List<String> list, ITooltipFlag advanced) {
-        super.addInformation(stack, playerIn, list, advanced);
-        list.add("The processor executes programs");
-        list.add("for automation");
+    public void addInformation(ItemStack stack, @Nullable IBlockReader world, List<ITextComponent> list, ITooltipFlag advanced) {
+        super.addInformation(stack, world, list, advanced);
+        list.add(new StringTextComponent("The processor executes programs"));
+        list.add(new StringTextComponent("for automation"));
     }
 
     @Override
-    public void neighborChanged(BlockState state, World world, BlockPos pos, Block blockIn, BlockPos fromPos) {
-        super.neighborChanged(state, world, pos, blockIn, fromPos);
+    public void neighborChanged(BlockState state, World world, BlockPos pos, Block blockIn, BlockPos fromPos, boolean p_220069_6_) {
+        super.neighborChanged(state, world, pos, blockIn, fromPos, p_220069_6_);
         TileEntity te = world.getTileEntity(pos);
         if (te instanceof ProcessorTileEntity) {
             ((ProcessorTileEntity) te).markFluidSlotsDirty();
@@ -67,36 +62,36 @@ public class ProcessorBlock extends GenericRFToolsBlock<ProcessorTileEntity, Pro
     }
 
     @Override
-    public void onNeighborChange(IBlockAccess world, BlockPos pos, BlockPos neighbor) {
-        super.onNeighborChange(world, pos, neighbor);
+    public void onNeighborChange(BlockState state, IWorldReader world, BlockPos pos, BlockPos neighbor) {
         TileEntity te = world.getTileEntity(pos);
         if (te instanceof ProcessorTileEntity) {
             ((ProcessorTileEntity) te).markFluidSlotsDirty();
         }
     }
 
-    @Override
-    @Optional.Method(modid = "theoneprobe")
-    public void addProbeInfo(ProbeMode mode, IProbeInfo probeInfo, PlayerEntity player, World world, BlockState blockState, IProbeHitData data) {
-        super.addProbeInfo(mode, probeInfo, player, world, blockState, data);
-        TileEntity te = world.getTileEntity(data.getPos());
-        if (te instanceof ProcessorTileEntity) {
-            ProcessorTileEntity processor = (ProcessorTileEntity) te;
-            if (processor.hasNetworkCard()) {
-                probeInfo.text(TextFormatting.GREEN + "Channel: " + processor.getChannelName());
-                probeInfo.text(TextFormatting.GREEN + "Nodes: " + processor.getNodeCount());
-            }
-            if (mode == ProbeMode.EXTENDED) {
-                List<String> lastMessages = processor.getLastMessages(6);
-                if (!lastMessages.isEmpty()) {
-                    IProbeInfo v = probeInfo.vertical(probeInfo.defaultLayoutStyle().borderColor(0xffff0000));
-                    for (String s : lastMessages) {
-                        v.text("    " + s);
-                    }
-                }
-            }
-        }
-    }
+    // @todo 1.15
+//    @Override
+//    @Optional.Method(modid = "theoneprobe")
+//    public void addProbeInfo(ProbeMode mode, IProbeInfo probeInfo, PlayerEntity player, World world, BlockState blockState, IProbeHitData data) {
+//        super.addProbeInfo(mode, probeInfo, player, world, blockState, data);
+//        TileEntity te = world.getTileEntity(data.getPos());
+//        if (te instanceof ProcessorTileEntity) {
+//            ProcessorTileEntity processor = (ProcessorTileEntity) te;
+//            if (processor.hasNetworkCard()) {
+//                probeInfo.text(TextFormatting.GREEN + "Channel: " + processor.getChannelName());
+//                probeInfo.text(TextFormatting.GREEN + "Nodes: " + processor.getNodeCount());
+//            }
+//            if (mode == ProbeMode.EXTENDED) {
+//                List<String> lastMessages = processor.getLastMessages(6);
+//                if (!lastMessages.isEmpty()) {
+//                    IProbeInfo v = probeInfo.vertical(probeInfo.defaultLayoutStyle().borderColor(0xffff0000));
+//                    for (String s : lastMessages) {
+//                        v.text("    " + s);
+//                    }
+//                }
+//            }
+//        }
+//    }
 
 
     private int getInputStrength(World world, BlockPos pos, Direction side) {
@@ -133,12 +128,13 @@ public class ProcessorBlock extends GenericRFToolsBlock<ProcessorTileEntity, Pro
     }
 
     @Override
-    public boolean canConnectRedstone(BlockState state, IBlockAccess world, BlockPos pos, Direction side) {
+    public boolean canConnectRedstone(BlockState state, IBlockReader world, BlockPos pos, @Nullable Direction side) {
         return true;
     }
 
+    // @todo 1.15
     @Override
-    protected int getRedstoneOutput(BlockState state, IBlockAccess world, BlockPos pos, Direction side) {
+    public int getStrongPower(BlockState state, IBlockReader world, BlockPos pos, Direction side) {
         TileEntity te = world.getTileEntity(pos);
         if (state.getBlock() instanceof ProcessorBlock && te instanceof ProcessorTileEntity) {
             ProcessorTileEntity processor = (ProcessorTileEntity) te;

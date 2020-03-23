@@ -15,8 +15,7 @@ public class CraftingStationBlock extends BaseBlock {
 
     public CraftingStationBlock() {
         super(new BlockBuilder()
-        .tileEntitySupplier(CraftingStationTileEntity::new));
-//        super(Material.IRON, CraftingStationTileEntity.class, CraftingStationContainer::new, "craftingstation", false);
+                .tileEntitySupplier(CraftingStationTileEntity::new));
     }
 
 //    @Override

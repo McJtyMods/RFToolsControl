@@ -1,8 +1,16 @@
 package mcjty.rftoolscontrol.blocks.workbench;
 
-import mcjty.lib.container.*;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.IInventory;
+import mcjty.lib.container.ContainerFactory;
+import mcjty.lib.container.GenericContainer;
+import mcjty.lib.container.SlotDefinition;
+import mcjty.lib.tileentity.GenericTileEntity;
+import mcjty.rftoolscontrol.setup.Registration;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.wrapper.InvWrapper;
+
+import javax.annotation.Nullable;
 
 public class WorkbenchContainer extends GenericContainer {
     public static final String CONTAINER_INVENTORY = "container";
@@ -12,13 +20,13 @@ public class WorkbenchContainer extends GenericContainer {
     public static final int SLOT_BUFFER = 10;
     public static final int BUFFER_SIZE = 9*3;
 
-    public static final ContainerFactory factory = new ContainerFactory() {
+    public static final ContainerFactory CONTAINER_FACTORY = new ContainerFactory(BUFFER_SIZE + 10) {
         @Override
         protected void setup() {
-            addSlotBox(new SlotDefinition(SlotType.SLOT_CONTAINER), CONTAINER_INVENTORY, SLOT_CRAFTINPUT, 42, 27, 3, 18, 3, 18);
-            addSlotBox(new SlotDefinition(SlotType.SLOT_CRAFTRESULT), CONTAINER_INVENTORY, SLOT_CRAFTOUTPUT, 114, 45, 1, 18, 1, 18);
-            addSlotBox(new SlotDefinition(SlotType.SLOT_CONTAINER), CONTAINER_INVENTORY, SLOT_BUFFER, 6, 99, 9, 18, 3, 18);
-            layoutPlayerInventorySlots(6, 157);
+            box(SlotDefinition.container(), CONTAINER_INVENTORY, SLOT_CRAFTINPUT, 42, 27, 3, 3);
+            box(SlotDefinition.craftResult(), CONTAINER_INVENTORY, SLOT_CRAFTOUTPUT, 114, 45, 1, 1);
+            box(SlotDefinition.container(), CONTAINER_INVENTORY, SLOT_BUFFER, 6, 99, 9, 3);
+            playerSlots(6, 157);
         }
     };
 
@@ -39,11 +47,14 @@ public class WorkbenchContainer extends GenericContainer {
 //        return super.transferStackInSlot(player, index);
 //    }
 
-    public WorkbenchContainer(PlayerEntity player, IInventory containerInventory) {
-        super(factory);
-        setCrafter((GenericCrafter) containerInventory);
-        addInventory(CONTAINER_INVENTORY, containerInventory);
-        addInventory(ContainerFactory.CONTAINER_PLAYER, player.inventory);
+    public WorkbenchContainer(int id, ContainerFactory factory, BlockPos pos, @Nullable GenericTileEntity te) {
+        super(Registration.WORKBENCH_CONTAINER.get(), id, factory, pos, te);
+    }
+
+    @Override
+    public void setupInventories(IItemHandler itemHandler, PlayerInventory inventory) {
+        addInventory(CONTAINER_INVENTORY, itemHandler);
+        addInventory(ContainerFactory.CONTAINER_PLAYER, new InvWrapper(inventory));
         generateSlots();
     }
 }

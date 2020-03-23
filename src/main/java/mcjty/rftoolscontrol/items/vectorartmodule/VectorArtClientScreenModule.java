@@ -1,15 +1,18 @@
 package mcjty.rftoolscontrol.items.vectorartmodule;
 
-import mcjty.rftools.api.screens.IClientScreenModule;
-import mcjty.rftools.api.screens.IModuleRenderHelper;
-import mcjty.rftools.api.screens.ModuleRenderInfo;
+import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.platform.GlStateManager;
+import mcjty.rftoolsbase.api.screens.IClientScreenModule;
+import mcjty.rftoolsbase.api.screens.IModuleRenderHelper;
+import mcjty.rftoolsbase.api.screens.ModuleRenderInfo;
 import mcjty.rftoolscontrol.blocks.vectorart.GfxOp;
 import mcjty.rftoolscontrol.compat.rftoolssupport.ModuleDataVectorArt;
 import net.minecraft.client.gui.FontRenderer;
-
+import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraft.world.dimension.DimensionType;
 
 import java.util.List;
 
@@ -26,9 +29,10 @@ public class VectorArtClientScreenModule implements IClientScreenModule<ModuleDa
     }
 
     @Override
-    public void render(IModuleRenderHelper renderHelper, FontRenderer fontRenderer, int currenty, ModuleDataVectorArt screenData, ModuleRenderInfo renderInfo) {
+    public void render(MatrixStack matrixStack, IRenderTypeBuffer buffer, IModuleRenderHelper renderHelper, FontRenderer fontRenderer, int currenty, ModuleDataVectorArt screenData, ModuleRenderInfo renderInfo) {
+        // @todo 1.15 render system
         GlStateManager.disableLighting();
-        GlStateManager.enableDepth();
+        GlStateManager.enableDepthTest();
         GlStateManager.depthMask(false);
 
         if (screenData != null) {
@@ -47,7 +51,7 @@ public class VectorArtClientScreenModule implements IClientScreenModule<ModuleDa
     }
 
     @Override
-    public void setupFromNBT(CompoundNBT tagCompound, int dim, BlockPos pos) {
+    public void setupFromNBT(CompoundNBT tagCompound, DimensionType dim, BlockPos pos) {
     }
 
     @Override

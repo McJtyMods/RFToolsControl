@@ -1,49 +1,58 @@
 package mcjty.rftoolscontrol.items;
 
+import mcjty.lib.McJtyLib;
+import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.api.parameters.Parameter;
 import mcjty.rftoolscontrol.logic.ParameterTools;
 import mcjty.rftoolscontrol.logic.ParameterTypeTools;
 import mcjty.rftoolscontrol.setup.GuiProxy;
 import net.minecraft.client.util.ITooltipFlag;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 
+import javax.annotation.Nullable;
 import java.util.List;
 
-public class TokenItem extends GenericRFToolsItem {
+public class TokenItem extends Item {
 
     public TokenItem() {
-        super("token");
-        setMaxStackSize(64);
+        super(new Properties()
+                .maxStackSize(64)
+                .group(RFToolsControl.setup.getTab()));
+
+//        super((Properties) "token");
     }
 
 
     @Override
-    public void addInformation(ItemStack stack, World playerIn, List<String> list, ITooltipFlag advanced) {
-        super.addInformation(stack, playerIn, list, advanced);
+    public void addInformation(ItemStack stack, @Nullable World worldIn, List<ITextComponent> list, ITooltipFlag flagIn) {
+        super.addInformation(stack, worldIn, list, flagIn);
 
         boolean hasContents = false;
-        if (stack.hasTagCompound()) {
-            CompoundNBT parameter = stack.getTagCompound().getCompoundTag("parameter");
-            if (!parameter.hasNoTags()) {
+        if (stack.hasTag()) {
+            CompoundNBT parameter = stack.getTag().getCompound("parameter");
+            if (!parameter.isEmpty()) {
                 Parameter par = ParameterTools.readFromNBT(parameter);
                 hasContents = true;
-                list.add(TextFormatting.BLUE + "Type: " + par.getParameterType().getName());
-                list.add(TextFormatting.BLUE + "Value: " + ParameterTypeTools.stringRepresentation(par.getParameterType(), par.getParameterValue()));
+                list.add(new StringTextComponent(TextFormatting.BLUE + "Type: " + par.getParameterType().getName()));
+                list.add(new StringTextComponent(TextFormatting.BLUE + "Value: " + ParameterTypeTools.stringRepresentation(par.getParameterType(), par.getParameterValue())));
             }
         }
         if (!hasContents) {
-            list.add(TextFormatting.BLUE + "This token is empty");
+            list.add(new StringTextComponent(TextFormatting.BLUE + "This token is empty"));
         }
 
-        if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT)) {
-            list.add(TextFormatting.WHITE + "This item is a simple token. It does");
-            list.add(TextFormatting.WHITE + "not do anything but it can store");
-            list.add(TextFormatting.WHITE + "information");
+        if (McJtyLib.proxy.isShiftKeyDown()) {
+            list.add(new StringTextComponent(TextFormatting.WHITE + "This item is a simple token. It does"));
+            list.add(new StringTextComponent(TextFormatting.WHITE + "not do anything but it can store"));
+            list.add(new StringTextComponent(TextFormatting.WHITE + "information"));
         } else {
-            list.add(TextFormatting.WHITE + GuiProxy.SHIFT_MESSAGE);
+            list.add(new StringTextComponent(TextFormatting.WHITE + GuiProxy.SHIFT_MESSAGE));
         }
     }
 }

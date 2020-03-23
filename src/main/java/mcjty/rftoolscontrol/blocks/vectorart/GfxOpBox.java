@@ -1,8 +1,8 @@
 package mcjty.rftoolscontrol.blocks.vectorart;
 
-import io.netty.buffer.ByteBuf;
 import mcjty.lib.client.RenderHelper;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.network.PacketBuffer;
 
 public class GfxOpBox extends GfxOp {
 
@@ -40,20 +40,20 @@ public class GfxOpBox extends GfxOp {
         y = tag.getByte("y");
         w = tag.getByte("w");
         h = tag.getByte("h");
-        color = tag.getInteger("color");
+        color = tag.getInt("color");
     }
 
     @Override
     protected void writeToNBTInternal(CompoundNBT tag) {
-        tag.setByte("x", (byte) x);
-        tag.setByte("y", (byte) y);
-        tag.setByte("w", (byte) w);
-        tag.setByte("h", (byte) h);
-        tag.setInteger("color", color);
+        tag.putByte("x", (byte) x);
+        tag.putByte("y", (byte) y);
+        tag.putByte("w", (byte) w);
+        tag.putByte("h", (byte) h);
+        tag.putInt("color", color);
     }
 
     @Override
-    protected void readFromBufInternal(ByteBuf buf) {
+    protected void readFromBufInternal(PacketBuffer buf) {
         x = buf.readByte();
         y = buf.readByte();
         w = buf.readByte();
@@ -62,7 +62,7 @@ public class GfxOpBox extends GfxOp {
     }
 
     @Override
-    protected void writeToBufInternal(ByteBuf buf) {
+    protected void writeToBufInternal(PacketBuffer buf) {
         buf.writeByte(x);
         buf.writeByte(y);
         buf.writeByte(w);

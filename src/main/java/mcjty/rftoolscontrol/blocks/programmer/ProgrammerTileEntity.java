@@ -1,22 +1,34 @@
 package mcjty.rftoolscontrol.blocks.programmer;
 
 
-import mcjty.lib.container.InventoryHelper;
+import mcjty.lib.container.AutomationFilterItemHander;
+import mcjty.lib.container.NoDirectionItemHander;
 import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.rftoolscontrol.items.ModItems;
 import mcjty.rftoolscontrol.items.ProgramCardItem;
 import mcjty.rftoolscontrol.logic.grid.ProgramCardInstance;
-import net.minecraft.entity.player.PlayerEntity;
+import mcjty.rftoolscontrol.setup.Registration;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.INBT;
+import net.minecraftforge.common.util.LazyOptional;
+
+import javax.annotation.Nonnull;
 
 
-public class ProgrammerTileEntity extends GenericTileEntity implements DefaultSidedInventory {
+public class ProgrammerTileEntity extends GenericTileEntity {
 
-    private InventoryHelper inventoryHelper = new InventoryHelper(this, ProgrammerContainer.factory, 2);
+    private NoDirectionItemHander items = createItemHandler();
+    private LazyOptional<NoDirectionItemHander> itemHandler = LazyOptional.of(() -> items);
+    private LazyOptional<AutomationFilterItemHander> automationItemHandler = LazyOptional.of(() -> new AutomationFilterItemHander(items));
 
     public ProgrammerTileEntity() {
-        inventoryHelper.setStackInSlot(ProgrammerContainer.SLOT_DUMMY, new ItemStack(ModItems.programCardItem));
+        super(Registration.PROGRAMMER_TILE.get());
+        items.setStackInSlot(ProgrammerContainer.SLOT_DUMMY, new ItemStack(ModItems.programCardItem));
+    }
+
+    public NoDirectionItemHander getItems() {
+        return items;
     }
 
     @Override
@@ -25,14 +37,14 @@ public class ProgrammerTileEntity extends GenericTileEntity implements DefaultSi
         super.setPowerInput(powered);
         if (p != powerLevel && powerLevel > 0) {
             // Copy program in programmer to card
-            ItemStack dummy = getStackInSlot(ProgrammerContainer.SLOT_DUMMY);
+            ItemStack dummy = items.getStackInSlot(ProgrammerContainer.SLOT_DUMMY);
             if (dummy.isEmpty()) {
                 return;
             }
-            if (!dummy.hasTagCompound()) {
+            if (!dummy.hasTag()) {
                 return;
             }
-            ItemStack card = getStackInSlot(ProgrammerContainer.SLOT_CARD);
+            ItemStack card = items.getStackInSlot(ProgrammerContainer.SLOT_CARD);
             if (card.isEmpty()) {
                 return;
             }
@@ -41,40 +53,35 @@ public class ProgrammerTileEntity extends GenericTileEntity implements DefaultSi
                 return;
             }
             ProgramCardItem.setCardName(card, ProgramCardItem.getCardName(dummy));
-            NBTBase newGrid = dummy.getTagCompound().getTag("grid").copy();
-            card.getTagCompound().setTag("grid", newGrid);
+            INBT newGrid = dummy.getTag().get("grid").copy();
+            card.getTag().put("grid", newGrid);
         }
     }
 
-    @Override
-    protected boolean needsCustomInvWrapper() {
-        return true;
-    }
-
-    @Override
-    public InventoryHelper getInventoryHelper() {
-        return inventoryHelper;
-    }
-
-    @Override
-    public boolean isEmpty() {
-        return false;
-    }
-
-    @Override
-    public boolean isUsableByPlayer(PlayerEntity player) {
-        return canPlayerAccess(player);
-    }
-
-    @Override
+    // @todo 1.15 loot tables
     public void readRestorableFromNBT(CompoundNBT tagCompound) {
-        super.readRestorableFromNBT(tagCompound);
-        readBufferFromNBT(tagCompound, inventoryHelper);
+//        readBufferFromNBT(tagCompound, inventoryHelper);
     }
 
-    @Override
+    // @todo 1.15 loot tables
     public void writeRestorableToNBT(CompoundNBT tagCompound) {
-        super.writeRestorableToNBT(tagCompound);
-        writeBufferToNBT(tagCompound, inventoryHelper);
+//        writeBufferToNBT(tagCompound, inventoryHelper);
+    }
+
+    private NoDirectionItemHander createItemHandler() {
+        return new NoDirectionItemHander(ProgrammerTileEntity.this, ProgrammerContainer.CONTAINER_FACTORY) {
+
+            @Override
+            protected void onUpdate(int index) {
+                // @todo 1.15
+            }
+
+            @Override
+            public boolean isItemValid(int slot, @Nonnull ItemStack stack) {
+                // @todo 1.15
+                return true;
+            }
+        };
     }
 }
+

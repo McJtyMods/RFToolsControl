@@ -1,24 +1,25 @@
 package mcjty.rftoolscontrol.compat.jei;
 
-import mcjty.rftoolscontrol.blocks.ModBlocks;
+import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.blocks.workbench.WorkbenchContainer;
 import mcjty.rftoolscontrol.network.RFToolsCtrlMessages;
-import mezz.jei.api.BlankModPlugin;
-import mezz.jei.api.IModRegistry;
-import mezz.jei.api.JEIPlugin;
-import mezz.jei.api.gui.IGuiIngredient;
-import mezz.jei.api.recipe.VanillaRecipeCategoryUid;
-import mezz.jei.api.recipe.transfer.IRecipeTransferRegistry;
+import mcjty.rftoolscontrol.setup.Registration;
+import mezz.jei.api.IModPlugin;
+import mezz.jei.api.JeiPlugin;
+import mezz.jei.api.constants.VanillaRecipeCategoryUid;
+import mezz.jei.api.gui.ingredient.IGuiIngredient;
+import mezz.jei.api.registration.IRecipeCatalystRegistration;
+import mezz.jei.api.registration.IRecipeTransferRegistration;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 
-import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-@JEIPlugin
-public class RFToolsControlJeiPlugin extends BlankModPlugin {
+@JeiPlugin
+public class RFToolsControlJeiPlugin implements IModPlugin {
 
     public static void transferRecipe(Map<Integer, ? extends IGuiIngredient<ItemStack>> guiIngredients, BlockPos pos) {
         List<ItemStack> items = new ArrayList<>(10);
@@ -37,11 +38,18 @@ public class RFToolsControlJeiPlugin extends BlankModPlugin {
     }
 
     @Override
-    public void register(@Nonnull IModRegistry registry) {
-        IRecipeTransferRegistry transferRegistry = registry.getRecipeTransferRegistry();
-        transferRegistry.addRecipeTransferHandler(new CraftingCardRecipeTransferHandler(), VanillaRecipeCategoryUid.CRAFTING);
+    public ResourceLocation getPluginUid() {
+        return new ResourceLocation(RFToolsControl.MODID, "rftoolscontrol");
+    }
 
-        transferRegistry.addRecipeTransferHandler(WorkbenchContainer.class, VanillaRecipeCategoryUid.CRAFTING, WorkbenchContainer.SLOT_CRAFTINPUT, 9, WorkbenchContainer.SLOT_BUFFER, WorkbenchContainer.BUFFER_SIZE + 9*4);
-        registry.addRecipeCategoryCraftingItem(new ItemStack(ModBlocks.workbenchBlock), VanillaRecipeCategoryUid.CRAFTING);
+    @Override
+    public void registerRecipeTransferHandlers(IRecipeTransferRegistration registration) {
+        CraftingCardRecipeTransferHandler.register(registration);
+        registration.addRecipeTransferHandler(WorkbenchContainer.class, VanillaRecipeCategoryUid.CRAFTING, WorkbenchContainer.SLOT_CRAFTINPUT, 9, WorkbenchContainer.SLOT_BUFFER, WorkbenchContainer.BUFFER_SIZE + 9*4);
+    }
+
+    @Override
+    public void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
+        registration.addRecipeCatalyst(new ItemStack(Registration.WORKBENCH.get()), VanillaRecipeCategoryUid.CRAFTING);
     }
 }

@@ -1,46 +1,36 @@
 package mcjty.rftoolscontrol.compat.jei;
 
-import io.netty.buffer.ByteBuf;
 import mcjty.lib.network.NetworkTools;
-
 import mcjty.rftoolscontrol.items.ModItems;
 import mcjty.rftoolscontrol.items.craftingcard.CraftingCardContainer;
-
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.world.World;
-
+import net.minecraftforge.fml.network.NetworkEvent;
 
 import java.util.List;
 import java.util.function.Supplier;
 
-public class PacketSendRecipe implements IMessage {
+public class PacketSendRecipe {
     private List<ItemStack> stacks;
 
-    @Override
-    public void fromBytes(ByteBuf buf) {
-        stacks = NetworkTools.readItemStackList(buf);
-    }
-
-    @Override
-    public void toBytes(ByteBuf buf) {
+    public void toBytes(PacketBuffer buf) {
         NetworkTools.writeItemStackList(buf, stacks);
     }
 
-    public PacketSendRecipe() {
-    }
-
-    public PacketSendRecipe(ByteBuf buf) {
-        fromBytes(buf);
+    public PacketSendRecipe(PacketBuffer buf) {
+        stacks = NetworkTools.readItemStackList(buf);
     }
 
     public PacketSendRecipe(List<ItemStack> stacks) {
         this.stacks = stacks;
     }
 
-    public void handle(Supplier<Context> supplier) {
-        Context ctx = supplier.get();
+    public void handle(Supplier<NetworkEvent.Context> supplier) {
+        NetworkEvent.Context ctx = supplier.get();
         ctx.enqueueWork(() -> {
-            EntityPlayerMP player = ctx.getSender();
+            PlayerEntity player = ctx.getSender();
             World world = player.getEntityWorld();
             // Handle tablet version
             ItemStack mainhand = player.getHeldItemMainhand();

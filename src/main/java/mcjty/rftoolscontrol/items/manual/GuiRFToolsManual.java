@@ -1,26 +1,8 @@
 package mcjty.rftoolscontrol.items.manual;
 
-import mcjty.lib.gui.Window;
-import mcjty.lib.gui.layout.HorizontalLayout;
-import mcjty.lib.gui.layout.VerticalLayout;
-import mcjty.lib.gui.widgets.Button;
-import mcjty.lib.gui.widgets.Label;
-import mcjty.lib.gui.widgets.Panel;
-import mcjty.lib.gui.widgets.TextPage;
-import mcjty.rftoolscontrol.RFToolsControl;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.util.ResourceLocation;
-import org.lwjgl.input.Mouse;
+public class GuiRFToolsManual {} /* @todo 1.15 extends GuiScreen {
 
-import java.awt.*;
-import java.io.IOException;
-
-public class GuiRFToolsManual extends GuiScreen {
-
-    /** The X size of the window in pixels. */
     private int xSize = 400;
-    /** The Y size of the window in pixels. */
     private int ySize = 224;
 
     private Window window;
@@ -132,3 +114,4 @@ public class GuiRFToolsManual extends GuiScreen {
         }
     }
 }
+*/

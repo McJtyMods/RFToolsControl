@@ -4,7 +4,6 @@ import mcjty.lib.compat.MainCompatHandler;
 import mcjty.lib.setup.DefaultModSetup;
 import mcjty.rftoolscontrol.CommandHandler;
 import mcjty.rftoolscontrol.RFToolsControl;
-import mcjty.rftoolscontrol.blocks.ModBlocks;
 import mcjty.rftoolscontrol.config.ConfigSetup;
 import mcjty.rftoolscontrol.items.ModItems;
 import mcjty.rftoolscontrol.logic.registry.Functions;
@@ -29,6 +28,7 @@ public class ModSetup extends DefaultModSetup {
 
         NetworkRegistry.INSTANCE.registerGuiHandler(RFToolsControl.instance, new GuiProxy());
 
+        Registration.register();
         CommandHandler.registerCommands();
 
         RFToolsCtrlMessages.registerMessages("rftoolsctrl");

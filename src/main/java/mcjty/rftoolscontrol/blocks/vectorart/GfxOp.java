@@ -1,7 +1,7 @@
 package mcjty.rftoolscontrol.blocks.vectorart;
 
-import io.netty.buffer.ByteBuf;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.network.PacketBuffer;
 
 public abstract class GfxOp {
 
@@ -18,7 +18,7 @@ public abstract class GfxOp {
 
     public CompoundNBT writeToNBT() {
         CompoundNBT tag = new CompoundNBT();
-        tag.setByte("type", (byte) getType().ordinal());
+        tag.putByte("type", (byte) getType().ordinal());
         writeToNBTInternal(tag);
         return tag;
     }
@@ -27,7 +27,7 @@ public abstract class GfxOp {
 
     protected abstract void writeToNBTInternal(CompoundNBT tag);
 
-    public static GfxOp readFromBuf(ByteBuf buf) {
+    public static GfxOp readFromBuf(PacketBuffer buf) {
         GfxOpType type = GfxOpType.values()[buf.readByte()];
         GfxOp op = createGfxOp(type);
         op.readFromBufInternal(buf);
@@ -50,14 +50,14 @@ public abstract class GfxOp {
         return op;
     }
 
-    public void writeToBuf(ByteBuf buf) {
+    public void writeToBuf(PacketBuffer buf) {
         buf.writeByte(getType().ordinal());
         writeToBufInternal(buf);
     }
 
-    protected abstract void readFromBufInternal(ByteBuf buf);
+    protected abstract void readFromBufInternal(PacketBuffer buf);
 
-    protected abstract void writeToBufInternal(ByteBuf buf);
+    protected abstract void writeToBufInternal(PacketBuffer buf);
 
 
 }
