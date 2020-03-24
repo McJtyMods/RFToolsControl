@@ -4,6 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import mcjty.rftoolscontrol.api.parameters.*;
 import mcjty.rftoolscontrol.logic.registry.Functions;
 import mcjty.rftoolscontrol.logic.running.ExceptionType;
@@ -12,13 +13,11 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.JsonToNBT;
 import net.minecraft.nbt.ListNBT;
-import net.minecraft.nbt.NBTException;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
-
+import net.minecraftforge.registries.ForgeRegistries;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
@@ -61,10 +60,10 @@ public class ParameterTypeTools {
                 return ((Inventory) value).getStringRepresentation();
             case PAR_ITEM:
                 ItemStack itemStack = (ItemStack) value;
-                return StringUtils.left(itemStack.getDisplayName(), 10);
+                return StringUtils.left(itemStack.getDisplayName().getFormattedText(), 10);
             case PAR_FLUID:
                 FluidStack fluidStack = (FluidStack) value;
-                return StringUtils.left(fluidStack.getLocalizedName(), 10);
+                return StringUtils.left(fluidStack.getDisplayName().getFormattedText(), 10);
             case PAR_EXCEPTION:
                 ExceptionType exception = (ExceptionType) value;
                 return exception.getCode();
@@ -105,23 +104,23 @@ public class ParameterTypeTools {
 
     public static void writeToNBT(CompoundNBT tag, ParameterType type, ParameterValue value) {
         if (value.isVariable()) {
-            tag.setInteger("varIdx", value.getVariableIndex());
+            tag.putInt("varIdx", value.getVariableIndex());
         } else if (value.isFunction()) {
-            tag.setString("funId", value.getFunction().getId());
+            tag.putString("funId", value.getFunction().getId());
         } else if (value.getValue() == null) {
             // No value
-            tag.setBoolean("null", true);
+            tag.putBoolean("null", true);
         } else {
             writeToNBTInternal(tag, type, value.getValue());
         }
     }
 
     public static ParameterValue readFromNBT(CompoundNBT tag, ParameterType type) {
-        if (tag.hasKey("varIdx")) {
-            return ParameterValue.variable(tag.getInteger("varIdx"));
-        } else if (tag.hasKey("funId")) {
+        if (tag.contains("varIdx")) {
+            return ParameterValue.variable(tag.getInt("varIdx"));
+        } else if (tag.contains("funId")) {
             return ParameterValue.function(Functions.FUNCTIONS.get(tag.getString("funId")));
-        } else if (tag.hasKey("null")) {
+        } else if (tag.contains("null")) {
             return ParameterValue.constant(null);
         } else {
             return readFromNBTInternal(tag, type);
@@ -133,44 +132,44 @@ public class ParameterTypeTools {
             case PAR_STRING:
                 return ParameterValue.constant(tag.getString("v"));
             case PAR_INTEGER:
-                return ParameterValue.constant(tag.getInteger("v"));
+                return ParameterValue.constant(tag.getInt("v"));
             case PAR_LONG:
                 return ParameterValue.constant(tag.getLong("v"));
             case PAR_FLOAT:
                 return ParameterValue.constant(tag.getFloat("v"));
             case PAR_NUMBER:
-                if (tag.hasKey("v")) {
-                    return ParameterValue.constant(tag.getInteger("v"));
-                } else if (tag.hasKey("l")) {
+                if (tag.contains("v")) {
+                    return ParameterValue.constant(tag.getInt("v"));
+                } else if (tag.contains("l")) {
                     return ParameterValue.constant(tag.getLong("l"));
-                } else if (tag.hasKey("f")) {
+                } else if (tag.contains("f")) {
                     return ParameterValue.constant(tag.getFloat("f"));
-                } else if (tag.hasKey("d")) {
+                } else if (tag.contains("d")) {
                     return ParameterValue.constant(tag.getDouble("d"));
                 }
                 break;
             case PAR_SIDE:
-                int v = tag.getInteger("v");
+                int v = tag.getInt("v");
                 Direction facing = v == -1 ? null : Direction.values()[v];
                 String node = tag.getString("node");
                 return ParameterValue.constant(new BlockSide(node, facing));
             case PAR_BOOLEAN:
                 return ParameterValue.constant(tag.getBoolean("v"));
             case PAR_INVENTORY:
-                Direction side = Direction.values()[tag.getInteger("side")];
+                Direction side = Direction.values()[tag.getInt("side")];
                 String name = null;
                 Direction intSide = null;
-                if (tag.hasKey("nodeName")) {
+                if (tag.contains("nodeName")) {
                     name = tag.getString("nodeName");
                 }
-                if (tag.hasKey("intSide")) {
-                    intSide = Direction.values()[tag.getInteger("intSide")];
+                if (tag.contains("intSide")) {
+                    intSide = Direction.values()[tag.getInt("intSide")];
                 }
                 return ParameterValue.constant(new Inventory(name, side, intSide));
             case PAR_ITEM:
-                if (tag.hasKey("item")) {
-                    CompoundNBT tc = (CompoundNBT) tag.getTag("item");
-                    ItemStack stack = new ItemStack(tc);
+                if (tag.contains("item")) {
+                    CompoundNBT tc = tag.getCompound("item");
+                    ItemStack stack = ItemStack.read(tc);
                     // Fix for 1.10 0-sized stacks
                     if (stack.getCount() == 0) {
                         stack.setCount(1);
@@ -179,8 +178,8 @@ public class ParameterTypeTools {
                 }
                 return ParameterValue.constant(ItemStack.EMPTY);
             case PAR_FLUID:
-                if (tag.hasKey("fluid")) {
-                    CompoundNBT tc = (CompoundNBT) tag.getTag("fluid");
+                if (tag.contains("fluid")) {
+                    CompoundNBT tc = tag.getCompound("fluid");
                     FluidStack stack = FluidStack.loadFluidStackFromNBT(tc);
                     return ParameterValue.constant(stack);
                 }
@@ -189,12 +188,12 @@ public class ParameterTypeTools {
                 String code = tag.getString("code");
                 return ParameterValue.constant(ExceptionType.getExceptionForCode(code));
             case PAR_TUPLE:
-                return ParameterValue.constant(new Tuple(tag.getInteger("x"), tag.getInteger("y")));
+                return ParameterValue.constant(new Tuple(tag.getInt("x"), tag.getInt("y")));
             case PAR_VECTOR:
-                ListNBT array = tag.getTagList("vector", Constants.NBT.TAG_COMPOUND);
+                ListNBT array = tag.getList("vector", Constants.NBT.TAG_COMPOUND);
                 List<Parameter> vector = new ArrayList<>();
-                for (int i = 0 ; i < array.tagCount() ; i++) {
-                    vector.add(ParameterTools.readFromNBT(array.getCompoundTagAt(i)));
+                for (int i = 0 ; i < array.size() ; i++) {
+                    vector.add(ParameterTools.readFromNBT(array.getCompound(i)));
                 }
                 return ParameterValue.constant(Collections.unmodifiableList(vector));
         }
@@ -204,73 +203,73 @@ public class ParameterTypeTools {
     private static void writeToNBTInternal(CompoundNBT tag, ParameterType type, Object value) {
         switch (type) {
             case PAR_STRING:
-                tag.setString("v", (String) value);
+                tag.putString("v", (String) value);
                 break;
             case PAR_INTEGER:
-                tag.setInteger("v", (Integer) value);
+                tag.putInt("v", (Integer) value);
                 break;
             case PAR_LONG:
-                tag.setLong("v", (Long) value);
+                tag.putLong("v", (Long) value);
                 break;
             case PAR_FLOAT:
-                tag.setFloat("v", (Float) value);
+                tag.putFloat("v", (Float) value);
                 break;
             case PAR_NUMBER:
                 if (value instanceof Integer) {
-                    tag.setInteger("v", (Integer) value);
+                    tag.putInt("v", (Integer) value);
                 } else if (value instanceof Long) {
-                    tag.setLong("l", (Long) value);
+                    tag.putLong("l", (Long) value);
                 } else if (value instanceof Float) {
-                    tag.setFloat("f", (Float) value);
+                    tag.putFloat("f", (Float) value);
                 } else if (value instanceof Double) {
-                    tag.setDouble("d", (Double) value);
+                    tag.putDouble("d", (Double) value);
                 }
                 break;
             case PAR_SIDE:
                 BlockSide side = (BlockSide) value;
-                tag.setInteger("v", side.getSide() == null ? -1 : side.getSide().ordinal());
-                tag.setString("node", side.getNodeName() == null ? "" : side.getNodeName());
+                tag.putInt("v", side.getSide() == null ? -1 : side.getSide().ordinal());
+                tag.putString("node", side.getNodeName() == null ? "" : side.getNodeName());
                 break;
             case PAR_BOOLEAN:
-                tag.setBoolean("v", (Boolean) value);
+                tag.putBoolean("v", (Boolean) value);
                 break;
             case PAR_INVENTORY:
                 Inventory inv = (Inventory) value;
                 if (inv.getNodeName() != null) {
-                    tag.setString("nodeName", inv.getNodeName());
+                    tag.putString("nodeName", inv.getNodeName());
                 }
-                tag.setInteger("side", inv.getSide().ordinal());
+                tag.putInt("side", inv.getSide().ordinal());
                 if (inv.getIntSide() != null) {
-                    tag.setInteger("intSide", inv.getIntSide().ordinal());
+                    tag.putInt("intSide", inv.getIntSide().ordinal());
                 }
                 break;
             case PAR_ITEM:
                 ItemStack itemStack = (ItemStack) value;
                 CompoundNBT tc = new CompoundNBT();
-                itemStack.writeToNBT(tc);
-                tag.setTag("item", tc);
+                itemStack.write(tc);
+                tag.put("item", tc);
                 break;
             case PAR_FLUID:
                 FluidStack fluidStack = (FluidStack) value;
                 CompoundNBT fluidTc = new CompoundNBT();
                 fluidStack.writeToNBT(fluidTc);
-                tag.setTag("fluid", fluidTc);
+                tag.put("fluid", fluidTc);
                 break;
             case PAR_EXCEPTION:
                 ExceptionType exception = (ExceptionType) value;
-                tag.setString("code", exception.getCode());
+                tag.putString("code", exception.getCode());
                 break;
             case PAR_TUPLE:
-                tag.setInteger("x", ((Tuple) value).getX());
-                tag.setInteger("y", ((Tuple) value).getY());
+                tag.putInt("x", ((Tuple) value).getX());
+                tag.putInt("y", ((Tuple) value).getY());
                 break;
             case PAR_VECTOR:
                 List<Parameter> vector = (List<Parameter>) value;
                 ListNBT list = new ListNBT();
                 for (Parameter p : vector) {
-                    list.appendTag(ParameterTools.writeToNBT(p));
+                    list.add(ParameterTools.writeToNBT(p));
                 }
-                tag.setTag("vector", list);
+                tag.put("vector", list);
                 break;
         }
     }
@@ -328,18 +327,19 @@ public class ParameterTypeTools {
                 if (item.getCount() != 1) {
                     object.add("amount", new JsonPrimitive(item.getCount()));
                 }
-                object.add("meta", new JsonPrimitive(item.getItemDamage()));
-                if (item.hasTagCompound()) {
-                    String string = item.getTagCompound().toString();
+                // @todo 1.15 meta!
+//                object.add("meta", new JsonPrimitive(item.getItemDamage()));
+                if (item.hasTag()) {
+                    String string = item.getTag().toString();
                     object.add("nbt", new JsonPrimitive(string));
                 }
                 break;
             case PAR_FLUID:
                 FluidStack fluidStack = (FluidStack) value;
-                object.add("fluid", new JsonPrimitive(fluidStack.getFluid().getName()));
-                object.add("amount", new JsonPrimitive(fluidStack.amount));
-                if (fluidStack.tag != null) {
-                    object.add("nbt", new JsonPrimitive(fluidStack.tag.toString()));
+                object.add("fluid", new JsonPrimitive(fluidStack.getFluid().getRegistryName().toString()));
+                object.add("amount", new JsonPrimitive(fluidStack.getAmount()));
+                if (fluidStack.hasTag()) {
+                    object.add("nbt", new JsonPrimitive(fluidStack.getTag().toString()));
                 }
                 break;
             case PAR_EXCEPTION:
@@ -399,29 +399,30 @@ public class ParameterTypeTools {
                 String itemReg = object.get("item").getAsString();
                 Item item = ForgeRegistries.ITEMS.getValue(new ResourceLocation(itemReg));
                 int amount = object.has("amount") ? object.get("amount").getAsInt() : 1;
-                int meta = object.get("meta").getAsInt();
-                ItemStack stack = new ItemStack(item, amount, meta);
+                // @todo 1.15 meta
+//                int meta = object.get("meta").getAsInt();
+                ItemStack stack = new ItemStack(item, amount);
                 if (object.has("nbt")) {
                     String nbt = object.get("nbt").getAsString();
                     CompoundNBT tagCompound = null;
                     try {
                         tagCompound = JsonToNBT.getTagFromJson(nbt);
-                    } catch (NBTException e) {
+                    } catch (CommandSyntaxException e) {
                         // @todo What to do?
                     }
-                    stack.setTagCompound(tagCompound);
+                    stack.setTag(tagCompound);
                 }
                 return ParameterValue.constant(stack);
             }
             case PAR_FLUID: {
                 String fluidName = object.get("fluid").getAsString();
                 int amount = object.get("amount").getAsInt();
-                FluidStack fluidStack = new FluidStack(FluidRegistry.getFluid(fluidName), amount);
+                FluidStack fluidStack = new FluidStack(ForgeRegistries.FLUIDS.getValue(new ResourceLocation(fluidName)), amount);
                 if (object.has("nbt")) {
                     String nbt = object.get("nbt").getAsString();
                     try {
-                        fluidStack.tag = JsonToNBT.getTagFromJson(nbt);
-                    } catch (NBTException e) {
+                        fluidStack.setTag(JsonToNBT.getTagFromJson(nbt));
+                    } catch (CommandSyntaxException e) {
                         // @todo What to do?
                     }
                 }

@@ -3,13 +3,13 @@ package mcjty.rftoolscontrol.logic;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
-import io.netty.buffer.ByteBuf;
 import mcjty.lib.network.NetworkTools;
 import mcjty.rftoolscontrol.api.parameters.*;
 import mcjty.rftoolscontrol.logic.registry.InventoryUtil;
 import mcjty.rftoolscontrol.logic.running.ExceptionType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.Direction;
 import net.minecraftforge.fluids.FluidStack;
 
@@ -20,7 +20,7 @@ import java.util.List;
 
 public class ParameterTools {
 
-    public static Parameter readFromBuf(ByteBuf buf) {
+    public static Parameter readFromBuf(PacketBuffer buf) {
         byte b = buf.readByte();
         if (b == -1) {
             return null;
@@ -30,7 +30,7 @@ public class ParameterTools {
         if (buf.readBoolean()) {
             switch (type) {
                 case PAR_STRING:
-                    builder.value(ParameterValue.constant(NetworkTools.readString(buf)));
+                    builder.value(ParameterValue.constant(buf.readString(32767)));
                     break;
                 case PAR_INTEGER:
                     builder.value(ParameterValue.constant(buf.readInt()));
@@ -60,7 +60,7 @@ public class ParameterTools {
                     break;
                 }
                 case PAR_SIDE: {
-                    String nodeName = NetworkTools.readString(buf);
+                    String nodeName = buf.readString(32767);
                     int sideIdx = buf.readByte();
                     Direction side = sideIdx == -1 ? null : Direction.values()[sideIdx];
                     builder.value(ParameterValue.constant(new BlockSide(nodeName, side)));
@@ -79,7 +79,7 @@ public class ParameterTools {
                     builder.value(ParameterValue.constant(NetworkTools.readFluidStack(buf)));
                     break;
                 case PAR_EXCEPTION:
-                    builder.value(ParameterValue.constant(ExceptionType.getExceptionForCode(NetworkTools.readString(buf))));
+                    builder.value(ParameterValue.constant(ExceptionType.getExceptionForCode(buf.readString(32767))));
                     break;
                 case PAR_TUPLE:
                     builder.value(ParameterValue.constant(new Tuple(buf.readInt(), buf.readInt())));
@@ -98,7 +98,7 @@ public class ParameterTools {
         return builder.build();
     }
 
-    public static void writeToBuf(ByteBuf buf, Parameter parameter) {
+    public static void writeToBuf(PacketBuffer buf, Parameter parameter) {
         buf.writeByte(parameter.getParameterType().ordinal());
         Object value = parameter.getParameterValue().getValue();
         if (value == null) {
@@ -108,7 +108,7 @@ public class ParameterTools {
         buf.writeBoolean(true);
         switch (parameter.getParameterType()) {
             case PAR_STRING:
-                NetworkTools.writeString(buf, (String) value);
+                buf.writeString((String) value);
                 break;
             case PAR_INTEGER:
                 buf.writeInt((Integer) value);
@@ -137,7 +137,7 @@ public class ParameterTools {
             }
             case PAR_SIDE:
                 BlockSide bs = (BlockSide) value;
-                NetworkTools.writeString(buf, bs.getNodeName());
+                buf.writeString(bs.getNodeName());
                 buf.writeByte(bs.getSide() == null ? -1 : bs.getSide().ordinal());
                 break;
             case PAR_BOOLEAN:
@@ -154,7 +154,7 @@ public class ParameterTools {
                 NetworkTools.writeFluidStack(buf, (FluidStack) value);
                 break;
             case PAR_EXCEPTION:
-                NetworkTools.writeString(buf, ((ExceptionType)value).getCode());
+                buf.writeString(((ExceptionType)value).getCode());
                 break;
             case PAR_TUPLE:
                 Tuple tuple = (Tuple) value;
@@ -175,13 +175,13 @@ public class ParameterTools {
         ParameterType type = parameter.getParameterType();
         ParameterValue value = parameter.getParameterValue();
         CompoundNBT parTag = new CompoundNBT();
-        parTag.setInteger("type", type.ordinal());
+        parTag.putInt("type", type.ordinal());
         ParameterTypeTools.writeToNBT(parTag, type, value);
         return parTag;
     }
 
     public static Parameter readFromNBT(CompoundNBT parTag) {
-        ParameterType type = ParameterType.values()[parTag.getInteger("type")];
+        ParameterType type = ParameterType.values()[parTag.getInt("type")];
         ParameterValue value = ParameterTypeTools.readFromNBT(parTag, type);
         return Parameter.builder().type(type).value(value).build();
     }
@@ -232,7 +232,7 @@ public class ParameterTools {
             case PAR_ITEM:
                 return Integer.compare(((ItemStack) v1).getCount(), ((ItemStack) v2).getCount());
             case PAR_FLUID:
-                return Integer.compare(((FluidStack) v1).amount, ((FluidStack) v2).amount);
+                return Integer.compare(((FluidStack) v1).getAmount(), ((FluidStack) v2).getAmount());
             case PAR_EXCEPTION:
                 return 0;
             case PAR_TUPLE: {

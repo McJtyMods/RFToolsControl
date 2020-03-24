@@ -9,7 +9,7 @@ import mcjty.rftoolscontrol.api.parameters.ParameterType;
 import mcjty.rftoolscontrol.api.parameters.ParameterValue;
 import mcjty.rftoolscontrol.logic.TypeConverters;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.screen.Screen;
 
 public class NumberEditor extends AbstractParameterEditor {
 
@@ -24,7 +24,7 @@ public class NumberEditor extends AbstractParameterEditor {
 
 
     @Override
-    public void build(Minecraft mc, Gui gui, Panel panel, ParameterEditorCallback callback) {
+    public void build(Minecraft mc, Screen gui, Panel panel, ParameterEditorCallback callback) {
         Panel constantPanel = new Panel(mc, gui).setLayout(new VerticalLayout());
 
         typeLabel = new ChoiceLabel(mc, gui).addChoices("Integer", "Long", "Float", "Double")

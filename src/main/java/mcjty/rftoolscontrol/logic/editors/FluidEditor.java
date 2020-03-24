@@ -9,18 +9,19 @@ import mcjty.lib.gui.widgets.Widget;
 import mcjty.rftoolscontrol.api.parameters.ParameterType;
 import mcjty.rftoolscontrol.api.parameters.ParameterValue;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
-import net.minecraftforge.fluids.capability.IFluidHandler;
+
+import javax.annotation.Nonnull;
 
 public class FluidEditor extends AbstractParameterEditor {
 
     private BlockRender blockRender;
 
     @Override
-    public void build(Minecraft mc, Gui gui, Panel panel, ParameterEditorCallback callback) {
+    public void build(Minecraft mc, Screen gui, Panel panel, ParameterEditorCallback callback) {
         Panel constantPanel = new Panel(mc, gui).setLayout(new HorizontalLayout());
 
         Label label = new Label(mc, gui).setText("Drop bucket:");
@@ -34,7 +35,7 @@ public class FluidEditor extends AbstractParameterEditor {
         blockRender.addSelectionEvent(new BlockRenderEvent() {
             @Override
             public void select(Widget widget) {
-                ItemStack holding = Minecraft.getMinecraft().player.inventory.getItemStack();
+                ItemStack holding = Minecraft.getInstance().player.inventory.getItemStack();
                 if (holding.isEmpty()) {
                     blockRender.setRenderItem(null);
                 } else {
@@ -63,26 +64,21 @@ public class FluidEditor extends AbstractParameterEditor {
         return ParameterValue.constant(null);
     }
 
+    @Nonnull
     private FluidStack stackToFluid(ItemStack stack) {
-        if (stack.hasCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY, null)) {
-            IFluidHandler handler = stack.getCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY, null);
-            if (handler.getTankProperties() != null && handler.getTankProperties().length > 0) {
-                if (handler.getTankProperties()[0] != null) {
-                    return handler.getTankProperties()[0].getContents();
-                }
+        return stack.getCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY).map(handler -> {
+            if (handler.getTanks() > 0) {
+                return handler.getFluidInTank(0);
+            } else {
+                return FluidStack.EMPTY;
             }
-        }
-
-        if (stack.hasCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null)) {
-            IFluidHandler handler = stack.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null);
-            if (handler.getTankProperties() != null && handler.getTankProperties().length > 0) {
-                if (handler.getTankProperties()[0] != null) {
-                    return handler.getTankProperties()[0].getContents();
-                }
+        }).orElseGet(() -> stack.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY).map(handler -> {
+            if (handler.getTanks() > 0) {
+                return handler.getFluidInTank(0);
+            } else {
+                return FluidStack.EMPTY;
             }
-        }
-
-        return null;
+        }).orElse(FluidStack.EMPTY));
     }
 
     @Override

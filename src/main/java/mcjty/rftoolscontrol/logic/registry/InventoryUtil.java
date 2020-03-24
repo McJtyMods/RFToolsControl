@@ -1,21 +1,20 @@
 package mcjty.rftoolscontrol.logic.registry;
 
-import io.netty.buffer.ByteBuf;
-import mcjty.lib.network.NetworkTools;
 import mcjty.rftoolscontrol.api.parameters.Inventory;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.Direction;
 
 public class InventoryUtil {
 
-    public static void writeBuf(Inventory inv, ByteBuf buf) {
-        NetworkTools.writeString(buf, inv.getNodeName());
+    public static void writeBuf(Inventory inv, PacketBuffer buf) {
+        buf.writeString(inv.getNodeName());
         buf.writeByte(inv.getSide().ordinal());
         buf.writeByte(inv.getIntSide() == null ? -1 : inv.getIntSide().ordinal());
     }
 
-    public static Inventory readBuf(ByteBuf buf) {
-        String nodeName = NetworkTools.readString(buf);
+    public static Inventory readBuf(PacketBuffer buf) {
+        String nodeName = buf.readString(32767);
         int sideIdx = buf.readByte();
         Direction side = Direction.values()[sideIdx];
         sideIdx = buf.readByte();
@@ -25,7 +24,7 @@ public class InventoryUtil {
 
     public static Inventory readFromNBT(CompoundNBT tag) {
         String nodeName = null;
-        if (tag.hasKey("node")) {
+        if (tag.contains("node")) {
             nodeName = tag.getString("node");
         }
         int sideIdx = tag.getByte("side");
@@ -38,10 +37,10 @@ public class InventoryUtil {
     public static CompoundNBT writeToNBT(Inventory inv) {
         CompoundNBT tag = new CompoundNBT();
         if (inv.hasNodeName()) {
-            tag.setString("node", inv.getNodeName());
+            tag.putString("node", inv.getNodeName());
         }
-        tag.setByte("side", (byte) inv.getSide().ordinal());
-        tag.setByte("intside", (byte) (inv.getIntSide() == null ? -1 : inv.getIntSide().ordinal()));
+        tag.putByte("side", (byte) inv.getSide().ordinal());
+        tag.putByte("intside", (byte) (inv.getIntSide() == null ? -1 : inv.getIntSide().ordinal()));
         return tag;
     }
 }

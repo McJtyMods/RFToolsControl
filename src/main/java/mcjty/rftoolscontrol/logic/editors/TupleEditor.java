@@ -8,7 +8,7 @@ import mcjty.rftoolscontrol.api.parameters.ParameterType;
 import mcjty.rftoolscontrol.api.parameters.ParameterValue;
 import mcjty.rftoolscontrol.api.parameters.Tuple;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.screen.Screen;
 
 public class TupleEditor extends AbstractParameterEditor {
 
@@ -16,7 +16,7 @@ public class TupleEditor extends AbstractParameterEditor {
     private TextField fieldY;
 
     @Override
-    public void build(Minecraft mc, Gui gui, Panel panel, ParameterEditorCallback callback) {
+    public void build(Minecraft mc, Screen gui, Panel panel, ParameterEditorCallback callback) {
         Panel constantPanel = new Panel(mc, gui).setLayout(new HorizontalLayout());
         fieldX = new TextField(mc, gui)
                 .addTextEvent((parent, newText) -> callback.valueChanged(readValue()))

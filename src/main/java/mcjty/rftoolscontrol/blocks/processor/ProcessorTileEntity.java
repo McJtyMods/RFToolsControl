@@ -12,6 +12,8 @@ import mcjty.lib.varia.EnergyTools;
 import mcjty.lib.varia.WorldTools;
 import mcjty.rftoolsbase.api.machineinfo.CapabilityMachineInformation;
 import mcjty.rftoolsbase.api.storage.IStorageScanner;
+import mcjty.rftoolsbase.modules.crafting.CraftingSetup;
+import mcjty.rftoolsbase.modules.crafting.items.CraftingCardItem;
 import mcjty.rftoolscontrol.api.code.Function;
 import mcjty.rftoolscontrol.api.code.ICompiledOpcode;
 import mcjty.rftoolscontrol.api.code.IOpcodeRunnable;
@@ -29,7 +31,6 @@ import mcjty.rftoolscontrol.blocks.vectorart.GfxOpText;
 import mcjty.rftoolscontrol.blocks.workbench.WorkbenchTileEntity;
 import mcjty.rftoolscontrol.config.ConfigSetup;
 import mcjty.rftoolscontrol.items.*;
-import mcjty.rftoolscontrol.items.craftingcard.CraftingCardItem;
 import mcjty.rftoolscontrol.logic.InventoryTools;
 import mcjty.rftoolscontrol.logic.ParameterTools;
 import mcjty.rftoolscontrol.logic.TypeConverters;
@@ -48,6 +49,7 @@ import mcjty.rftoolscontrol.setup.Registration;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.INBT;
 import net.minecraft.nbt.ListNBT;
@@ -395,7 +397,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
                             getItemHandlerAt(inv).ifPresent(handler -> {
                                 for (int i = 0; i < handler.getSlots(); i++) {
                                     ItemStack s = handler.getStackInSlot(i);
-                                    if (!s.isEmpty() && s.getItem() == ModItems.craftingCardItem) {
+                                    if (!s.isEmpty() && s.getItem() == CraftingSetup.CRAFTING_CARD.get()) { // @todo 1.15 use object holder
                                         ItemStack result = CraftingCardItem.getResult(s);
                                         if (!result.isEmpty()) {
                                             stacks.add(result);
@@ -480,22 +482,22 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
         IItemHandler itemHandler = items;
 
         return getItemHandlerAt(te, Direction.UP).map(gridHandler -> {
-            List<ItemStack> ingredients = CraftingCardItem.getIngredientsGrid(card);
+            List<Ingredient> ingredients = CraftingCardItem.getIngredientsGrid(card);
             boolean success = true;
             for (int i = 0; i < 9; i++) {
                 ItemStack stackInWorkbench = gridHandler.getStackInSlot(i);
-                ItemStack stackInIngredient = ingredients.get(i);
-                if (!stackInWorkbench.isEmpty() && stackInIngredient.isEmpty()) {
+                Ingredient stackInIngredient = ingredients.get(i);
+                if (!stackInWorkbench.isEmpty() && stackInIngredient == Ingredient.EMPTY) {
                     // Can't work. There is already something in the workbench that doesn't belong
                     success = false;
-                } else if (stackInWorkbench.isEmpty() && !stackInIngredient.isEmpty()) {
+                } else if (stackInWorkbench.isEmpty() && stackInIngredient != Ingredient.EMPTY) {
                     // Let's see if we can find the needed ingredient
                     boolean found = false;
                     for (int slot = slot1; slot <= slot2; slot++) {
                         int realSlot = info.getRealSlot(slot);
                         ItemStack localStack = itemHandler.getStackInSlot(realSlot);
-                        if (stackInIngredient.isItemEqual(localStack)) {
-                            localStack = itemHandler.extractItem(realSlot, stackInIngredient.getCount(), false);
+                        if (stackInIngredient.test(localStack)) {
+                            localStack = itemHandler.extractItem(realSlot, InventoryTools.getCountFromIngredient(stackInIngredient), false);
                             gridHandler.insertItem(i, localStack, false);
                             found = true;
                             break;
@@ -504,11 +506,11 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
                     if (!found) {
                         success = false;
                     }
-                } else if (!stackInWorkbench.isEmpty() && !stackInIngredient.isEmpty()) {
+                } else if (!stackInWorkbench.isEmpty() && stackInIngredient != Ingredient.EMPTY) {
                     // See if the item matches and we have enough
-                    if (!stackInIngredient.isItemEqual(stackInWorkbench)) {
+                    if (!stackInIngredient.test(stackInWorkbench)) {
                         success = false;
-                    } else if (stackInIngredient.getCount() > stackInWorkbench.getCount()) {
+                    } else if (InventoryTools.getCountFromIngredient(stackInIngredient) > stackInWorkbench.getCount()) {
                         success = false;
                     }
                 }
@@ -549,9 +551,9 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
     public int countCardIngredients(IProgram program, @Nullable Inventory inv, ItemStack card, boolean oredict) {
         IStorageScanner scanner = getScannerForInv(inv);
         return getHandlerForInv(inv).map(handler -> {
-            List<ItemStack> ingredients = CraftingCardItem.getIngredients(card);
+            List<Ingredient> ingredients = CraftingCardItem.getIngredients(card);
             boolean strictnbt = CraftingCardItem.isStrictNBT(card); // @todo
-            List<ItemStack> needed = combineIngredients(ingredients);
+            List<Ingredient> needed = combineIngredients(ingredients);
             return countPossibleCrafts(scanner, handler, needed, oredict);
         }).orElse(0);
     }
@@ -576,7 +578,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
         IItemHandler itemHandler = items;
         int slot = slot1;
 
-        List<ItemStack> ingredients;
+        List<Ingredient> ingredients;
         if (CraftingCardItem.fitsGrid(card) && (slot2 - slot1 >= 8)) {
             // We have something that fits a crafting grid and we have enough room for a 3x3 grid
             ingredients = CraftingCardItem.getIngredientsGrid(card);
@@ -585,14 +587,15 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
         }
 
         int failed = 0;
-        for (ItemStack ingredient : ingredients) {
+        for (Ingredient ingredient : ingredients) {
             int realSlot = info.getRealSlot(slot);
             ItemStack localStack = itemHandler.getStackInSlot(realSlot);
-            if (!ingredient.isEmpty()) {
-                if (!InventoryTools.areItemsEqual(ingredient, localStack, true, false, oredict)) {
+            if (ingredient != Ingredient.EMPTY) {
+//                if (!InventoryTools.areItemsEqual(ingredient, localStack, true, false, oredict)) {
+                if (!ingredient.test(localStack)) {
                     return false;
                 }
-                if (ingredient.getCount() != localStack.getCount()) {
+                if (InventoryTools.getCountFromIngredient(ingredient) != localStack.getCount()) {
                     return false;
                 }
             } else {
@@ -627,7 +630,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
                 }
                 CardInfo info = this.cardInfo[((RunningProgram) program).getCardIndex()];
 
-                List<ItemStack> ingredients;
+                List<Ingredient> ingredients;
                 if (CraftingCardItem.fitsGrid(card) && (slot2 - slot1 >= 8)) {
                     // We have something that fits a crafting grid and we have enough room for a 3x3 grid
                     ingredients = CraftingCardItem.getIngredientsGrid(card);
@@ -636,7 +639,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
                 }
                 boolean strictnbt = CraftingCardItem.isStrictNBT(card);
 
-                List<ItemStack> needed = combineIngredients(ingredients);
+                List<Ingredient> needed = combineIngredients(ingredients);
                 int requested = checkAvailableItemsAndRequestMissing(destInv, scanner, handler, needed, oredict);
                 if (requested != 0) {
                     return requested;
@@ -645,10 +648,10 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
                 IItemHandler itemHandler = items;
                 int slot = slot1;
 
-                for (ItemStack ingredient : ingredients) {
+                for (Ingredient ingredient : ingredients) {
                     int realSlot = info.getRealSlot(slot);
-                    if (!ingredient.isEmpty()) {
-                        ItemStack stack = InventoryTools.extractItem(handler, scanner, ingredient.getCount(), true, oredict, strictnbt, ingredient, null);
+                    if (ingredient != Ingredient.EMPTY) {
+                        ItemStack stack = InventoryTools.extractItem(handler, scanner, InventoryTools.getCountFromIngredient(ingredient), true, oredict, strictnbt, ingredient, null);
                         if (!stack.isEmpty()) {
                             itemHandler.insertItem(realSlot, stack, false);
                         }
@@ -664,15 +667,18 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
     // ingredient is requested if possible. Returns -1 if there were ingredients that
     // could not be requested. Returns 0 if nothing had to be requested and otherwise
     // returns the amount of requested items
-    private int checkAvailableItemsAndRequestMissing(Inventory destInv, IStorageScanner scanner, IItemHandler handler, List<ItemStack> needed, boolean oredict) {
+    private int checkAvailableItemsAndRequestMissing(Inventory destInv, IStorageScanner scanner, IItemHandler handler, List<Ingredient> needed, boolean oredict) {
         int requested = 0;
-        for (ItemStack ingredient : needed) {
-            if (!ingredient.isEmpty()) {
-                int cnt = InventoryTools.countItem(handler, scanner, ingredient, oredict, ingredient.getCount());
-                if (cnt < ingredient.getCount()) {
+        for (Ingredient ingredient : needed) {
+            if (ingredient != Ingredient.EMPTY) {
+                int cnt = InventoryTools.countItem(handler, scanner, ingredient, oredict, InventoryTools.getCountFromIngredient(ingredient));
+                if (cnt < InventoryTools.getCountFromIngredient(ingredient)) {
                     requested++;
-                    ItemStack requestedItem = ingredient.copy();
-                    int amount = ingredient.getCount() - cnt;
+                    // @todo 1.15 THIS IS NOT RIGHT!!!
+                    ItemStack requestedItem = ingredient.getMatchingStacks()[0];
+//                    ItemStack requestedItem = ingredient.copy();
+
+                    int amount = InventoryTools.getCountFromIngredient(ingredient) - cnt;
                     if (amount <= 0) {
                         requestedItem.setCount(0);
                     } else {
@@ -691,12 +697,12 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
     }
 
     // Check the storage scanner or handler for a list of ingredients and count them
-    private int countPossibleCrafts(IStorageScanner scanner, IItemHandler handler, List<ItemStack> needed, boolean oredict) {
+    private int countPossibleCrafts(IStorageScanner scanner, IItemHandler handler, List<Ingredient> needed, boolean oredict) {
         int maxPossible = Integer.MAX_VALUE;
-        for (ItemStack ingredient : needed) {
-            if (!ingredient.isEmpty()) {
+        for (Ingredient ingredient : needed) {
+            if (ingredient != Ingredient.EMPTY) {
                 int cnt = InventoryTools.countItem(handler, scanner, ingredient, oredict, -1);
-                int possible = cnt / ingredient.getCount();
+                int possible = cnt / InventoryTools.getCountFromIngredient(ingredient);
                 if (possible < maxPossible) {
                     maxPossible = possible;
                 }
@@ -707,24 +713,25 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
 
     // Given a list of ingredients make a combined list where all identical
     // items are grouped
-    private List<ItemStack> combineIngredients(List<ItemStack> ingredients) {
-        List<ItemStack> needed = new ArrayList<>();
-        for (ItemStack ingredient : ingredients) {
-            if (!ingredient.isEmpty()) {
-                boolean found = false;
-                for (ItemStack neededStack : needed) {
-                    if (neededStack.isItemEqual(ingredient)) {
-                        neededStack.grow(ingredient.getCount());
-                        found = true;
-                        break;
-                    }
-                }
-                if (!found) {
-                    needed.add(ingredient.copy());
-                }
-            }
-        }
-        return needed;
+    private List<Ingredient> combineIngredients(List<Ingredient> ingredients) {
+//        List<Ingredient> needed = new ArrayList<>();
+//        for (Ingredient ingredient : ingredients) {
+////            if (!ingredient.isEmpty()) {
+//                boolean found = false;
+//                for (Ingredient neededStack : needed) {
+//                    if (ingredient.test(neededStack)) {
+//                        neededStack.grow(ingredient.getCount());
+//                        found = true;
+//                        break;
+//                    }
+//                }
+//                if (!found) {
+//                    needed.add(ingredient.copy());
+//                }
+////            }
+//        }
+//        return needed;
+        return ingredients;
     }
 
     public int getIngredients(IProgram program, Inventory inv, Inventory cardInv, ItemStack inputStack, int slot1, int slot2, boolean oredict) {
@@ -750,7 +757,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
             IItemHandler itemHandler = items;
             int slot = slot1;
 
-            List<ItemStack> ingredients;
+            List<Ingredient> ingredients;
             if (CraftingCardItem.fitsGrid(card) && (slot2 - slot1 >= 8)) {
                 // We have something that fits a crafting grid and we have enough room for a 3x3 grid
                 ingredients = CraftingCardItem.getIngredientsGrid(card);
@@ -760,10 +767,10 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
             boolean strictnbt = CraftingCardItem.isStrictNBT(card);
 
             int failed = 0;
-            for (ItemStack ingredient : ingredients) {
+            for (Ingredient ingredient : ingredients) {
                 int realSlot = info.getRealSlot(slot);
-                if (!ingredient.isEmpty()) {
-                    ItemStack stack = InventoryTools.extractItem(handler, scanner, ingredient.getCount(), true, oredict, strictnbt, ingredient, null);
+                if (ingredient != Ingredient.EMPTY) {
+                    ItemStack stack = InventoryTools.extractItem(handler, scanner, InventoryTools.getCountFromIngredient(ingredient), true, oredict, strictnbt, ingredient, null);
                     if (!stack.isEmpty()) {
                         ItemStack remainder = itemHandler.insertItem(realSlot, stack, false);
                         if (!remainder.isEmpty()) {
@@ -895,7 +902,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
     private ItemStack findCraftingCard(IItemHandler handler, ItemStack craftResult, boolean oredict) {
         for (int j = 0; j < handler.getSlots(); j++) {
             ItemStack s = handler.getStackInSlot(j);
-            if (!s.isEmpty() && s.getItem() == ModItems.craftingCardItem) {
+            if (!s.isEmpty() && s.getItem() == CraftingSetup.CRAFTING_CARD.get()) { // @todo 1.15 object holder!
                 ItemStack result = CraftingCardItem.getResult(s);
                 if (!result.isEmpty()) {
                     if (InventoryTools.areItemsEqual(result, craftResult, true, true, oredict)) {
@@ -1755,7 +1762,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
         }).orElse(0);
     }
 
-    public int fetchItems(IProgram program, Inventory inv, Integer slot, ItemStack itemMatcher, boolean routable, boolean oredict, @Nullable Integer amount, int virtualSlot) {
+    public int fetchItems(IProgram program, Inventory inv, Integer slot, Ingredient itemMatcher, boolean routable, boolean oredict, @Nullable Integer amount, int virtualSlot) {
 
         if (amount != null && amount == 0) {
             throw new ProgException(EXCEPT_BADPARAMETERS);

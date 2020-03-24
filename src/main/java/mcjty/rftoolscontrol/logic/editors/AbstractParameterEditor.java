@@ -10,7 +10,7 @@ import mcjty.rftoolscontrol.api.parameters.ParameterType;
 import mcjty.rftoolscontrol.api.parameters.ParameterValue;
 import mcjty.rftoolscontrol.logic.registry.Functions;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.screen.Screen;
 
 import java.util.List;
 
@@ -160,7 +160,7 @@ public abstract class AbstractParameterEditor implements ParameterEditor {
         }
     }
 
-    protected Panel createLabeledPanel(Minecraft mc, Gui gui, String label, Widget<?> object, String... tooltips) {
+    protected Panel createLabeledPanel(Minecraft mc, Screen gui, String label, Widget<?> object, String... tooltips) {
         object.setTooltips(tooltips);
         return new Panel(mc, gui).setLayout(new HorizontalLayout())
                 .addChild(new Label(mc, gui)
@@ -171,7 +171,7 @@ public abstract class AbstractParameterEditor implements ParameterEditor {
                 .addChild(object);
     }
 
-    void createEditorPanel(Minecraft mc, Gui gui, Panel panel, ParameterEditorCallback callback, Panel constantPanel,
+    void createEditorPanel(Minecraft mc, Screen gui, Panel panel, ParameterEditorCallback callback, Panel constantPanel,
                            ParameterType type) {
         Panel variablePanel = new Panel(mc, gui).setLayout(new HorizontalLayout()).setDesiredHeight(18);
         variableIndex = new TextField(mc, gui)

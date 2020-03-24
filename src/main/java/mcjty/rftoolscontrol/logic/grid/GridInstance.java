@@ -107,33 +107,33 @@ public class GridInstance {
 
     public CompoundNBT writeToNBT(int x, int y) {
         CompoundNBT tag = new CompoundNBT();
-        tag.setInteger("x", x);
-        tag.setInteger("y", y);
-        tag.setString("id", getId());
+        tag.putInt("x", x);
+        tag.putInt("y", y);
+        tag.putString("id", getId());
         if (primaryConnection != null) {
-            tag.setString("prim", primaryConnection.getId());
+            tag.putString("prim", primaryConnection.getId());
         }
         if (secondaryConnection != null) {
-            tag.setString("sec", secondaryConnection.getId());
+            tag.putString("sec", secondaryConnection.getId());
         }
 
         ListNBT parList = new ListNBT();
         for (Parameter parameter : getParameters()) {
             CompoundNBT nbt = ParameterTools.writeToNBT(parameter);
 
-            parList.appendTag(nbt);
+            parList.add(nbt);
         }
-        tag.setTag("pars", parList);
+        tag.put("pars", parList);
         return tag;
     }
 
     public static GridInstance readFromNBT(CompoundNBT tag) {
         String opcodeid = tag.getString("id");
         GridInstance.Builder builder = GridInstance.builder(opcodeid);
-        if (tag.hasKey("prim")) {
+        if (tag.contains("prim")) {
             builder.primaryConnection(Connection.getConnection(tag.getString("prim")));
         }
-        if (tag.hasKey("sec")) {
+        if (tag.contains("sec")) {
             builder.secondaryConnection(Connection.getConnection(tag.getString("sec")));
         }
 
@@ -144,8 +144,8 @@ public class GridInstance {
         }
         List<ParameterDescription> parameters = opcode.getParameters();
 
-        ListNBT parList = tag.getTagList("pars", Constants.NBT.TAG_COMPOUND);
-        for (int i = 0 ; i < parList.tagCount() ; i++) {
+        ListNBT parList = tag.getList("pars", Constants.NBT.TAG_COMPOUND);
+        for (int i = 0 ; i < parList.size() ; i++) {
             CompoundNBT parTag = (CompoundNBT) parList.get(i);
             Parameter parameter = ParameterTools.readFromNBT(parTag);
             if (parameter.getParameterType() != parameters.get(i).getType()) {

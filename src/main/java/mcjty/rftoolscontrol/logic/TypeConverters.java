@@ -6,10 +6,9 @@ import mcjty.rftoolscontrol.logic.running.ExceptionType;
 import mcjty.rftoolscontrol.logic.running.ProgException;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidUtil;
-
+import net.minecraftforge.registries.ForgeRegistries;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Nonnull;
@@ -42,7 +41,7 @@ public class TypeConverters {
             case PAR_ITEM:
                 return ((ItemStack) v).getCount();
             case PAR_FLUID:
-                return ((FluidStack) v).amount;
+                return ((FluidStack) v).getAmount();
             case PAR_INVENTORY:
             case PAR_SIDE:
             case PAR_EXCEPTION:
@@ -68,12 +67,12 @@ public class TypeConverters {
         }
         switch (type) {
             case PAR_STRING:
-                return new FluidStack(FluidRegistry.getFluid((String) v), 1);
+                return new FluidStack(ForgeRegistries.FLUIDS.getValue(new ResourceLocation((String) v)), 1);
             case PAR_FLUID:
                 return (FluidStack) v;
             case PAR_ITEM:
                 ItemStack itemStack = (ItemStack) v;
-                return FluidUtil.getFluidContained(itemStack);
+                return FluidUtil.getFluidContained(itemStack).map(f -> f).orElse(FluidStack.EMPTY);
             case PAR_INTEGER:
             case PAR_LONG:
             case PAR_FLOAT:
@@ -104,7 +103,7 @@ public class TypeConverters {
         }
         switch (type) {
             case PAR_STRING:
-                return new ItemStack(ForgeRegistries.ITEMS.getValue(new ResourceLocation((String) v)), 1, 0);
+                return new ItemStack(ForgeRegistries.ITEMS.getValue(new ResourceLocation((String) v)), 1);
             case PAR_ITEM:
                 return (ItemStack) v;
             case PAR_FLUID:
@@ -374,7 +373,7 @@ public class TypeConverters {
             case PAR_ITEM:
                 return ((ItemStack) v).getCount();
             case PAR_FLUID:
-                return ((FluidStack) v).amount;
+                return ((FluidStack) v).getAmount();
             case PAR_VECTOR:
                 return ((List<?>)v).size();
             case PAR_EXCEPTION:
@@ -412,7 +411,7 @@ public class TypeConverters {
             case PAR_ITEM:
                 return Long.valueOf(((ItemStack) v).getCount());
             case PAR_FLUID:
-                return Long.valueOf(((FluidStack) v).amount);
+                return Long.valueOf(((FluidStack) v).getAmount());
             case PAR_VECTOR:
                 return Long.valueOf(((List<?>)v).size());
             case PAR_EXCEPTION:
@@ -449,7 +448,7 @@ public class TypeConverters {
             case PAR_ITEM:
                 return Integer.valueOf(((ItemStack) v).getCount());
             case PAR_FLUID:
-                return Integer.valueOf(((FluidStack) v).amount);
+                return Integer.valueOf(((FluidStack) v).getAmount());
             case PAR_VECTOR:
                 return Integer.valueOf(((List<?>)v).size());
             case PAR_EXCEPTION:
@@ -509,7 +508,7 @@ public class TypeConverters {
                     return null;
                 }
             case PAR_FLUID:
-                return ((FluidStack) v).getFluid().getName();
+                return ((FluidStack) v).getFluid().getRegistryName().toString();
             case PAR_INVENTORY:
                 return InventoryTools.inventoryToString((Inventory) v);
             case PAR_SIDE:

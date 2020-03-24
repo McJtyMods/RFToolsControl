@@ -45,7 +45,7 @@ public class Parameter implements Comparable<Parameter> {
                         Comparator.naturalOrder());
             case PAR_FLUID:
                 return Objects.compare(TypeConverters.convertToFluid(this), TypeConverters.convertToFluid(parameter),
-                        Comparator.comparing(s -> s.getFluid().getName()));
+                        Comparator.comparing(s -> s.getFluid().getRegistryName().toString()));
             case PAR_VECTOR:
                 return Objects.compare(TypeConverters.convertToVector(this), TypeConverters.convertToVector(parameter),
                         Parameter::compareLists);

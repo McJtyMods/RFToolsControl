@@ -96,8 +96,8 @@ public class CpuCore {
         if (program != null) {
             program.writeToNBT(tag);
         }
-        tag.setInteger("tier", tier);
-        tag.setBoolean("debug", debug);
+        tag.putInt("tier", tier);
+        tag.putBoolean("debug", debug);
         return tag;
     }
 
@@ -106,7 +106,7 @@ public class CpuCore {
         if (program != null) {
             program.setCore(this);
         }
-        tier = tag.getInteger("tier");
+        tier = tag.getInt("tier");
         debug = tag.getBoolean("debug");
     }
 }

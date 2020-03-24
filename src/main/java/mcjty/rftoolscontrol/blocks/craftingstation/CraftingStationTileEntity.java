@@ -21,7 +21,6 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.items.CapabilityItemHandler;
-import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -116,12 +115,10 @@ public class CraftingStationTileEntity extends GenericTileEntity {
             if (!stack.isEmpty()) {
                 Inventory inventory = getInventoryFromTicket(ticket);
                 if (inventory != null) {
-                    IItemHandler handlerAt = processor.getItemHandlerAt(inventory);
-                    if (handlerAt == null) {
-                        throw new ProgException(ExceptionType.EXCEPT_INVALIDINVENTORY);
-                    }
-                    return ItemHandlerHelper.insertItem(handlerAt, stack, false);
-                } else {
+                    return processor.getItemHandlerAt(inventory)
+                            .map(handlerAt -> ItemHandlerHelper.insertItem(handlerAt, stack, false))
+                            .orElseThrow(() -> new ProgException(ExceptionType.EXCEPT_INVALIDINVENTORY));
+                 } else {
                     getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY)
                             .map(h -> ItemHandlerHelper.insertItem(h, stack, false))
                             .orElse(ItemStack.EMPTY);

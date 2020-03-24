@@ -7,14 +7,14 @@ import mcjty.lib.gui.widgets.TextField;
 import mcjty.rftoolscontrol.api.parameters.ParameterType;
 import mcjty.rftoolscontrol.api.parameters.ParameterValue;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.screen.Screen;
 
 public class StringEditor extends AbstractParameterEditor {
 
     private TextField field;
 
     @Override
-    public void build(Minecraft mc, Gui gui, Panel panel, ParameterEditorCallback callback) {
+    public void build(Minecraft mc, Screen gui, Panel panel, ParameterEditorCallback callback) {
         Panel constantPanel = new Panel(mc, gui).setLayout(new HorizontalLayout());
         field = new TextField(mc, gui)
                 .addTextEvent((parent, newText) -> callback.valueChanged(readValue()))

@@ -8,9 +8,9 @@ import mcjty.rftoolscontrol.logic.ParameterTools;
 import mcjty.rftoolscontrol.logic.running.ExceptionType;
 import mcjty.rftoolscontrol.logic.running.ProgException;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.items.IItemHandler;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
@@ -144,12 +144,13 @@ public class Opcodes {
             .runnable(((processor, program, opcode) -> {
                 Inventory inv = processor.evaluateInventoryParameterNonNull(opcode, program, 0);
                 int slot = processor.evaluateIntParameter(opcode, program, 1);
-                IItemHandler handler = processor.getItemHandlerAt(inv);
-                ItemStack item = handler.getStackInSlot(slot);
-                if (!item.isEmpty()) {
-                    item = item.copy();
-                }
-                program.setLastValue(Parameter.builder().type(PAR_ITEM).value(ParameterValue.constant(item)).build());
+                processor.getItemHandlerAt(inv).ifPresent(handler -> {
+                    ItemStack item = handler.getStackInSlot(slot);
+                    if (!item.isEmpty()) {
+                        item = item.copy();
+                    }
+                    program.setLastValue(Parameter.builder().type(PAR_ITEM).value(ParameterValue.constant(item)).build());
+                });
                 return POSITIVE;
             }))
             .build();
@@ -435,7 +436,7 @@ public class Opcodes {
                 int slotOut = processor.evaluateIntParameter(opcode, program, 4);
                 boolean oredict = processor.evaluateBoolParameter(opcode, program, 5);
                 boolean routable = processor.evaluateBoolParameter(opcode, program, 6);
-                int cnt = ((ProcessorTileEntity)processor).fetchItems(program, inv, slot, item, routable, oredict, amount, slotOut);
+                int cnt = ((ProcessorTileEntity)processor).fetchItems(program, inv, slot, Ingredient.fromStacks(item), routable, oredict, amount, slotOut);
                 program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(cnt)).build());
                 return POSITIVE;
             }))
@@ -1448,7 +1449,7 @@ public class Opcodes {
             .icon(5, 7)
             .runnable(((processor, program, opcode) -> {
                 FluidStack fluid = processor.evaluateFluidParameterNonNull(opcode, program, 0);
-                String name = fluid.getLocalizedName();
+                String name = fluid.getDisplayName().getFormattedText();
                 program.setLastValue(Parameter.builder().type(PAR_STRING).value(ParameterValue.constant(name)).build());
                 return POSITIVE;
             }))
@@ -1528,7 +1529,7 @@ public class Opcodes {
             .icon(6, 4)
             .runnable(((processor, program, opcode) -> {
                 ItemStack item = processor.evaluateItemParameterNonNull(opcode, program, 0);
-                int damage = item.getItemDamage();
+                int damage = item.getDamage();
                 program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(damage)).build());
                 return POSITIVE;
             }))
@@ -1545,7 +1546,7 @@ public class Opcodes {
             .icon(7, 4)
             .runnable(((processor, program, opcode) -> {
                 ItemStack item = processor.evaluateItemParameterNonNull(opcode, program, 0);
-                String name = item.getDisplayName();
+                String name = item.getDisplayName().getFormattedText();
                 program.setLastValue(Parameter.builder().type(PAR_STRING).value(ParameterValue.constant(name)).build());
                 return POSITIVE;
             }))

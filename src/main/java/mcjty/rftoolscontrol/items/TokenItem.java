@@ -52,7 +52,7 @@ public class TokenItem extends Item {
             list.add(new StringTextComponent(TextFormatting.WHITE + "not do anything but it can store"));
             list.add(new StringTextComponent(TextFormatting.WHITE + "information"));
         } else {
-            list.add(new StringTextComponent(TextFormatting.WHITE + GuiProxy.SHIFT_MESSAGE));
+            list.add(new StringTextComponent(TextFormatting.WHITE + RFToolsControl.SHIFT_MESSAGE));
         }
     }
 }

@@ -3,7 +3,6 @@ package mcjty.rftoolscontrol.network;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.blocks.programmer.PacketUpdateNBTItemInventoryProgrammer;
 import mcjty.rftoolscontrol.compat.jei.PacketSendRecipe;
-import mcjty.rftoolscontrol.items.craftingcard.PacketUpdateNBTItemCard;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.network.NetworkRegistry;
 import net.minecraftforge.fml.network.simple.SimpleChannel;
@@ -35,10 +34,8 @@ public class RFToolsCtrlMessages {
         net.registerMessage(id(), PacketGetCraftableItems.class, PacketGetCraftableItems::toBytes, PacketGetCraftableItems::new, PacketGetCraftableItems::handle);
         net.registerMessage(id(), PacketGetRequests.class, PacketGetRequests::toBytes, PacketGetRequests::new, PacketGetRequests::handle);
         net.registerMessage(id(), PacketSendRecipe.class, PacketSendRecipe::toBytes, PacketSendRecipe::new, PacketSendRecipe::handle);
-        net.registerMessage(id(), PacketItemNBTToServer.class, PacketItemNBTToServer::toBytes, PacketItemNBTToServer::new, PacketItemNBTToServer::handle);
         net.registerMessage(id(), PacketVariableToServer.class, PacketVariableToServer::toBytes, PacketVariableToServer::new, PacketVariableToServer::handle);
         net.registerMessage(id(), PacketUpdateNBTItemInventoryProgrammer.class, PacketUpdateNBTItemInventoryProgrammer::toBytes, PacketUpdateNBTItemInventoryProgrammer::new, PacketUpdateNBTItemInventoryProgrammer::handle);
-        net.registerMessage(id(), PacketUpdateNBTItemCard.class, PacketUpdateNBTItemCard::toBytes, PacketUpdateNBTItemCard::new, PacketUpdateNBTItemCard::handle);
 
         // Client side
         net.registerMessage(id(), PacketLogReady.class, PacketLogReady::toBytes, PacketLogReady::new, PacketLogReady::handle);

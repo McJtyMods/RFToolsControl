@@ -41,14 +41,14 @@ public class ProgramCardInstance {
     }
 
     public static ProgramCardInstance parseInstance(ItemStack card) {
-        CompoundNBT tagCompound = card.getTagCompound();
+        CompoundNBT tagCompound = card.getTag();
         if (tagCompound == null) {
             return null;
         }
         ProgramCardInstance instance = new ProgramCardInstance();
 
-        ListNBT grid = tagCompound.getTagList("grid", Constants.NBT.TAG_COMPOUND);
-        for (int i = 0 ; i < grid.tagCount() ; i++) {
+        ListNBT grid = tagCompound.getList("grid", Constants.NBT.TAG_COMPOUND);
+        for (int i = 0 ; i < grid.size() ; i++) {
             CompoundNBT gridElement = (CompoundNBT) grid.get(i);
             parseElement(gridElement, instance);
         }
@@ -56,8 +56,8 @@ public class ProgramCardInstance {
     }
 
     private static void parseElement(CompoundNBT tag, ProgramCardInstance instance) {
-        int x = tag.getInteger("x");
-        int y = tag.getInteger("y");
+        int x = tag.getInt("x");
+        int y = tag.getInt("y");
         GridInstance gi = GridInstance.readFromNBT(tag);
         if (gi != null) {
             instance.putGridInstance(x, y, gi);
@@ -108,11 +108,7 @@ public class ProgramCardInstance {
     }
 
     public void writeToNBT(ItemStack card) {
-        CompoundNBT tagCompound = card.getTagCompound();
-        if (tagCompound == null) {
-            tagCompound = new CompoundNBT();
-            card.setTagCompound(tagCompound);
-        }
+        CompoundNBT tagCompound = card.getOrCreateTag();
         ListNBT grid = new ListNBT();
 
         for (Map.Entry<GridPos, GridInstance> entry : gridInstances.entrySet()) {
@@ -121,10 +117,10 @@ public class ProgramCardInstance {
             int y = coordinate.getY();
             GridInstance gridInstance = entry.getValue();
             CompoundNBT tag = gridInstance.writeToNBT(x, y);
-            grid.appendTag(tag);
+            grid.add(tag);
         }
 
-        tagCompound.setTag("grid", grid);
+        tagCompound.put("grid", grid);
     }
 
 }

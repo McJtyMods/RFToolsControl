@@ -1,20 +1,8 @@
 package mcjty.rftoolscontrol.setup;
 
-import mcjty.lib.blocks.GenericBlock;
-import mcjty.rftoolscontrol.items.craftingcard.CraftingCardContainer;
-import mcjty.rftoolscontrol.items.craftingcard.GuiCraftingCard;
-import mcjty.rftoolscontrol.items.manual.GuiRFToolsManual;
-import net.minecraft.block.Block;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import net.minecraftforge.fml.common.network.IGuiHandler;
-
-public class GuiProxy implements IGuiHandler {
+public class GuiProxy {} /* @todo 1.15 implements IGuiHandler {
     public static final String SHIFT_MESSAGE = "<Press Shift>";
 
-    /** This is used to keep track of GUIs that we make*/
     private static int modGuiIndex = 0;
     public static final int GUI_TANK = modGuiIndex++;
     public static final int GUI_WORKBENCH = modGuiIndex++;
@@ -61,3 +49,4 @@ public class GuiProxy implements IGuiHandler {
         return null;
     }
 }
+*/

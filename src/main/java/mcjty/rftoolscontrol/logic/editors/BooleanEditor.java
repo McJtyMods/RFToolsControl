@@ -6,7 +6,7 @@ import mcjty.lib.gui.widgets.Panel;
 import mcjty.rftoolscontrol.api.parameters.ParameterType;
 import mcjty.rftoolscontrol.api.parameters.ParameterValue;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.screen.Screen;
 
 public class BooleanEditor extends AbstractParameterEditor {
 
@@ -20,7 +20,7 @@ public class BooleanEditor extends AbstractParameterEditor {
     }
 
     @Override
-    public void build(Minecraft mc, Gui gui, Panel panel, ParameterEditorCallback callback) {
+    public void build(Minecraft mc, Screen gui, Panel panel, ParameterEditorCallback callback) {
         Panel constantPanel = new Panel(mc, gui).setLayout(new HorizontalLayout());
         label = new ChoiceLabel(mc, gui).addChoices("*", "true", "false")
                 .addChoiceEvent((parent, newChoice) -> callback.valueChanged(readValue()))

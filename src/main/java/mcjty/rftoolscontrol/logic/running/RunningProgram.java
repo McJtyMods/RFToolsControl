@@ -242,64 +242,64 @@ public class RunningProgram implements IProgram {
     }
 
     public void writeToNBT(CompoundNBT tag) {
-        tag.setInteger("card", cardIndex);
-        tag.setInteger("current", current);
-        tag.setInteger("event", eventIndex);
-        tag.setInteger("delay", delay);
-        tag.setBoolean("dead", dead);
+        tag.putInt("card", cardIndex);
+        tag.putInt("current", current);
+        tag.putInt("event", eventIndex);
+        tag.putInt("delay", delay);
+        tag.putBoolean("dead", dead);
         if (ticket != null) {
-            tag.setString("ticket", ticket);
+            tag.putString("ticket", ticket);
         }
         if (lock != null) {
-            tag.setString("lock", lock);
+            tag.putString("lock", lock);
         }
         if (lastValue != null) {
             CompoundNBT varTag = new CompoundNBT();
-            varTag.setInteger("type", lastValue.getParameterType().ordinal());
+            varTag.putInt("type", lastValue.getParameterType().ordinal());
             ParameterTypeTools.writeToNBT(varTag, lastValue.getParameterType(), lastValue.getParameterValue());
-            tag.setTag("lastvar", varTag);
+            tag.put("lastvar", varTag);
         }
         if (!loopStack.isEmpty()) {
             ListNBT loopList = new ListNBT();
             for (FlowStack pair : loopStack) {
                 CompoundNBT t = new CompoundNBT();
-                t.setInteger("index", pair.getCurrent());
-                t.setInteger("var", pair.getVar() == null ? -1 : pair.getVar());
-                loopList.appendTag(t);
+                t.putInt("index", pair.getCurrent());
+                t.putInt("var", pair.getVar() == null ? -1 : pair.getVar());
+                loopList.add(t);
             }
-            tag.setTag("loopStack", loopList);
+            tag.put("loopStack", loopList);
         }
     }
 
     public static RunningProgram readFromNBT(CompoundNBT tag) {
-        if (!tag.hasKey("card")) {
+        if (!tag.contains("card")) {
             return null;
         }
-        int cardIndex = tag.getInteger("card");
+        int cardIndex = tag.getInt("card");
         RunningProgram program = new RunningProgram(cardIndex);
-        program.setCurrent(tag.getInteger("current"));
-        program.eventIndex = tag.getInteger("event");
-        program.setDelay(tag.getInteger("delay"));
+        program.setCurrent(tag.getInt("current"));
+        program.eventIndex = tag.getInt("event");
+        program.setDelay(tag.getInt("delay"));
         program.dead = tag.getBoolean("dead");
-        if (tag.hasKey("ticket")) {
+        if (tag.contains("ticket")) {
             program.ticket = tag.getString("ticket");
         }
-        if (tag.hasKey("lock")) {
+        if (tag.contains("lock")) {
             program.lock = tag.getString("lock");
         }
-        if (tag.hasKey("lastvar")) {
-            CompoundNBT varTag = tag.getCompoundTag("lastvar");
-            int t = varTag.getInteger("type");
+        if (tag.contains("lastvar")) {
+            CompoundNBT varTag = tag.getCompound("lastvar");
+            int t = varTag.getInt("type");
             ParameterType type = ParameterType.values()[t];
             program.lastValue = Parameter.builder().type(type).value(ParameterTypeTools.readFromNBT(varTag, type)).build();
         }
-        if (tag.hasKey("loopStack")) {
+        if (tag.contains("loopStack")) {
             program.loopStack.clear();
-            ListNBT loopList = tag.getTagList("loopStack", Constants.NBT.TAG_COMPOUND);
-            for (int i = 0 ; i < loopList.tagCount() ; i++) {
-                CompoundNBT t = loopList.getCompoundTagAt(i);
-                int var = tag.getInteger("var");
-                program.loopStack.add(new FlowStack(tag.getInteger("index"), var == -1 ? null : var));
+            ListNBT loopList = tag.getList("loopStack", Constants.NBT.TAG_COMPOUND);
+            for (int i = 0 ; i < loopList.size() ; i++) {
+                CompoundNBT t = loopList.getCompound(i);
+                int var = tag.getInt("var");
+                program.loopStack.add(new FlowStack(tag.getInt("index"), var == -1 ? null : var));
             }
         }
         return program;

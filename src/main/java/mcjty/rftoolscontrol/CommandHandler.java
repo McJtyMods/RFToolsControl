@@ -3,15 +3,16 @@ package mcjty.rftoolscontrol;
 import mcjty.lib.McJtyLib;
 import mcjty.lib.typed.Key;
 import mcjty.lib.typed.Type;
+import mcjty.rftoolsbase.modules.crafting.items.CraftingCardItem;
 import mcjty.rftoolscontrol.blocks.processor.ProcessorTileEntity;
-import mcjty.rftoolscontrol.items.craftingcard.CraftingCardItem;
 import mcjty.rftoolscontrol.network.PacketGraphicsReady;
 import mcjty.rftoolscontrol.network.RFToolsCtrlMessages;
-
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.fml.network.NetworkDirection;
 
 public class CommandHandler {
 
@@ -35,7 +36,7 @@ public class CommandHandler {
             TileEntity te = player.getEntityWorld().getTileEntity(arguments.get(PARAM_POS));
             if (te instanceof ProcessorTileEntity) {
                 ProcessorTileEntity processor = (ProcessorTileEntity) te;
-                RFToolsCtrlMessages.INSTANCE.sendTo(new PacketGraphicsReady(processor), (EntityPlayerMP) player);
+                RFToolsCtrlMessages.INSTANCE.sendTo(new PacketGraphicsReady(processor), ((ServerPlayerEntity)player).connection.netManager, NetworkDirection.PLAY_TO_CLIENT);
             }
             return true;
         });
