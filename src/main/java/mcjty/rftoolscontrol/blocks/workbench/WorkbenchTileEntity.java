@@ -2,6 +2,8 @@ package mcjty.rftoolscontrol.blocks.workbench;
 
 
 import mcjty.lib.McJtyLib;
+import mcjty.lib.api.container.CapabilityContainerProvider;
+import mcjty.lib.api.container.DefaultContainerProvider;
 import mcjty.lib.container.AutomationFilterItemHander;
 import mcjty.lib.container.GenericCrafter;
 import mcjty.lib.container.NoDirectionItemHander;
@@ -11,11 +13,15 @@ import mcjty.rftoolscontrol.setup.Registration;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.CraftingInventory;
 import net.minecraft.inventory.container.Container;
+import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.item.crafting.IRecipeType;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.Direction;
+import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.items.CapabilityItemHandler;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -25,6 +31,10 @@ public class WorkbenchTileEntity extends GenericTileEntity implements GenericCra
     private NoDirectionItemHander items = createItemHandler();
     private LazyOptional<NoDirectionItemHander> itemHandler = LazyOptional.of(() -> items);
     private LazyOptional<AutomationFilterItemHander> automationItemHandler = LazyOptional.of(() -> new AutomationFilterItemHander(items));
+
+    private LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<WorkbenchContainer>("Workbench")
+            .containerSupplier((windowId,player) -> new WorkbenchContainer(windowId, WorkbenchContainer.CONTAINER_FACTORY, getPos(), WorkbenchTileEntity.this))
+            .itemHandler(itemHandler));
 
     // This field contains the number of real items in the craft output slot. i.e. these are
     // items that are already crafted but only (partially) consumed.
@@ -265,6 +275,18 @@ public class WorkbenchTileEntity extends GenericTileEntity implements GenericCra
                 return true;
             }
         };
+    }
+
+    @Nonnull
+    @Override
+    public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction facing) {
+        if (cap == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) {
+            return automationItemHandler.cast();
+        }
+        if (cap == CapabilityContainerProvider.CONTAINER_PROVIDER_CAPABILITY) {
+            return screenHandler.cast();
+        }
+        return super.getCapability(cap, facing);
     }
 
 }

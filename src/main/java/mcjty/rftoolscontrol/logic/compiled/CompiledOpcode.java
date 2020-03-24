@@ -1,10 +1,11 @@
 package mcjty.rftoolscontrol.logic.compiled;
 
-import mcjty.rftoolscontrol.api.code.ICompiledOpcode;
-import mcjty.rftoolscontrol.api.code.IOpcodeRunnable;
-import mcjty.rftoolscontrol.api.code.Opcode;
-import mcjty.rftoolscontrol.api.parameters.Parameter;
+import mcjty.rftoolsbase.api.control.code.ICompiledOpcode;
+import mcjty.rftoolsbase.api.control.code.IOpcodeRunnable;
+import mcjty.rftoolsbase.api.control.code.Opcode;
+import mcjty.rftoolsbase.api.control.parameters.IParameter;
 import mcjty.rftoolscontrol.blocks.processor.ProcessorTileEntity;
+import mcjty.rftoolscontrol.logic.Parameter;
 import mcjty.rftoolscontrol.logic.running.ProgException;
 import mcjty.rftoolscontrol.logic.running.RunningProgram;
 
@@ -15,7 +16,7 @@ import java.util.List;
 public class CompiledOpcode implements ICompiledOpcode {
 
     private final Opcode opcode;
-    private final List<Parameter> parameters;
+    private final List<IParameter> parameters;
     private final int primaryIndex;
     private final int secondaryIndex;
     private final int gridX;
@@ -36,7 +37,7 @@ public class CompiledOpcode implements ICompiledOpcode {
 
     @Override
     @Nonnull
-    public List<Parameter> getParameters() {
+    public List<IParameter> getParameters() {
         return parameters;
     }
 

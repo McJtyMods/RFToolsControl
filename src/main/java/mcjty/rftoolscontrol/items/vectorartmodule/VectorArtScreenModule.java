@@ -4,7 +4,7 @@ import mcjty.lib.varia.BlockPosTools;
 import mcjty.lib.varia.WorldTools;
 import mcjty.rftoolsbase.api.screens.IScreenDataHelper;
 import mcjty.rftoolsbase.api.screens.IScreenModule;
-import mcjty.rftoolscontrol.api.parameters.Tuple;
+import mcjty.rftoolsbase.api.control.parameters.Tuple;
 import mcjty.rftoolscontrol.blocks.processor.ProcessorTileEntity;
 import mcjty.rftoolscontrol.compat.rftoolssupport.ModuleDataVectorArt;
 import mcjty.rftoolscontrol.config.ConfigSetup;

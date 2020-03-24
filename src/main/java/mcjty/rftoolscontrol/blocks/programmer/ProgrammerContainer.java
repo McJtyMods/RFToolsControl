@@ -4,7 +4,6 @@ import mcjty.lib.container.ContainerFactory;
 import mcjty.lib.container.GenericContainer;
 import mcjty.lib.container.SlotDefinition;
 import mcjty.lib.tileentity.GenericTileEntity;
-import mcjty.rftoolscontrol.items.ModItems;
 import mcjty.rftoolscontrol.setup.Registration;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
@@ -22,7 +21,7 @@ public class ProgrammerContainer extends GenericContainer {
     public static final ContainerFactory CONTAINER_FACTORY = new ContainerFactory(2) {
         @Override
         protected void setup() {
-            box(SlotDefinition.specific(new ItemStack(ModItems.programCardItem)), CONTAINER_INVENTORY, SLOT_CARD, 91, 136, 1, 1);
+            box(SlotDefinition.specific(new ItemStack(Registration.PROGRAM_CARD.get())), CONTAINER_INVENTORY, SLOT_CARD, 91, 136, 1, 1);
             box(SlotDefinition.container(), CONTAINER_INVENTORY, SLOT_DUMMY, -1000, -1000, 1, 1);
             playerSlots(91, 157);
         }

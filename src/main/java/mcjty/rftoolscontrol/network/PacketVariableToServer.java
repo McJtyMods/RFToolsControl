@@ -1,9 +1,9 @@
 package mcjty.rftoolscontrol.network;
 
 
-import mcjty.rftoolscontrol.api.parameters.Parameter;
-import mcjty.rftoolscontrol.api.parameters.ParameterType;
-import mcjty.rftoolscontrol.api.parameters.ParameterValue;
+import mcjty.rftoolscontrol.logic.Parameter;
+import mcjty.rftoolsbase.api.control.parameters.ParameterType;
+import mcjty.rftoolsbase.api.control.parameters.ParameterValue;
 import mcjty.rftoolscontrol.blocks.processor.ProcessorTileEntity;
 import mcjty.rftoolscontrol.logic.ParameterTypeTools;
 import net.minecraft.entity.player.PlayerEntity;

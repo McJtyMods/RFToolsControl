@@ -18,7 +18,7 @@ import java.awt.*;
 import static mcjty.rftoolscontrol.blocks.node.NodeTileEntity.PARAM_CHANNEL;
 import static mcjty.rftoolscontrol.blocks.node.NodeTileEntity.PARAM_NODE;
 
-public class GuiNode extends GenericGuiContainer<NodeTileEntity, EmptyContainer> {
+public class GuiNode extends GenericGuiContainer<NodeTileEntity, NodeContainer> {
 
     public static final int WIDTH = 220;
     public static final int HEIGHT = 30;
@@ -26,7 +26,7 @@ public class GuiNode extends GenericGuiContainer<NodeTileEntity, EmptyContainer>
     private TextField channelField;
     private TextField nodeNameField;
 
-    public GuiNode(NodeTileEntity te, EmptyContainer container, PlayerInventory inventory) {
+    public GuiNode(NodeTileEntity te, NodeContainer container, PlayerInventory inventory) {
         super(RFToolsControl.instance, te, container, inventory, /*@todo 1.15 GuiProxy.GUI_MANUAL_CONTROL*/0, "networking");
 
         xSize = WIDTH;

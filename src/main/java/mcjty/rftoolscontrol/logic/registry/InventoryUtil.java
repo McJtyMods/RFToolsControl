@@ -1,6 +1,6 @@
 package mcjty.rftoolscontrol.logic.registry;
 
-import mcjty.rftoolscontrol.api.parameters.Inventory;
+import mcjty.rftoolsbase.api.control.parameters.Inventory;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.Direction;

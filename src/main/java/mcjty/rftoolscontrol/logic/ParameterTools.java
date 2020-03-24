@@ -4,7 +4,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import mcjty.lib.network.NetworkTools;
-import mcjty.rftoolscontrol.api.parameters.*;
+import mcjty.rftoolsbase.api.control.parameters.*;
 import mcjty.rftoolscontrol.logic.registry.InventoryUtil;
 import mcjty.rftoolscontrol.logic.running.ExceptionType;
 import net.minecraft.item.ItemStack;
@@ -336,7 +336,7 @@ public class ParameterTools {
         return sum;
     }
 
-    public static int getLength(@Nullable Parameter parameter) {
+    public static int getLength(@Nullable IParameter parameter) {
         if (parameter == null) {
             return 0;
         }

@@ -1,7 +1,7 @@
 package mcjty.rftoolscontrol.logic.registry;
 
-import mcjty.rftoolscontrol.api.code.Function;
-import mcjty.rftoolscontrol.api.registry.IFunctionRegistry;
+import mcjty.rftoolsbase.api.control.code.Function;
+import mcjty.rftoolsbase.api.control.registry.IFunctionRegistry;
 
 public class FunctionRegistry implements IFunctionRegistry {
     @Override

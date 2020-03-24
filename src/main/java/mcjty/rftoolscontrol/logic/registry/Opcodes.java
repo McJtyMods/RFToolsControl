@@ -1,9 +1,10 @@
 package mcjty.rftoolscontrol.logic.registry;
 
-import mcjty.rftoolscontrol.api.code.Opcode;
-import mcjty.rftoolscontrol.api.parameters.*;
+import mcjty.rftoolsbase.api.control.code.Opcode;
+import mcjty.rftoolsbase.api.control.parameters.*;
 import mcjty.rftoolscontrol.blocks.processor.ProcessorTileEntity;
 import mcjty.rftoolscontrol.logic.InventoryTools;
+import mcjty.rftoolscontrol.logic.Parameter;
 import mcjty.rftoolscontrol.logic.ParameterTools;
 import mcjty.rftoolscontrol.logic.running.ExceptionType;
 import mcjty.rftoolscontrol.logic.running.ProgException;
@@ -17,10 +18,10 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static mcjty.rftoolscontrol.api.code.IOpcodeRunnable.OpcodeResult.*;
-import static mcjty.rftoolscontrol.api.code.OpcodeCategory.*;
-import static mcjty.rftoolscontrol.api.code.OpcodeOutput.*;
-import static mcjty.rftoolscontrol.api.parameters.ParameterType.*;
+import static mcjty.rftoolsbase.api.control.code.IOpcodeRunnable.OpcodeResult.*;
+import static mcjty.rftoolsbase.api.control.code.OpcodeCategory.*;
+import static mcjty.rftoolsbase.api.control.code.OpcodeOutput.*;
+import static mcjty.rftoolsbase.api.control.parameters.ParameterType.*;
 
 public class Opcodes {
 
@@ -1927,7 +1928,7 @@ public class Opcodes {
             .parameter(ParameterDescription.builder().name("vector").type(PAR_VECTOR).optional().description("vector").build())
             .icon(8, 7)
             .runnable(((processor, program, opcode) -> {
-                List<Parameter> vector = processor.evaluateVectorParameter(opcode, program, 0);
+                List<IParameter> vector = processor.evaluateVectorParameter(opcode, program, 0);
                 if (vector == null) {
                     vector = Collections.emptyList();
                 }
@@ -1974,13 +1975,13 @@ public class Opcodes {
             .parameter(ParameterDescription.builder().name("compare").type(PAR_VECTOR).optional().description("vector to use for comparison").build())
             .icon(10, 9)
             .runnable(((processor, program, opcode) -> {
-                List<Parameter> vector = processor.evaluateVectorParameterNonNull(opcode, program, 0);
-                List<Parameter> compare = processor.evaluateVectorParameter(opcode, program, 1);
+                List<IParameter> vector = processor.evaluateVectorParameterNonNull(opcode, program, 0);
+                List<IParameter> compare = processor.evaluateVectorParameter(opcode, program, 1);
                 if (compare == null) {
                     vector.sort(Comparator.naturalOrder());
                     program.setLastValue(Parameter.builder().type(PAR_VECTOR).value(ParameterValue.constant(vector)).build());
                 } else {
-                    List<Parameter> result = IntStream.range(0, vector.size())
+                    List<IParameter> result = IntStream.range(0, vector.size())
                             .mapToObj(i -> Pair.of(vector.get(i), compare.get(i)))
                             .sorted(Comparator.comparing(Pair::getRight))
                             .map(Pair::getLeft)
@@ -2002,7 +2003,7 @@ public class Opcodes {
             .parameter(ParameterDescription.builder().name("index").type(PAR_INTEGER).description("index (starts at 0)").build())
             .icon(10, 7)
             .runnable(((processor, program, opcode) -> {
-                List<Parameter> vector = processor.evaluateVectorParameterNonNull(opcode, program, 0);
+                List<IParameter> vector = processor.evaluateVectorParameterNonNull(opcode, program, 0);
                 int index = processor.evaluateIntParameter(opcode, program, 1);
                 if (index < 0 || index >= vector.size()) {
                     throw new ProgException(ExceptionType.EXCEPT_BADINDEX);
@@ -2024,9 +2025,9 @@ public class Opcodes {
             .parameter(ParameterDescription.builder().name("var").type(PAR_INTEGER).description("variable to add to vector").build())
             .icon(9, 7)
             .runnable(((processor, program, opcode) -> {
-                List<Parameter> vector = processor.evaluateVectorParameterNonNull(opcode, program, 0);
+                List<IParameter> vector = processor.evaluateVectorParameterNonNull(opcode, program, 0);
                 int var = processor.evaluateIntParameter(opcode, program, 1);
-                List<Parameter> newvector = new ArrayList<>(vector);
+                List<IParameter> newvector = new ArrayList<>(vector);
                 newvector.add(processor.getVariable(program, var));
                 program.setLastValue(Parameter.builder().type(PAR_VECTOR).value(ParameterValue.constant(Collections.unmodifiableList(newvector))).build());
                 return POSITIVE;
@@ -2045,9 +2046,9 @@ public class Opcodes {
             .parameter(ParameterDescription.builder().name("integer").type(PAR_INTEGER).description("integer to add to vector").build())
             .icon(9, 8)
             .runnable(((processor, program, opcode) -> {
-                List<Parameter> vector = processor.evaluateVectorParameterNonNull(opcode, program, 0);
+                List<IParameter> vector = processor.evaluateVectorParameterNonNull(opcode, program, 0);
                 int integer = processor.evaluateIntParameter(opcode, program, 1);
-                List<Parameter> newvector = new ArrayList<>(vector);
+                List<IParameter> newvector = new ArrayList<>(vector);
                 newvector.add(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(integer)).build());
                 program.setLastValue(Parameter.builder().type(PAR_VECTOR).value(ParameterValue.constant(Collections.unmodifiableList(newvector))).build());
                 return POSITIVE;
@@ -2065,15 +2066,15 @@ public class Opcodes {
             .parameter(ParameterDescription.builder().name("vector").type(PAR_VECTOR).description("vector").build())
             .icon(11, 7)
             .runnable(((processor, program, opcode) -> {
-                List<Parameter> vector = processor.evaluateVectorParameterNonNull(opcode, program, 0);
+                List<IParameter> vector = processor.evaluateVectorParameterNonNull(opcode, program, 0);
                 if (!vector.isEmpty()) {
-                    List<Parameter> newvector = new ArrayList<>(vector.size() - 1);
+                    List<IParameter> newvector = new ArrayList<>(vector.size() - 1);
                     for (int i = 0; i < vector.size() - 1; i++) {
                         newvector.add(vector.get(i));
                     }
                     program.setLastValue(Parameter.builder().type(PAR_VECTOR).value(ParameterValue.constant(Collections.unmodifiableList(newvector))).build());
                 } else {
-                    List<Parameter> newvector = new ArrayList<>();
+                    List<IParameter> newvector = new ArrayList<>();
                     program.setLastValue(Parameter.builder().type(PAR_VECTOR).value(ParameterValue.constant(Collections.unmodifiableList(newvector))).build());
                 }
                 return POSITIVE;

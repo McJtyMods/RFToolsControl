@@ -17,11 +17,10 @@ public class CPUCoreItem extends Item {
 
     private final int tier;
 
-    public CPUCoreItem(String name, int tier) {
+    public CPUCoreItem(int tier) {
         super(new Properties()
                 .maxStackSize(1)
                 .group(RFToolsControl.setup.getTab()));
-//        super(name);
         this.tier = tier;
     }
 

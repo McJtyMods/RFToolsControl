@@ -1,10 +1,11 @@
 package mcjty.rftoolscontrol.logic.registry;
 
-import mcjty.rftoolscontrol.api.code.Function;
-import mcjty.rftoolscontrol.api.machines.IProcessor;
-import mcjty.rftoolscontrol.api.parameters.Parameter;
-import mcjty.rftoolscontrol.api.parameters.ParameterType;
-import mcjty.rftoolscontrol.api.parameters.Tuple;
+import mcjty.rftoolsbase.api.control.code.Function;
+import mcjty.rftoolsbase.api.control.machines.IProcessor;
+import mcjty.rftoolsbase.api.control.parameters.IParameter;
+import mcjty.rftoolscontrol.logic.Parameter;
+import mcjty.rftoolsbase.api.control.parameters.ParameterType;
+import mcjty.rftoolsbase.api.control.parameters.Tuple;
 import mcjty.rftoolscontrol.blocks.processor.ProcessorTileEntity;
 import mcjty.rftoolscontrol.logic.ParameterTools;
 import mcjty.rftoolscontrol.logic.TypeConverters;
@@ -13,7 +14,7 @@ import mcjty.rftoolscontrol.logic.running.ProgException;
 import javax.annotation.Nonnull;
 import java.util.*;
 
-import static mcjty.rftoolscontrol.api.parameters.ParameterType.*;
+import static mcjty.rftoolsbase.api.control.parameters.ParameterType.*;
 import static mcjty.rftoolscontrol.logic.running.ExceptionType.EXCEPT_NOTAVECTOR;
 
 public class Functions {
@@ -47,7 +48,7 @@ public class Functions {
             .description("The last opcode result", "converted to the appropriate", "number type")
             .type(PAR_NUMBER)
             .runnable((processor, program) -> {
-                Parameter lastValue = program.getLastValue();
+                IParameter lastValue = program.getLastValue();
                 if (lastValue == null) {
                     return 0;
                 }

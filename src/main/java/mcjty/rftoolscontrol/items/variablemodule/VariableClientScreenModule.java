@@ -3,7 +3,7 @@ package mcjty.rftoolscontrol.items.variablemodule;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.platform.GlStateManager;
 import mcjty.rftoolsbase.api.screens.*;
-import mcjty.rftoolscontrol.api.parameters.Parameter;
+import mcjty.rftoolscontrol.logic.Parameter;
 import mcjty.rftoolscontrol.compat.rftoolssupport.ModuleDataVariable;
 import mcjty.rftoolscontrol.logic.TypeConverters;
 import net.minecraft.client.gui.FontRenderer;

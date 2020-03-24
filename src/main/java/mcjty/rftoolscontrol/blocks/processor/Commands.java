@@ -1,7 +1,8 @@
 package mcjty.rftoolscontrol.blocks.processor;
 
-import mcjty.rftoolscontrol.api.parameters.Parameter;
-import mcjty.rftoolscontrol.api.parameters.ParameterType;
+import mcjty.rftoolsbase.api.control.parameters.IParameter;
+import mcjty.rftoolscontrol.logic.Parameter;
+import mcjty.rftoolsbase.api.control.parameters.ParameterType;
 import mcjty.rftoolscontrol.logic.TypeConverters;
 import mcjty.rftoolscontrol.logic.compiled.CompiledOpcode;
 import mcjty.rftoolscontrol.logic.running.CpuCore;
@@ -163,7 +164,7 @@ public class Commands {
                     int i = Integer.parseInt(splitted[2]);
                     CpuCore core = cores.get(i);
                     if (core.hasProgram()) {
-                        Parameter value = core.getProgram().getLastValue();
+                        IParameter value = core.getProgram().getLastValue();
                         if (value == null || value.getParameterValue() == null) {
                             processor.log(TextFormatting.YELLOW + "Last value not set");
                         } else {
@@ -181,7 +182,7 @@ public class Commands {
                 int i = 0;
                 for (CpuCore core : cores) {
                     if (core.hasProgram()) {
-                        Parameter value = core.getProgram().getLastValue();
+                        IParameter value = core.getProgram().getLastValue();
                         if (value == null || value.getParameterValue() == null) {
                             processor.log(TextFormatting.YELLOW + "" + i + ": Last value not set");
                         } else {

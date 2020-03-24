@@ -8,9 +8,18 @@ import mcjty.rftoolscontrol.blocks.craftingstation.CraftingStationBlock;
 import mcjty.rftoolscontrol.blocks.craftingstation.CraftingStationTileEntity;
 import mcjty.rftoolscontrol.blocks.multitank.MultiTankTileEntity;
 import mcjty.rftoolscontrol.blocks.node.NodeBlock;
+import mcjty.rftoolscontrol.blocks.node.NodeContainer;
 import mcjty.rftoolscontrol.blocks.node.NodeTileEntity;
+import mcjty.rftoolscontrol.blocks.processor.ProcessorContainer;
 import mcjty.rftoolscontrol.blocks.processor.ProcessorTileEntity;
+import mcjty.rftoolscontrol.blocks.programmer.ProgrammerContainer;
 import mcjty.rftoolscontrol.blocks.programmer.ProgrammerTileEntity;
+import mcjty.rftoolscontrol.blocks.workbench.WorkbenchContainer;
+import mcjty.rftoolscontrol.items.*;
+import mcjty.rftoolscontrol.items.consolemodule.ConsoleModuleItem;
+import mcjty.rftoolscontrol.items.interactionmodule.InteractionModuleItem;
+import mcjty.rftoolscontrol.items.variablemodule.VariableModuleItem;
+import mcjty.rftoolscontrol.items.vectorartmodule.VectorArtModuleItem;
 import net.minecraft.block.Block;
 import net.minecraft.entity.EntityType;
 import net.minecraft.inventory.container.ContainerType;
@@ -55,21 +64,39 @@ public class Registration {
     public static final RegistryObject<BaseBlock> NODE = BLOCKS.register("node", NodeBlock::new);
     public static final RegistryObject<Item> NODE_ITEM = ITEMS.register("node", () -> new BlockItem(NODE.get(), createStandardProperties()));
     public static final RegistryObject<TileEntityType<NodeTileEntity>> NODE_TILE = TILES.register("node", () -> TileEntityType.Builder.create(NodeTileEntity::new, NODE.get()).build(null));
+    public static final RegistryObject<ContainerType<NodeContainer>> NODE_CONTAINER = CONTAINERS.register("node", GenericContainer::createContainerType);
 
     public static final RegistryObject<BaseBlock> PROCESSOR = BLOCKS.register("processor", NodeBlock::new);
     public static final RegistryObject<Item> PROCESSOR_ITEM = ITEMS.register("processor", () -> new BlockItem(PROCESSOR.get(), createStandardProperties()));
     public static final RegistryObject<TileEntityType<ProcessorTileEntity>> PROCESSOR_TILE = TILES.register("processor", () -> TileEntityType.Builder.create(ProcessorTileEntity::new, PROCESSOR.get()).build(null));
-    public static final RegistryObject<ContainerType<GenericContainer>> PROCESSOR_CONTAINER = CONTAINERS.register("processor", GenericContainer::createContainerType);
+    public static final RegistryObject<ContainerType<ProcessorContainer>> PROCESSOR_CONTAINER = CONTAINERS.register("processor", GenericContainer::createContainerType);
 
     public static final RegistryObject<BaseBlock> PROGRAMMER = BLOCKS.register("programmer", NodeBlock::new);
     public static final RegistryObject<Item> PROGRAMMER_ITEM = ITEMS.register("programmer", () -> new BlockItem(PROGRAMMER.get(), createStandardProperties()));
     public static final RegistryObject<TileEntityType<ProgrammerTileEntity>> PROGRAMMER_TILE = TILES.register("programmer", () -> TileEntityType.Builder.create(ProgrammerTileEntity::new, PROGRAMMER.get()).build(null));
-    public static final RegistryObject<ContainerType<GenericContainer>> PROGRAMMER_CONTAINER = CONTAINERS.register("programmer", GenericContainer::createContainerType);
+    public static final RegistryObject<ContainerType<ProgrammerContainer>> PROGRAMMER_CONTAINER = CONTAINERS.register("programmer", GenericContainer::createContainerType);
 
     public static final RegistryObject<BaseBlock> WORKBENCH = BLOCKS.register("workbench", NodeBlock::new);
     public static final RegistryObject<Item> WORKBENCH_ITEM = ITEMS.register("workbench", () -> new BlockItem(WORKBENCH.get(), createStandardProperties()));
     public static final RegistryObject<TileEntityType<ProgrammerTileEntity>> WORKBENCH_TILE = TILES.register("workbench", () -> TileEntityType.Builder.create(ProgrammerTileEntity::new, WORKBENCH.get()).build(null));
-    public static final RegistryObject<ContainerType<GenericContainer>> WORKBENCH_CONTAINER = CONTAINERS.register("workbench", GenericContainer::createContainerType);
+    public static final RegistryObject<ContainerType<WorkbenchContainer>> WORKBENCH_CONTAINER = CONTAINERS.register("workbench", GenericContainer::createContainerType);
+
+    public static final RegistryObject<ProgramCardItem> PROGRAM_CARD = ITEMS.register("program_card", ProgramCardItem::new);
+    public static final RegistryObject<CPUCoreItem> CPU_CORE_500 = ITEMS.register("cpu_core_500", () -> new CPUCoreItem(0));
+    public static final RegistryObject<CPUCoreItem> CPU_CORE_1000 = ITEMS.register("cpu_core_1000", () -> new CPUCoreItem(1));
+    public static final RegistryObject<CPUCoreItem> CPU_CORE_2000 = ITEMS.register("cpu_core_2000", () -> new CPUCoreItem(2));
+    public static final RegistryObject<RAMChipItem> RAM_CHIP = ITEMS.register("ram_chip", RAMChipItem::new);
+    public static final RegistryObject<NetworkCardItem> NETWORK_CARD = ITEMS.register("network_card", () -> new NetworkCardItem(NetworkCardItem.TIER_NORMAL));
+    public static final RegistryObject<NetworkCardItem> ADVANCED_NETWORK_CARD = ITEMS.register("advanced_network_card", () -> new NetworkCardItem(NetworkCardItem.TIER_ADVANCED));
+    public static final RegistryObject<CardBaseItem> CARD_BASE = ITEMS.register("card_base", CardBaseItem::new);
+    public static final RegistryObject<TokenItem> TOKEN = ITEMS.register("token", TokenItem::new);
+    public static final RegistryObject<NetworkIdentifierItem> NETWORK_IDENTIFIER = ITEMS.register("network_identifier", NetworkIdentifierItem::new);
+    public static final RegistryObject<GraphicsCardItem> GRAPHICS_CARD = ITEMS.register("graphics_card", GraphicsCardItem::new);
+    public static final RegistryObject<VariableModuleItem> VARIABLE_MODULE = ITEMS.register("variable_module", VariableModuleItem::new);
+    public static final RegistryObject<InteractionModuleItem> INTERACTION_MODULE = ITEMS.register("interaction_module", InteractionModuleItem::new);
+    public static final RegistryObject<ConsoleModuleItem> CONSOLE_MODULE = ITEMS.register("console_module", ConsoleModuleItem::new);
+    public static final RegistryObject<VectorArtModuleItem> VECTORART_MODULE = ITEMS.register("vectorart_module", VectorArtModuleItem::new);
+
 
     public static Item.Properties createStandardProperties() {
         return new Item.Properties().group(RFToolsControl.setup.getTab());

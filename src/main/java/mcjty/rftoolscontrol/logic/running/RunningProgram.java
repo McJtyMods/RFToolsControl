@@ -1,10 +1,11 @@
 package mcjty.rftoolscontrol.logic.running;
 
-import mcjty.rftoolscontrol.api.code.IOpcodeRunnable;
-import mcjty.rftoolscontrol.api.machines.IProgram;
-import mcjty.rftoolscontrol.api.parameters.Parameter;
-import mcjty.rftoolscontrol.api.parameters.ParameterType;
-import mcjty.rftoolscontrol.api.parameters.ParameterValue;
+import mcjty.rftoolsbase.api.control.code.IOpcodeRunnable;
+import mcjty.rftoolsbase.api.control.machines.IProgram;
+import mcjty.rftoolsbase.api.control.parameters.IParameter;
+import mcjty.rftoolscontrol.logic.Parameter;
+import mcjty.rftoolsbase.api.control.parameters.ParameterType;
+import mcjty.rftoolsbase.api.control.parameters.ParameterValue;
 import mcjty.rftoolscontrol.blocks.processor.ProcessorTileEntity;
 import mcjty.rftoolscontrol.config.ConfigSetup;
 import mcjty.rftoolscontrol.logic.ParameterTypeTools;
@@ -48,7 +49,7 @@ public class RunningProgram implements IProgram {
     private boolean dead = false;
 
     // Last value result
-    private Parameter lastValue;
+    private IParameter lastValue;
 
     // The core we are running on
     private CpuCore core;
@@ -150,12 +151,12 @@ public class RunningProgram implements IProgram {
     }
 
     @Override
-    public void setLastValue(Parameter value) {
+    public void setLastValue(IParameter value) {
         lastValue = value;
     }
 
     @Override
-    public Parameter getLastValue() {
+    public IParameter getLastValue() {
         return lastValue;
     }
 

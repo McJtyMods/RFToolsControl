@@ -1,7 +1,7 @@
 package mcjty.rftoolscontrol.logic;
 
 import mcjty.lib.varia.FluidTools;
-import mcjty.rftoolscontrol.api.parameters.*;
+import mcjty.rftoolsbase.api.control.parameters.*;
 import mcjty.rftoolscontrol.logic.running.ExceptionType;
 import mcjty.rftoolscontrol.logic.running.ProgException;
 import net.minecraft.item.ItemStack;
@@ -17,7 +17,7 @@ import java.util.List;
 
 public class TypeConverters {
 
-    public static float convertToFloat(Parameter value) {
+    public static float convertToFloat(IParameter value) {
         if (value == null) {
             return 0.0f;
         }
@@ -53,7 +53,7 @@ public class TypeConverters {
     }
 
     @Nullable
-    public static FluidStack convertToFluid(Parameter parameter) {
+    public static FluidStack convertToFluid(IParameter parameter) {
         if (parameter == null) {
             return null;
         }
@@ -89,7 +89,7 @@ public class TypeConverters {
     }
 
     @Nonnull
-    public static ItemStack convertToItem(Parameter value) {
+    public static ItemStack convertToItem(IParameter value) {
         if (value == null) {
             return ItemStack.EMPTY;
         }
@@ -126,7 +126,7 @@ public class TypeConverters {
 
 
     @Nullable
-    public static Inventory convertToInventory(Parameter par) {
+    public static Inventory convertToInventory(IParameter par) {
         if (par == null) {
             return null;
         }
@@ -166,7 +166,7 @@ public class TypeConverters {
     }
 
     @Nullable
-    public static BlockSide convertToSide(Parameter par) {
+    public static BlockSide convertToSide(IParameter par) {
         if (par == null) {
             return null;
         }
@@ -201,7 +201,7 @@ public class TypeConverters {
     }
 
     @Nullable
-    public static Tuple convertToTuple(Parameter value) {
+    public static Tuple convertToTuple(IParameter value) {
         if (value == null || value.getParameterValue() == null) {
             return null;
         }
@@ -242,7 +242,7 @@ public class TypeConverters {
     }
 
     @Nullable
-    public static List<Parameter> convertToVector(Parameter value) {
+    public static List<Parameter> convertToVector(IParameter value) {
         if (value == null || value.getParameterValue() == null) {
             return null;
         }
@@ -274,7 +274,7 @@ public class TypeConverters {
         return null;
     }
 
-    public static boolean convertToBool(Parameter value) {
+    public static boolean convertToBool(IParameter value) {
         if (value == null) {
             return false;
         }
@@ -313,7 +313,7 @@ public class TypeConverters {
         return false;
     }
 
-    public static int convertToInt(Parameter value) {
+    public static int convertToInt(IParameter value) {
         if (value == null) {
             return 0;
         }
@@ -324,7 +324,7 @@ public class TypeConverters {
         return integer;
     }
 
-    public static long convertToLong(Parameter value) {
+    public static long convertToLong(IParameter value) {
         if (value == null) {
             return 0;
         }
@@ -336,7 +336,7 @@ public class TypeConverters {
     }
 
     @Nonnull
-    public static Number convertToNumber(Parameter value) {
+    public static Number convertToNumber(IParameter value) {
         if (value == null) {
             return 0;
         }
@@ -461,7 +461,7 @@ public class TypeConverters {
     }
 
     @Nonnull
-    public static String convertToString(Parameter value) {
+    public static String convertToString(IParameter value) {
         if (value == null) {
             return "";
         }

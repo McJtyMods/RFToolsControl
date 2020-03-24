@@ -7,7 +7,7 @@ import mcjty.lib.typed.Type;
 import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.BlockPosTools;
 import mcjty.lib.varia.ItemStackList;
-import mcjty.rftoolscontrol.api.parameters.Inventory;
+import mcjty.rftoolsbase.api.control.parameters.Inventory;
 import mcjty.rftoolscontrol.blocks.processor.ProcessorTileEntity;
 import mcjty.rftoolscontrol.config.ConfigSetup;
 import mcjty.rftoolscontrol.logic.running.ExceptionType;

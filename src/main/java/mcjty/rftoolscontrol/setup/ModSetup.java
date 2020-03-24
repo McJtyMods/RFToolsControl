@@ -3,7 +3,6 @@ package mcjty.rftoolscontrol.setup;
 import mcjty.lib.compat.MainCompatHandler;
 import mcjty.lib.setup.DefaultModSetup;
 import mcjty.rftoolscontrol.CommandHandler;
-import mcjty.rftoolscontrol.items.ModItems;
 import mcjty.rftoolscontrol.logic.editors.ParameterEditors;
 import mcjty.rftoolscontrol.logic.registry.Functions;
 import mcjty.rftoolscontrol.logic.registry.Opcodes;
@@ -31,9 +30,6 @@ public class ModSetup extends DefaultModSetup {
 
         Opcodes.init();
         Functions.init();
-
-        // @todo 1.15 remove!
-        ModItems.init();
     }
 
     public void initClient(FMLClientSetupEvent e) {

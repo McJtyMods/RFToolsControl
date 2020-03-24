@@ -1,8 +1,8 @@
 package mcjty.rftoolscontrol.logic;
 
 import mcjty.rftoolsbase.api.storage.IStorageScanner;
-import mcjty.rftoolscontrol.api.parameters.BlockSide;
-import mcjty.rftoolscontrol.api.parameters.Inventory;
+import mcjty.rftoolsbase.api.control.parameters.BlockSide;
+import mcjty.rftoolsbase.api.control.parameters.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.util.Direction;

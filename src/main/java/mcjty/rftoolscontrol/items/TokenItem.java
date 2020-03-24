@@ -2,10 +2,9 @@ package mcjty.rftoolscontrol.items;
 
 import mcjty.lib.McJtyLib;
 import mcjty.rftoolscontrol.RFToolsControl;
-import mcjty.rftoolscontrol.api.parameters.Parameter;
+import mcjty.rftoolscontrol.logic.Parameter;
 import mcjty.rftoolscontrol.logic.ParameterTools;
 import mcjty.rftoolscontrol.logic.ParameterTypeTools;
-import mcjty.rftoolscontrol.setup.GuiProxy;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;

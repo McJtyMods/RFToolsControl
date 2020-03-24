@@ -1,5 +1,8 @@
 package mcjty.rftoolscontrol.blocks.processor;
 
+import mcjty.lib.api.container.CapabilityContainerProvider;
+import mcjty.lib.api.container.DefaultContainerProvider;
+import mcjty.lib.api.infusable.CapabilityInfusable;
 import mcjty.lib.container.AutomationFilterItemHander;
 import mcjty.lib.container.NoDirectionItemHander;
 import mcjty.lib.tileentity.GenericEnergyStorage;
@@ -10,16 +13,16 @@ import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.BlockPosTools;
 import mcjty.lib.varia.EnergyTools;
 import mcjty.lib.varia.WorldTools;
+import mcjty.rftoolsbase.api.control.code.Function;
+import mcjty.rftoolsbase.api.control.code.ICompiledOpcode;
+import mcjty.rftoolsbase.api.control.code.IOpcodeRunnable;
+import mcjty.rftoolsbase.api.control.machines.IProcessor;
+import mcjty.rftoolsbase.api.control.machines.IProgram;
+import mcjty.rftoolsbase.api.control.parameters.*;
 import mcjty.rftoolsbase.api.machineinfo.CapabilityMachineInformation;
 import mcjty.rftoolsbase.api.storage.IStorageScanner;
 import mcjty.rftoolsbase.modules.crafting.CraftingSetup;
 import mcjty.rftoolsbase.modules.crafting.items.CraftingCardItem;
-import mcjty.rftoolscontrol.api.code.Function;
-import mcjty.rftoolscontrol.api.code.ICompiledOpcode;
-import mcjty.rftoolscontrol.api.code.IOpcodeRunnable;
-import mcjty.rftoolscontrol.api.machines.IProcessor;
-import mcjty.rftoolscontrol.api.machines.IProgram;
-import mcjty.rftoolscontrol.api.parameters.*;
 import mcjty.rftoolscontrol.blocks.craftingstation.CraftingStationTileEntity;
 import mcjty.rftoolscontrol.blocks.multitank.MultiTankFluidProperties;
 import mcjty.rftoolscontrol.blocks.multitank.MultiTankTileEntity;
@@ -32,6 +35,7 @@ import mcjty.rftoolscontrol.blocks.workbench.WorkbenchTileEntity;
 import mcjty.rftoolscontrol.config.ConfigSetup;
 import mcjty.rftoolscontrol.items.*;
 import mcjty.rftoolscontrol.logic.InventoryTools;
+import mcjty.rftoolscontrol.logic.Parameter;
 import mcjty.rftoolscontrol.logic.ParameterTools;
 import mcjty.rftoolscontrol.logic.TypeConverters;
 import mcjty.rftoolscontrol.logic.compiled.CompiledCard;
@@ -47,6 +51,7 @@ import mcjty.rftoolscontrol.logic.running.RunningProgram;
 import mcjty.rftoolscontrol.network.PacketGetFluids;
 import mcjty.rftoolscontrol.setup.Registration;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.Ingredient;
@@ -64,6 +69,7 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.server.ServerWorld;
+import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.energy.CapabilityEnergy;
@@ -135,6 +141,11 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
     private LazyOptional<AutomationFilterItemHander> automationItemHandler = LazyOptional.of(() -> new AutomationFilterItemHander(items));
 
     private LazyOptional<GenericEnergyStorage> energyHandler = LazyOptional.of(() -> new GenericEnergyStorage(this, true, ConfigSetup.processorMaxenergy.get(), ConfigSetup.processorReceivepertick.get()));
+
+    private LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<ProcessorContainer>("Processor")
+            .containerSupplier((windowId,player) -> new ProcessorContainer(windowId, ProcessorContainer.CONTAINER_FACTORY, getPos(), ProcessorTileEntity.this))
+            .itemHandler(itemHandler)
+            .energyHandler(energyHandler));
 
     private List<CpuCore> cpuCores = new ArrayList<>();
 
@@ -845,7 +856,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
     }
 
     public ItemStack getItemFromCard(IProgram program) {
-        Parameter lastValue = program.getLastValue();
+        Parameter lastValue = (Parameter) program.getLastValue();
         if (lastValue == null) {
             throw new ProgException(EXCEPT_MISSINGLASTVALUE);
         }
@@ -2039,7 +2050,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
         CardInfo info = this.cardInfo[((RunningProgram) program).getCardIndex()];
         int realVar = getRealVarSafe(var, info);
 
-        Parameter lastValue = program.getLastValue();
+        Parameter lastValue = (Parameter) program.getLastValue();
         Parameter varValue = variables[realVar];
 
         if (lastValue == null) {
@@ -2058,7 +2069,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
         CardInfo info = this.cardInfo[((RunningProgram) program).getCardIndex()];
         int realVar = getRealVarSafe(var, info);
 
-        Parameter lastValue = program.getLastValue();
+        Parameter lastValue = (Parameter) program.getLastValue();
         Parameter varValue = variables[realVar];
 
         if (lastValue == null) {
@@ -2151,7 +2162,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
         if (!stack.hasTag()) {
             stack.setTag(new CompoundNBT());
         }
-        Parameter lastValue = program.getLastValue();
+        Parameter lastValue = (Parameter) program.getLastValue();
         if (lastValue == null) {
             stack.getTag().remove("parameter");
         } else {
@@ -2183,7 +2194,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
     public void setVariable(IProgram program, int var) {
         CardInfo info = this.cardInfo[((RunningProgram) program).getCardIndex()];
         int realVar = getRealVarSafe(var, info);
-        setVariableInternal(program, realVar, program.getLastValue());
+        setVariableInternal(program, realVar, (Parameter) program.getLastValue());
     }
 
     public void setVariableInternal(IProgram program, int realVar, Parameter value) {
@@ -2213,7 +2224,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
     }
 
     @Override
-    public Parameter getVariable(IProgram program, int var) {
+    public IParameter getVariable(IProgram program, int var) {
         CardInfo info = this.cardInfo[((RunningProgram) program).getCardIndex()];
         int realVar = getRealVarSafe(var, info);
         return variables[realVar];
@@ -2222,11 +2233,11 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
     @Nullable
     public <T> T evaluateGenericParameter(ICompiledOpcode compiledOpcode, IProgram program, int parIndex,
                                           BiFunction<ParameterType, Object, T> convertor) {
-        List<Parameter> parameters = compiledOpcode.getParameters();
+        List<IParameter> parameters = compiledOpcode.getParameters();
         if (parIndex >= parameters.size()) {
             return null;
         }
-        Parameter parameter = parameters.get(parIndex);
+        IParameter parameter = parameters.get(parIndex);
         ParameterValue value = parameter.getParameterValue();
         if (value.isConstant()) {
             return convertor.apply(parameter.getParameterType(), value.getValue());
@@ -2281,14 +2292,21 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
 
     @Nullable
     @Override
-    public List<Parameter> evaluateVectorParameter(ICompiledOpcode compiledOpcode, IProgram program, int parIndex) {
-        return evaluateGenericParameter(compiledOpcode, program, parIndex, CONVERTOR_VECTOR);
+    public List<IParameter> evaluateVectorParameter(ICompiledOpcode compiledOpcode, IProgram program, int parIndex) {
+        List<Parameter> parameters = evaluateGenericParameter(compiledOpcode, program, parIndex, CONVERTOR_VECTOR);
+        if (parameters == null) {
+            return null;
+        }
+        // @todo is there a more optimal way?
+        return parameters.stream().map(p -> p).collect(Collectors.toList());
     }
 
     @Nonnull
     @Override
-    public List<Parameter> evaluateVectorParameterNonNull(ICompiledOpcode compiledOpcode, IProgram program, int parIndex) {
-        return evaluateGenericParameterNonNull(compiledOpcode, program, parIndex, CONVERTOR_VECTOR);
+    public List<IParameter> evaluateVectorParameterNonNull(ICompiledOpcode compiledOpcode, IProgram program, int parIndex) {
+        List<Parameter> parameters = evaluateGenericParameterNonNull(compiledOpcode, program, parIndex, CONVERTOR_VECTOR);
+        // @todo is there a more optimal way?
+        return parameters.stream().map(p -> p).collect(Collectors.toList());
     }
 
     @Nullable
@@ -3231,6 +3249,21 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
                 return true;
             }
         };
+    }
+
+    @Nonnull
+    @Override
+    public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction facing) {
+        if (cap == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) {
+            return automationItemHandler.cast();
+        }
+        if (cap == CapabilityEnergy.ENERGY) {
+            return energyHandler.cast();
+        }
+        if (cap == CapabilityContainerProvider.CONTAINER_PROVIDER_CAPABILITY) {
+            return screenHandler.cast();
+        }
+        return super.getCapability(cap, facing);
     }
 
 }

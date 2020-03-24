@@ -1,8 +1,8 @@
 package mcjty.rftoolscontrol.logic.compiled;
 
-import mcjty.rftoolscontrol.api.code.Opcode;
-import mcjty.rftoolscontrol.api.parameters.Parameter;
-import mcjty.rftoolscontrol.api.parameters.ParameterDescription;
+import mcjty.rftoolsbase.api.control.code.Opcode;
+import mcjty.rftoolscontrol.logic.Parameter;
+import mcjty.rftoolsbase.api.control.parameters.ParameterDescription;
 import mcjty.rftoolscontrol.logic.TypeConverters;
 import mcjty.rftoolscontrol.logic.grid.GridInstance;
 import mcjty.rftoolscontrol.logic.grid.GridPos;

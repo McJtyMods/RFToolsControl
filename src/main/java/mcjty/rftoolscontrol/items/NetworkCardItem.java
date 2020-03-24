@@ -19,7 +19,7 @@ public class NetworkCardItem extends Item {
     public static final int TIER_NORMAL = 0;
     public static final int TIER_ADVANCED = 1;
 
-    public NetworkCardItem(String name, int tier) {
+    public NetworkCardItem(int tier) {
         super(new Properties()
                 .maxStackSize(1)
                 .group(RFToolsControl.setup.getTab()));

@@ -3,7 +3,6 @@ package mcjty.rftoolscontrol.compat.jei;
 import mcjty.lib.network.NetworkTools;
 import mcjty.rftoolsbase.modules.crafting.CraftingSetup;
 import mcjty.rftoolsbase.modules.crafting.items.CraftingCardContainer;
-import mcjty.rftoolscontrol.items.ModItems;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketBuffer;

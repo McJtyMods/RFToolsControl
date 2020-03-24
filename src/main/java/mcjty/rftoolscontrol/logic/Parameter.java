@@ -1,6 +1,8 @@
-package mcjty.rftoolscontrol.api.parameters;
+package mcjty.rftoolscontrol.logic;
 
-import mcjty.rftoolscontrol.logic.TypeConverters;
+import mcjty.rftoolsbase.api.control.parameters.IParameter;
+import mcjty.rftoolsbase.api.control.parameters.ParameterType;
+import mcjty.rftoolsbase.api.control.parameters.ParameterValue;
 
 import java.util.Comparator;
 import java.util.List;
@@ -9,7 +11,7 @@ import java.util.Objects;
 /**
  * A representation of a parameter.
  */
-public class Parameter implements Comparable<Parameter> {
+public class Parameter implements IParameter {
 
     private final ParameterType parameterType;
     private final ParameterValue parameterValue;
@@ -20,7 +22,7 @@ public class Parameter implements Comparable<Parameter> {
     }
 
     @Override
-    public int compareTo(Parameter parameter) {
+    public int compareTo(IParameter parameter) {
         switch (parameterType) {
             case PAR_STRING:
                 return TypeConverters.convertToString(this).compareTo(TypeConverters.convertToString(parameter));
@@ -79,14 +81,17 @@ public class Parameter implements Comparable<Parameter> {
         return 0;
     }
 
+    @Override
     public boolean isSet() {
         return parameterValue != null && parameterValue.getValue() != null;
     }
 
+    @Override
     public ParameterType getParameterType() {
         return parameterType;
     }
 
+    @Override
     public ParameterValue getParameterValue() {
         return parameterValue;
     }
