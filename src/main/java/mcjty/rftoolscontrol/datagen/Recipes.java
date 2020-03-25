@@ -8,7 +8,6 @@ import net.minecraft.data.DataGenerator;
 import net.minecraft.data.IFinishedRecipe;
 import net.minecraft.data.ShapedRecipeBuilder;
 import net.minecraft.item.Items;
-import net.minecraft.tags.ItemTags;
 import net.minecraftforge.common.Tags;
 
 import java.util.function.Consumer;
@@ -35,10 +34,10 @@ public class Recipes extends BaseRecipeProvider {
                 "rrr", "nnn", "ggg");
         build(consumer, ShapedRecipeBuilder.shapedRecipe(Registration.CONSOLE_MODULE.get())
                         .key('M', Registration.CARD_BASE.get())
-                        .key('g', Tags.Items.GLASS_PANES)
+                        .key('P', Tags.Items.GLASS_PANES)
                         .key('z', Tags.Items.DYES_BLACK)
                         .addCriterion("cardbase", InventoryChangeTrigger.Instance.forItems(Registration.CARD_BASE.get())),
-                "gMg", "rir", "gzg");
+                "PMP", "rir", "PzP");
         build(consumer, ShapedRecipeBuilder.shapedRecipe(Registration.CPU_CORE_500.get())
                         .key('M', Registration.CARD_BASE.get())
                         .key('g', Tags.Items.NUGGETS_GOLD)
@@ -87,8 +86,19 @@ public class Recipes extends BaseRecipeProvider {
                         .key('M', Registration.CARD_BASE.get())
                         .addCriterion("cardbase", InventoryChangeTrigger.Instance.forItems(Registration.CARD_BASE.get())),
                 "ppp", "pMp", "ppp");
-
-        // @todo, variable_module, vectorart_module, workbench
+        build(consumer, ShapedRecipeBuilder.shapedRecipe(Registration.VARIABLE_MODULE.get())
+                        .key('M', Registration.CARD_BASE.get())
+                        .key('z', Tags.Items.DYES_BLACK)
+                        .addCriterion("cardbase", InventoryChangeTrigger.Instance.forItems(Registration.CARD_BASE.get())),
+                " M ", "rir", " z ");
+        build(consumer, ShapedRecipeBuilder.shapedRecipe(Registration.VECTORART_MODULE.get())
+                        .key('M', Registration.CARD_BASE.get())
+                        .key('z', Tags.Items.DYES_BLACK)
+                        .key('P', Tags.Items.GLASS_PANES)
+                        .key('g', Tags.Items.DUSTS_GLOWSTONE)
+                        .key('I', Tags.Items.INGOTS_GOLD)
+                        .addCriterion("cardbase", InventoryChangeTrigger.Instance.forItems(Registration.CARD_BASE.get())),
+                "PMP", "rIr", "PzP");
 
         build(consumer, ShapedRecipeBuilder.shapedRecipe(Registration.CRAFTING_STATION.get())
                         .key('M', Registration.CARD_BASE.get())
@@ -111,5 +121,10 @@ public class Recipes extends BaseRecipeProvider {
         build(consumer, ShapedRecipeBuilder.shapedRecipe(Registration.MULTITANK.get())
                         .addCriterion("frame", InventoryChangeTrigger.Instance.forItems(VariousSetup.MACHINE_FRAME.get())),
                 "Fii", "iGG", "iGG");
+        build(consumer, ShapedRecipeBuilder.shapedRecipe(Registration.WORKBENCH.get())
+                        .key('C', Items.CRAFTING_TABLE)
+                        .key('X', Items.CHEST)
+                        .addCriterion("frame", InventoryChangeTrigger.Instance.forItems(VariousSetup.MACHINE_FRAME.get())),
+                " C ", " F ", " X ");
     }
 }

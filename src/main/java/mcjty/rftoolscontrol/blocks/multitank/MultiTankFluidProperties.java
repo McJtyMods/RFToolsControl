@@ -19,7 +19,6 @@
 
 package mcjty.rftoolscontrol.blocks.multitank;
 
-import com.sun.istack.internal.NotNull;
 import net.minecraftforge.fluids.FluidStack;
 
 import javax.annotation.Nonnull;
@@ -46,12 +45,12 @@ public class MultiTankFluidProperties {
         this.canDrain = canDrain;
     }
 
-    @NotNull
+    @Nonnull
     public FluidStack getContents() {
         return contents.copy();
     }
 
-    @NotNull
+    @Nonnull
     public FluidStack getContentsInternal() {
         return contents;
     }
@@ -72,7 +71,7 @@ public class MultiTankFluidProperties {
     }
 
     // Warning! Doesn't check if amount fits and is right liquid!
-    public void fill(@NotNull FluidStack stack) {
+    public void fill(@Nonnull FluidStack stack) {
         if (stack.isEmpty()) {
             return;
         }
@@ -84,7 +83,7 @@ public class MultiTankFluidProperties {
         tankTileEntity.markDirty();
     }
 
-    public void set(@NotNull FluidStack stack) {
+    public void set(@Nonnull FluidStack stack) {
         if (stack.isEmpty()) {
             contents = FluidStack.EMPTY;
         } else {

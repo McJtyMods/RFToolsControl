@@ -55,8 +55,8 @@ repositories {
     }
 }
 
-group= "mcjty.github.mcjty" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
-archivesBaseName = "rftoolsctrl"
+group= "com.github.mcjty" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
+archivesBaseName = "rftoolscontrol"
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
