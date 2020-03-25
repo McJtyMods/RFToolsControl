@@ -1,6 +1,7 @@
 package mcjty.rftoolscontrol.datagen;
 
 import mcjty.lib.datagen.BaseLootTableProvider;
+import mcjty.rftoolscontrol.setup.Registration;
 import net.minecraft.data.DataGenerator;
 
 public class LootTables extends BaseLootTableProvider {
@@ -11,8 +12,12 @@ public class LootTables extends BaseLootTableProvider {
 
     @Override
     protected void addTables() {
-//        lootTables.put(BuilderSetup.BUILDER.get(), createStandardTable("builder", BuilderSetup.BUILDER.get()));
-//        lootTables.put(ShieldSetup.TEMPLATE_YELLOW.get(), createSimpleTable("template_yellow", ShieldSetup.TEMPLATE_YELLOW.get()));
+        addStandardTable(Registration.PROCESSOR.get());
+        addStandardTable(Registration.PROGRAMMER.get());
+        addStandardTable(Registration.WORKBENCH.get());
+        addStandardTable(Registration.NODE.get());
+        addStandardTable(Registration.MULTITANK.get());
+        addStandardTable(Registration.CRAFTING_STATION.get());
     }
 
     @Override
