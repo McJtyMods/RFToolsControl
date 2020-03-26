@@ -98,6 +98,9 @@ public class ConfigSetup {
 
         COMMON_BUILDER.pop();
         CLIENT_BUILDER.pop();
+
+        COMMON_CONFIG = COMMON_BUILDER.build();
+        CLIENT_CONFIG = CLIENT_BUILDER.build();
     }
 
     public static ForgeConfigSpec COMMON_CONFIG;

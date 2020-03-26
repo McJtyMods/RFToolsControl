@@ -1,10 +1,14 @@
 package mcjty.rftoolscontrol;
 
 import mcjty.lib.base.ModBase;
+import mcjty.rftoolscontrol.config.ConfigSetup;
 import mcjty.rftoolscontrol.items.manual.GuiRFToolsManual;
 import mcjty.rftoolscontrol.setup.ModSetup;
+import mcjty.rftoolscontrol.setup.Registration;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
@@ -19,8 +23,14 @@ public class RFToolsControl implements ModBase {
 
     public RFToolsControl() {
         instance = this;
+
+        ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, ConfigSetup.CLIENT_CONFIG);
+        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, ConfigSetup.COMMON_CONFIG);
+
         // This has to be done VERY early
 //        FluidRegistry.enableUniversalBucket();
+        Registration.register();
+
         FMLJavaModLoadingContext.get().getModEventBus().addListener((FMLCommonSetupEvent event) -> setup.init(event));
         FMLJavaModLoadingContext.get().getModEventBus().addListener((FMLClientSetupEvent event) -> setup.initClient(event));
     }

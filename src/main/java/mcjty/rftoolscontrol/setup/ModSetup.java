@@ -8,11 +8,9 @@ import mcjty.rftoolscontrol.logic.registry.Functions;
 import mcjty.rftoolscontrol.logic.registry.Opcodes;
 import mcjty.rftoolscontrol.network.RFToolsCtrlMessages;
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 
-@Mod.EventBusSubscriber
 public class ModSetup extends DefaultModSetup {
 
     public ModSetup() {
@@ -23,7 +21,6 @@ public class ModSetup extends DefaultModSetup {
     public void init(FMLCommonSetupEvent e) {
         super.init(e);
 
-        Registration.register();
         CommandHandler.registerCommands();
 
         RFToolsCtrlMessages.registerMessages("rftoolsctrl");
