@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "group": "rftools",
+  "pattern": [
+    "rrr",
+    "nnn",
+    "ggg"
+  ],
+  "key": {
+    "n": {
+      "tag": "forge:dyes/green"
+    },
+    "g": {
+      "tag": "forge:nuggets/gold"
+    },
+    "r": {
+      "item": "minecraft:redstone"
+    }
+  },
+  "result": {
+    "item": "rftoolscontrol:card_base"
+  }
+}

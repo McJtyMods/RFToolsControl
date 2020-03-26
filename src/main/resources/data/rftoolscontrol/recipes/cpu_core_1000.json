@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "group": "rftools",
+  "pattern": [
+    "rdr",
+    "eMe",
+    "rdr"
+  ],
+  "key": {
+    "M": {
+      "item": "rftoolscontrol:cpu_core_500"
+    },
+    "r": {
+      "item": "minecraft:redstone"
+    },
+    "d": {
+      "item": "minecraft:diamond"
+    },
+    "e": {
+      "item": "minecraft:emerald"
+    }
+  },
+  "result": {
+    "item": "rftoolscontrol:cpu_core_1000"
+  }
+}

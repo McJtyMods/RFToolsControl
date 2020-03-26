@@ -1,6 +1,6 @@
 {
   "parent": "item/generated",
   "textures": {
-    "layer0": "rftoolscontrol:items/networkidentifier"
+    "layer0": "rftoolscontrol:item/networkidentifier"
   }
 }

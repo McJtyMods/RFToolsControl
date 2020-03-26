@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "group": "rftools",
+  "pattern": [
+    "rsr",
+    "sMs",
+    "rsr"
+  ],
+  "key": {
+    "M": {
+      "item": "rftoolscontrol:cpu_core_1000"
+    },
+    "r": {
+      "item": "minecraft:redstone"
+    },
+    "s": {
+      "item": "rftoolsbase:dimensionalshard"
+    }
+  },
+  "result": {
+    "item": "rftoolscontrol:cpu_core_2000"
+  }
+}

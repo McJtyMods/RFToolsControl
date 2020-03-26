@@ -1,18 +1,27 @@
 {
-  "forge_marker": 1,
-  "defaults": {
-    "model": "rftoolscontrol:node"
-  },
   "variants": {
-    "normal": [{}],
-    "inventory": [{}],
-    "facing": {
-      "north": {},
-      "south": {"y": 180},
-      "west": {"y": 270},
-      "east": {"y": 90},
-      "up": {"x": -90},
-      "down": {"x": 90}
+    "facing=down": {
+      "model": "rftoolscontrol:block/node",
+      "x": 90
+    },
+    "facing=up": {
+      "model": "rftoolscontrol:block/node",
+      "x": -90
+    },
+    "facing=north": {
+      "model": "rftoolscontrol:block/node"
+    },
+    "facing=south": {
+      "model": "rftoolscontrol:block/node",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "rftoolscontrol:block/node",
+      "y": 270
+    },
+    "facing=east": {
+      "model": "rftoolscontrol:block/node",
+      "y": 90
     }
   }
 }

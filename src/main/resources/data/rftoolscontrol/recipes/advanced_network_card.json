@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "group": "rftools",
+  "pattern": [
+    "ror",
+    "eMe",
+    "ror"
+  ],
+  "key": {
+    "M": {
+      "item": "rftoolscontrol:network_card"
+    },
+    "r": {
+      "item": "minecraft:redstone"
+    },
+    "e": {
+      "item": "minecraft:emerald"
+    },
+    "o": {
+      "tag": "forge:ender_pearls"
+    }
+  },
+  "result": {
+    "item": "rftoolscontrol:advanced_network_card"
+  }
+}

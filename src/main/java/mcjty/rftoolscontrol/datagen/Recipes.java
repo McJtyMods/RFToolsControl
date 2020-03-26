@@ -95,7 +95,6 @@ public class Recipes extends BaseRecipeProvider {
                         .key('M', Registration.CARD_BASE.get())
                         .key('z', Tags.Items.DYES_BLACK)
                         .key('P', Tags.Items.GLASS_PANES)
-                        .key('g', Tags.Items.DUSTS_GLOWSTONE)
                         .key('I', Tags.Items.INGOTS_GOLD)
                         .addCriterion("cardbase", InventoryChangeTrigger.Instance.forItems(Registration.CARD_BASE.get())),
                 "PMP", "rIr", "PzP");

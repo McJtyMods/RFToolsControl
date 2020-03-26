@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "group": "rftools",
+  "pattern": [
+    "ror",
+    "gMg",
+    "rrr"
+  ],
+  "key": {
+    "M": {
+      "item": "rftoolscontrol:card_base"
+    },
+    "g": {
+      "tag": "forge:nuggets/gold"
+    },
+    "r": {
+      "item": "minecraft:redstone"
+    },
+    "o": {
+      "tag": "forge:ender_pearls"
+    }
+  },
+  "result": {
+    "item": "rftoolscontrol:network_card"
+  }
+}
