@@ -1,0 +1,5 @@
+{
+  "parent": "block/cube",
+  "loader": "forge:obj",
+  "model": "rftoolsbase:block/tank.obj"
+}

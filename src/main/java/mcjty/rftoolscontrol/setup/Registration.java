@@ -6,14 +6,18 @@ import mcjty.lib.container.GenericContainer;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.blocks.craftingstation.CraftingStationBlock;
 import mcjty.rftoolscontrol.blocks.craftingstation.CraftingStationTileEntity;
+import mcjty.rftoolscontrol.blocks.multitank.MultiTankBlock;
 import mcjty.rftoolscontrol.blocks.multitank.MultiTankTileEntity;
 import mcjty.rftoolscontrol.blocks.node.NodeBlock;
 import mcjty.rftoolscontrol.blocks.node.NodeContainer;
 import mcjty.rftoolscontrol.blocks.node.NodeTileEntity;
+import mcjty.rftoolscontrol.blocks.processor.ProcessorBlock;
 import mcjty.rftoolscontrol.blocks.processor.ProcessorContainer;
 import mcjty.rftoolscontrol.blocks.processor.ProcessorTileEntity;
+import mcjty.rftoolscontrol.blocks.programmer.ProgrammerBlock;
 import mcjty.rftoolscontrol.blocks.programmer.ProgrammerContainer;
 import mcjty.rftoolscontrol.blocks.programmer.ProgrammerTileEntity;
+import mcjty.rftoolscontrol.blocks.workbench.WorkbenchBlock;
 import mcjty.rftoolscontrol.blocks.workbench.WorkbenchContainer;
 import mcjty.rftoolscontrol.items.*;
 import mcjty.rftoolscontrol.items.consolemodule.ConsoleModuleItem;
@@ -57,7 +61,7 @@ public class Registration {
     public static final RegistryObject<TileEntityType<CraftingStationTileEntity>> CRAFTING_STATION_TILE = TILES.register("craftingstation", () -> TileEntityType.Builder.create(CraftingStationTileEntity::new, CRAFTING_STATION.get()).build(null));
     public static final RegistryObject<ContainerType<GenericContainer>> CRAFTING_STATION_CONTAINER = CONTAINERS.register("craftingstation", GenericContainer::createContainerType);
 
-    public static final RegistryObject<BaseBlock> MULTITANK = BLOCKS.register("tank", CraftingStationBlock::new);
+    public static final RegistryObject<BaseBlock> MULTITANK = BLOCKS.register("tank", MultiTankBlock::new);
     public static final RegistryObject<Item> MULTITANK_ITEM = ITEMS.register("tank", () -> new BlockItem(MULTITANK.get(), createStandardProperties()));
     public static final RegistryObject<TileEntityType<MultiTankTileEntity>> MULTITANK_TILE = TILES.register("tank", () -> TileEntityType.Builder.create(MultiTankTileEntity::new, MULTITANK.get()).build(null));
 
@@ -66,17 +70,17 @@ public class Registration {
     public static final RegistryObject<TileEntityType<NodeTileEntity>> NODE_TILE = TILES.register("node", () -> TileEntityType.Builder.create(NodeTileEntity::new, NODE.get()).build(null));
     public static final RegistryObject<ContainerType<NodeContainer>> NODE_CONTAINER = CONTAINERS.register("node", GenericContainer::createContainerType);
 
-    public static final RegistryObject<BaseBlock> PROCESSOR = BLOCKS.register("processor", NodeBlock::new);
+    public static final RegistryObject<BaseBlock> PROCESSOR = BLOCKS.register("processor", ProcessorBlock::new);
     public static final RegistryObject<Item> PROCESSOR_ITEM = ITEMS.register("processor", () -> new BlockItem(PROCESSOR.get(), createStandardProperties()));
     public static final RegistryObject<TileEntityType<ProcessorTileEntity>> PROCESSOR_TILE = TILES.register("processor", () -> TileEntityType.Builder.create(ProcessorTileEntity::new, PROCESSOR.get()).build(null));
     public static final RegistryObject<ContainerType<ProcessorContainer>> PROCESSOR_CONTAINER = CONTAINERS.register("processor", GenericContainer::createContainerType);
 
-    public static final RegistryObject<BaseBlock> PROGRAMMER = BLOCKS.register("programmer", NodeBlock::new);
+    public static final RegistryObject<BaseBlock> PROGRAMMER = BLOCKS.register("programmer", ProgrammerBlock::new);
     public static final RegistryObject<Item> PROGRAMMER_ITEM = ITEMS.register("programmer", () -> new BlockItem(PROGRAMMER.get(), createStandardProperties()));
     public static final RegistryObject<TileEntityType<ProgrammerTileEntity>> PROGRAMMER_TILE = TILES.register("programmer", () -> TileEntityType.Builder.create(ProgrammerTileEntity::new, PROGRAMMER.get()).build(null));
     public static final RegistryObject<ContainerType<ProgrammerContainer>> PROGRAMMER_CONTAINER = CONTAINERS.register("programmer", GenericContainer::createContainerType);
 
-    public static final RegistryObject<BaseBlock> WORKBENCH = BLOCKS.register("workbench", NodeBlock::new);
+    public static final RegistryObject<BaseBlock> WORKBENCH = BLOCKS.register("workbench", WorkbenchBlock::new);
     public static final RegistryObject<Item> WORKBENCH_ITEM = ITEMS.register("workbench", () -> new BlockItem(WORKBENCH.get(), createStandardProperties()));
     public static final RegistryObject<TileEntityType<ProgrammerTileEntity>> WORKBENCH_TILE = TILES.register("workbench", () -> TileEntityType.Builder.create(ProgrammerTileEntity::new, WORKBENCH.get()).build(null));
     public static final RegistryObject<ContainerType<WorkbenchContainer>> WORKBENCH_CONTAINER = CONTAINERS.register("workbench", GenericContainer::createContainerType);
