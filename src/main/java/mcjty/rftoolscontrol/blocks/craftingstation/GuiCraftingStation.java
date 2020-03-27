@@ -233,7 +233,6 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
         sendServerCommand(RFToolsCtrlMessages.INSTANCE, RFToolsControl.MODID, CraftingStationTileEntity.CMD_REQUEST,
                 TypedMap.builder()
                         .put(PARAM_ITEMNAME, stack.getItem().getRegistryName().toString())
-                        .put(PARAM_META, stack.getDamage())     // @todo 1.15 meta?
                         .put(PARAM_NBT, stack.hasTag() ? stack.serializeNBT().toString() : "")
                         .put(PARAM_AMOUNT, amount)
                         .build());

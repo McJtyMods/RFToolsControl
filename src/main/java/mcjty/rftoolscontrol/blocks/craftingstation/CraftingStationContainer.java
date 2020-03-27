@@ -19,7 +19,7 @@ public class CraftingStationContainer extends GenericContainer {
 
     public static final int SLOT_OUTPUT = 0;
 
-    public static final ContainerFactory factory = new ContainerFactory(1 /* @todo check 1.15 */) {
+    public static final ContainerFactory CONTAINER_FACTORY = new ContainerFactory(9) {
         @Override
         protected void setup() {
             box(SlotDefinition.container(), CONTAINER_INVENTORY, SLOT_OUTPUT, 6, 157, 3, 3);

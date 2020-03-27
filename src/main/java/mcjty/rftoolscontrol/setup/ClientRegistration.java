@@ -3,10 +3,15 @@ package mcjty.rftoolscontrol.setup;
 
 import mcjty.lib.gui.GenericGuiContainer;
 import mcjty.rftoolscontrol.RFToolsControl;
+import mcjty.rftoolscontrol.blocks.craftingstation.GuiCraftingStation;
+import mcjty.rftoolscontrol.blocks.multitank.GuiMultiTank;
 import mcjty.rftoolscontrol.blocks.node.GuiNode;
 import mcjty.rftoolscontrol.blocks.processor.GuiProcessor;
+import mcjty.rftoolscontrol.blocks.processor.ProcessorRenderer;
 import mcjty.rftoolscontrol.blocks.programmer.GuiProgrammer;
 import mcjty.rftoolscontrol.blocks.workbench.GuiWorkbench;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.RenderTypeLookup;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -21,6 +26,10 @@ public class ClientRegistration {
         GenericGuiContainer.register(Registration.PROCESSOR_CONTAINER.get(), GuiProcessor::new);
         GenericGuiContainer.register(Registration.WORKBENCH_CONTAINER.get(), GuiWorkbench::new);
         GenericGuiContainer.register(Registration.NODE_CONTAINER.get(), GuiNode::new);
+        GenericGuiContainer.register(Registration.CRAFTING_STATION_CONTAINER.get(), GuiCraftingStation::new);
+        GenericGuiContainer.register(Registration.MULTITANK_CONTAINER.get(), GuiMultiTank::new);
+        RenderTypeLookup.setRenderLayer(Registration.MULTITANK.get(), RenderType.getTranslucent());
+        ProcessorRenderer.register();
         //        ModelLoaderRegistry.registerLoader(new ResourceLocation(RFToolsControl.MODID, "tankloader"), new TankModelLoader());
     }
 

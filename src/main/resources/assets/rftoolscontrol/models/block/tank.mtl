@@ -5,16 +5,16 @@ newmtl None
 Ka 0.000000 0.000000 0.000000
 Kd 0.8 0.8 0.8
 d 1
-map_Kd rftoolscontrol:blocks/machinetank
+map_Kd rftoolscontrol:block/machinetank
 
 newmtl None_machineTankInside.png
 Ka 0.000000 0.000000 0.000000
 Kd 0.8 0.8 0.8
 d 1
-map_Kd rftoolscontrol:blocks/machinetankinside
+map_Kd rftoolscontrol:block/machinetankinside
 
 newmtl None_machineTankTop.png
 Ka 0.000000 0.000000 0.000000
 Kd 0.8 0.8 0.8
 d 1
-map_Kd rftoolscontrol:blocks/machinetanktop
+map_Kd rftoolscontrol:block/machinetanktop

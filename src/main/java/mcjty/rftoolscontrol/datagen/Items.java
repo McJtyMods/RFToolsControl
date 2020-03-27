@@ -25,8 +25,7 @@ public class Items extends BaseItemModelProvider {
         parentedBlock(Registration.WORKBENCH.get(), "block/workbench");
         parentedBlock(Registration.NODE.get(), "block/node");
         parentedBlock(Registration.CRAFTING_STATION.get(), "block/craftingstation");
-// @todo 1.15 todo
-        //        parentedBlock(Registration.MULTITANK.get(), "block/processor");
+        parentedBlock(Registration.MULTITANK.get(), "block/tank");
 
         itemGenerated(Registration.PROGRAM_CARD.get(), "item/programcard");
         itemGenerated(Registration.CPU_CORE_500.get(), "item/cpucoreb500");

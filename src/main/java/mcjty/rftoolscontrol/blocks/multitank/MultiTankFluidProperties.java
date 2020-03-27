@@ -33,11 +33,11 @@ public class MultiTankFluidProperties {
 
     @Nonnull private final MultiTankTileEntity tankTileEntity;
 
-    public MultiTankFluidProperties(@Nonnull MultiTankTileEntity tankTileEntity, @Nullable FluidStack contents, int capacity) {
+    public MultiTankFluidProperties(@Nonnull MultiTankTileEntity tankTileEntity, @Nonnull FluidStack contents, int capacity) {
         this(tankTileEntity, contents, capacity, true, true);
     }
 
-    public MultiTankFluidProperties(@Nonnull MultiTankTileEntity tankTileEntity, @Nullable FluidStack contents, int capacity, boolean canFill, boolean canDrain) {
+    public MultiTankFluidProperties(@Nonnull MultiTankTileEntity tankTileEntity, @Nonnull FluidStack contents, int capacity, boolean canFill, boolean canDrain) {
         this.tankTileEntity = tankTileEntity;
         this.contents = contents;
         this.capacity = capacity;

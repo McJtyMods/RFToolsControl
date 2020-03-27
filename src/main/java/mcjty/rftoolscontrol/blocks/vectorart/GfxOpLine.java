@@ -1,12 +1,11 @@
 package mcjty.rftoolscontrol.blocks.vectorart;
 
-import com.mojang.blaze3d.platform.GlStateManager;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.IVertexBuilder;
+import mcjty.lib.client.CustomRenderTypes;
+import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.PacketBuffer;
-import org.lwjgl.opengl.GL11;
 
 public class GfxOpLine extends GfxOp {
 
@@ -29,24 +28,15 @@ public class GfxOpLine extends GfxOp {
     }
 
     @Override
-    public void render() {
-        float f3 = (color >> 24 & 255) / 255.0F;
-        float f = (color >> 16 & 255) / 255.0F;
-        float f1 = (color >> 8 & 255) / 255.0F;
-        float f2 = (color & 255) / 255.0F;
-        Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder vertexbuffer = tessellator.getBuffer();
-        // @todo 1.15 proper render system!
-        GlStateManager.enableBlend();
-        GlStateManager.disableTexture();
-        GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA.param, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA.param, GlStateManager.SourceFactor.ONE.param, GlStateManager.DestFactor.ZERO.param);
-        GlStateManager.color4f(f, f1, f2, f3);
-        vertexbuffer.begin(GL11.GL_LINES, DefaultVertexFormats.POSITION);
-        vertexbuffer.pos(x1, y1, 0.0D).endVertex();
-        vertexbuffer.pos(x2, y2, 0.0D).endVertex();
-        tessellator.draw();
-        GlStateManager.enableTexture();
-        GlStateManager.disableBlend();
+    public void render(MatrixStack matrixStack, IRenderTypeBuffer buffer) {
+        float alpha = (color >> 24 & 255) / 255.0F;
+        float red = (color >> 16 & 255) / 255.0F;
+        float green = (color >> 8 & 255) / 255.0F;
+        float blue = (color & 255) / 255.0F;
+
+        IVertexBuilder builder = buffer.getBuffer(CustomRenderTypes.OVERLAY_LINES);
+        builder.pos(matrixStack.getLast().getMatrix(), x1, y1, 0).color(red, green, blue, alpha).endVertex();
+        builder.pos(matrixStack.getLast().getMatrix(), x2, y2, 0).color(red, green, blue, alpha).endVertex();
     }
 
     @Override

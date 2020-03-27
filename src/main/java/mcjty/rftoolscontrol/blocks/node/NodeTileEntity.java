@@ -92,7 +92,15 @@ public class NodeTileEntity extends GenericTileEntity {
         for (int i = 0 ; i < 6 ; i++) {
             powerOut[i] = tagCompound.getByte("p" + i);
         }
-        readRestorableFromNBT(tagCompound);
+    }
+
+    @Override
+    protected void readInfo(CompoundNBT tagCompound) {
+        super.readInfo(tagCompound);
+        CompoundNBT info = tagCompound.getCompound("Info");
+        channel = info.getString("channel");
+        node = info.getString("node");
+        processor = BlockPosTools.read(info, "processor");
     }
 
     @Override
@@ -102,27 +110,21 @@ public class NodeTileEntity extends GenericTileEntity {
         for (int i = 0 ; i < 6 ; i++) {
             tagCompound.putByte("p" + i, (byte) powerOut[i]);
         }
-        writeRestorableToNBT(tagCompound);
         return tagCompound;
     }
 
-    // @todo 1.15 loot tables
-    public void readRestorableFromNBT(CompoundNBT tagCompound) {
-        channel = tagCompound.getString("channel");
-        node = tagCompound.getString("node");
-        processor = BlockPosTools.read(tagCompound, "processor");
-    }
-
-    // @todo 1.15 loot tables
-    public void writeRestorableToNBT(CompoundNBT tagCompound) {
+    @Override
+    protected void writeInfo(CompoundNBT tagCompound) {
+        super.writeInfo(tagCompound);
+        CompoundNBT info = getOrCreateInfo(tagCompound);
         if (channel != null) {
-            tagCompound.putString("channel", channel);
+            info.putString("channel", channel);
         }
         if (node != null) {
-            tagCompound.putString("node", node);
+            info.putString("node", node);
         }
         if (processor != null) {
-            BlockPosTools.write(tagCompound, "processor", processor);
+            BlockPosTools.write(info, "processor", processor);
         }
     }
 

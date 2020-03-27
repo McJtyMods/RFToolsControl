@@ -1,11 +1,13 @@
 package mcjty.rftoolscontrol.blocks.vectorart;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
+import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.PacketBuffer;
 
 public abstract class GfxOp {
 
-    public abstract void render();
+    public abstract void render(MatrixStack matrixStack, IRenderTypeBuffer buffer);
 
     public abstract GfxOpType getType();
 

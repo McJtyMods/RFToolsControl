@@ -8,7 +8,6 @@ import mcjty.lib.container.AutomationFilterItemHander;
 import mcjty.lib.container.GenericCrafter;
 import mcjty.lib.container.NoDirectionItemHander;
 import mcjty.lib.tileentity.GenericTileEntity;
-import mcjty.lib.varia.FacedSidedInvWrapper;
 import mcjty.rftoolscontrol.setup.Registration;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.CraftingInventory;
@@ -30,10 +29,12 @@ public class WorkbenchTileEntity extends GenericTileEntity implements GenericCra
 
     private NoDirectionItemHander items = createItemHandler();
     private LazyOptional<NoDirectionItemHander> itemHandler = LazyOptional.of(() -> items);
-    private LazyOptional<AutomationFilterItemHander> automationItemHandler = LazyOptional.of(() -> new AutomationFilterItemHander(items));
+    private LazyOptional<WorkbenchItemHandler> automationItemHandlerUp = LazyOptional.of(() -> new WorkbenchItemHandler(items, Direction.UP));
+    private LazyOptional<WorkbenchItemHandler> automationItemHandlerDown = LazyOptional.of(() -> new WorkbenchItemHandler(items, Direction.DOWN));
+    private LazyOptional<WorkbenchItemHandler> automationItemHandlerSide = LazyOptional.of(() -> new WorkbenchItemHandler(items, null));
 
     private LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<WorkbenchContainer>("Workbench")
-            .containerSupplier((windowId,player) -> new WorkbenchContainer(windowId, WorkbenchContainer.CONTAINER_FACTORY, getPos(), WorkbenchTileEntity.this))
+            .containerSupplier((windowId, player) -> new WorkbenchContainer(windowId, WorkbenchContainer.CONTAINER_FACTORY, getPos(), WorkbenchTileEntity.this))
             .itemHandler(itemHandler));
 
     // This field contains the number of real items in the craft output slot. i.e. these are
@@ -67,30 +68,19 @@ public class WorkbenchTileEntity extends GenericTileEntity implements GenericCra
         super(Registration.WORKBENCH_TILE.get());
     }
 
-    @Override
-    public void read(CompoundNBT tagCompound) {
-        super.read(tagCompound);
-        readRestorableFromNBT(tagCompound);
-    }
 
     @Override
-    public CompoundNBT write(CompoundNBT tagCompound) {
-        super.write(tagCompound);
-        writeRestorableToNBT(tagCompound);
-        return tagCompound;
+    protected void readInfo(CompoundNBT tagCompound) {
+        super.readInfo(tagCompound);
+        CompoundNBT info = tagCompound.getCompound("Info");
+        realItems = info.getInt("realItems");
     }
 
-
-    // @todo 1.15 loot tables
-    public void readRestorableFromNBT(CompoundNBT tagCompound) {
-//        readBufferFromNBT(tagCompound, inventoryHelper);
-        realItems = tagCompound.getInt("realItems");
-    }
-
-    // @todo 1.15 loot tables
-    public void writeRestorableToNBT(CompoundNBT tagCompound) {
-//        writeBufferToNBT(tagCompound, inventoryHelper);
-        tagCompound.putInt("realItems", realItems);
+    @Override
+    protected void writeInfo(CompoundNBT tagCompound) {
+        super.writeInfo(tagCompound);
+        CompoundNBT info = getOrCreateInfo(tagCompound);
+        info.putInt("realItems", realItems);
     }
 
     private boolean isCraftInputSlot(int slot) {
@@ -116,7 +106,7 @@ public class WorkbenchTileEntity extends GenericTileEntity implements GenericCra
     }
 
     private void updateRecipe() {
-        if (items.getStackInSlot(WorkbenchContainer.SLOT_CRAFTOUTPUT) == null || realItems == 0) {
+        if (items.getStackInSlot(WorkbenchContainer.SLOT_CRAFTOUTPUT).isEmpty() || realItems == 0) {
             CraftingInventory workInventory = makeWorkInventory();
             IRecipe recipe = findRecipe(workInventory);
             if (recipe != null) {
@@ -142,63 +132,11 @@ public class WorkbenchTileEntity extends GenericTileEntity implements GenericCra
         return workInventory;
     }
 
-    // @todo 1.15
-//    @Override
-//    public void setInventorySlotContents(int index, ItemStack stack) {
-//        getInventoryHelper().setInventorySlotContents(getInventoryStackLimit(), index, stack);
-//        if (isCraftInputSlot(index)) {
-//            updateRecipe();
-//        }
-//    }
-
     @Override
     public void craftItem() {
     }
 
-    // @todo 1.15
-//    @Override
-//    public boolean canInsertItem(int index, ItemStack itemStackIn, Direction direction) {
-//        if (direction == null) {
-//            return !isCraftOutput(index);
-//        } else if (direction == Direction.DOWN) {
-//            return false;
-//        } else if (direction == Direction.UP) {
-//            return isCraftInputSlot(index);
-//        } else {
-//            return isBufferSlot(index);
-//        }
-//    }
-
-    // @todo 1.15
-//    @Override
-//    public boolean canExtractItem(int index, ItemStack stack, Direction direction) {
-//        if (direction == null) {
-//            return true;
-//        } else if (direction == Direction.DOWN) {
-//            return isCraftOutput(index);
-//        } else if (direction == Direction.UP) {
-//            return isCraftInputSlot(index);
-//        } else {
-//            return isBufferSlot(index);
-//        }
-//    }
-
-    // @todo 1.15
-//    @Override
-//    public int[] getSlotsForFace(Direction side) {
-//        if (side == null) {
-//            return ALL_SLOTS;
-//        } else if (side == Direction.DOWN) {
-//            return DOWN_SLOTS;
-//        } else if (side == Direction.UP) {
-//            return UP_SLOTS;
-//        } else {
-//            return SIDE_SLOTS;
-//        }
-//    }
-
-
-// @todo 1.15
+// @todo 1.15  IMPORTANT
 //    @Override
 //    public ItemStack decrStackSize(int index, int count) {
 //        if (isCraftOutput(index) && realItems == 0) {
@@ -240,33 +178,14 @@ public class WorkbenchTileEntity extends GenericTileEntity implements GenericCra
 //        return rc;
 //    }
 
-    protected FacedSidedInvWrapper[] handler = new FacedSidedInvWrapper[]{null, null, null, null, null, null};
-
-    // @todo 1.15
-//    @Override
-//    public <T> T getCapabilixty(Capability<T> capability, Direction facing) {
-//        if (capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) {
-//            if (facing == null) {
-//                if (invHandlerNull == null) {
-//                    invHandlerNull = new NullSidedInvWrapper(this);
-//                }
-//                return (T) invHandlerNull;
-//            } else {
-//                if (handler[facing.ordinal()] == null) {
-//                    handler[facing.ordinal()] = new FacedSidedInvWrapper(this, facing);
-//                }
-//                return (T) handler[facing.ordinal()];
-//            }
-//        }
-//        return super.getCapability(capability, facing);
-//    }
-
     private NoDirectionItemHander createItemHandler() {
         return new NoDirectionItemHander(WorkbenchTileEntity.this, WorkbenchContainer.CONTAINER_FACTORY) {
 
             @Override
             protected void onUpdate(int index) {
-                // @todo 1.15
+                if (isCraftInputSlot(index)) {
+                    updateRecipe();
+                }
             }
 
             @Override
@@ -281,7 +200,12 @@ public class WorkbenchTileEntity extends GenericTileEntity implements GenericCra
     @Override
     public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction facing) {
         if (cap == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) {
-            return automationItemHandler.cast();
+            if (facing == Direction.DOWN) {
+                return automationItemHandlerDown.cast();
+            } else if (facing == Direction.UP) {
+                return automationItemHandlerUp.cast();
+            }
+            return automationItemHandlerSide.cast();
         }
         if (cap == CapabilityContainerProvider.CONTAINER_PROVIDER_CAPABILITY) {
             return screenHandler.cast();
@@ -289,4 +213,41 @@ public class WorkbenchTileEntity extends GenericTileEntity implements GenericCra
         return super.getCapability(cap, facing);
     }
 
+    public class WorkbenchItemHandler extends AutomationFilterItemHander {
+
+        private final Direction direction;
+
+        public WorkbenchItemHandler(NoDirectionItemHander wrapped, @Nullable Direction direction) {
+            super(wrapped);
+            this.direction = direction;
+        }
+
+        @Override
+        public boolean canAutomationInsert(int index) {
+            if (direction == null) {
+                return !isCraftOutput(index);
+            } else if (direction == Direction.DOWN) {
+                return false;
+            } else if (direction == Direction.UP) {
+                return isCraftInputSlot(index);
+            } else {
+                return isBufferSlot(index);
+            }
+        }
+
+        @Override
+        public boolean canAutomationExtract(int index) {
+            if (direction == null) {
+                return true;
+            } else if (direction == Direction.DOWN) {
+                return isCraftOutput(index);
+            } else if (direction == Direction.UP) {
+                return isCraftInputSlot(index);
+            } else {
+                return isBufferSlot(index);
+            }
+        }
+
+
+    }
 }

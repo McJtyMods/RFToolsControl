@@ -24,13 +24,6 @@ public class MultiTankBlock extends BaseBlock {
         return RotationType.NONE;
     }
 
-// @todo 1.15
-//    @Override
-//    public BiFunction<MultiTankTileEntity, EmptyContainer, GenericGuiContainer<? super MultiTankTileEntity>> getGuiFactory() {
-//        return GuiMultiTank::new;
-//    }
-
-
     @Override
     public void addInformation(ItemStack stack, @Nullable IBlockReader world, List<ITextComponent> list, ITooltipFlag advanced) {
         super.addInformation(stack, world, list, advanced);
@@ -39,12 +32,6 @@ public class MultiTankBlock extends BaseBlock {
         list.add(new StringTextComponent("This block is meant for the processor"));
         list.add(new StringTextComponent("and cannot otherwise be used directly"));
     }
-
-    // @todo 1.15
-//    @Override
-//    public boolean canRenderInLayer(BlockState state, BlockRenderLayer layer) {
-//        return layer == BlockRenderLayer.SOLID || layer == BlockRenderLayer.TRANSLUCENT;
-//    }
 
     // @todo 1.15
 //    @Override

@@ -1,6 +1,5 @@
 package mcjty.rftoolscontrol.blocks.multitank;
 
-import mcjty.lib.container.EmptyContainer;
 import mcjty.lib.gui.GenericGuiContainer;
 import mcjty.lib.gui.Window;
 import mcjty.lib.gui.layout.HorizontalAlignment;
@@ -20,7 +19,7 @@ import java.awt.*;
 
 import static mcjty.rftoolscontrol.blocks.multitank.MultiTankTileEntity.TANKS;
 
-public class GuiMultiTank extends GenericGuiContainer<MultiTankTileEntity, EmptyContainer> {
+public class GuiMultiTank extends GenericGuiContainer<MultiTankTileEntity, MultiTankContainer> {
 
     public static final int WIDTH = 180;
     public static final int HEIGHT = 87;
@@ -31,7 +30,7 @@ public class GuiMultiTank extends GenericGuiContainer<MultiTankTileEntity, Empty
     private BlockRender liquids[] = new BlockRender[TANKS];
     private Label labels[] = new Label[TANKS];
 
-    public GuiMultiTank(MultiTankTileEntity te, EmptyContainer container, PlayerInventory inventory) {
+    public GuiMultiTank(MultiTankTileEntity te, MultiTankContainer container, PlayerInventory inventory) {
         super(RFToolsControl.instance, te, container, inventory, /*@todo 1.15 GuiProxy.GUI_MANUAL_CONTROL*/0, "tank");
 
         xSize = WIDTH;

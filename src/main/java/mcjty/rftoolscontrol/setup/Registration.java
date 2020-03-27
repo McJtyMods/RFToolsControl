@@ -5,8 +5,10 @@ import mcjty.lib.blocks.BaseBlock;
 import mcjty.lib.container.GenericContainer;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.blocks.craftingstation.CraftingStationBlock;
+import mcjty.rftoolscontrol.blocks.craftingstation.CraftingStationContainer;
 import mcjty.rftoolscontrol.blocks.craftingstation.CraftingStationTileEntity;
 import mcjty.rftoolscontrol.blocks.multitank.MultiTankBlock;
+import mcjty.rftoolscontrol.blocks.multitank.MultiTankContainer;
 import mcjty.rftoolscontrol.blocks.multitank.MultiTankTileEntity;
 import mcjty.rftoolscontrol.blocks.node.NodeBlock;
 import mcjty.rftoolscontrol.blocks.node.NodeContainer;
@@ -59,11 +61,12 @@ public class Registration {
     public static final RegistryObject<BaseBlock> CRAFTING_STATION = BLOCKS.register("craftingstation", CraftingStationBlock::new);
     public static final RegistryObject<Item> CRAFTING_STATION_ITEM = ITEMS.register("craftingstation", () -> new BlockItem(CRAFTING_STATION.get(), createStandardProperties()));
     public static final RegistryObject<TileEntityType<CraftingStationTileEntity>> CRAFTING_STATION_TILE = TILES.register("craftingstation", () -> TileEntityType.Builder.create(CraftingStationTileEntity::new, CRAFTING_STATION.get()).build(null));
-    public static final RegistryObject<ContainerType<GenericContainer>> CRAFTING_STATION_CONTAINER = CONTAINERS.register("craftingstation", GenericContainer::createContainerType);
+    public static final RegistryObject<ContainerType<CraftingStationContainer>> CRAFTING_STATION_CONTAINER = CONTAINERS.register("craftingstation", GenericContainer::createContainerType);
 
     public static final RegistryObject<BaseBlock> MULTITANK = BLOCKS.register("tank", MultiTankBlock::new);
     public static final RegistryObject<Item> MULTITANK_ITEM = ITEMS.register("tank", () -> new BlockItem(MULTITANK.get(), createStandardProperties()));
     public static final RegistryObject<TileEntityType<MultiTankTileEntity>> MULTITANK_TILE = TILES.register("tank", () -> TileEntityType.Builder.create(MultiTankTileEntity::new, MULTITANK.get()).build(null));
+    public static final RegistryObject<ContainerType<MultiTankContainer>> MULTITANK_CONTAINER = CONTAINERS.register("tank", GenericContainer::createContainerType);
 
     public static final RegistryObject<BaseBlock> NODE = BLOCKS.register("node", NodeBlock::new);
     public static final RegistryObject<Item> NODE_ITEM = ITEMS.register("node", () -> new BlockItem(NODE.get(), createStandardProperties()));

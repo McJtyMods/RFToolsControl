@@ -31,20 +31,6 @@ public class ProcessorBlock extends BaseBlock {
                 .tileEntitySupplier(ProcessorTileEntity::new));
     }
 
-    // @todo 1.15
-//    @Override
-//    public void initModel() {
-//        ProcessorRenderer.register();
-//        super.initModel();
-//    }
-
-
-//    @Override
-//    public BiFunction<ProcessorTileEntity, ProcessorContainer, GenericGuiContainer<? super ProcessorTileEntity>> getGuiFactory() {
-//        return GuiProcessor::new;
-//    }
-
-
     @Override
     public void addInformation(ItemStack stack, @Nullable IBlockReader world, List<ITextComponent> list, ITooltipFlag advanced) {
         super.addInformation(stack, world, list, advanced);

@@ -1,6 +1,8 @@
 package mcjty.rftoolscontrol.blocks.vectorart;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
 import mcjty.lib.client.RenderHelper;
+import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.PacketBuffer;
 
@@ -25,8 +27,8 @@ public class GfxOpBox extends GfxOp {
     }
 
     @Override
-    public void render() {
-        RenderHelper.drawBeveledBox(x, y, x+w-1, y+h-1, color, color, color);
+    public void render(MatrixStack matrixStack, IRenderTypeBuffer buffer) {
+        RenderHelper.drawBeveledBox(matrixStack, buffer, x, y, x+w-1, y+h-1, color, color, color, 0xf000f0);
     }
 
     @Override

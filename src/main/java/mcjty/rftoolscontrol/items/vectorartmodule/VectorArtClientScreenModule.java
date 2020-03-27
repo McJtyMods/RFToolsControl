@@ -39,7 +39,7 @@ public class VectorArtClientScreenModule implements IClientScreenModule<ModuleDa
             List<GfxOp> ops = screenData.getSortedOperations();
             if (ops != null) {
                 for (GfxOp op : ops) {
-                    op.render();
+                    op.render(xxx, yyy);
                 }
             }
         }

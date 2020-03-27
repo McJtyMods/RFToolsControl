@@ -1,6 +1,9 @@
 package mcjty.rftoolscontrol.blocks.craftingstation;
 
-import mcjty.lib.container.InventoryHelper;
+import mcjty.lib.api.container.CapabilityContainerProvider;
+import mcjty.lib.api.container.DefaultContainerProvider;
+import mcjty.lib.container.AutomationFilterItemHander;
+import mcjty.lib.container.NoDirectionItemHander;
 import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.lib.typed.Key;
 import mcjty.lib.typed.Type;
@@ -14,12 +17,16 @@ import mcjty.rftoolscontrol.logic.running.ExceptionType;
 import mcjty.rftoolscontrol.logic.running.ProgException;
 import mcjty.rftoolscontrol.setup.Registration;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
 import org.apache.commons.lang3.StringUtils;
@@ -31,6 +38,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static mcjty.rftoolscontrol.blocks.craftingstation.CraftingStationContainer.CONTAINER_FACTORY;
+
 public class CraftingStationTileEntity extends GenericTileEntity {
 
     public static final String CMD_GETCRAFTABLE = "getCraftable";
@@ -40,14 +49,19 @@ public class CraftingStationTileEntity extends GenericTileEntity {
 
     public static final String CMD_REQUEST = "station.request";
     public static final Key<String> PARAM_ITEMNAME = new Key<>("itemname", Type.STRING);
-    public static final Key<Integer> PARAM_META = new Key<>("meta", Type.INTEGER);
     public static final Key<String> PARAM_NBT = new Key<>("nbt", Type.STRING);
     public static final Key<Integer> PARAM_AMOUNT = new Key<>("amount", Type.INTEGER);
 
     public static final String CMD_CANCEL = "station.cancel";
     public static final Key<Integer> PARAM_INDEX = new Key<>("index", Type.INTEGER);
 
-    private InventoryHelper inventoryHelper = new InventoryHelper(this, CraftingStationContainer.factory, 9);
+    private NoDirectionItemHander items = createItemHandler();
+    private LazyOptional<NoDirectionItemHander> itemHandler = LazyOptional.of(() -> items);
+    private LazyOptional<AutomationFilterItemHander> automationItemHandler = LazyOptional.of(() -> new AutomationFilterItemHander(items));
+
+    private LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<CraftingStationContainer>("Crafter")
+            .containerSupplier((windowId,player) -> new CraftingStationContainer(windowId, CONTAINER_FACTORY, getPos(), CraftingStationTileEntity.this))
+            .itemHandler(itemHandler));
 
     private List<BlockPos> processorList = new ArrayList<>();
     private int currentTicket = 0;
@@ -79,7 +93,7 @@ public class CraftingStationTileEntity extends GenericTileEntity {
 
     private Pair<ProcessorTileEntity, ItemStack> findCraftableItem(int index) {
         for (BlockPos p : processorList) {
-            TileEntity te = getWorld().getTileEntity(p);
+            TileEntity te = world.getTileEntity(p);
             if (te instanceof ProcessorTileEntity) {
                 ProcessorTileEntity processor = (ProcessorTileEntity) te;
                 ItemStackList items = ItemStackList.create();
@@ -198,7 +212,7 @@ public class CraftingStationTileEntity extends GenericTileEntity {
 
     public boolean request(ItemStack item, @Nullable Inventory destination) {
         for (BlockPos p : processorList) {
-            TileEntity te = getWorld().getTileEntity(p);
+            TileEntity te = world.getTileEntity(p);
             if (te instanceof ProcessorTileEntity) {
                 ProcessorTileEntity processor = (ProcessorTileEntity) te;
                 ItemStackList items = ItemStackList.create();
@@ -253,7 +267,7 @@ public class CraftingStationTileEntity extends GenericTileEntity {
     public ItemStackList getCraftableItems() {
         ItemStackList items = ItemStackList.create();
         for (BlockPos p : processorList) {
-            TileEntity te = getWorld().getTileEntity(p);
+            TileEntity te = world.getTileEntity(p);
             if (te instanceof ProcessorTileEntity) {
                 ProcessorTileEntity processor = (ProcessorTileEntity) te;
                 processor.getCraftableItems(items);
@@ -284,9 +298,15 @@ public class CraftingStationTileEntity extends GenericTileEntity {
     @Override
     public void read(CompoundNBT tagCompound) {
         super.read(tagCompound);
-        readRestorableFromNBT(tagCompound);
         readProcessorList(tagCompound);
         readRequests(tagCompound);
+    }
+
+    @Override
+    protected void readInfo(CompoundNBT tagCompound) {
+        super.readInfo(tagCompound);
+        CompoundNBT info = tagCompound.getCompound("Info");
+        currentTicket = info.getInt("craftId");
     }
 
     private void readRequests(CompoundNBT tagCompound) {
@@ -316,10 +336,16 @@ public class CraftingStationTileEntity extends GenericTileEntity {
     @Override
     public CompoundNBT write(CompoundNBT tagCompound) {
         super.write(tagCompound);
-        writeRestorableToNBT(tagCompound);
         writeProcessorList(tagCompound);
         writeRequests(tagCompound);
         return tagCompound;
+    }
+
+    @Override
+    protected void writeInfo(CompoundNBT tagCompound) {
+        super.writeInfo(tagCompound);
+        CompoundNBT info = getOrCreateInfo(tagCompound);
+        info.putInt("craftId", currentTicket);
     }
 
     private void writeRequests(CompoundNBT tagCompound) {
@@ -351,27 +377,16 @@ public class CraftingStationTileEntity extends GenericTileEntity {
         tagCompound.put("processors", list);
     }
 
-    // @todo 1.15 loot tables
-    public void readRestorableFromNBT(CompoundNBT tagCompound) {
-//        readBufferFromNBT(tagCompound, inventoryHelper);
-        currentTicket = tagCompound.getInt("craftId");
-    }
-    public void writeRestorableToNBT(CompoundNBT tagCompound) {
-//        writeBufferToNBT(tagCompound, inventoryHelper);
-        tagCompound.putInt("craftId", currentTicket);
-    }
-
-    // @todo 1.15 remove meta?
-    private int findItem(String itemName, int meta, String nbtString) {
+    private int findItem(String itemName, String nbtString) {
         int index = 0;
         for (BlockPos p : processorList) {
-            TileEntity te = getWorld().getTileEntity(p);
+            TileEntity te = world.getTileEntity(p);
             if (te instanceof ProcessorTileEntity) {
                 ProcessorTileEntity processor = (ProcessorTileEntity) te;
                 ItemStackList items = ItemStackList.create();
                 processor.getCraftableItems(items);
                 for (ItemStack item : items) {
-                    if (/*@todo 1.15 meta item.getItemDamage() == meta && */itemName.equals(item.getItem().getRegistryName().toString())) {
+                    if (itemName.equals(item.getItem().getRegistryName().toString())) {
                         if (item.hasTag()) {
                             if (nbtString.equalsIgnoreCase(item.serializeNBT().toString())) {
                                 return index;
@@ -396,9 +411,8 @@ public class CraftingStationTileEntity extends GenericTileEntity {
         }
         if (CMD_REQUEST.equals(command)) {
             String itemName = params.get(PARAM_ITEMNAME);
-            int meta = params.get(PARAM_META);
             String nbtString = params.get(PARAM_NBT);
-            int index = findItem(itemName, meta, nbtString);
+            int index = findItem(itemName, nbtString);
             if (index == -1) {
                 return true;
             }
@@ -443,4 +457,21 @@ public class CraftingStationTileEntity extends GenericTileEntity {
         }
         return false;
     }
+
+    private NoDirectionItemHander createItemHandler() {
+        return new NoDirectionItemHander(CraftingStationTileEntity.this, CONTAINER_FACTORY);
+    }
+
+    @Nonnull
+    @Override
+    public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction facing) {
+        if (cap == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) {
+            return automationItemHandler.cast();
+        }
+        if (cap == CapabilityContainerProvider.CONTAINER_PROVIDER_CAPABILITY) {
+            return screenHandler.cast();
+        }
+        return super.getCapability(cap, facing);
+    }
+
 }

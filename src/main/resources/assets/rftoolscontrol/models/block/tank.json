@@ -1,5 +1,6 @@
 {
   "parent": "block/cube",
   "loader": "forge:obj",
-  "model": "rftoolsbase:block/tank.obj"
+  "model": "rftoolscontrol:models/block/tank.obj",
+  "flip-v": true
 }
