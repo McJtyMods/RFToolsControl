@@ -136,7 +136,17 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
 
     private NoDirectionItemHander items = createItemHandler();
     private LazyOptional<NoDirectionItemHander> itemHandler = LazyOptional.of(() -> items);
-    private LazyOptional<AutomationFilterItemHander> automationItemHandler = LazyOptional.of(() -> new AutomationFilterItemHander(items));
+    private LazyOptional<AutomationFilterItemHander> automationItemHandler = LazyOptional.of(() -> new AutomationFilterItemHander(items) {
+        @Override
+        public boolean canAutomationInsert(int slot) {
+            return slot >= SLOT_BUFFER && slot < SLOT_BUFFER + 3 * 8;
+        }
+
+        @Override
+        public boolean canAutomationExtract(int slot) {
+            return slot >= SLOT_BUFFER && slot < SLOT_BUFFER + 3 * 8;
+        }
+    });
 
     private LazyOptional<GenericEnergyStorage> energyHandler = LazyOptional.of(() -> new GenericEnergyStorage(this, true, ConfigSetup.processorMaxenergy.get(), ConfigSetup.processorReceivepertick.get()));
 
@@ -3164,16 +3174,6 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
 
     private NoDirectionItemHander createItemHandler() {
         return new NoDirectionItemHander(ProcessorTileEntity.this, CONTAINER_FACTORY) {
-
-            @Override
-            public boolean isItemInsertable(int index, @Nonnull ItemStack stack) {
-                return index >= SLOT_BUFFER && index < SLOT_BUFFER + 3 * 8;
-            }
-
-            @Override
-            public boolean isItemExtractable(int index, @Nonnull ItemStack stack) {
-                return index >= SLOT_BUFFER && index < SLOT_BUFFER + 3 * 8;
-            }
 
             @Override
             protected void onUpdate(int index) {

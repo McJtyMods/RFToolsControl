@@ -1,7 +1,6 @@
 package mcjty.rftoolscontrol.items.vectorartmodule;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.platform.GlStateManager;
 import mcjty.rftoolsbase.api.screens.IClientScreenModule;
 import mcjty.rftoolsbase.api.screens.IModuleRenderHelper;
 import mcjty.rftoolsbase.api.screens.ModuleRenderInfo;
@@ -30,16 +29,11 @@ public class VectorArtClientScreenModule implements IClientScreenModule<ModuleDa
 
     @Override
     public void render(MatrixStack matrixStack, IRenderTypeBuffer buffer, IModuleRenderHelper renderHelper, FontRenderer fontRenderer, int currenty, ModuleDataVectorArt screenData, ModuleRenderInfo renderInfo) {
-        // @todo 1.15 render system
-        GlStateManager.disableLighting();
-        GlStateManager.enableDepthTest();
-        GlStateManager.depthMask(false);
-
         if (screenData != null) {
             List<GfxOp> ops = screenData.getSortedOperations();
             if (ops != null) {
                 for (GfxOp op : ops) {
-                    op.render(xxx, yyy);
+                    op.render(matrixStack, buffer);
                 }
             }
         }

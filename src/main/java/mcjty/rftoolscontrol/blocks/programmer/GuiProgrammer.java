@@ -157,7 +157,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Pro
                 .addChild(controlPanel)
                 .addChild(gridPanel);
         toplevel.setBounds(new Rectangle(guiLeft, guiTop, xSize, ySize));
-        window = new Window(this, toplevel).addFocusEvent((parent, focused) -> selectIcon(parent, focused));
+        window = new Window(this, toplevel).addFocusEvent(this::selectIcon);
 
         // --- Side window ---
         Panel listPanel = setupListPanel();
@@ -169,6 +169,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Pro
         loadProgram(ProgrammerContainer.SLOT_DUMMY);
 
         clearCategoryLabels();
+        minecraft.keyboardListener.enableRepeatEvents(true);
     }
 
     @Override

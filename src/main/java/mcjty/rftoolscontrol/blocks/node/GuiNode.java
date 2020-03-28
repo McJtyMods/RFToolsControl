@@ -52,6 +52,8 @@ public class GuiNode extends GenericGuiContainer<NodeTileEntity, NodeContainer> 
 
         toplevel.setBounds(new Rectangle(guiLeft, guiTop, WIDTH, HEIGHT));
         window = new Window(this, toplevel);
+
+        minecraft.keyboardListener.enableRepeatEvents(true);
     }
 
     private void updateNode() {

@@ -1,6 +1,7 @@
 package mcjty.rftoolscontrol.network;
 
 
+import mcjty.lib.McJtyLib;
 import mcjty.rftoolscontrol.blocks.processor.ProcessorTileEntity;
 import mcjty.rftoolscontrol.blocks.vectorart.GfxOp;
 import net.minecraft.network.PacketBuffer;
@@ -59,7 +60,7 @@ public class PacketGraphicsReady {
     public void handle(Supplier<NetworkEvent.Context> supplier) {
         NetworkEvent.Context ctx = supplier.get();
         ctx.enqueueWork(() -> {
-            TileEntity te = ctx.getSender().getEntityWorld().getTileEntity(pos);
+            TileEntity te = McJtyLib.proxy.getClientWorld().getTileEntity(pos);
             if (te instanceof ProcessorTileEntity) {
                 ProcessorTileEntity processor = (ProcessorTileEntity) te;
                 processor.setClientOrderedGfx(gfxOps, orderedOps);

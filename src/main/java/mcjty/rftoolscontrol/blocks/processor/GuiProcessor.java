@@ -159,6 +159,8 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity, Proce
                 .addChild(listPanel);
         sidePanel.setBounds(new Rectangle(guiLeft-SIDEWIDTH, guiTop, SIDEWIDTH, ySize));
         sideWindow = new Window(this, sidePanel);
+
+        minecraft.keyboardListener.enableRepeatEvents(true);
     }
 
     private void setupLogWindow(Panel toplevel) {

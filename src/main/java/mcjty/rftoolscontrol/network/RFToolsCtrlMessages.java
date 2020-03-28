@@ -1,5 +1,6 @@
 package mcjty.rftoolscontrol.network;
 
+import mcjty.lib.network.PacketHandler;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.blocks.programmer.PacketUpdateNBTItemInventoryProgrammer;
 import mcjty.rftoolscontrol.compat.jei.PacketSendRecipe;
@@ -45,5 +46,7 @@ public class RFToolsCtrlMessages {
         net.registerMessage(id(), PacketCraftableItemsReady.class, PacketCraftableItemsReady::toBytes, PacketCraftableItemsReady::new, PacketCraftableItemsReady::handle);
         net.registerMessage(id(), PacketRequestsReady.class, PacketRequestsReady::toBytes, PacketRequestsReady::new, PacketRequestsReady::handle);
         net.registerMessage(id(), PacketGraphicsReady.class, PacketGraphicsReady::toBytes, PacketGraphicsReady::new, PacketGraphicsReady::handle);
+
+        PacketHandler.registerStandardMessages(id(), net);
     }
 }
