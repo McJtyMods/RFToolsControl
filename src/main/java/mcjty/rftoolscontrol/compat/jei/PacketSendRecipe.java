@@ -3,6 +3,7 @@ package mcjty.rftoolscontrol.compat.jei;
 import mcjty.lib.network.NetworkTools;
 import mcjty.rftoolsbase.modules.crafting.CraftingSetup;
 import mcjty.rftoolsbase.modules.crafting.items.CraftingCardContainer;
+import mcjty.rftoolscontrol.compat.RFToolsStuff;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketBuffer;
@@ -34,7 +35,7 @@ public class PacketSendRecipe {
             World world = player.getEntityWorld();
             // Handle tablet version
             ItemStack mainhand = player.getHeldItemMainhand();
-            if (!mainhand.isEmpty() && mainhand.getItem() == CraftingSetup.CRAFTING_CARD.get()) {   // @todo 1.15 object holder
+            if (!mainhand.isEmpty() && mainhand.getItem() == RFToolsStuff.CRAFTING_CARD) {
                 if (player.openContainer instanceof CraftingCardContainer) {
                     CraftingCardContainer craftingCardContainer = (CraftingCardContainer) player.openContainer;
                     craftingCardContainer.setGridContents(player, stacks);

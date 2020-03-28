@@ -1,8 +1,11 @@
 package mcjty.rftoolscontrol;
 
 import mcjty.lib.base.ModBase;
+import mcjty.rftoolsbase.api.control.registry.IFunctionRegistry;
+import mcjty.rftoolsbase.api.control.registry.IOpcodeRegistry;
 import mcjty.rftoolscontrol.config.ConfigSetup;
-import mcjty.rftoolscontrol.items.manual.GuiRFToolsManual;
+import mcjty.rftoolscontrol.logic.registry.FunctionRegistry;
+import mcjty.rftoolscontrol.logic.registry.OpcodeRegistry;
 import mcjty.rftoolscontrol.setup.ModSetup;
 import mcjty.rftoolscontrol.setup.Registration;
 import net.minecraft.entity.player.PlayerEntity;
@@ -11,7 +14,11 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.fml.event.lifecycle.InterModProcessEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 @Mod(RFToolsControl.MODID)
 public class RFToolsControl implements ModBase {
@@ -33,22 +40,20 @@ public class RFToolsControl implements ModBase {
 
         FMLJavaModLoadingContext.get().getModEventBus().addListener((FMLCommonSetupEvent event) -> setup.init(event));
         FMLJavaModLoadingContext.get().getModEventBus().addListener((FMLClientSetupEvent event) -> setup.initClient(event));
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::processIMC);
     }
 
-    // @todo 1.15
-//    @Mod.EventHandler
-//    public void imcCallback(FMLInterModComms.IMCEvent event) {
-//        for (FMLInterModComms.IMCMessage message : event.getMessages()) {
-//            if (message.key.equalsIgnoreCase("getOpcodeRegistry")) {
-//                Optional<Function<IOpcodeRegistry, Void>> value = message.getFunctionValue(IOpcodeRegistry.class, Void.class);
-//                value.get().apply(new OpcodeRegistry());
-//            } else if (message.key.equalsIgnoreCase("getFunctionRegistry")) {
-//                Optional<Function<IFunctionRegistry, Void>> value = message.getFunctionValue(IFunctionRegistry.class, Void.class);
-//                value.get().apply(new FunctionRegistry());
-//            }
-//        }
-//
-//    }
+    private void processIMC(final InterModProcessEvent event) {
+        event.getIMCStream().forEach(message -> {
+            if ("getOpcodeRegistry".equalsIgnoreCase(message.getMethod())) {
+                Supplier<Function<IOpcodeRegistry, Void>> supplier = message.getMessageSupplier();
+                supplier.get().apply(new OpcodeRegistry());
+            } else if ("getFunctionRegistry".equalsIgnoreCase(message.getMethod())) {
+                Supplier<Function<IFunctionRegistry, Void>> supplier = message.getMessageSupplier();
+                supplier.get().apply(new FunctionRegistry());
+            }
+        });
+    }
 
     @Override
     public String getModId() {

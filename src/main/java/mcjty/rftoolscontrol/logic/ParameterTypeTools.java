@@ -327,8 +327,6 @@ public class ParameterTypeTools {
                 if (item.getCount() != 1) {
                     object.add("amount", new JsonPrimitive(item.getCount()));
                 }
-                // @todo 1.15 meta!
-//                object.add("meta", new JsonPrimitive(item.getItemDamage()));
                 if (item.hasTag()) {
                     String string = item.getTag().toString();
                     object.add("nbt", new JsonPrimitive(string));
