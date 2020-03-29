@@ -2,18 +2,14 @@ package mcjty.rftoolscontrol.blocks.workbench;
 
 import mcjty.lib.blocks.BaseBlock;
 import mcjty.lib.builder.BlockBuilder;
-import mcjty.lib.gui.GenericGuiContainer;
-import mcjty.rftoolscontrol.setup.GuiProxy;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.IBlockReader;
-import net.minecraft.world.World;
 
 import javax.annotation.Nullable;
 import java.util.List;
-import java.util.function.BiFunction;
 
 public class WorkbenchBlock extends BaseBlock {
 
