@@ -1183,7 +1183,7 @@ public class Opcodes {
             .runnable(((processor, program, opcode) -> {
                 ItemStack item = processor.evaluateItemParameterNonNull(opcode, program, 0);
                 Inventory inv = processor.evaluateInventoryParameter(opcode, program, 1);
-                processor.requestCraft(item, inv);
+                processor.requestCraft(Ingredient.fromStacks(item), inv);
                 return POSITIVE;
             }))
             .build();

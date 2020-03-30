@@ -20,12 +20,6 @@ public class ProgrammerBlock extends BaseBlock {
 //        setNeedsRedstoneCheck(true);
     }
 
-//    @Override
-//    public BiFunction<ProgrammerTileEntity, ProgrammerContainer, GenericGuiContainer<? super ProgrammerTileEntity>> getGuiFactory() {
-//        return GuiProgrammer::new;
-//    }
-
-
     @Override
     public void addInformation(ItemStack stack, @Nullable IBlockReader world, List<ITextComponent> list, ITooltipFlag advanced) {
         super.addInformation(stack, world, list, advanced);

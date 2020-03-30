@@ -42,29 +42,6 @@ public class WorkbenchTileEntity extends GenericTileEntity implements GenericCra
     // items that are already crafted but only (partially) consumed.
     private int realItems = 0;
 
-    private static final int[] DOWN_SLOTS = new int[]{WorkbenchContainer.SLOT_CRAFTOUTPUT};
-    private static final int[] UP_SLOTS;
-    private static final int[] SIDE_SLOTS;
-    private static final int[] ALL_SLOTS;
-
-    static {
-        UP_SLOTS = new int[9];
-        for (int i = 0; i < 9; i++) {
-            UP_SLOTS[i] = i + WorkbenchContainer.SLOT_CRAFTINPUT;
-        }
-        SIDE_SLOTS = new int[WorkbenchContainer.BUFFER_SIZE];
-        for (int i = 0; i < WorkbenchContainer.BUFFER_SIZE; i++) {
-            SIDE_SLOTS[i] = i + WorkbenchContainer.SLOT_BUFFER;
-        }
-        ALL_SLOTS = new int[WorkbenchContainer.BUFFER_SIZE + 9];
-        for (int i = 0; i < 9; i++) {
-            ALL_SLOTS[i] = i + WorkbenchContainer.SLOT_CRAFTINPUT;
-        }
-        for (int i = 0; i < WorkbenchContainer.BUFFER_SIZE; i++) {
-            ALL_SLOTS[i + 9] = i + WorkbenchContainer.SLOT_BUFFER;
-        }
-    }
-
     public WorkbenchTileEntity() {
         super(Registration.WORKBENCH_TILE.get());
     }
@@ -140,10 +117,15 @@ public class WorkbenchTileEntity extends GenericTileEntity implements GenericCra
     private NoDirectionItemHander createItemHandler() {
         return new NoDirectionItemHander(WorkbenchTileEntity.this, WorkbenchContainer.CONTAINER_FACTORY) {
 
+            // While crafting we don't update the recipe
+            private int crafting = 0;
+
             @Override
             protected void onUpdate(int index) {
                 if (isCraftInputSlot(index)) {
-                    updateRecipe();
+                    if (crafting <= 0) {
+                        updateRecipe();
+                    }
                 }
             }
 
@@ -158,6 +140,7 @@ public class WorkbenchTileEntity extends GenericTileEntity implements GenericCra
                         CraftingInventory workInventory = makeWorkInventory();
                         IRecipe recipe = findRecipe(workInventory);
                         if (recipe != null) {
+                            crafting++;
                             List<ItemStack> remainingItems = recipe.getRemainingItems(workInventory);
                             for (int i = 0; i < 9; i++) {
                                 ItemStack s = items.getStackInSlot(i + WorkbenchContainer.SLOT_CRAFTINPUT);
@@ -179,6 +162,7 @@ public class WorkbenchTileEntity extends GenericTileEntity implements GenericCra
                                     }
                                 }
                             }
+                            crafting--;
                         }
                     }
                     ItemStack rc = super.extractItem(slot, amount, false);

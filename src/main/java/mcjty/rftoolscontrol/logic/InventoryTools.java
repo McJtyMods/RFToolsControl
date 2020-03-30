@@ -1,8 +1,8 @@
 package mcjty.rftoolscontrol.logic;
 
-import mcjty.rftoolsbase.api.storage.IStorageScanner;
 import mcjty.rftoolsbase.api.control.parameters.BlockSide;
 import mcjty.rftoolsbase.api.control.parameters.Inventory;
+import mcjty.rftoolsbase.api.storage.IStorageScanner;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.util.Direction;
@@ -48,6 +48,9 @@ public class InventoryTools {
 //            if (!OreDictionary.itemMatches(item1, item2, false)) {
 //                return false;
 //            }
+            if (item1.getItem() != item2.getItem()) {
+                return false;
+            }
         } else {
             if (item1.getItem() != item2.getItem()) {
                 return false;
@@ -87,13 +90,13 @@ public class InventoryTools {
 //                    return true;
 //                }
 //            }
+            return thisItem.isItemEqual(other);
         }
-        return false;
     }
 
 
     public static ItemStack extractItem(@Nullable IItemHandler itemHandler, @Nullable IStorageScanner scanner,
-                                        @Nullable Integer amount, boolean routable, boolean oredict, boolean strictnbt, @Nonnull Ingredient itemMatcher,
+                                        @Nullable Integer amount, boolean routable, boolean oredict, @Nonnull Ingredient itemMatcher,
                                         @Nullable Integer slot) {
         if (itemHandler != null) {
             // @todo implement oredict here
@@ -109,7 +112,7 @@ public class InventoryTools {
                 } else {
                     for (int i = 0; i < itemHandler.getSlots(); i++) {
                         ItemStack stack = itemHandler.getStackInSlot(i);
-                        if (isEqualAdvanced(itemMatcher, stack, strictnbt)) {
+                        if (itemMatcher.test(stack)) {
                             return itemHandler.extractItem(i, amount == null ? getMaxStackSizeFromIngredient(itemMatcher) : amount, false);
                         }
                     }
@@ -118,7 +121,7 @@ public class InventoryTools {
                 if (itemMatcher == Ingredient.EMPTY) {
                     return itemHandler.extractItem(slot, amount == null ? 64 : amount, false);
                 } else {
-                    if (!isEqualAdvanced(itemMatcher, itemHandler.getStackInSlot(slot), strictnbt)) {
+                    if (!itemMatcher.test(itemHandler.getStackInSlot(slot))) {
                         return ItemStack.EMPTY;
                     }
                     return itemHandler.extractItem(slot, amount == null ? getMaxStackSizeFromIngredient(itemMatcher) : amount, false);
@@ -128,27 +131,6 @@ public class InventoryTools {
             return scanner.requestItem(itemMatcher, false, amount == null ? getMaxStackSizeFromIngredient(itemMatcher) : amount, routable); // @todo 1.15 check
         }
         return ItemStack.EMPTY;
-    }
-
-    public static boolean isEqualAdvanced(Ingredient itemMatcher, ItemStack stack, boolean strictnbt) {
-        if (!stack.isEmpty() && itemMatcher.test(stack)) {
-//            if (!stack.isEmpty() && ItemStack.areItemsEqual(stack, itemMatcher)) {
-            if (strictnbt) {
-                // @todo 1.15
-//                if (itemMatcher.hasTag() || stack.hasTag()) {
-//                    String t1 = itemMatcher.serializeNBT().toString();
-//                    String t2 = stack.serializeNBT().toString();
-//                    if (t1.equalsIgnoreCase(t2)) {
-//                        return true;
-//                    }
-//                } else {
-//                    return true;
-//                }
-            } else {
-                return true;
-            }
-        }
-        return false;
     }
 
     public static ItemStack tryExtractItem(@Nullable IItemHandler itemHandler, @Nullable IStorageScanner scanner,
@@ -186,18 +168,7 @@ public class InventoryTools {
             }
         }
         if (scanner != null) {
-            int cnt = scanner.countItems(itemMatcher, routable, null);
-            if (cnt > 0) {
-                // @todo 1.15 VERY WRONG
-//                ItemStack copy = itemMatcher.copy();
-//                int amount1 = Math.min(cnt, amount == null ? itemMatcher.getMaxStackSize() : amount);
-//                if (amount1 <= 0) {
-//                    copy.setCount(0);
-//                } else {
-//                    copy.setCount(amount1);
-//                }
-//                return copy;
-            }
+            return scanner.getItem(itemMatcher, routable);
         }
         return ItemStack.EMPTY;
     }
@@ -215,11 +186,7 @@ public class InventoryTools {
             int cnt = scanner.insertItem(item);
             if (cnt > 0) {
                 ItemStack copy = item.copy();
-                if (cnt <= 0) {
-                    copy.setCount(0);
-                } else {
-                    copy.setCount(cnt);
-                }
+                copy.setCount(cnt);
                 return copy;
             }
             return ItemStack.EMPTY;

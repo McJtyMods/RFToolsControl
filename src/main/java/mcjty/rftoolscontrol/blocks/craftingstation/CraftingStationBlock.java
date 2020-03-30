@@ -18,12 +18,6 @@ public class CraftingStationBlock extends BaseBlock {
                 .tileEntitySupplier(CraftingStationTileEntity::new));
     }
 
-//    @Override
-//    public BiFunction<CraftingStationTileEntity, CraftingStationContainer, GenericGuiContainer<? super CraftingStationTileEntity>> getGuiFactory() {
-//        return GuiCraftingStation::new;
-//    }
-
-
     @Override
     public void addInformation(ItemStack stack, @Nullable IBlockReader world, List<ITextComponent> tooltip, ITooltipFlag advanced) {
         super.addInformation(stack, world, tooltip, advanced);

@@ -76,7 +76,7 @@ public class InventoryEditor extends AbstractParameterEditor {
             sideLabel.setChoice("*");
         } else {
             Inventory inv = (Inventory) value.getValue();
-            nameLabel.setText(inv.getNodeName() == null ? "" : inv.getNodeName());
+            nameLabel.setText(inv.getNodeNameSafe());
             sideLabel.setChoice(StringUtils.capitalize(inv.getSide().toString()));
             if (inv.getIntSide() == null) {
                 intSideLabel.setChoice("*");

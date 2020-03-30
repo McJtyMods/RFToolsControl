@@ -66,7 +66,7 @@ public class SideEditor extends AbstractParameterEditor {
             label.setChoice("*");
         } else {
             BlockSide side = (BlockSide) value.getValue();
-            nameLabel.setText(side.getNodeName() == null ? "" : side.getNodeName());
+            nameLabel.setText(side.getNodeNameSafe());
             String choice = StringUtils.capitalize(side.toString());
             label.setChoice(choice);
         }

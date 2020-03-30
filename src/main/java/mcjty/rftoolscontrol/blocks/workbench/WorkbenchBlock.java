@@ -18,13 +18,6 @@ public class WorkbenchBlock extends BaseBlock {
                 .tileEntitySupplier(WorkbenchTileEntity::new));
     }
 
-
-//    @Override
-//    public BiFunction<WorkbenchTileEntity, WorkbenchContainer, GenericGuiContainer<? super WorkbenchTileEntity>> getGuiFactory() {
-//        return GuiWorkbench::new;
-//    }
-
-
     @Override
     public void addInformation(ItemStack stack, @Nullable IBlockReader world, List<ITextComponent> list, ITooltipFlag advanced) {
         super.addInformation(stack, world, list, advanced);

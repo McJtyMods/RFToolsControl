@@ -137,7 +137,7 @@ public class ParameterTools {
             }
             case PAR_SIDE:
                 BlockSide bs = (BlockSide) value;
-                buf.writeString(bs.getNodeName());
+                buf.writeString(bs.getNodeNameSafe());
                 buf.writeByte(bs.getSide() == null ? -1 : bs.getSide().ordinal());
                 break;
             case PAR_BOOLEAN:

@@ -2,6 +2,7 @@ package mcjty.rftoolscontrol.blocks.workbench;
 
 import mcjty.lib.container.ContainerFactory;
 import mcjty.lib.container.GenericContainer;
+import mcjty.lib.container.GenericCrafter;
 import mcjty.lib.container.SlotDefinition;
 import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.rftoolscontrol.setup.Registration;
@@ -55,6 +56,7 @@ public class WorkbenchContainer extends GenericContainer {
     public void setupInventories(IItemHandler itemHandler, PlayerInventory inventory) {
         addInventory(CONTAINER_INVENTORY, itemHandler);
         addInventory(ContainerFactory.CONTAINER_PLAYER, new InvWrapper(inventory));
+        setCrafter((GenericCrafter) te);
         generateSlots();
     }
 }

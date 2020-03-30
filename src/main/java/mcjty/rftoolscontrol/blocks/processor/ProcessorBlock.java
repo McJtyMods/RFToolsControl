@@ -55,31 +55,6 @@ public class ProcessorBlock extends BaseBlock {
         }
     }
 
-    // @todo 1.15
-//    @Override
-//    @Optional.Method(modid = "theoneprobe")
-//    public void addProbeInfo(ProbeMode mode, IProbeInfo probeInfo, PlayerEntity player, World world, BlockState blockState, IProbeHitData data) {
-//        super.addProbeInfo(mode, probeInfo, player, world, blockState, data);
-//        TileEntity te = world.getTileEntity(data.getPos());
-//        if (te instanceof ProcessorTileEntity) {
-//            ProcessorTileEntity processor = (ProcessorTileEntity) te;
-//            if (processor.hasNetworkCard()) {
-//                probeInfo.text(TextFormatting.GREEN + "Channel: " + processor.getChannelName());
-//                probeInfo.text(TextFormatting.GREEN + "Nodes: " + processor.getNodeCount());
-//            }
-//            if (mode == ProbeMode.EXTENDED) {
-//                List<String> lastMessages = processor.getLastMessages(6);
-//                if (!lastMessages.isEmpty()) {
-//                    IProbeInfo v = probeInfo.vertical(probeInfo.defaultLayoutStyle().borderColor(0xffff0000));
-//                    for (String s : lastMessages) {
-//                        v.text("    " + s);
-//                    }
-//                }
-//            }
-//        }
-//    }
-
-
     private int getInputStrength(World world, BlockPos pos, Direction side) {
         return world.getRedstonePower(pos.offset(side), side);
     }

@@ -526,7 +526,6 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
         IStorageScanner scanner = getScannerForInv(inv);
         return getHandlerForInv(inv).map(handler -> {
             List<Ingredient> ingredients = CraftingCardItem.getIngredients(card);
-            boolean strictnbt = CraftingCardItem.isStrictNBT(card); // @todo
             List<Ingredient> needed = combineIngredients(ingredients);
             return countPossibleCrafts(scanner, handler, needed, oredict);
         }).orElse(0);
@@ -611,7 +610,6 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
                 } else {
                     ingredients = CraftingCardItem.getIngredients(card);
                 }
-                boolean strictnbt = CraftingCardItem.isStrictNBT(card);
 
                 List<Ingredient> needed = combineIngredients(ingredients);
                 int requested = checkAvailableItemsAndRequestMissing(destInv, scanner, handler, needed, oredict);
@@ -625,7 +623,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
                 for (Ingredient ingredient : ingredients) {
                     int realSlot = info.getRealSlot(slot);
                     if (ingredient != Ingredient.EMPTY) {
-                        ItemStack stack = InventoryTools.extractItem(handler, scanner, InventoryTools.getCountFromIngredient(ingredient), true, oredict, strictnbt, ingredient, null);
+                        ItemStack stack = InventoryTools.extractItem(handler, scanner, InventoryTools.getCountFromIngredient(ingredient), true, oredict, ingredient, null);
                         if (!stack.isEmpty()) {
                             itemHandler.insertItem(realSlot, stack, false);
                         }
@@ -645,21 +643,12 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
         int requested = 0;
         for (Ingredient ingredient : needed) {
             if (ingredient != Ingredient.EMPTY) {
-                int cnt = InventoryTools.countItem(handler, scanner, ingredient, oredict, InventoryTools.getCountFromIngredient(ingredient));
-                if (cnt < InventoryTools.getCountFromIngredient(ingredient)) {
+                int countFromIngredient = InventoryTools.getCountFromIngredient(ingredient);
+                int cnt = InventoryTools.countItem(handler, scanner, ingredient, oredict, countFromIngredient);
+                if (cnt < countFromIngredient) {
                     requested++;
-                    // @todo 1.15 THIS IS NOT RIGHT!!!
-                    ItemStack requestedItem = ingredient.getMatchingStacks()[0];
-//                    ItemStack requestedItem = ingredient.copy();
-
-                    int amount = InventoryTools.getCountFromIngredient(ingredient) - cnt;
-                    if (amount <= 0) {
-                        requestedItem.setCount(0);
-                    } else {
-                        requestedItem.setCount(amount);
-                    }
-                    if (!isRequested(requestedItem)) {
-                        if (!requestCraft(requestedItem, destInv)) {
+                    if (!isRequested(ingredient)) {
+                        if (!requestCraft(ingredient, destInv)) {
                             // It can't be requested, total failure
                             return -1;
                         }
@@ -739,13 +728,12 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
             } else {
                 ingredients = CraftingCardItem.getIngredients(card);
             }
-            boolean strictnbt = CraftingCardItem.isStrictNBT(card);
 
             int failed = 0;
             for (Ingredient ingredient : ingredients) {
                 int realSlot = info.getRealSlot(slot);
                 if (ingredient != Ingredient.EMPTY) {
-                    ItemStack stack = InventoryTools.extractItem(handler, scanner, InventoryTools.getCountFromIngredient(ingredient), true, oredict, strictnbt, ingredient, null);
+                    ItemStack stack = InventoryTools.extractItem(handler, scanner, InventoryTools.getCountFromIngredient(ingredient), true, oredict, ingredient, null);
                     if (!stack.isEmpty()) {
                         ItemStack remainder = itemHandler.insertItem(realSlot, stack, false);
                         if (!remainder.isEmpty()) {
@@ -785,12 +773,12 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
         markDirty();
     }
 
-    public boolean isRequested(ItemStack stack) {
+    public boolean isRequested(Ingredient ingredient) {
         for (BlockPos p : craftingStations) {
             TileEntity te = world.getTileEntity(p);
             if (te instanceof CraftingStationTileEntity) {
                 CraftingStationTileEntity craftingStation = (CraftingStationTileEntity) te;
-                if (craftingStation.isRequested(stack)) {
+                if (craftingStation.isRequested(ingredient)) {
                     return true;
                 }
                 return false;
@@ -801,12 +789,12 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
     }
 
     @Override
-    public boolean requestCraft(@Nonnull ItemStack stack, @Nullable Inventory inventory) {
+    public boolean requestCraft(@Nonnull Ingredient ingredient, @Nullable Inventory inventory) {
         for (BlockPos p : craftingStations) {
             TileEntity te = world.getTileEntity(p);
             if (te instanceof CraftingStationTileEntity) {
                 CraftingStationTileEntity craftingStation = (CraftingStationTileEntity) te;
-                if (craftingStation.request(stack, inventory)) {
+                if (craftingStation.request(ingredient, inventory)) {
                     return true;
                 }
                 return false;
@@ -1759,7 +1747,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
                 return 0;
             }
             // All seems ok. Do the real thing now.
-            stack = InventoryTools.extractItem(handler, scanner, amount, routable, oredict, false, itemMatcher, slot);
+            stack = InventoryTools.extractItem(handler, scanner, amount, routable, oredict, itemMatcher, slot);
             capability.insertItem(realSlot, stack, false);
             return stack.getCount();
         }).orElse(0);

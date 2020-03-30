@@ -43,11 +43,4 @@ public class MultiTankBlock extends BaseBlock {
     public VoxelShape getRenderShape(BlockState state, IBlockReader world, BlockPos pos) {
         return SMALLER_CUBE;
     }
-
-
-    // @todo 1.15
-//    @Override
-//    public boolean isOpaqueCube(BlockState state) {
-//        return false;
-//    }
 }

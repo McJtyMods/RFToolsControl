@@ -19,6 +19,7 @@ import mcjty.rftoolscontrol.setup.Registration;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
 import net.minecraft.tileentity.TileEntity;
@@ -197,12 +198,12 @@ public class CraftingStationTileEntity extends GenericTileEntity {
     }
 
 
-    public boolean isRequested(ItemStack item) {
+    public boolean isRequested(Ingredient item) {
         for (CraftingRequest request : activeCraftingRequests) {
             long failed = request.getFailed();
             long ok = request.getOk();
             if ((failed == -1) && (ok == -1)) {
-                if (request.getStack().isItemEqual(item)) {
+                if (item.test(request.getStack())) {
                     return true;
                 }
             }
@@ -210,7 +211,7 @@ public class CraftingStationTileEntity extends GenericTileEntity {
         return false;
     }
 
-    public boolean request(ItemStack item, @Nullable Inventory destination) {
+    public boolean request(@Nonnull Ingredient item, @Nullable Inventory destination) {
         for (BlockPos p : processorList) {
             TileEntity te = world.getTileEntity(p);
             if (te instanceof ProcessorTileEntity) {
@@ -218,7 +219,7 @@ public class CraftingStationTileEntity extends GenericTileEntity {
                 ItemStackList items = ItemStackList.create();
                 processor.getCraftableItems(items);
                 for (ItemStack i : items) {
-                    if (item.isItemEqual(i)) {
+                    if (item.test(i)) {
                         String ticket = getNewTicket(destination);
                         if (!checkRequestAmount()) {
                             return false;

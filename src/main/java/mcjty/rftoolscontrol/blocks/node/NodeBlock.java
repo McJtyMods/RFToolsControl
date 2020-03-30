@@ -2,6 +2,7 @@ package mcjty.rftoolscontrol.blocks.node;
 
 import mcjty.lib.blocks.BaseBlock;
 import mcjty.lib.builder.BlockBuilder;
+import mcjty.rftoolscontrol.compat.RFToolsControlTOPDriver;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.item.ItemStack;
@@ -20,14 +21,10 @@ public class NodeBlock extends BaseBlock {
 
     public NodeBlock() {
         super(new BlockBuilder()
+                .topDriver(RFToolsControlTOPDriver.DRIVER)
                 .tileEntitySupplier(NodeTileEntity::new));
     }
 
-
-//    @Override
-//    public BiFunction<NodeTileEntity, EmptyContainer, GenericGuiContainer<? super NodeTileEntity>> getGuiFactory() {
-//        return GuiNode::new;
-//    }
 
 //    @Override
 //    public boolean needsRedstoneCheck() {
@@ -42,20 +39,6 @@ public class NodeBlock extends BaseBlock {
         list.add(new StringTextComponent("by the processor that has a network"));
         list.add(new StringTextComponent("card installed"));
     }
-
-    // @todo 1.15
-//    @Override
-//    @Optional.Method(modid = "theoneprobe")
-//    public void addProbeInfo(ProbeMode mode, IProbeInfo probeInfo, PlayerEntity player, World world, BlockState blockState, IProbeHitData data) {
-//        super.addProbeInfo(mode, probeInfo, player, world, blockState, data);
-//        TileEntity te = world.getTileEntity(data.getPos());
-//        if (te instanceof NodeTileEntity) {
-//            NodeTileEntity node = (NodeTileEntity) te;
-//            probeInfo.text(TextFormatting.GREEN + "Channel: " + node.getChannelName());
-//            probeInfo.text(TextFormatting.GREEN + "Name: " + node.getNodeName());
-//        }
-//    }
-
 
     private int getInputStrength(World world, BlockPos pos, Direction side) {
         return world.getRedstonePower(pos.offset(side), side);
@@ -95,7 +78,6 @@ public class NodeBlock extends BaseBlock {
         return true;
     }
 
-    // @todo 1.15 is this right?
     @Override
     public int getStrongPower(BlockState state, IBlockReader world, BlockPos pos, Direction side) {
         TileEntity te = world.getTileEntity(pos);
