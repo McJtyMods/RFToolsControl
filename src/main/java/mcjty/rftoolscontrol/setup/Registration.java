@@ -21,6 +21,7 @@ import mcjty.rftoolscontrol.blocks.programmer.ProgrammerContainer;
 import mcjty.rftoolscontrol.blocks.programmer.ProgrammerTileEntity;
 import mcjty.rftoolscontrol.blocks.workbench.WorkbenchBlock;
 import mcjty.rftoolscontrol.blocks.workbench.WorkbenchContainer;
+import mcjty.rftoolscontrol.blocks.workbench.WorkbenchTileEntity;
 import mcjty.rftoolscontrol.items.*;
 import mcjty.rftoolscontrol.items.consolemodule.ConsoleModuleItem;
 import mcjty.rftoolscontrol.items.interactionmodule.InteractionModuleItem;
@@ -85,7 +86,7 @@ public class Registration {
 
     public static final RegistryObject<BaseBlock> WORKBENCH = BLOCKS.register("workbench", WorkbenchBlock::new);
     public static final RegistryObject<Item> WORKBENCH_ITEM = ITEMS.register("workbench", () -> new BlockItem(WORKBENCH.get(), createStandardProperties()));
-    public static final RegistryObject<TileEntityType<ProgrammerTileEntity>> WORKBENCH_TILE = TILES.register("workbench", () -> TileEntityType.Builder.create(ProgrammerTileEntity::new, WORKBENCH.get()).build(null));
+    public static final RegistryObject<TileEntityType<WorkbenchTileEntity>> WORKBENCH_TILE = TILES.register("workbench", () -> TileEntityType.Builder.create(WorkbenchTileEntity::new, WORKBENCH.get()).build(null));
     public static final RegistryObject<ContainerType<WorkbenchContainer>> WORKBENCH_CONTAINER = CONTAINERS.register("workbench", GenericContainer::createContainerType);
 
     public static final RegistryObject<ProgramCardItem> PROGRAM_CARD = ITEMS.register("program_card", ProgramCardItem::new);
