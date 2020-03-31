@@ -1,8 +1,8 @@
 package mcjty.rftoolscontrol.compat.rftoolssupport;
 
 import mcjty.rftoolsbase.api.screens.IScreenModuleRegistry;
-import mcjty.rftoolscontrol.blocks.vectorart.GfxOp;
-import mcjty.rftoolscontrol.logic.ParameterTools;
+import mcjty.rftoolscontrol.modules.processor.vectorart.GfxOp;
+import mcjty.rftoolscontrol.modules.processor.logic.ParameterTools;
 import net.minecraft.network.PacketBuffer;
 
 import javax.annotation.Nullable;

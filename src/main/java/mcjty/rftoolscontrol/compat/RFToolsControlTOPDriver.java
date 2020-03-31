@@ -3,9 +3,10 @@ package mcjty.rftoolscontrol.compat;
 import mcjty.lib.compat.theoneprobe.McJtyLibTOPDriver;
 import mcjty.lib.compat.theoneprobe.TOPDriver;
 import mcjty.lib.varia.Tools;
-import mcjty.rftoolscontrol.blocks.node.NodeTileEntity;
-import mcjty.rftoolscontrol.blocks.processor.ProcessorTileEntity;
-import mcjty.rftoolscontrol.setup.Registration;
+import mcjty.rftoolscontrol.modules.various.VariousSetup;
+import mcjty.rftoolscontrol.modules.various.blocks.NodeTileEntity;
+import mcjty.rftoolscontrol.modules.processor.ProcessorSetup;
+import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorTileEntity;
 import mcjty.theoneprobe.api.IProbeHitData;
 import mcjty.theoneprobe.api.IProbeInfo;
 import mcjty.theoneprobe.api.ProbeMode;
@@ -29,9 +30,9 @@ public class RFToolsControlTOPDriver implements TOPDriver {
     public void addProbeInfo(ProbeMode mode, IProbeInfo probeInfo, PlayerEntity player, World world, BlockState blockState, IProbeHitData data) {
         ResourceLocation id = blockState.getBlock().getRegistryName();
         if (!drivers.containsKey(id)) {
-            if (blockState.getBlock() == Registration.NODE.get()) {
+            if (blockState.getBlock() == VariousSetup.NODE.get()) {
                 drivers.put(id, new NodeDriver());
-            } else if (blockState.getBlock() == Registration.PROCESSOR.get()) {
+            } else if (blockState.getBlock() == ProcessorSetup.PROCESSOR.get()) {
                 drivers.put(id, new ProcessorDriver());
             } else {
                 drivers.put(id, new DefaultDriver());

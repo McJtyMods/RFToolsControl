@@ -3,10 +3,10 @@ package mcjty.rftoolscontrol.setup;
 import mcjty.lib.compat.MainCompatHandler;
 import mcjty.lib.setup.DefaultModSetup;
 import mcjty.rftoolscontrol.CommandHandler;
-import mcjty.rftoolscontrol.logic.editors.ParameterEditors;
-import mcjty.rftoolscontrol.logic.registry.Functions;
-import mcjty.rftoolscontrol.logic.registry.Opcodes;
-import mcjty.rftoolscontrol.network.RFToolsCtrlMessages;
+import mcjty.rftoolscontrol.modules.processor.logic.editors.ParameterEditors;
+import mcjty.rftoolscontrol.modules.processor.logic.registry.Functions;
+import mcjty.rftoolscontrol.modules.processor.logic.registry.Opcodes;
+import mcjty.rftoolscontrol.modules.processor.ProcessorSetup;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
@@ -14,7 +14,7 @@ import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 public class ModSetup extends DefaultModSetup {
 
     public ModSetup() {
-        createTab("rftoolscontrol", () -> new ItemStack(Registration.PROCESSOR.get()));
+        createTab("rftoolscontrol", () -> new ItemStack(ProcessorSetup.PROCESSOR.get()));
     }
 
     @Override

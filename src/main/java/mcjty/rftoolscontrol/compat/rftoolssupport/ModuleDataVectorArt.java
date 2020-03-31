@@ -2,7 +2,7 @@ package mcjty.rftoolscontrol.compat.rftoolssupport;
 
 import mcjty.rftoolsbase.api.screens.data.IModuleData;
 import mcjty.rftoolscontrol.RFToolsControl;
-import mcjty.rftoolscontrol.blocks.vectorart.GfxOp;
+import mcjty.rftoolscontrol.modules.processor.vectorart.GfxOp;
 import net.minecraft.network.PacketBuffer;
 
 import java.util.List;

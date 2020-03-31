@@ -1,9 +1,9 @@
 package mcjty.rftoolscontrol.compat.jei;
 
 import mcjty.rftoolscontrol.RFToolsControl;
-import mcjty.rftoolscontrol.blocks.workbench.WorkbenchContainer;
-import mcjty.rftoolscontrol.network.RFToolsCtrlMessages;
-import mcjty.rftoolscontrol.setup.Registration;
+import mcjty.rftoolscontrol.modules.various.VariousSetup;
+import mcjty.rftoolscontrol.modules.various.blocks.WorkbenchContainer;
+import mcjty.rftoolscontrol.setup.RFToolsCtrlMessages;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.constants.VanillaRecipeCategoryUid;
@@ -50,6 +50,6 @@ public class RFToolsControlJeiPlugin implements IModPlugin {
 
     @Override
     public void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
-        registration.addRecipeCatalyst(new ItemStack(Registration.WORKBENCH.get()), VanillaRecipeCategoryUid.CRAFTING);
+        registration.addRecipeCatalyst(new ItemStack(VariousSetup.WORKBENCH.get()), VanillaRecipeCategoryUid.CRAFTING);
     }
 }

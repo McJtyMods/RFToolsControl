@@ -2,8 +2,8 @@ package mcjty.rftoolscontrol.compat.rftoolssupport;
 
 import mcjty.rftoolsbase.api.screens.data.IModuleData;
 import mcjty.rftoolscontrol.RFToolsControl;
-import mcjty.rftoolscontrol.logic.Parameter;
-import mcjty.rftoolscontrol.logic.ParameterTools;
+import mcjty.rftoolscontrol.modules.processor.logic.Parameter;
+import mcjty.rftoolscontrol.modules.processor.logic.ParameterTools;
 import net.minecraft.network.PacketBuffer;
 
 public class ModuleDataVariable implements IModuleData {
