@@ -1,0 +1,31 @@
+{
+  "_comment": "Achievements",
+
+  "_comment": "Items",
+  "item.rftoolscontrol.program_card": "Program Card",
+  "item.rftoolscontrol.cpu_core_500": "CPU Core B500",
+  "item.rftoolscontrol.cpu_core_1000": "CPU Core S1000",
+  "item.rftoolscontrol.cpu_core_2000": "CPU Core EX2000",
+  "item.rftoolscontrol.ram_chip": "RAM Chip 8E",
+  "item.rftoolscontrol.network_card": "Network Card",
+  "item.rftoolscontrol.advanced_network_card": "Advanced Network Card",
+  "item.rftoolscontrol.card_base": "Card Base",
+  "item.rftoolscontrol.variable_module": "Variable Screen Module",
+  "item.rftoolscontrol.interaction_module": "Interaction Screen Module",
+  "item.rftoolscontrol.console_module": "Console Screen Module",
+  "item.rftoolscontrol.vectorart_module": "Vector Art Screen Module",
+  "item.rftoolscontrol.token": "Token",
+  "item.rftoolscontrol.network_identifier": "Network Identifier",
+  "item.rftoolscontrol.graphics_card": "Graphics Card",
+
+  "_comment": "Blocks",
+  "block.rftoolscontrol.programmer": "Programmer",
+  "block.rftoolscontrol.processor": "Processor",
+  "block.rftoolscontrol.craftingstation": "Crafting Station",
+  "block.rftoolscontrol.node": "Node",
+  "block.rftoolscontrol.workbench": "Workbench",
+  "block.rftoolscontrol.tank": "Multi Tank",
+
+  "_comment": "Creative Tabs",
+  "itemGroup.RFToolsControl": "RFTools Control"
+}
