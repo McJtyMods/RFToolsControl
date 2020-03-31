@@ -94,7 +94,7 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
         if (selected == -1) {
             return;
         }
-        sendServerCommand(RFToolsCtrlMessages.INSTANCE, RFToolsControl.MODID, CraftingStationTileEntity.CMD_CANCEL,
+        sendServerCommandTyped(RFToolsCtrlMessages.INSTANCE, CraftingStationTileEntity.CMD_CANCEL,
                 TypedMap.builder()
                         .put(PARAM_INDEX, selected)
                         .build());
@@ -230,7 +230,7 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
     }
 
     private void requestItem(ItemStack stack, int amount) {
-        sendServerCommand(RFToolsCtrlMessages.INSTANCE, RFToolsControl.MODID, CraftingStationTileEntity.CMD_REQUEST,
+        sendServerCommandTyped(RFToolsCtrlMessages.INSTANCE, CraftingStationTileEntity.CMD_REQUEST,
                 TypedMap.builder()
                         .put(PARAM_ITEMNAME, stack.getItem().getRegistryName().toString())
                         .put(PARAM_NBT, stack.hasTag() ? stack.serializeNBT().toString() : "")

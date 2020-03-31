@@ -50,7 +50,7 @@ public class ProcessorRenderer extends TileEntityRenderer<ProcessorTileEntity> {
 
         Direction facing = baseBlock.getFrontDirection(baseBlock.getRotationType(), state);
 
-        matrixStack.translate(0.5F, 0.5F, 0.5F);
+        matrixStack.translate(0.5F, 1.5F, 0.5F);
 
         if (facing == Direction.UP) {
             matrixStack.rotate(Vector3f.XP.rotationDegrees(-90.0F));
@@ -69,9 +69,9 @@ public class ProcessorRenderer extends TileEntityRenderer<ProcessorTileEntity> {
         }
 
         if (te.getWorld().isAirBlock(te.getPos().up())) {
-            matrixStack.translate(0.0F, -0.2500F, -0.4375F + .4f);
+            matrixStack.translate(0.0F, 0, -0.4375F + .4f);
         } else {
-            matrixStack.translate(0.0F, -0.2500F, -0.4375F + .9f);
+            matrixStack.translate(0.0F, 0, -0.4375F + .9f);
         }
 
         renderHud(matrixStack, buffer, Minecraft.getInstance().fontRenderer, te);
@@ -116,7 +116,7 @@ public class ProcessorRenderer extends TileEntityRenderer<ProcessorTileEntity> {
             if (i >= logsize - 11) {
                 // Check if this module has enough room
                 if (currenty + height <= 124) {
-                    fontrenderer.renderString(fontrenderer.trimStringToWidth(s, 115), 7, currenty, 0xffffff, false,
+                    fontrenderer.renderString(fontrenderer.trimStringToWidth(s, 115), 7, currenty, 0xffffffff, false,
                             matrixStack.getLast().getMatrix(), buffer, false, 0, 0xf000f0);
                     currenty += height;
                 }

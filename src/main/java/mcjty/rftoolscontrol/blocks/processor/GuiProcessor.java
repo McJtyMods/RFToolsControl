@@ -106,7 +106,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity, Proce
         exclusive
                 .addButtonEvent(parent -> {
                     tileEntity.setExclusive(exclusive.isPressed());
-                    sendServerCommand(RFToolsCtrlMessages.INSTANCE, RFToolsControl.MODID, ProcessorTileEntity.CMD_SETEXCLUSIVE,
+                    sendServerCommandTyped(RFToolsCtrlMessages.INSTANCE, ProcessorTileEntity.CMD_SETEXCLUSIVE,
                             TypedMap.builder().put(PARAM_EXCLUSIVE, exclusive.isPressed()).build());
                 });
         toplevel.addChild(exclusive);
@@ -136,7 +136,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity, Proce
             } else {
                 m = HUD_GFX;
             }
-            sendServerCommand(RFToolsCtrlMessages.INSTANCE, RFToolsControl.MODID, ProcessorTileEntity.CMD_SETHUDMODE,
+            sendServerCommandTyped(RFToolsCtrlMessages.INSTANCE, ProcessorTileEntity.CMD_SETHUDMODE,
                     TypedMap.builder().put(PARAM_HUDMODE, m).build());
         });
         toplevel.addChild(hudMode);
@@ -222,7 +222,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity, Proce
 
     private void executeCommand(String text) {
         dumpHistory();
-        sendServerCommand(RFToolsCtrlMessages.INSTANCE, RFToolsControl.MODID, ProcessorTileEntity.CMD_EXECUTE,
+        sendServerCommandTyped(RFToolsCtrlMessages.INSTANCE, ProcessorTileEntity.CMD_EXECUTE,
                 TypedMap.builder().put(PARAM_CMD, text).build());
 
         if (commandHistoryIndex >= 0 && commandHistoryIndex < commandHistory.size() && text.equals(commandHistory.get(commandHistoryIndex))) {
@@ -334,7 +334,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity, Proce
                         itemAlloc = itemAlloc & ~(1 << i);
                     }
                     cardInfo.setItemAllocation(itemAlloc);
-                    sendServerCommand(RFToolsCtrlMessages.INSTANCE, RFToolsControl.MODID, ProcessorTileEntity.CMD_ALLOCATE,
+                    sendServerCommandTyped(RFToolsCtrlMessages.INSTANCE, ProcessorTileEntity.CMD_ALLOCATE,
                             TypedMap.builder()
                                     .put(PARAM_CARD, setupMode)
                                     .put(PARAM_ITEMS, itemAlloc)
@@ -384,7 +384,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity, Proce
                     }
                     cardInfo.setFluidAllocation(fluidAlloc);
 
-                    sendServerCommand(RFToolsCtrlMessages.INSTANCE, RFToolsControl.MODID, ProcessorTileEntity.CMD_ALLOCATE,
+                    sendServerCommandTyped(RFToolsCtrlMessages.INSTANCE, ProcessorTileEntity.CMD_ALLOCATE,
                             TypedMap.builder()
                                     .put(PARAM_CARD, setupMode)
                                     .put(PARAM_ITEMS, itemAlloc)
@@ -436,7 +436,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity, Proce
                     }
                     cardInfo.setVarAllocation(varAlloc);
 
-                    sendServerCommand(RFToolsCtrlMessages.INSTANCE, RFToolsControl.MODID, ProcessorTileEntity.CMD_ALLOCATE,
+                    sendServerCommandTyped(RFToolsCtrlMessages.INSTANCE, ProcessorTileEntity.CMD_ALLOCATE,
                             TypedMap.builder()
                                     .put(PARAM_CARD, setupMode)
                                     .put(PARAM_ITEMS, itemAlloc)

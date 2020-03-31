@@ -57,7 +57,7 @@ public class GuiNode extends GenericGuiContainer<NodeTileEntity, NodeContainer> 
     }
 
     private void updateNode() {
-        sendServerCommand(RFToolsCtrlMessages.INSTANCE, RFToolsControl.MODID, NodeTileEntity.CMD_UPDATE,
+        sendServerCommandTyped(RFToolsCtrlMessages.INSTANCE, NodeTileEntity.CMD_UPDATE,
                 TypedMap.builder()
                         .put(PARAM_NODE, nodeNameField.getText())
                         .put(PARAM_CHANNEL, channelField.getText())
