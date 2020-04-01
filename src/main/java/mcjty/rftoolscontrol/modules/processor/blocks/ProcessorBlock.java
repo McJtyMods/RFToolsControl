@@ -2,6 +2,7 @@ package mcjty.rftoolscontrol.modules.processor.blocks;
 
 import mcjty.lib.blocks.BaseBlock;
 import mcjty.lib.builder.BlockBuilder;
+import mcjty.rftoolscontrol.compat.RFToolsControlTOPDriver;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.util.ITooltipFlag;
@@ -28,6 +29,7 @@ public class ProcessorBlock extends BaseBlock {
 
     public ProcessorBlock() {
         super(new BlockBuilder()
+                .topDriver(RFToolsControlTOPDriver.DRIVER)
                 .tileEntitySupplier(ProcessorTileEntity::new));
     }
 
