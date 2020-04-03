@@ -27,5 +27,47 @@
   "block.rftoolscontrol.tank": "Multi Tank",
 
   "_comment": "Creative Tabs",
-  "itemGroup.RFToolsControl": "RFTools Control"
+  "itemGroup.RFToolsControl": "RFTools Control",
+
+  "_comment": "Messages",
+
+  "message.rftoolscontrol.shiftmessage": "<Press Shift>",
+
+  "message.rftoolscontrol.token.header": "This item is a simple token. It does not do anything but it can store information",
+  "message.rftoolscontrol.token.gold": "This token is empty",
+  "message.rftoolscontrol.token.type": "Type: ",
+  "message.rftoolscontrol.token.value": "Value: ",
+
+  "message.rftoolscontrol.program_card.header": "This item is a simple token. It does not do anything but it can store information",
+  "message.rftoolscontrol.program_card.name": "Name: ",
+
+  "message.rftoolscontrol.card_base.header": "This item is the base ingredient for many of the items and machines in RFTools Control",
+
+  "message.rftoolscontrol.console_module.header": "A module for a Screen that allows you to display the console of a processor",
+  "message.rftoolscontrol.console_module.gold": "Sneak right-click on a processor to set the target for this module",
+  "message.rftoolscontrol.console_module.uses": "Power usage: ",
+  "message.rftoolscontrol.console_module.info": "Processor: ",
+
+  "message.rftoolscontrol.interaction_module.header": "A module for a Screen that allows you to interact with a processor",
+  "message.rftoolscontrol.interaction_module.gold": "Sneak right-click on a processor to set the target for this module",
+  "message.rftoolscontrol.interaction_module.uses": "Power usage: ",
+  "message.rftoolscontrol.interaction_module.info": "Processor: ",
+
+  "message.rftoolscontrol.variable_module.header": "A module for a Screen that allows you to show variables in a processor",
+  "message.rftoolscontrol.variable_module.gold": "Sneak right-click on a processor to set the target for this module",
+  "message.rftoolscontrol.variable_module.uses": "Power usage: ",
+  "message.rftoolscontrol.variable_module.info": "Processor: ",
+
+  "message.rftoolscontrol.vectorart_module.header": "A module for a Screen that allows you to show vector art from a processor",
+  "message.rftoolscontrol.vectorart_module.gold": "Sneak right-click on a processor to set the target for this module",
+  "message.rftoolscontrol.vectorart_module.uses": "Power usage: ",
+  "message.rftoolscontrol.vectorart_module.info": "Processor: ",
+
+  "message.rftoolscontrol.craftingstation.header": "This block assists in auto crafting operations for a Processor",
+  "message.rftoolscontrol.tank.header": "This is a tank that has capacity for four types of liquids. This block is meant for the processor and cannot otherwise be used directly",
+  "message.rftoolscontrol.processor.header": "The processor executes programs for automation. Programs should be written on a program card and can be made with the Programmer block",
+  "message.rftoolscontrol.programmer.header": "Use this block to make programs on a program card for the processor",
+  "message.rftoolscontrol.node.header": "This node can be remotely accessed by the processor that has a network card installed",
+  "message.rftoolscontrol.workbench.header": "A general workbench that works well with a processor but can also be used standalone"
+
 }

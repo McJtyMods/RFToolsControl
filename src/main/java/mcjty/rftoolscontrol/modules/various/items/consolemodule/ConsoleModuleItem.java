@@ -2,40 +2,44 @@ package mcjty.rftoolscontrol.modules.various.items.consolemodule;
 
 import mcjty.lib.varia.Logging;
 import mcjty.rftoolsbase.api.screens.IModuleGuiBuilder;
-import mcjty.rftoolsbase.api.screens.IModuleProvider;
+import mcjty.rftoolsbase.tools.GenericModuleItem;
 import mcjty.rftoolscontrol.RFToolsControl;
-import mcjty.rftoolscontrol.setup.ConfigSetup;
 import mcjty.rftoolscontrol.modules.processor.ProcessorSetup;
+import mcjty.rftoolscontrol.setup.ConfigSetup;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUseContext;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 
-import javax.annotation.Nullable;
-import java.util.List;
-
-public class ConsoleModuleItem extends Item implements IModuleProvider {
+public class ConsoleModuleItem extends GenericModuleItem {
 
     public ConsoleModuleItem() {
         super(new Properties()
                 .maxStackSize(1)
                 .maxDamage(1)
                 .group(RFToolsControl.setup.getTab()));
-//        super("console_module");
-//        setMaxStackSize(1);
     }
 
+    @Override
+    protected int getUses(ItemStack stack) {
+        return ConfigSetup.CONSOLEMODULE_RFPERTICK.get();
+    }
+
+    @Override
+    protected boolean hasGoldMessage(ItemStack stack) {
+        return !hasTarget(stack);
+    }
+
+    @Override
+    protected String getInfoString(ItemStack stack) {
+        return getTargetString(stack);
+    }
 
     @Override
     public Class<ConsoleScreenModule> getServerScreenModule() {
@@ -56,29 +60,6 @@ public class ConsoleModuleItem extends Item implements IModuleProvider {
     public void createGui(IModuleGuiBuilder guiBuilder) {
         guiBuilder.
                 block("monitor").nl();
-    }
-
-    @Override
-    public void addInformation(ItemStack itemStack, @Nullable World world, List<ITextComponent> list, ITooltipFlag flagIn) {
-        super.addInformation(itemStack, world, list, flagIn);
-        list.add(new StringTextComponent(TextFormatting.GREEN + "Uses " + ConfigSetup.CONSOLEMODULE_RFPERTICK.get() + " RF/tick"));
-        boolean hasTarget = false;
-        CompoundNBT tagCompound = itemStack.getTag();
-        if (tagCompound != null) {
-            list.add(new StringTextComponent(TextFormatting.YELLOW + "Label: " + tagCompound.getString("text")));
-            if (tagCompound.contains("monitorx")) {
-                int monitorx = tagCompound.getInt("monitorx");
-                int monitory = tagCompound.getInt("monitory");
-                int monitorz = tagCompound.getInt("monitorz");
-                String monitorname = tagCompound.getString("monitorname");
-                list.add(new StringTextComponent(TextFormatting.YELLOW + "Monitoring: " + monitorname + " (at " + monitorx + "," + monitory + "," + monitorz + ")"));
-                hasTarget = true;
-            }
-        }
-        if (!hasTarget) {
-            list.add(new StringTextComponent(TextFormatting.YELLOW + "Sneak right-click on a processor to set the"));
-            list.add(new StringTextComponent(TextFormatting.YELLOW + "target for this module"));
-        }
     }
 
     @Override

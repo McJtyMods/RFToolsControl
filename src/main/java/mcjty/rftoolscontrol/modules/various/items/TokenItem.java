@@ -1,6 +1,7 @@
 package mcjty.rftoolscontrol.modules.various.items;
 
-import mcjty.lib.McJtyLib;
+import mcjty.lib.builder.TooltipBuilder;
+import mcjty.lib.tooltips.ITooltipSettings;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.modules.processor.logic.Parameter;
 import mcjty.rftoolscontrol.modules.processor.logic.ParameterTools;
@@ -10,48 +11,64 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class TokenItem extends Item {
+import static mcjty.lib.builder.TooltipBuilder.*;
+
+public class TokenItem extends Item implements ITooltipSettings {
+
+    private final TooltipBuilder tooltipBuilder = new TooltipBuilder()
+            .info(key("message.rftoolscontrol.shiftmessage"))
+            .infoShift(header(),
+                    gold(this::isEmpty),
+                    parameter("type", stack -> !isEmpty(stack), this::getParameterType),
+                    parameter("value", stack -> !isEmpty(stack), this::getParameterValue));
+
+    private boolean isEmpty(ItemStack stack) {
+        if (stack.hasTag()) {
+            CompoundNBT parameter = stack.getTag().getCompound("parameter");
+            if (!parameter.isEmpty()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private String getParameterType(ItemStack stack) {
+        if (stack.hasTag()) {
+            CompoundNBT parameter = stack.getTag().getCompound("parameter");
+            if (!parameter.isEmpty()) {
+                Parameter par = ParameterTools.readFromNBT(parameter);
+                return par.getParameterType().getName();
+            }
+        }
+        return "<unknown>";
+    }
+
+    private String getParameterValue(ItemStack stack) {
+        if (stack.hasTag()) {
+            CompoundNBT parameter = stack.getTag().getCompound("parameter");
+            if (!parameter.isEmpty()) {
+                Parameter par = ParameterTools.readFromNBT(parameter);
+                return ParameterTypeTools.stringRepresentation(par.getParameterType(), par.getParameterValue());
+            }
+        }
+        return "<unknown>";
+    }
 
     public TokenItem() {
         super(new Properties()
                 .maxStackSize(64)
                 .group(RFToolsControl.setup.getTab()));
-
-//        super((Properties) "token");
     }
 
 
     @Override
-    public void addInformation(ItemStack stack, @Nullable World worldIn, List<ITextComponent> list, ITooltipFlag flagIn) {
-        super.addInformation(stack, worldIn, list, flagIn);
-
-        boolean hasContents = false;
-        if (stack.hasTag()) {
-            CompoundNBT parameter = stack.getTag().getCompound("parameter");
-            if (!parameter.isEmpty()) {
-                Parameter par = ParameterTools.readFromNBT(parameter);
-                hasContents = true;
-                list.add(new StringTextComponent(TextFormatting.BLUE + "Type: " + par.getParameterType().getName()));
-                list.add(new StringTextComponent(TextFormatting.BLUE + "Value: " + ParameterTypeTools.stringRepresentation(par.getParameterType(), par.getParameterValue())));
-            }
-        }
-        if (!hasContents) {
-            list.add(new StringTextComponent(TextFormatting.BLUE + "This token is empty"));
-        }
-
-        if (McJtyLib.proxy.isShiftKeyDown()) {
-            list.add(new StringTextComponent(TextFormatting.WHITE + "This item is a simple token. It does"));
-            list.add(new StringTextComponent(TextFormatting.WHITE + "not do anything but it can store"));
-            list.add(new StringTextComponent(TextFormatting.WHITE + "information"));
-        } else {
-            list.add(new StringTextComponent(TextFormatting.WHITE + RFToolsControl.SHIFT_MESSAGE));
-        }
+    public void addInformation(ItemStack stack, @Nullable World worldIn, List<ITextComponent> list, ITooltipFlag flag) {
+        super.addInformation(stack, worldIn, list, flag);
+        tooltipBuilder.makeTooltip(getRegistryName(), stack, list, flag);
     }
 }

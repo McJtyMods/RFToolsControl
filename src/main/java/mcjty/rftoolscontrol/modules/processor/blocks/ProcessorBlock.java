@@ -5,19 +5,17 @@ import mcjty.lib.builder.BlockBuilder;
 import mcjty.rftoolscontrol.compat.RFToolsControlTOPDriver;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.IWorldReader;
 import net.minecraft.world.World;
 
 import javax.annotation.Nullable;
-import java.util.List;
+
+import static mcjty.lib.builder.TooltipBuilder.header;
+import static mcjty.lib.builder.TooltipBuilder.key;
 
 public class ProcessorBlock extends BaseBlock {
 
@@ -30,14 +28,9 @@ public class ProcessorBlock extends BaseBlock {
     public ProcessorBlock() {
         super(new BlockBuilder()
                 .topDriver(RFToolsControlTOPDriver.DRIVER)
+                .info(key("message.rftoolscontrol.shiftmessage"))
+                .infoShift(header())
                 .tileEntitySupplier(ProcessorTileEntity::new));
-    }
-
-    @Override
-    public void addInformation(ItemStack stack, @Nullable IBlockReader world, List<ITextComponent> list, ITooltipFlag advanced) {
-        super.addInformation(stack, world, list, advanced);
-        list.add(new StringTextComponent("The processor executes programs"));
-        list.add(new StringTextComponent("for automation"));
     }
 
     @Override

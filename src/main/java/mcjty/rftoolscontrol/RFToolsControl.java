@@ -3,9 +3,9 @@ package mcjty.rftoolscontrol;
 import mcjty.lib.base.ModBase;
 import mcjty.rftoolsbase.api.control.registry.IFunctionRegistry;
 import mcjty.rftoolsbase.api.control.registry.IOpcodeRegistry;
-import mcjty.rftoolscontrol.setup.ConfigSetup;
 import mcjty.rftoolscontrol.modules.processor.logic.registry.FunctionRegistry;
 import mcjty.rftoolscontrol.modules.processor.logic.registry.OpcodeRegistry;
+import mcjty.rftoolscontrol.setup.ConfigSetup;
 import mcjty.rftoolscontrol.setup.ModSetup;
 import mcjty.rftoolscontrol.setup.Registration;
 import net.minecraft.entity.player.PlayerEntity;
@@ -65,7 +65,4 @@ public class RFToolsControl implements ModBase {
 //        GuiRFToolsManual.locatePage = page;
 //        player.openGui(RFToolsControl.instance, bookIndex, player.getEntityWorld(), (int) player.posX, (int) player.posY, (int) player.posZ);
     }
-
-    // @todo move me!
-    public static final String SHIFT_MESSAGE = "<Press Shift>";
 }

@@ -2,26 +2,18 @@ package mcjty.rftoolscontrol.modules.craftingstation.blocks;
 
 import mcjty.lib.blocks.BaseBlock;
 import mcjty.lib.builder.BlockBuilder;
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.world.IBlockReader;
+import mcjty.rftoolscontrol.compat.RFToolsControlTOPDriver;
 
-import javax.annotation.Nullable;
-import java.util.List;
+import static mcjty.lib.builder.TooltipBuilder.header;
+import static mcjty.lib.builder.TooltipBuilder.key;
 
 public class CraftingStationBlock extends BaseBlock {
 
     public CraftingStationBlock() {
         super(new BlockBuilder()
+                .topDriver(RFToolsControlTOPDriver.DRIVER)
+                .info(key("message.rftoolscontrol.shiftmessage"))
+                .infoShift(header())
                 .tileEntitySupplier(CraftingStationTileEntity::new));
-    }
-
-    @Override
-    public void addInformation(ItemStack stack, @Nullable IBlockReader world, List<ITextComponent> tooltip, ITooltipFlag advanced) {
-        super.addInformation(stack, world, tooltip, advanced);
-        tooltip.add(new StringTextComponent("This block assists in auto crafting"));
-        tooltip.add(new StringTextComponent("operations for a Processor"));
     }
 }

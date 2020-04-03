@@ -2,28 +2,20 @@ package mcjty.rftoolscontrol.modules.programmer.blocks;
 
 import mcjty.lib.blocks.BaseBlock;
 import mcjty.lib.builder.BlockBuilder;
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.world.IBlockReader;
+import mcjty.rftoolscontrol.compat.RFToolsControlTOPDriver;
 
-import javax.annotation.Nullable;
-import java.util.List;
+import static mcjty.lib.builder.TooltipBuilder.header;
+import static mcjty.lib.builder.TooltipBuilder.key;
 
 public class ProgrammerBlock extends BaseBlock {
 
     public ProgrammerBlock() {
         super(new BlockBuilder()
+                .topDriver(RFToolsControlTOPDriver.DRIVER)
+                .info(key("message.rftoolscontrol.shiftmessage"))
+                .infoShift(header())
                 .tileEntitySupplier(ProgrammerTileEntity::new));
         // @todo 1.15
 //        setNeedsRedstoneCheck(true);
-    }
-
-    @Override
-    public void addInformation(ItemStack stack, @Nullable IBlockReader world, List<ITextComponent> list, ITooltipFlag advanced) {
-        super.addInformation(stack, world, list, advanced);
-        list.add(new StringTextComponent("Use this block to make programs"));
-        list.add(new StringTextComponent("on a program card for the processor"));
     }
 }
