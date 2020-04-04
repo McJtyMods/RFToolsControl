@@ -1,6 +1,9 @@
 package mcjty.rftoolscontrol.modules.processor.items;
 
+import mcjty.lib.builder.TooltipBuilder;
+import mcjty.lib.tooltips.ITooltipSettings;
 import mcjty.lib.varia.Logging;
+import mcjty.rftoolsbase.tools.ModuleTools;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.modules.processor.ProcessorSetup;
 import net.minecraft.block.Block;
@@ -15,44 +18,31 @@ import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class NetworkIdentifierItem extends Item {
+import static mcjty.lib.builder.TooltipBuilder.*;
+
+public class NetworkIdentifierItem extends Item implements ITooltipSettings {
+
+    private final TooltipBuilder tooltipBuilder = new TooltipBuilder()
+            .info(header(),
+                    gold(stack -> !ModuleTools.hasModuleTarget(stack)),
+                    parameter("target", ModuleTools::hasModuleTarget, ModuleTools::getTargetString));
 
     public NetworkIdentifierItem() {
         super(new Properties()
                 .maxStackSize(1)
                 .maxDamage(1)
                 .group(RFToolsControl.setup.getTab()));
-
-//        super((Properties) "network_identifier");
     }
 
     @Override
-    public void addInformation(ItemStack itemStack, @Nullable World worldIn, List<ITextComponent> list, ITooltipFlag flagIn) {
-        super.addInformation(itemStack, worldIn, list, flagIn);
-        boolean hasTarget = false;
-        CompoundNBT tagCompound = itemStack.getTag();
-        if (tagCompound != null) {
-            if (tagCompound.contains("monitorx")) {
-                String monitordim = tagCompound.getString("monitordim");
-                int monitorx = tagCompound.getInt("monitorx");
-                int monitory = tagCompound.getInt("monitory");
-                int monitorz = tagCompound.getInt("monitorz");
-                list.add(new StringTextComponent(TextFormatting.YELLOW + "Linked to processor at " + monitorx + "," + monitory + "," + monitorz));
-                list.add(new StringTextComponent(TextFormatting.YELLOW + "(dimension  " + monitordim + ")"));
-                hasTarget = true;
-            }
-        }
-        if (!hasTarget) {
-            list.add(new StringTextComponent("Sneak right-click on a processor to set"));
-            list.add(new StringTextComponent("the target for this identifier"));
-        }
+    public void addInformation(ItemStack itemStack, @Nullable World worldIn, List<ITextComponent> list, ITooltipFlag flag) {
+        super.addInformation(itemStack, worldIn, list, flag);
+        tooltipBuilder.makeTooltip(getRegistryName(), itemStack, list, flag);
     }
 
     @Override

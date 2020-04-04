@@ -41,7 +41,37 @@
   "message.rftoolscontrol.program_card.header": "This item is a simple token. It does not do anything but it can store information",
   "message.rftoolscontrol.program_card.name": "Name: ",
 
+  "message.rftoolscontrol.cpu_core_500.header": "This CPU core must be used in the processor to allow it to run programs",
+  "message.rftoolscontrol.cpu_core_500.speed": "Operations per tick: ",
+  "message.rftoolscontrol.cpu_core_500.power": "RF/FE per tick: ",
+
+  "message.rftoolscontrol.cpu_core_1000.header": "This CPU core must be used in the processor to allow it to run programs",
+  "message.rftoolscontrol.cpu_core_1000.speed": "Operations per tick: ",
+  "message.rftoolscontrol.cpu_core_1000.power": "RF/FE per tick: ",
+
+  "message.rftoolscontrol.cpu_core_2000.header": "This CPU core must be used in the processor to allow it to run programs",
+  "message.rftoolscontrol.cpu_core_2000.speed": "Operations per tick: ",
+  "message.rftoolscontrol.cpu_core_2000.power": "RF/FE per tick: ",
+
   "message.rftoolscontrol.card_base.header": "This item is the base ingredient for many of the items and machines in RFTools Control",
+
+  "message.rftoolscontrol.graphics_card.header": "The graphics card is needed to be able to draw vector graphics",
+
+  "message.rftoolscontrol.ram_chip.header": "Insert this item in the processor to get eight extra variables (max 32)",
+
+  "message.rftoolscontrol.network_card.header": "Insert this in the processor to allow access to nearby nodes",
+  "message.rftoolscontrol.network_card.gold": "Use 'net setup <name>' in Processor console to setup the network",
+  "message.rftoolscontrol.network_card.range": "Range: 17x17x17 area",
+  "message.rftoolscontrol.network_card.extra": "",
+
+  "message.rftoolscontrol.advanced_network_card.header": "Insert this in the processor to allow access to nearby nodes",
+  "message.rftoolscontrol.advanced_network_card.gold": "Use 'net setup <name>' in Processor console to setup the network",
+  "message.rftoolscontrol.advanced_network_card.range": "Range: 31x31x31 area",
+  "message.rftoolscontrol.advanced_network_card.extra": "Supports Inter-process communication",
+
+  "message.rftoolscontrol.network_identifier.header": "This item allows a processor to do direct communication with another linked processor",
+  "message.rftoolscontrol.network_identifier.gold": "Sneak right-click on a processor to set the target for this module",
+  "message.rftoolscontrol.network_identifier.target": "Processor: ",
 
   "message.rftoolscontrol.console_module.header": "A module for a Screen that allows you to display the console of a processor",
   "message.rftoolscontrol.console_module.gold": "Sneak right-click on a processor to set the target for this module",

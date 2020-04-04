@@ -3,6 +3,7 @@ package mcjty.rftoolscontrol.modules.various.items.variablemodule;
 import mcjty.lib.varia.Logging;
 import mcjty.rftoolsbase.api.screens.IModuleGuiBuilder;
 import mcjty.rftoolsbase.tools.GenericModuleItem;
+import mcjty.rftoolsbase.tools.ModuleTools;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.modules.processor.ProcessorSetup;
 import mcjty.rftoolscontrol.setup.ConfigSetup;
@@ -33,12 +34,12 @@ public class VariableModuleItem extends GenericModuleItem {
 
     @Override
     protected boolean hasGoldMessage(ItemStack stack) {
-        return !hasTarget(stack);
+        return !ModuleTools.hasModuleTarget(stack);
     }
 
     @Override
     protected String getInfoString(ItemStack stack) {
-        return getTargetString(stack);
+        return ModuleTools.getTargetString(stack);
     }
 
     @Override

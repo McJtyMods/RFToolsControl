@@ -26,7 +26,6 @@ public class ProgramCardItem extends Item implements ITooltipSettings {
         super(new Properties()
                 .maxStackSize(1)
                 .group(RFToolsControl.setup.getTab()));
-//        super((Properties) "program_card");
     }
 
 
