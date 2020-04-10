@@ -8,8 +8,12 @@ import mcjty.rftoolscontrol.modules.processor.logic.Parameter;
 import mcjty.rftoolscontrol.modules.processor.logic.ParameterTools;
 import mcjty.rftoolscontrol.modules.processor.logic.running.ExceptionType;
 import mcjty.rftoolscontrol.modules.processor.logic.running.ProgException;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.Ingredient;
+import net.minecraft.tags.ItemTags;
+import net.minecraft.tags.Tag;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fluids.FluidStack;
 import org.apache.commons.lang3.tuple.Pair;
@@ -114,16 +118,14 @@ public class Opcodes {
             .parameter(ParameterDescription.builder().name("inv").type(PAR_INVENTORY).optional().description("inventory adjacent to (networked)", "block or empty to access storage").build())
             .parameter(ParameterDescription.builder().name("slot").type(PAR_INTEGER).optional().description("slot in inventory", "(not for storage)").build())
             .parameter(ParameterDescription.builder().name("item").type(PAR_ITEM).optional().description("item to count").build())
-            .parameter(ParameterDescription.builder().name("oredict").type(PAR_BOOLEAN).optional().description("use oredict matching").build())
             .parameter(ParameterDescription.builder().name("routable").type(PAR_BOOLEAN).optional().description("count routable items", "(only for storage)").build())
             .icon(2, 0)
             .runnable(((processor, program, opcode) -> {
                 Inventory inv = processor.evaluateInventoryParameter(opcode, program, 0);
                 Integer slot = processor.evaluateIntegerParameter(opcode, program, 1);
                 ItemStack item = processor.evaluateItemParameter(opcode, program, 2);
-                boolean oredict = processor.evaluateBoolParameter(opcode, program, 3);
                 boolean routable = processor.evaluateBoolParameter(opcode, program, 4);
-                int cnt = ((ProcessorTileEntity)processor).countItem(inv, slot, item, oredict, routable, program);
+                int cnt = ((ProcessorTileEntity)processor).countItem(inv, slot, item, routable, program);
                 program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(cnt)).build());
                 return POSITIVE;
             }))
@@ -152,6 +154,27 @@ public class Opcodes {
                     }
                     program.setLastValue(Parameter.builder().type(PAR_ITEM).value(ParameterValue.constant(item)).build());
                 });
+                return POSITIVE;
+            }))
+            .build();
+
+    public static final Opcode EVAL_GETTAGS = Opcode.builder()
+            .id("eval_gettags")
+            .description(
+                    TextFormatting.GREEN + "Eval: get tags",
+                    "get all tags from an item")
+            .outputDescription("all tags (vector)")
+            .category(CATEGORY_ITEMS)
+            .opcodeOutput(SINGLE)
+            .parameter(ParameterDescription.builder().name("item").type(PAR_ITEM).description("item").build())
+            .icon(5, 10)
+            .runnable(((processor, program, opcode) -> {
+                ItemStack item = processor.evaluateItemParameter(opcode, program, 0);
+                List<IParameter> vector = new ArrayList<>();
+                for (ResourceLocation tag : item.getItem().getTags()) {
+                    vector.add(Parameter.builder().type(PAR_STRING).value(ParameterValue.constant(tag.toString())).build());
+                }
+                program.setLastValue(Parameter.builder().type(PAR_VECTOR).value(ParameterValue.constant(vector)).build());
                 return POSITIVE;
             }))
             .build();
@@ -317,15 +340,34 @@ public class Opcodes {
             .parameter(ParameterDescription.builder().name("item2").type(PAR_ITEM).description("second item").build())
             .parameter(ParameterDescription.builder().name("meta").type(PAR_BOOLEAN).optional().description("check meta").build())
             .parameter(ParameterDescription.builder().name("nbt").type(PAR_BOOLEAN).optional().description("check nbt").build())
-            .parameter(ParameterDescription.builder().name("oredict").type(PAR_BOOLEAN).optional().description("use oredictionary").build())
             .icon(11, 10)
             .runnable(((processor, program, opcode) -> {
                 ItemStack item1 = processor.evaluateItemParameter(opcode, program, 0);
                 ItemStack item2 = processor.evaluateItemParameter(opcode, program, 1);
                 boolean meta = processor.evaluateBoolParameter(opcode, program, 2);
                 boolean nbt = processor.evaluateBoolParameter(opcode, program, 3);
-                boolean oredict = processor.evaluateBoolParameter(opcode, program, 4);
-                return InventoryTools.areItemsEqual(item1, item2, meta, nbt, oredict) ? POSITIVE : NEGATIVE;
+                return InventoryTools.areItemsEqual(item1, item2, meta, nbt) ? POSITIVE : NEGATIVE;
+            }))
+            .build();
+
+    public static final Opcode TEST_TAG = Opcode.builder()
+            .id("test_tag")
+            .description(
+                    TextFormatting.GREEN + "Test: tag on item",
+                    "check if the item has the given tag")
+            .opcodeOutput(YESNO)
+            .category(CATEGORY_ITEMS)
+            .parameter(ParameterDescription.builder().name("item").type(PAR_ITEM).description("item").build())
+            .parameter(ParameterDescription.builder().name("tag").type(PAR_STRING).description("tag").build())
+            .icon(4, 10)
+            .runnable(((processor, program, opcode) -> {
+                ItemStack item = processor.evaluateItemParameter(opcode, program, 0);
+                String tagName = processor.evaluateStringParameterNonNull(opcode, program, 1);
+                Tag<Item> tag = ItemTags.getCollection().get(new ResourceLocation(tagName));
+                if (tag == null) {
+                    throw new ProgException(ExceptionType.EXCEPT_UNKNOWN_TAG);
+                }
+                return tag.contains(item.getItem()) ? POSITIVE : NEGATIVE;
             }))
             .build();
 
@@ -426,7 +468,6 @@ public class Opcodes {
             .parameter(ParameterDescription.builder().name("item").type(PAR_ITEM).optional().description("item to fetch (not", "optional for storage)").build())
             .parameter(ParameterDescription.builder().name("amount").type(PAR_INTEGER).optional().description("amount of items to fetch", "if not given it will fetch the stack").build())
             .parameter(ParameterDescription.builder().name("slotOut").type(PAR_INTEGER).description("internal (processor) slot for result").build())
-            .parameter(ParameterDescription.builder().name("oredict").type(PAR_BOOLEAN).optional().description("use oredict matching").build())
             .parameter(ParameterDescription.builder().name("routable").type(PAR_BOOLEAN).optional().description("only routable items", "(only for storage)").build())
             .icon(0, 1)
             .runnable(((processor, program, opcode) -> {
@@ -435,9 +476,8 @@ public class Opcodes {
                 ItemStack item = processor.evaluateItemParameter(opcode, program, 2);
                 Integer amount = processor.evaluateIntegerParameter(opcode, program, 3);
                 int slotOut = processor.evaluateIntParameter(opcode, program, 4);
-                boolean oredict = processor.evaluateBoolParameter(opcode, program, 5);
                 boolean routable = processor.evaluateBoolParameter(opcode, program, 6);
-                int cnt = ((ProcessorTileEntity)processor).fetchItems(program, inv, slot, Ingredient.fromStacks(item), routable, oredict, amount, slotOut);
+                int cnt = ((ProcessorTileEntity)processor).fetchItems(program, inv, slot, Ingredient.fromStacks(item), routable, amount, slotOut);
                 program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(cnt)).build());
                 return POSITIVE;
             }))
@@ -918,7 +958,6 @@ public class Opcodes {
             .parameter(ParameterDescription.builder().name("item").type(PAR_ITEM).optional().description("the item to craft or empty", "for default from ticket").build())
             .parameter(ParameterDescription.builder().name("slot1").type(PAR_INTEGER).description("start of internal slot range for ingredients").build())
             .parameter(ParameterDescription.builder().name("slot2").type(PAR_INTEGER).description("last slot of that range").build())
-            .parameter(ParameterDescription.builder().name("oredict").type(PAR_BOOLEAN).optional().description("use oredict matching").build())
             .icon(8, 2)
             .runnable(((processor, program, opcode) -> {
                 Inventory inv = processor.evaluateInventoryParameter(opcode, program, 0);
@@ -926,8 +965,7 @@ public class Opcodes {
                 ItemStack item = processor.evaluateItemParameter(opcode, program, 2);
                 int slot1 = processor.evaluateIntParameter(opcode, program, 3);
                 int slot2 = processor.evaluateIntParameter(opcode, program, 4);
-                boolean oredict = processor.evaluateBoolParameter(opcode, program, 5);
-                int failed = ((ProcessorTileEntity)processor).getIngredients(program, inv, cardInv, item, slot1, slot2, oredict);
+                int failed = ((ProcessorTileEntity)processor).getIngredients(program, inv, cardInv, item, slot1, slot2);
                 program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(failed)).build());
                 return POSITIVE;
             }))
@@ -951,7 +989,6 @@ public class Opcodes {
             .parameter(ParameterDescription.builder().name("slot1").type(PAR_INTEGER).description("start of internal slot range for ingredients").build())
             .parameter(ParameterDescription.builder().name("slot2").type(PAR_INTEGER).description("last slot of that range").build())
             .parameter(ParameterDescription.builder().name("destInv").type(PAR_INVENTORY).description("inventory adjacent to (networked) block", "for end result of requests").build())
-            .parameter(ParameterDescription.builder().name("oredict").type(PAR_BOOLEAN).optional().description("use oredict matching").build())
             .icon(11, 3)
             .runnable(((processor, program, opcode) -> {
                 Inventory inv = processor.evaluateInventoryParameter(opcode, program, 0);
@@ -960,8 +997,7 @@ public class Opcodes {
                 int slot1 = processor.evaluateIntParameter(opcode, program, 3);
                 int slot2 = processor.evaluateIntParameter(opcode, program, 4);
                 Inventory destInv = processor.evaluateInventoryParameterNonNull(opcode, program, 5);
-                boolean oredict = processor.evaluateBoolParameter(opcode, program, 6);
-                int failed = ((ProcessorTileEntity)processor).getIngredientsSmart(program, inv, cardInv, item, slot1, slot2, destInv, oredict);
+                int failed = ((ProcessorTileEntity)processor).getIngredientsSmart(program, inv, cardInv, item, slot1, slot2, destInv);
                 program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(failed)).build());
                 return POSITIVE;
             }))
@@ -1015,15 +1051,13 @@ public class Opcodes {
             .parameter(ParameterDescription.builder().name("item").type(PAR_ITEM).optional().description("item to push ingredients for. If not given", "it will use current craft result").build())
             .parameter(ParameterDescription.builder().name("slot1").type(PAR_INTEGER).description("first internal slot for input").build())
             .parameter(ParameterDescription.builder().name("slot2").type(PAR_INTEGER).description("last internal slot for input").build())
-            .parameter(ParameterDescription.builder().name("oredict").type(PAR_BOOLEAN).optional().description("use oredict matching").build())
             .icon(6, 7)
             .runnable(((processor, program, opcode) -> {
                 BlockSide workbench = processor.evaluateSideParameterNonNull(opcode, program, 0);
                 ItemStack item = processor.evaluateItemParameter(opcode, program, 1);
                 int slot1 = processor.evaluateIntParameter(opcode, program, 2);
                 int slot2 = processor.evaluateIntParameter(opcode, program, 3);
-                boolean oredict = processor.evaluateBoolParameter(opcode, program, 4);
-                boolean result = ((ProcessorTileEntity)processor).pushItemsWorkbench(program, workbench, item, slot1, slot2, oredict);
+                boolean result = ((ProcessorTileEntity)processor).pushItemsWorkbench(program, workbench, item, slot1, slot2);
                 program.setLastValue(Parameter.builder().type(PAR_BOOLEAN).value(ParameterValue.constant(result)).build());
                 return POSITIVE;
             }))
@@ -1315,15 +1349,13 @@ public class Opcodes {
             .parameter(ParameterDescription.builder().name("item").type(PAR_ITEM).optional().description("the item to craft or empty", "for default from ticket").build())
             .parameter(ParameterDescription.builder().name("slot1").type(PAR_INTEGER).description("start of internal slot range for ingredients").build())
             .parameter(ParameterDescription.builder().name("slot2").type(PAR_INTEGER).description("last slot of that range").build())
-            .parameter(ParameterDescription.builder().name("oredict").type(PAR_BOOLEAN).optional().description("use oredict matching").build())
             .icon(0, 4)
             .runnable(((processor, program, opcode) -> {
                 Inventory cardInv = processor.evaluateInventoryParameterNonNull(opcode, program, 0);
                 ItemStack item = processor.evaluateItemParameter(opcode, program, 1);
                 int slot1 = processor.evaluateIntParameter(opcode, program, 2);
                 int slot2 = processor.evaluateIntParameter(opcode, program, 3);
-                boolean oredict = processor.evaluateBoolParameter(opcode, program, 4);
-                boolean ok = ((ProcessorTileEntity)processor).checkIngredients(program, cardInv, item, slot1, slot2, oredict);
+                boolean ok = ((ProcessorTileEntity)processor).checkIngredients(program, cardInv, item, slot1, slot2);
                 program.setLastValue(Parameter.builder().type(PAR_BOOLEAN).value(ParameterValue.constant(ok)).build());
                 return POSITIVE;
             }))
@@ -1343,13 +1375,11 @@ public class Opcodes {
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("inv").type(PAR_INVENTORY).optional().description("inventory adjacent to (networked) block", "with ingredients").build())
             .parameter(ParameterDescription.builder().name("card").type(PAR_ITEM).description("the crafting card to check").build())
-            .parameter(ParameterDescription.builder().name("oredict").type(PAR_BOOLEAN).optional().description("use oredict matching").build())
             .icon(9, 9)
             .runnable(((processor, program, opcode) -> {
                 Inventory inv = processor.evaluateInventoryParameter(opcode, program, 0);
                 ItemStack cardItem = processor.evaluateItemParameterNonNull(opcode, program, 1);
-                boolean oredict = processor.evaluateBoolParameter(opcode, program, 2);
-                int amount = ((ProcessorTileEntity)processor).countCardIngredients(program, inv, cardItem, oredict);
+                int amount = ((ProcessorTileEntity)processor).countCardIngredients(program, inv, cardItem);
                 program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(amount)).build());
                 return POSITIVE;
             }))
@@ -1367,13 +1397,11 @@ public class Opcodes {
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("inv").type(PAR_INVENTORY).description("inventory adjacent to (networked) block", "with crafting cards").build())
             .parameter(ParameterDescription.builder().name("item").type(PAR_ITEM).description("the item to find the card for").build())
-            .parameter(ParameterDescription.builder().name("oredict").type(PAR_BOOLEAN).optional().description("use oredict matching").build())
             .icon(9, 10)
             .runnable(((processor, program, opcode) -> {
                 Inventory inv = processor.evaluateInventoryParameterNonNull(opcode, program, 0);
                 ItemStack item = processor.evaluateItemParameterNonNull(opcode, program, 1);
-                boolean oredict = processor.evaluateBoolParameter(opcode, program, 2);
-                ItemStack card = processor.findCraftingCard(program, inv, item, oredict);
+                ItemStack card = processor.findCraftingCard(program, inv, item);
                 program.setLastValue(Parameter.builder().type(PAR_ITEM).value(ParameterValue.constant(card)).build());
                 return POSITIVE;
             }))
@@ -2122,6 +2150,7 @@ public class Opcodes {
         register(EVAL_COUNTINV);
         register(EVAL_COUNTINVINT);
         register(EVAL_SLOTS);
+        register(EVAL_GETTAGS);
         register(EVAL_GETITEM);
         register(EVAL_GETITEMINT);
         register(EVAL_GETDAMAGE);
@@ -2156,6 +2185,7 @@ public class Opcodes {
         register(TEST_GT);
         register(TEST_GT_NUMBER);
         register(TEST_GT_VAR);
+        register(TEST_TAG);
         register(TEST_EQ);
         register(TEST_EQ_NUMBER);
         register(TEST_EQ_VAR);

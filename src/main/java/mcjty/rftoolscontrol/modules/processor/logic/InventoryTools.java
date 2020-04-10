@@ -12,15 +12,11 @@ import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.HashSet;
-import java.util.Set;
 
 public class InventoryTools {
 
-    public static int countItem(@Nullable IItemHandler itemHandler, @Nullable IStorageScanner scanner, Ingredient itemMatcher, boolean oredict, int maxToCount) {
+    public static int countItem(@Nullable IItemHandler itemHandler, @Nullable IStorageScanner scanner, Ingredient itemMatcher, int maxToCount) {
         if (itemHandler != null) {
-            // @todo 1.15 get rid of oredict stuff. Not working
-            Set<Integer> oredictMatchers = getOredictMatchers(itemMatcher, oredict);
             int cnt = 0;
             for (int i = 0; i < itemHandler.getSlots(); i++) {
                 ItemStack stack = itemHandler.getStackInSlot(i);
@@ -42,21 +38,11 @@ public class InventoryTools {
         return 0;
     }
 
-    public static boolean areItemsEqual(ItemStack item1, ItemStack item2, boolean meta, boolean nbt, boolean oredict) {
-        if (oredict) {
-            // @todo 1.15 ore dict
-//            if (!OreDictionary.itemMatches(item1, item2, false)) {
-//                return false;
-//            }
-            if (item1.getItem() != item2.getItem()) {
-                return false;
-            }
-        } else {
-            if (item1.getItem() != item2.getItem()) {
-                return false;
-            }
+    public static boolean areItemsEqual(ItemStack item1, ItemStack item2, boolean damage, boolean nbt) {
+        if (item1.getItem() != item2.getItem()) {
+            return false;
         }
-        if (meta && item1.getDamage() != item2.getDamage()) {
+        if (damage && item1.getDamage() != item2.getDamage()) {
             return false;
         }
         if (nbt && !ItemStack.areItemStackTagsEqual(item1, item2)) {
@@ -65,38 +51,16 @@ public class InventoryTools {
         return true;
     }
 
-    private static Set<Integer> getOredictMatchers(Ingredient stack, boolean oredict) {
-        Set<Integer> oredictMatches = new HashSet<>();
-        if (oredict) {
-// @todo 1.15
-            //            for (int id : OreDictionary.getOreIDs(stack)) {
-//                oredictMatches.add(id);
-//            }
-        }
-        return oredictMatches;
-    }
-
-    private static boolean isItemEqual(ItemStack thisItem, ItemStack other, Set<Integer> oreDictMatchers) {
+    private static boolean isItemEqual(ItemStack thisItem, ItemStack other) {
         if (other.isEmpty()) {
             return false;
         }
-        if (oreDictMatchers.isEmpty()) {
-            return thisItem.isItemEqual(other);
-        } else {
-// @todo 1.15 ore dict
-            //            int[] oreIDs = OreDictionary.getOreIDs(other);
-//            for (int id : oreIDs) {
-//                if (oreDictMatchers.contains(id)) {
-//                    return true;
-//                }
-//            }
-            return thisItem.isItemEqual(other);
-        }
+        return thisItem.isItemEqual(other);
     }
 
 
     public static ItemStack extractItem(@Nullable IItemHandler itemHandler, @Nullable IStorageScanner scanner,
-                                        @Nullable Integer amount, boolean routable, boolean oredict, @Nonnull Ingredient itemMatcher,
+                                        @Nullable Integer amount, boolean routable, @Nonnull Ingredient itemMatcher,
                                         @Nullable Integer slot) {
         if (itemHandler != null) {
             // @todo implement oredict here
@@ -134,7 +98,7 @@ public class InventoryTools {
     }
 
     public static ItemStack tryExtractItem(@Nullable IItemHandler itemHandler, @Nullable IStorageScanner scanner,
-                                           @Nullable Integer amount, boolean routable, boolean oredict,
+                                           @Nullable Integer amount, boolean routable,
                                            Ingredient itemMatcher,
                                            @Nullable Integer slot) {
 

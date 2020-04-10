@@ -312,7 +312,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity, Proce
         if (setupMode == -1) {
             super.mouseClicked(x, y, button);
         } else {
-            Optional<Widget<?>> widget = getWindowManager().findWidgetAtPosition((int)x, (int)y);
+            Optional<Widget<?>> widget = getWindowManager().findWidgetAtPosition(x, y);
             if (widget.isPresent()) {
                 Widget<?> w = widget.get();
                 if ("allowed".equals(w.getUserObject())) {
