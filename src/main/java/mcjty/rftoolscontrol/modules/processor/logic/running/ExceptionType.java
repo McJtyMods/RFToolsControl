@@ -42,6 +42,7 @@ public enum ExceptionType {
     EXCEPT_INVALIDMACHINE("invalid_machine", "Machine does not support this"),
     EXCEPT_INVALIDMACHINE_INDEX("invalid_machine_index", "Wrong index for machine data"),
     EXCEPT_UNKNOWN_TAG("unknown_tag", "Unknown tag!"),
+    EXCEPT_UNKNOWN_FILTER("unknown_filter", "No filter for this index!"),
     ;
 
     private final String code;

@@ -3,6 +3,9 @@ Upcoming:
 - Removed all oredictionary related parameters
 - New 'test_tag' opcode to test if an item contains a tag
 - New 'eval_gettags' opcode to get all tags for an item
+- The filter module can now also be inserted in the processor (in the expansion slots)
+- New 'test_filter' opcode to test if an item matches a filter
+- New 'do_fetchitems_filter' opcode to fetch items from an inventory that match the given filter
 
 2.0.2:
 - Fixed a bug where the storage card module wouldn't always get recognized by the processor

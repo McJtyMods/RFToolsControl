@@ -3,6 +3,7 @@ package mcjty.rftoolscontrol.modules.processor.logic;
 import mcjty.rftoolsbase.api.control.parameters.BlockSide;
 import mcjty.rftoolsbase.api.control.parameters.Inventory;
 import mcjty.rftoolsbase.api.storage.IStorageScanner;
+import mcjty.rftoolsbase.modules.various.FilterModuleCache;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.util.Direction;
@@ -96,6 +97,36 @@ public class InventoryTools {
         }
         return ItemStack.EMPTY;
     }
+
+    public static ItemStack extractItem(@Nullable IItemHandler itemHandler,
+                                        int amount, @Nonnull FilterModuleCache itemMatcher) {
+        if (itemHandler != null) {
+            for (int i = 0; i < itemHandler.getSlots(); i++) {
+                ItemStack stack = itemHandler.getStackInSlot(i);
+                if (itemMatcher.match(stack)) {
+                    return itemHandler.extractItem(i, amount, false);
+                }
+            }
+        }
+        return ItemStack.EMPTY;
+    }
+
+    public static ItemStack tryExtractItem(@Nullable IItemHandler itemHandler,
+                                           int amount,
+                                           FilterModuleCache itemMatcher) {
+
+        if (itemHandler != null) {
+            for (int i = 0; i < itemHandler.getSlots(); i++) {
+                ItemStack stack = itemHandler.getStackInSlot(i);
+                if (!stack.isEmpty() && itemMatcher.match(stack)) {
+                    return itemHandler.extractItem(i, amount, true);
+                }
+            }
+        }
+        return ItemStack.EMPTY;
+    }
+
+
 
     public static ItemStack tryExtractItem(@Nullable IItemHandler itemHandler, @Nullable IStorageScanner scanner,
                                            @Nullable Integer amount, boolean routable,

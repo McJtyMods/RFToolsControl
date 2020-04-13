@@ -371,6 +371,24 @@ public class Opcodes {
             }))
             .build();
 
+    public static final Opcode TEST_FILTER = Opcode.builder()
+            .id("test_filter")
+            .description(
+                    TextFormatting.GREEN + "Test: using filter",
+                    "check if the item matches one of the filters",
+                    "in the expansion slots")
+            .opcodeOutput(YESNO)
+            .category(CATEGORY_ITEMS)
+            .parameter(ParameterDescription.builder().name("item").type(PAR_ITEM).description("item").build())
+            .parameter(ParameterDescription.builder().name("index").type(PAR_INTEGER).description("index of the filter").build())
+            .icon(6, 10)
+            .runnable(((processor, program, opcode) -> {
+                ItemStack item = processor.evaluateItemParameter(opcode, program, 0);
+                int idx = processor.evaluateIntParameter(opcode, program, 1);
+                return ((ProcessorTileEntity)processor).testWithFilter(item, idx) ? POSITIVE : NEGATIVE;
+            }))
+            .build();
+
     public static final Opcode TEST_GT_VAR = Opcode.builder()
             .id("test_gt_var")
             .description(
@@ -478,6 +496,33 @@ public class Opcodes {
                 int slotOut = processor.evaluateIntParameter(opcode, program, 4);
                 boolean routable = processor.evaluateBoolParameter(opcode, program, 6);
                 int cnt = ((ProcessorTileEntity)processor).fetchItems(program, inv, slot, Ingredient.fromStacks(item), routable, amount, slotOut);
+                program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(cnt)).build());
+                return POSITIVE;
+            }))
+            .build();
+
+    public static final Opcode DO_FETCHITEMS_FILTER = Opcode.builder()
+            .id("do_fetchitems_filter")
+            .description(
+                    TextFormatting.GREEN + "Operation: fetch items (filter)",
+                    "fetch items from an external inventory adjacent",
+                    "to the processor or a connected node and place",
+                    "the result in the internal inventory",
+                    "items that are fetched must match the given filter")
+            .outputDescription("amount of items fetched (integer)")
+            .category(CATEGORY_ITEMS)
+            .opcodeOutput(SINGLE)
+            .parameter(ParameterDescription.builder().name("inv").type(PAR_INVENTORY).description("inventory adjacent to (networked)", "block or empty to access storage").build())
+            .parameter(ParameterDescription.builder().name("filter").type(PAR_INTEGER).description("index of the filter").build())
+            .parameter(ParameterDescription.builder().name("amount").type(PAR_INTEGER).description("amount of items to fetch", "if not given it will fetch the stack").build())
+            .parameter(ParameterDescription.builder().name("slotOut").type(PAR_INTEGER).description("internal (processor) slot for result").build())
+            .icon(7, 10)
+            .runnable(((processor, program, opcode) -> {
+                Inventory inv = processor.evaluateInventoryParameter(opcode, program, 0);
+                int idx = processor.evaluateIntParameter(opcode, program, 1);
+                Integer amount = processor.evaluateIntegerParameter(opcode, program, 2);
+                int slotOut = processor.evaluateIntParameter(opcode, program, 3);
+                int cnt = ((ProcessorTileEntity)processor).fetchItemsFilter(program, inv, amount, slotOut, idx);
                 program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(cnt)).build());
                 return POSITIVE;
             }))
@@ -2186,6 +2231,7 @@ public class Opcodes {
         register(TEST_GT_NUMBER);
         register(TEST_GT_VAR);
         register(TEST_TAG);
+        register(TEST_FILTER);
         register(TEST_EQ);
         register(TEST_EQ_NUMBER);
         register(TEST_EQ_VAR);
@@ -2205,6 +2251,7 @@ public class Opcodes {
         register(DO_FETCHLIQUID);
         register(DO_PUSHLIQUID);
         register(DO_FETCHITEMS);
+        register(DO_FETCHITEMS_FILTER);
         register(DO_PUSHITEMS);
         register(DO_PUSHMULTI);
         register(DO_PUSHWORKBENCH);

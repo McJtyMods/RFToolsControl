@@ -21,6 +21,8 @@ import mcjty.rftoolsbase.api.control.parameters.*;
 import mcjty.rftoolsbase.api.machineinfo.CapabilityMachineInformation;
 import mcjty.rftoolsbase.api.storage.IStorageScanner;
 import mcjty.rftoolsbase.modules.crafting.items.CraftingCardItem;
+import mcjty.rftoolsbase.modules.various.FilterModuleCache;
+import mcjty.rftoolsbase.modules.various.items.FilterModuleItem;
 import mcjty.rftoolscontrol.compat.RFToolsStuff;
 import mcjty.rftoolscontrol.modules.craftingstation.blocks.CraftingStationTileEntity;
 import mcjty.rftoolscontrol.modules.multitank.blocks.MultiTankTileEntity;
@@ -176,6 +178,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
     private int hasNetworkCard = -1;
     private int storageCard = -2;   // -2 is unknown
     private boolean hasGraphicsCard = false;
+    private List<FilterModuleCache> filterCaches = null;
 
     private Map<String, GfxOp> gfxOps = new HashMap<>();
     private List<String> orderedOps = null;
@@ -1729,8 +1732,38 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
         }).orElse(0);
     }
 
-    public int fetchItems(IProgram program, Inventory inv, Integer slot, Ingredient itemMatcher, boolean routable, @Nullable Integer amount, int virtualSlot) {
 
+    public int fetchItemsFilter(IProgram program, Inventory inv, Integer amount, int virtualSlot, int filterIndex) {
+        if (amount != null && amount == 0) {
+            throw new ProgException(EXCEPT_BADPARAMETERS);
+        }
+        FilterModuleCache cache = getFilterCache(filterIndex);
+        if (cache == null) {
+            throw new ProgException(EXCEPT_UNKNOWN_FILTER);
+        }
+
+        return getHandlerForInv(inv).map(handler -> {
+            CardInfo info = this.cardInfo[((RunningProgram) program).getCardIndex()];
+            int realSlot = info.getRealSlot(virtualSlot);
+            ItemStack stack = InventoryTools.tryExtractItem(handler, amount, cache);
+            if (stack.isEmpty()) {
+                // Nothing to do
+                return 0;
+            }
+            IItemHandler capability = items;
+            if (!capability.insertItem(realSlot, stack, true).isEmpty()) {
+                // Not enough room. Do nothing
+                return 0;
+            }
+            // All seems ok. Do the real thing now.
+            stack = InventoryTools.extractItem(handler, amount, cache);
+            capability.insertItem(realSlot, stack, false);
+            return stack.getCount();
+
+        }).orElse(0);
+    }
+
+    public int fetchItems(IProgram program, Inventory inv, Integer slot, Ingredient itemMatcher, boolean routable, @Nullable Integer amount, int virtualSlot) {
         if (amount != null && amount == 0) {
             throw new ProgException(EXCEPT_BADPARAMETERS);
         }
@@ -1907,6 +1940,33 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
 
     public List<GfxOp> getClientGfxOps() {
         return clientGfxOps;
+    }
+
+
+    public boolean testWithFilter(ItemStack item, int idx) {
+        FilterModuleCache filterCache = getFilterCache(idx);
+        if (filterCache == null) {
+            throw new ProgException(EXCEPT_UNKNOWN_FILTER);
+        }
+        return filterCache.match(item);
+    }
+
+    @Nullable
+    private FilterModuleCache getFilterCache(int index) {
+        if (filterCaches == null) {
+            filterCaches = new ArrayList<>();
+            for (int i = SLOT_EXPANSION; i < SLOT_EXPANSION + EXPANSION_SLOTS; i++) {
+                ItemStack stack = items.getStackInSlot(i);
+                if (!stack.isEmpty() && stack.getItem() instanceof FilterModuleItem) {
+                    filterCaches.add(new FilterModuleCache(stack));
+                }
+            }
+        }
+        if (index < filterCaches.size()) {
+            return filterCaches.get(index);
+        } else {
+            return null;
+        }
     }
 
     public int getMaxvars() {
@@ -2575,6 +2635,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
         maxVars = -1;
         storageCard = -2;
         hasNetworkCard = -1;
+        filterCaches = null;
     }
 
     public int getShowHud() {
@@ -3184,11 +3245,12 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
                 }
                 Item item = stack.getItem();
                 if (isExpansionSlot(index)) {
+                    // @todo use object holder
                     Item storageCardItem = ForgeRegistries.ITEMS.getValue(new ResourceLocation("rftools", "storage_control_module"));
                     return item == ProcessorSetup.GRAPHICS_CARD.get() || item == ProcessorSetup.NETWORK_CARD.get() ||
                             item == ProcessorSetup.ADVANCED_NETWORK_CARD.get() || item == ProcessorSetup.CPU_CORE_500.get() ||
                             item == ProcessorSetup.CPU_CORE_1000.get() || item == ProcessorSetup.CPU_CORE_2000.get() ||
-                            item == ProcessorSetup.RAM_CHIP.get() || item == storageCardItem;
+                            item == ProcessorSetup.RAM_CHIP.get() || item == storageCardItem || item instanceof FilterModuleItem;
                 } else if (isCardSlot(index)) {
                     return item == VariousSetup.PROGRAM_CARD.get();
                 }
