@@ -2,58 +2,51 @@ package mcjty.rftoolscontrol.modules.programmer.client;
 
 import mcjty.lib.gui.Window;
 import mcjty.lib.gui.WindowManager;
-import mcjty.lib.gui.layout.HorizontalLayout;
-import mcjty.lib.gui.layout.VerticalLayout;
-import mcjty.lib.gui.widgets.Button;
-import mcjty.lib.gui.widgets.Label;
 import mcjty.lib.gui.widgets.Panel;
 import mcjty.lib.gui.widgets.TextField;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
 
-import java.awt.*;
 import java.util.function.Consumer;
+
+import static mcjty.lib.gui.widgets.Widgets.*;
 
 public class GuiTools {
 
     public static void askSomething(Minecraft mc, Screen gui, WindowManager windowManager, int x, int y, String title, String initialValue, Consumer<String> callback) {
-        Panel ask = new Panel(mc, gui)
-                .setLayout(new VerticalLayout())
-                .setFilledBackground(0xff666666, 0xffaaaaaa)
-                .setFilledRectThickness(1);
-        ask.setBounds(new Rectangle(x, y, 100, 60));
+        Panel ask = vertical()
+                .filledBackground(0xff666666, 0xffaaaaaa)
+                .filledRectThickness(1);
+        ask.bounds(x, y, 100, 60);
         Window askWindow = windowManager.createModalWindow(ask);
-        ask.addChild(new Label(mc, gui).setText(title));
-        TextField input = new mcjty.lib.gui.widgets.TextField(mc, gui).addTextEnterEvent(((parent, newText) -> {
+        ask.children(label(title));
+        TextField input = new TextField().addTextEnterEvent(((newText) -> {
             windowManager.closeWindow(askWindow);
             callback.accept(newText);
         }));
-        input.setText(initialValue);
-        ask.addChild(input);
-        Panel buttons = new Panel(mc, gui).setLayout(new HorizontalLayout()).setDesiredWidth(100).setDesiredHeight(18);
-        buttons.addChild(new Button(mc, gui).setText("Ok").addButtonEvent((parent -> {
+        input.text(initialValue);
+        ask.children(input);
+        Panel buttons = horizontal().desiredWidth(100).desiredHeight(18);
+        buttons.children(button("Ok").event((() -> {
             windowManager.closeWindow(askWindow);
             callback.accept(input.getText());
         })));
-        buttons.addChild(new Button(mc, gui).setText("Cancel").addButtonEvent((parent -> {
+        buttons.children(button("Cancel").event((() -> {
             windowManager.closeWindow(askWindow);
         })));
-        ask.addChild(buttons);
+        ask.children(buttons);
     }
 
     public static void showMessage(Minecraft mc, Screen gui, WindowManager windowManager, int x, int y, String title) {
-        Panel ask = new Panel(mc, gui)
-                .setLayout(new VerticalLayout())
-                .setFilledBackground(0xff666666, 0xffaaaaaa)
-                .setFilledRectThickness(1);
-        ask.setBounds(new Rectangle(x, y, 200, 40));
+        Panel ask = vertical()
+                .filledBackground(0xff666666, 0xffaaaaaa)
+                .filledRectThickness(1);
+        ask.bounds(x, y, 200, 40);
         Window askWindow = windowManager.createModalWindow(ask);
-        ask.addChild(new Label(mc, gui).setText(title));
-        Panel buttons = new Panel(mc, gui).setLayout(new HorizontalLayout()).setDesiredWidth(100).setDesiredHeight(18);
-        buttons.addChild(new Button(mc, gui).setText("Cancel").addButtonEvent((parent -> {
-            windowManager.closeWindow(askWindow);
-        })));
-        ask.addChild(buttons);
+        ask.children(label(title));
+        Panel buttons = horizontal().desiredWidth(100).desiredHeight(18);
+        buttons.children(button("Cancel").event(() -> windowManager.closeWindow(askWindow)));
+        ask.children(buttons);
     }
 
 }

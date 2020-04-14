@@ -1,11 +1,10 @@
 package mcjty.rftoolscontrol.modules.processor.logic.editors;
 
 import mcjty.lib.gui.events.BlockRenderEvent;
-import mcjty.lib.gui.layout.HorizontalLayout;
 import mcjty.lib.gui.widgets.BlockRender;
 import mcjty.lib.gui.widgets.Label;
 import mcjty.lib.gui.widgets.Panel;
-import mcjty.lib.gui.widgets.Widget;
+import mcjty.lib.gui.widgets.Widgets;
 import mcjty.rftoolsbase.api.control.parameters.ParameterType;
 import mcjty.rftoolsbase.api.control.parameters.ParameterValue;
 import net.minecraft.client.Minecraft;
@@ -16,36 +15,38 @@ import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 
 import javax.annotation.Nonnull;
 
+import static mcjty.lib.gui.widgets.Widgets.horizontal;
+
 public class FluidEditor extends AbstractParameterEditor {
 
     private BlockRender blockRender;
 
     @Override
     public void build(Minecraft mc, Screen gui, Panel panel, ParameterEditorCallback callback) {
-        Panel constantPanel = new Panel(mc, gui).setLayout(new HorizontalLayout());
+        Panel constantPanel = horizontal();
 
-        Label label = new Label(mc, gui).setText("Drop bucket:");
-        constantPanel.addChild(label);
+        Label label = Widgets.label("Drop bucket:");
+        constantPanel.children(label);
 
-        blockRender = new BlockRender(mc, gui)
-                .setDesiredWidth(18+100).setDesiredHeight(18).setFilledRectThickness(1).setFilledBackground(0xff555555)
-                .setShowLabel(true);
+        blockRender = new BlockRender()
+                .desiredWidth(18+100).desiredHeight(18).filledRectThickness(1).filledBackground(0xff555555)
+                .showLabel(true);
 
-        constantPanel.addChild(blockRender);
-        blockRender.addSelectionEvent(new BlockRenderEvent() {
+        constantPanel.children(blockRender);
+        blockRender.event(new BlockRenderEvent() {
             @Override
-            public void select(Widget widget) {
+            public void select() {
                 ItemStack holding = Minecraft.getInstance().player.inventory.getItemStack();
                 if (holding.isEmpty()) {
-                    blockRender.setRenderItem(null);
+                    blockRender.renderItem(null);
                 } else {
-                    blockRender.setRenderItem(stackToFluid(holding));
+                    blockRender.renderItem(stackToFluid(holding));
                 }
                 callback.valueChanged(readValue());
             }
 
             @Override
-            public void doubleClick(Widget widget) {
+            public void doubleClick() {
             }
         });
         createEditorPanel(mc, gui, panel, callback, constantPanel, ParameterType.PAR_FLUID);
@@ -84,10 +85,10 @@ public class FluidEditor extends AbstractParameterEditor {
     @Override
     protected void writeConstantValue(ParameterValue value) {
         if (value == null || value.getValue() == null) {
-            blockRender.setRenderItem(null);
+            blockRender.renderItem(null);
         } else {
             FluidStack inv = (FluidStack) value.getValue();
-            blockRender.setRenderItem(inv);
+            blockRender.renderItem(inv);
         }
     }
 }

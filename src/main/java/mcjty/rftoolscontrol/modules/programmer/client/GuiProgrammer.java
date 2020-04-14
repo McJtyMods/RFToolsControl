@@ -10,24 +10,20 @@ import mcjty.lib.gui.icons.IIcon;
 import mcjty.lib.gui.icons.ImageIcon;
 import mcjty.lib.gui.layout.HorizontalAlignment;
 import mcjty.lib.gui.layout.HorizontalLayout;
-import mcjty.lib.gui.layout.PositionalLayout;
-import mcjty.lib.gui.layout.VerticalLayout;
 import mcjty.lib.gui.widgets.Button;
 import mcjty.lib.gui.widgets.Label;
 import mcjty.lib.gui.widgets.Panel;
 import mcjty.lib.gui.widgets.TextField;
 import mcjty.lib.gui.widgets.*;
 import mcjty.lib.varia.Logging;
-import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolsbase.api.control.code.Opcode;
 import mcjty.rftoolsbase.api.control.code.OpcodeCategory;
 import mcjty.rftoolsbase.api.control.code.OpcodeOutput;
-import mcjty.rftoolscontrol.modules.processor.logic.Parameter;
 import mcjty.rftoolsbase.api.control.parameters.ParameterDescription;
 import mcjty.rftoolsbase.api.control.parameters.ParameterValue;
-import mcjty.rftoolscontrol.setup.ConfigSetup;
-import mcjty.rftoolscontrol.modules.various.items.ProgramCardItem;
+import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.modules.processor.logic.Connection;
+import mcjty.rftoolscontrol.modules.processor.logic.Parameter;
 import mcjty.rftoolscontrol.modules.processor.logic.ParameterTypeTools;
 import mcjty.rftoolscontrol.modules.processor.logic.compiled.ProgramValidator;
 import mcjty.rftoolscontrol.modules.processor.logic.editors.ParameterEditor;
@@ -36,9 +32,11 @@ import mcjty.rftoolscontrol.modules.processor.logic.grid.GridInstance;
 import mcjty.rftoolscontrol.modules.processor.logic.grid.GridPos;
 import mcjty.rftoolscontrol.modules.processor.logic.grid.ProgramCardInstance;
 import mcjty.rftoolscontrol.modules.processor.logic.registry.Opcodes;
-import mcjty.rftoolscontrol.modules.programmer.network.PacketUpdateNBTItemInventoryProgrammer;
 import mcjty.rftoolscontrol.modules.programmer.blocks.ProgrammerContainer;
 import mcjty.rftoolscontrol.modules.programmer.blocks.ProgrammerTileEntity;
+import mcjty.rftoolscontrol.modules.programmer.network.PacketUpdateNBTItemInventoryProgrammer;
+import mcjty.rftoolscontrol.modules.various.items.ProgramCardItem;
+import mcjty.rftoolscontrol.setup.ConfigSetup;
 import mcjty.rftoolscontrol.setup.RFToolsCtrlMessages;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.container.ClickType;
@@ -57,6 +55,8 @@ import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.util.List;
 import java.util.*;
+
+import static mcjty.lib.gui.widgets.Widgets.*;
 
 public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, ProgrammerContainer> {
     public static final int SIDEWIDTH = 80;
@@ -97,30 +97,30 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Pro
     private GridPos prevHighlightConnector = null;
 
     static {
-        CONNECTION_ICONS.put(Connection.UP, new ImageIcon(Connection.UP.getId()).setImage(icons, 0*ICONSIZE, 5*ICONSIZE));
-        CONNECTION_ICONS.put(Connection.UP_NEG, new ImageIcon(Connection.UP_NEG.getId()).setImage(icons, 0*ICONSIZE, 6*ICONSIZE));
-        CONNECTION_ICONS.put(Connection.RIGHT, new ImageIcon(Connection.RIGHT.getId()).setImage(icons, 1*ICONSIZE, 5*ICONSIZE));
-        CONNECTION_ICONS.put(Connection.RIGHT_NEG, new ImageIcon(Connection.RIGHT_NEG.getId()).setImage(icons, 1*ICONSIZE, 6*ICONSIZE));
-        CONNECTION_ICONS.put(Connection.DOWN, new ImageIcon(Connection.DOWN.getId()).setImage(icons, 2*ICONSIZE, 5*ICONSIZE));
-        CONNECTION_ICONS.put(Connection.DOWN_NEG, new ImageIcon(Connection.DOWN_NEG.getId()).setImage(icons, 2*ICONSIZE, 6*ICONSIZE));
-        CONNECTION_ICONS.put(Connection.LEFT, new ImageIcon(Connection.LEFT.getId()).setImage(icons, 3*ICONSIZE, 5*ICONSIZE));
-        CONNECTION_ICONS.put(Connection.LEFT_NEG, new ImageIcon(Connection.LEFT_NEG.getId()).setImage(icons, 3*ICONSIZE, 6*ICONSIZE));
+        CONNECTION_ICONS.put(Connection.UP, new ImageIcon(Connection.UP.getId()).setImage(icons, 0 * ICONSIZE, 5 * ICONSIZE));
+        CONNECTION_ICONS.put(Connection.UP_NEG, new ImageIcon(Connection.UP_NEG.getId()).setImage(icons, 0 * ICONSIZE, 6 * ICONSIZE));
+        CONNECTION_ICONS.put(Connection.RIGHT, new ImageIcon(Connection.RIGHT.getId()).setImage(icons, 1 * ICONSIZE, 5 * ICONSIZE));
+        CONNECTION_ICONS.put(Connection.RIGHT_NEG, new ImageIcon(Connection.RIGHT_NEG.getId()).setImage(icons, 1 * ICONSIZE, 6 * ICONSIZE));
+        CONNECTION_ICONS.put(Connection.DOWN, new ImageIcon(Connection.DOWN.getId()).setImage(icons, 2 * ICONSIZE, 5 * ICONSIZE));
+        CONNECTION_ICONS.put(Connection.DOWN_NEG, new ImageIcon(Connection.DOWN_NEG.getId()).setImage(icons, 2 * ICONSIZE, 6 * ICONSIZE));
+        CONNECTION_ICONS.put(Connection.LEFT, new ImageIcon(Connection.LEFT.getId()).setImage(icons, 3 * ICONSIZE, 5 * ICONSIZE));
+        CONNECTION_ICONS.put(Connection.LEFT_NEG, new ImageIcon(Connection.LEFT_NEG.getId()).setImage(icons, 3 * ICONSIZE, 6 * ICONSIZE));
 
-        HIGHLIGHT_ICONS.put(Connection.UP, new ImageIcon("H").setImage(icons, 0*ICONSIZE, 7*ICONSIZE));
-        HIGHLIGHT_ICONS.put(Connection.RIGHT, new ImageIcon("H").setImage(icons, 1*ICONSIZE, 7*ICONSIZE));
-        HIGHLIGHT_ICONS.put(Connection.DOWN, new ImageIcon("H").setImage(icons, 2*ICONSIZE, 7*ICONSIZE));
-        HIGHLIGHT_ICONS.put(Connection.LEFT, new ImageIcon("H").setImage(icons, 3*ICONSIZE, 7*ICONSIZE));
+        HIGHLIGHT_ICONS.put(Connection.UP, new ImageIcon("H").setImage(icons, 0 * ICONSIZE, 7 * ICONSIZE));
+        HIGHLIGHT_ICONS.put(Connection.RIGHT, new ImageIcon("H").setImage(icons, 1 * ICONSIZE, 7 * ICONSIZE));
+        HIGHLIGHT_ICONS.put(Connection.DOWN, new ImageIcon("H").setImage(icons, 2 * ICONSIZE, 7 * ICONSIZE));
+        HIGHLIGHT_ICONS.put(Connection.LEFT, new ImageIcon("H").setImage(icons, 3 * ICONSIZE, 7 * ICONSIZE));
 
         for (IIcon icon : CONNECTION_ICONS.values()) {
-            ((ImageIcon)icon).setDimensions(ICONSIZE, ICONSIZE);
+            ((ImageIcon) icon).setDimensions(ICONSIZE, ICONSIZE);
         }
         for (IIcon icon : HIGHLIGHT_ICONS.values()) {
-            ((ImageIcon)icon).setDimensions(ICONSIZE, ICONSIZE);
+            ((ImageIcon) icon).setDimensions(ICONSIZE, ICONSIZE);
         }
 
-        selectionIcon = new ImageIcon("S").setDimensions(ICONSIZE, ICONSIZE).setImage(icons, 0*ICONSIZE, 8*ICONSIZE);
-        errorIcon1 = new ImageIcon("E1").setDimensions(ICONSIZE, ICONSIZE).setImage(icons, 1*ICONSIZE, 8*ICONSIZE);
-        errorIcon2 = new ImageIcon("E2").setDimensions(ICONSIZE, ICONSIZE).setImage(icons, 2*ICONSIZE, 8*ICONSIZE);
+        selectionIcon = new ImageIcon("S").setDimensions(ICONSIZE, ICONSIZE).setImage(icons, 0 * ICONSIZE, 8 * ICONSIZE);
+        errorIcon1 = new ImageIcon("E1").setDimensions(ICONSIZE, ICONSIZE).setImage(icons, 1 * ICONSIZE, 8 * ICONSIZE);
+        errorIcon2 = new ImageIcon("E2").setDimensions(ICONSIZE, ICONSIZE).setImage(icons, 2 * ICONSIZE, 8 * ICONSIZE);
     }
 
     public GuiProgrammer(ProgrammerTileEntity te, ProgrammerContainer container, PlayerInventory inventory) {
@@ -141,7 +141,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Pro
                 if (opcode.getIconResource() != null) {
                     iconResource = new ResourceLocation(opcode.getIconResource());
                 }
-                ICONS.put(id, new ImageIcon(id).setDimensions(ICONSIZE, ICONSIZE).setImage(iconResource, opcode.getIconU()*ICONSIZE, opcode.getIconV()*ICONSIZE));
+                ICONS.put(id, new ImageIcon(id).setDimensions(ICONSIZE, ICONSIZE).setImage(iconResource, opcode.getIconU() * ICONSIZE, opcode.getIconV() * ICONSIZE));
             }
         }
     }
@@ -154,18 +154,15 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Pro
         Panel editorPanel = setupEditorPanel();
         Panel controlPanel = setupControlPanel();
         Panel gridPanel = setupGridPanel();
-        Panel toplevel = new Panel(minecraft, this).setLayout(new PositionalLayout()).setBackground(mainBackground)
-                .addChild(editorPanel)
-                .addChild(controlPanel)
-                .addChild(gridPanel);
-        toplevel.setBounds(new Rectangle(guiLeft, guiTop, xSize, ySize));
-        window = new Window(this, toplevel).addFocusEvent(this::selectIcon);
+        Panel toplevel = positional().background(mainBackground)
+                .children(editorPanel, controlPanel, gridPanel);
+        toplevel.bounds(guiLeft, guiTop, xSize, ySize);
+        window = new Window(this, toplevel).addFocusEvent((focused) -> selectIcon(window, focused));
 
         // --- Side window ---
         Panel listPanel = setupListPanel();
-        Panel sidePanel = new Panel(minecraft, this).setLayout(new PositionalLayout()).setBackground(sideBackground)
-                .addChild(listPanel);
-        sidePanel.setBounds(new Rectangle(guiLeft-SIDEWIDTH, guiTop, SIDEWIDTH, ySize));
+        Panel sidePanel = positional().background(sideBackground).children(listPanel);
+        sidePanel.bounds(guiLeft - SIDEWIDTH, guiTop, SIDEWIDTH, ySize);
         sideWindow = new Window(this, sidePanel);
 
         loadProgram(ProgrammerContainer.SLOT_DUMMY);
@@ -185,62 +182,59 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Pro
 
     private Panel setupGridPanel() {
 
-        Panel panel = new Panel(minecraft, this).setLayout(new PositionalLayout())
-                .setLayoutHint(new PositionalLayout.PositionalHint(5, 5, 246, 130));
+        Panel panel = positional().hint(5, 5, 246, 130);
 
-        gridList = new WidgetList(minecraft, this)
-                .setName("grid")
-                .setLayoutHint(new PositionalLayout.PositionalHint(0, 0, 236, 130))
-                .setPropagateEventsToChildren(true)
-                .setInvisibleSelection(true)
-                .setDrawHorizontalLines(false)
-                .setRowheight(ICONSIZE+1);
-        Slider slider = new Slider(minecraft, this)
-                .setVertical()
-                .setScrollableName("grid")
-                .setLayoutHint(new PositionalLayout.PositionalHint(237, 0, 9, 130));
+        gridList = list(0, 0, 236, 130)
+                .name("grid")
+                .propagateEventsToChildren(true)
+                .invisibleSelection(true)
+                .drawHorizontalLines(false)
+                .rowheight(ICONSIZE + 1);
+        Slider slider = slider(237, 0, 9, 130)
+                .vertical()
+                .scrollableName("grid");
 
         for (int y = 0; y < GRID_HEIGHT; y++) {
-            Panel rowPanel = new Panel(minecraft, this).setLayout(new HorizontalLayout().setSpacing(-1).setHorizontalMargin(0).setVerticalMargin(0));
+            Panel rowPanel = new Panel().layout(new HorizontalLayout().setSpacing(-1).setHorizontalMargin(0).setVerticalMargin(0));
             for (int x = 0; x < GRID_WIDTH; x++) {
                 int finalX = x;
                 int finalY = y;
-                IconHolder holder = new IconHolder(minecraft, this) {
+                IconHolder holder = new IconHolder() {
                     @Override
                     public List<String> getTooltips() {
                         return getGridIconTooltips(finalX, finalY);
                     }
                 }
-                        .setDesiredWidth(ICONSIZE+2)
-                        .setDesiredHeight(ICONSIZE+2)
-                        .setBorder(1)
-                        .setBorderColor(0xff777777)
-                        .setSelectable(true)
-                        .setUserObject(new GridPos(finalX, finalY))
-                        .addIconHoverEvent(((iconHolder, iIcon, dx, dy) -> {
+                        .desiredWidth(ICONSIZE + 2)
+                        .desiredHeight(ICONSIZE + 2)
+                        .border(1)
+                        .borderColor(0xff777777)
+                        .selectable(true)
+                        .userObject(new GridPos(finalX, finalY))
+                        .hoverEvent(((iIcon, dx, dy) -> {
                             handleConnectorHighlight(finalX, finalY, iIcon, dx, dy);
                         }))
-                        .addIconLeavesEvent(((parent, icon) -> {
+                        .leavesEvent(((icon) -> {
                             iconLeavesFromX = finalX;
                             iconLeavesFromY = finalY;
                             return true;
                         }))
-                        .addIconArrivesEvent(((parent, icon) -> {
+                        .arrivesEvent(((icon) -> {
                             if (icon != null && !loading) {
                                 handleNewIconOverlay(icon, finalX, finalY);
                             }
                             return true;
                         }))
-                        .addIconClickedEvent((parent, icon, dx, dy) -> {
+                        .clickedEvent((icon, dx, dy) -> {
                             gridIconClicked(icon, finalX, finalY, dx, dy);
                             return true;
                         });
-                rowPanel.addChild(holder);
+                rowPanel.children(holder);
             }
-            gridList.addChild(rowPanel);
+            gridList.children(rowPanel);
         }
 
-        panel.addChild(gridList).addChild(slider);
+        panel.children(gridList).children(slider);
 
         return panel;
     }
@@ -347,8 +341,8 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Pro
     }
 
     private void selectAll() {
-        for (int ix = 0 ; ix < GRID_WIDTH ; ix++) {
-            for (int iy = 0 ; iy < GRID_HEIGHT ; iy++) {
+        for (int ix = 0; ix < GRID_WIDTH; ix++) {
+            for (int iy = 0; iy < GRID_HEIGHT; iy++) {
                 IIcon i = getHolder(ix, iy).getIcon();
                 if (i != null) {
                     i.addOverlay(selectionIcon);
@@ -358,8 +352,8 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Pro
     }
 
     private void clearSelection() {
-        for (int ix = 0 ; ix < GRID_WIDTH ; ix++) {
-            for (int iy = 0 ; iy < GRID_HEIGHT ; iy++) {
+        for (int ix = 0; ix < GRID_WIDTH; ix++) {
+            for (int iy = 0; iy < GRID_HEIGHT; iy++) {
                 IIcon i = getHolder(ix, iy).getIcon();
                 if (i != null) {
                     i.removeOverlay("S");
@@ -369,8 +363,8 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Pro
     }
 
     private boolean checkSelection() {
-        for (int ix = 0 ; ix < GRID_WIDTH ; ix++) {
-            for (int iy = 0 ; iy < GRID_HEIGHT ; iy++) {
+        for (int ix = 0; ix < GRID_WIDTH; ix++) {
+            for (int iy = 0; iy < GRID_HEIGHT; iy++) {
                 IIcon i = getHolder(ix, iy).getIcon();
                 if (i != null) {
                     if (i.hasOverlay("S")) {
@@ -426,10 +420,10 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Pro
         if (opcode.isEvent()) {
             return;
         }
-        tryConnectToThis(x-1, y, icon, Connection.RIGHT);
-        tryConnectToThis(x+1, y, icon, Connection.LEFT);
-        tryConnectToThis(x, y-1, icon, Connection.DOWN);
-        tryConnectToThis(x, y+1, icon, Connection.UP);
+        tryConnectToThis(x - 1, y, icon, Connection.RIGHT);
+        tryConnectToThis(x + 1, y, icon, Connection.LEFT);
+        tryConnectToThis(x, y - 1, icon, Connection.DOWN);
+        tryConnectToThis(x, y + 1, icon, Connection.UP);
     }
 
     private void tryConnectToThis(int x, int y, IIcon icon, Connection connection) {
@@ -541,8 +535,8 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Pro
     }
 
     private void clearGrid(boolean selection) {
-        for (int x = 0 ; x < GRID_WIDTH ; x++) {
-            for (int y = 0 ; y < GRID_HEIGHT ; y++) {
+        for (int x = 0; x < GRID_WIDTH; x++) {
+            for (int y = 0; y < GRID_HEIGHT; y++) {
                 IconHolder h = getHolder(x, y);
                 if ((!selection) || (h.getIcon() != null && h.getIcon().hasOverlay("S"))) {
                     h.setIcon(null);
@@ -559,8 +553,8 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Pro
     private void validateAndHilight() {
         ProgramCardInstance instance = makeGridInstance(false);
 
-        for (int x = 0 ; x < GRID_WIDTH ; x++) {
-            for (int y = 0 ; y < GRID_HEIGHT ; y++) {
+        for (int x = 0; x < GRID_WIDTH; x++) {
+            for (int y = 0; y < GRID_HEIGHT; y++) {
                 IconHolder h = getHolder(x, y);
                 if (h.getIcon() != null) {
                     h.getIcon().removeOverlay("E1");
@@ -579,47 +573,41 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Pro
     }
 
     private void validateProgram() {
-        Panel panel = new Panel(minecraft, this)
-                .setLayout(new VerticalLayout())
-                .setFilledBackground(0xff666666, 0xffaaaaaa)
-                .setFilledRectThickness(1);
-        panel.setBounds(new Rectangle(60, 10, 200, 130));
+        Panel panel = vertical()
+                .filledBackground(0xff666666, 0xffaaaaaa)
+                .filledRectThickness(1);
+        panel.bounds(60, 10, 200, 130);
         Window modalWindow = getWindowManager().createModalWindow(panel);
-        WidgetList errorList = new WidgetList(minecraft, this);
-        errorList.addSelectionEvent(new SelectionEvent() {
-                    @Override
-                    public void select(Widget parent, int index) {
-                    }
+        WidgetList errorList = new WidgetList();
+        errorList.event(new SelectionEvent() {
+            @Override
+            public void select(int index) {
+            }
 
-                    @Override
-                    public void doubleClick(Widget parent, int index) {
-                        if (errorList.getSelected() != -1) {
-                            Widget<?> child = errorList.getChild(errorList.getSelected());
-                            GridPos pos = (GridPos) child.getUserObject();
-                            if (pos != null) {
-                                window.setTextFocus(getHolder(pos.getX(), pos.getY()));
-                            }
-                        }
-                        getWindowManager().closeWindow(modalWindow);
+            @Override
+            public void doubleClick(int index) {
+                if (errorList.getSelected() != -1) {
+                    Widget<?> child = errorList.getChild(errorList.getSelected());
+                    GridPos pos = (GridPos) child.getUserObject();
+                    if (pos != null) {
+                        window.setTextFocus(getHolder(pos.getX(), pos.getY()));
                     }
-                });
-        panel.addChild(errorList);
-        panel.addChild(new Button(minecraft, this)
-                .addButtonEvent(w ->  {
-                    getWindowManager().closeWindow(modalWindow);
-                })
-                .setText("Close"));
+                }
+                getWindowManager().closeWindow(modalWindow);
+            }
+        });
+        panel.children(errorList, button("Close")
+                .event(() -> getWindowManager().closeWindow(modalWindow)));
 
         ProgramCardInstance instance = makeGridInstance(false);
 
         List<Pair<GridPos, String>> errors = ProgramValidator.validate(instance);
         for (Pair<GridPos, String> entry : errors) {
             GridPos p = entry.getKey();
-            errorList.addChild(new Label(minecraft, this)
-                    .setColor(0xffff0000)
-                    .setHorizontalAlignment(HorizontalAlignment.ALIGN_LEFT)
-                    .setText(entry.getValue())
-                    .setUserObject(p));
+            errorList.children(label(entry.getValue())
+                    .color(0xffff0000)
+                    .horizontalAlignment(HorizontalAlignment.ALIGN_LEFT)
+                    .userObject(p));
         }
     }
 
@@ -655,8 +643,8 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Pro
 
     private ProgramCardInstance makeGridInstance(boolean selectionOnly) {
         ProgramCardInstance instance = ProgramCardInstance.newInstance();
-        for (int x = 0 ; x < GRID_WIDTH ; x++) {
-            for (int y = 0 ; y < GRID_HEIGHT ; y++) {
+        for (int x = 0; x < GRID_WIDTH; x++) {
+            for (int y = 0; y < GRID_HEIGHT; y++) {
                 IconHolder holder = getHolder(x, y);
                 IIcon icon = holder.getIcon();
                 if (icon != null) {
@@ -796,7 +784,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Pro
         }
         Opcode opcode = Opcodes.OPCODES.get(icon.getID());
         List<Parameter> parameters = gridInstance.getParameters();
-        for (int i = 0 ; i < parameters.size() ; i++) {
+        for (int i = 0; i < parameters.size(); i++) {
             String name = opcode.getParameters().get(i).getName();
             icon.addData(name, parameters.get(i).getParameterValue());
         }
@@ -807,31 +795,32 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Pro
     }
 
     private Panel setupControlPanel() {
-        trashcan = new IconHolder(minecraft, this)
-                .setDesiredWidth(14)
-                .setDesiredHeight(14)
-                .setBorder(1)
-                .setBorderColor(0xffff0000)
-                .setTooltips(TextFormatting.YELLOW + "Delete opcode", "Drop opcodes here to", "delete them")
-                .setSelectable(false);
-        return new Panel(minecraft, this).setLayout(new HorizontalLayout().setSpacing(2).setHorizontalMargin(1)).setLayoutHint(new PositionalLayout.PositionalHint(108, 136, 145, 18))
-                .addChild(new Button(minecraft, this).setText("Load")
-                        .setTooltips(TextFormatting.YELLOW + "Load program", "Load the current program", "from a program card")
-                        .setDesiredHeight(15).addButtonEvent(w -> loadProgram(ProgrammerContainer.SLOT_CARD)))
-                .addChild(new Button(minecraft, this).setText("Save")
-                        .setTooltips(TextFormatting.YELLOW + "Save program",
-                                "Save the current program",
-                                "to a program card",
-                                TextFormatting.GREEN + "Press shift to change name")
-                        .setDesiredHeight(15).addButtonEvent(w -> askNameAndSave(ProgrammerContainer.SLOT_CARD)))
-                .addChild(new Button(minecraft, this).setText("Clear")
-                        .setTooltips(TextFormatting.YELLOW + "Clear program", "Remove all opcodes on the grid", "(press Ctrl-Z if this was a mistake)")
-                        .setDesiredHeight(15).addButtonEvent(w -> clearProgram()))
-                .addChild(new Button(minecraft, this).setText("Val")
-                        .setTooltips(TextFormatting.YELLOW + "Validate program", "Perform some basic validations on", "the current program", "Double click on error", "to highlight opcode")
-                        .setDesiredHeight(15)
-                        .addButtonEvent(w -> validateProgram()))
-                .addChild(trashcan);
+        trashcan = new IconHolder()
+                .desiredWidth(14)
+                .desiredHeight(14)
+                .border(1)
+                .borderColor(0xffff0000)
+                .tooltips(TextFormatting.YELLOW + "Delete opcode", "Drop opcodes here to", "delete them")
+                .selectable(false);
+        return horizontal(1, 2).hint(108, 136, 145, 18)
+                .children(
+                        button("Load")
+                                .tooltips(TextFormatting.YELLOW + "Load program", "Load the current program", "from a program card")
+                                .desiredHeight(15).event(() -> loadProgram(ProgrammerContainer.SLOT_CARD)),
+                        button("Save")
+                                .tooltips(TextFormatting.YELLOW + "Save program",
+                                        "Save the current program",
+                                        "to a program card",
+                                        TextFormatting.GREEN + "Press shift to change name")
+                                .desiredHeight(15).event(() -> askNameAndSave(ProgrammerContainer.SLOT_CARD)),
+                        button("Clear")
+                                .tooltips(TextFormatting.YELLOW + "Clear program", "Remove all opcodes on the grid", "(press Ctrl-Z if this was a mistake)")
+                                .desiredHeight(15).event(this::clearProgram),
+                        button("Val")
+                                .tooltips(TextFormatting.YELLOW + "Validate program", "Perform some basic validations on", "the current program", "Double click on error", "to highlight opcode")
+                                .desiredHeight(15)
+                                .event(this::validateProgram),
+                        trashcan);
     }
 
     private void clearCategoryLabels() {
@@ -843,30 +832,28 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Pro
     }
 
     private void makeCategoryToggle(Panel panel, int cx, int cy, OpcodeCategory category, int u, int v) {
-        ImageChoiceLabel catLabel = new ImageChoiceLabel(minecraft, this)
-                .setLayoutHint(new PositionalLayout.PositionalHint(cx * 18 + 3, cy * 18 + 14, 16, 16))
-                .addChoice("off", "Filter on category " + category.getName() + " (off)", guiElements, u*16, v*16)
-                .addChoice("on", "Filter on category " + category.getName() + " (on)", guiElements, u*16 + 16, v*16);
-        catLabel.addChoiceEvent((parent, newChoice) -> {
-                    if ("on".equals(newChoice)) {
-                        clearCategoryLabels();
-                        catLabel.setCurrentChoice("on");
-                        currentCategory = category;
-                        fillOpcodes();
-                    } else {
-                        clearCategoryLabels();
-                    }
-                });
-        panel.addChild(catLabel);
+        ImageChoiceLabel catLabel = new ImageChoiceLabel()
+                .hint(cx * 18 + 3, cy * 18 + 14, 16, 16)
+                .choice("off", "Filter on category " + category.getName() + " (off)", guiElements, u * 16, v * 16)
+                .choice("on", "Filter on category " + category.getName() + " (on)", guiElements, u * 16 + 16, v * 16);
+        catLabel.event((newChoice) -> {
+            if ("on".equals(newChoice)) {
+                clearCategoryLabels();
+                catLabel.setCurrentChoice("on");
+                currentCategory = category;
+                fillOpcodes();
+            } else {
+                clearCategoryLabels();
+            }
+        });
+        panel.children(catLabel);
         categoryLabels.add(catLabel);
     }
 
     private Panel setupListPanel() {
-        Panel panel = new Panel(minecraft, this)
-                .setLayout(new PositionalLayout())
-                .setLayoutHint(new PositionalLayout.PositionalHint(2, 2, 78, 232))
-                .addChild(new Label(minecraft, this).setText("Opcodes:")
-                    .setLayoutHint(new PositionalLayout.PositionalHint(0, 0, 70, 12)));
+        Panel panel = positional()
+                .hint(2, 2, 78, 232)
+                .children(label(0, 0, 70, 12, "Opcodes:"));
 
         makeCategoryToggle(panel, 0, 0, OpcodeCategory.CATEGORY_ITEMS, 8, 5);
         makeCategoryToggle(panel, 1, 0, OpcodeCategory.CATEGORY_LIQUIDS, 10, 5);
@@ -877,21 +864,19 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Pro
         makeCategoryToggle(panel, 2, 1, OpcodeCategory.CATEGORY_VECTORS, 10, 6);
         makeCategoryToggle(panel, 3, 1, OpcodeCategory.CATEGORY_GRAPHICS, 6, 6);
 
-        opcodeList = new WidgetList(minecraft, this)
-                .setName("opcodes")
-                .setLayoutHint(new PositionalLayout.PositionalHint(0, 52, 68, 180))
-                .setPropagateEventsToChildren(true)
-                .setInvisibleSelection(true)
-                .setDrawHorizontalLines(false)
-                .setRowheight(ICONSIZE+2);
-        Slider slider = new Slider(minecraft, this)
-                .setVertical()
-                .setScrollableName("opcodes")
-                .setLayoutHint(new PositionalLayout.PositionalHint(68, 52, 8, 180));
+        opcodeList = list(0, 52, 68, 180)
+                .name("opcodes")
+                .propagateEventsToChildren(true)
+                .invisibleSelection(true)
+                .drawHorizontalLines(false)
+                .rowheight(ICONSIZE + 2);
+        Slider slider = slider(68, 52, 8, 180)
+                .vertical()
+                .scrollableName("opcodes");
 
         fillOpcodes();
 
-        return panel.addChild(opcodeList).addChild(slider);
+        return panel.children(opcodeList, slider);
     }
 
     private void fillOpcodes() {
@@ -907,19 +892,19 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Pro
             }
             String key = opcode.getId();
             if (childPanel == null) {
-                childPanel = new Panel(minecraft, this).setLayout(new HorizontalLayout().setVerticalMargin(1).setSpacing(1).setHorizontalMargin(0)).setDesiredHeight(ICONSIZE+1);
-                opcodeList.addChild(childPanel);
+                childPanel = new Panel().layout(new HorizontalLayout().setVerticalMargin(1).setSpacing(1).setHorizontalMargin(0)).desiredHeight(ICONSIZE + 1);
+                opcodeList.children(childPanel);
             }
-            IconHolder holder = new IconHolder(minecraft, this) {
+            IconHolder holder = new IconHolder() {
                 @Override
                 public List<String> getTooltips() {
                     return getIconTooltip(getIcon());
                 }
             }
-                    .setDesiredWidth(ICONSIZE).setDesiredHeight(ICONSIZE)
-                    .setMakeCopy(true);
+                    .desiredWidth(ICONSIZE).desiredHeight(ICONSIZE)
+                    .makeCopy(true);
             holder.setIcon(ICONS.get(key).clone());
-            childPanel.addChild(holder);
+            childPanel.children(holder);
             x++;
             if (x >= 3) {
                 y++;
@@ -1065,7 +1050,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Pro
                 tooltips.addAll(description);
                 for (ParameterDescription parameter : opcode.getParameters()) {
                     boolean first = true;
-                    for (int i = 0 ; i < parameter.getDescription().size() ; i++) {
+                    for (int i = 0; i < parameter.getDescription().size(); i++) {
                         String s = parameter.getDescription().get(i);
                         if (first) {
                             s = TextFormatting.BLUE + "Par '" + parameter.getName() + "': " + s;
@@ -1073,7 +1058,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Pro
                         } else {
                             s = TextFormatting.BLUE + "      " + s;
                         }
-                        if (parameter.isOptional() && i == parameter.getDescription().size()-1) {
+                        if (parameter.isOptional() && i == parameter.getDescription().size() - 1) {
                             s += TextFormatting.GOLD + " [Optional]";
                         }
                         tooltips.add(s);
@@ -1101,52 +1086,44 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Pro
     }
 
     private Panel createValuePanel(ParameterDescription parameter, IIcon icon, IconHolder iconHolder, String tempDefault, boolean constantOnly) {
-        Label label = new Label(minecraft, this)
-                .setText(StringUtils.capitalize(parameter.getName()) + ":")
-                .setHorizontalAlignment(HorizontalAlignment.ALIGN_LEFT)
-                .setDesiredHeight(13)
-                .setLayoutHint(new PositionalLayout.PositionalHint(0, 0, 53, 13));
+        Label label = label(0, 0, 53, 13, StringUtils.capitalize(parameter.getName()) + ":")
+                .horizontalAlignment(HorizontalAlignment.ALIGN_LEFT)
+                .desiredHeight(13);
         List<String> description = new ArrayList<>(parameter.getDescription());
         if (parameter.isOptional()) {
-            description.set(description.size()-1, description.get(description.size()-1) + TextFormatting.GOLD + " [Optional]");
+            description.set(description.size() - 1, description.get(description.size() - 1) + TextFormatting.GOLD + " [Optional]");
         }
         if (tempDefault != null && !tempDefault.isEmpty()) {
             description.add(TextFormatting.BLUE + tempDefault);
         }
 
         String[] tooltips = description.toArray(new String[description.size()]);
-        TextField field = new TextField(minecraft, this)
-                .setText(tempDefault)
-                .setTooltips(tooltips)
-                .setDesiredHeight(13)
-                .setEditable(false)
-                .setLayoutHint(new PositionalLayout.PositionalHint(0, 12, 68, 13));
-        Button button = new Button(minecraft, this)
-                .setText("...")
-                .setDesiredHeight(13)
-                .setTooltips(tooltips)
-                .addButtonEvent(w -> openValueEditor(icon, iconHolder, parameter, field, constantOnly))
-                .setLayoutHint(new PositionalLayout.PositionalHint(58, 0, 11, 13));
+        TextField field = textfield(0, 12, 68, 13)
+                .text(tempDefault)
+                .tooltips(tooltips)
+                .desiredHeight(13)
+                .editable(false);
+        Button button = button(58, 0, 11, 13, "...")
+                .desiredHeight(13)
+                .tooltips(tooltips)
+                .event(() -> openValueEditor(icon, iconHolder, parameter, field, constantOnly));
 
-        return new Panel(minecraft, this).setLayout(new PositionalLayout())
-                .addChild(label)
-                .addChild(field)
-                .addChild(button)
-                .setDesiredWidth(68);
+        return positional().children(label, field, button)
+                .desiredWidth(68);
     }
 
     private void openValueEditor(IIcon icon, IconHolder iconHolder, ParameterDescription parameter, TextField field, boolean constantOnly) {
         ParameterEditor editor = ParameterEditors.getEditor(parameter.getType());
         Panel editPanel;
         if (editor != null) {
-            editPanel = new Panel(minecraft, this).setLayout(new PositionalLayout())
-                    .setFilledRectThickness(1);
+            editPanel = positional()
+                    .filledRectThickness(1);
             Map<String, Object> data = icon.getData() == null ? Collections.emptyMap() : icon.getData();
             editor.build(minecraft, this, editPanel, o -> {
                 icon.addData(parameter.getName(), o);
-                field.setText(ParameterTypeTools.stringRepresentation(parameter.getType(), o));
+                field.text(ParameterTypeTools.stringRepresentation(parameter.getType(), o));
             });
-            editor.writeValue((ParameterValue)data.get(parameter.getName()));
+            editor.writeValue((ParameterValue) data.get(parameter.getName()));
             if (constantOnly) {
                 editor.constantOnly();
             }
@@ -1154,20 +1131,17 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Pro
             return;
         }
 
-        Panel panel = new Panel(minecraft, this)
-                .setLayout(new VerticalLayout())
-                .setFilledBackground(0xff666666, 0xffaaaaaa)
-                .setFilledRectThickness(1);
-        panel.setBounds(new Rectangle(50, 25, 200, 60 + editor.getHeight()));
+        Panel panel = vertical()
+                .filledBackground(0xff666666, 0xffaaaaaa)
+                .filledRectThickness(1);
+        panel.bounds(50, 25, 200, 60 + editor.getHeight());
         Window modalWindow = getWindowManager().createModalWindow(panel);
-        panel.addChild(new Label(minecraft, this).setText(StringUtils.capitalize(parameter.getName()) + ":"));
-        panel.addChild(editPanel);
-        panel.addChild(new Button(minecraft, this)
-                .addButtonEvent(w ->  {
-                    getWindowManager().closeWindow(modalWindow);
-                    window.setTextFocus(iconHolder);
-                })
-                .setText("Close"));
+        panel.children(label(StringUtils.capitalize(parameter.getName()) + ":"),
+                editPanel, button("Close")
+                        .event(() -> {
+                            getWindowManager().closeWindow(modalWindow);
+                            window.setTextFocus(iconHolder);
+                        }));
         editor.initialFocus(modalWindow);
         editor.setOnClose(() -> window.setTextFocus(iconHolder));
     }
@@ -1190,23 +1164,21 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Pro
             } else {
                 panel = createValuePanel(parameter, icon, iconHolder, "", opcode.isEvent());
             }
-            editorList.addChild(panel);
+            editorList.children(panel);
         }
     }
 
     private Panel setupEditorPanel() {
-        editorList = new WidgetList(minecraft, this)
-                .setName("editor")
-                .setPropagateEventsToChildren(true)
-                .setRowheight(30)
-                .setLayoutHint(new PositionalLayout.PositionalHint(0, 0, 75, HEIGHT-137-3));
-        Slider slider = new Slider(minecraft, this).setScrollableName("editor")
-                .setLayoutHint(new PositionalLayout.PositionalHint(76, 0, 9, HEIGHT-137-3));
-        return new Panel(minecraft, this).setLayout(new PositionalLayout()).setLayoutHint(new PositionalLayout.PositionalHint(4, 137, 85, HEIGHT-137-3))
-                .setFilledRectThickness(-1)
-                .setFilledBackground(StyleConfig.colorListBackground)
-                .addChild(editorList)
-                .addChild(slider);
+        editorList = list(0, 0, 75, HEIGHT - 137 - 3)
+                .name("editor")
+                .propagateEventsToChildren(true)
+                .rowheight(30);
+        Slider slider = slider(76, 0, 9, HEIGHT - 137 - 3)
+                .scrollableName("editor");
+        return positional().hint(4, 137, 85, HEIGHT - 137 - 3)
+                .filledRectThickness(-1)
+                .filledBackground(StyleConfig.colorListBackground)
+                .children(editorList, slider);
     }
 
     private int saveCounter = 10;

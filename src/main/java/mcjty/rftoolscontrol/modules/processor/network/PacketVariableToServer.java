@@ -1,10 +1,10 @@
 package mcjty.rftoolscontrol.modules.processor.network;
 
 
-import mcjty.rftoolscontrol.modules.processor.logic.Parameter;
 import mcjty.rftoolsbase.api.control.parameters.ParameterType;
 import mcjty.rftoolsbase.api.control.parameters.ParameterValue;
 import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorTileEntity;
+import mcjty.rftoolscontrol.modules.processor.logic.Parameter;
 import mcjty.rftoolscontrol.modules.processor.logic.ParameterTypeTools;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;

@@ -3,23 +3,22 @@ package mcjty.rftoolscontrol.modules.multitank.client;
 import mcjty.lib.gui.GenericGuiContainer;
 import mcjty.lib.gui.Window;
 import mcjty.lib.gui.layout.HorizontalAlignment;
-import mcjty.lib.gui.layout.PositionalLayout;
 import mcjty.lib.gui.layout.VerticalAlignment;
 import mcjty.lib.gui.widgets.BlockRender;
 import mcjty.lib.gui.widgets.Label;
 import mcjty.lib.gui.widgets.Panel;
 import mcjty.rftoolscontrol.RFToolsControl;
-import mcjty.rftoolscontrol.modules.multitank.util.MultiTankFluidProperties;
 import mcjty.rftoolscontrol.modules.multitank.blocks.MultiTankContainer;
 import mcjty.rftoolscontrol.modules.multitank.blocks.MultiTankTileEntity;
 import mcjty.rftoolscontrol.modules.multitank.network.PacketGetTankFluids;
+import mcjty.rftoolscontrol.modules.multitank.util.MultiTankFluidProperties;
 import mcjty.rftoolscontrol.setup.RFToolsCtrlMessages;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fluids.FluidStack;
 
-import java.awt.*;
-
+import static mcjty.lib.gui.widgets.Widgets.label;
+import static mcjty.lib.gui.widgets.Widgets.positional;
 import static mcjty.rftoolscontrol.modules.multitank.blocks.MultiTankTileEntity.TANKS;
 
 public class GuiMultiTank extends GenericGuiContainer<MultiTankTileEntity, MultiTankContainer> {
@@ -44,19 +43,17 @@ public class GuiMultiTank extends GenericGuiContainer<MultiTankTileEntity, Multi
     public void init() {
         super.init();
 
-        Panel toplevel = new Panel(minecraft, this).setLayout(new PositionalLayout()).setBackground(iconLocation);
-        toplevel.setBounds(new Rectangle(guiLeft, guiTop, xSize, ySize));
+        Panel toplevel = positional().background(iconLocation);
+        toplevel.bounds(guiLeft, guiTop, xSize, ySize);
 
         for (int i = 0 ; i < TANKS ; i++) {
-            liquids[i] = new BlockRender(minecraft, this)
-                    .setLayoutHint(new PositionalLayout.PositionalHint(10, 9 + i * 18, 16, 16));
-            toplevel.addChild(liquids[i]);
-            labels[i] = new Label(minecraft, this);
-            labels[i]
-                    .setHorizontalAlignment(HorizontalAlignment.ALIGN_LEFT)
-                    .setVerticalAlignment(VerticalAlignment.ALIGN_CENTER)
-                    .setLayoutHint(new PositionalLayout.PositionalHint(32, 9 + i * 18, WIDTH-32-6, 16));
-            toplevel.addChild(labels[i]);
+            liquids[i] = new BlockRender()
+                    .hint(10, 9 + i * 18, 16, 16);
+            toplevel.children(liquids[i]);
+            labels[i] = label(32, 9 + i * 18, WIDTH-32-6, 16, "")
+                    .horizontalAlignment(HorizontalAlignment.ALIGN_LEFT)
+                    .verticalAlignment(VerticalAlignment.ALIGN_CENTER);
+            toplevel.children(labels[i]);
         }
 
         window = new Window(this, toplevel);
@@ -79,14 +76,14 @@ public class GuiMultiTank extends GenericGuiContainer<MultiTankTileEntity, Multi
         for (int i = 0 ; i < TANKS ; i++) {
             if (i < properties.length && properties[i] != null) {
                 FluidStack stack = properties[i].getContents();
-                if (stack != null) {
-                    liquids[i].setRenderItem(stack);
-                    labels[i].setText(stack.getDisplayName().getFormattedText() + " (" + stack.getAmount() + "mb)");
+                if (!stack.isEmpty()) {
+                    liquids[i].renderItem(stack);
+                    labels[i].text(stack.getDisplayName().getFormattedText() + " (" + stack.getAmount() + "mb)");
                     continue;
                 }
             }
-            liquids[i].setRenderItem(null);
-            labels[i].setText("");
+            liquids[i].renderItem(null);
+            labels[i].text("");
         }
     }
 

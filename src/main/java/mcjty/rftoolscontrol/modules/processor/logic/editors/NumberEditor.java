@@ -1,7 +1,6 @@
 package mcjty.rftoolscontrol.modules.processor.logic.editors;
 
 import mcjty.lib.gui.Window;
-import mcjty.lib.gui.layout.VerticalLayout;
 import mcjty.lib.gui.widgets.ChoiceLabel;
 import mcjty.lib.gui.widgets.Panel;
 import mcjty.lib.gui.widgets.TextField;
@@ -10,6 +9,8 @@ import mcjty.rftoolsbase.api.control.parameters.ParameterValue;
 import mcjty.rftoolscontrol.modules.processor.logic.TypeConverters;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
+
+import static mcjty.lib.gui.widgets.Widgets.vertical;
 
 public class NumberEditor extends AbstractParameterEditor {
 
@@ -25,17 +26,17 @@ public class NumberEditor extends AbstractParameterEditor {
 
     @Override
     public void build(Minecraft mc, Screen gui, Panel panel, ParameterEditorCallback callback) {
-        Panel constantPanel = new Panel(mc, gui).setLayout(new VerticalLayout());
+        Panel constantPanel = vertical();
 
-        typeLabel = new ChoiceLabel(mc, gui).addChoices("Integer", "Long", "Float", "Double")
-                .addChoiceEvent((parent, newChoice) -> callback.valueChanged(readValue()))
-                .setDesiredWidth(60);
-        constantPanel.addChild(createLabeledPanel(mc, gui, "Type:", typeLabel, "Type of the number"));
+        typeLabel = new ChoiceLabel().choices("Integer", "Long", "Float", "Double")
+                .event((newChoice) -> callback.valueChanged(readValue()))
+                .desiredWidth(60);
 
-        field = new TextField(mc, gui)
-                .addTextEvent((parent, newText) -> callback.valueChanged(readValue()))
-                .addTextEnterEvent((parent, newText) -> closeWindow());
-        constantPanel.addChild(field);
+        field = new TextField()
+                .event((newText) -> callback.valueChanged(readValue()))
+                .addTextEnterEvent((newText) -> closeWindow());
+
+        constantPanel.children(field, createLabeledPanel(mc, gui, "Type:", typeLabel, "Type of the number"));
 
         createEditorPanel(mc, gui, panel, callback, constantPanel, ParameterType.PAR_NUMBER);
     }
@@ -64,20 +65,20 @@ public class NumberEditor extends AbstractParameterEditor {
     @Override
     protected void writeConstantValue(ParameterValue value) {
         if (value == null || value.getValue() == null) {
-            field.setText("");
+            field.text("");
         } else {
             Object v = value.getValue();
             if (v instanceof Integer || v == null) {
-                typeLabel.setChoice("Integer");
+                typeLabel.choice("Integer");
             } else if (v instanceof Long) {
-                typeLabel.setChoice("Long");
+                typeLabel.choice("Long");
             } else if (v instanceof Float) {
-                typeLabel.setChoice("Float");
+                typeLabel.choice("Float");
             } else if (v instanceof Double) {
-                typeLabel.setChoice("Double");
+                typeLabel.choice("Double");
             }
             String s = TypeConverters.castNumberToString(v);
-            field.setText(s);
+            field.text(s);
         }
     }
 

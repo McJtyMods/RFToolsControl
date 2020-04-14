@@ -5,32 +5,26 @@ import mcjty.lib.base.StyleConfig;
 import mcjty.lib.gui.GenericGuiContainer;
 import mcjty.lib.gui.Window;
 import mcjty.lib.gui.events.BlockRenderEvent;
-import mcjty.lib.gui.layout.HorizontalLayout;
-import mcjty.lib.gui.layout.PositionalLayout;
-import mcjty.lib.gui.widgets.Button;
-import mcjty.lib.gui.widgets.Label;
-import mcjty.lib.gui.widgets.Panel;
-import mcjty.lib.gui.widgets.TextField;
 import mcjty.lib.gui.widgets.*;
 import mcjty.lib.typed.TypedMap;
 import mcjty.rftoolscontrol.RFToolsControl;
-import mcjty.rftoolscontrol.modules.programmer.client.GuiTools;
-import mcjty.rftoolscontrol.modules.craftingstation.util.CraftingRequest;
 import mcjty.rftoolscontrol.modules.craftingstation.blocks.CraftingStationContainer;
 import mcjty.rftoolscontrol.modules.craftingstation.blocks.CraftingStationTileEntity;
 import mcjty.rftoolscontrol.modules.craftingstation.network.PacketGetCraftableItems;
 import mcjty.rftoolscontrol.modules.craftingstation.network.PacketGetRequests;
+import mcjty.rftoolscontrol.modules.craftingstation.util.CraftingRequest;
+import mcjty.rftoolscontrol.modules.programmer.client.GuiTools;
 import mcjty.rftoolscontrol.setup.RFToolsCtrlMessages;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextFormatting;
 
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+import static mcjty.lib.gui.widgets.Widgets.*;
 import static mcjty.rftoolscontrol.modules.craftingstation.blocks.CraftingStationTileEntity.*;
 
 public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileEntity, CraftingStationContainer> {
@@ -68,28 +62,24 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
     public void init() {
         super.init();
 
-        Panel toplevel = new Panel(minecraft, this).setLayout(new PositionalLayout()).setBackground(mainBackground);
+        Panel toplevel = Widgets.positional().background(mainBackground);
 
         initRecipeList(toplevel);
         initProgressList(toplevel);
         initButtons(toplevel);
 
-        toplevel.setBounds(new Rectangle(guiLeft, guiTop, WIDTH, HEIGHT));
+        toplevel.bounds(guiLeft, guiTop, WIDTH, HEIGHT);
         window = new Window(this, toplevel);
 
         window.event("cancel", (source, params) -> cancelRequest());
     }
 
     private void initButtons(Panel toplevel) {
-        searchField = new TextField(minecraft, this)
-                .setLayoutHint(new PositionalLayout.PositionalHint(5, 5, WIDTH-46-10, 16));
-        cancelButton = new Button(minecraft, this)
-                .setChannel("cancel")
-//                .setLayoutHint(new PositionalLayout.PositionalHint(180, 5, 46, 16))
-                .setLayoutHint(new PositionalLayout.PositionalHint(WIDTH-46-5, 5, 46, 16))
-                .setText("Cancel")
-                .setTooltips(TextFormatting.YELLOW + "Cancel request", "Cancel the currently selected", "crafting request");
-        toplevel.addChild(cancelButton).addChild(searchField);
+        searchField = textfield(5, 5, WIDTH-46-10, 16);
+        cancelButton = button(WIDTH-46-5, 5, 46, 16, "Cancel")
+                .channel("cancel")
+                .tooltips(TextFormatting.YELLOW + "Cancel request", "Cancel the currently selected", "crafting request");
+        toplevel.children(cancelButton, searchField);
     }
 
     private void cancelRequest() {
@@ -104,16 +94,16 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
     }
 
     private void initRecipeList(Panel toplevel) {
-        recipeList = new WidgetList(minecraft, this).setName("recipes").setLayoutHint(new PositionalLayout.PositionalHint(5, 23, 120, 128)).setPropagateEventsToChildren(true)
-                .setInvisibleSelection(true);
-        Slider slider = new Slider(minecraft, this).setScrollableName("recipes").setLayoutHint(new PositionalLayout.PositionalHint(126, 23, 9, 128));
-        toplevel.addChild(recipeList).addChild(slider);
+        recipeList = list(5, 23, 120, 128).name("recipes").propagateEventsToChildren(true)
+                .invisibleSelection(true);
+        Slider slider = slider(126, 23, 9, 128).scrollableName("recipes");
+        toplevel.children(recipeList, slider);
     }
 
     private void initProgressList(Panel toplevel) {
-        requestList = new WidgetList(minecraft, this).setName("requests").setLayoutHint(new PositionalLayout.PositionalHint(136, 23, 80, 128));
-        Slider slider = new Slider(minecraft, this).setScrollableName("requests").setLayoutHint(new PositionalLayout.PositionalHint(136+80+1, 23, 9, 128));
-        toplevel.addChild(requestList).addChild(slider);
+        requestList = list(136, 23, 80, 128).name("requests");
+        Slider slider = slider(136+80+1, 23, 9, 128).scrollableName("requests");
+        toplevel.children(requestList, slider);
     }
 
     private void requestLists() {
@@ -135,18 +125,17 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
         for (CraftingRequest request : fromServer_requests) {
             final ItemStack stack = request.getStack();
 
-            Panel panel = new Panel(minecraft, this).setLayout(new HorizontalLayout()).setDesiredWidth(16);
-            requestList.addChild(panel);
-            BlockRender blockRender = new BlockRender(minecraft, this)
-                    .setRenderItem(stack)
-                    .setOffsetX(-1)
-                    .setOffsetY(-1);
-            panel.addChild(blockRender);
+            Panel panel = horizontal().desiredWidth(16);
+            requestList.children(panel);
+            BlockRender blockRender = new BlockRender()
+                    .renderItem(stack)
+                    .offsetX(-1)
+                    .offsetY(-1);
+            panel.children(blockRender);
             boolean failed = request.getFailed() != -1;
             boolean ok = request.getOk() != -1;
-            panel.addChild(new Label(minecraft, this)
-                    .setColor(failed ? 0xffff3030 : (ok ? 0xff30ff30 : StyleConfig.colorTextNormal))
-                    .setText(failed ? "Failed!" : (ok ? "Ok" : "Wait (" + request.getTodo() + ")")));
+            panel.children(label(failed ? "Failed!" : (ok ? "Ok" : "Wait (" + request.getTodo() + ")"))
+                    .color(failed ? 0xffff3030 : (ok ? 0xff30ff30 : StyleConfig.colorTextNormal)));
         }
     }
 
@@ -180,25 +169,23 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
             }
 
             if (panel == null || panel.getChildCount() >= 6) {
-                panel = new Panel(minecraft, this).setLayout(new HorizontalLayout().setSpacing(3).setHorizontalMargin(1))
-                        .setDesiredHeight(16);
-                recipeList.addChild(panel);
+                panel = horizontal(1, 3).desiredHeight(16);
+                recipeList.children(panel);
             }
-            BlockRender blockRender = new BlockRender(minecraft, this)
-                    .setRenderItem(stack)
-                    .setHilightOnHover(true)
-                    .setOffsetX(-1)
-                    .setOffsetY(-1)
-                    .setUserObject(index);
+            BlockRender blockRender = new BlockRender()
+                    .renderItem(stack)
+                    .hilightOnHover(true)
+                    .offsetX(-1)
+                    .offsetY(-1)
+                    .userObject(index);
             index++;
-            blockRender.addSelectionEvent(new BlockRenderEvent() {
+            blockRender.event(new BlockRenderEvent() {
                 @Override
-                public void select(Widget widget) {
-                    BlockRender br = (BlockRender) widget;
-                    Object item = br.getRenderItem();
+                public void select() {
+                    Object item = blockRender.getRenderItem();
                     if (item != null) {
                         boolean shift = McJtyLib.proxy.isShiftKeyDown();
-                        Object index = br.getUserObject();
+                        Object index = blockRender.getUserObject();
                         if (shift) {
                             askAmountToCraft(stack);
                         } else {
@@ -208,10 +195,10 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
                 }
 
                 @Override
-                public void doubleClick(Widget widget) {
+                public void doubleClick() {
                 }
             });
-            panel.addChild(blockRender);
+            panel.children(blockRender);
         }
     }
 
@@ -247,9 +234,9 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
         updateRecipeList();
         updateRequestList();
         if (requestList.getSelected() >= requestList.getChildCount()) {
-            requestList.setSelected(-1);
+            requestList.selected(-1);
         }
-        cancelButton.setEnabled(requestList.getSelected() != -1);
+        cancelButton.enabled(requestList.getSelected() != -1);
         drawWindow();
     }
 }

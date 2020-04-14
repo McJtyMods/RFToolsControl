@@ -6,7 +6,6 @@ import mcjty.lib.network.IClientCommandHandler;
 import mcjty.lib.network.NetworkTools;
 import mcjty.lib.typed.Type;
 import mcjty.lib.varia.Logging;
-import mcjty.rftoolscontrol.modules.processor.network.PacketGetFluids;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;

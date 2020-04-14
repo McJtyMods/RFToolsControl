@@ -2,12 +2,12 @@ package mcjty.rftoolscontrol.modules.various.items.vectorartmodule;
 
 import mcjty.lib.varia.BlockPosTools;
 import mcjty.lib.varia.WorldTools;
+import mcjty.rftoolsbase.api.control.parameters.Tuple;
 import mcjty.rftoolsbase.api.screens.IScreenDataHelper;
 import mcjty.rftoolsbase.api.screens.IScreenModule;
-import mcjty.rftoolsbase.api.control.parameters.Tuple;
+import mcjty.rftoolscontrol.compat.rftoolssupport.ModuleDataVectorArt;
 import mcjty.rftoolscontrol.modules.processor.ProcessorSetup;
 import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorTileEntity;
-import mcjty.rftoolscontrol.compat.rftoolssupport.ModuleDataVectorArt;
 import mcjty.rftoolscontrol.setup.ConfigSetup;
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.PlayerEntity;

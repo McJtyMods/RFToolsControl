@@ -2,9 +2,6 @@ package mcjty.rftoolscontrol.modules.various.client;
 
 import mcjty.lib.gui.GenericGuiContainer;
 import mcjty.lib.gui.Window;
-import mcjty.lib.gui.layout.HorizontalLayout;
-import mcjty.lib.gui.layout.VerticalLayout;
-import mcjty.lib.gui.widgets.Label;
 import mcjty.lib.gui.widgets.Panel;
 import mcjty.lib.gui.widgets.TextField;
 import mcjty.lib.typed.TypedMap;
@@ -14,8 +11,7 @@ import mcjty.rftoolscontrol.modules.various.blocks.NodeTileEntity;
 import mcjty.rftoolscontrol.setup.RFToolsCtrlMessages;
 import net.minecraft.entity.player.PlayerInventory;
 
-import java.awt.*;
-
+import static mcjty.lib.gui.widgets.Widgets.*;
 import static mcjty.rftoolscontrol.modules.various.blocks.NodeTileEntity.PARAM_CHANNEL;
 import static mcjty.rftoolscontrol.modules.various.blocks.NodeTileEntity.PARAM_NODE;
 
@@ -38,20 +34,19 @@ public class GuiNode extends GenericGuiContainer<NodeTileEntity, NodeContainer> 
     public void init() {
         super.init();
 
-        Panel toplevel = new Panel(minecraft, this).setFilledRectThickness(2).setLayout(new VerticalLayout());
+        Panel toplevel = vertical().filledRectThickness(2);
 
-        channelField = new TextField(minecraft, this).setTooltips("Set the name of the network", "channel to connect too").addTextEvent((parent, newText) -> updateNode());
-        channelField.setText(tileEntity.getChannelName());
+        channelField = new TextField().tooltips("Set the name of the network", "channel to connect too").event((newText) -> updateNode());
+        channelField.text(tileEntity.getChannelName());
 
-        nodeNameField = new TextField(minecraft, this).setTooltips("Set the name of this node").addTextEvent((parent, newText) -> updateNode());
-        nodeNameField.setText(tileEntity.getNodeName());
+        nodeNameField = new TextField().tooltips("Set the name of this node").event((newText) -> updateNode());
+        nodeNameField.text(tileEntity.getNodeName());
 
-        Panel bottomPanel = new Panel(minecraft, this).setLayout(new HorizontalLayout()).
-                addChild(new Label(minecraft, this).setText("Channel:")).addChild(channelField).
-                addChild(new Label(minecraft, this).setText("Node:")).addChild(nodeNameField);
-        toplevel.addChild(bottomPanel);
+        Panel bottomPanel = horizontal().
+                children(label("Channel:"), channelField, label("Node:"), nodeNameField);
+        toplevel.children(bottomPanel);
 
-        toplevel.setBounds(new Rectangle(guiLeft, guiTop, WIDTH, HEIGHT));
+        toplevel.bounds(guiLeft, guiTop, WIDTH, HEIGHT);
         window = new Window(this, toplevel);
 
         minecraft.keyboardListener.enableRepeatEvents(true);

@@ -1,7 +1,6 @@
 package mcjty.rftoolscontrol.modules.processor.logic.editors;
 
 import mcjty.lib.gui.Window;
-import mcjty.lib.gui.layout.HorizontalLayout;
 import mcjty.lib.gui.widgets.Panel;
 import mcjty.lib.gui.widgets.TextField;
 import mcjty.lib.gui.widgets.ToggleButton;
@@ -10,6 +9,8 @@ import mcjty.rftoolsbase.api.control.parameters.ParameterValue;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
 
+import static mcjty.lib.gui.widgets.Widgets.horizontal;
+
 public class LongEditor extends AbstractParameterEditor {
 
     private TextField field;
@@ -17,16 +18,16 @@ public class LongEditor extends AbstractParameterEditor {
 
     @Override
     public void build(Minecraft mc, Screen gui, Panel panel, ParameterEditorCallback callback) {
-        Panel constantPanel = new Panel(mc, gui).setLayout(new HorizontalLayout());
-        field = new TextField(mc, gui)
-                .addTextEvent((parent, newText) -> callback.valueChanged(readValue()))
-                .addTextEnterEvent((parent, newText) -> closeWindow());
-        constantPanel.addChild(field);
-        hexMode = new ToggleButton(mc, gui)
-                .addButtonEvent(widget -> updateHex())
-                .setCheckMarker(true)
-                .setText("Hex");
-        constantPanel.addChild(hexMode);
+        Panel constantPanel = horizontal();
+        field = new TextField()
+                .event((newText) -> callback.valueChanged(readValue()))
+                .addTextEnterEvent((newText) -> closeWindow());
+        constantPanel.children(field);
+        hexMode = new ToggleButton()
+                .event(this::updateHex)
+                .checkMarker(true)
+                .text("Hex");
+        constantPanel.children(hexMode);
 
         createEditorPanel(mc, gui, panel, callback, constantPanel, ParameterType.PAR_LONG);
     }
@@ -38,7 +39,7 @@ public class LongEditor extends AbstractParameterEditor {
                 try {
                     long i = Long.parseLong(value);
                     value = "$" + Long.toHexString(i);
-                    field.setText(value);
+                    field.text(value);
                 } catch (NumberFormatException e) {
                 }
             }
@@ -46,7 +47,7 @@ public class LongEditor extends AbstractParameterEditor {
             if (value.startsWith("$")) {
                 Long i = parseLongSafe(value);
                 if (i != null) {
-                    field.setText(String.valueOf(i));
+                    field.text(String.valueOf(i));
                 }
             }
         }
@@ -65,12 +66,12 @@ public class LongEditor extends AbstractParameterEditor {
     @Override
     protected void writeConstantValue(ParameterValue value) {
         if (value == null || value.getValue() == null) {
-            field.setText("");
+            field.text("");
         } else {
             try {
-                field.setText(Long.toString((Long) value.getValue()));
+                field.text(Long.toString((Long) value.getValue()));
             } catch (Exception e) {
-                field.setText("");
+                field.text("");
             }
         }
         updateHex();

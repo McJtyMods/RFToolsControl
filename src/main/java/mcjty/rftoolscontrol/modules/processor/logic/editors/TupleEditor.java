@@ -1,7 +1,6 @@
 package mcjty.rftoolscontrol.modules.processor.logic.editors;
 
 import mcjty.lib.gui.Window;
-import mcjty.lib.gui.layout.HorizontalLayout;
 import mcjty.lib.gui.widgets.Panel;
 import mcjty.lib.gui.widgets.TextField;
 import mcjty.rftoolsbase.api.control.parameters.ParameterType;
@@ -10,6 +9,8 @@ import mcjty.rftoolsbase.api.control.parameters.Tuple;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
 
+import static mcjty.lib.gui.widgets.Widgets.horizontal;
+
 public class TupleEditor extends AbstractParameterEditor {
 
     private TextField fieldX;
@@ -17,14 +18,14 @@ public class TupleEditor extends AbstractParameterEditor {
 
     @Override
     public void build(Minecraft mc, Screen gui, Panel panel, ParameterEditorCallback callback) {
-        Panel constantPanel = new Panel(mc, gui).setLayout(new HorizontalLayout());
-        fieldX = new TextField(mc, gui)
-                .addTextEvent((parent, newText) -> callback.valueChanged(readValue()))
-                .addTextEnterEvent((parent, newText) -> closeWindow());
-        fieldY = new TextField(mc, gui)
-                .addTextEvent((parent, newText) -> callback.valueChanged(readValue()))
-                .addTextEnterEvent((parent, newText) -> closeWindow());
-        constantPanel.addChild(fieldX).addChild(fieldY);
+        Panel constantPanel = horizontal();
+        fieldX = new TextField()
+                .event((newText) -> callback.valueChanged(readValue()))
+                .addTextEnterEvent((newText) -> closeWindow());
+        fieldY = new TextField()
+                .event((newText) -> callback.valueChanged(readValue()))
+                .addTextEnterEvent((newText) -> closeWindow());
+        constantPanel.children(fieldX, fieldY);
 
         createEditorPanel(mc, gui, panel, callback, constantPanel, ParameterType.PAR_TUPLE);
     }
@@ -44,16 +45,16 @@ public class TupleEditor extends AbstractParameterEditor {
     @Override
     protected void writeConstantValue(ParameterValue value) {
         if (value == null || value.getValue() == null) {
-            fieldX.setText("");
-            fieldY.setText("");
+            fieldX.text("");
+            fieldY.text("");
         } else {
             Tuple tuple = (Tuple) value.getValue();
             try {
-                fieldX.setText(Integer.toString(tuple.getX()));
-                fieldY.setText(Integer.toString(tuple.getY()));
+                fieldX.text(Integer.toString(tuple.getX()));
+                fieldY.text(Integer.toString(tuple.getY()));
             } catch (Exception e) {
-                fieldX.setText("");
-                fieldY.setText("");
+                fieldX.text("");
+                fieldY.text("");
             }
         }
     }

@@ -2,7 +2,6 @@ package mcjty.rftoolscontrol.modules.various.client;
 
 import mcjty.lib.gui.GenericGuiContainer;
 import mcjty.lib.gui.Window;
-import mcjty.lib.gui.layout.PositionalLayout;
 import mcjty.lib.gui.widgets.Panel;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.modules.various.blocks.WorkbenchContainer;
@@ -10,7 +9,7 @@ import mcjty.rftoolscontrol.modules.various.blocks.WorkbenchTileEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.util.ResourceLocation;
 
-import java.awt.*;
+import static mcjty.lib.gui.widgets.Widgets.positional;
 
 
 public class GuiWorkbench extends GenericGuiContainer<WorkbenchTileEntity, WorkbenchContainer> {
@@ -31,9 +30,9 @@ public class GuiWorkbench extends GenericGuiContainer<WorkbenchTileEntity, Workb
     public void init() {
         super.init();
 
-        Panel toplevel = new Panel(minecraft, this).setLayout(new PositionalLayout()).setBackground(mainBackground);
+        Panel toplevel = positional().background(mainBackground);
 
-        toplevel.setBounds(new Rectangle(guiLeft, guiTop, WIDTH, HEIGHT));
+        toplevel.bounds(guiLeft, guiTop, WIDTH, HEIGHT);
         window = new Window(this, toplevel);
     }
 

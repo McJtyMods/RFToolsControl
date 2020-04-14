@@ -2,8 +2,6 @@ package mcjty.rftoolscontrol.modules.processor.logic.editors;
 
 import mcjty.lib.gui.Window;
 import mcjty.lib.gui.layout.HorizontalAlignment;
-import mcjty.lib.gui.layout.HorizontalLayout;
-import mcjty.lib.gui.layout.PositionalLayout;
 import mcjty.lib.gui.widgets.*;
 import mcjty.rftoolsbase.api.control.code.Function;
 import mcjty.rftoolsbase.api.control.parameters.ParameterType;
@@ -13,6 +11,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
 
 import java.util.List;
+
+import static mcjty.lib.gui.widgets.Widgets.horizontal;
+import static mcjty.lib.gui.widgets.Widgets.label;
 
 public abstract class AbstractParameterEditor implements ParameterEditor {
 
@@ -34,8 +35,8 @@ public abstract class AbstractParameterEditor implements ParameterEditor {
 
     @Override
     public void constantOnly() {
-        variableButton.setEnabled(false);
-        functionButton.setEnabled(false);
+        variableButton.enabled(false);
+        functionButton.enabled(false);
     }
 
     @Override
@@ -152,86 +153,81 @@ public abstract class AbstractParameterEditor implements ParameterEditor {
             writeConstantValue(value);
         } else if (value.isVariable()) {
             switchPage(PAGE_VARIABLE, null);
-            variableIndex.setText(Integer.toString(value.getVariableIndex()));
+            variableIndex.text(Integer.toString(value.getVariableIndex()));
         } else if (value.isFunction()) {
             switchPage(PAGE_FUNCTION, null);
             String id = value.getFunction().getId();
-            functionLabel.setChoice(id);
+            functionLabel.choice(id);
         }
     }
 
     protected Panel createLabeledPanel(Minecraft mc, Screen gui, String label, Widget<?> object, String... tooltips) {
-        object.setTooltips(tooltips);
-        return new Panel(mc, gui).setLayout(new HorizontalLayout())
-                .addChild(new Label(mc, gui)
-                        .setHorizontalAlignment(HorizontalAlignment.ALIGN_LEFT)
-                        .setText(label)
-                        .setTooltips(tooltips)
-                        .setDesiredWidth(60))
-                .addChild(object);
+        object.tooltips(tooltips);
+        return horizontal()
+                .children(object, Widgets.label(label)
+                        .horizontalAlignment(HorizontalAlignment.ALIGN_LEFT)
+                        .tooltips(tooltips)
+                        .desiredWidth(60));
     }
 
     void createEditorPanel(Minecraft mc, Screen gui, Panel panel, ParameterEditorCallback callback, Panel constantPanel,
                            ParameterType type) {
-        Panel variablePanel = new Panel(mc, gui).setLayout(new HorizontalLayout()).setDesiredHeight(18);
-        variableIndex = new TextField(mc, gui)
-                .setDesiredHeight(14)
-                .setTooltips("Index (in the processor)", "of the variable", "(first variable has index 0)")
-                .addTextEvent((parent,newText) -> callback.valueChanged(readValue()));
-        variablePanel.addChild(new Label(mc, gui)
-                .setText("Index:"))
-                .setTooltips("Index (in the processor)", "of the variable", "(first variable has index 0)")
-                .setDesiredHeight(14)
-                .addChild(variableIndex);
+        Panel variablePanel = horizontal().desiredHeight(18);
+        variableIndex = new TextField()
+                .desiredHeight(14)
+                .tooltips("Index (in the processor)", "of the variable", "(first variable has index 0)")
+                .event((newText) -> callback.valueChanged(readValue()));
+        variablePanel.children(variableIndex, label("Index:"))
+                .tooltips("Index (in the processor)", "of the variable", "(first variable has index 0)")
+                .desiredHeight(14);
 
-        Panel functionPanel = new Panel(mc, gui).setLayout(new HorizontalLayout());
-        functionLabel = new ChoiceLabel(mc, gui)
-                .setDesiredWidth(120);
+        Panel functionPanel = horizontal();
+        functionLabel = new ChoiceLabel()
+                .desiredWidth(120);
         List<Function> functions = Functions.getFunctionsByType(type);
         for (Function function : functions) {
-            functionLabel.addChoices(function.getId());
-            functionLabel.setChoiceTooltip(function.getId(), function.getDescription().toArray(new String[function.getDescription().size()]));
+            functionLabel.choices(function.getId());
+            functionLabel.choiceTooltip(function.getId(), function.getDescription().toArray(new String[function.getDescription().size()]));
         }
         if (type == ParameterType.PAR_NUMBER) {
             functions = Functions.getFunctionsByType(ParameterType.PAR_INTEGER);
             for (Function function : functions) {
-                functionLabel.addChoices(function.getId());
-                functionLabel.setChoiceTooltip(function.getId(), function.getDescription().toArray(new String[function.getDescription().size()]));
+                functionLabel.choices(function.getId());
+                functionLabel.choiceTooltip(function.getId(), function.getDescription().toArray(new String[function.getDescription().size()]));
             }
         }
 
-        functionPanel.addChild(functionLabel);
-        functionLabel.addChoiceEvent(((parent, newChoice) -> callback.valueChanged(readValue())));
+        functionPanel.children(functionLabel);
+        functionLabel.event(((newChoice) -> callback.valueChanged(readValue())));
 
-        tabbedPanel = new TabbedPanel(mc, gui)
-                .addPage(PAGE_CONSTANT, constantPanel)
-                .addPage(PAGE_VARIABLE, variablePanel)
-                .addPage(PAGE_FUNCTION, functionPanel);
-        tabbedPanel.setLayoutHint(new PositionalLayout.PositionalHint(5, 5 + 18, 190-10, 60 + getHeight() -5-18 -40));
+        tabbedPanel = new TabbedPanel()
+                .page(PAGE_CONSTANT, constantPanel)
+                .page(PAGE_VARIABLE, variablePanel)
+                .page(PAGE_FUNCTION, functionPanel);
+        tabbedPanel.hint(5, 5 + 18, 190-10, 60 + getHeight() -5-18 -40);
 
 
-        buttonPanel = new Panel(mc, gui).setLayout(new HorizontalLayout())
-            .setLayoutHint(new PositionalLayout.PositionalHint(5, 5, 190-10, 18));
-        ToggleButton constantButton = new ToggleButton(mc, gui).setText(PAGE_CONSTANT)
-                .addButtonEvent(w -> switchPage(PAGE_CONSTANT, callback));
-        variableButton = new ToggleButton(mc, gui).setText(PAGE_VARIABLE)
-                .addButtonEvent(w -> switchPage(PAGE_VARIABLE, callback));
-        functionButton = new ToggleButton(mc, gui).setText(PAGE_FUNCTION)
-                .addButtonEvent(w -> switchPage(PAGE_FUNCTION, callback));
-        buttonPanel.addChild(constantButton).addChild(variableButton).addChild(functionButton);
+        buttonPanel = horizontal().hint(5, 5, 190-10, 18);
+        ToggleButton constantButton = new ToggleButton().text(PAGE_CONSTANT)
+                .event(() -> switchPage(PAGE_CONSTANT, callback));
+        variableButton = new ToggleButton().text(PAGE_VARIABLE)
+                .event(() -> switchPage(PAGE_VARIABLE, callback));
+        functionButton = new ToggleButton().text(PAGE_FUNCTION)
+                .event(() -> switchPage(PAGE_FUNCTION, callback));
+        buttonPanel.children(constantButton, variableButton, functionButton);
 
-        panel.addChild(buttonPanel).addChild(tabbedPanel);
+        panel.children(buttonPanel, tabbedPanel);
     }
 
     private void switchPage(String page, ParameterEditorCallback callback) {
         for (int i = 0 ; i < buttonPanel.getChildCount() ; i++) {
             ToggleButton button = (ToggleButton) buttonPanel.getChild(i);
             if (!page.equals(button.getText())) {
-                button.setPressed(false);
+                button.pressed(false);
             } else {
-                button.setPressed(true);
+                button.pressed(true);
             }
-            tabbedPanel.setCurrent(page);
+            tabbedPanel.current(page);
             if (callback != null) {
                 callback.valueChanged(readValue());
             }

@@ -1,10 +1,10 @@
 package mcjty.rftoolscontrol.modules.processor.util;
 
 import mcjty.rftoolscontrol.modules.multitank.blocks.MultiTankTileEntity;
-import mcjty.rftoolscontrol.modules.processor.logic.compiled.CompiledCard;
-import mcjty.rftoolscontrol.modules.processor.logic.running.ProgException;
 import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorContainer;
 import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorTileEntity;
+import mcjty.rftoolscontrol.modules.processor.logic.compiled.CompiledCard;
+import mcjty.rftoolscontrol.modules.processor.logic.running.ProgException;
 import net.minecraft.nbt.CompoundNBT;
 
 import static mcjty.rftoolscontrol.modules.processor.logic.running.ExceptionType.EXCEPT_NOINTERNALFLUIDSLOT;

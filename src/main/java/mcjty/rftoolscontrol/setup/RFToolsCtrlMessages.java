@@ -2,6 +2,7 @@ package mcjty.rftoolscontrol.setup;
 
 import mcjty.lib.network.PacketHandler;
 import mcjty.rftoolscontrol.RFToolsControl;
+import mcjty.rftoolscontrol.compat.jei.PacketSendRecipe;
 import mcjty.rftoolscontrol.modules.craftingstation.network.PacketCraftableItemsReady;
 import mcjty.rftoolscontrol.modules.craftingstation.network.PacketGetCraftableItems;
 import mcjty.rftoolscontrol.modules.craftingstation.network.PacketGetRequests;
@@ -10,7 +11,6 @@ import mcjty.rftoolscontrol.modules.multitank.network.PacketGetTankFluids;
 import mcjty.rftoolscontrol.modules.multitank.network.PacketTankFluidsReady;
 import mcjty.rftoolscontrol.modules.processor.network.*;
 import mcjty.rftoolscontrol.modules.programmer.network.PacketUpdateNBTItemInventoryProgrammer;
-import mcjty.rftoolscontrol.compat.jei.PacketSendRecipe;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.network.NetworkRegistry;
 import net.minecraftforge.fml.network.simple.SimpleChannel;

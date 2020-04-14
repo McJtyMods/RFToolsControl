@@ -1,12 +1,13 @@
 package mcjty.rftoolscontrol.modules.processor.logic.editors;
 
-import mcjty.lib.gui.layout.HorizontalLayout;
 import mcjty.lib.gui.widgets.ChoiceLabel;
 import mcjty.lib.gui.widgets.Panel;
 import mcjty.rftoolsbase.api.control.parameters.ParameterType;
 import mcjty.rftoolsbase.api.control.parameters.ParameterValue;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
+
+import static mcjty.lib.gui.widgets.Widgets.horizontal;
 
 public class BooleanEditor extends AbstractParameterEditor {
 
@@ -21,11 +22,11 @@ public class BooleanEditor extends AbstractParameterEditor {
 
     @Override
     public void build(Minecraft mc, Screen gui, Panel panel, ParameterEditorCallback callback) {
-        Panel constantPanel = new Panel(mc, gui).setLayout(new HorizontalLayout());
-        label = new ChoiceLabel(mc, gui).addChoices("*", "true", "false")
-                .addChoiceEvent((parent, newChoice) -> callback.valueChanged(readValue()))
-                .setDesiredWidth(60);
-        constantPanel.addChild(label);
+        Panel constantPanel = horizontal();
+        label = new ChoiceLabel().choices("*", "true", "false")
+                .event((newChoice) -> callback.valueChanged(readValue()))
+                .desiredWidth(60);
+        constantPanel.children(label);
 
         createEditorPanel(mc, gui, panel, callback, constantPanel, ParameterType.PAR_BOOLEAN);
     }
@@ -38,10 +39,10 @@ public class BooleanEditor extends AbstractParameterEditor {
     @Override
     protected void writeConstantValue(ParameterValue value) {
         if (value == null || value.getValue() == null) {
-            label.setChoice("*");
+            label.choice("*");
         } else {
             String choice = value.getValue().toString();
-            label.setChoice(choice);
+            label.choice(choice);
         }
     }
 }

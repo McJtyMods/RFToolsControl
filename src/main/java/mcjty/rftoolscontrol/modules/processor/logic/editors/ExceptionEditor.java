@@ -1,6 +1,5 @@
 package mcjty.rftoolscontrol.modules.processor.logic.editors;
 
-import mcjty.lib.gui.layout.HorizontalLayout;
 import mcjty.lib.gui.widgets.ChoiceLabel;
 import mcjty.lib.gui.widgets.Panel;
 import mcjty.rftoolsbase.api.control.parameters.ParameterType;
@@ -8,6 +7,8 @@ import mcjty.rftoolsbase.api.control.parameters.ParameterValue;
 import mcjty.rftoolscontrol.modules.processor.logic.running.ExceptionType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
+
+import static mcjty.lib.gui.widgets.Widgets.horizontal;
 
 public class ExceptionEditor extends AbstractParameterEditor {
 
@@ -22,17 +23,17 @@ public class ExceptionEditor extends AbstractParameterEditor {
 
     @Override
     public void build(Minecraft mc, Screen gui, Panel panel, ParameterEditorCallback callback) {
-        Panel constantPanel = new Panel(mc, gui).setLayout(new HorizontalLayout());
+        Panel constantPanel = horizontal();
 
-        label = new ChoiceLabel(mc, gui)
-                .setDesiredWidth(160);
-        label.addChoices("*");
+        label = new ChoiceLabel()
+                .desiredWidth(160);
+        label.choices("*");
         for (ExceptionType exception : ExceptionType.values()) {
-            label.addChoices(exception.getCode());
+            label.choices(exception.getCode());
         }
-        label.addChoiceEvent((parent, newChoice) -> callback.valueChanged(readValue()));
+        label.event((newChoice) -> callback.valueChanged(readValue()));
 
-        constantPanel.addChild(label);
+        constantPanel.children(label);
 
         createEditorPanel(mc, gui, panel, callback, constantPanel, ParameterType.PAR_EXCEPTION);
     }
@@ -45,10 +46,10 @@ public class ExceptionEditor extends AbstractParameterEditor {
     @Override
     protected void writeConstantValue(ParameterValue value) {
         if (value == null || value.getValue() == null) {
-            label.setChoice("*");
+            label.choice("*");
         } else {
             ExceptionType exception = (ExceptionType) value.getValue();
-            label.setChoice(exception.getCode());
+            label.choice(exception.getCode());
         }
     }
 }

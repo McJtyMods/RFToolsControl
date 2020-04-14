@@ -2,12 +2,12 @@ package mcjty.rftoolscontrol.modules.processor.util;
 
 import mcjty.rftoolsbase.api.control.parameters.IParameter;
 import mcjty.rftoolsbase.api.control.parameters.ParameterType;
+import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorTileEntity;
 import mcjty.rftoolscontrol.modules.processor.logic.TypeConverters;
 import mcjty.rftoolscontrol.modules.processor.logic.compiled.CompiledOpcode;
 import mcjty.rftoolscontrol.modules.processor.logic.running.CpuCore;
 import mcjty.rftoolscontrol.modules.processor.logic.running.ExceptionType;
 import mcjty.rftoolscontrol.modules.processor.logic.running.RunningProgram;
-import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorTileEntity;
 import net.minecraft.util.text.TextFormatting;
 import org.apache.commons.lang3.StringUtils;
 

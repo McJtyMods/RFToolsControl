@@ -1,7 +1,6 @@
 package mcjty.rftoolscontrol.modules.processor.logic.editors;
 
 import mcjty.lib.gui.Window;
-import mcjty.lib.gui.layout.HorizontalLayout;
 import mcjty.lib.gui.widgets.Panel;
 import mcjty.lib.gui.widgets.TextField;
 import mcjty.lib.gui.widgets.ToggleButton;
@@ -10,6 +9,8 @@ import mcjty.rftoolsbase.api.control.parameters.ParameterValue;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
 
+import static mcjty.lib.gui.widgets.Widgets.horizontal;
+
 public class IntegerEditor extends AbstractParameterEditor {
 
     private TextField field;
@@ -17,16 +18,15 @@ public class IntegerEditor extends AbstractParameterEditor {
 
     @Override
     public void build(Minecraft mc, Screen gui, Panel panel, ParameterEditorCallback callback) {
-        Panel constantPanel = new Panel(mc, gui).setLayout(new HorizontalLayout());
-        field = new TextField(mc, gui)
-                .addTextEvent((parent, newText) -> callback.valueChanged(readValue()))
-                .addTextEnterEvent((parent, newText) -> closeWindow());
-        constantPanel.addChild(field);
-        hexMode = new ToggleButton(mc, gui)
-                .addButtonEvent(widget -> updateHex())
-                .setCheckMarker(true)
-                .setText("Hex");
-        constantPanel.addChild(hexMode);
+        Panel constantPanel = horizontal();
+        field = new TextField()
+                .event((newText) -> callback.valueChanged(readValue()))
+                .addTextEnterEvent((newText) -> closeWindow());
+        hexMode = new ToggleButton()
+                .event(this::updateHex)
+                .checkMarker(true)
+                .text("Hex");
+        constantPanel.children(field, hexMode);
 
         createEditorPanel(mc, gui, panel, callback, constantPanel, ParameterType.PAR_INTEGER);
     }
@@ -38,7 +38,7 @@ public class IntegerEditor extends AbstractParameterEditor {
                 try {
                     int i = Integer.parseInt(value);
                     value = "$" + Integer.toHexString(i);
-                    field.setText(value);
+                    field.text(value);
                 } catch (NumberFormatException e) {
                 }
             }
@@ -46,7 +46,7 @@ public class IntegerEditor extends AbstractParameterEditor {
             if (value.startsWith("$")) {
                 Integer i = parseIntSafe(value);
                 if (i != null) {
-                    field.setText(String.valueOf(i));
+                    field.text(String.valueOf(i));
                 }
             }
         }
@@ -65,12 +65,12 @@ public class IntegerEditor extends AbstractParameterEditor {
     @Override
     protected void writeConstantValue(ParameterValue value) {
         if (value == null || value.getValue() == null) {
-            field.setText("");
+            field.text("");
         } else {
             try {
-                field.setText(Integer.toString((Integer) value.getValue()));
+                field.text(Integer.toString((Integer) value.getValue()));
             } catch (Exception e) {
-                field.setText("");
+                field.text("");
             }
         }
         updateHex();

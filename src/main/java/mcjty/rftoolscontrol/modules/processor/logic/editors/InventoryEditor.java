@@ -1,7 +1,6 @@
 package mcjty.rftoolscontrol.modules.processor.logic.editors;
 
 import mcjty.lib.gui.Window;
-import mcjty.lib.gui.layout.VerticalLayout;
 import mcjty.lib.gui.widgets.ChoiceLabel;
 import mcjty.lib.gui.widgets.Panel;
 import mcjty.lib.gui.widgets.TextField;
@@ -12,6 +11,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.util.Direction;
 import org.apache.commons.lang3.StringUtils;
+
+import static mcjty.lib.gui.widgets.Widgets.vertical;
 
 public class InventoryEditor extends AbstractParameterEditor {
 
@@ -47,20 +48,20 @@ public class InventoryEditor extends AbstractParameterEditor {
 
     @Override
     public void build(Minecraft mc, Screen gui, Panel panel, ParameterEditorCallback callback) {
-        Panel constantPanel = new Panel(mc, gui).setLayout(new VerticalLayout());
-        nameLabel = new TextField(mc, gui)
-                .addTextEvent((o,text) -> callback.valueChanged(readValue()))
-                .addTextEnterEvent((parent, newText) -> closeWindow())
-                .setDesiredWidth(50).setDesiredHeight(14);
-        constantPanel.addChild(createLabeledPanel(mc, gui, "Node name:", nameLabel, "Optional name of a node in the network"));
-        sideLabel = new ChoiceLabel(mc, gui).addChoices("*", "Down", "Up", "North", "South", "West", "East")
-                .addChoiceEvent((parent, newChoice) -> callback.valueChanged(readValue()))
-                .setDesiredWidth(60);
-        constantPanel.addChild(createLabeledPanel(mc, gui, "Side:", sideLabel, "Side relative to processor or node", "for the desired inventory"));
-        intSideLabel = new ChoiceLabel(mc, gui).addChoices("*", "Down", "Up", "North", "South", "West", "East")
-                .addChoiceEvent((parent, newChoice) -> callback.valueChanged(readValue()))
-                .setDesiredWidth(60);
-        constantPanel.addChild(createLabeledPanel(mc, gui, "Access:", intSideLabel, "Optional side from which we want to", "access the given inventory"));
+        Panel constantPanel = vertical();
+        nameLabel = new TextField()
+                .event((text) -> callback.valueChanged(readValue()))
+                .addTextEnterEvent((newText) -> closeWindow())
+                .desiredWidth(50).desiredHeight(14);
+        constantPanel.children(createLabeledPanel(mc, gui, "Node name:", nameLabel, "Optional name of a node in the network"));
+        sideLabel = new ChoiceLabel().choices("*", "Down", "Up", "North", "South", "West", "East")
+                .event((newChoice) -> callback.valueChanged(readValue()))
+                .desiredWidth(60);
+        constantPanel.children(createLabeledPanel(mc, gui, "Side:", sideLabel, "Side relative to processor or node", "for the desired inventory"));
+        intSideLabel = new ChoiceLabel().choices("*", "Down", "Up", "North", "South", "West", "East")
+                .event((newChoice) -> callback.valueChanged(readValue()))
+                .desiredWidth(60);
+        constantPanel.children(createLabeledPanel(mc, gui, "Access:", intSideLabel, "Optional side from which we want to", "access the given inventory"));
 
         createEditorPanel(mc, gui, panel, callback, constantPanel, ParameterType.PAR_INVENTORY);
     }
@@ -73,15 +74,15 @@ public class InventoryEditor extends AbstractParameterEditor {
     @Override
     protected void writeConstantValue(ParameterValue value) {
         if (value == null || value.getValue() == null) {
-            sideLabel.setChoice("*");
+            sideLabel.choice("*");
         } else {
             Inventory inv = (Inventory) value.getValue();
-            nameLabel.setText(inv.getNodeNameSafe());
-            sideLabel.setChoice(StringUtils.capitalize(inv.getSide().toString()));
+            nameLabel.text(inv.getNodeNameSafe());
+            sideLabel.choice(StringUtils.capitalize(inv.getSide().toString()));
             if (inv.getIntSide() == null) {
-                intSideLabel.setChoice("*");
+                intSideLabel.choice("*");
             } else {
-                intSideLabel.setChoice(StringUtils.capitalize(inv.getIntSide().toString()));
+                intSideLabel.choice(StringUtils.capitalize(inv.getIntSide().toString()));
             }
         }
     }

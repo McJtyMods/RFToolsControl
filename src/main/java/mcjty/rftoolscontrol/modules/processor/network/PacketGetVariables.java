@@ -3,19 +3,17 @@ package mcjty.rftoolscontrol.modules.processor.network;
 
 import mcjty.lib.network.ICommandHandler;
 import mcjty.lib.network.TypedMapTools;
-
 import mcjty.lib.typed.Type;
 import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.Logging;
-import mcjty.rftoolscontrol.modules.processor.logic.Parameter;
 import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorTileEntity;
+import mcjty.rftoolscontrol.modules.processor.logic.Parameter;
 import mcjty.rftoolscontrol.setup.RFToolsCtrlMessages;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.network.NetworkDirection;
 import net.minecraftforge.fml.network.NetworkEvent;
-
 
 import java.util.List;
 import java.util.function.Supplier;
