@@ -91,6 +91,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.BiFunction;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static mcjty.rftoolscontrol.modules.multitank.blocks.MultiTankTileEntity.MAXCAPACITY;
@@ -178,7 +179,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
     private int hasNetworkCard = -1;
     private int storageCard = -2;   // -2 is unknown
     private boolean hasGraphicsCard = false;
-    private List<FilterModuleCache> filterCaches = null;
+    private List<Predicate<ItemStack>> filterCaches = null;
 
     private Map<String, GfxOp> gfxOps = new HashMap<>();
     private List<String> orderedOps = null;
@@ -1737,7 +1738,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
         if (amount != null && amount == 0) {
             throw new ProgException(EXCEPT_BADPARAMETERS);
         }
-        FilterModuleCache cache = getFilterCache(filterIndex);
+        Predicate<ItemStack> cache = getFilterCache(filterIndex);
         if (cache == null) {
             throw new ProgException(EXCEPT_UNKNOWN_FILTER);
         }
@@ -1944,21 +1945,21 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
 
 
     public boolean testWithFilter(ItemStack item, int idx) {
-        FilterModuleCache filterCache = getFilterCache(idx);
+        Predicate<ItemStack> filterCache = getFilterCache(idx);
         if (filterCache == null) {
             throw new ProgException(EXCEPT_UNKNOWN_FILTER);
         }
-        return filterCache.match(item);
+        return filterCache.test(item);
     }
 
     @Nullable
-    private FilterModuleCache getFilterCache(int index) {
+    private Predicate<ItemStack> getFilterCache(int index) {
         if (filterCaches == null) {
             filterCaches = new ArrayList<>();
             for (int i = SLOT_EXPANSION; i < SLOT_EXPANSION + EXPANSION_SLOTS; i++) {
                 ItemStack stack = items.getStackInSlot(i);
                 if (!stack.isEmpty() && stack.getItem() instanceof FilterModuleItem) {
-                    filterCaches.add(new FilterModuleCache(stack));
+                    filterCaches.add(FilterModuleItem.getCache(stack));
                 }
             }
         }

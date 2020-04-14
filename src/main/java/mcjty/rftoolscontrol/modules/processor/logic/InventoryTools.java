@@ -3,7 +3,6 @@ package mcjty.rftoolscontrol.modules.processor.logic;
 import mcjty.rftoolsbase.api.control.parameters.BlockSide;
 import mcjty.rftoolsbase.api.control.parameters.Inventory;
 import mcjty.rftoolsbase.api.storage.IStorageScanner;
-import mcjty.rftoolsbase.modules.various.FilterModuleCache;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.util.Direction;
@@ -13,6 +12,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.function.Predicate;
 
 public class InventoryTools {
 
@@ -99,11 +99,11 @@ public class InventoryTools {
     }
 
     public static ItemStack extractItem(@Nullable IItemHandler itemHandler,
-                                        int amount, @Nonnull FilterModuleCache itemMatcher) {
+                                        int amount, @Nonnull Predicate<ItemStack> itemMatcher) {
         if (itemHandler != null) {
             for (int i = 0; i < itemHandler.getSlots(); i++) {
                 ItemStack stack = itemHandler.getStackInSlot(i);
-                if (itemMatcher.match(stack)) {
+                if (itemMatcher.test(stack)) {
                     return itemHandler.extractItem(i, amount, false);
                 }
             }
@@ -113,12 +113,12 @@ public class InventoryTools {
 
     public static ItemStack tryExtractItem(@Nullable IItemHandler itemHandler,
                                            int amount,
-                                           FilterModuleCache itemMatcher) {
+                                           Predicate<ItemStack> itemMatcher) {
 
         if (itemHandler != null) {
             for (int i = 0; i < itemHandler.getSlots(); i++) {
                 ItemStack stack = itemHandler.getStackInSlot(i);
-                if (!stack.isEmpty() && itemMatcher.match(stack)) {
+                if (!stack.isEmpty() && itemMatcher.test(stack)) {
                     return itemHandler.extractItem(i, amount, true);
                 }
             }
