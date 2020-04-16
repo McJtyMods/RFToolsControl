@@ -5,7 +5,7 @@ import net.minecraftforge.registries.ObjectHolder;
 
 public class RFToolsStuff {
 
-    @ObjectHolder("rftoolsutility:storage_control_module")
+    @ObjectHolder("rftoolsstorage:storage_control_module")
     public static Item STORAGE_CONTROL_MODULE;
 
     @ObjectHolder("rftoolsbase:crafting_card")

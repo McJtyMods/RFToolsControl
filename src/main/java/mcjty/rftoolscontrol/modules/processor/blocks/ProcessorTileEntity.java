@@ -21,7 +21,7 @@ import mcjty.rftoolsbase.api.control.parameters.*;
 import mcjty.rftoolsbase.api.machineinfo.CapabilityMachineInformation;
 import mcjty.rftoolsbase.api.storage.IStorageScanner;
 import mcjty.rftoolsbase.modules.crafting.items.CraftingCardItem;
-import mcjty.rftoolsbase.modules.various.items.FilterModuleItem;
+import mcjty.rftoolsbase.modules.filter.items.FilterModuleItem;
 import mcjty.rftoolscontrol.compat.RFToolsStuff;
 import mcjty.rftoolscontrol.modules.craftingstation.blocks.CraftingStationTileEntity;
 import mcjty.rftoolscontrol.modules.multitank.blocks.MultiTankTileEntity;
