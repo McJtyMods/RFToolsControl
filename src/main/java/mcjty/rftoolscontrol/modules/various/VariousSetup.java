@@ -2,6 +2,7 @@ package mcjty.rftoolscontrol.modules.various;
 
 import mcjty.lib.blocks.BaseBlock;
 import mcjty.lib.container.GenericContainer;
+import mcjty.rftoolsbase.modules.tablet.items.TabletItem;
 import mcjty.rftoolscontrol.modules.various.blocks.*;
 import mcjty.rftoolscontrol.modules.various.items.CardBaseItem;
 import mcjty.rftoolscontrol.modules.various.items.ProgramCardItem;
@@ -43,5 +44,7 @@ public class VariousSetup {
     public static final RegistryObject<InteractionModuleItem> INTERACTION_MODULE = ITEMS.register("interaction_module", InteractionModuleItem::new);
     public static final RegistryObject<ConsoleModuleItem> CONSOLE_MODULE = ITEMS.register("console_module", ConsoleModuleItem::new);
     public static final RegistryObject<VectorArtModuleItem> VECTORART_MODULE = ITEMS.register("vectorart_module", VectorArtModuleItem::new);
+
+    public static final RegistryObject<TabletItem> TABLET_PROCESSOR = ITEMS.register("tablet_processor", TabletItem::new);
 
 }

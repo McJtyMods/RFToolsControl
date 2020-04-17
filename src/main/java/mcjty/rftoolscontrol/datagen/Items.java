@@ -40,6 +40,7 @@ public class Items extends BaseItemModelProvider {
         itemGenerated(VariousSetup.INTERACTION_MODULE.get(), "item/interactionmoduleitem");
         itemGenerated(VariousSetup.CONSOLE_MODULE.get(), "item/consolemoduleitem");
         itemGenerated(VariousSetup.VECTORART_MODULE.get(), "item/vectorartmoduleitem");
+        itemGenerated(VariousSetup.TABLET_PROCESSOR.get(), "item/tablet_processor");
     }
 
     @Override

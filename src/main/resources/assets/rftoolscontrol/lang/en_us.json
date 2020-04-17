@@ -17,6 +17,7 @@
   "item.rftoolscontrol.token": "Token",
   "item.rftoolscontrol.network_identifier": "Network Identifier",
   "item.rftoolscontrol.graphics_card": "Graphics Card",
+  "item.rftoolscontrol.tablet_processor": "Tablet (processor)",
 
   "_comment": "Blocks",
   "block.rftoolscontrol.programmer": "Programmer",
@@ -58,6 +59,9 @@
   "message.rftoolscontrol.graphics_card.header": "The graphics card is needed to be able to draw vector graphics",
 
   "message.rftoolscontrol.ram_chip.header": "Insert this item in the processor to get eight extra variables (max 32)",
+
+  "message.rftoolscontrol.tablet_processor.header": "Tablet that can be used to reference remote gui's and information",
+  "message.rftoolscontrol.tablet_processor.gold": "Tablet containing information: right click for processor gui, sneak right click for tablet gui",
 
   "message.rftoolscontrol.network_card.header": "Insert this in the processor to allow access to nearby nodes",
   "message.rftoolscontrol.network_card.gold": "Use 'net setup <name>' in Processor console to setup the network",

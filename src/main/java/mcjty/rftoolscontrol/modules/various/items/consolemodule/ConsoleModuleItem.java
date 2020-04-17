@@ -1,15 +1,19 @@
 package mcjty.rftoolscontrol.modules.various.items.consolemodule;
 
+import mcjty.lib.gui.GuiTools;
 import mcjty.lib.varia.Logging;
 import mcjty.rftoolsbase.api.screens.IModuleGuiBuilder;
+import mcjty.rftoolsbase.api.various.ITabletSupport;
 import mcjty.rftoolsbase.tools.GenericModuleItem;
 import mcjty.rftoolsbase.tools.ModuleTools;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.modules.processor.ProcessorSetup;
+import mcjty.rftoolscontrol.modules.various.VariousSetup;
 import mcjty.rftoolscontrol.setup.ConfigSetup;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUseContext;
 import net.minecraft.nbt.CompoundNBT;
@@ -17,14 +21,29 @@ import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraft.world.dimension.DimensionType;
 
-public class ConsoleModuleItem extends GenericModuleItem {
+import javax.annotation.Nonnull;
+
+public class ConsoleModuleItem extends GenericModuleItem implements ITabletSupport {
 
     public ConsoleModuleItem() {
         super(new Properties()
                 .maxStackSize(1)
                 .maxDamage(1)
                 .group(RFToolsControl.setup.getTab()));
+    }
+
+    @Override
+    public Item getInstalledTablet() {
+        return VariousSetup.TABLET_PROCESSOR.get();
+    }
+
+    @Override
+    public void openGui(@Nonnull PlayerEntity player, @Nonnull ItemStack tabletItem, @Nonnull ItemStack containingItem) {
+        BlockPos pos = ModuleTools.getPositionFromModule(containingItem);
+        DimensionType dimensionType = ModuleTools.getDimensionFromModule(containingItem);
+        GuiTools.openRemoteGui(player, dimensionType, pos);
     }
 
     @Override
