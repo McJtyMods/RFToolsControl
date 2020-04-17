@@ -31,7 +31,7 @@ public class VectorArtScreenModule implements IScreenModule<ModuleDataVectorArt>
             return null;
         }
 
-        if (!WorldTools.chunkLoaded(world, coordinate)) {
+        if (!WorldTools.isLoaded(world, coordinate)) {
             return null;
         }
 
@@ -82,7 +82,7 @@ public class VectorArtScreenModule implements IScreenModule<ModuleDataVectorArt>
         int xoffset = 0;
         if (x >= xoffset) {
             if (coordinate.getY() != -1) {
-                if (!WorldTools.chunkLoaded(world, coordinate)) {
+                if (!WorldTools.isLoaded(world, coordinate)) {
                     return;
                 }
 

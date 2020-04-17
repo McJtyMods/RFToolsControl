@@ -1,6 +1,6 @@
 package mcjty.rftoolscontrol.modules.various.items.consolemodule;
 
-import mcjty.lib.gui.GuiTools;
+import mcjty.lib.varia.GuiTools;
 import mcjty.lib.varia.Logging;
 import mcjty.rftoolsbase.api.screens.IModuleGuiBuilder;
 import mcjty.rftoolsbase.api.various.ITabletSupport;

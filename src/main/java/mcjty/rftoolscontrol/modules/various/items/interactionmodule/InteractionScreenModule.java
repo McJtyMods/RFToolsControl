@@ -71,7 +71,7 @@ public class InteractionScreenModule implements IScreenModule<IModuleDataBoolean
         }
         if (x >= xoffset) {
             if (coordinate.getY() != -1) {
-                if (!WorldTools.chunkLoaded(world, coordinate)) {
+                if (!WorldTools.isLoaded(world, coordinate)) {
                     return;
                 }
 

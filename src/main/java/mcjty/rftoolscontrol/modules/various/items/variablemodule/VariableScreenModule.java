@@ -30,7 +30,7 @@ public class VariableScreenModule implements IScreenModule<ModuleDataVariable> {
             return null;
         }
 
-        if (!WorldTools.chunkLoaded(world, coordinate)) {
+        if (!WorldTools.isLoaded(world, coordinate)) {
             return null;
         }
 

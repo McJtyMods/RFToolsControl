@@ -1848,7 +1848,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
         int monitorz = tagCompound.getInt("monitorz");
         ServerWorld world = WorldTools.getWorld(DimensionType.byName(new ResourceLocation(monitordim)));
         BlockPos dest = new BlockPos(monitorx, monitory, monitorz);
-        if (!WorldTools.chunkLoaded(world, dest)) {
+        if (!WorldTools.isLoaded(world, dest)) {
             throw new ProgException(EXCEPT_INVALIDDESTINATION);
         }
         TileEntity te = world.getTileEntity(dest);
@@ -2463,7 +2463,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
             throw new ProgException(EXCEPT_MISSINGSTORAGE);
         }
 
-        if (!WorldTools.chunkLoaded(world, c)) {
+        if (!WorldTools.isLoaded(world, c)) {
             throw new ProgException(EXCEPT_MISSINGSTORAGE);
         }
 
