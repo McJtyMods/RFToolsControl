@@ -1,5 +1,6 @@
 package mcjty.rftoolscontrol.modules.various.items.consolemodule;
 
+import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.lib.varia.GuiTools;
 import mcjty.lib.varia.Logging;
 import mcjty.rftoolsbase.api.screens.IModuleGuiBuilder;
@@ -8,11 +9,15 @@ import mcjty.rftoolsbase.tools.GenericModuleItem;
 import mcjty.rftoolsbase.tools.ModuleTools;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.modules.processor.ProcessorSetup;
+import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorContainer;
 import mcjty.rftoolscontrol.modules.various.VariousSetup;
 import mcjty.rftoolscontrol.setup.ConfigSetup;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.inventory.container.Container;
+import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUseContext;
@@ -20,10 +25,14 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
+import net.minecraftforge.items.CapabilityItemHandler;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class ConsoleModuleItem extends GenericModuleItem implements ITabletSupport {
 
@@ -43,7 +52,22 @@ public class ConsoleModuleItem extends GenericModuleItem implements ITabletSuppo
     public void openGui(@Nonnull PlayerEntity player, @Nonnull ItemStack tabletItem, @Nonnull ItemStack containingItem) {
         BlockPos pos = ModuleTools.getPositionFromModule(containingItem);
         DimensionType dimensionType = ModuleTools.getDimensionFromModule(containingItem);
-        GuiTools.openRemoteGui(player, dimensionType, pos);
+        GuiTools.openRemoteGui(player, dimensionType, pos, te -> new INamedContainerProvider() {
+            @Override
+            public ITextComponent getDisplayName() {
+                return new StringTextComponent("Remote Processor Console");
+            }
+
+            @Nullable
+            @Override
+            public Container createMenu(int id, PlayerInventory inventory, PlayerEntity player) {
+                ProcessorContainer container = new ProcessorContainer(ProcessorSetup.PROCESSOR_CONTAINER_REMOTE.get(), id, ProcessorContainer.CONTAINER_FACTORY, pos, (GenericTileEntity) te);
+                te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).ifPresent(h -> {
+                    container.setupInventories(h, inventory);
+                });
+                return container;
+            }
+        });
     }
 
     @Override

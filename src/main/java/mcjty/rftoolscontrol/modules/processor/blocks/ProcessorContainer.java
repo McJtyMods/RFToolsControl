@@ -7,6 +7,7 @@ import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.rftoolscontrol.modules.processor.ProcessorSetup;
 import mcjty.rftoolscontrol.modules.various.VariousSetup;
 import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.items.IItemHandler;
@@ -39,6 +40,10 @@ public class ProcessorContainer extends GenericContainer {
 
     public ProcessorContainer(int id, ContainerFactory factory, BlockPos pos, @Nullable GenericTileEntity te) {
         super(ProcessorSetup.PROCESSOR_CONTAINER.get(), id, factory, pos, te);
+    }
+
+    public ProcessorContainer(ContainerType<ProcessorContainer> type, int id, ContainerFactory factory, BlockPos pos, @Nullable GenericTileEntity te) {
+        super(type, id, factory, pos, te);
     }
 
     @Override

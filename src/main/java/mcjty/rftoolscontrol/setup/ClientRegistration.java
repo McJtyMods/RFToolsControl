@@ -1,13 +1,17 @@
 package mcjty.rftoolscontrol.setup;
 
 
+import mcjty.lib.McJtyLib;
 import mcjty.lib.gui.GenericGuiContainer;
+import mcjty.lib.varia.Tools;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.modules.craftingstation.CraftingStationSetup;
 import mcjty.rftoolscontrol.modules.craftingstation.client.GuiCraftingStation;
 import mcjty.rftoolscontrol.modules.multitank.MultiTankSetup;
 import mcjty.rftoolscontrol.modules.multitank.client.GuiMultiTank;
 import mcjty.rftoolscontrol.modules.processor.ProcessorSetup;
+import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorContainer;
+import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorTileEntity;
 import mcjty.rftoolscontrol.modules.processor.client.GuiProcessor;
 import mcjty.rftoolscontrol.modules.processor.client.ProcessorRenderer;
 import mcjty.rftoolscontrol.modules.programmer.ProgrammerSetup;
@@ -15,8 +19,10 @@ import mcjty.rftoolscontrol.modules.programmer.client.GuiProgrammer;
 import mcjty.rftoolscontrol.modules.various.VariousSetup;
 import mcjty.rftoolscontrol.modules.various.client.GuiNode;
 import mcjty.rftoolscontrol.modules.various.client.GuiWorkbench;
+import net.minecraft.client.gui.ScreenManager;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.RenderTypeLookup;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -33,6 +39,14 @@ public class ClientRegistration {
         GenericGuiContainer.register(VariousSetup.NODE_CONTAINER.get(), GuiNode::new);
         GenericGuiContainer.register(CraftingStationSetup.CRAFTING_STATION_CONTAINER.get(), GuiCraftingStation::new);
         GenericGuiContainer.register(MultiTankSetup.MULTITANK_CONTAINER.get(), GuiMultiTank::new);
+
+        ScreenManager.IScreenFactory<ProcessorContainer, GuiProcessor> factory = (container, inventory, title) -> {
+            TileEntity te = new ProcessorTileEntity();  // Dummy tile
+            return Tools.safeMap(te, (mcjty.rftoolscontrol.modules.processor.blocks.ProcessorTileEntity tile) -> new GuiProcessor(tile, container, inventory), "Invalid tile entity!");
+        };
+        ScreenManager.registerFactory(ProcessorSetup.PROCESSOR_CONTAINER_REMOTE.get(), factory);
+
+
         RenderTypeLookup.setRenderLayer(MultiTankSetup.MULTITANK.get(), RenderType.getTranslucent());
         ProcessorRenderer.register();
         //        ModelLoaderRegistry.registerLoader(new ResourceLocation(RFToolsControl.MODID, "tankloader"), new TankModelLoader());
