@@ -105,7 +105,7 @@ public class ProcessorRenderer extends TileEntityRenderer<ProcessorTileEntity> {
             if (tileEntity.getShowHud() == HUD_DB) {
                 RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketGetDebugLog(tileEntity.getPos()));
             } else {
-                RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketGetLog(tileEntity.getPos()));
+                RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketGetLog(tileEntity.getPos(), false));
             }
             tileEntity.clientTime = t;
         }

@@ -237,6 +237,12 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
         fluidSlotsAvailable = -1;
     }
 
+
+    // Return true if this is a dummy tile entity for the tablet
+    public boolean isDummy() {
+        return false;
+    }
+
     public boolean isExclusive() {
         return exclusive;
     }
@@ -3274,5 +3280,4 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
         }
         return super.getCapability(cap, facing);
     }
-
 }

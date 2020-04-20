@@ -20,24 +20,29 @@ public class PacketGetLog {
 
     protected BlockPos pos;
     protected TypedMap params;
+    private boolean fromTablet;
 
     public PacketGetLog(PacketBuffer buf) {
         pos = buf.readBlockPos();
         params = TypedMapTools.readArguments(buf);
+        fromTablet = buf.readBoolean();
     }
 
-    public PacketGetLog(BlockPos pos) {
+    public PacketGetLog(BlockPos pos, boolean fromTablet) {
         this.pos = pos;
         this.params = TypedMap.EMPTY;
+        this.fromTablet = fromTablet;
     }
 
     public void toBytes(PacketBuffer buf) {
         buf.writeBlockPos(pos);
         TypedMapTools.writeArguments(buf, params);
+        buf.writeBoolean(fromTablet);
     }
 
     public void handle(Supplier<NetworkEvent.Context> supplier) {
         NetworkEvent.Context ctx = supplier.get();
+        // @todo!!! getEntityWorld is not right
         ctx.enqueueWork(() -> {
             TileEntity te = ctx.getSender().getEntityWorld().getTileEntity(pos);
             if(!(te instanceof ICommandHandler)) {
@@ -46,7 +51,12 @@ public class PacketGetLog {
             }
             ICommandHandler commandHandler = (ICommandHandler) te;
             List<String> list = commandHandler.executeWithResultList(ProcessorTileEntity.CMD_GETLOG, params, Type.STRING);
-            RFToolsCtrlMessages.INSTANCE.sendTo(new PacketLogReady(pos, ProcessorTileEntity.CLIENTCMD_GETLOG, list), ctx.getSender().connection.netManager, NetworkDirection.PLAY_TO_CLIENT);
+            if (fromTablet) {
+                // We don't have a good position for our tile entity as it might not exist client-side
+                RFToolsCtrlMessages.INSTANCE.sendTo(new PacketLogReady(null, ProcessorTileEntity.CLIENTCMD_GETLOG, list), ctx.getSender().connection.netManager, NetworkDirection.PLAY_TO_CLIENT);
+            } else {
+                RFToolsCtrlMessages.INSTANCE.sendTo(new PacketLogReady(pos, ProcessorTileEntity.CLIENTCMD_GETLOG, list), ctx.getSender().connection.netManager, NetworkDirection.PLAY_TO_CLIENT);
+            }
         });
         ctx.setPacketHandled(true);
     }

@@ -41,7 +41,7 @@ public class ClientRegistration {
         GenericGuiContainer.register(MultiTankSetup.MULTITANK_CONTAINER.get(), GuiMultiTank::new);
 
         ScreenManager.IScreenFactory<ProcessorContainer, GuiProcessor> factory = (container, inventory, title) -> {
-            TileEntity te = new ProcessorTileEntity();  // Dummy tile
+            TileEntity te = container.getTe();
             return Tools.safeMap(te, (mcjty.rftoolscontrol.modules.processor.blocks.ProcessorTileEntity tile) -> new GuiProcessor(tile, container, inventory), "Invalid tile entity!");
         };
         ScreenManager.registerFactory(ProcessorSetup.PROCESSOR_CONTAINER_REMOTE.get(), factory);

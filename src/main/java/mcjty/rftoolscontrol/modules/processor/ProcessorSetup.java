@@ -10,6 +10,7 @@ import mcjty.rftoolscontrol.setup.Registration;
 import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.extensions.IForgeContainerType;
@@ -42,7 +43,17 @@ public class ProcessorSetup {
     public static ContainerType<ProcessorContainer> createProcessorRemote() {
         ContainerType<ProcessorContainer> containerType = IForgeContainerType.create((windowId, inv, data) -> {
             BlockPos pos = data.readBlockPos();
-            ProcessorTileEntity te = new ProcessorTileEntity(); // Dummy tile entity
+
+            ProcessorTileEntity te = new ProcessorTileEntity() {
+                @Override
+                public boolean isDummy() {
+                    return true;
+                }
+            }; // Dummy tile entity
+            te.setWorldAndPos(inv.player.getEntityWorld(), pos);    // @todo wrong world
+            CompoundNBT compound = data.readCompoundTag();
+            te.read(compound);
+
             ProcessorContainer container = new ProcessorContainer(PROCESSOR_CONTAINER_REMOTE.get(), windowId, ProcessorContainer.CONTAINER_FACTORY, pos, te);
             container.setupInventories(new ItemStackHandler(ProcessorContainer.SLOTS), inv);
             return container;

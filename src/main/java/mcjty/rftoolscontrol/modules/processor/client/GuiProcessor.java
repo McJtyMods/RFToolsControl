@@ -263,7 +263,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity, Proce
     }
 
     private void requestLists() {
-        RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketGetLog(tileEntity.getPos()));
+        RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketGetLog(tileEntity.getPos(), tileEntity.isDummy()));
         RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketGetVariables(tileEntity.getPos()));
         RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketGetFluids(tileEntity.getPos()));
     }
