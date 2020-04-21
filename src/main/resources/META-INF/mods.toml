@@ -38,13 +38,13 @@ Generic RFTools
     side="BOTH"
 [[dependencies.rftoolscontrol]]
     modId="mcjtylib"
-    mandatory=false
+    mandatory=true
 #    versionRange="[1.14-3.5.8,1.14-4.0.0)"
     ordering="AFTER"
     side="BOTH"
 [[dependencies.rftoolscontrol]]
     modId="rftoolsbase"
-    mandatory=false
+    mandatory=true
 #    versionRange="[1.14-0.0.5,1.14-1.0.0)"
     ordering="AFTER"
     side="BOTH"

@@ -13,6 +13,7 @@ import net.minecraft.item.Item;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.dimension.DimensionType;
 import net.minecraftforge.common.extensions.IForgeContainerType;
 import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.items.ItemStackHandler;
@@ -43,14 +44,20 @@ public class ProcessorSetup {
     public static ContainerType<ProcessorContainer> createProcessorRemote() {
         ContainerType<ProcessorContainer> containerType = IForgeContainerType.create((windowId, inv, data) -> {
             BlockPos pos = data.readBlockPos();
+            DimensionType type = DimensionType.getById(data.readInt());
 
             ProcessorTileEntity te = new ProcessorTileEntity() {
                 @Override
                 public boolean isDummy() {
                     return true;
                 }
+
+                @Override
+                public DimensionType getDimensionType() {
+                    return type;
+                }
             }; // Dummy tile entity
-            te.setWorldAndPos(inv.player.getEntityWorld(), pos);    // @todo wrong world
+            te.setWorldAndPos(inv.player.getEntityWorld(), pos);    // Wrong world but doesn't really matter
             CompoundNBT compound = data.readCompoundTag();
             te.read(compound);
 

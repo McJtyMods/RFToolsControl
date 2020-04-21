@@ -9,6 +9,7 @@ import mcjty.lib.gui.events.SelectionEvent;
 import mcjty.lib.gui.events.TextSpecialKeyEvent;
 import mcjty.lib.gui.layout.HorizontalAlignment;
 import mcjty.lib.gui.widgets.*;
+import mcjty.lib.network.PacketServerCommandTyped;
 import mcjty.lib.tileentity.GenericEnergyStorage;
 import mcjty.lib.typed.TypedMap;
 import mcjty.rftoolsbase.api.control.parameters.ParameterType;
@@ -231,6 +232,8 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity, Proce
 
     private void executeCommand(String text) {
         dumpHistory();
+        // Use the version with the dimension type as a parameter so that we can work from within the tablet (which can
+        // be in another dimension)
         sendServerCommandTyped(RFToolsCtrlMessages.INSTANCE, ProcessorTileEntity.CMD_EXECUTE,
                 TypedMap.builder().put(PARAM_CMD, text).build());
 
@@ -263,9 +266,9 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity, Proce
     }
 
     private void requestLists() {
-        RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketGetLog(tileEntity.getPos(), tileEntity.isDummy()));
-        RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketGetVariables(tileEntity.getPos()));
-        RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketGetFluids(tileEntity.getPos()));
+        RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketGetLog(tileEntity.getDimensionType(), tileEntity.getPos(), tileEntity.isDummy()));
+        RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketGetVariables(tileEntity.getPos(), tileEntity.getDimensionType()));
+        RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketGetFluids(tileEntity.getPos(), tileEntity.getDimensionType()));
     }
 
     private void requestListsIfNeeded() {
