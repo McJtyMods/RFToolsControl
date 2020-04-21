@@ -157,7 +157,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
     private LazyOptional<GenericEnergyStorage> energyHandler = LazyOptional.of(() -> new GenericEnergyStorage(this, true, ConfigSetup.processorMaxenergy.get(), ConfigSetup.processorReceivepertick.get()));
 
     private LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<ProcessorContainer>("Processor")
-            .containerSupplier((windowId, player) -> new ProcessorContainer(windowId, ProcessorContainer.CONTAINER_FACTORY, getPos(), ProcessorTileEntity.this))
+            .containerSupplier((windowId, player) -> ProcessorContainer.create(windowId, getPos(), ProcessorTileEntity.this))
             .itemHandler(itemHandler)
             .energyHandler(energyHandler));
 
@@ -223,6 +223,9 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
 
     private Set<String> locks = new HashSet<>();
 
+    // If set this is a dummy tile entity
+    private DimensionType dummyType = null;
+
 
     public ProcessorTileEntity() {
         super(ProcessorSetup.PROCESSOR_TILE.get());
@@ -237,10 +240,24 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
         fluidSlotsAvailable = -1;
     }
 
+    // Used for a dummy tile entity (tablet usage)
+    public ProcessorTileEntity(DimensionType type) {
+        this();
+        dummyType = type;
+    }
+
 
     // Return true if this is a dummy tile entity for the tablet
     public boolean isDummy() {
-        return false;
+        return dummyType != null;
+    }
+
+    @Override
+    public DimensionType getDimensionType() {
+        if (dummyType != null) {
+            return dummyType;
+        }
+        return super.getDimensionType();
     }
 
     public boolean isExclusive() {

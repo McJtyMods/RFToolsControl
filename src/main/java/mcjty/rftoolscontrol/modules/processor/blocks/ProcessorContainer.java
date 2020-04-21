@@ -38,12 +38,16 @@ public class ProcessorContainer extends GenericContainer {
         }
     };
 
-    public ProcessorContainer(int id, ContainerFactory factory, BlockPos pos, @Nullable GenericTileEntity te) {
-        super(ProcessorSetup.PROCESSOR_CONTAINER.get(), id, factory, pos, te);
+    private ProcessorContainer(ContainerType<ProcessorContainer> type, int id, BlockPos pos, @Nullable GenericTileEntity te) {
+        super(type, id, CONTAINER_FACTORY, pos, te);
     }
 
-    public ProcessorContainer(ContainerType<ProcessorContainer> type, int id, ContainerFactory factory, BlockPos pos, @Nullable GenericTileEntity te) {
-        super(type, id, factory, pos, te);
+    public static ProcessorContainer create(int id, BlockPos pos, @Nullable GenericTileEntity te) {
+        return new ProcessorContainer(ProcessorSetup.PROCESSOR_CONTAINER.get(), id, pos, te);
+    }
+
+    public static ProcessorContainer createRemote(int id, BlockPos pos, @Nullable GenericTileEntity te) {
+        return new ProcessorContainer(ProcessorSetup.PROCESSOR_CONTAINER_REMOTE.get(), id, pos, te);
     }
 
     @Override

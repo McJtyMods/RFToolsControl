@@ -61,7 +61,7 @@ public class ConsoleModuleItem extends GenericModuleItem implements ITabletSuppo
             @Nullable
             @Override
             public Container createMenu(int id, PlayerInventory inventory, PlayerEntity player) {
-                ProcessorContainer container = new ProcessorContainer(ProcessorSetup.PROCESSOR_CONTAINER_REMOTE.get(), id, ProcessorContainer.CONTAINER_FACTORY, pos, (GenericTileEntity) te);
+                ProcessorContainer container = ProcessorContainer.createRemote(id, pos, (GenericTileEntity) te);
                 te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).ifPresent(h -> {
                     container.setupInventories(h, inventory);
                 });
