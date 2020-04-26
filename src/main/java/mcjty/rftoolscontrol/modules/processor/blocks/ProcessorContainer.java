@@ -6,6 +6,7 @@ import mcjty.lib.container.SlotDefinition;
 import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.rftoolscontrol.modules.processor.ProcessorSetup;
 import mcjty.rftoolscontrol.modules.various.VariousSetup;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.item.ItemStack;
@@ -47,8 +48,28 @@ public class ProcessorContainer extends GenericContainer {
     }
 
     public static ProcessorContainer createRemote(int id, BlockPos pos, @Nullable GenericTileEntity te) {
-        return new ProcessorContainer(ProcessorSetup.PROCESSOR_CONTAINER_REMOTE.get(), id, pos, te);
+        return new ProcessorContainer(ProcessorSetup.PROCESSOR_CONTAINER_REMOTE.get(), id, pos, te) {
+            @Override
+            protected boolean isRemoteContainer() {
+                return true;
+            }
+        };
     }
+
+    protected boolean isRemoteContainer() {
+        return false;
+    }
+
+    @Override
+    public boolean canInteractWith(PlayerEntity player) {
+        // If we are a remote container our canInteractWith should ignore distance
+        if (isRemoteContainer()) {
+            return te == null || !te.isRemoved();
+        } else {
+            return super.canInteractWith(player);
+        }
+    }
+
 
     @Override
     public void setupInventories(IItemHandler itemHandler, PlayerInventory inventory) {
