@@ -11,6 +11,7 @@ import net.minecraftforge.items.wrapper.InvWrapper;
 
 import javax.annotation.Nullable;
 
+import static mcjty.lib.container.SlotDefinition.container;
 import static mcjty.rftoolscontrol.modules.craftingstation.CraftingStationSetup.CRAFTING_STATION_CONTAINER;
 
 public class CraftingStationContainer extends GenericContainer {
@@ -18,13 +19,9 @@ public class CraftingStationContainer extends GenericContainer {
 
     public static final int SLOT_OUTPUT = 0;
 
-    public static final ContainerFactory CONTAINER_FACTORY = new ContainerFactory(9) {
-        @Override
-        protected void setup() {
-            box(SlotDefinition.container(), CONTAINER_INVENTORY, SLOT_OUTPUT, 6, 157, 3, 3);
-            playerSlots(66, 157);
-        }
-    };
+    public static final ContainerFactory CONTAINER_FACTORY = new ContainerFactory(9)
+            .box(container(), CONTAINER_INVENTORY, SLOT_OUTPUT, 6, 157, 3, 3)
+            .playerSlots(66, 157);
 
     public CraftingStationContainer(int id, ContainerFactory factory, BlockPos pos, @Nullable GenericTileEntity te) {
         super(CRAFTING_STATION_CONTAINER.get(), id, factory, pos, te);

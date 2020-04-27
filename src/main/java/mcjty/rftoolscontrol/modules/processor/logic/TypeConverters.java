@@ -149,7 +149,7 @@ public class TypeConverters {
                 return new Inventory(bs.getNodeName(), bs.getSide(), null);
             }
             case PAR_STRING:
-                return InventoryTools.inventoryFromString(v.toString());
+                return LogicInventoryTools.inventoryFromString(v.toString());
             case PAR_INTEGER:
             case PAR_LONG:
             case PAR_FLOAT:
@@ -184,7 +184,7 @@ public class TypeConverters {
             case PAR_INVENTORY:
                 return (Inventory) v;
             case PAR_STRING:
-                return InventoryTools.blockSideFromString(v.toString());
+                return LogicInventoryTools.blockSideFromString(v.toString());
             case PAR_INTEGER:
             case PAR_LONG:
             case PAR_FLOAT:
@@ -510,9 +510,9 @@ public class TypeConverters {
             case PAR_FLUID:
                 return ((FluidStack) v).getFluid().getRegistryName().toString();
             case PAR_INVENTORY:
-                return InventoryTools.inventoryToString((Inventory) v);
+                return LogicInventoryTools.inventoryToString((Inventory) v);
             case PAR_SIDE:
-                return InventoryTools.blockSideToString((BlockSide) v);
+                return LogicInventoryTools.blockSideToString((BlockSide) v);
             case PAR_EXCEPTION:
                 return ((ExceptionType) v).getCode();
             case PAR_TUPLE:

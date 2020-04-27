@@ -29,7 +29,7 @@ import mcjty.rftoolscontrol.modules.multitank.util.MultiTankFluidProperties;
 import mcjty.rftoolscontrol.modules.processor.ProcessorSetup;
 import mcjty.rftoolscontrol.modules.processor.client.GuiProcessor;
 import mcjty.rftoolscontrol.modules.processor.items.*;
-import mcjty.rftoolscontrol.modules.processor.logic.InventoryTools;
+import mcjty.rftoolscontrol.modules.processor.logic.LogicInventoryTools;
 import mcjty.rftoolscontrol.modules.processor.logic.Parameter;
 import mcjty.rftoolscontrol.modules.processor.logic.ParameterTools;
 import mcjty.rftoolscontrol.modules.processor.logic.TypeConverters;
@@ -501,7 +501,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
                         int realSlot = info.getRealSlot(slot);
                         ItemStack localStack = itemHandler.getStackInSlot(realSlot);
                         if (stackInIngredient.test(localStack)) {
-                            localStack = itemHandler.extractItem(realSlot, InventoryTools.getCountFromIngredient(stackInIngredient), false);
+                            localStack = itemHandler.extractItem(realSlot, LogicInventoryTools.getCountFromIngredient(stackInIngredient), false);
                             gridHandler.insertItem(i, localStack, false);
                             found = true;
                             break;
@@ -514,7 +514,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
                     // See if the item matches and we have enough
                     if (!stackInIngredient.test(stackInWorkbench)) {
                         success = false;
-                    } else if (InventoryTools.getCountFromIngredient(stackInIngredient) > stackInWorkbench.getCount()) {
+                    } else if (LogicInventoryTools.getCountFromIngredient(stackInIngredient) > stackInWorkbench.getCount()) {
                         success = false;
                     }
                 }
@@ -540,7 +540,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
                 int realSlot = info.getRealSlot(slot);
                 ItemStack stack = itemHandler.getStackInSlot(realSlot);
                 if (!stack.isEmpty()) {
-                    ItemStack remaining = InventoryTools.insertItem(handler, scanner, stack, extSlot == null ? null : e);
+                    ItemStack remaining = LogicInventoryTools.insertItem(handler, scanner, stack, extSlot == null ? null : e);
                     if (!remaining.isEmpty()) {
                         failed++;
                     }
@@ -598,7 +598,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
                 if (!ingredient.test(localStack)) {
                     return false;
                 }
-                if (InventoryTools.getCountFromIngredient(ingredient) != localStack.getCount()) {
+                if (LogicInventoryTools.getCountFromIngredient(ingredient) != localStack.getCount()) {
                     return false;
                 }
             } else {
@@ -653,7 +653,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
                 for (Ingredient ingredient : ingredients) {
                     int realSlot = info.getRealSlot(slot);
                     if (ingredient != Ingredient.EMPTY) {
-                        ItemStack stack = InventoryTools.extractItem(handler, scanner, InventoryTools.getCountFromIngredient(ingredient), true, ingredient, null);
+                        ItemStack stack = LogicInventoryTools.extractItem(handler, scanner, LogicInventoryTools.getCountFromIngredient(ingredient), true, ingredient, null);
                         if (!stack.isEmpty()) {
                             itemHandler.insertItem(realSlot, stack, false);
                         }
@@ -673,8 +673,8 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
         int requested = 0;
         for (Ingredient ingredient : needed) {
             if (ingredient != Ingredient.EMPTY) {
-                int countFromIngredient = InventoryTools.getCountFromIngredient(ingredient);
-                int cnt = InventoryTools.countItem(handler, scanner, ingredient, countFromIngredient);
+                int countFromIngredient = LogicInventoryTools.getCountFromIngredient(ingredient);
+                int cnt = LogicInventoryTools.countItem(handler, scanner, ingredient, countFromIngredient);
                 if (cnt < countFromIngredient) {
                     requested++;
                     if (!isRequested(ingredient)) {
@@ -694,8 +694,8 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
         int maxPossible = Integer.MAX_VALUE;
         for (Ingredient ingredient : needed) {
             if (ingredient != Ingredient.EMPTY) {
-                int cnt = InventoryTools.countItem(handler, scanner, ingredient, -1);
-                int possible = cnt / InventoryTools.getCountFromIngredient(ingredient);
+                int cnt = LogicInventoryTools.countItem(handler, scanner, ingredient, -1);
+                int possible = cnt / LogicInventoryTools.getCountFromIngredient(ingredient);
                 if (possible < maxPossible) {
                     maxPossible = possible;
                 }
@@ -763,11 +763,11 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
             for (Ingredient ingredient : ingredients) {
                 int realSlot = info.getRealSlot(slot);
                 if (ingredient != Ingredient.EMPTY) {
-                    ItemStack stack = InventoryTools.extractItem(handler, scanner, InventoryTools.getCountFromIngredient(ingredient), true, ingredient, null);
+                    ItemStack stack = LogicInventoryTools.extractItem(handler, scanner, LogicInventoryTools.getCountFromIngredient(ingredient), true, ingredient, null);
                     if (!stack.isEmpty()) {
                         ItemStack remainder = itemHandler.insertItem(realSlot, stack, false);
                         if (!remainder.isEmpty()) {
-                            InventoryTools.insertItem(handler, scanner, remainder, null);
+                            LogicInventoryTools.insertItem(handler, scanner, remainder, null);
                         }
                     } else {
                         failed++;
@@ -898,7 +898,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
             if (!s.isEmpty() && s.getItem() == RFToolsStuff.CRAFTING_CARD) {
                 ItemStack result = CraftingCardItem.getResult(s);
                 if (!result.isEmpty()) {
-                    if (InventoryTools.areItemsEqual(result, craftResult, true, true)) {
+                    if (LogicInventoryTools.areItemsEqual(result, craftResult, true, true)) {
                         return s;
                     }
                 }
@@ -1768,7 +1768,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
         return getHandlerForInv(inv).map(handler -> {
             CardInfo info = this.cardInfo[((RunningProgram) program).getCardIndex()];
             int realSlot = info.getRealSlot(virtualSlot);
-            ItemStack stack = InventoryTools.tryExtractItem(handler, amount, cache);
+            ItemStack stack = LogicInventoryTools.tryExtractItem(handler, amount, cache);
             if (stack.isEmpty()) {
                 // Nothing to do
                 return 0;
@@ -1779,7 +1779,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
                 return 0;
             }
             // All seems ok. Do the real thing now.
-            stack = InventoryTools.extractItem(handler, amount, cache);
+            stack = LogicInventoryTools.extractItem(handler, amount, cache);
             capability.insertItem(realSlot, stack, false);
             return stack.getCount();
 
@@ -1796,7 +1796,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
             CardInfo info = this.cardInfo[((RunningProgram) program).getCardIndex()];
             int realSlot = info.getRealSlot(virtualSlot);
 
-            ItemStack stack = InventoryTools.tryExtractItem(handler, scanner, amount, routable, itemMatcher, slot);
+            ItemStack stack = LogicInventoryTools.tryExtractItem(handler, scanner, amount, routable, itemMatcher, slot);
             if (stack.isEmpty()) {
                 // Nothing to do
                 return 0;
@@ -1807,7 +1807,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
                 return 0;
             }
             // All seems ok. Do the real thing now.
-            stack = InventoryTools.extractItem(handler, scanner, amount, routable, itemMatcher, slot);
+            stack = LogicInventoryTools.extractItem(handler, scanner, amount, routable, itemMatcher, slot);
             capability.insertItem(realSlot, stack, false);
             return stack.getCount();
         }).orElse(0);
@@ -1833,7 +1833,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
                 // Nothing to do
                 return 0;
             }
-            ItemStack remaining = InventoryTools.insertItem(handler, scanner, extracted, slot);
+            ItemStack remaining = LogicInventoryTools.insertItem(handler, scanner, extracted, slot);
             if (!remaining.isEmpty()) {
                 itemHandler.insertItem(realSlot, remaining, false);
                 return extracted.getCount() - remaining.getCount();

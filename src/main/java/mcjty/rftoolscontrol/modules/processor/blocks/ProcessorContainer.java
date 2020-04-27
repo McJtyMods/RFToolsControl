@@ -2,7 +2,6 @@ package mcjty.rftoolscontrol.modules.processor.blocks;
 
 import mcjty.lib.container.ContainerFactory;
 import mcjty.lib.container.GenericContainer;
-import mcjty.lib.container.SlotDefinition;
 import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.rftoolscontrol.modules.processor.ProcessorSetup;
 import mcjty.rftoolscontrol.modules.various.VariousSetup;
@@ -16,6 +15,8 @@ import net.minecraftforge.items.wrapper.InvWrapper;
 
 import javax.annotation.Nullable;
 
+import static mcjty.lib.container.SlotDefinition.container;
+import static mcjty.lib.container.SlotDefinition.specific;
 import static mcjty.rftoolscontrol.modules.processor.blocks.ProcessorTileEntity.*;
 
 public class ProcessorContainer extends GenericContainer {
@@ -26,18 +27,11 @@ public class ProcessorContainer extends GenericContainer {
     public static final int SLOT_BUFFER = EXPANSION_SLOTS + CARD_SLOTS;  // 3*8 slots
     public static final int SLOTS = EXPANSION_SLOTS + CARD_SLOTS + ITEM_SLOTS;
 
-    public static final ContainerFactory CONTAINER_FACTORY = new ContainerFactory(SLOTS) {
-        @Override
-        protected void setup() {
-            box(SlotDefinition.container(),
-                    CONTAINER_INVENTORY, SLOT_EXPANSION, 10, 157, 4, 4);
-            box(SlotDefinition.specific(new ItemStack(VariousSetup.PROGRAM_CARD.get())),
-                    CONTAINER_INVENTORY, SLOT_CARD, 10, 14, CARD_SLOTS, 1);
-            box(SlotDefinition.container(),
-                    CONTAINER_INVENTORY, SLOT_BUFFER, 199, 7, 3, 8);
-            playerSlots(91, 157);
-        }
-    };
+    public static final ContainerFactory CONTAINER_FACTORY = new ContainerFactory(SLOTS)
+            .box(container(), CONTAINER_INVENTORY, SLOT_EXPANSION, 10, 157, 4, 4)
+            .box(specific(new ItemStack(VariousSetup.PROGRAM_CARD.get())), CONTAINER_INVENTORY, SLOT_CARD, 10, 14, CARD_SLOTS, 1)
+            .box(container(), CONTAINER_INVENTORY, SLOT_BUFFER, 199, 7, 3, 8)
+            .playerSlots(91, 157);
 
     private ProcessorContainer(ContainerType<ProcessorContainer> type, int id, BlockPos pos, @Nullable GenericTileEntity te) {
         super(type, id, CONTAINER_FACTORY, pos, te);

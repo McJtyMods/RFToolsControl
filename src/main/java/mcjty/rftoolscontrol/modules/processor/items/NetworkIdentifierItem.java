@@ -3,7 +3,7 @@ package mcjty.rftoolscontrol.modules.processor.items;
 import mcjty.lib.builder.TooltipBuilder;
 import mcjty.lib.tooltips.ITooltipSettings;
 import mcjty.lib.varia.Logging;
-import mcjty.rftoolsbase.tools.ModuleTools;
+import mcjty.lib.varia.ModuleTools;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.modules.processor.ProcessorSetup;
 import net.minecraft.block.Block;

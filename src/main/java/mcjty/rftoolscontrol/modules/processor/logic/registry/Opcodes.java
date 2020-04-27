@@ -3,7 +3,7 @@ package mcjty.rftoolscontrol.modules.processor.logic.registry;
 import mcjty.rftoolsbase.api.control.code.Opcode;
 import mcjty.rftoolsbase.api.control.parameters.*;
 import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorTileEntity;
-import mcjty.rftoolscontrol.modules.processor.logic.InventoryTools;
+import mcjty.rftoolscontrol.modules.processor.logic.LogicInventoryTools;
 import mcjty.rftoolscontrol.modules.processor.logic.Parameter;
 import mcjty.rftoolscontrol.modules.processor.logic.ParameterTools;
 import mcjty.rftoolscontrol.modules.processor.logic.running.ExceptionType;
@@ -346,7 +346,7 @@ public class Opcodes {
                 ItemStack item2 = processor.evaluateItemParameter(opcode, program, 1);
                 boolean meta = processor.evaluateBoolParameter(opcode, program, 2);
                 boolean nbt = processor.evaluateBoolParameter(opcode, program, 3);
-                return InventoryTools.areItemsEqual(item1, item2, meta, nbt) ? POSITIVE : NEGATIVE;
+                return LogicInventoryTools.areItemsEqual(item1, item2, meta, nbt) ? POSITIVE : NEGATIVE;
             }))
             .build();
 
