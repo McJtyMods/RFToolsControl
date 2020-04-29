@@ -6,7 +6,7 @@ import mcjty.rftoolsbase.tools.GenericModuleItem;
 import mcjty.lib.varia.ModuleTools;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.modules.processor.ProcessorSetup;
-import mcjty.rftoolscontrol.setup.ConfigSetup;
+import mcjty.rftoolscontrol.setup.Config;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
@@ -29,7 +29,7 @@ public class VectorArtModuleItem extends GenericModuleItem {
 
     @Override
     protected int getUses(ItemStack stack) {
-        return ConfigSetup.VECTORARTMODULE_RFPERTICK.get();
+        return Config.VECTORARTMODULE_RFPERTICK.get();
     }
 
     @Override

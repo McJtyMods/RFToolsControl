@@ -11,7 +11,7 @@ import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.modules.processor.ProcessorSetup;
 import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorContainer;
 import mcjty.rftoolscontrol.modules.various.VariousSetup;
-import mcjty.rftoolscontrol.setup.ConfigSetup;
+import mcjty.rftoolscontrol.setup.Config;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
@@ -72,7 +72,7 @@ public class ConsoleModuleItem extends GenericModuleItem implements ITabletSuppo
 
     @Override
     protected int getUses(ItemStack stack) {
-        return ConfigSetup.CONSOLEMODULE_RFPERTICK.get();
+        return Config.CONSOLEMODULE_RFPERTICK.get();
     }
 
     @Override

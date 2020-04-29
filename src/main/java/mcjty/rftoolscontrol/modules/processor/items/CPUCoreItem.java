@@ -3,7 +3,7 @@ package mcjty.rftoolscontrol.modules.processor.items;
 import mcjty.lib.builder.TooltipBuilder;
 import mcjty.lib.tooltips.ITooltipSettings;
 import mcjty.rftoolscontrol.RFToolsControl;
-import mcjty.rftoolscontrol.setup.ConfigSetup;
+import mcjty.rftoolscontrol.setup.Config;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -22,8 +22,8 @@ public class CPUCoreItem extends Item implements ITooltipSettings {
 
     private final TooltipBuilder tooltipBuilder = new TooltipBuilder()
             .info(header(),
-                    parameter("speed", stack -> Integer.toString(ConfigSetup.coreSpeed[getTier()].get())),
-                    parameter("power", stack -> Integer.toString(ConfigSetup.coreRFPerTick[getTier()].get())));
+                    parameter("speed", stack -> Integer.toString(Config.coreSpeed[getTier()].get())),
+                    parameter("power", stack -> Integer.toString(Config.coreRFPerTick[getTier()].get())));
 
     public CPUCoreItem(int tier) {
         super(new Properties()

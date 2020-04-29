@@ -8,7 +8,7 @@ import mcjty.rftoolscontrol.compat.rftoolssupport.ModuleDataVariable;
 import mcjty.rftoolscontrol.modules.processor.ProcessorSetup;
 import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorTileEntity;
 import mcjty.rftoolscontrol.modules.processor.logic.Parameter;
-import mcjty.rftoolscontrol.setup.ConfigSetup;
+import mcjty.rftoolscontrol.setup.Config;
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
@@ -83,7 +83,7 @@ public class VariableScreenModule implements IScreenModule<ModuleDataVariable> {
 
     @Override
     public int getRfPerTick() {
-        return ConfigSetup.VARIABLEMODULE_RFPERTICK.get();
+        return Config.VARIABLEMODULE_RFPERTICK.get();
     }
 
     @Override

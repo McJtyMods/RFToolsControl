@@ -53,7 +53,7 @@ import mcjty.rftoolscontrol.modules.various.VariousSetup;
 import mcjty.rftoolscontrol.modules.various.blocks.NodeTileEntity;
 import mcjty.rftoolscontrol.modules.various.blocks.WorkbenchTileEntity;
 import mcjty.rftoolscontrol.modules.various.items.TokenItem;
-import mcjty.rftoolscontrol.setup.ConfigSetup;
+import mcjty.rftoolscontrol.setup.Config;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.item.Item;
@@ -154,7 +154,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
         }
     });
 
-    private LazyOptional<GenericEnergyStorage> energyHandler = LazyOptional.of(() -> new GenericEnergyStorage(this, true, ConfigSetup.processorMaxenergy.get(), ConfigSetup.processorReceivepertick.get()));
+    private LazyOptional<GenericEnergyStorage> energyHandler = LazyOptional.of(() -> new GenericEnergyStorage(this, true, Config.processorMaxenergy.get(), Config.processorReceivepertick.get()));
 
     private LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<ProcessorContainer>("Processor")
             .containerSupplier((windowId, player) -> ProcessorContainer.create(windowId, getPos(), ProcessorTileEntity.this))
@@ -1121,7 +1121,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
     }
 
     private void queueEvent(int cardIndex, CompiledEvent event, @Nullable String ticket, @Nullable Parameter parameter) {
-        if (eventQueue.size() >= ConfigSetup.maxEventQueueSize.get()) {
+        if (eventQueue.size() >= Config.maxEventQueueSize.get()) {
             // Too many events
             throw new ProgException(ExceptionType.EXCEPT_TOOMANYEVENTS);
         }
@@ -1339,7 +1339,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
             return;
         }
         logMessages.add(message);
-        while (logMessages.size() > ConfigSetup.processorMaxloglines.get()) {
+        while (logMessages.size() > Config.processorMaxloglines.get()) {
             logMessages.remove();
         }
     }
@@ -1484,7 +1484,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
 
             for (CpuCore core : cpuCores) {
                 if (core.hasProgram()) {
-                    int rft = ConfigSetup.coreRFPerTick[core.getTier()].get();
+                    int rft = Config.coreRFPerTick[core.getTier()].get();
                     if (rft < rf) {
                         core.run(this);
                         h.consumeEnergy(rft);
@@ -1887,7 +1887,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
             throw new ProgException(EXCEPT_MISSINGGRAPHICSCARD);
         }
         if (!gfxOps.containsKey(id)) {
-            if (gfxOps.size() >= ConfigSetup.maxGraphicsOpcodes.get()) {
+            if (gfxOps.size() >= Config.maxGraphicsOpcodes.get()) {
                 throw new ProgException(EXCEPT_MISSINGNETWORKCARD);
             }
             orderedOps = null;

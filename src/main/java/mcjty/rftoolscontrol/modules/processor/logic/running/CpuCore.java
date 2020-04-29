@@ -1,7 +1,7 @@
 package mcjty.rftoolscontrol.modules.processor.logic.running;
 
 import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorTileEntity;
-import mcjty.rftoolscontrol.setup.ConfigSetup;
+import mcjty.rftoolscontrol.setup.Config;
 import net.minecraft.nbt.CompoundNBT;
 
 public class CpuCore {
@@ -29,7 +29,7 @@ public class CpuCore {
         if (debug) {
             return;
         }
-        for (int i = 0; i < ConfigSetup.coreSpeed[tier].get(); i++) {
+        for (int i = 0; i < Config.coreSpeed[tier].get(); i++) {
             boolean rc = false;
             try {
                 rc = program.run(processor);

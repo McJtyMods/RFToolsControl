@@ -7,6 +7,7 @@ Upcoming:
 - New 'test_filter' opcode to test if an item matches a filter
 - New 'do_fetchitems_filter' opcode to fetch items from an inventory that match the given filter
 - Fixed the recipes for the vanilla recipe book
+- Moved most of the configs from common to server (so that they are saved with the world and synced to the client)
 
 2.0.2:
 - Fixed a bug where the storage card module wouldn't always get recognized by the processor

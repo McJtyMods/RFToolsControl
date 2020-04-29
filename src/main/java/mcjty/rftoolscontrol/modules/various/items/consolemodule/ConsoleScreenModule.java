@@ -7,7 +7,7 @@ import mcjty.rftoolsbase.api.screens.IScreenModule;
 import mcjty.rftoolscontrol.compat.rftoolssupport.ModuleDataLog;
 import mcjty.rftoolscontrol.modules.processor.ProcessorSetup;
 import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorTileEntity;
-import mcjty.rftoolscontrol.setup.ConfigSetup;
+import mcjty.rftoolscontrol.setup.Config;
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
@@ -74,7 +74,7 @@ public class ConsoleScreenModule implements IScreenModule<ModuleDataLog> {
 
     @Override
     public int getRfPerTick() {
-        return ConfigSetup.CONSOLEMODULE_RFPERTICK.get();
+        return Config.CONSOLEMODULE_RFPERTICK.get();
     }
 
     @Override

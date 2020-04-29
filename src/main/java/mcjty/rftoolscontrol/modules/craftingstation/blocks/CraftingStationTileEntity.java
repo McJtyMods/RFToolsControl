@@ -17,7 +17,7 @@ import mcjty.rftoolscontrol.modules.craftingstation.util.CraftingRequest;
 import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorTileEntity;
 import mcjty.rftoolscontrol.modules.processor.logic.running.ExceptionType;
 import mcjty.rftoolscontrol.modules.processor.logic.running.ProgException;
-import mcjty.rftoolscontrol.setup.ConfigSetup;
+import mcjty.rftoolscontrol.setup.Config;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.item.ItemStack;
@@ -188,10 +188,10 @@ public class CraftingStationTileEntity extends GenericTileEntity {
     }
 
     private boolean checkRequestAmount() {
-        if (activeCraftingRequests.size() >= ConfigSetup.maxCraftRequests.get()) {
+        if (activeCraftingRequests.size() >= Config.maxCraftRequests.get()) {
             cleanupCounter = 50;
             cleanupStaleRequests();
-            if (activeCraftingRequests.size() >= ConfigSetup.maxCraftRequests.get()) {
+            if (activeCraftingRequests.size() >= Config.maxCraftRequests.get()) {
                 // To many requests
                 return false;
             }

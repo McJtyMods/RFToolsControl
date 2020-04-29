@@ -5,7 +5,7 @@ import mcjty.rftoolsbase.api.control.registry.IFunctionRegistry;
 import mcjty.rftoolsbase.api.control.registry.IOpcodeRegistry;
 import mcjty.rftoolscontrol.modules.processor.logic.registry.FunctionRegistry;
 import mcjty.rftoolscontrol.modules.processor.logic.registry.OpcodeRegistry;
-import mcjty.rftoolscontrol.setup.ConfigSetup;
+import mcjty.rftoolscontrol.setup.Config;
 import mcjty.rftoolscontrol.setup.ModSetup;
 import mcjty.rftoolscontrol.setup.Registration;
 import net.minecraft.entity.player.PlayerEntity;
@@ -31,8 +31,8 @@ public class RFToolsControl implements ModBase {
     public RFToolsControl() {
         instance = this;
 
-        ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, ConfigSetup.CLIENT_CONFIG);
-        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, ConfigSetup.COMMON_CONFIG);
+        ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, Config.CLIENT_CONFIG);
+        ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, Config.SERVER_CONFIG);
 
         // This has to be done VERY early
 //        FluidRegistry.enableUniversalBucket();

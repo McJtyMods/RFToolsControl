@@ -3,7 +3,7 @@ package mcjty.rftoolscontrol.setup;
 
 import net.minecraftforge.common.ForgeConfigSpec;
 
-public class ConfigSetup {
+public class Config {
 
     public static final String CATEGORY_GENERAL = "general";
 
@@ -28,82 +28,82 @@ public class ConfigSetup {
     public static ForgeConfigSpec.IntValue maxCraftRequests;
     public static ForgeConfigSpec.IntValue maxStackSize;
 
-    private static final ForgeConfigSpec.Builder COMMON_BUILDER = new ForgeConfigSpec.Builder();
+    private static final ForgeConfigSpec.Builder SERVER_BUILDER = new ForgeConfigSpec.Builder();
     private static final ForgeConfigSpec.Builder CLIENT_BUILDER = new ForgeConfigSpec.Builder();
 
     static {
-        COMMON_BUILDER.comment("General settings").push(CATEGORY_GENERAL);
+        SERVER_BUILDER.comment("General settings").push(CATEGORY_GENERAL);
         CLIENT_BUILDER.comment("General settings").push(CATEGORY_GENERAL);
 
-        processorMaxenergy = COMMON_BUILDER
+        processorMaxenergy = SERVER_BUILDER
             .comment("Maximum RF storage that the processor can hold")
             .defineInRange("processorMaxRF", 100000, 1, Integer.MAX_VALUE);
-        processorReceivepertick = COMMON_BUILDER
+        processorReceivepertick = SERVER_BUILDER
             .comment("RF per tick that the processor can receive")
             .defineInRange("processorRFPerTick", 1000, 1, Integer.MAX_VALUE);
-        processorMaxloglines = COMMON_BUILDER
+        processorMaxloglines = SERVER_BUILDER
             .comment("Maximum number of lines to keep in the log")
             .defineInRange("processorMaxLogLines", 100, 0, 100000);
-        maxStackSize = COMMON_BUILDER
+        maxStackSize = SERVER_BUILDER
             .comment("Maximum stack size for a program (used by 'call' opcode)")
             .defineInRange("maxStackSize", 100, 1, 10000);
-        maxGraphicsOpcodes = COMMON_BUILDER
+        maxGraphicsOpcodes = SERVER_BUILDER
             .comment("Maximum amount of graphics opcodes that a graphics card supports")
             .defineInRange("maxGraphicsOpcodes", 30, 1, 10000);
-        maxEventQueueSize = COMMON_BUILDER
+        maxEventQueueSize = SERVER_BUILDER
             .comment("Maximum amount of event queue entries supported by a processor. More events will be ignored")
             .defineInRange("maxEventQueueSize", 100, 1, 10000);
-        maxCraftRequests = COMMON_BUILDER
+        maxCraftRequests = SERVER_BUILDER
             .comment("Maximum amount of craft requests supported by the crafting station. More requests will be ignored")
             .defineInRange("maxCraftRequests", 200, 1, 10000);
 
-        doubleClickToChangeConnector = COMMON_BUILDER
+        doubleClickToChangeConnector = SERVER_BUILDER
                 .comment("If true double click is needed in programmer to change connector. If false single click is sufficient")
                 .define("doubleClickToChangeConnector", true);
-        tooltipVerbosityLevel = COMMON_BUILDER
+        tooltipVerbosityLevel = SERVER_BUILDER
                 .comment("If 2 tooltips in the programmer gui are verbose and give a lot of info. With 1 the information is decreased. 0 means no tooltips")
                 .defineInRange("tooltipVerbosityLevel", 2, 0, 2);
 
-        coreSpeed[0] = COMMON_BUILDER
+        coreSpeed[0] = SERVER_BUILDER
                 .comment("Amount of instructions per tick for the CPU Core B500")
                 .defineInRange("speedB500", 1, 1, 1000);
-        coreSpeed[1] = COMMON_BUILDER
+        coreSpeed[1] = SERVER_BUILDER
                 .comment("Amount of instructions per tick for the CPU Core S1000")
                 .defineInRange("speedS1000", 4, 1, 1000);
-        coreSpeed[2] = COMMON_BUILDER
+        coreSpeed[2] = SERVER_BUILDER
                 .comment("Amount of instructions per tick for the CPU Core EX2000")
                 .defineInRange("speedEX2000", 16, 1, 1000);
-        coreRFPerTick[0] = COMMON_BUILDER
+        coreRFPerTick[0] = SERVER_BUILDER
                 .comment("RF per tick for the CPU Core B500")
                 .defineInRange("rfB500", 4, 0, Integer.MAX_VALUE);
-        coreRFPerTick[1] = COMMON_BUILDER
+        coreRFPerTick[1] = SERVER_BUILDER
                 .comment("RF per tick for the CPU Core S1000")
                 .defineInRange("rfS1000", 14, 0, Integer.MAX_VALUE);
-        coreRFPerTick[2] = COMMON_BUILDER
+        coreRFPerTick[2] = SERVER_BUILDER
                 .comment("RF per tick for the CPU Core EX2000")
                 .defineInRange("rfEX2000", 50, 0, Integer.MAX_VALUE);
 
-        VARIABLEMODULE_RFPERTICK = COMMON_BUILDER
+        VARIABLEMODULE_RFPERTICK = SERVER_BUILDER
                 .comment("RF per tick/per block for the variable screen module")
                 .defineInRange("variableModuleRFPerTick", 1, 0, Integer.MAX_VALUE);
-        INTERACTMODULE_RFPERTICK = COMMON_BUILDER
+        INTERACTMODULE_RFPERTICK = SERVER_BUILDER
                 .comment("RF per tick/per block for the interaction screen module")
                 .defineInRange("interactionModuleRFPerTick", 2, 0, Integer.MAX_VALUE);
-        CONSOLEMODULE_RFPERTICK = COMMON_BUILDER
+        CONSOLEMODULE_RFPERTICK = SERVER_BUILDER
                 .comment("RF per tick/per block for the console screen module")
                 .defineInRange("consoleModuleRFPerTick", 2, 0, Integer.MAX_VALUE);
-        VECTORARTMODULE_RFPERTICK = COMMON_BUILDER
+        VECTORARTMODULE_RFPERTICK = SERVER_BUILDER
                 .comment("RF per tick/per block for the vector art screen module")
                 .defineInRange("vectorArtModuleRFPerTick", 2, 0, Integer.MAX_VALUE);
 
-        COMMON_BUILDER.pop();
+        SERVER_BUILDER.pop();
         CLIENT_BUILDER.pop();
 
-        COMMON_CONFIG = COMMON_BUILDER.build();
+        SERVER_CONFIG = SERVER_BUILDER.build();
         CLIENT_CONFIG = CLIENT_BUILDER.build();
     }
 
-    public static ForgeConfigSpec COMMON_CONFIG;
+    public static ForgeConfigSpec SERVER_CONFIG;
     public static ForgeConfigSpec CLIENT_CONFIG;
 
 

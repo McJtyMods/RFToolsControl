@@ -12,7 +12,7 @@ import mcjty.rftoolscontrol.modules.processor.logic.TypeConverters;
 import mcjty.rftoolscontrol.modules.processor.logic.compiled.CompiledCard;
 import mcjty.rftoolscontrol.modules.processor.logic.compiled.CompiledEvent;
 import mcjty.rftoolscontrol.modules.processor.logic.compiled.CompiledOpcode;
-import mcjty.rftoolscontrol.setup.ConfigSetup;
+import mcjty.rftoolscontrol.setup.Config;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
 import net.minecraftforge.common.util.Constants;
@@ -165,14 +165,14 @@ public class RunningProgram implements IProgram {
     }
 
     public void pushLoopStack(int varIndex) {
-        if (loopStack.size() >= ConfigSetup.maxStackSize.get()) {
+        if (loopStack.size() >= Config.maxStackSize.get()) {
             throw new ProgException(ExceptionType.EXCEPT_STACKOVERFLOW);
         }
         loopStack.add(new FlowStack(current, varIndex));
     }
 
     public void pushCall(int returnIndex) {
-        if (loopStack.size() >= ConfigSetup.maxStackSize.get()) {
+        if (loopStack.size() >= Config.maxStackSize.get()) {
             throw new ProgException(ExceptionType.EXCEPT_STACKOVERFLOW);
         }
 

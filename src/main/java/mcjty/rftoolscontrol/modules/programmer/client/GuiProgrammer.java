@@ -36,7 +36,7 @@ import mcjty.rftoolscontrol.modules.programmer.blocks.ProgrammerContainer;
 import mcjty.rftoolscontrol.modules.programmer.blocks.ProgrammerTileEntity;
 import mcjty.rftoolscontrol.modules.programmer.network.PacketUpdateNBTItemInventoryProgrammer;
 import mcjty.rftoolscontrol.modules.various.items.ProgramCardItem;
-import mcjty.rftoolscontrol.setup.ConfigSetup;
+import mcjty.rftoolscontrol.setup.Config;
 import mcjty.rftoolscontrol.setup.RFToolsCtrlMessages;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.container.ClickType;
@@ -242,7 +242,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Pro
     private List<String> getGridIconTooltips(int finalX, int finalY) {
         if (McJtyLib.proxy.isCtrlKeyDown()) {
             List<String> tooltips = new ArrayList<>();
-            if (ConfigSetup.tooltipVerbosityLevel.get() >= 2) {
+            if (Config.tooltipVerbosityLevel.get() >= 2) {
                 tooltips.add(TextFormatting.GREEN + "Ctrl-Click to add or remove selection");
                 tooltips.add(TextFormatting.GREEN + "Ctrl-Double click to (de)select sequence");
                 tooltips.add(TextFormatting.YELLOW + "Ctrl-A to select entire grid");
@@ -250,13 +250,13 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Pro
                 tooltips.add(TextFormatting.YELLOW + "Ctrl-X to cut selected grid");
                 tooltips.add(TextFormatting.YELLOW + "Ctrl-V to paste to selected grid");
                 tooltips.add(TextFormatting.YELLOW + "Ctrl-Z undo last paste operation");
-            } else if (ConfigSetup.tooltipVerbosityLevel.get() >= 1) {
+            } else if (Config.tooltipVerbosityLevel.get() >= 1) {
                 tooltips.add(TextFormatting.GREEN + "Use Ctrl with A, C, X, V or Z");
             }
             return tooltips;
         } else if (prevHighlightConnector != null) {
             List<String> tooltips = new ArrayList<>();
-            if (ConfigSetup.doubleClickToChangeConnector.get()) {
+            if (Config.doubleClickToChangeConnector.get()) {
                 tooltips.add(TextFormatting.GREEN + "Double click to change connector");
             } else {
                 tooltips.add(TextFormatting.GREEN + "Click to change connector");
@@ -327,7 +327,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Pro
         clearSelection();
 
         long time = System.currentTimeMillis();
-        boolean doubleclick = !ConfigSetup.doubleClickToChangeConnector.get();
+        boolean doubleclick = !Config.doubleClickToChangeConnector.get();
         if (prevTime != -1L && time - prevTime < 250L) {
             doubleclick = true;
         }

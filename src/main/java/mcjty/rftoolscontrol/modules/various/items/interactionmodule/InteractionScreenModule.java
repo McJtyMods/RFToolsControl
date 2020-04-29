@@ -7,7 +7,7 @@ import mcjty.rftoolsbase.api.screens.IScreenModule;
 import mcjty.rftoolsbase.api.screens.data.IModuleDataBoolean;
 import mcjty.rftoolscontrol.modules.processor.ProcessorSetup;
 import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorTileEntity;
-import mcjty.rftoolscontrol.setup.ConfigSetup;
+import mcjty.rftoolscontrol.setup.Config;
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
@@ -58,7 +58,7 @@ public class InteractionScreenModule implements IScreenModule<IModuleDataBoolean
 
     @Override
     public int getRfPerTick() {
-        return ConfigSetup.INTERACTMODULE_RFPERTICK.get();
+        return Config.INTERACTMODULE_RFPERTICK.get();
     }
 
     @Override
