@@ -29,7 +29,7 @@ public class ProgrammerTileEntity extends GenericTileEntity {
     private LazyOptional<AutomationFilterItemHander> automationItemHandler = LazyOptional.of(() -> new AutomationFilterItemHander(items));
 
     private LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<ProgrammerContainer>("Programmer")
-            .containerSupplier((windowId,player) -> new ProgrammerContainer(windowId, ProgrammerContainer.CONTAINER_FACTORY, getPos(), ProgrammerTileEntity.this))
+            .containerSupplier((windowId,player) -> new ProgrammerContainer(windowId, ProgrammerContainer.CONTAINER_FACTORY.get(), getPos(), ProgrammerTileEntity.this))
             .itemHandler(itemHandler));
 
     public ProgrammerTileEntity() {
@@ -69,7 +69,7 @@ public class ProgrammerTileEntity extends GenericTileEntity {
     }
 
     private NoDirectionItemHander createItemHandler() {
-        return new NoDirectionItemHander(ProgrammerTileEntity.this, ProgrammerContainer.CONTAINER_FACTORY);
+        return new NoDirectionItemHander(ProgrammerTileEntity.this, ProgrammerContainer.CONTAINER_FACTORY.get());
     }
 
     @Nonnull

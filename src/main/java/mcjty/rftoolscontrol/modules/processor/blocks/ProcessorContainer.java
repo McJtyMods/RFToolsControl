@@ -10,6 +10,7 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.common.util.Lazy;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.wrapper.InvWrapper;
 
@@ -27,14 +28,14 @@ public class ProcessorContainer extends GenericContainer {
     public static final int SLOT_BUFFER = EXPANSION_SLOTS + CARD_SLOTS;  // 3*8 slots
     public static final int SLOTS = EXPANSION_SLOTS + CARD_SLOTS + ITEM_SLOTS;
 
-    public static final ContainerFactory CONTAINER_FACTORY = new ContainerFactory(SLOTS)
+    public static final Lazy<ContainerFactory> CONTAINER_FACTORY = Lazy.of(() -> new ContainerFactory(SLOTS)
             .box(container(), CONTAINER_INVENTORY, SLOT_EXPANSION, 10, 157, 4, 4)
             .box(specific(new ItemStack(VariousSetup.PROGRAM_CARD.get())), CONTAINER_INVENTORY, SLOT_CARD, 10, 14, CARD_SLOTS, 1)
             .box(container(), CONTAINER_INVENTORY, SLOT_BUFFER, 199, 7, 3, 8)
-            .playerSlots(91, 157);
+            .playerSlots(91, 157));
 
     private ProcessorContainer(ContainerType<ProcessorContainer> type, int id, BlockPos pos, @Nullable GenericTileEntity te) {
-        super(type, id, CONTAINER_FACTORY, pos, te);
+        super(type, id, CONTAINER_FACTORY.get(), pos, te);
     }
 
     public static ProcessorContainer create(int id, BlockPos pos, @Nullable GenericTileEntity te) {

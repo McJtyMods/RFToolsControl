@@ -6,6 +6,7 @@ import mcjty.lib.container.SlotDefinition;
 import mcjty.lib.tileentity.GenericTileEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.common.util.Lazy;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.wrapper.InvWrapper;
 
@@ -19,9 +20,9 @@ public class CraftingStationContainer extends GenericContainer {
 
     public static final int SLOT_OUTPUT = 0;
 
-    public static final ContainerFactory CONTAINER_FACTORY = new ContainerFactory(9)
+    public static final Lazy<ContainerFactory> CONTAINER_FACTORY = Lazy.of(() -> new ContainerFactory(9)
             .box(container(), CONTAINER_INVENTORY, SLOT_OUTPUT, 6, 157, 3, 3)
-            .playerSlots(66, 157);
+            .playerSlots(66, 157));
 
     public CraftingStationContainer(int id, ContainerFactory factory, BlockPos pos, @Nullable GenericTileEntity te) {
         super(CRAFTING_STATION_CONTAINER.get(), id, factory, pos, te);

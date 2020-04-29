@@ -63,7 +63,7 @@ public class CraftingStationTileEntity extends GenericTileEntity {
     private LazyOptional<AutomationFilterItemHander> automationItemHandler = LazyOptional.of(() -> new AutomationFilterItemHander(items));
 
     private LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<CraftingStationContainer>("Crafter")
-            .containerSupplier((windowId,player) -> new CraftingStationContainer(windowId, CONTAINER_FACTORY, getPos(), CraftingStationTileEntity.this))
+            .containerSupplier((windowId,player) -> new CraftingStationContainer(windowId, CONTAINER_FACTORY.get(), getPos(), CraftingStationTileEntity.this))
             .itemHandler(itemHandler));
 
     private List<BlockPos> processorList = new ArrayList<>();
@@ -462,7 +462,7 @@ public class CraftingStationTileEntity extends GenericTileEntity {
     }
 
     private NoDirectionItemHander createItemHandler() {
-        return new NoDirectionItemHander(CraftingStationTileEntity.this, CONTAINER_FACTORY);
+        return new NoDirectionItemHander(CraftingStationTileEntity.this, CONTAINER_FACTORY.get());
     }
 
     @Nonnull

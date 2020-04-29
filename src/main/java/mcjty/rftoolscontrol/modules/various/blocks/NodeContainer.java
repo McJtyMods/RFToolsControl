@@ -5,12 +5,13 @@ import mcjty.lib.container.GenericContainer;
 import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.rftoolscontrol.modules.various.VariousSetup;
 import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.common.util.Lazy;
 
 import javax.annotation.Nullable;
 
 public class NodeContainer extends GenericContainer {
 
-    public static final ContainerFactory CONTAINER_FACTORY = new ContainerFactory(0);
+    public static final Lazy<ContainerFactory> CONTAINER_FACTORY = Lazy.of(() -> new ContainerFactory(0));
 
     public NodeContainer(int id, ContainerFactory factory, BlockPos pos, @Nullable GenericTileEntity te) {
         super(VariousSetup.NODE_CONTAINER.get(), id, factory, pos, te);

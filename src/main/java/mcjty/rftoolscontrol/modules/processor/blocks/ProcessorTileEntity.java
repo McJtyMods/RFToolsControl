@@ -3249,7 +3249,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
     }
 
     private NoDirectionItemHander createItemHandler() {
-        return new NoDirectionItemHander(ProcessorTileEntity.this, CONTAINER_FACTORY) {
+        return new NoDirectionItemHander(ProcessorTileEntity.this, CONTAINER_FACTORY.get()) {
 
             @Override
             protected void onUpdate(int index) {

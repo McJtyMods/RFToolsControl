@@ -35,7 +35,7 @@ public class WorkbenchTileEntity extends GenericTileEntity implements GenericCra
     private LazyOptional<WorkbenchItemHandler> automationItemHandlerSide = LazyOptional.of(() -> new WorkbenchItemHandler(items, null));
 
     private LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<WorkbenchContainer>("Workbench")
-            .containerSupplier((windowId, player) -> new WorkbenchContainer(windowId, WorkbenchContainer.CONTAINER_FACTORY, getPos(), WorkbenchTileEntity.this))
+            .containerSupplier((windowId, player) -> new WorkbenchContainer(windowId, WorkbenchContainer.CONTAINER_FACTORY.get(), getPos(), WorkbenchTileEntity.this))
             .itemHandler(itemHandler));
 
     // This field contains the number of real items in the craft output slot. i.e. these are
@@ -115,7 +115,7 @@ public class WorkbenchTileEntity extends GenericTileEntity implements GenericCra
     }
 
     private NoDirectionItemHander createItemHandler() {
-        return new NoDirectionItemHander(WorkbenchTileEntity.this, WorkbenchContainer.CONTAINER_FACTORY) {
+        return new NoDirectionItemHander(WorkbenchTileEntity.this, WorkbenchContainer.CONTAINER_FACTORY.get()) {
 
             // While crafting we don't update the recipe
             private int crafting = 0;

@@ -8,6 +8,7 @@ import mcjty.rftoolscontrol.modules.various.VariousSetup;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.common.util.Lazy;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.wrapper.InvWrapper;
 
@@ -21,10 +22,10 @@ public class ProgrammerContainer extends GenericContainer {
     public static final int SLOT_CARD = 0;
     public static final int SLOT_DUMMY = 1;
 
-    public static final ContainerFactory CONTAINER_FACTORY = new ContainerFactory(2)
+    public static final Lazy<ContainerFactory> CONTAINER_FACTORY = Lazy.of(() -> new ContainerFactory(2)
             .box(specific(new ItemStack(VariousSetup.PROGRAM_CARD.get())), CONTAINER_INVENTORY, SLOT_CARD, 91, 136, 1, 1)
             .box(container(), CONTAINER_INVENTORY, SLOT_DUMMY, -1000, -1000, 1, 1)
-            .playerSlots(91, 157);
+            .playerSlots(91, 157));
 
     public ProgrammerContainer(int id, ContainerFactory factory, BlockPos pos, @Nullable GenericTileEntity te) {
         super(ProgrammerSetup.PROGRAMMER_CONTAINER.get(), id, factory, pos, te);

@@ -8,6 +8,7 @@ import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.rftoolscontrol.modules.various.VariousSetup;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.common.util.Lazy;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.wrapper.InvWrapper;
 
@@ -21,11 +22,11 @@ public class WorkbenchContainer extends GenericContainer {
     public static final int SLOT_BUFFER = 10;
     public static final int BUFFER_SIZE = 9*3;
 
-    public static final ContainerFactory CONTAINER_FACTORY = new ContainerFactory(BUFFER_SIZE + 10)
+    public static final Lazy<ContainerFactory> CONTAINER_FACTORY = Lazy.of(() -> new ContainerFactory(BUFFER_SIZE + 10)
             .box(SlotDefinition.container(), CONTAINER_INVENTORY, SLOT_CRAFTINPUT, 42, 27, 3, 3)
             .box(SlotDefinition.craftResult(), CONTAINER_INVENTORY, SLOT_CRAFTOUTPUT, 114, 45, 1, 1)
             .box(SlotDefinition.container(), CONTAINER_INVENTORY, SLOT_BUFFER, 6, 99, 9, 3)
-            .playerSlots(6, 157);
+            .playerSlots(6, 157));
 
 //    @Override
 //    public ItemStack transferStackInSlot(PlayerEntity player, int index) {
