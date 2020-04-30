@@ -36,7 +36,7 @@ public class NodeTileEntity extends GenericTileEntity {
     private int prevIn = 0;
     private int powerOut[] = new int[] { 0, 0, 0, 0, 0, 0 };
 
-    private LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<NodeContainer>("Node")
+    private final LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<NodeContainer>("Node")
             .containerSupplier((windowId,player) -> new NodeContainer(windowId, NodeContainer.CONTAINER_FACTORY.get(), getPos(), NodeTileEntity.this)));
 
     public NodeTileEntity() {

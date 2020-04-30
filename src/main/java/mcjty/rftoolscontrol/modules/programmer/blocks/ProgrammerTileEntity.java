@@ -24,11 +24,11 @@ import javax.annotation.Nullable;
 
 public class ProgrammerTileEntity extends GenericTileEntity {
 
-    private NoDirectionItemHander items = createItemHandler();
-    private LazyOptional<NoDirectionItemHander> itemHandler = LazyOptional.of(() -> items);
-    private LazyOptional<AutomationFilterItemHander> automationItemHandler = LazyOptional.of(() -> new AutomationFilterItemHander(items));
+    private final NoDirectionItemHander items = createItemHandler();
+    private final LazyOptional<NoDirectionItemHander> itemHandler = LazyOptional.of(() -> items);
+    private final LazyOptional<AutomationFilterItemHander> automationItemHandler = LazyOptional.of(() -> new AutomationFilterItemHander(items));
 
-    private LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<ProgrammerContainer>("Programmer")
+    private final LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<ProgrammerContainer>("Programmer")
             .containerSupplier((windowId,player) -> new ProgrammerContainer(windowId, ProgrammerContainer.CONTAINER_FACTORY.get(), getPos(), ProgrammerTileEntity.this))
             .itemHandler(itemHandler));
 

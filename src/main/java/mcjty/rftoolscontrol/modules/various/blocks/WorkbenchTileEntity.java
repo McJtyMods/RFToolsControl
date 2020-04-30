@@ -28,13 +28,13 @@ import java.util.List;
 
 public class WorkbenchTileEntity extends GenericTileEntity implements GenericCrafter {
 
-    private NoDirectionItemHander items = createItemHandler();
-    private LazyOptional<NoDirectionItemHander> itemHandler = LazyOptional.of(() -> items);
-    private LazyOptional<WorkbenchItemHandler> automationItemHandlerUp = LazyOptional.of(() -> new WorkbenchItemHandler(items, Direction.UP));
-    private LazyOptional<WorkbenchItemHandler> automationItemHandlerDown = LazyOptional.of(() -> new WorkbenchItemHandler(items, Direction.DOWN));
-    private LazyOptional<WorkbenchItemHandler> automationItemHandlerSide = LazyOptional.of(() -> new WorkbenchItemHandler(items, null));
+    private final NoDirectionItemHander items = createItemHandler();
+    private final LazyOptional<NoDirectionItemHander> itemHandler = LazyOptional.of(() -> items);
+    private final LazyOptional<WorkbenchItemHandler> automationItemHandlerUp = LazyOptional.of(() -> new WorkbenchItemHandler(items, Direction.UP));
+    private final LazyOptional<WorkbenchItemHandler> automationItemHandlerDown = LazyOptional.of(() -> new WorkbenchItemHandler(items, Direction.DOWN));
+    private final LazyOptional<WorkbenchItemHandler> automationItemHandlerSide = LazyOptional.of(() -> new WorkbenchItemHandler(items, null));
 
-    private LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<WorkbenchContainer>("Workbench")
+    private final LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<WorkbenchContainer>("Workbench")
             .containerSupplier((windowId, player) -> new WorkbenchContainer(windowId, WorkbenchContainer.CONTAINER_FACTORY.get(), getPos(), WorkbenchTileEntity.this))
             .itemHandler(itemHandler));
 

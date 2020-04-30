@@ -58,15 +58,15 @@ public class CraftingStationTileEntity extends GenericTileEntity {
     public static final String CMD_CANCEL = "station.cancel";
     public static final Key<Integer> PARAM_INDEX = new Key<>("index", Type.INTEGER);
 
-    private NoDirectionItemHander items = createItemHandler();
-    private LazyOptional<NoDirectionItemHander> itemHandler = LazyOptional.of(() -> items);
-    private LazyOptional<AutomationFilterItemHander> automationItemHandler = LazyOptional.of(() -> new AutomationFilterItemHander(items));
+    private final NoDirectionItemHander items = createItemHandler();
+    private final LazyOptional<NoDirectionItemHander> itemHandler = LazyOptional.of(() -> items);
+    private final LazyOptional<AutomationFilterItemHander> automationItemHandler = LazyOptional.of(() -> new AutomationFilterItemHander(items));
 
-    private LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<CraftingStationContainer>("Crafter")
+    private final LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<CraftingStationContainer>("Crafter")
             .containerSupplier((windowId,player) -> new CraftingStationContainer(windowId, CONTAINER_FACTORY.get(), getPos(), CraftingStationTileEntity.this))
             .itemHandler(itemHandler));
 
-    private List<BlockPos> processorList = new ArrayList<>();
+    private final List<BlockPos> processorList = new ArrayList<>();
     private int currentTicket = 0;
     private List<CraftingRequest> activeCraftingRequests = new ArrayList<>();
     private int cleanupCounter = 50;

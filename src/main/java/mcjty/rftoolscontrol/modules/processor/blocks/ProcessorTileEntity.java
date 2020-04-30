@@ -10,6 +10,7 @@ import mcjty.lib.typed.Key;
 import mcjty.lib.typed.Type;
 import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.BlockPosTools;
+import mcjty.lib.varia.Cached;
 import mcjty.lib.varia.EnergyTools;
 import mcjty.lib.varia.WorldTools;
 import mcjty.rftoolsbase.api.control.code.Function;
@@ -140,9 +141,9 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
     private static final BiFunction<ParameterType, Object, Boolean> CONVERTOR_BOOL = TypeConverters::convertToBool;
     private static final BiFunction<ParameterType, Object, Number> CONVERTOR_NUMBER = TypeConverters::convertToNumber;
 
-    private NoDirectionItemHander items = createItemHandler();
-    private LazyOptional<NoDirectionItemHander> itemHandler = LazyOptional.of(() -> items);
-    private LazyOptional<AutomationFilterItemHander> automationItemHandler = LazyOptional.of(() -> new AutomationFilterItemHander(items) {
+    private final NoDirectionItemHander items = createItemHandler();
+    private final LazyOptional<NoDirectionItemHander> itemHandler = LazyOptional.of(() -> items);
+    private final LazyOptional<AutomationFilterItemHander> automationItemHandler = LazyOptional.of(() -> new AutomationFilterItemHander(items) {
         @Override
         public boolean canAutomationInsert(int slot) {
             return slot >= SLOT_BUFFER && slot < SLOT_BUFFER + 3 * 8;
@@ -154,14 +155,14 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
         }
     });
 
-    private LazyOptional<GenericEnergyStorage> energyHandler = LazyOptional.of(() -> new GenericEnergyStorage(this, true, Config.processorMaxenergy.get(), Config.processorReceivepertick.get()));
+    private final LazyOptional<GenericEnergyStorage> energyHandler = LazyOptional.of(() -> new GenericEnergyStorage(this, true, Config.processorMaxenergy.get(), Config.processorReceivepertick.get()));
 
-    private LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<ProcessorContainer>("Processor")
+    private final LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<ProcessorContainer>("Processor")
             .containerSupplier((windowId, player) -> ProcessorContainer.create(windowId, getPos(), ProcessorTileEntity.this))
             .itemHandler(itemHandler)
             .energyHandler(energyHandler));
 
-    private List<CpuCore> cpuCores = new ArrayList<>();
+    private final List<CpuCore> cpuCores = new ArrayList<>();
 
     public static final int HUD_OFF = 0;
     public static final int HUD_LOG = 1;
@@ -178,13 +179,13 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
     private int hasNetworkCard = -1;
     private int storageCard = -2;   // -2 is unknown
     private boolean hasGraphicsCard = false;
-    private List<Predicate<ItemStack>> filterCaches = null;
+    private final Cached<List<Predicate<ItemStack>>> filterCaches = Cached.of(this::getFilterCaches);
 
-    private Map<String, GfxOp> gfxOps = new HashMap<>();
+    private final Map<String, GfxOp> gfxOps = new HashMap<>();
     private List<String> orderedOps = null;
 
     // Client-side only: for the HUD
-    private List<GfxOp> clientGfxOps = new ArrayList<>();
+    private final List<GfxOp> clientGfxOps = new ArrayList<>();
 
     private boolean exclusive = false;
 
@@ -192,8 +193,8 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
     private long lastExceptionTime = 0;
 
     private String channel = "";
-    private Map<String, BlockPos> networkNodes = new HashMap<>();
-    private Set<BlockPos> craftingStations = new HashSet<>();
+    private final Map<String, BlockPos> networkNodes = new HashMap<>();
+    private final Set<BlockPos> craftingStations = new HashSet<>();
 
     // Bitmask for all six sides
     private int prevIn = 0;
@@ -201,17 +202,17 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
 
     private int tickCount = 0;
 
-    private Parameter[] variables = new Parameter[MAXVARS];
-    private WatchInfo[] watchInfos = new WatchInfo[MAXVARS];
+    private final Parameter[] variables = new Parameter[MAXVARS];
+    private final WatchInfo[] watchInfos = new WatchInfo[MAXVARS];
     private int fluidSlotsAvailable = -1;    // Bitmask indexed by side (6 bits), -1 means unset
 
-    private CardInfo[] cardInfo = new CardInfo[CARD_SLOTS];
+    private final CardInfo[] cardInfo = new CardInfo[CARD_SLOTS];
 
     private Queue<QueuedEvent> eventQueue = new ArrayDeque<>();        // Integer == card index
 
-    private List<WaitForItem> waitingForItems = new ArrayList<>();
+    private final List<WaitForItem> waitingForItems = new ArrayList<>();
 
-    private Queue<String> logMessages = new ArrayDeque<>();
+    private final Queue<String> logMessages = new ArrayDeque<>();
 
     // Client side: log from server
     public long clientTime = 0;
@@ -221,7 +222,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
     // Card index, Opcode index
     private Set<Pair<Integer, Integer>> runningEvents = new HashSet<>();
 
-    private Set<String> locks = new HashSet<>();
+    private final Set<String> locks = new HashSet<>();
 
     // If set this is a dummy tile entity
     private DimensionType dummyType = null;
@@ -1974,19 +1975,21 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
         return filterCache.test(item);
     }
 
-    @Nullable
-    private Predicate<ItemStack> getFilterCache(int index) {
-        if (filterCaches == null) {
-            filterCaches = new ArrayList<>();
-            for (int i = SLOT_EXPANSION; i < SLOT_EXPANSION + EXPANSION_SLOTS; i++) {
-                ItemStack stack = items.getStackInSlot(i);
-                if (!stack.isEmpty() && stack.getItem() instanceof FilterModuleItem) {
-                    filterCaches.add(FilterModuleItem.getCache(stack));
-                }
+    private List<Predicate<ItemStack>> getFilterCaches() {
+        List<Predicate<ItemStack>> caches = new ArrayList<>();
+        for (int i = SLOT_EXPANSION; i < SLOT_EXPANSION + EXPANSION_SLOTS; i++) {
+            ItemStack stack = items.getStackInSlot(i);
+            if (!stack.isEmpty() && stack.getItem() instanceof FilterModuleItem) {
+                caches.add(FilterModuleItem.getCache(stack));
             }
         }
-        if (index < filterCaches.size()) {
-            return filterCaches.get(index);
+        return caches;
+    }
+
+    @Nullable
+    private Predicate<ItemStack> getFilterCache(int index) {
+        if (index < filterCaches.get().size()) {
+            return filterCaches.get().get(index);
         } else {
             return null;
         }
@@ -2658,7 +2661,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
         maxVars = -1;
         storageCard = -2;
         hasNetworkCard = -1;
-        filterCaches = null;
+        filterCaches.clear();
     }
 
     public int getShowHud() {

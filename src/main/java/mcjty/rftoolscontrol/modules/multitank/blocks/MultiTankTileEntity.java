@@ -30,11 +30,10 @@ public class MultiTankTileEntity extends GenericTileEntity {
     public static final int MAXCAPACITY = 10000;
 
     private final MultiTankFluidProperties properties[] = new MultiTankFluidProperties[TANKS];
-    private final FluidStack fluids[] = new FluidStack[TANKS];
 
-    private LazyOptional<MultiTankHandler> fluidHandler = LazyOptional.of(this::createFluidHandler);
+    private final LazyOptional<MultiTankHandler> fluidHandler = LazyOptional.of(this::createFluidHandler);
 
-    private LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<MultiTankContainer>("Crafter")
+    private final LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<MultiTankContainer>("Crafter")
             .containerSupplier((windowId,player) -> new MultiTankContainer(windowId, MultiTankContainer.CONTAINER_FACTORY.get(), getPos(), MultiTankTileEntity.this)));
 
     public MultiTankTileEntity() {
