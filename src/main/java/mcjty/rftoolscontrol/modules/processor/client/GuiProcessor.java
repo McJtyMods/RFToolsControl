@@ -3,13 +3,13 @@ package mcjty.rftoolscontrol.modules.processor.client;
 import com.mojang.blaze3d.systems.RenderSystem;
 import mcjty.lib.client.RenderHelper;
 import mcjty.lib.gui.GenericGuiContainer;
+import mcjty.lib.gui.ManualEntry;
 import mcjty.lib.gui.Window;
 import mcjty.lib.gui.WindowManager;
 import mcjty.lib.gui.events.SelectionEvent;
 import mcjty.lib.gui.events.TextSpecialKeyEvent;
 import mcjty.lib.gui.layout.HorizontalAlignment;
 import mcjty.lib.gui.widgets.*;
-import mcjty.lib.network.PacketServerCommandTyped;
 import mcjty.lib.tileentity.GenericEnergyStorage;
 import mcjty.lib.typed.TypedMap;
 import mcjty.rftoolsbase.api.control.parameters.ParameterType;
@@ -82,7 +82,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity, Proce
     private int listDirty = 0;
 
     public GuiProcessor(ProcessorTileEntity te, ProcessorContainer container, PlayerInventory inventory) {
-        super(RFToolsControl.instance, te, container, inventory, /*@todo 1.15 GuiProxy.GUI_MANUAL_CONTROL*/0, "processor");
+        super(RFToolsControl.instance, te, container, inventory, /*@todo 1.15 GuiProxy.GUI_MANUAL_CONTROL*/ ManualEntry.EMPTY);
 
         xSize = WIDTH;
         ySize = HEIGHT;

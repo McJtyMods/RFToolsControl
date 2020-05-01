@@ -8,7 +8,6 @@ import mcjty.rftoolscontrol.modules.processor.logic.registry.OpcodeRegistry;
 import mcjty.rftoolscontrol.setup.Config;
 import mcjty.rftoolscontrol.setup.ModSetup;
 import mcjty.rftoolscontrol.setup.Registration;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
@@ -60,9 +59,4 @@ public class RFToolsControl implements ModBase {
         return MODID;
     }
 
-    @Override
-    public void openManual(PlayerEntity player, int bookIndex, String page) {
-//        GuiRFToolsManual.locatePage = page;
-//        player.openGui(RFToolsControl.instance, bookIndex, player.getEntityWorld(), (int) player.posX, (int) player.posY, (int) player.posZ);
-    }
 }

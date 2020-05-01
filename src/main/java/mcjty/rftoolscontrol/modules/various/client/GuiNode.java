@@ -1,6 +1,7 @@
 package mcjty.rftoolscontrol.modules.various.client;
 
 import mcjty.lib.gui.GenericGuiContainer;
+import mcjty.lib.gui.ManualEntry;
 import mcjty.lib.gui.Window;
 import mcjty.lib.gui.widgets.Panel;
 import mcjty.lib.gui.widgets.TextField;
@@ -24,7 +25,7 @@ public class GuiNode extends GenericGuiContainer<NodeTileEntity, NodeContainer> 
     private TextField nodeNameField;
 
     public GuiNode(NodeTileEntity te, NodeContainer container, PlayerInventory inventory) {
-        super(RFToolsControl.instance, te, container, inventory, /*@todo 1.15 GuiProxy.GUI_MANUAL_CONTROL*/0, "networking");
+        super(RFToolsControl.instance, te, container, inventory, /*@todo 1.15 GuiProxy.GUI_MANUAL_CONTROL*/ ManualEntry.EMPTY);
 
         xSize = WIDTH;
         ySize = HEIGHT;

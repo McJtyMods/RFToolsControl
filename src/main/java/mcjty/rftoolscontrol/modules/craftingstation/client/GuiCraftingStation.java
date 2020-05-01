@@ -3,6 +3,7 @@ package mcjty.rftoolscontrol.modules.craftingstation.client;
 import mcjty.lib.McJtyLib;
 import mcjty.lib.base.StyleConfig;
 import mcjty.lib.gui.GenericGuiContainer;
+import mcjty.lib.gui.ManualEntry;
 import mcjty.lib.gui.Window;
 import mcjty.lib.gui.events.BlockRenderEvent;
 import mcjty.lib.gui.widgets.*;
@@ -52,7 +53,7 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
     private int listDirty = 0;
 
     public GuiCraftingStation(CraftingStationTileEntity te, CraftingStationContainer container, PlayerInventory inventory) {
-        super(RFToolsControl.instance, te, container, inventory, /*@todo 1.15 GuiProxy.GUI_MANUAL_CONTROL*/0, "craftingstation");
+        super(RFToolsControl.instance, te, container, inventory, /*@todo 1.15 GuiProxy.GUI_MANUAL_CONTROL*/ ManualEntry.EMPTY);
 
         xSize = WIDTH;
         ySize = HEIGHT;
