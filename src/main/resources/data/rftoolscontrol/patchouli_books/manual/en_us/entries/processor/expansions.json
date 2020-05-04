@@ -1,0 +1,12 @@
+{
+  "name": "rftoolscontrol.entry.expansions",
+  "icon": "rftoolscontrol:cpu_core_2000",
+  "category": "rftoolscontrol:category_rftoolscontrol_processor",
+  "sortnum": 20,
+  "pages": [
+    {
+      "type": "text",
+      "text": "rftoolscontrol.page.expansions0"
+    }
+  ]
+}

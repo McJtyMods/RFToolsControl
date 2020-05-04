@@ -13,6 +13,7 @@ import mcjty.lib.gui.widgets.*;
 import mcjty.lib.tileentity.GenericEnergyStorage;
 import mcjty.lib.typed.TypedMap;
 import mcjty.rftoolsbase.api.control.parameters.ParameterType;
+import mcjty.rftoolsbase.tools.ManualHelper;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorContainer;
 import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorTileEntity;
@@ -82,7 +83,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity, Proce
     private int listDirty = 0;
 
     public GuiProcessor(ProcessorTileEntity te, ProcessorContainer container, PlayerInventory inventory) {
-        super(RFToolsControl.instance, te, container, inventory, /*@todo 1.15 GuiProxy.GUI_MANUAL_CONTROL*/ ManualEntry.EMPTY);
+        super(RFToolsControl.instance, te, container, inventory, ManualHelper.create("rftoolscontrol:processor/processor"));
 
         xSize = WIDTH;
         ySize = HEIGHT;

@@ -1,0 +1,7 @@
+{
+  "name": "rftoolscontrol.category.programmer",
+  "description": "rftoolscontrol.category.programmer.description",
+  "parent": "rftoolscontrol:category_rftoolscontrol",
+  "icon": "rftoolscontrol:programmer",
+  "sortnum": 10
+}

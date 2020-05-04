@@ -22,6 +22,7 @@ import mcjty.rftoolsbase.api.control.code.OpcodeCategory;
 import mcjty.rftoolsbase.api.control.code.OpcodeOutput;
 import mcjty.rftoolsbase.api.control.parameters.ParameterDescription;
 import mcjty.rftoolsbase.api.control.parameters.ParameterValue;
+import mcjty.rftoolsbase.tools.ManualHelper;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.modules.processor.logic.Connection;
 import mcjty.rftoolscontrol.modules.processor.logic.Parameter;
@@ -125,7 +126,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Pro
     }
 
     public GuiProgrammer(ProgrammerTileEntity te, ProgrammerContainer container, PlayerInventory inventory) {
-        super(RFToolsControl.instance, te, container, inventory, /*@todo 1.15 GuiProxy.GUI_MANUAL_CONTROL*/ ManualEntry.EMPTY);
+        super(RFToolsControl.instance, te, container, inventory, ManualHelper.create("rftoolscontrol:programmer/programmer_intro"));
 
         xSize = WIDTH;
         ySize = HEIGHT;

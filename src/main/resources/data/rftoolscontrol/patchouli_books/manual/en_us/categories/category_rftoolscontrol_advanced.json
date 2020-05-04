@@ -1,0 +1,7 @@
+{
+  "name": "rftoolscontrol.category.advanced",
+  "description": "rftoolscontrol.category.advanced.description",
+  "parent": "rftoolscontrol:category_rftoolscontrol",
+  "icon": "minecraft:nether_star",
+  "sortnum": 30
+}

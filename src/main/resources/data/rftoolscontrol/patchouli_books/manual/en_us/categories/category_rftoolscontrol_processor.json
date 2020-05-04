@@ -1,0 +1,7 @@
+{
+  "name": "rftoolscontrol.category.processor",
+  "description": "rftoolscontrol.category.processor.description",
+  "parent": "rftoolscontrol:category_rftoolscontrol",
+  "icon": "rftoolscontrol:processor",
+  "sortnum": 20
+}
