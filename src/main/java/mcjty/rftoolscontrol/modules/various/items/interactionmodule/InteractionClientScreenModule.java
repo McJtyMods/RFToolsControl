@@ -35,6 +35,8 @@ public class InteractionClientScreenModule implements IClientScreenModule<IModul
 
     @Override
     public void render(MatrixStack matrixStack, IRenderTypeBuffer buffer, IModuleRenderHelper renderHelper, FontRenderer fontRenderer, int currenty, IModuleDataBoolean screenData, ModuleRenderInfo renderInfo) {
+
+
         if (labelCache == null) {
             labelCache = renderHelper.createTextRenderHelper().align(textAlign);
             buttonCache = renderHelper.createTextRenderHelper();
