@@ -1,4 +1,4 @@
-Upcoming:
+3.0.0-beta:
 - First port of RFTools Control to 1.15
 - Removed all oredictionary related parameters
 - New 'test_tag' opcode to test if an item contains a tag
