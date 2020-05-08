@@ -39,12 +39,12 @@ Generic RFTools
 [[dependencies.rftoolscontrol]]
     modId="mcjtylib"
     mandatory=true
-#    versionRange="[1.14-3.5.8,1.14-4.0.0)"
+    versionRange="[1.15-4.0.9,)"
     ordering="AFTER"
     side="BOTH"
 [[dependencies.rftoolscontrol]]
     modId="rftoolsbase"
     mandatory=true
-#    versionRange="[1.14-0.0.5,1.14-1.0.0)"
+    versionRange="[1.15-1.0.9,)"
     ordering="AFTER"
     side="BOTH"

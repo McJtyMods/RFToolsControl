@@ -1,3 +1,6 @@
+3.0.1-beta:
+- Dependency fix
+
 3.0.0-beta:
 - First port of RFTools Control to 1.15
 - Removed all oredictionary related parameters
