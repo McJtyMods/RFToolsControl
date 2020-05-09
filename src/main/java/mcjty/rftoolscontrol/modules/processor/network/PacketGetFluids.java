@@ -25,23 +25,27 @@ public class PacketGetFluids {
     private BlockPos pos;
     private DimensionType type;
     private TypedMap params;
+    private boolean fromTablet;
 
     public PacketGetFluids(PacketBuffer buf) {
         pos = buf.readBlockPos();
         type = DimensionType.getById(buf.readInt());
         params = TypedMapTools.readArguments(buf);
+        fromTablet = buf.readBoolean();
     }
 
-    public PacketGetFluids(BlockPos pos, DimensionType type) {
+    public PacketGetFluids(BlockPos pos, DimensionType type, boolean fromTablet) {
         this.pos = pos;
         this.type = type;
         this.params = TypedMap.EMPTY;
+        this.fromTablet = fromTablet;
     }
 
     public void toBytes(PacketBuffer buf) {
         buf.writeBlockPos(pos);
         buf.writeInt(type.getId());
         TypedMapTools.writeArguments(buf, params);
+        buf.writeBoolean(fromTablet);
     }
 
     public void handle(Supplier<NetworkEvent.Context> supplier) {
@@ -54,7 +58,7 @@ public class PacketGetFluids {
             }
             ICommandHandler commandHandler = (ICommandHandler) te;
             List<FluidEntry> list = commandHandler.executeWithResultList(ProcessorTileEntity.CMD_GETFLUIDS, params, Type.create(FluidEntry.class));
-            RFToolsCtrlMessages.INSTANCE.sendTo(new PacketFluidsReady(((ProcessorTileEntity)te).isDummy() ? null : pos, ProcessorTileEntity.CLIENTCMD_GETFLUIDS, list), ctx.getSender().connection.netManager, NetworkDirection.PLAY_TO_CLIENT);
+            RFToolsCtrlMessages.INSTANCE.sendTo(new PacketFluidsReady(fromTablet ? null : pos, ProcessorTileEntity.CLIENTCMD_GETFLUIDS, list), ctx.getSender().connection.netManager, NetworkDirection.PLAY_TO_CLIENT);
         });
         ctx.setPacketHandled(true);
     }

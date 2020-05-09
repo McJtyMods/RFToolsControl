@@ -25,23 +25,27 @@ public class PacketGetVariables {
     private BlockPos pos;
     private DimensionType type;
     private TypedMap params;
+    private boolean fromTablet;
 
     public PacketGetVariables(PacketBuffer buf) {
         pos = buf.readBlockPos();
         type = DimensionType.getById(buf.readInt());
         params = TypedMapTools.readArguments(buf);
+        fromTablet = buf.readBoolean();
     }
 
-    public PacketGetVariables(BlockPos pos, DimensionType type) {
+    public PacketGetVariables(BlockPos pos, DimensionType type, boolean fromTablet) {
         this.pos = pos;
         this.type = type;
         this.params = TypedMap.EMPTY;
+        this.fromTablet = fromTablet;
     }
 
     public void toBytes(PacketBuffer buf) {
         buf.writeBlockPos(pos);
         buf.writeInt(type.getId());
         TypedMapTools.writeArguments(buf, params);
+        buf.writeBoolean(fromTablet);
     }
 
     public void handle(Supplier<NetworkEvent.Context> supplier) {
@@ -54,7 +58,7 @@ public class PacketGetVariables {
             }
             ICommandHandler commandHandler = (ICommandHandler) te;
             List<Parameter> list = commandHandler.executeWithResultList(ProcessorTileEntity.CMD_GETVARS, params, Type.create(Parameter.class));
-            RFToolsCtrlMessages.INSTANCE.sendTo(new PacketVariablesReady(((ProcessorTileEntity)te).isDummy() ? null : pos, ProcessorTileEntity.CLIENTCMD_GETVARS, list),
+            RFToolsCtrlMessages.INSTANCE.sendTo(new PacketVariablesReady(fromTablet ? null : pos, ProcessorTileEntity.CLIENTCMD_GETVARS, list),
                     ctx.getSender().connection.netManager, NetworkDirection.PLAY_TO_CLIENT);
         });
         ctx.setPacketHandled(true);

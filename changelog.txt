@@ -1,3 +1,6 @@
+Upcoming:
+- Fixed a problem with fetching variables and fluids from a processor through a tablet
+
 3.0.1-beta:
 - Dependency fix
 
