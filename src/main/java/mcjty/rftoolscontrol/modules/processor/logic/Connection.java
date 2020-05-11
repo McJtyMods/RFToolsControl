@@ -17,7 +17,7 @@ public enum Connection {
 
     private final String id;
 
-    private static Map<String, Connection> ID_TO_CONNECTION = new HashMap<>();
+    private static final Map<String, Connection> ID_TO_CONNECTION = new HashMap<>();
 
     static {
         for (Connection connection : values()) {

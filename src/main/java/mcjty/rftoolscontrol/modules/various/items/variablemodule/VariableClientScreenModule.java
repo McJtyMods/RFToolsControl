@@ -15,9 +15,6 @@ import net.minecraft.world.dimension.DimensionType;
 
 public class VariableClientScreenModule implements IClientScreenModule<ModuleDataVariable> {
     private String line = "";
-    private int color = 0xffffff;
-    private int varcolor = 0xffffff;
-    private int varIdx = -1;
     private TextAlign textAlign = TextAlign.ALIGN_LEFT;
 
     private ITextRenderHelper labelCache = null;
@@ -66,17 +63,20 @@ public class VariableClientScreenModule implements IClientScreenModule<ModuleDat
     @Override
     public void setupFromNBT(CompoundNBT tagCompound, DimensionType dim, BlockPos pos) {
         if (tagCompound != null) {
+            int varIdx = -1;
             if (tagCompound.contains("varIdx")) {
                 varIdx = tagCompound.getInt("varIdx");
             } else {
                 varIdx = -1;
             }
             line = tagCompound.getString("text");
+            int color = 0xffffff;
             if (tagCompound.contains("color")) {
                 color = tagCompound.getInt("color");
             } else {
                 color = 0xffffff;
             }
+            int varcolor = 0xffffff;
             if (tagCompound.contains("varcolor")) {
                 varcolor = tagCompound.getInt("varcolor");
             } else {

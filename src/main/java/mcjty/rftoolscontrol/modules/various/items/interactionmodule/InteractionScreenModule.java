@@ -20,7 +20,6 @@ import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
 
 public class InteractionScreenModule implements IScreenModule<IModuleDataBoolean> {
-    private DimensionType dim = DimensionType.OVERWORLD;
     private BlockPos coordinate = BlockPosTools.INVALID;
     private String line = "";
     private String signal = "";
@@ -37,13 +36,14 @@ public class InteractionScreenModule implements IScreenModule<IModuleDataBoolean
             signal = tagCompound.getString("signal");
             coordinate = BlockPosTools.INVALID;
             if (tagCompound.contains("monitorx")) {
+                DimensionType dim1 = DimensionType.OVERWORLD;
                 if (tagCompound.contains("monitordim")) {
-                    this.dim = DimensionType.byName(new ResourceLocation(tagCompound.getString("monitordim")));
+                    dim1 = DimensionType.byName(new ResourceLocation(tagCompound.getString("monitordim")));
                 } else {
                     // Compatibility reasons
-                    this.dim = DimensionType.byName(new ResourceLocation(tagCompound.getString("dim")));
+                    dim1 = DimensionType.byName(new ResourceLocation(tagCompound.getString("dim")));
                 }
-                if (dim == this.dim) {
+                if (dim == dim1) {
                     BlockPos c = new BlockPos(tagCompound.getInt("monitorx"), tagCompound.getInt("monitory"), tagCompound.getInt("monitorz"));
                     int dx = Math.abs(c.getX() - pos.getX());
                     int dy = Math.abs(c.getY() - pos.getY());

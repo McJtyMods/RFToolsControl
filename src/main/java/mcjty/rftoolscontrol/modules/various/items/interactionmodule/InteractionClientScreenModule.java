@@ -15,8 +15,6 @@ import net.minecraft.world.dimension.DimensionType;
 public class InteractionClientScreenModule implements IClientScreenModule<IModuleDataBoolean> {
     private String line = "";
     private String button = "";
-    private int color = 0xffffff;
-    private int buttonColor = 0xffffff;
     private boolean activated = false;
     private TextAlign textAlign = TextAlign.ALIGN_LEFT;
 
@@ -86,11 +84,13 @@ public class InteractionClientScreenModule implements IClientScreenModule<IModul
         if (tagCompound != null) {
             line = tagCompound.getString("text");
             button = tagCompound.getString("button");
+            int color = 0xffffff;
             if (tagCompound.contains("color")) {
                 color = tagCompound.getInt("color");
             } else {
                 color = 0xffffff;
             }
+            int buttonColor = 0xffffff;
             if (tagCompound.contains("buttonColor")) {
                 buttonColor = tagCompound.getInt("buttonColor");
             } else {
