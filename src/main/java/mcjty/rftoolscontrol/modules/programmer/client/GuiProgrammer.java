@@ -620,7 +620,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Pro
             return;
         }
         String cardName = ProgramCardItem.getCardName(card);
-        if (cardName.isEmpty() || McJtyLib.proxy.isShiftKeyDown()) {
+        if (cardName.isEmpty() || McJtyLib.proxy.isSneaking()) {
             GuiTools.askSomething(minecraft, this, getWindowManager(), 50, 50, "Card name:", cardName, s -> {
                 saveProgram(slot, s);
             });
@@ -1022,7 +1022,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Pro
                         }
                     }
                 }
-            } else if (McJtyLib.proxy.isShiftKeyDown()) {
+            } else if (McJtyLib.proxy.isSneaking()) {
                 tooltips.add(description.get(0) + TextFormatting.WHITE + " [" + x + "," + y + "]");
                 Map<String, Object> data = icon.getData() == null ? Collections.emptyMap() : icon.getData();
                 for (ParameterDescription parameter : opcode.getParameters()) {
@@ -1048,7 +1048,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Pro
             Opcode opcode = Opcodes.OPCODES.get(icon.getID());
             List<String> description = opcode.getDescription();
             List<String> tooltips = new ArrayList<>();
-            if (McJtyLib.proxy.isShiftKeyDown()) {
+            if (McJtyLib.proxy.isSneaking()) {
                 tooltips.addAll(description);
                 for (ParameterDescription parameter : opcode.getParameters()) {
                     boolean first = true;

@@ -185,7 +185,7 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
                 public void select() {
                     Object item = blockRender.getRenderItem();
                     if (item != null) {
-                        boolean shift = McJtyLib.proxy.isShiftKeyDown();
+                        boolean shift = McJtyLib.proxy.isSneaking();
                         Object index = blockRender.getUserObject();
                         if (shift) {
                             askAmountToCraft(stack);
