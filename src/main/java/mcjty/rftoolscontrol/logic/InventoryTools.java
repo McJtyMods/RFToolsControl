@@ -17,13 +17,12 @@ import java.util.Set;
 
 public class InventoryTools {
 
-    public static int countItem(@Nullable IItemHandler itemHandler, @Nullable IStorageScanner scanner, ItemStack itemMatcher, boolean oredict, int maxToCount) {
+    public static int countItem(@Nullable IItemHandler itemHandler, @Nullable IStorageScanner scanner, ItemStack itemMatcher,boolean meta, boolean nbt, boolean oredict, int maxToCount) {
         if (itemHandler != null) {
-            Set<Integer> oredictMatchers = getOredictMatchers(itemMatcher, oredict);
             int cnt = 0;
             for (int i = 0; i < itemHandler.getSlots(); i++) {
                 ItemStack stack = itemHandler.getStackInSlot(i);
-                if (isItemEqual(itemMatcher, stack, oredictMatchers)) {
+                if (areItemsEqual(itemMatcher, stack, meta, nbt, oredict, false)) {
                     cnt += stack.getCount();
                     if (maxToCount != -1 && cnt >= maxToCount) {
                         return maxToCount;
@@ -41,7 +40,14 @@ public class InventoryTools {
         return 0;
     }
 
-    public static boolean areItemsEqual(ItemStack item1, ItemStack item2, boolean meta, boolean nbt, boolean oredict) {
+    public static boolean areItemsEqual(ItemStack item1, ItemStack item2,
+                                        boolean meta, boolean nbt,
+                                        boolean oredict, boolean count) {
+        if(count){
+            if(item1.getCount() != item2.getCount()){
+                return false;
+            }
+        }
         if (oredict) {
             if (!OreDictionary.itemMatches(item1, item2, false)) {
                 return false;
@@ -60,32 +66,6 @@ public class InventoryTools {
         return true;
     }
 
-    private static Set<Integer> getOredictMatchers(ItemStack stack, boolean oredict) {
-        Set<Integer> oredictMatches = new HashSet<>();
-        if (oredict) {
-            for (int id : OreDictionary.getOreIDs(stack)) {
-                oredictMatches.add(id);
-            }
-        }
-        return oredictMatches;
-    }
-
-    private static boolean isItemEqual(ItemStack thisItem, ItemStack other, Set<Integer> oreDictMatchers) {
-        if (other.isEmpty()) {
-            return false;
-        }
-        if (oreDictMatchers.isEmpty()) {
-            return thisItem.isItemEqual(other);
-        } else {
-            int[] oreIDs = OreDictionary.getOreIDs(other);
-            for (int id : oreIDs) {
-                if (oreDictMatchers.contains(id)) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
 
 
     public static ItemStack extractItem(@Nullable IItemHandler itemHandler, @Nullable IStorageScanner scanner,
@@ -105,7 +85,7 @@ public class InventoryTools {
                 } else {
                     for (int i = 0; i < itemHandler.getSlots(); i++) {
                         ItemStack stack = itemHandler.getStackInSlot(i);
-                        if (isEqualAdvanced(itemMatcher, stack, strictnbt)) {
+                        if (areItemsEqual(itemMatcher, stack, true, strictnbt, oredict, false)) {
                             return itemHandler.extractItem(i, amount == null ? itemMatcher.getMaxStackSize() : amount, false);
                         }
                     }
@@ -114,7 +94,7 @@ public class InventoryTools {
                 if (itemMatcher.isEmpty()) {
                     return itemHandler.extractItem(slot, amount == null ? 64 : amount, false);
                 } else {
-                    if (!isEqualAdvanced(itemMatcher, itemHandler.getStackInSlot(slot), strictnbt)) {
+                    if (!areItemsEqual(itemMatcher, itemHandler.getStackInSlot(slot),  true, strictnbt, oredict, false)) {
                         return ItemStack.EMPTY;
                     }
                     return itemHandler.extractItem(slot, amount == null ? itemMatcher.getMaxStackSize() : amount, false);
@@ -126,24 +106,6 @@ public class InventoryTools {
         return ItemStack.EMPTY;
     }
 
-    public static boolean isEqualAdvanced(ItemStack itemMatcher, ItemStack stack, boolean strictnbt) {
-        if (!stack.isEmpty() && ItemStack.areItemsEqual(stack, itemMatcher)) {
-            if (strictnbt) {
-                if (itemMatcher.hasTagCompound() || stack.hasTagCompound()) {
-                    String t1 = itemMatcher.serializeNBT().toString();
-                    String t2 = stack.serializeNBT().toString();
-                    if (t1.equalsIgnoreCase(t2)) {
-                        return true;
-                    }
-                } else {
-                    return true;
-                }
-            } else {
-                return true;
-            }
-        }
-        return false;
-    }
 
     public static ItemStack tryExtractItem(@Nullable IItemHandler itemHandler, @Nullable IStorageScanner scanner,
                                            @Nullable Integer amount, boolean routable, boolean oredict,

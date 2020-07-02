@@ -323,7 +323,7 @@ public class Opcodes {
                 boolean meta = processor.evaluateBoolParameter(opcode, program, 2);
                 boolean nbt = processor.evaluateBoolParameter(opcode, program, 3);
                 boolean oredict = processor.evaluateBoolParameter(opcode, program, 4);
-                return InventoryTools.areItemsEqual(item1, item2, meta, nbt, oredict) ? POSITIVE : NEGATIVE;
+                return InventoryTools.areItemsEqual(item1, item2, meta, nbt, oredict, false) ? POSITIVE : NEGATIVE;
             }))
             .build();
 

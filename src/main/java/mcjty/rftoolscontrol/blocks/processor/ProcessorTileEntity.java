@@ -597,7 +597,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             int realSlot = info.getRealSlot(slot);
             ItemStack localStack = itemHandler.getStackInSlot(realSlot);
             if (!ingredient.isEmpty()) {
-                if (!InventoryTools.areItemsEqual(ingredient, localStack, true, false, oredict)) {
+                if (!InventoryTools.areItemsEqual(ingredient, localStack, true, false, oredict, false)) {
                     return false;
                 }
                 if (ingredient.getCount() != localStack.getCount()) {
@@ -647,7 +647,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         boolean strictnbt = CraftingCardItem.isStrictNBT(card);
 
         List<ItemStack> needed = combineIngredients(ingredients);
-        int requested = checkAvailableItemsAndRequestMissing(destInv, scanner, handler, needed, oredict);
+        int requested = checkAvailableItemsAndRequestMissing(destInv, scanner, handler, needed, true, strictnbt, oredict);
         if (requested != 0) {
             return requested;
         }
@@ -672,11 +672,11 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
     // ingredient is requested if possible. Returns -1 if there were ingredients that
     // could not be requested. Returns 0 if nothing had to be requested and otherwise
     // returns the amount of requested items
-    private int checkAvailableItemsAndRequestMissing(Inventory destInv, IStorageScanner scanner, IItemHandler handler, List<ItemStack> needed, boolean oredict) {
+    private int checkAvailableItemsAndRequestMissing(Inventory destInv, IStorageScanner scanner, IItemHandler handler, List<ItemStack> needed, boolean meta, boolean nbt, boolean oredict) {
         int requested = 0;
         for (ItemStack ingredient : needed) {
             if (!ingredient.isEmpty()) {
-                int cnt = InventoryTools.countItem(handler, scanner, ingredient, oredict, ingredient.getCount());
+                int cnt = InventoryTools.countItem(handler, scanner, ingredient, meta, nbt, oredict, ingredient.getCount());
                 if (cnt < ingredient.getCount()) {
                     requested++;
                     ItemStack requestedItem = ingredient.copy();
@@ -703,7 +703,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
         int maxPossible = Integer.MAX_VALUE;
         for (ItemStack ingredient : needed) {
             if (!ingredient.isEmpty()) {
-                int cnt = InventoryTools.countItem(handler, scanner, ingredient, oredict, -1);
+                int cnt = InventoryTools.countItem(handler, scanner, ingredient, true, true, oredict, -1);
                 int possible = cnt / ingredient.getCount();
                 if (possible < maxPossible) {
                     maxPossible = possible;
@@ -909,7 +909,7 @@ public class ProcessorTileEntity extends GenericEnergyReceiverTileEntity impleme
             if (!s.isEmpty() && s.getItem() == ModItems.craftingCardItem) {
                 ItemStack result = CraftingCardItem.getResult(s);
                 if (!result.isEmpty()) {
-                    if (InventoryTools.areItemsEqual(result, craftResult, true, true, oredict)) {
+                    if (InventoryTools.areItemsEqual(result, craftResult, true, true, oredict, false)) {
                         return s;
                     }
                 }
