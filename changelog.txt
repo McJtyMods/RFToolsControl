@@ -1,3 +1,6 @@
+3.0.3-beta:
+- Update for latest McJtyLib
+
 3.0.2-beta:
 - Fixed a problem with fetching variables and fluids from a processor through a tablet
 
