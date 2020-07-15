@@ -2,7 +2,6 @@ package mcjty.rftoolscontrol.setup;
 
 import mcjty.lib.network.PacketHandler;
 import mcjty.rftoolscontrol.RFToolsControl;
-import mcjty.rftoolscontrol.compat.jei.PacketSendRecipe;
 import mcjty.rftoolscontrol.modules.craftingstation.network.PacketCraftableItemsReady;
 import mcjty.rftoolscontrol.modules.craftingstation.network.PacketGetCraftableItems;
 import mcjty.rftoolscontrol.modules.craftingstation.network.PacketGetRequests;
@@ -41,7 +40,6 @@ public class RFToolsCtrlMessages {
         net.registerMessage(id(), PacketGetTankFluids.class, PacketGetTankFluids::toBytes, PacketGetTankFluids::new, PacketGetTankFluids::handle);
         net.registerMessage(id(), PacketGetCraftableItems.class, PacketGetCraftableItems::toBytes, PacketGetCraftableItems::new, PacketGetCraftableItems::handle);
         net.registerMessage(id(), PacketGetRequests.class, PacketGetRequests::toBytes, PacketGetRequests::new, PacketGetRequests::handle);
-        net.registerMessage(id(), PacketSendRecipe.class, PacketSendRecipe::toBytes, PacketSendRecipe::new, PacketSendRecipe::handle);
         net.registerMessage(id(), PacketVariableToServer.class, PacketVariableToServer::toBytes, PacketVariableToServer::new, PacketVariableToServer::handle);
         net.registerMessage(id(), PacketUpdateNBTItemInventoryProgrammer.class, PacketUpdateNBTItemInventoryProgrammer::toBytes, PacketUpdateNBTItemInventoryProgrammer::new, PacketUpdateNBTItemInventoryProgrammer::handle);
 
