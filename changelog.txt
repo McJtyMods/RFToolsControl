@@ -1,3 +1,6 @@
+3.0.4-beta:
+- Update for latest McJtyLib
+
 3.0.3-beta:
 - Update for latest McJtyLib
 
