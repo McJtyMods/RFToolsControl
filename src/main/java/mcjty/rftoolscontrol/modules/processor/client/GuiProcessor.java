@@ -3,14 +3,12 @@ package mcjty.rftoolscontrol.modules.processor.client;
 import com.mojang.blaze3d.systems.RenderSystem;
 import mcjty.lib.client.RenderHelper;
 import mcjty.lib.gui.GenericGuiContainer;
-import mcjty.lib.gui.ManualEntry;
 import mcjty.lib.gui.Window;
 import mcjty.lib.gui.WindowManager;
 import mcjty.lib.gui.events.SelectionEvent;
 import mcjty.lib.gui.events.TextSpecialKeyEvent;
 import mcjty.lib.gui.layout.HorizontalAlignment;
 import mcjty.lib.gui.widgets.*;
-import mcjty.lib.tileentity.GenericEnergyStorage;
 import mcjty.lib.typed.TypedMap;
 import mcjty.rftoolsbase.api.control.parameters.ParameterType;
 import mcjty.rftoolsbase.tools.ManualHelper;
@@ -34,7 +32,6 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextFormatting;
-import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.fluids.FluidStack;
 
 import java.util.ArrayList;
@@ -622,11 +619,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity, Proce
         populateLog();
 
         drawWindow();
-
-        tileEntity.getCapability(CapabilityEnergy.ENERGY).ifPresent(e -> {
-            energyBar.maxValue(((GenericEnergyStorage) e).getCapacity());
-            energyBar.value(((GenericEnergyStorage) e).getEnergy());
-        });
+        updateEnergyBar(energyBar);
 
         drawAllocatedSlots();
     }
