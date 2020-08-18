@@ -1,5 +1,6 @@
 package mcjty.rftoolscontrol.modules.craftingstation.client;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
 import mcjty.lib.McJtyLib;
 import mcjty.lib.base.StyleConfig;
 import mcjty.lib.gui.GenericGuiContainer;
@@ -158,7 +159,7 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
     private void updateRecipeList() {
         String filterText = searchField.getText().toLowerCase().trim();
 
-        fromServer_craftables.sort(Comparator.comparing(r -> r.getDisplayName().getFormattedText()));
+        fromServer_craftables.sort(Comparator.comparing(r -> r.getDisplayName().getString()));  // @todo getFormattedText
 
         recipeList.removeChildren();
         Panel panel = null;
@@ -230,7 +231,7 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
     }
 
     @Override
-    protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
+    protected void drawGuiContainerBackgroundLayer(MatrixStack matrixStack, float partialTicks, int mouseX, int mouseY) {
         requestListsIfNeeded();
         updateRecipeList();
         updateRequestList();
@@ -238,6 +239,6 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
             requestList.selected(-1);
         }
         cancelButton.enabled(requestList.getSelected() != -1);
-        drawWindow(xxx);
+        drawWindow(matrixStack);
     }
 }

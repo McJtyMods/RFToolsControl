@@ -1,5 +1,6 @@
 package mcjty.rftoolscontrol.modules.multitank.client;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
 import mcjty.lib.gui.GenericGuiContainer;
 import mcjty.lib.gui.ManualEntry;
 import mcjty.lib.gui.Window;
@@ -89,8 +90,8 @@ public class GuiMultiTank extends GenericGuiContainer<MultiTankTileEntity, Multi
     }
 
     @Override
-    protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
+    protected void drawGuiContainerBackgroundLayer(MatrixStack matrixStack, float partialTicks, int mouseX, int mouseY) {
         updateLiquids();
-        drawWindow(xxx);
+        drawWindow(matrixStack);
     }
 }

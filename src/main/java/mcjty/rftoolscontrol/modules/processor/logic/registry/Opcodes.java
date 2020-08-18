@@ -11,6 +11,7 @@ import mcjty.rftoolscontrol.modules.processor.logic.running.ProgException;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.Ingredient;
+import net.minecraft.tags.ITag;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.Tag;
 import net.minecraft.util.ResourceLocation;
@@ -363,7 +364,7 @@ public class Opcodes {
             .runnable(((processor, program, opcode) -> {
                 ItemStack item = processor.evaluateItemParameter(opcode, program, 0);
                 String tagName = processor.evaluateStringParameterNonNull(opcode, program, 1);
-                Tag<Item> tag = ItemTags.getCollection().get(new ResourceLocation(tagName));
+                ITag<Item> tag = ItemTags.getCollection().get(new ResourceLocation(tagName));
                 if (tag == null) {
                     throw new ProgException(ExceptionType.EXCEPT_UNKNOWN_TAG);
                 }

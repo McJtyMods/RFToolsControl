@@ -302,7 +302,7 @@ public class ParameterTypeTools {
             case PAR_SIDE:
                 BlockSide side = (BlockSide) value;
                 if (side.getSide() != null) {
-                    object.add("side", new JsonPrimitive(side.getSide().getName()));
+                    object.add("side", new JsonPrimitive(side.getSide().getString()));
                 }
                 if (side.getNodeName() != null) {
                     object.add("node", new JsonPrimitive(side.getNodeName()));
@@ -313,9 +313,9 @@ public class ParameterTypeTools {
                 break;
             case PAR_INVENTORY:
                 Inventory inv = (Inventory) value;
-                object.add("side", new JsonPrimitive(inv.getSide().getName()));
+                object.add("side", new JsonPrimitive(inv.getSide().getString()));
                 if (inv.getIntSide() != null) {
-                    object.add("intside", new JsonPrimitive(inv.getIntSide().getName()));
+                    object.add("intside", new JsonPrimitive(inv.getIntSide().getString()));
                 }
                 if (inv.getNodeName() != null) {
                     object.add("node", new JsonPrimitive(inv.getNodeName()));

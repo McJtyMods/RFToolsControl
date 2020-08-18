@@ -1,6 +1,7 @@
 package mcjty.rftoolscontrol.modules.various.items.vectorartmodule;
 
 import mcjty.lib.varia.BlockPosTools;
+import mcjty.lib.varia.DimensionId;
 import mcjty.lib.varia.WorldTools;
 import mcjty.rftoolsbase.api.control.parameters.Tuple;
 import mcjty.rftoolsbase.api.screens.IScreenDataHelper;
@@ -18,10 +19,9 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
-import net.minecraft.world.dimension.DimensionType;
 
 public class VectorArtScreenModule implements IScreenModule<ModuleDataVectorArt> {
-    private DimensionType dim = DimensionType.OVERWORLD;
+    private DimensionId dim = DimensionId.overworld();
     private BlockPos coordinate = BlockPosTools.INVALID;
 
     @Override
@@ -49,15 +49,15 @@ public class VectorArtScreenModule implements IScreenModule<ModuleDataVectorArt>
     }
 
     @Override
-    public void setupFromNBT(CompoundNBT tagCompound, DimensionType dim, BlockPos pos) {
+    public void setupFromNBT(CompoundNBT tagCompound, DimensionId dim, BlockPos pos) {
         if (tagCompound != null) {
             coordinate = BlockPosTools.INVALID;
             if (tagCompound.contains("monitorx")) {
                 if (tagCompound.contains("monitordim")) {
-                    this.dim = DimensionType.byName(new ResourceLocation(tagCompound.getString("monitordim")));
+                    this.dim = DimensionId.fromResourceLocation(new ResourceLocation(tagCompound.getString("monitordim")));
                 } else {
                     // Compatibility reasons
-                    this.dim = DimensionType.byName(new ResourceLocation(tagCompound.getString("dim")));
+                    this.dim = DimensionId.fromResourceLocation(new ResourceLocation(tagCompound.getString("dim")));
                 }
                 if (dim == this.dim) {
                     BlockPos c = new BlockPos(tagCompound.getInt("monitorx"), tagCompound.getInt("monitory"), tagCompound.getInt("monitorz"));

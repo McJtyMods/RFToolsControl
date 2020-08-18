@@ -1,5 +1,6 @@
 package mcjty.rftoolscontrol.modules.various.client;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
 import mcjty.lib.gui.GenericGuiContainer;
 import mcjty.lib.gui.ManualEntry;
 import mcjty.lib.gui.Window;
@@ -62,7 +63,7 @@ public class GuiNode extends GenericGuiContainer<NodeTileEntity, NodeContainer> 
     }
 
     @Override
-    protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
-        drawWindow(xxx);
+    protected void drawGuiContainerBackgroundLayer(MatrixStack matrixStack, float partialTicks, int mouseX, int mouseY) {
+        drawWindow(matrixStack);
     }
 }

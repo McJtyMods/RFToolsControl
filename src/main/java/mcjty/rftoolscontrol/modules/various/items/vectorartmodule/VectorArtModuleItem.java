@@ -1,5 +1,6 @@
 package mcjty.rftoolscontrol.modules.various.items.vectorartmodule;
 
+import mcjty.lib.varia.DimensionId;
 import mcjty.lib.varia.Logging;
 import mcjty.rftoolsbase.api.screens.IModuleGuiBuilder;
 import mcjty.rftoolsbase.tools.GenericModuleItem;
@@ -78,7 +79,7 @@ public class VectorArtModuleItem extends GenericModuleItem {
         }
 
         if (block == ProcessorSetup.PROCESSOR.get()) {
-            tagCompound.putString("monitordim", world.getDimension().getType().getRegistryName().toString());
+            tagCompound.putString("monitordim", DimensionId.fromWorld(world).getRegistryName().toString());
             tagCompound.putInt("monitorx", pos.getX());
             tagCompound.putInt("monitory", pos.getY());
             tagCompound.putInt("monitorz", pos.getZ());

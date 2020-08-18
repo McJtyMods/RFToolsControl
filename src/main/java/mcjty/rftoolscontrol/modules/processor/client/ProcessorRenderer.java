@@ -105,7 +105,7 @@ public class ProcessorRenderer extends TileEntityRenderer<ProcessorTileEntity> {
             if (tileEntity.getShowHud() == HUD_DB) {
                 RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketGetDebugLog(tileEntity.getPos()));
             } else {
-                RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketGetLog(tileEntity.getDimensionType(), tileEntity.getPos(), false));
+                RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketGetLog(tileEntity.getDimension(), tileEntity.getPos(), false));
             }
             tileEntity.clientTime = t;
         }
@@ -117,7 +117,7 @@ public class ProcessorRenderer extends TileEntityRenderer<ProcessorTileEntity> {
             if (i >= logsize - 11) {
                 // Check if this module has enough room
                 if (currenty + height <= 124) {
-                    fontrenderer.renderString(fontrenderer.trimStringToWidth(s, 115), 7, currenty, 0xffffffff, false,
+                    fontrenderer.renderString(fontrenderer.func_238412_a_(s, 115), 7, currenty, 0xffffffff, false,
                             matrixStack.getLast().getMatrix(), buffer, false, 0, 0xf000f0);
                     currenty += height;
                 }

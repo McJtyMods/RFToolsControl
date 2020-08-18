@@ -1,5 +1,6 @@
 package mcjty.rftoolscontrol.modules.processor.client;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import mcjty.lib.client.RenderHelper;
 import mcjty.lib.gui.GenericGuiContainer;
@@ -264,9 +265,9 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity, Proce
     }
 
     private void requestLists() {
-        RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketGetLog(tileEntity.getDimensionType(), tileEntity.getPos(), tileEntity.isDummy()));
-        RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketGetVariables(tileEntity.getPos(), tileEntity.getDimensionType(), tileEntity.isDummy()));
-        RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketGetFluids(tileEntity.getPos(), tileEntity.getDimensionType(), tileEntity.isDummy()));
+        RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketGetLog(tileEntity.getDimension(), tileEntity.getPos(), tileEntity.isDummy()));
+        RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketGetVariables(tileEntity.getPos(), tileEntity.getDimension(), tileEntity.isDummy()));
+        RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketGetFluids(tileEntity.getPos(), tileEntity.getDimension(), tileEntity.isDummy()));
     }
 
     private void requestListsIfNeeded() {
@@ -538,7 +539,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity, Proce
             if (entry.isAllocated()) {
                 fluidListMapping[fluidList.getChildCount()] = i;
                 Direction side = Direction.values()[i / TANKS];
-                String l = side.getName().substring(0, 1).toUpperCase() + (i % TANKS);
+                String l = side.getString().substring(0, 1).toUpperCase() + (i % TANKS);
                 Panel panel = horizontal().desiredWidth(40);
                 AbstractWidget<?> label;
                 if (setupMode != -1) {
@@ -608,7 +609,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity, Proce
     }
 
     @Override
-    protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
+    protected void drawGuiContainerBackgroundLayer(MatrixStack matrixStack, float partialTicks, int mouseX, int mouseY) {
 
         if (variableList.getChildCount() != tileEntity.getMaxvars()) {
             updateVariableList();
@@ -618,7 +619,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity, Proce
         requestListsIfNeeded();
         populateLog();
 
-        drawWindow(xxx);
+        drawWindow(matrixStack);
         updateEnergyBar(energyBar);
 
         drawAllocatedSlots();
@@ -647,7 +648,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity, Proce
                     slot.xPos + 17, slot.yPos + 17,
                     border, fill);
             if (allocated) {
-                this.drawString(minecraft.fontRenderer, "" + index,
+                this.drawString(new MatrixStack(), minecraft.fontRenderer, "" + index,  // @todo 1.16
                         slot.xPos + 4, slot.yPos + 4, 0xffffffff);
                 index++;
             }

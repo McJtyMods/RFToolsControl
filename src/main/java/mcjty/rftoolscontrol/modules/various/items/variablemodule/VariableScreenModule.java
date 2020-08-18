@@ -1,6 +1,7 @@
 package mcjty.rftoolscontrol.modules.various.items.variablemodule;
 
 import mcjty.lib.varia.BlockPosTools;
+import mcjty.lib.varia.DimensionId;
 import mcjty.lib.varia.WorldTools;
 import mcjty.rftoolsbase.api.screens.IScreenDataHelper;
 import mcjty.rftoolsbase.api.screens.IScreenModule;
@@ -16,10 +17,9 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraft.world.dimension.DimensionType;
 
 public class VariableScreenModule implements IScreenModule<ModuleDataVariable> {
-    private DimensionType dim = DimensionType.OVERWORLD;
+    private DimensionId dim = DimensionId.overworld();
     private BlockPos coordinate = BlockPosTools.INVALID;
     private int varIdx = -1;
 
@@ -53,7 +53,7 @@ public class VariableScreenModule implements IScreenModule<ModuleDataVariable> {
     }
 
     @Override
-    public void setupFromNBT(CompoundNBT tagCompound, DimensionType dim, BlockPos pos) {
+    public void setupFromNBT(CompoundNBT tagCompound, DimensionId dim, BlockPos pos) {
         if (tagCompound != null) {
             if (tagCompound.contains("varIdx")) {
                 varIdx = tagCompound.getInt("varIdx");
@@ -63,10 +63,10 @@ public class VariableScreenModule implements IScreenModule<ModuleDataVariable> {
             coordinate = BlockPosTools.INVALID;
             if (tagCompound.contains("monitorx")) {
                 if (tagCompound.contains("monitordim")) {
-                    this.dim = DimensionType.byName(new ResourceLocation(tagCompound.getString("monitordim")));
+                    this.dim = DimensionId.fromResourceLocation(new ResourceLocation(tagCompound.getString("monitordim")));
                 } else {
                     // Compatibility reasons
-                    this.dim = DimensionType.byName(new ResourceLocation(tagCompound.getString("dim")));
+                    this.dim = DimensionId.fromResourceLocation(new ResourceLocation(tagCompound.getString("dim")));
                 }
                 if (dim == this.dim) {
                     BlockPos c = new BlockPos(tagCompound.getInt("monitorx"), tagCompound.getInt("monitory"), tagCompound.getInt("monitorz"));

@@ -190,11 +190,11 @@ public class LogicInventoryTools {
     }
 
     public static String inventoryToString(Inventory inv) {
-        String s = StringUtils.left(inv.getSide().getName().toUpperCase(), 1);
+        String s = StringUtils.left(inv.getSide().getString().toUpperCase(), 1);
         if (inv.getIntSide() == null) {
             s += "/*";
         } else {
-            String is = StringUtils.left(inv.getIntSide().getName().toUpperCase(), 1);
+            String is = StringUtils.left(inv.getIntSide().getString().toUpperCase(), 1);
             s += "/" + is;
         }
         if (inv.getNodeName() == null) {
@@ -249,7 +249,7 @@ public class LogicInventoryTools {
         if (bc.getSide() == null) {
             s = "*";
         } else {
-            s = StringUtils.left(bc.getSide().getName().toUpperCase(), 1);
+            s = StringUtils.left(bc.getSide().getString().toUpperCase(), 1);
         }
         if (bc.getNodeName() == null) {
             return s;
