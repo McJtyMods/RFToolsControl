@@ -60,10 +60,10 @@ public class ParameterTypeTools {
                 return ((Inventory) value).getStringRepresentation();
             case PAR_ITEM:
                 ItemStack itemStack = (ItemStack) value;
-                return StringUtils.left(itemStack.getDisplayName().getFormattedText(), 10);
+                return StringUtils.left(itemStack.getDisplayName().getString() /* was getFormattedText() */, 10);
             case PAR_FLUID:
                 FluidStack fluidStack = (FluidStack) value;
-                return StringUtils.left(fluidStack.getDisplayName().getFormattedText(), 10);
+                return StringUtils.left(fluidStack.getDisplayName().getString() /* was getFormattedText() */, 10);
             case PAR_EXCEPTION:
                 ExceptionType exception = (ExceptionType) value;
                 return exception.getCode();

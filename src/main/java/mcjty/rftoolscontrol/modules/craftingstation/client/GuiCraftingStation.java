@@ -164,7 +164,7 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
         Panel panel = null;
         int index = 0;
         for (ItemStack stack : fromServer_craftables) {
-            String displayName = stack.getDisplayName().getFormattedText();
+            String displayName = stack.getDisplayName().getString() /* was getFormattedText() */;
             if ((!filterText.isEmpty()) && !displayName.toLowerCase().contains(filterText)) {
                 continue;
             }
@@ -238,6 +238,6 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
             requestList.selected(-1);
         }
         cancelButton.enabled(requestList.getSelected() != -1);
-        drawWindow();
+        drawWindow(xxx);
     }
 }

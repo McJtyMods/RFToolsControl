@@ -560,7 +560,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity, Proce
                 if (fluidStack != null) {
                     BlockRender fluid = new BlockRender().renderItem(fluidStack);
                     fluid.tooltips(
-                            TextFormatting.GREEN + "Fluid: " + TextFormatting.WHITE + fluidStack.getDisplayName().getFormattedText(),
+                            TextFormatting.GREEN + "Fluid: " + TextFormatting.WHITE + fluidStack.getDisplayName().getString() /* was getFormattedText() */,
                             TextFormatting.GREEN + "Amount: " + TextFormatting.WHITE + fluidStack.getAmount() + "mb");
                     fluid.userObject("allowed");
                     panel.children(fluid);
@@ -618,7 +618,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity, Proce
         requestListsIfNeeded();
         populateLog();
 
-        drawWindow();
+        drawWindow(xxx);
         updateEnergyBar(energyBar);
 
         drawAllocatedSlots();

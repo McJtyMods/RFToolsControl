@@ -9,10 +9,7 @@ import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.lib.typed.Key;
 import mcjty.lib.typed.Type;
 import mcjty.lib.typed.TypedMap;
-import mcjty.lib.varia.BlockPosTools;
-import mcjty.lib.varia.Cached;
-import mcjty.lib.varia.EnergyTools;
-import mcjty.lib.varia.WorldTools;
+import mcjty.lib.varia.*;
 import mcjty.rftoolsbase.api.control.code.Function;
 import mcjty.rftoolsbase.api.control.code.ICompiledOpcode;
 import mcjty.rftoolsbase.api.control.code.IOpcodeRunnable;
@@ -67,6 +64,7 @@ import net.minecraft.nbt.StringNBT;
 import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
+import net.minecraft.util.RegistryKey;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -225,7 +223,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
     private final Set<String> locks = new HashSet<>();
 
     // If set this is a dummy tile entity
-    private DimensionType dummyType = null;
+    private DimensionId dummyType = null;
 
 
     public ProcessorTileEntity() {
@@ -254,11 +252,11 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
     }
 
     @Override
-    public DimensionType getDimensionType() {
+    public DimensionId getDimension() {
         if (dummyType != null) {
             return dummyType;
         }
-        return super.getDimensionType();
+        return super.getDimension();
     }
 
     public boolean isExclusive() {

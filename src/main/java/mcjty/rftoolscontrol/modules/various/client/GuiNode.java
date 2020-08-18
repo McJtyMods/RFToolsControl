@@ -63,6 +63,6 @@ public class GuiNode extends GenericGuiContainer<NodeTileEntity, NodeContainer> 
 
     @Override
     protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
-        drawWindow();
+        drawWindow(xxx);
     }
 }

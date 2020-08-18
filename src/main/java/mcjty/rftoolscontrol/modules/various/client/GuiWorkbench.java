@@ -39,6 +39,6 @@ public class GuiWorkbench extends GenericGuiContainer<WorkbenchTileEntity, Workb
 
     @Override
     protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
-        drawWindow();
+        drawWindow(xxx);
     }
 }

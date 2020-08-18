@@ -3,7 +3,6 @@ package mcjty.rftoolscontrol.modules.programmer.client;
 import mcjty.lib.McJtyLib;
 import mcjty.lib.base.StyleConfig;
 import mcjty.lib.gui.GenericGuiContainer;
-import mcjty.lib.gui.ManualEntry;
 import mcjty.lib.gui.Window;
 import mcjty.lib.gui.WindowManager;
 import mcjty.lib.gui.events.SelectionEvent;
@@ -1187,7 +1186,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Pro
 
     @Override
     protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
-        drawWindow();
+        drawWindow(xxx);
 
         trashcan.setIcon(null);
         saveCounter--;

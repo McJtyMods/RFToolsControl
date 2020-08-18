@@ -1523,7 +1523,7 @@ public class Opcodes {
             .icon(5, 7)
             .runnable(((processor, program, opcode) -> {
                 FluidStack fluid = processor.evaluateFluidParameterNonNull(opcode, program, 0);
-                String name = fluid.getDisplayName().getFormattedText();
+                String name = fluid.getDisplayName().getString() /* was getFormattedText() */;
                 program.setLastValue(Parameter.builder().type(PAR_STRING).value(ParameterValue.constant(name)).build());
                 return POSITIVE;
             }))
@@ -1620,7 +1620,7 @@ public class Opcodes {
             .icon(7, 4)
             .runnable(((processor, program, opcode) -> {
                 ItemStack item = processor.evaluateItemParameterNonNull(opcode, program, 0);
-                String name = item.getDisplayName().getFormattedText();
+                String name = item.getDisplayName().getString() /* was getFormattedText() */;
                 program.setLastValue(Parameter.builder().type(PAR_STRING).value(ParameterValue.constant(name)).build());
                 return POSITIVE;
             }))

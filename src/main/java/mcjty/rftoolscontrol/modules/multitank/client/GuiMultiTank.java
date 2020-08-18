@@ -79,7 +79,7 @@ public class GuiMultiTank extends GenericGuiContainer<MultiTankTileEntity, Multi
                 FluidStack stack = properties[i].getContents();
                 if (!stack.isEmpty()) {
                     liquids[i].renderItem(stack);
-                    labels[i].text(stack.getDisplayName().getFormattedText() + " (" + stack.getAmount() + "mb)");
+                    labels[i].text(stack.getDisplayName().getString() /* was getFormattedText() */ + " (" + stack.getAmount() + "mb)");
                     continue;
                 }
             }
@@ -91,6 +91,6 @@ public class GuiMultiTank extends GenericGuiContainer<MultiTankTileEntity, Multi
     @Override
     protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
         updateLiquids();
-        drawWindow();
+        drawWindow(xxx);
     }
 }
