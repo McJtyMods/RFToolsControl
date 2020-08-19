@@ -1,12 +1,13 @@
 package mcjty.rftoolscontrol.modules.various.items.consolemodule;
 
-import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.lib.client.GuiTools;
+import mcjty.lib.tileentity.GenericTileEntity;
+import mcjty.lib.varia.DimensionId;
 import mcjty.lib.varia.Logging;
+import mcjty.lib.varia.ModuleTools;
 import mcjty.rftoolsbase.api.screens.IModuleGuiBuilder;
 import mcjty.rftoolsbase.api.various.ITabletSupport;
 import mcjty.rftoolsbase.tools.GenericModuleItem;
-import mcjty.lib.varia.ModuleTools;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.modules.processor.ProcessorSetup;
 import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorContainer;
@@ -28,7 +29,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.World;
-import net.minecraft.world.dimension.DimensionType;
 import net.minecraftforge.items.CapabilityItemHandler;
 
 import javax.annotation.Nonnull;
@@ -51,7 +51,7 @@ public class ConsoleModuleItem extends GenericModuleItem implements ITabletSuppo
     @Override
     public void openGui(@Nonnull PlayerEntity player, @Nonnull ItemStack tabletItem, @Nonnull ItemStack containingItem) {
         BlockPos pos = ModuleTools.getPositionFromModule(containingItem);
-        DimensionType dimensionType = ModuleTools.getDimensionFromModule(containingItem);
+        DimensionId dimensionType = ModuleTools.getDimensionFromModule(containingItem);
         GuiTools.openRemoteGui(player, dimensionType, pos, te -> new INamedContainerProvider() {
             @Override
             public ITextComponent getDisplayName() {
