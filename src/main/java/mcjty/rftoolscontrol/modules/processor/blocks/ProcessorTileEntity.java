@@ -9,10 +9,7 @@ import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.lib.typed.Key;
 import mcjty.lib.typed.Type;
 import mcjty.lib.typed.TypedMap;
-import mcjty.lib.varia.BlockPosTools;
-import mcjty.lib.varia.Cached;
-import mcjty.lib.varia.EnergyTools;
-import mcjty.lib.varia.WorldTools;
+import mcjty.lib.varia.*;
 import mcjty.rftoolsbase.api.control.code.Function;
 import mcjty.rftoolsbase.api.control.code.ICompiledOpcode;
 import mcjty.rftoolsbase.api.control.code.IOpcodeRunnable;
@@ -72,7 +69,6 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
-import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.Constants;
@@ -225,7 +221,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
     private final Set<String> locks = new HashSet<>();
 
     // If set this is a dummy tile entity
-    private DimensionType dummyType = null;
+    private DimensionId dummyType = null;
 
 
     public ProcessorTileEntity() {
@@ -242,7 +238,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
     }
 
     // Used for a dummy tile entity (tablet usage)
-    public ProcessorTileEntity(DimensionType type) {
+    public ProcessorTileEntity(DimensionId type) {
         this();
         dummyType = type;
     }
@@ -254,7 +250,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
     }
 
     @Override
-    public DimensionType getDimensionType() {
+    public DimensionId getDimensionType() {
         if (dummyType != null) {
             return dummyType;
         }
@@ -1870,7 +1866,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
         int monitorx = tagCompound.getInt("monitorx");
         int monitory = tagCompound.getInt("monitory");
         int monitorz = tagCompound.getInt("monitorz");
-        ServerWorld world = WorldTools.getWorld(DimensionType.byName(new ResourceLocation(monitordim)));
+        ServerWorld world = WorldTools.getWorld(DimensionId.fromResourceLocation(new ResourceLocation(monitordim)));
         BlockPos dest = new BlockPos(monitorx, monitory, monitorz);
         if (!WorldTools.isLoaded(world, dest)) {
             throw new ProgException(EXCEPT_INVALIDDESTINATION);
@@ -2484,7 +2480,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
         CompoundNBT tagCompound = storageStack.getTag();
         BlockPos c = new BlockPos(tagCompound.getInt("monitorx"), tagCompound.getInt("monitory"), tagCompound.getInt("monitorz"));
         String dim = tagCompound.getString("monitordim");
-        World world = WorldTools.getWorld(DimensionType.byName(new ResourceLocation(dim)));
+        World world = WorldTools.getWorld(DimensionId.fromResourceLocation(new ResourceLocation(dim)));
         if (world == null) {
             throw new ProgException(EXCEPT_MISSINGSTORAGE);
         }
