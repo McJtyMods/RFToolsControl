@@ -19,6 +19,8 @@ import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 
+import java.util.Objects;
+
 public class InteractionScreenModule implements IScreenModule<IModuleDataBoolean> {
     private BlockPos coordinate = BlockPosTools.INVALID;
     private String line = "";
@@ -43,7 +45,7 @@ public class InteractionScreenModule implements IScreenModule<IModuleDataBoolean
                     // Compatibility reasons
                     dim1 = DimensionId.fromResourceLocation(new ResourceLocation(tagCompound.getString("dim")));
                 }
-                if (dim == dim1) {
+                if (Objects.equals(dim, dim1)) {
                     BlockPos c = new BlockPos(tagCompound.getInt("monitorx"), tagCompound.getInt("monitory"), tagCompound.getInt("monitorz"));
                     int dx = Math.abs(c.getX() - pos.getX());
                     int dy = Math.abs(c.getY() - pos.getY());

@@ -20,6 +20,8 @@ import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 
+import java.util.Objects;
+
 public class VectorArtScreenModule implements IScreenModule<ModuleDataVectorArt> {
     private DimensionId dim = DimensionId.overworld();
     private BlockPos coordinate = BlockPosTools.INVALID;
@@ -59,7 +61,7 @@ public class VectorArtScreenModule implements IScreenModule<ModuleDataVectorArt>
                     // Compatibility reasons
                     this.dim = DimensionId.fromResourceLocation(new ResourceLocation(tagCompound.getString("dim")));
                 }
-                if (dim == this.dim) {
+                if (Objects.equals(dim, this.dim)) {
                     BlockPos c = new BlockPos(tagCompound.getInt("monitorx"), tagCompound.getInt("monitory"), tagCompound.getInt("monitorz"));
                     int dx = Math.abs(c.getX() - pos.getX());
                     int dy = Math.abs(c.getY() - pos.getY());

@@ -18,6 +18,8 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
+import java.util.Objects;
+
 public class VariableScreenModule implements IScreenModule<ModuleDataVariable> {
     private DimensionId dim = DimensionId.overworld();
     private BlockPos coordinate = BlockPosTools.INVALID;
@@ -68,7 +70,7 @@ public class VariableScreenModule implements IScreenModule<ModuleDataVariable> {
                     // Compatibility reasons
                     this.dim = DimensionId.fromResourceLocation(new ResourceLocation(tagCompound.getString("dim")));
                 }
-                if (dim == this.dim) {
+                if (Objects.equals(dim, this.dim)) {
                     BlockPos c = new BlockPos(tagCompound.getInt("monitorx"), tagCompound.getInt("monitory"), tagCompound.getInt("monitorz"));
                     int dx = Math.abs(c.getX() - pos.getX());
                     int dy = Math.abs(c.getY() - pos.getY());
