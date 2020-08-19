@@ -1,6 +1,7 @@
 package mcjty.rftoolscontrol.modules.various.items.consolemodule;
 
 import mcjty.lib.varia.BlockPosTools;
+import mcjty.lib.varia.DimensionId;
 import mcjty.lib.varia.WorldTools;
 import mcjty.rftoolsbase.api.screens.IScreenDataHelper;
 import mcjty.rftoolsbase.api.screens.IScreenModule;
@@ -15,12 +16,12 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraft.world.dimension.DimensionType;
 
 import java.util.List;
+import java.util.Objects;
 
 public class ConsoleScreenModule implements IScreenModule<ModuleDataLog> {
-    private DimensionType dim = DimensionType.OVERWORLD;
+    private DimensionId dim = DimensionId.overworld();
     private BlockPos coordinate = BlockPosTools.INVALID;
 
     @Override
@@ -49,17 +50,17 @@ public class ConsoleScreenModule implements IScreenModule<ModuleDataLog> {
     }
 
     @Override
-    public void setupFromNBT(CompoundNBT tagCompound, DimensionType dim, BlockPos pos) {
+    public void setupFromNBT(CompoundNBT tagCompound, DimensionId dim, BlockPos pos) {
         if (tagCompound != null) {
             coordinate = BlockPosTools.INVALID;
             if (tagCompound.contains("monitorx")) {
                 if (tagCompound.contains("monitordim")) {
-                    this.dim = DimensionType.byName(new ResourceLocation(tagCompound.getString("monitordim")));
+                    this.dim = DimensionId.fromResourceLocation(new ResourceLocation(tagCompound.getString("monitordim")));
                 } else {
                     // Compatibility reasons
-                    this.dim = DimensionType.byName(new ResourceLocation(tagCompound.getString("dim")));
+                    this.dim = DimensionId.fromResourceLocation(new ResourceLocation(tagCompound.getString("dim")));
                 }
-                if (dim == this.dim) {
+                if (Objects.equals(dim, this.dim)) {
                     BlockPos c = new BlockPos(tagCompound.getInt("monitorx"), tagCompound.getInt("monitory"), tagCompound.getInt("monitorz"));
                     int dx = Math.abs(c.getX() - pos.getX());
                     int dy = Math.abs(c.getY() - pos.getY());

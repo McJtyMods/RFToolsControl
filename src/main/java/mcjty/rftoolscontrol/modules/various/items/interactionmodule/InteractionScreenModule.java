@@ -1,6 +1,7 @@
 package mcjty.rftoolscontrol.modules.various.items.interactionmodule;
 
 import mcjty.lib.varia.BlockPosTools;
+import mcjty.lib.varia.DimensionId;
 import mcjty.lib.varia.WorldTools;
 import mcjty.rftoolsbase.api.screens.IScreenDataHelper;
 import mcjty.rftoolsbase.api.screens.IScreenModule;
@@ -17,7 +18,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
-import net.minecraft.world.dimension.DimensionType;
+
+import java.util.Objects;
 
 public class InteractionScreenModule implements IScreenModule<IModuleDataBoolean> {
     private BlockPos coordinate = BlockPosTools.INVALID;
@@ -30,20 +32,20 @@ public class InteractionScreenModule implements IScreenModule<IModuleDataBoolean
     }
 
     @Override
-    public void setupFromNBT(CompoundNBT tagCompound, DimensionType dim, BlockPos pos) {
+    public void setupFromNBT(CompoundNBT tagCompound, DimensionId dim, BlockPos pos) {
         if (tagCompound != null) {
             line = tagCompound.getString("text");
             signal = tagCompound.getString("signal");
             coordinate = BlockPosTools.INVALID;
             if (tagCompound.contains("monitorx")) {
-                DimensionType dim1 = DimensionType.OVERWORLD;
+                DimensionId dim1;
                 if (tagCompound.contains("monitordim")) {
-                    dim1 = DimensionType.byName(new ResourceLocation(tagCompound.getString("monitordim")));
+                    dim1 = DimensionId.fromResourceLocation(new ResourceLocation(tagCompound.getString("monitordim")));
                 } else {
                     // Compatibility reasons
-                    dim1 = DimensionType.byName(new ResourceLocation(tagCompound.getString("dim")));
+                    dim1 = DimensionId.fromResourceLocation(new ResourceLocation(tagCompound.getString("dim")));
                 }
-                if (dim == dim1) {
+                if (Objects.equals(dim, dim1)) {
                     BlockPos c = new BlockPos(tagCompound.getInt("monitorx"), tagCompound.getInt("monitory"), tagCompound.getInt("monitorz"));
                     int dx = Math.abs(c.getX() - pos.getX());
                     int dy = Math.abs(c.getY() - pos.getY());
