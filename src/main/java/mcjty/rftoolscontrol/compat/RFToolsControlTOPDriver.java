@@ -7,6 +7,7 @@ import mcjty.rftoolscontrol.modules.processor.ProcessorSetup;
 import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorTileEntity;
 import mcjty.rftoolscontrol.modules.various.VariousSetup;
 import mcjty.rftoolscontrol.modules.various.blocks.NodeTileEntity;
+import mcjty.theoneprobe.api.CompoundText;
 import mcjty.theoneprobe.api.IProbeHitData;
 import mcjty.theoneprobe.api.IProbeInfo;
 import mcjty.theoneprobe.api.ProbeMode;
@@ -56,8 +57,8 @@ public class RFToolsControlTOPDriver implements TOPDriver {
         public void addProbeInfo(ProbeMode mode, IProbeInfo probeInfo, PlayerEntity player, World world, BlockState blockState, IProbeHitData data) {
             super.addProbeInfo(mode, probeInfo, player, world, blockState, data);
             Tools.safeConsume(world.getTileEntity(data.getPos()), (NodeTileEntity node) -> {
-                probeInfo.text(TextFormatting.GREEN + "Channel: " + node.getChannelName());
-                probeInfo.text(TextFormatting.GREEN + "Name: " + node.getNodeName());
+                probeInfo.text(CompoundText.createLabelInfo( "Channel: ", node.getChannelName()));
+                probeInfo.text(CompoundText.createLabelInfo( "Name: ", node.getNodeName()));
             }, "Bad tile entity!");
         }
     }
@@ -68,15 +69,15 @@ public class RFToolsControlTOPDriver implements TOPDriver {
             super.addProbeInfo(mode, probeInfo, player, world, blockState, data);
             Tools.safeConsume(world.getTileEntity(data.getPos()), (ProcessorTileEntity processor) -> {
             if (processor.hasNetworkCard()) {
-                probeInfo.text(TextFormatting.GREEN + "Channel: " + processor.getChannelName());
-                probeInfo.text(TextFormatting.GREEN + "Nodes: " + processor.getNodeCount());
+                probeInfo.text(CompoundText.createLabelInfo( "Channel: ", processor.getChannelName()));
+                probeInfo.text(CompoundText.createLabelInfo( "Nodes: ", processor.getNodeCount()));
             }
             if (mode == ProbeMode.EXTENDED) {
                 List<String> lastMessages = processor.getLastMessages(6);
                 if (!lastMessages.isEmpty()) {
                     IProbeInfo v = probeInfo.vertical(probeInfo.defaultLayoutStyle().borderColor(0xffff0000));
                     for (String s : lastMessages) {
-                        v.text("    " + s);
+                        v.text(CompoundText.create().text("    " + s));
                     }
                 }
             }
