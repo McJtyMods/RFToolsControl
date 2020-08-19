@@ -1,7 +1,6 @@
 package mcjty.rftoolscontrol.modules.processor.client;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.systems.RenderSystem;
 import mcjty.lib.client.RenderHelper;
 import mcjty.lib.gui.GenericGuiContainer;
 import mcjty.lib.gui.Window;
@@ -622,17 +621,17 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity, Proce
         drawWindow(matrixStack);
         updateEnergyBar(energyBar);
 
-        drawAllocatedSlots();
+        drawAllocatedSlots(matrixStack);
     }
 
-    private void drawAllocatedSlots() {
+    private void drawAllocatedSlots(MatrixStack matrixStack) {
         int setupMode = getSetupMode();
         if (setupMode == -1) {
             return;
         }
 
-        RenderSystem.pushMatrix();
-        RenderSystem.translatef(guiLeft, guiTop, 0.0F);
+        matrixStack.push();
+        matrixStack.translate(guiLeft, guiTop, 0.0F);
 
         CardInfo cardInfo = tileEntity.getCardInfo(setupMode);
         int itemAlloc = cardInfo.getItemAllocation();
@@ -644,16 +643,16 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity, Proce
             boolean allocated = ((itemAlloc >> i) & 1) != 0;
             int border = allocated ? 0xffffffff : 0xaaaaaaaa;
             int fill = allocated ? 0x7700ff00 : (tileEntity.isItemAllocated(-1, i) ? 0x77660000 : 0x77444444);
-            RenderHelper.drawFlatBox(slot.xPos, slot.yPos,
+            RenderHelper.drawFlatBox(matrixStack, slot.xPos, slot.yPos,
                     slot.xPos + 17, slot.yPos + 17,
                     border, fill);
             if (allocated) {
-                this.drawString(new MatrixStack(), minecraft.fontRenderer, "" + index,  // @todo 1.16
+                this.drawString(matrixStack, minecraft.fontRenderer, "" + index,
                         slot.xPos + 4, slot.yPos + 4, 0xffffffff);
                 index++;
             }
         }
 
-        RenderSystem.popMatrix();
+        matrixStack.pop();
     }
 }

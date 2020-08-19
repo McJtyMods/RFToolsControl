@@ -59,7 +59,7 @@ public class InteractionClientScreenModule implements IClientScreenModule<IModul
 
         boolean act = activated;
 
-        RenderHelper.drawBeveledBox(xoffset - 5, currenty, 130 - 7, currenty + 12, act ? 0xff333333 : 0xffeeeeee, act ? 0xffeeeeee : 0xff333333, 0xff666666);
+        RenderHelper.drawBeveledBox(matrixStack, xoffset - 5, currenty, 130 - 7, currenty + 12, act ? 0xff333333 : 0xffeeeeee, act ? 0xffeeeeee : 0xff333333, 0xff666666);
         buttonCache.setup(button, buttonWidth, renderInfo);
         // @todo 1.15
 //        buttonCache.renderText(xoffset -10 + (act ? 1 : 0), currenty + 2, buttonColor, renderInfo);
