@@ -180,8 +180,8 @@ curseforge {
         relations {
             optionalLibrary 'redstone-flux'
             optionalLibrary 'the-one-probe'
-            requiredLibrary 'mcjtylib'
-            requiredLibrary 'rftools-base'
+            requiredDependency 'mcjtylib'
+            requiredDependency 'rftools-base'
         }
     }
 }
