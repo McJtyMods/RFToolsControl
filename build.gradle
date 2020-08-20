@@ -178,9 +178,10 @@ curseforge {
             displayName = "${modname} - ${version}"
         }
         relations {
-            optionalLibrary 'baubles'
-            optionalLibrary 'tesla'
             optionalLibrary 'redstone-flux'
+            optionalLibrary 'the-one-probe'
+            requiredDependency 'mcjtylib'
+            requiredDependency 'rftools-base'
         }
     }
 }
