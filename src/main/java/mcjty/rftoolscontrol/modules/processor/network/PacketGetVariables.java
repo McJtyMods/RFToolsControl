@@ -14,6 +14,7 @@ import mcjty.rftoolscontrol.setup.RFToolsCtrlMessages;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.fml.network.NetworkDirection;
 import net.minecraftforge.fml.network.NetworkEvent;
 
@@ -51,15 +52,18 @@ public class PacketGetVariables {
     public void handle(Supplier<NetworkEvent.Context> supplier) {
         NetworkEvent.Context ctx = supplier.get();
         ctx.enqueueWork(() -> {
-            TileEntity te = WorldTools.getWorld(ctx.getSender().getEntityWorld(), type).getTileEntity(pos);
-            if(!(te instanceof ICommandHandler)) {
-                Logging.log("TileEntity is not a CommandHandler!");
-                return;
+            ServerWorld world = WorldTools.getWorld(ctx.getSender().getEntityWorld(), type);
+            if (world.isBlockLoaded(pos)) {
+                TileEntity te = world.getTileEntity(pos);
+                if (!(te instanceof ICommandHandler)) {
+                    Logging.log("TileEntity is not a CommandHandler!");
+                    return;
+                }
+                ICommandHandler commandHandler = (ICommandHandler) te;
+                List<Parameter> list = commandHandler.executeWithResultList(ProcessorTileEntity.CMD_GETVARS, params, Type.create(Parameter.class));
+                RFToolsCtrlMessages.INSTANCE.sendTo(new PacketVariablesReady(fromTablet ? null : pos, ProcessorTileEntity.CLIENTCMD_GETVARS, list),
+                        ctx.getSender().connection.netManager, NetworkDirection.PLAY_TO_CLIENT);
             }
-            ICommandHandler commandHandler = (ICommandHandler) te;
-            List<Parameter> list = commandHandler.executeWithResultList(ProcessorTileEntity.CMD_GETVARS, params, Type.create(Parameter.class));
-            RFToolsCtrlMessages.INSTANCE.sendTo(new PacketVariablesReady(fromTablet ? null : pos, ProcessorTileEntity.CLIENTCMD_GETVARS, list),
-                    ctx.getSender().connection.netManager, NetworkDirection.PLAY_TO_CLIENT);
         });
         ctx.setPacketHandled(true);
     }

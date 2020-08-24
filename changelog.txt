@@ -1,3 +1,6 @@
+3.0.5:
+- Fixed a potential exploit which could be used to attack a server
+
 3.0.4-beta:
 - Update for latest McJtyLib
 
