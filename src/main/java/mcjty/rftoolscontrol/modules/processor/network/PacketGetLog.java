@@ -51,18 +51,20 @@ public class PacketGetLog {
         NetworkEvent.Context ctx = supplier.get();
         ctx.enqueueWork(() -> {
             ServerWorld world = WorldTools.getWorld(ctx.getSender().getEntityWorld(), type);
-            TileEntity te = world.getTileEntity(pos);
-            if(!(te instanceof ICommandHandler)) {
-                Logging.log("TileEntity is not a CommandHandler!");
-                return;
-            }
-            ICommandHandler commandHandler = (ICommandHandler) te;
-            List<String> list = commandHandler.executeWithResultList(ProcessorTileEntity.CMD_GETLOG, params, Type.STRING);
-            if (fromTablet) {
-                // We don't have a good position for our tile entity as it might not exist client-side
-                RFToolsCtrlMessages.INSTANCE.sendTo(new PacketLogReady(null, ProcessorTileEntity.CLIENTCMD_GETLOG, list), ctx.getSender().connection.netManager, NetworkDirection.PLAY_TO_CLIENT);
-            } else {
-                RFToolsCtrlMessages.INSTANCE.sendTo(new PacketLogReady(pos, ProcessorTileEntity.CLIENTCMD_GETLOG, list), ctx.getSender().connection.netManager, NetworkDirection.PLAY_TO_CLIENT);
+            if (world.isBlockLoaded(pos)) {
+                TileEntity te = world.getTileEntity(pos);
+                if (!(te instanceof ICommandHandler)) {
+                    Logging.log("TileEntity is not a CommandHandler!");
+                    return;
+                }
+                ICommandHandler commandHandler = (ICommandHandler) te;
+                List<String> list = commandHandler.executeWithResultList(ProcessorTileEntity.CMD_GETLOG, params, Type.STRING);
+                if (fromTablet) {
+                    // We don't have a good position for our tile entity as it might not exist client-side
+                    RFToolsCtrlMessages.INSTANCE.sendTo(new PacketLogReady(null, ProcessorTileEntity.CLIENTCMD_GETLOG, list), ctx.getSender().connection.netManager, NetworkDirection.PLAY_TO_CLIENT);
+                } else {
+                    RFToolsCtrlMessages.INSTANCE.sendTo(new PacketLogReady(pos, ProcessorTileEntity.CLIENTCMD_GETLOG, list), ctx.getSender().connection.netManager, NetworkDirection.PLAY_TO_CLIENT);
+                }
             }
         });
         ctx.setPacketHandled(true);
