@@ -1,7 +1,6 @@
 package mcjty.rftoolscontrol.setup;
 
 
-import mcjty.lib.McJtyLib;
 import mcjty.lib.gui.GenericGuiContainer;
 import mcjty.lib.varia.Tools;
 import mcjty.rftoolscontrol.RFToolsControl;
@@ -11,7 +10,6 @@ import mcjty.rftoolscontrol.modules.multitank.MultiTankSetup;
 import mcjty.rftoolscontrol.modules.multitank.client.GuiMultiTank;
 import mcjty.rftoolscontrol.modules.processor.ProcessorSetup;
 import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorContainer;
-import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorTileEntity;
 import mcjty.rftoolscontrol.modules.processor.client.GuiProcessor;
 import mcjty.rftoolscontrol.modules.processor.client.ProcessorRenderer;
 import mcjty.rftoolscontrol.modules.programmer.ProgrammerSetup;
@@ -25,6 +23,7 @@ import net.minecraft.client.renderer.RenderTypeLookup;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.DeferredWorkQueue;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 
@@ -33,19 +32,20 @@ public class ClientRegistration {
 
     @SubscribeEvent
     public static void init(FMLClientSetupEvent event) {
-        GenericGuiContainer.register(ProgrammerSetup.PROGRAMMER_CONTAINER.get(), GuiProgrammer::new);
-        GenericGuiContainer.register(ProcessorSetup.PROCESSOR_CONTAINER.get(), GuiProcessor::new);
-        GenericGuiContainer.register(VariousSetup.WORKBENCH_CONTAINER.get(), GuiWorkbench::new);
-        GenericGuiContainer.register(VariousSetup.NODE_CONTAINER.get(), GuiNode::new);
-        GenericGuiContainer.register(CraftingStationSetup.CRAFTING_STATION_CONTAINER.get(), GuiCraftingStation::new);
-        GenericGuiContainer.register(MultiTankSetup.MULTITANK_CONTAINER.get(), GuiMultiTank::new);
+        DeferredWorkQueue.runLater(() -> {
+            GenericGuiContainer.register(ProgrammerSetup.PROGRAMMER_CONTAINER.get(), GuiProgrammer::new);
+            GenericGuiContainer.register(ProcessorSetup.PROCESSOR_CONTAINER.get(), GuiProcessor::new);
+            GenericGuiContainer.register(VariousSetup.WORKBENCH_CONTAINER.get(), GuiWorkbench::new);
+            GenericGuiContainer.register(VariousSetup.NODE_CONTAINER.get(), GuiNode::new);
+            GenericGuiContainer.register(CraftingStationSetup.CRAFTING_STATION_CONTAINER.get(), GuiCraftingStation::new);
+            GenericGuiContainer.register(MultiTankSetup.MULTITANK_CONTAINER.get(), GuiMultiTank::new);
 
-        ScreenManager.IScreenFactory<ProcessorContainer, GuiProcessor> factory = (container, inventory, title) -> {
-            TileEntity te = container.getTe();
-            return Tools.safeMap(te, (mcjty.rftoolscontrol.modules.processor.blocks.ProcessorTileEntity tile) -> new GuiProcessor(tile, container, inventory), "Invalid tile entity!");
-        };
-        ScreenManager.registerFactory(ProcessorSetup.PROCESSOR_CONTAINER_REMOTE.get(), factory);
-
+            ScreenManager.IScreenFactory<ProcessorContainer, GuiProcessor> factory = (container, inventory, title) -> {
+                TileEntity te = container.getTe();
+                return Tools.safeMap(te, (mcjty.rftoolscontrol.modules.processor.blocks.ProcessorTileEntity tile) -> new GuiProcessor(tile, container, inventory), "Invalid tile entity!");
+            };
+            ScreenManager.registerFactory(ProcessorSetup.PROCESSOR_CONTAINER_REMOTE.get(), factory);
+        });
 
         RenderTypeLookup.setRenderLayer(MultiTankSetup.MULTITANK.get(), RenderType.getTranslucent());
         ProcessorRenderer.register();
