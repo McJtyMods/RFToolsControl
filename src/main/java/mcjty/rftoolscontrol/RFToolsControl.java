@@ -1,6 +1,5 @@
 package mcjty.rftoolscontrol;
 
-import mcjty.lib.base.ModBase;
 import mcjty.rftoolsbase.api.control.registry.IFunctionRegistry;
 import mcjty.rftoolsbase.api.control.registry.IOpcodeRegistry;
 import mcjty.rftoolscontrol.modules.processor.logic.registry.FunctionRegistry;
@@ -20,7 +19,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 @Mod(RFToolsControl.MODID)
-public class RFToolsControl implements ModBase {
+public class RFToolsControl {
     public static final String MODID = "rftoolscontrol";
 
     public static ModSetup setup = new ModSetup();
@@ -53,10 +52,4 @@ public class RFToolsControl implements ModBase {
             }
         });
     }
-
-    @Override
-    public String getModId() {
-        return MODID;
-    }
-
 }

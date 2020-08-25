@@ -35,7 +35,7 @@ public class GuiMultiTank extends GenericGuiContainer<MultiTankTileEntity, Multi
     private Label labels[] = new Label[TANKS];
 
     public GuiMultiTank(MultiTankTileEntity te, MultiTankContainer container, PlayerInventory inventory) {
-        super(RFToolsControl.instance, te, container, inventory, /*@todo 1.15 GuiProxy.GUI_MANUAL_CONTROL*/ ManualEntry.EMPTY);
+        super(te, container, inventory, /*@todo 1.15 GuiProxy.GUI_MANUAL_CONTROL*/ ManualEntry.EMPTY);
 
         xSize = WIDTH;
         ySize = HEIGHT;

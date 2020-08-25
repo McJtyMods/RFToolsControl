@@ -80,7 +80,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity, Proce
     private int listDirty = 0;
 
     public GuiProcessor(ProcessorTileEntity te, ProcessorContainer container, PlayerInventory inventory) {
-        super(RFToolsControl.instance, te, container, inventory, ManualHelper.create("rftoolscontrol:processor/processor"));
+        super(te, container, inventory, ManualHelper.create("rftoolscontrol:processor/processor"));
 
         xSize = WIDTH;
         ySize = HEIGHT;

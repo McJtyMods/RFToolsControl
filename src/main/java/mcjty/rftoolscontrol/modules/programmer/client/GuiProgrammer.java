@@ -126,7 +126,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Pro
     }
 
     public GuiProgrammer(ProgrammerTileEntity te, ProgrammerContainer container, PlayerInventory inventory) {
-        super(RFToolsControl.instance, te, container, inventory, ManualHelper.create("rftoolscontrol:programmer/programmer_intro"));
+        super(te, container, inventory, ManualHelper.create("rftoolscontrol:programmer/programmer_intro"));
 
         xSize = WIDTH;
         ySize = HEIGHT;
