@@ -3,7 +3,6 @@ package mcjty.rftoolscontrol.setup;
 
 import mcjty.lib.gui.GenericGuiContainer;
 import mcjty.lib.varia.Tools;
-import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.modules.craftingstation.CraftingStationSetup;
 import mcjty.rftoolscontrol.modules.craftingstation.client.GuiCraftingStation;
 import mcjty.rftoolscontrol.modules.multitank.MultiTankSetup;
@@ -12,6 +11,7 @@ import mcjty.rftoolscontrol.modules.processor.ProcessorSetup;
 import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorContainer;
 import mcjty.rftoolscontrol.modules.processor.client.GuiProcessor;
 import mcjty.rftoolscontrol.modules.processor.client.ProcessorRenderer;
+import mcjty.rftoolscontrol.modules.processor.logic.editors.ParameterEditors;
 import mcjty.rftoolscontrol.modules.programmer.ProgrammerSetup;
 import mcjty.rftoolscontrol.modules.programmer.client.GuiProgrammer;
 import mcjty.rftoolscontrol.modules.various.VariousSetup;
@@ -21,16 +21,11 @@ import net.minecraft.client.gui.ScreenManager;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.RenderTypeLookup;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.DeferredWorkQueue;
-import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 
-@Mod.EventBusSubscriber(modid = RFToolsControl.MODID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD)
-public class ClientRegistration {
+public class ClientSetup {
 
-    @SubscribeEvent
     public static void init(FMLClientSetupEvent event) {
         DeferredWorkQueue.runLater(() -> {
             GenericGuiContainer.register(ProgrammerSetup.PROGRAMMER_CONTAINER.get(), GuiProgrammer::new);
@@ -50,6 +45,7 @@ public class ClientRegistration {
         RenderTypeLookup.setRenderLayer(MultiTankSetup.MULTITANK.get(), RenderType.getTranslucent());
         ProcessorRenderer.register();
         //        ModelLoaderRegistry.registerLoader(new ResourceLocation(RFToolsControl.MODID, "tankloader"), new TankModelLoader());
+        ParameterEditors.init();
     }
 
 //    @SubscribeEvent
