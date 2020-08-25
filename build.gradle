@@ -26,28 +26,12 @@ repositories {
     maven { // Patchouli
         url "https://maven.blamejared.com"
     }
-    maven {
-        name 'OC Repo'
-        url "http://maven.cil.li/"
-    }
     maven { // TOP
         name 'tterrag maven'
         url "http://maven.tterrag.com/"
     }
     maven { // McJtyLib
         url "http://maven.k-4u.nl"
-    }
-    maven {
-        name = "sonatype"
-        url = "https://oss.sonatype.org/content/repositories/snapshots/"
-    }
-    maven {
-        name = "CoFH Maven"
-        url = "http://maven.covers1624.net"
-    }
-    maven {
-        name = "TESLA"
-        url = "https://maven.mcmoddev.com"
     }
 }
 
