@@ -3,7 +3,6 @@ package mcjty.rftoolscontrol.modules.programmer.client;
 import mcjty.lib.McJtyLib;
 import mcjty.lib.base.StyleConfig;
 import mcjty.lib.gui.GenericGuiContainer;
-import mcjty.lib.gui.ManualEntry;
 import mcjty.lib.gui.Window;
 import mcjty.lib.gui.WindowManager;
 import mcjty.lib.gui.events.SelectionEvent;
@@ -126,7 +125,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Pro
     }
 
     public GuiProgrammer(ProgrammerTileEntity te, ProgrammerContainer container, PlayerInventory inventory) {
-        super(RFToolsControl.instance, te, container, inventory, ManualHelper.create("rftoolscontrol:programmer/programmer_intro"));
+        super(te, container, inventory, ManualHelper.create("rftoolscontrol:programmer/programmer_intro"));
 
         xSize = WIDTH;
         ySize = HEIGHT;

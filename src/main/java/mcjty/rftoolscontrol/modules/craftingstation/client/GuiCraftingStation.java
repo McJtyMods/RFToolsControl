@@ -53,7 +53,7 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
     private int listDirty = 0;
 
     public GuiCraftingStation(CraftingStationTileEntity te, CraftingStationContainer container, PlayerInventory inventory) {
-        super(RFToolsControl.instance, te, container, inventory, /*@todo 1.15 GuiProxy.GUI_MANUAL_CONTROL*/ ManualEntry.EMPTY);
+        super(te, container, inventory, /*@todo 1.15 GuiProxy.GUI_MANUAL_CONTROL*/ ManualEntry.EMPTY);
 
         xSize = WIDTH;
         ySize = HEIGHT;

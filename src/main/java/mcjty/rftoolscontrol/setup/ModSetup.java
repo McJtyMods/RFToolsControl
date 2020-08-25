@@ -8,6 +8,7 @@ import mcjty.rftoolscontrol.modules.processor.logic.editors.ParameterEditors;
 import mcjty.rftoolscontrol.modules.processor.logic.registry.Functions;
 import mcjty.rftoolscontrol.modules.processor.logic.registry.Opcodes;
 import net.minecraft.item.ItemStack;
+import net.minecraftforge.fml.DeferredWorkQueue;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 
@@ -21,7 +22,9 @@ public class ModSetup extends DefaultModSetup {
     public void init(FMLCommonSetupEvent e) {
         super.init(e);
 
-        CommandHandler.registerCommands();
+        DeferredWorkQueue.runLater(() -> {
+            CommandHandler.registerCommands();
+        });
 
         RFToolsCtrlMessages.registerMessages("rftoolsctrl");
 

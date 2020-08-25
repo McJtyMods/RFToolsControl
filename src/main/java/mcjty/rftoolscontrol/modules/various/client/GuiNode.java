@@ -6,7 +6,6 @@ import mcjty.lib.gui.Window;
 import mcjty.lib.gui.widgets.Panel;
 import mcjty.lib.gui.widgets.TextField;
 import mcjty.lib.typed.TypedMap;
-import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.modules.various.blocks.NodeContainer;
 import mcjty.rftoolscontrol.modules.various.blocks.NodeTileEntity;
 import mcjty.rftoolscontrol.setup.RFToolsCtrlMessages;
@@ -25,7 +24,7 @@ public class GuiNode extends GenericGuiContainer<NodeTileEntity, NodeContainer> 
     private TextField nodeNameField;
 
     public GuiNode(NodeTileEntity te, NodeContainer container, PlayerInventory inventory) {
-        super(RFToolsControl.instance, te, container, inventory, /*@todo 1.15 GuiProxy.GUI_MANUAL_CONTROL*/ ManualEntry.EMPTY);
+        super(te, container, inventory, /*@todo 1.15 GuiProxy.GUI_MANUAL_CONTROL*/ ManualEntry.EMPTY);
 
         xSize = WIDTH;
         ySize = HEIGHT;
