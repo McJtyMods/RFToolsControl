@@ -1,6 +1,7 @@
 Upcoming:
 - Safer client-side registrations (thread-safety)
 - Various cleanups and fixes
+- Fixed a problem with spawner configuration loading on servers
 
 4.0.1-beta:
 - Fixed a potential exploit which could be used to attack a server
