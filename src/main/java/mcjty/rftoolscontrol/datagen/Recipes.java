@@ -1,7 +1,7 @@
 package mcjty.rftoolscontrol.datagen;
 
 import mcjty.lib.datagen.BaseRecipeProvider;
-import mcjty.rftoolsbase.modules.various.VariousSetup;
+import mcjty.rftoolsbase.modules.various.VariousModule;
 import mcjty.rftoolscontrol.modules.craftingstation.CraftingStationSetup;
 import mcjty.rftoolscontrol.modules.multitank.MultiTankSetup;
 import mcjty.rftoolscontrol.modules.processor.ProcessorSetup;
@@ -18,8 +18,8 @@ public class Recipes extends BaseRecipeProvider {
 
     public Recipes(DataGenerator generatorIn) {
         super(generatorIn);
-        add('F', VariousSetup.MACHINE_FRAME.get());
-        add('s', VariousSetup.DIMENSIONALSHARD.get());
+        add('F', VariousModule.MACHINE_FRAME.get());
+        add('s', VariousModule.DIMENSIONALSHARD.get());
     }
 
     @Override
@@ -116,15 +116,15 @@ public class Recipes extends BaseRecipeProvider {
                 "rqr", "MFM", "rqr");
         build(consumer, ShapedRecipeBuilder.shapedRecipe(ProgrammerSetup.PROGRAMMER.get())
                         .key('q', Tags.Items.GEMS_QUARTZ)
-                        .addCriterion("frame", hasItem(VariousSetup.MACHINE_FRAME.get())),
+                        .addCriterion("frame", hasItem(VariousModule.MACHINE_FRAME.get())),
                 "rqr", "pFp", "rqr");
         build(consumer, ShapedRecipeBuilder.shapedRecipe(MultiTankSetup.MULTITANK.get())
-                        .addCriterion("frame", hasItem(VariousSetup.MACHINE_FRAME.get())),
+                        .addCriterion("frame", hasItem(VariousModule.MACHINE_FRAME.get())),
                 "Fii", "iGG", "iGG");
         build(consumer, ShapedRecipeBuilder.shapedRecipe(mcjty.rftoolscontrol.modules.various.VariousSetup.WORKBENCH.get())
                         .key('C', Items.CRAFTING_TABLE)
                         .key('X', Items.CHEST)
-                        .addCriterion("frame", hasItem(VariousSetup.MACHINE_FRAME.get())),
+                        .addCriterion("frame", hasItem(VariousModule.MACHINE_FRAME.get())),
                 " C ", " F ", " X ");
     }
 }
