@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " C ",
+    " M ",
+    " X "
+  ],
+  "key": {
+    "M": {
+      "item": "rftoolscontrol:card_base"
+    },
+    "X": {
+      "item": "minecraft:repeater"
+    },
+    "C": {
+      "item": "minecraft:comparator"
+    }
+  },
+  "result": {
+    "item": "rftoolscontrol:network_identifier"
+  }
+}

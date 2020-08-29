@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "rqr",
+    "MFM",
+    "rqr"
+  ],
+  "key": {
+    "M": {
+      "item": "rftoolscontrol:card_base"
+    },
+    "q": {
+      "tag": "forge:gems/quartz"
+    },
+    "r": {
+      "item": "minecraft:redstone"
+    },
+    "F": {
+      "item": "rftoolsbase:machine_frame"
+    }
+  },
+  "result": {
+    "item": "rftoolscontrol:processor"
+  }
+}

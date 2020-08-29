@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "qqq",
+    "rMr",
+    "qgq"
+  ],
+  "key": {
+    "M": {
+      "item": "rftoolscontrol:card_base"
+    },
+    "q": {
+      "tag": "forge:gems/quartz"
+    },
+    "g": {
+      "tag": "forge:dusts/glowstone"
+    },
+    "r": {
+      "item": "minecraft:redstone"
+    }
+  },
+  "result": {
+    "item": "rftoolscontrol:graphics_card"
+  }
+}
