@@ -3,9 +3,10 @@
   "textures": {
     "down": "rftoolsbase:block/base/machinebottom",
     "up": "rftoolsbase:block/base/machinetop",
-    "north": "rftoolscontrol:block/machineworkbench",
+    "north": "rftoolscontrol:block/machineprogrammer",
     "south": "rftoolsbase:block/base/machineside",
     "east": "rftoolsbase:block/base/machineside",
-    "west": "rftoolsbase:block/base/machineside"
+    "west": "rftoolsbase:block/base/machineside",
+    "particle": "rftoolscontrol:block/machineprogrammer"
   }
 }
