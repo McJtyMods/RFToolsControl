@@ -1,3 +1,6 @@
+Upcoming:
+- Update to latest McJtyLib
+
 4.0.3-beta:
 - Fixed a problem on servers
 
