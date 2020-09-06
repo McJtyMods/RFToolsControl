@@ -8,7 +8,7 @@ import mcjty.rftoolscontrol.modules.processor.ProcessorSetup;
 import mcjty.rftoolscontrol.modules.programmer.ProgrammerSetup;
 import mcjty.rftoolscontrol.modules.various.VariousSetup;
 import net.minecraft.data.DataGenerator;
-import net.minecraftforge.client.model.generators.ExistingFileHelper;
+import net.minecraftforge.common.data.ExistingFileHelper;
 
 public class Items extends BaseItemModelProvider {
 
