@@ -1,0 +1,12 @@
+{
+  "name": "rftoolscontrol.entry.program_card",
+  "icon": "rftoolscontrol:program_card",
+  "category": "rftoolscontrol:category_rftoolscontrol_various",
+  "sortnum": 10,
+  "pages": [
+    {
+      "type": "text",
+      "text": "rftoolscontrol.page.program_card0"
+    }
+  ]
+}

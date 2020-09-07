@@ -1,0 +1,7 @@
+{
+  "name": "rftoolscontrol.category.various",
+  "description": "rftoolscontrol.category.various.description",
+  "parent": "rftoolscontrol:category_rftoolscontrol",
+  "icon": "rftoolscontrol:token",
+  "sortnum": 40
+}
