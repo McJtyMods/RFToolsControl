@@ -22,7 +22,6 @@ import mcjty.rftoolsbase.api.control.code.OpcodeCategory;
 import mcjty.rftoolsbase.api.control.code.OpcodeOutput;
 import mcjty.rftoolsbase.api.control.parameters.ParameterDescription;
 import mcjty.rftoolsbase.api.control.parameters.ParameterValue;
-import mcjty.rftoolsbase.tools.ManualHelper;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.modules.processor.logic.Connection;
 import mcjty.rftoolscontrol.modules.processor.logic.Parameter;
@@ -34,6 +33,7 @@ import mcjty.rftoolscontrol.modules.processor.logic.grid.GridInstance;
 import mcjty.rftoolscontrol.modules.processor.logic.grid.GridPos;
 import mcjty.rftoolscontrol.modules.processor.logic.grid.ProgramCardInstance;
 import mcjty.rftoolscontrol.modules.processor.logic.registry.Opcodes;
+import mcjty.rftoolscontrol.modules.programmer.ProgrammerSetup;
 import mcjty.rftoolscontrol.modules.programmer.blocks.ProgrammerContainer;
 import mcjty.rftoolscontrol.modules.programmer.blocks.ProgrammerTileEntity;
 import mcjty.rftoolscontrol.modules.programmer.network.PacketUpdateNBTItemInventoryProgrammer;
@@ -126,7 +126,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Pro
     }
 
     public GuiProgrammer(ProgrammerTileEntity te, ProgrammerContainer container, PlayerInventory inventory) {
-        super(te, container, inventory, ManualHelper.create("rftoolscontrol:programmer/programmer_intro"));
+        super(te, container, inventory, ProgrammerSetup.PROGRAMMER.get().getManualEntry());
 
         xSize = WIDTH;
         ySize = HEIGHT;

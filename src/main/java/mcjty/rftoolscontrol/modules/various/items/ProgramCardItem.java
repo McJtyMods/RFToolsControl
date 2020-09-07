@@ -1,8 +1,10 @@
 package mcjty.rftoolscontrol.modules.various.items;
 
 import mcjty.lib.builder.TooltipBuilder;
+import mcjty.lib.gui.ManualEntry;
 import mcjty.lib.tooltips.ITooltipSettings;
 import mcjty.lib.varia.NBTTools;
+import mcjty.rftoolsbase.tools.ManualHelper;
 import mcjty.rftoolscontrol.RFToolsControl;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.item.Item;
@@ -19,6 +21,8 @@ import static mcjty.lib.builder.TooltipBuilder.parameter;
 
 public class ProgramCardItem extends Item implements ITooltipSettings {
 
+    public static final ManualEntry MANUAL = ManualHelper.create("rftoolscontrol:various/program_card");
+
     private final TooltipBuilder tooltipBuilder = new TooltipBuilder()
             .info(header(), parameter("name", stack -> NBTTools.getString(stack, "name", "<unset>")));
 
@@ -28,6 +32,10 @@ public class ProgramCardItem extends Item implements ITooltipSettings {
                 .group(RFToolsControl.setup.getTab()));
     }
 
+    @Override
+    public ManualEntry getManualEntry() {
+        return MANUAL;
+    }
 
     @Override
     public void addInformation(ItemStack stack, @Nullable World worldIn, List<ITextComponent> list, ITooltipFlag flag) {

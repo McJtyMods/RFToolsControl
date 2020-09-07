@@ -2,6 +2,7 @@ package mcjty.rftoolscontrol.modules.processor.blocks;
 
 import mcjty.lib.blocks.BaseBlock;
 import mcjty.lib.builder.BlockBuilder;
+import mcjty.rftoolsbase.tools.ManualHelper;
 import mcjty.rftoolscontrol.compat.RFToolsControlTOPDriver;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -19,15 +20,10 @@ import static mcjty.lib.builder.TooltipBuilder.key;
 
 public class ProcessorBlock extends BaseBlock {
 
-    // @todo 1.15
-//    @Override
-//    public boolean needsRedstoneCheck() {
-//        return true;
-//    }
-
     public ProcessorBlock() {
         super(new BlockBuilder()
                 .topDriver(RFToolsControlTOPDriver.DRIVER)
+                .manualEntry(ManualHelper.create("rftoolscontrol:processor/processor"))
                 .info(key("message.rftoolscontrol.shiftmessage"))
                 .infoShift(header())
                 .tileEntitySupplier(ProcessorTileEntity::new));
