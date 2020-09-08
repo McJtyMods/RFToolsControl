@@ -3,8 +3,8 @@ package mcjty.rftoolscontrol.modules.processor.blocks;
 import mcjty.lib.container.ContainerFactory;
 import mcjty.lib.container.GenericContainer;
 import mcjty.lib.tileentity.GenericTileEntity;
-import mcjty.rftoolscontrol.modules.processor.ProcessorSetup;
-import mcjty.rftoolscontrol.modules.various.VariousSetup;
+import mcjty.rftoolscontrol.modules.processor.ProcessorModule;
+import mcjty.rftoolscontrol.modules.various.VariousModule;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.container.ContainerType;
@@ -30,7 +30,7 @@ public class ProcessorContainer extends GenericContainer {
 
     public static final Lazy<ContainerFactory> CONTAINER_FACTORY = Lazy.of(() -> new ContainerFactory(SLOTS)
             .box(container(), CONTAINER_INVENTORY, SLOT_EXPANSION, 10, 157, 4, 4)
-            .box(specific(new ItemStack(VariousSetup.PROGRAM_CARD.get())), CONTAINER_INVENTORY, SLOT_CARD, 10, 14, CARD_SLOTS, 1)
+            .box(specific(new ItemStack(VariousModule.PROGRAM_CARD.get())), CONTAINER_INVENTORY, SLOT_CARD, 10, 14, CARD_SLOTS, 1)
             .box(container(), CONTAINER_INVENTORY, SLOT_BUFFER, 199, 7, 3, 8)
             .playerSlots(91, 157));
 
@@ -39,11 +39,11 @@ public class ProcessorContainer extends GenericContainer {
     }
 
     public static ProcessorContainer create(int id, BlockPos pos, @Nullable GenericTileEntity te) {
-        return new ProcessorContainer(ProcessorSetup.PROCESSOR_CONTAINER.get(), id, pos, te);
+        return new ProcessorContainer(ProcessorModule.PROCESSOR_CONTAINER.get(), id, pos, te);
     }
 
     public static ProcessorContainer createRemote(int id, BlockPos pos, @Nullable GenericTileEntity te) {
-        return new ProcessorContainer(ProcessorSetup.PROCESSOR_CONTAINER_REMOTE.get(), id, pos, te) {
+        return new ProcessorContainer(ProcessorModule.PROCESSOR_CONTAINER_REMOTE.get(), id, pos, te) {
             @Override
             protected boolean isRemoteContainer() {
                 return true;

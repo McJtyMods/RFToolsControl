@@ -3,9 +3,9 @@ package mcjty.rftoolscontrol.compat;
 import mcjty.lib.compat.theoneprobe.McJtyLibTOPDriver;
 import mcjty.lib.compat.theoneprobe.TOPDriver;
 import mcjty.lib.varia.Tools;
-import mcjty.rftoolscontrol.modules.processor.ProcessorSetup;
+import mcjty.rftoolscontrol.modules.processor.ProcessorModule;
 import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorTileEntity;
-import mcjty.rftoolscontrol.modules.various.VariousSetup;
+import mcjty.rftoolscontrol.modules.various.VariousModule;
 import mcjty.rftoolscontrol.modules.various.blocks.NodeTileEntity;
 import mcjty.theoneprobe.api.CompoundText;
 import mcjty.theoneprobe.api.IProbeHitData;
@@ -14,7 +14,6 @@ import mcjty.theoneprobe.api.ProbeMode;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 
@@ -32,9 +31,9 @@ public class RFToolsControlTOPDriver implements TOPDriver {
     public void addProbeInfo(ProbeMode mode, IProbeInfo probeInfo, PlayerEntity player, World world, BlockState blockState, IProbeHitData data) {
         ResourceLocation id = blockState.getBlock().getRegistryName();
         if (!drivers.containsKey(id)) {
-            if (blockState.getBlock() == VariousSetup.NODE.get()) {
+            if (blockState.getBlock() == VariousModule.NODE.get()) {
                 drivers.put(id, new NodeDriver());
-            } else if (blockState.getBlock() == ProcessorSetup.PROCESSOR.get()) {
+            } else if (blockState.getBlock() == ProcessorModule.PROCESSOR.get()) {
                 drivers.put(id, new ProcessorDriver());
             } else {
                 drivers.put(id, new DefaultDriver());

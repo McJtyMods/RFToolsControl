@@ -1,7 +1,10 @@
 package mcjty.rftoolscontrol.setup;
 
 
+import mcjty.lib.modules.Modules;
 import net.minecraftforge.common.ForgeConfigSpec;
+import net.minecraftforge.fml.ModLoadingContext;
+import net.minecraftforge.fml.config.ModConfig;
 
 public class Config {
 
@@ -28,34 +31,45 @@ public class Config {
     public static ForgeConfigSpec.IntValue maxCraftRequests;
     public static ForgeConfigSpec.IntValue maxStackSize;
 
-    private static final ForgeConfigSpec.Builder SERVER_BUILDER = new ForgeConfigSpec.Builder();
-    private static final ForgeConfigSpec.Builder CLIENT_BUILDER = new ForgeConfigSpec.Builder();
+    public static final ForgeConfigSpec.Builder SERVER_BUILDER = new ForgeConfigSpec.Builder();
+    public static final ForgeConfigSpec.Builder CLIENT_BUILDER = new ForgeConfigSpec.Builder();
 
-    static {
+    public static void register(Modules modules) {
+        setupGeneralConfig();
+        modules.initConfig();
+
+        SERVER_CONFIG = SERVER_BUILDER.build();
+        CLIENT_CONFIG = CLIENT_BUILDER.build();
+
+        ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, CLIENT_CONFIG);
+        ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, SERVER_CONFIG);
+    }
+
+    private static void setupGeneralConfig() {
         SERVER_BUILDER.comment("General settings").push(CATEGORY_GENERAL);
         CLIENT_BUILDER.comment("General settings").push(CATEGORY_GENERAL);
 
         processorMaxenergy = SERVER_BUILDER
-            .comment("Maximum RF storage that the processor can hold")
-            .defineInRange("processorMaxRF", 100000, 1, Integer.MAX_VALUE);
+                .comment("Maximum RF storage that the processor can hold")
+                .defineInRange("processorMaxRF", 100000, 1, Integer.MAX_VALUE);
         processorReceivepertick = SERVER_BUILDER
-            .comment("RF per tick that the processor can receive")
-            .defineInRange("processorRFPerTick", 1000, 1, Integer.MAX_VALUE);
+                .comment("RF per tick that the processor can receive")
+                .defineInRange("processorRFPerTick", 1000, 1, Integer.MAX_VALUE);
         processorMaxloglines = SERVER_BUILDER
-            .comment("Maximum number of lines to keep in the log")
-            .defineInRange("processorMaxLogLines", 100, 0, 100000);
+                .comment("Maximum number of lines to keep in the log")
+                .defineInRange("processorMaxLogLines", 100, 0, 100000);
         maxStackSize = SERVER_BUILDER
-            .comment("Maximum stack size for a program (used by 'call' opcode)")
-            .defineInRange("maxStackSize", 100, 1, 10000);
+                .comment("Maximum stack size for a program (used by 'call' opcode)")
+                .defineInRange("maxStackSize", 100, 1, 10000);
         maxGraphicsOpcodes = SERVER_BUILDER
-            .comment("Maximum amount of graphics opcodes that a graphics card supports")
-            .defineInRange("maxGraphicsOpcodes", 30, 1, 10000);
+                .comment("Maximum amount of graphics opcodes that a graphics card supports")
+                .defineInRange("maxGraphicsOpcodes", 30, 1, 10000);
         maxEventQueueSize = SERVER_BUILDER
-            .comment("Maximum amount of event queue entries supported by a processor. More events will be ignored")
-            .defineInRange("maxEventQueueSize", 100, 1, 10000);
+                .comment("Maximum amount of event queue entries supported by a processor. More events will be ignored")
+                .defineInRange("maxEventQueueSize", 100, 1, 10000);
         maxCraftRequests = SERVER_BUILDER
-            .comment("Maximum amount of craft requests supported by the crafting station. More requests will be ignored")
-            .defineInRange("maxCraftRequests", 200, 1, 10000);
+                .comment("Maximum amount of craft requests supported by the crafting station. More requests will be ignored")
+                .defineInRange("maxCraftRequests", 200, 1, 10000);
 
         doubleClickToChangeConnector = SERVER_BUILDER
                 .comment("If true double click is needed in programmer to change connector. If false single click is sufficient")
@@ -98,32 +112,8 @@ public class Config {
 
         SERVER_BUILDER.pop();
         CLIENT_BUILDER.pop();
-
-        SERVER_CONFIG = SERVER_BUILDER.build();
-        CLIENT_CONFIG = CLIENT_BUILDER.build();
     }
 
     public static ForgeConfigSpec SERVER_CONFIG;
     public static ForgeConfigSpec CLIENT_CONFIG;
-
-
-//    public static Configuration mainConfig;
-//
-//    public static void init() {
-//        mainConfig = new Configuration(new File(RFToolsControl.setup.getModConfigDir().getPath() + File.separator + "rftools", "control.cfg"));
-//        Configuration cfg = mainConfig;
-//        try {
-//            cfg.load();
-//            COMMON_CONFIG = COMMON_BUILDER.build(mainConfig);
-//            CLIENT_CONFIG = CLIENT_BUILDER.build(mainConfig);
-//        } catch (Exception e1) {
-//            FMLLog.log(Level.ERROR, e1, "Problem loading config file!");
-//        }
-//    }
-//
-//    public static void postInit() {
-//        if (mainConfig.hasChanged()) {
-//            mainConfig.save();
-//        }
-//    }
 }

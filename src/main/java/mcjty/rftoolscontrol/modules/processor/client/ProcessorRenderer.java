@@ -6,7 +6,7 @@ import mcjty.lib.network.PacketSendServerCommand;
 import mcjty.lib.typed.TypedMap;
 import mcjty.rftoolscontrol.CommandHandler;
 import mcjty.rftoolscontrol.RFToolsControl;
-import mcjty.rftoolscontrol.modules.processor.ProcessorSetup;
+import mcjty.rftoolscontrol.modules.processor.ProcessorModule;
 import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorTileEntity;
 import mcjty.rftoolscontrol.modules.processor.network.PacketGetDebugLog;
 import mcjty.rftoolscontrol.modules.processor.network.PacketGetLog;
@@ -142,6 +142,6 @@ public class ProcessorRenderer extends TileEntityRenderer<ProcessorTileEntity> {
     }
 
     public static void register() {
-        ClientRegistry.bindTileEntityRenderer(ProcessorSetup.PROCESSOR_TILE.get(), ProcessorRenderer::new);
+        ClientRegistry.bindTileEntityRenderer(ProcessorModule.PROCESSOR_TILE.get(), ProcessorRenderer::new);
     }
 }

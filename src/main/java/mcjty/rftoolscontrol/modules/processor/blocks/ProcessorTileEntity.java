@@ -24,7 +24,7 @@ import mcjty.rftoolscontrol.compat.RFToolsStuff;
 import mcjty.rftoolscontrol.modules.craftingstation.blocks.CraftingStationTileEntity;
 import mcjty.rftoolscontrol.modules.multitank.blocks.MultiTankTileEntity;
 import mcjty.rftoolscontrol.modules.multitank.util.MultiTankFluidProperties;
-import mcjty.rftoolscontrol.modules.processor.ProcessorSetup;
+import mcjty.rftoolscontrol.modules.processor.ProcessorModule;
 import mcjty.rftoolscontrol.modules.processor.client.GuiProcessor;
 import mcjty.rftoolscontrol.modules.processor.items.*;
 import mcjty.rftoolscontrol.modules.processor.logic.LogicInventoryTools;
@@ -47,7 +47,7 @@ import mcjty.rftoolscontrol.modules.processor.vectorart.GfxOp;
 import mcjty.rftoolscontrol.modules.processor.vectorart.GfxOpBox;
 import mcjty.rftoolscontrol.modules.processor.vectorart.GfxOpLine;
 import mcjty.rftoolscontrol.modules.processor.vectorart.GfxOpText;
-import mcjty.rftoolscontrol.modules.various.VariousSetup;
+import mcjty.rftoolscontrol.modules.various.VariousModule;
 import mcjty.rftoolscontrol.modules.various.blocks.NodeTileEntity;
 import mcjty.rftoolscontrol.modules.various.blocks.WorkbenchTileEntity;
 import mcjty.rftoolscontrol.modules.various.items.TokenItem;
@@ -226,7 +226,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
 
 
     public ProcessorTileEntity() {
-        super(ProcessorSetup.PROCESSOR_TILE.get());
+        super(ProcessorModule.PROCESSOR_TILE.get());
 //        super(ConfigSetup.processorMaxenergy.get(), ConfigSetup.processorReceivepertick.get());
         for (int i = 0; i < cardInfo.length; i++) {
             cardInfo[i] = new CardInfo();
@@ -3270,12 +3270,12 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
                 if (isExpansionSlot(index)) {
                     // @todo use object holder
                     Item storageCardItem = ForgeRegistries.ITEMS.getValue(new ResourceLocation("rftools", "storage_control_module"));
-                    return item == ProcessorSetup.GRAPHICS_CARD.get() || item == ProcessorSetup.NETWORK_CARD.get() ||
-                            item == ProcessorSetup.ADVANCED_NETWORK_CARD.get() || item == ProcessorSetup.CPU_CORE_500.get() ||
-                            item == ProcessorSetup.CPU_CORE_1000.get() || item == ProcessorSetup.CPU_CORE_2000.get() ||
-                            item == ProcessorSetup.RAM_CHIP.get() || item == storageCardItem || item instanceof FilterModuleItem;
+                    return item == ProcessorModule.GRAPHICS_CARD.get() || item == ProcessorModule.NETWORK_CARD.get() ||
+                            item == ProcessorModule.ADVANCED_NETWORK_CARD.get() || item == ProcessorModule.CPU_CORE_500.get() ||
+                            item == ProcessorModule.CPU_CORE_1000.get() || item == ProcessorModule.CPU_CORE_2000.get() ||
+                            item == ProcessorModule.RAM_CHIP.get() || item == storageCardItem || item instanceof FilterModuleItem;
                 } else if (isCardSlot(index)) {
-                    return item == VariousSetup.PROGRAM_CARD.get();
+                    return item == VariousModule.PROGRAM_CARD.get();
                 }
                 return true;
             }

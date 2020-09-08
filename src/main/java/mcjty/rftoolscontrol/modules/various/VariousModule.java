@@ -2,8 +2,12 @@ package mcjty.rftoolscontrol.modules.various;
 
 import mcjty.lib.blocks.BaseBlock;
 import mcjty.lib.container.GenericContainer;
+import mcjty.lib.gui.GenericGuiContainer;
+import mcjty.lib.modules.IModule;
 import mcjty.rftoolsbase.modules.tablet.items.TabletItem;
 import mcjty.rftoolscontrol.modules.various.blocks.*;
+import mcjty.rftoolscontrol.modules.various.client.GuiNode;
+import mcjty.rftoolscontrol.modules.various.client.GuiWorkbench;
 import mcjty.rftoolscontrol.modules.various.items.CardBaseItem;
 import mcjty.rftoolscontrol.modules.various.items.ProgramCardItem;
 import mcjty.rftoolscontrol.modules.various.items.TokenItem;
@@ -16,15 +20,14 @@ import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.tileentity.TileEntityType;
+import net.minecraftforge.fml.DeferredWorkQueue;
 import net.minecraftforge.fml.RegistryObject;
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 
 import static mcjty.rftoolscontrol.setup.Registration.*;
 
-public class VariousSetup {
-
-    public static void register() {
-        // Needed to force class loading
-    }
+public class VariousModule implements IModule {
 
     public static final RegistryObject<BaseBlock> NODE = BLOCKS.register("node", NodeBlock::new);
     public static final RegistryObject<TileEntityType<NodeTileEntity>> NODE_TILE = TILES.register("node", () -> TileEntityType.Builder.create(NodeTileEntity::new, NODE.get()).build(null));
@@ -47,4 +50,21 @@ public class VariousSetup {
 
     public static final RegistryObject<TabletItem> TABLET_PROCESSOR = ITEMS.register("tablet_processor", TabletItem::new);
 
+    @Override
+    public void init(FMLCommonSetupEvent event) {
+
+    }
+
+    @Override
+    public void initClient(FMLClientSetupEvent event) {
+        DeferredWorkQueue.runLater(() -> {
+            GenericGuiContainer.register(WORKBENCH_CONTAINER.get(), GuiWorkbench::new);
+            GenericGuiContainer.register(NODE_CONTAINER.get(), GuiNode::new);
+        });
+    }
+
+    @Override
+    public void initConfig() {
+
+    }
 }

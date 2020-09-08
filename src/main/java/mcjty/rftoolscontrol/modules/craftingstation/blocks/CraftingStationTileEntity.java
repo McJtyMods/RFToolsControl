@@ -11,7 +11,7 @@ import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.BlockPosTools;
 import mcjty.lib.varia.ItemStackList;
 import mcjty.rftoolsbase.api.control.parameters.Inventory;
-import mcjty.rftoolscontrol.modules.craftingstation.CraftingStationSetup;
+import mcjty.rftoolscontrol.modules.craftingstation.CraftingStationModule;
 import mcjty.rftoolscontrol.modules.craftingstation.client.GuiCraftingStation;
 import mcjty.rftoolscontrol.modules.craftingstation.util.CraftingRequest;
 import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorTileEntity;
@@ -72,7 +72,7 @@ public class CraftingStationTileEntity extends GenericTileEntity {
     private int cleanupCounter = 50;
 
     public CraftingStationTileEntity() {
-        super(CraftingStationSetup.CRAFTING_STATION_TILE.get());
+        super(CraftingStationModule.CRAFTING_STATION_TILE.get());
     }
 
     public void registerProcessor(BlockPos pos) {

@@ -5,7 +5,7 @@ import mcjty.lib.container.GenericContainer;
 import mcjty.lib.container.GenericCrafter;
 import mcjty.lib.container.SlotDefinition;
 import mcjty.lib.tileentity.GenericTileEntity;
-import mcjty.rftoolscontrol.modules.various.VariousSetup;
+import mcjty.rftoolscontrol.modules.various.VariousModule;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.util.Lazy;
@@ -46,7 +46,7 @@ public class WorkbenchContainer extends GenericContainer {
 //    }
 
     public WorkbenchContainer(int id, ContainerFactory factory, BlockPos pos, @Nullable GenericTileEntity te) {
-        super(VariousSetup.WORKBENCH_CONTAINER.get(), id, factory, pos, te);
+        super(VariousModule.WORKBENCH_CONTAINER.get(), id, factory, pos, te);
     }
 
     @Override

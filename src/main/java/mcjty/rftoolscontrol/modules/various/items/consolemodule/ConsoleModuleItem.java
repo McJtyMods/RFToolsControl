@@ -9,9 +9,9 @@ import mcjty.rftoolsbase.api.various.ITabletSupport;
 import mcjty.rftoolsbase.tools.GenericModuleItem;
 import mcjty.lib.varia.ModuleTools;
 import mcjty.rftoolscontrol.RFToolsControl;
-import mcjty.rftoolscontrol.modules.processor.ProcessorSetup;
+import mcjty.rftoolscontrol.modules.processor.ProcessorModule;
 import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorContainer;
-import mcjty.rftoolscontrol.modules.various.VariousSetup;
+import mcjty.rftoolscontrol.modules.various.VariousModule;
 import mcjty.rftoolscontrol.setup.Config;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -45,7 +45,7 @@ public class ConsoleModuleItem extends GenericModuleItem implements ITabletSuppo
 
     @Override
     public Item getInstalledTablet() {
-        return VariousSetup.TABLET_PROCESSOR.get();
+        return VariousModule.TABLET_PROCESSOR.get();
     }
 
     @Override
@@ -120,7 +120,7 @@ public class ConsoleModuleItem extends GenericModuleItem implements ITabletSuppo
             tagCompound = new CompoundNBT();
         }
 
-        if (block == ProcessorSetup.PROCESSOR.get()) {
+        if (block == ProcessorModule.PROCESSOR.get()) {
             tagCompound.putString("monitordim", DimensionId.fromWorld(world).getRegistryName().toString());
             tagCompound.putInt("monitorx", pos.getX());
             tagCompound.putInt("monitory", pos.getY());

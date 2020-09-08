@@ -3,8 +3,8 @@ package mcjty.rftoolscontrol.modules.programmer.blocks;
 import mcjty.lib.container.ContainerFactory;
 import mcjty.lib.container.GenericContainer;
 import mcjty.lib.tileentity.GenericTileEntity;
-import mcjty.rftoolscontrol.modules.programmer.ProgrammerSetup;
-import mcjty.rftoolscontrol.modules.various.VariousSetup;
+import mcjty.rftoolscontrol.modules.programmer.ProgrammerModule;
+import mcjty.rftoolscontrol.modules.various.VariousModule;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
@@ -23,12 +23,12 @@ public class ProgrammerContainer extends GenericContainer {
     public static final int SLOT_DUMMY = 1;
 
     public static final Lazy<ContainerFactory> CONTAINER_FACTORY = Lazy.of(() -> new ContainerFactory(2)
-            .box(specific(new ItemStack(VariousSetup.PROGRAM_CARD.get())), CONTAINER_INVENTORY, SLOT_CARD, 91, 136, 1, 1)
+            .box(specific(new ItemStack(VariousModule.PROGRAM_CARD.get())), CONTAINER_INVENTORY, SLOT_CARD, 91, 136, 1, 1)
             .box(container(), CONTAINER_INVENTORY, SLOT_DUMMY, -1000, -1000, 1, 1)
             .playerSlots(91, 157));
 
     public ProgrammerContainer(int id, ContainerFactory factory, BlockPos pos, @Nullable GenericTileEntity te) {
-        super(ProgrammerSetup.PROGRAMMER_CONTAINER.get(), id, factory, pos, te);
+        super(ProgrammerModule.PROGRAMMER_CONTAINER.get(), id, factory, pos, te);
     }
 
     @Override

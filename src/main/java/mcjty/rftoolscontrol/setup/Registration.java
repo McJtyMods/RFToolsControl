@@ -2,11 +2,6 @@ package mcjty.rftoolscontrol.setup;
 
 
 import mcjty.rftoolscontrol.RFToolsControl;
-import mcjty.rftoolscontrol.modules.craftingstation.CraftingStationSetup;
-import mcjty.rftoolscontrol.modules.multitank.MultiTankSetup;
-import mcjty.rftoolscontrol.modules.processor.ProcessorSetup;
-import mcjty.rftoolscontrol.modules.programmer.ProgrammerSetup;
-import mcjty.rftoolscontrol.modules.various.VariousSetup;
 import net.minecraft.block.Block;
 import net.minecraft.entity.EntityType;
 import net.minecraft.inventory.container.ContainerType;
@@ -35,12 +30,6 @@ public class Registration {
         CONTAINERS.register(FMLJavaModLoadingContext.get().getModEventBus());
         SOUNDS.register(FMLJavaModLoadingContext.get().getModEventBus());
         ENTITIES.register(FMLJavaModLoadingContext.get().getModEventBus());
-
-        ProcessorSetup.register();
-        ProgrammerSetup.register();
-        CraftingStationSetup.register();
-        MultiTankSetup.register();
-        VariousSetup.register();
     }
 
 

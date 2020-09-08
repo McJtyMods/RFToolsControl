@@ -2,10 +2,10 @@ package mcjty.rftoolscontrol.datagen;
 
 import mcjty.lib.datagen.BaseBlockStateProvider;
 import mcjty.rftoolscontrol.RFToolsControl;
-import mcjty.rftoolscontrol.modules.craftingstation.CraftingStationSetup;
-import mcjty.rftoolscontrol.modules.processor.ProcessorSetup;
-import mcjty.rftoolscontrol.modules.programmer.ProgrammerSetup;
-import mcjty.rftoolscontrol.modules.various.VariousSetup;
+import mcjty.rftoolscontrol.modules.craftingstation.CraftingStationModule;
+import mcjty.rftoolscontrol.modules.processor.ProcessorModule;
+import mcjty.rftoolscontrol.modules.programmer.ProgrammerModule;
+import mcjty.rftoolscontrol.modules.various.VariousModule;
 import net.minecraft.data.DataGenerator;
 import net.minecraftforge.common.data.ExistingFileHelper;
 
@@ -17,11 +17,11 @@ public class BlockStates extends BaseBlockStateProvider {
 
     @Override
     protected void registerStatesAndModels() {
-        orientedBlock(ProcessorSetup.PROCESSOR.get(), frontBasedModel("processor", modLoc("block/machineprocessoron")));
-        orientedBlock(VariousSetup.WORKBENCH.get(), frontBasedModel("workbench", modLoc("block/machineworkbench")));
-        orientedBlock(ProgrammerSetup.PROGRAMMER.get(), frontBasedModel("programmer", modLoc("block/machineprogrammer")));
-        orientedBlock(VariousSetup.NODE.get(), frontBasedModel("node", modLoc("block/machinenode")));
-        orientedBlock(CraftingStationSetup.CRAFTING_STATION.get(), frontBasedModel("craftingstation", modLoc("block/machinecraftingstation")));
+        orientedBlock(ProcessorModule.PROCESSOR.get(), frontBasedModel("processor", modLoc("block/machineprocessoron")));
+        orientedBlock(VariousModule.WORKBENCH.get(), frontBasedModel("workbench", modLoc("block/machineworkbench")));
+        orientedBlock(ProgrammerModule.PROGRAMMER.get(), frontBasedModel("programmer", modLoc("block/machineprogrammer")));
+        orientedBlock(VariousModule.NODE.get(), frontBasedModel("node", modLoc("block/machinenode")));
+        orientedBlock(CraftingStationModule.CRAFTING_STATION.get(), frontBasedModel("craftingstation", modLoc("block/machinecraftingstation")));
 
         // @todo 1.15
         //        orientedBlock(Registration.MULTITANK.get(), frontBasedModel("multitank", modLoc("block/machinecraftingstation")));

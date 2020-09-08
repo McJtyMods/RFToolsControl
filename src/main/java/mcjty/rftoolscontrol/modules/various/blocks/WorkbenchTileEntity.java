@@ -8,7 +8,7 @@ import mcjty.lib.container.AutomationFilterItemHander;
 import mcjty.lib.container.GenericCrafter;
 import mcjty.lib.container.NoDirectionItemHander;
 import mcjty.lib.tileentity.GenericTileEntity;
-import mcjty.rftoolscontrol.modules.various.VariousSetup;
+import mcjty.rftoolscontrol.modules.various.VariousModule;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.CraftingInventory;
 import net.minecraft.inventory.container.Container;
@@ -43,7 +43,7 @@ public class WorkbenchTileEntity extends GenericTileEntity implements GenericCra
     private int realItems = 0;
 
     public WorkbenchTileEntity() {
-        super(VariousSetup.WORKBENCH_TILE.get());
+        super(VariousModule.WORKBENCH_TILE.get());
     }
 
 
