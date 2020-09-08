@@ -5,7 +5,7 @@ import mcjty.lib.tooltips.ITooltipSettings;
 import mcjty.lib.varia.Logging;
 import mcjty.lib.varia.ModuleTools;
 import mcjty.rftoolscontrol.RFToolsControl;
-import mcjty.rftoolscontrol.modules.processor.ProcessorSetup;
+import mcjty.rftoolscontrol.modules.processor.ProcessorModule;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.util.ITooltipFlag;
@@ -59,7 +59,7 @@ public class NetworkIdentifierItem extends Item implements ITooltipSettings {
             tagCompound = new CompoundNBT();
         }
 
-        if (block == ProcessorSetup.PROCESSOR.get()) {
+        if (block == ProcessorModule.PROCESSOR.get()) {
             tagCompound.putString("monitordim", world.getDimension().getType().getRegistryName().toString());
             tagCompound.putInt("monitorx", pos.getX());
             tagCompound.putInt("monitory", pos.getY());

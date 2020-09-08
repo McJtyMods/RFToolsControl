@@ -7,8 +7,8 @@ import mcjty.lib.container.AutomationFilterItemHander;
 import mcjty.lib.container.NoDirectionItemHander;
 import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.rftoolscontrol.modules.processor.logic.grid.ProgramCardInstance;
-import mcjty.rftoolscontrol.modules.programmer.ProgrammerSetup;
-import mcjty.rftoolscontrol.modules.various.VariousSetup;
+import mcjty.rftoolscontrol.modules.programmer.ProgrammerModule;
+import mcjty.rftoolscontrol.modules.various.VariousModule;
 import mcjty.rftoolscontrol.modules.various.items.ProgramCardItem;
 import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.item.ItemStack;
@@ -33,8 +33,8 @@ public class ProgrammerTileEntity extends GenericTileEntity {
             .itemHandler(itemHandler));
 
     public ProgrammerTileEntity() {
-        super(ProgrammerSetup.PROGRAMMER_TILE.get());
-        items.setStackInSlot(ProgrammerContainer.SLOT_DUMMY, new ItemStack(VariousSetup.PROGRAM_CARD.get()));
+        super(ProgrammerModule.PROGRAMMER_TILE.get());
+        items.setStackInSlot(ProgrammerContainer.SLOT_DUMMY, new ItemStack(VariousModule.PROGRAM_CARD.get()));
     }
 
     public NoDirectionItemHander getItems() {

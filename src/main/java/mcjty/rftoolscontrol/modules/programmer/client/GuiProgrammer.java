@@ -32,7 +32,7 @@ import mcjty.rftoolscontrol.modules.processor.logic.grid.GridInstance;
 import mcjty.rftoolscontrol.modules.processor.logic.grid.GridPos;
 import mcjty.rftoolscontrol.modules.processor.logic.grid.ProgramCardInstance;
 import mcjty.rftoolscontrol.modules.processor.logic.registry.Opcodes;
-import mcjty.rftoolscontrol.modules.programmer.ProgrammerSetup;
+import mcjty.rftoolscontrol.modules.programmer.ProgrammerModule;
 import mcjty.rftoolscontrol.modules.programmer.blocks.ProgrammerContainer;
 import mcjty.rftoolscontrol.modules.programmer.blocks.ProgrammerTileEntity;
 import mcjty.rftoolscontrol.modules.programmer.network.PacketUpdateNBTItemInventoryProgrammer;
@@ -125,7 +125,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Pro
     }
 
     public GuiProgrammer(ProgrammerTileEntity te, ProgrammerContainer container, PlayerInventory inventory) {
-        super(te, container, inventory, ProgrammerSetup.PROGRAMMER.get().getManualEntry());
+        super(te, container, inventory, ProgrammerModule.PROGRAMMER.get().getManualEntry());
 
         xSize = WIDTH;
         ySize = HEIGHT;

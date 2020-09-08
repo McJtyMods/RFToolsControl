@@ -6,7 +6,7 @@ import mcjty.lib.varia.WorldTools;
 import mcjty.rftoolsbase.api.screens.IScreenDataHelper;
 import mcjty.rftoolsbase.api.screens.IScreenModule;
 import mcjty.rftoolscontrol.compat.rftoolssupport.ModuleDataLog;
-import mcjty.rftoolscontrol.modules.processor.ProcessorSetup;
+import mcjty.rftoolscontrol.modules.processor.ProcessorModule;
 import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorTileEntity;
 import mcjty.rftoolscontrol.setup.Config;
 import net.minecraft.block.Block;
@@ -36,7 +36,7 @@ public class ConsoleScreenModule implements IScreenModule<ModuleDataLog> {
         }
 
         Block block = world.getBlockState(coordinate).getBlock();
-        if (block != ProcessorSetup.PROCESSOR.get()) {
+        if (block != ProcessorModule.PROCESSOR.get()) {
             return null;
         }
 

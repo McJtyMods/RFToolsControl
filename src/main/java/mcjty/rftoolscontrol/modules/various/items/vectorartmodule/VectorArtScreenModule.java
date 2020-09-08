@@ -7,7 +7,7 @@ import mcjty.rftoolsbase.api.control.parameters.Tuple;
 import mcjty.rftoolsbase.api.screens.IScreenDataHelper;
 import mcjty.rftoolsbase.api.screens.IScreenModule;
 import mcjty.rftoolscontrol.compat.rftoolssupport.ModuleDataVectorArt;
-import mcjty.rftoolscontrol.modules.processor.ProcessorSetup;
+import mcjty.rftoolscontrol.modules.processor.ProcessorModule;
 import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorTileEntity;
 import mcjty.rftoolscontrol.setup.Config;
 import net.minecraft.block.Block;
@@ -38,7 +38,7 @@ public class VectorArtScreenModule implements IScreenModule<ModuleDataVectorArt>
         }
 
         Block block = world.getBlockState(coordinate).getBlock();
-        if (block != ProcessorSetup.PROCESSOR.get()) {
+        if (block != ProcessorModule.PROCESSOR.get()) {
             return null;
         }
 
@@ -89,7 +89,7 @@ public class VectorArtScreenModule implements IScreenModule<ModuleDataVectorArt>
                 }
 
                 Block block = world.getBlockState(coordinate).getBlock();
-                if (block != ProcessorSetup.PROCESSOR.get()) {
+                if (block != ProcessorModule.PROCESSOR.get()) {
                     return;
                 }
 

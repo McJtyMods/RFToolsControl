@@ -5,7 +5,7 @@ import mcjty.lib.api.container.DefaultContainerProvider;
 import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.lib.typed.Type;
 import mcjty.lib.typed.TypedMap;
-import mcjty.rftoolscontrol.modules.multitank.MultiTankSetup;
+import mcjty.rftoolscontrol.modules.multitank.MultiTankModule;
 import mcjty.rftoolscontrol.modules.multitank.util.MultiTankFluidProperties;
 import mcjty.rftoolscontrol.modules.multitank.util.MultiTankHandler;
 import net.minecraft.inventory.container.INamedContainerProvider;
@@ -37,7 +37,7 @@ public class MultiTankTileEntity extends GenericTileEntity {
             .containerSupplier((windowId,player) -> new MultiTankContainer(windowId, MultiTankContainer.CONTAINER_FACTORY.get(), getPos(), MultiTankTileEntity.this)));
 
     public MultiTankTileEntity() {
-        super(MultiTankSetup.MULTITANK_TILE.get());
+        super(MultiTankModule.MULTITANK_TILE.get());
         for (int i = 0 ; i < TANKS ; i++) {
             properties[i] = new MultiTankFluidProperties(this, FluidStack.EMPTY, MAXCAPACITY);
         }

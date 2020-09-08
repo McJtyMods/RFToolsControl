@@ -1,58 +1,48 @@
 package mcjty.rftoolscontrol;
 
-import mcjty.rftoolsbase.api.control.registry.IFunctionRegistry;
-import mcjty.rftoolsbase.api.control.registry.IOpcodeRegistry;
-import mcjty.rftoolscontrol.modules.processor.logic.registry.FunctionRegistry;
-import mcjty.rftoolscontrol.modules.processor.logic.registry.OpcodeRegistry;
-import mcjty.rftoolscontrol.setup.ClientSetup;
+import mcjty.lib.modules.Modules;
+import mcjty.rftoolscontrol.modules.craftingstation.CraftingStationModule;
+import mcjty.rftoolscontrol.modules.multitank.MultiTankModule;
+import mcjty.rftoolscontrol.modules.processor.ProcessorModule;
 import mcjty.rftoolscontrol.setup.Config;
 import mcjty.rftoolscontrol.setup.ModSetup;
 import mcjty.rftoolscontrol.setup.Registration;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.config.ModConfig;
-import net.minecraftforge.fml.event.lifecycle.InterModProcessEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-
-import java.util.function.Function;
-import java.util.function.Supplier;
 
 @Mod(RFToolsControl.MODID)
 public class RFToolsControl {
     public static final String MODID = "rftoolscontrol";
 
     public static ModSetup setup = new ModSetup();
-
+    private Modules modules = new Modules();
     public static RFToolsControl instance;
 
     public RFToolsControl() {
         instance = this;
+        setupModules();
 
-        ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, Config.CLIENT_CONFIG);
-        ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, Config.SERVER_CONFIG);
+        Config.register(modules);
 
         // This has to be done VERY early
 //        FluidRegistry.enableUniversalBucket();
         Registration.register();
 
         FMLJavaModLoadingContext.get().getModEventBus().addListener(setup::init);
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::processIMC);
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(setup::processIMC);
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(modules::init);
+
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
-            FMLJavaModLoadingContext.get().getModEventBus().addListener(ClientSetup::init);
+            FMLJavaModLoadingContext.get().getModEventBus().addListener(modules::initClient);
         });
     }
 
-    private void processIMC(final InterModProcessEvent event) {
-        event.getIMCStream().forEach(message -> {
-            if ("getOpcodeRegistry".equalsIgnoreCase(message.getMethod())) {
-                Supplier<Function<IOpcodeRegistry, Void>> supplier = message.getMessageSupplier();
-                supplier.get().apply(new OpcodeRegistry());
-            } else if ("getFunctionRegistry".equalsIgnoreCase(message.getMethod())) {
-                Supplier<Function<IFunctionRegistry, Void>> supplier = message.getMessageSupplier();
-                supplier.get().apply(new FunctionRegistry());
-            }
-        });
+    private void setupModules() {
+        modules.register(new CraftingStationModule());
+        modules.register(new MultiTankModule());
+        modules.register(new ProcessorModule());
     }
+
 }

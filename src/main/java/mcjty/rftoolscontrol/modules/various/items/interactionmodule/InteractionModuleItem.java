@@ -5,7 +5,7 @@ import mcjty.rftoolsbase.api.screens.IModuleGuiBuilder;
 import mcjty.rftoolsbase.tools.GenericModuleItem;
 import mcjty.lib.varia.ModuleTools;
 import mcjty.rftoolscontrol.RFToolsControl;
-import mcjty.rftoolscontrol.modules.processor.ProcessorSetup;
+import mcjty.rftoolscontrol.modules.processor.ProcessorModule;
 import mcjty.rftoolscontrol.setup.Config;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -80,7 +80,7 @@ public class InteractionModuleItem extends GenericModuleItem {
             tagCompound = new CompoundNBT();
         }
 
-        if (block == ProcessorSetup.PROCESSOR.get()) {
+        if (block == ProcessorModule.PROCESSOR.get()) {
             tagCompound.putString("monitordim", world.getDimension().getType().getRegistryName().toString());
             tagCompound.putInt("monitorx", pos.getX());
             tagCompound.putInt("monitory", pos.getY());

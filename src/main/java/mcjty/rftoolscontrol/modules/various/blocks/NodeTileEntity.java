@@ -8,7 +8,7 @@ import mcjty.lib.typed.Type;
 import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.BlockPosTools;
 import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorTileEntity;
-import mcjty.rftoolscontrol.modules.various.VariousSetup;
+import mcjty.rftoolscontrol.modules.various.VariousModule;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.nbt.CompoundNBT;
@@ -40,7 +40,7 @@ public class NodeTileEntity extends GenericTileEntity {
             .containerSupplier((windowId,player) -> new NodeContainer(windowId, NodeContainer.CONTAINER_FACTORY.get(), getPos(), NodeTileEntity.this)));
 
     public NodeTileEntity() {
-        super(VariousSetup.NODE_TILE.get());
+        super(VariousModule.NODE_TILE.get());
     }
 
     public String getNodeName() {

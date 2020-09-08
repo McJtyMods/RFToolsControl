@@ -6,7 +6,7 @@ import mcjty.lib.varia.WorldTools;
 import mcjty.rftoolsbase.api.screens.IScreenDataHelper;
 import mcjty.rftoolsbase.api.screens.IScreenModule;
 import mcjty.rftoolscontrol.compat.rftoolssupport.ModuleDataVariable;
-import mcjty.rftoolscontrol.modules.processor.ProcessorSetup;
+import mcjty.rftoolscontrol.modules.processor.ProcessorModule;
 import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorTileEntity;
 import mcjty.rftoolscontrol.modules.processor.logic.Parameter;
 import mcjty.rftoolscontrol.setup.Config;
@@ -37,7 +37,7 @@ public class VariableScreenModule implements IScreenModule<ModuleDataVariable> {
         }
 
         Block block = world.getBlockState(coordinate).getBlock();
-        if (block != ProcessorSetup.PROCESSOR.get()) {
+        if (block != ProcessorModule.PROCESSOR.get()) {
             return null;
         }
 

@@ -2,7 +2,6 @@ package mcjty.rftoolscontrol.modules.craftingstation.blocks;
 
 import mcjty.lib.container.ContainerFactory;
 import mcjty.lib.container.GenericContainer;
-import mcjty.lib.container.SlotDefinition;
 import mcjty.lib.tileentity.GenericTileEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.util.math.BlockPos;
@@ -13,7 +12,7 @@ import net.minecraftforge.items.wrapper.InvWrapper;
 import javax.annotation.Nullable;
 
 import static mcjty.lib.container.SlotDefinition.container;
-import static mcjty.rftoolscontrol.modules.craftingstation.CraftingStationSetup.CRAFTING_STATION_CONTAINER;
+import static mcjty.rftoolscontrol.modules.craftingstation.CraftingStationModule.CRAFTING_STATION_CONTAINER;
 
 public class CraftingStationContainer extends GenericContainer {
     public static final String CONTAINER_INVENTORY = "container";
