@@ -2,7 +2,6 @@ package mcjty.rftoolscontrol.modules.programmer;
 
 import mcjty.lib.blocks.BaseBlock;
 import mcjty.lib.container.GenericContainer;
-import mcjty.lib.gui.GenericGuiContainer;
 import mcjty.lib.modules.IModule;
 import mcjty.rftoolscontrol.modules.processor.logic.editors.ParameterEditors;
 import mcjty.rftoolscontrol.modules.programmer.blocks.ProgrammerBlock;
@@ -36,7 +35,7 @@ public class ProgrammerModule implements IModule {
     @Override
     public void initClient(FMLClientSetupEvent event) {
         DeferredWorkQueue.runLater(() -> {
-            GenericGuiContainer.register(PROGRAMMER_CONTAINER.get(), GuiProgrammer::new);
+            GuiProgrammer.register();
         });
         ParameterEditors.init();
     }

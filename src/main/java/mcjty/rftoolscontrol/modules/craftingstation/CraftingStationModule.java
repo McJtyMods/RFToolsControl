@@ -2,7 +2,6 @@ package mcjty.rftoolscontrol.modules.craftingstation;
 
 import mcjty.lib.blocks.BaseBlock;
 import mcjty.lib.container.GenericContainer;
-import mcjty.lib.gui.GenericGuiContainer;
 import mcjty.lib.modules.IModule;
 import mcjty.rftoolscontrol.modules.craftingstation.blocks.CraftingStationBlock;
 import mcjty.rftoolscontrol.modules.craftingstation.blocks.CraftingStationContainer;
@@ -35,7 +34,7 @@ public class CraftingStationModule implements IModule {
     @Override
     public void initClient(FMLClientSetupEvent event) {
         DeferredWorkQueue.runLater(() -> {
-            GenericGuiContainer.register(CRAFTING_STATION_CONTAINER.get(), GuiCraftingStation::new);
+            GuiCraftingStation.register();
 
         });
     }

@@ -7,6 +7,7 @@ import mcjty.lib.gui.Window;
 import mcjty.lib.gui.widgets.Panel;
 import mcjty.lib.gui.widgets.TextField;
 import mcjty.lib.typed.TypedMap;
+import mcjty.rftoolscontrol.modules.various.VariousModule;
 import mcjty.rftoolscontrol.modules.various.blocks.NodeContainer;
 import mcjty.rftoolscontrol.modules.various.blocks.NodeTileEntity;
 import mcjty.rftoolscontrol.setup.RFToolsCtrlMessages;
@@ -29,6 +30,10 @@ public class GuiNode extends GenericGuiContainer<NodeTileEntity, NodeContainer> 
 
         xSize = WIDTH;
         ySize = HEIGHT;
+    }
+
+    public static void register() {
+        register(VariousModule.NODE_CONTAINER.get(), GuiNode::new);
     }
 
     @Override

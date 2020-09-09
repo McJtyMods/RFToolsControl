@@ -2,7 +2,6 @@ package mcjty.rftoolscontrol.modules.various;
 
 import mcjty.lib.blocks.BaseBlock;
 import mcjty.lib.container.GenericContainer;
-import mcjty.lib.gui.GenericGuiContainer;
 import mcjty.lib.modules.IModule;
 import mcjty.rftoolsbase.modules.tablet.items.TabletItem;
 import mcjty.rftoolscontrol.modules.various.blocks.*;
@@ -58,8 +57,8 @@ public class VariousModule implements IModule {
     @Override
     public void initClient(FMLClientSetupEvent event) {
         DeferredWorkQueue.runLater(() -> {
-            GenericGuiContainer.register(WORKBENCH_CONTAINER.get(), GuiWorkbench::new);
-            GenericGuiContainer.register(NODE_CONTAINER.get(), GuiNode::new);
+            GuiWorkbench.register();
+            GuiNode.register();
         });
     }
 

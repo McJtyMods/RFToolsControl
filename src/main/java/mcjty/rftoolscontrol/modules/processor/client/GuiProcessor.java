@@ -10,6 +10,7 @@ import mcjty.lib.gui.events.TextSpecialKeyEvent;
 import mcjty.lib.gui.layout.HorizontalAlignment;
 import mcjty.lib.gui.widgets.*;
 import mcjty.lib.typed.TypedMap;
+import mcjty.lib.varia.Tools;
 import mcjty.rftoolsbase.api.control.parameters.ParameterType;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.modules.processor.ProcessorModule;
@@ -26,9 +27,11 @@ import mcjty.rftoolscontrol.modules.processor.network.PacketVariableToServer;
 import mcjty.rftoolscontrol.modules.processor.util.CardInfo;
 import mcjty.rftoolscontrol.modules.programmer.client.GuiTools;
 import mcjty.rftoolscontrol.setup.RFToolsCtrlMessages;
+import net.minecraft.client.gui.ScreenManager;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.container.Slot;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextFormatting;
@@ -84,6 +87,16 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity, Proce
 
         xSize = WIDTH;
         ySize = HEIGHT;
+    }
+
+    public static void register() {
+        register(ProcessorModule.PROCESSOR_CONTAINER.get(), GuiProcessor::new);
+
+        ScreenManager.IScreenFactory<ProcessorContainer, GuiProcessor> factory = (container, inventory, title) -> {
+            TileEntity te = container.getTe();
+            return Tools.safeMap(te, (ProcessorTileEntity tile) -> new GuiProcessor(tile, container, inventory), "Invalid tile entity!");
+        };
+        ScreenManager.registerFactory(ProcessorModule.PROCESSOR_CONTAINER_REMOTE.get(), factory);
     }
 
     @Override

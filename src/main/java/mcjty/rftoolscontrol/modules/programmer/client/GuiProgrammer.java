@@ -134,6 +134,10 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Pro
         initIcons();
     }
 
+    public static void register() {
+        register(ProgrammerModule.PROGRAMMER_CONTAINER.get(), GuiProgrammer::new);
+    }
+
     private void initIcons() {
         if (ICONS.isEmpty()) {
             for (Map.Entry<String, Opcode> entry : Opcodes.OPCODES.entrySet()) {
