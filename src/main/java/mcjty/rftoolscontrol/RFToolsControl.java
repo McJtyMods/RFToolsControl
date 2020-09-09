@@ -4,6 +4,8 @@ import mcjty.lib.modules.Modules;
 import mcjty.rftoolscontrol.modules.craftingstation.CraftingStationModule;
 import mcjty.rftoolscontrol.modules.multitank.MultiTankModule;
 import mcjty.rftoolscontrol.modules.processor.ProcessorModule;
+import mcjty.rftoolscontrol.modules.programmer.ProgrammerModule;
+import mcjty.rftoolscontrol.modules.various.VariousModule;
 import mcjty.rftoolscontrol.setup.Config;
 import mcjty.rftoolscontrol.setup.ModSetup;
 import mcjty.rftoolscontrol.setup.Registration;
@@ -43,6 +45,8 @@ public class RFToolsControl {
         modules.register(new CraftingStationModule());
         modules.register(new MultiTankModule());
         modules.register(new ProcessorModule());
+        modules.register(new ProgrammerModule());
+        modules.register(new VariousModule());
     }
 
 }
