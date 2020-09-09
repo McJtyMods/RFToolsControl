@@ -2,15 +2,13 @@ package mcjty.rftoolscontrol.modules.multitank;
 
 import mcjty.lib.blocks.BaseBlock;
 import mcjty.lib.container.GenericContainer;
-import mcjty.lib.gui.GenericGuiContainer;
 import mcjty.lib.modules.IModule;
 import mcjty.rftoolscontrol.modules.multitank.blocks.MultiTankBlock;
 import mcjty.rftoolscontrol.modules.multitank.blocks.MultiTankContainer;
 import mcjty.rftoolscontrol.modules.multitank.blocks.MultiTankTileEntity;
+import mcjty.rftoolscontrol.modules.multitank.client.ClientSetup;
 import mcjty.rftoolscontrol.modules.multitank.client.GuiMultiTank;
 import mcjty.rftoolscontrol.setup.Registration;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.RenderTypeLookup;
 import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
@@ -37,10 +35,10 @@ public class MultiTankModule implements IModule {
     @Override
     public void initClient(FMLClientSetupEvent event) {
         DeferredWorkQueue.runLater(() -> {
-            GenericGuiContainer.register(MULTITANK_CONTAINER.get(), GuiMultiTank::new);
+            GuiMultiTank.register();
         });
 
-        RenderTypeLookup.setRenderLayer(MULTITANK.get(), RenderType.getTranslucent());
+        ClientSetup.initClient();
     }
 
     @Override

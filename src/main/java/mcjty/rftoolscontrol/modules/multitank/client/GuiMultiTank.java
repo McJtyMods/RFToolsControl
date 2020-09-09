@@ -9,6 +9,7 @@ import mcjty.lib.gui.widgets.BlockRender;
 import mcjty.lib.gui.widgets.Label;
 import mcjty.lib.gui.widgets.Panel;
 import mcjty.rftoolscontrol.RFToolsControl;
+import mcjty.rftoolscontrol.modules.multitank.MultiTankModule;
 import mcjty.rftoolscontrol.modules.multitank.blocks.MultiTankContainer;
 import mcjty.rftoolscontrol.modules.multitank.blocks.MultiTankTileEntity;
 import mcjty.rftoolscontrol.modules.multitank.network.PacketGetTankFluids;
@@ -38,6 +39,10 @@ public class GuiMultiTank extends GenericGuiContainer<MultiTankTileEntity, Multi
 
         xSize = WIDTH;
         ySize = HEIGHT;
+    }
+
+    public static void register() {
+        register(MultiTankModule.MULTITANK_CONTAINER.get(), GuiMultiTank::new);
     }
 
     @Override

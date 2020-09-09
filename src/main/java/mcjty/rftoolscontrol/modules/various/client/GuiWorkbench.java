@@ -5,6 +5,7 @@ import mcjty.lib.gui.ManualEntry;
 import mcjty.lib.gui.Window;
 import mcjty.lib.gui.widgets.Panel;
 import mcjty.rftoolscontrol.RFToolsControl;
+import mcjty.rftoolscontrol.modules.various.VariousModule;
 import mcjty.rftoolscontrol.modules.various.blocks.WorkbenchContainer;
 import mcjty.rftoolscontrol.modules.various.blocks.WorkbenchTileEntity;
 import net.minecraft.entity.player.PlayerInventory;
@@ -25,6 +26,10 @@ public class GuiWorkbench extends GenericGuiContainer<WorkbenchTileEntity, Workb
 
         xSize = WIDTH;
         ySize = HEIGHT;
+    }
+
+    public static void register() {
+        register(VariousModule.WORKBENCH_CONTAINER.get(), GuiWorkbench::new);
     }
 
     @Override

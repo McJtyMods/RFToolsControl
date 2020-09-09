@@ -9,6 +9,7 @@ import mcjty.lib.gui.events.BlockRenderEvent;
 import mcjty.lib.gui.widgets.*;
 import mcjty.lib.typed.TypedMap;
 import mcjty.rftoolscontrol.RFToolsControl;
+import mcjty.rftoolscontrol.modules.craftingstation.CraftingStationModule;
 import mcjty.rftoolscontrol.modules.craftingstation.blocks.CraftingStationContainer;
 import mcjty.rftoolscontrol.modules.craftingstation.blocks.CraftingStationTileEntity;
 import mcjty.rftoolscontrol.modules.craftingstation.network.PacketGetCraftableItems;
@@ -57,6 +58,10 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
 
         xSize = WIDTH;
         ySize = HEIGHT;
+    }
+
+    public static void register() {
+        register(CraftingStationModule.CRAFTING_STATION_CONTAINER.get(), GuiCraftingStation::new);
     }
 
     @Override
