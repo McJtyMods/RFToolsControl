@@ -1,12 +1,12 @@
 {
-  "name": "rftoolscontrol.entry.processor",
+  "name": "Processor",
   "icon": "rftoolscontrol:processor",
   "category": "rftoolscontrol:category_rftoolscontrol_processor",
   "sortnum": 10,
   "pages": [
     {
       "type": "text",
-      "text": "rftoolscontrol.page.processor0"
+      "text": "The Processor is the device that actually runs your programs"
     }
   ]
 }

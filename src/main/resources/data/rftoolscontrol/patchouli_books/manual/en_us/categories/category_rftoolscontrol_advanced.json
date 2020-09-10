@@ -1,6 +1,6 @@
 {
-  "name": "rftoolscontrol.category.advanced",
-  "description": "rftoolscontrol.category.advanced.description",
+  "name": "Advanced",
+  "description": "Advanced stuff... @todo",
   "parent": "rftoolscontrol:category_rftoolscontrol",
   "icon": "minecraft:nether_star",
   "sortnum": 30

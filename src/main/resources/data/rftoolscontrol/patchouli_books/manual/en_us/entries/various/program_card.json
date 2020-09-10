@@ -1,12 +1,12 @@
 {
-  "name": "rftoolscontrol.entry.program_card",
+  "name": "Program Card",
   "icon": "rftoolscontrol:program_card",
   "category": "rftoolscontrol:category_rftoolscontrol_various",
   "sortnum": 10,
   "pages": [
     {
       "type": "text",
-      "text": "rftoolscontrol.page.program_card0"
+      "text": "A Program Card can hold several programs. Use the $(l:rftoolscontrol:programmer/programmer_intro)Programmer$(/l) to create and edit programs. Use the $(l:rftoolscontrol:processor/processor)Processor$(/l) to execute them"
     }
   ]
 }

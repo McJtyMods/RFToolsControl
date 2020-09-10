@@ -1,5 +1,5 @@
 {
-  "name": "rftoolscontrol.category.main",
-  "description": "rftoolscontrol.category.main.description",
+  "name": "RFTools Control",
+  "description": "RFTools Control provides a graphical way to 'program' tasks for automation in Minecraft",
   "icon": "rftoolscontrol:processor"
 }

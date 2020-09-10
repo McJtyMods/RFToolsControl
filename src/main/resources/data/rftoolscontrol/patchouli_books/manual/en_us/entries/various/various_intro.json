@@ -1,12 +1,12 @@
 {
-  "name": "rftoolscontrol.entry.various_intro",
+  "name": "Various",
   "icon": "rftoolscontrol:token",
   "category": "rftoolscontrol:category_rftoolscontrol_various",
   "sortnum": 10,
   "pages": [
     {
       "type": "text",
-      "text": "rftoolscontrol.page.various_intro0"
+      "text": "Various useful items and blocks for RFTools Control"
     }
   ]
 }

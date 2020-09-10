@@ -1,6 +1,6 @@
 {
-  "name": "rftoolscontrol.category.various",
-  "description": "rftoolscontrol.category.various.description",
+  "name": "Various",
+  "description": "Various useful items and blocks for RFTools Control",
   "parent": "rftoolscontrol:category_rftoolscontrol",
   "icon": "rftoolscontrol:token",
   "sortnum": 40

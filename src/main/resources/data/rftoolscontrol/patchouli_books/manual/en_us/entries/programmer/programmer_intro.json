@@ -1,12 +1,12 @@
 {
-  "name": "rftoolscontrol.entry.programmer_intro",
+  "name": "Programming Introduction",
   "icon": "rftoolscontrol:programmer",
   "category": "rftoolscontrol:category_rftoolscontrol_programmer",
   "sortnum": 10,
   "pages": [
     {
       "type": "text",
-      "text": "rftoolscontrol.page.programmer_intro0"
+      "text": "Intro... @todo"
     }
   ]
 }
