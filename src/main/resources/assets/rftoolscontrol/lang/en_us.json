@@ -102,35 +102,5 @@
   "message.rftoolscontrol.processor.header": "The processor executes programs for automation. Programs should be written on a program card and can be made with the Programmer block",
   "message.rftoolscontrol.programmer.header": "Use this block to make programs on a program card for the processor",
   "message.rftoolscontrol.node.header": "This node can be remotely accessed by the processor that has a network card installed",
-  "message.rftoolscontrol.workbench.header": "A general workbench that works well with a processor but can also be used standalone",
-
-  "rftoolscontrol.category.main": "RFTools Control",
-  "rftoolscontrol.category.main.description": "RFTools Control provides a graphical way to 'program' tasks for automation in Minecraft",
-
-  "rftoolscontrol.category.programmer": "Programmer",
-  "rftoolscontrol.category.programmer.description": "The Programmer is the main block you need to actually write programs",
-  "rftoolscontrol.entry.programmer_intro": "Programming Introduction",
-  "rftoolscontrol.page.programmer_intro0": "Intro... @todo",
-
-  "rftoolscontrol.category.processor": "Processor",
-  "rftoolscontrol.category.processor.description": "The Processor is the device that actually runs your programs",
-  "rftoolscontrol.entry.processor": "Processor",
-  "rftoolscontrol.page.processor0": "The Processor is the device that actually runs your programs",
-
-  "rftoolscontrol.category.advanced": "Advanced",
-  "rftoolscontrol.category.advanced.description": "Advanced stuff... @todo",
-  "rftoolscontrol.entry.advanced_intro": "Advanced",
-  "rftoolscontrol.page.advanced_intro0": "Stuff @todo",
-
-  "rftoolscontrol.category.various": "Various",
-  "rftoolscontrol.category.various.description": "Various useful items and blocks for RFTools Control",
-  "rftoolscontrol.entry.various_intro": "Various",
-  "rftoolscontrol.page.various_intro0": "Various useful items and blocks for RFTools Control",
-  "rftoolscontrol.entry.token": "Token",
-  "rftoolscontrol.page.token0": "A token is a small item that can store information. A program on a processor can read and write information from a token",
-  "rftoolscontrol.entry.program_card": "Program Card",
-  "rftoolscontrol.page.program_card0": "A Program Card can hold several programs. Use the $(l:rftoolscontrol:programmer/programmer_intro)Programmer$(/l) to create and edit programs. Use the $(l:rftoolscontrol:processor/processor)Processor$(/l) to execute them",
-
-  "rftoolscontrol.entry.expansions": "Expansion",
-  "rftoolscontrol.page.expansions0": "Various expansions..."
+  "message.rftoolscontrol.workbench.header": "A general workbench that works well with a processor but can also be used standalone"
 }

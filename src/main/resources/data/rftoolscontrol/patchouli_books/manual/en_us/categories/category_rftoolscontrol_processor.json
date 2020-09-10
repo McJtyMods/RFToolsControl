@@ -1,6 +1,6 @@
 {
-  "name": "rftoolscontrol.category.processor",
-  "description": "rftoolscontrol.category.processor.description",
+  "name": "Processor",
+  "description": "The Processor is the device that actually runs your programs",
   "parent": "rftoolscontrol:category_rftoolscontrol",
   "icon": "rftoolscontrol:processor",
   "sortnum": 20

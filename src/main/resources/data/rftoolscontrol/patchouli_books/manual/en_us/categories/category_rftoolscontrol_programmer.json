@@ -1,6 +1,6 @@
 {
-  "name": "rftoolscontrol.category.programmer",
-  "description": "rftoolscontrol.category.programmer.description",
+  "name": "Programmer",
+  "description": "The Programmer is the main block you need to actually write programs",
   "parent": "rftoolscontrol:category_rftoolscontrol",
   "icon": "rftoolscontrol:programmer",
   "sortnum": 10
