@@ -5,7 +5,6 @@ import mcjty.lib.McJtyLib;
 import mcjty.lib.api.container.CapabilityContainerProvider;
 import mcjty.lib.api.container.DefaultContainerProvider;
 import mcjty.lib.container.AutomationFilterItemHander;
-import mcjty.lib.container.GenericCrafter;
 import mcjty.lib.container.NoDirectionItemHander;
 import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.rftoolscontrol.modules.various.VariousModule;
@@ -26,7 +25,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class WorkbenchTileEntity extends GenericTileEntity implements GenericCrafter {
+public class WorkbenchTileEntity extends GenericTileEntity {
 
     private final NoDirectionItemHander items = createItemHandler();
     private final LazyOptional<NoDirectionItemHander> itemHandler = LazyOptional.of(() -> items);
@@ -110,7 +109,6 @@ public class WorkbenchTileEntity extends GenericTileEntity implements GenericCra
         return workInventory;
     }
 
-    @Override
     public void craftItem() {
     }
 

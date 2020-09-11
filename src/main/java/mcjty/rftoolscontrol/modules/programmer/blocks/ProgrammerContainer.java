@@ -35,6 +35,6 @@ public class ProgrammerContainer extends GenericContainer {
     public void setupInventories(IItemHandler itemHandler, PlayerInventory inventory) {
         addInventory(CONTAINER_INVENTORY, itemHandler);
         addInventory(ContainerFactory.CONTAINER_PLAYER, new InvWrapper(inventory));
-        generateSlots();
+        generateSlots(inventory.player);
     }
 }
