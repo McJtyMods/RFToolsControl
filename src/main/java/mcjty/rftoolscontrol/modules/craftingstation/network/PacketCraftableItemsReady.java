@@ -1,6 +1,7 @@
 package mcjty.rftoolscontrol.modules.craftingstation.network;
 
 
+import mcjty.lib.McJtyLib;
 import mcjty.lib.network.IClientCommandHandler;
 import mcjty.lib.network.NetworkTools;
 import mcjty.lib.typed.Type;
@@ -43,7 +44,7 @@ public class PacketCraftableItemsReady {
     public void handle(Supplier<NetworkEvent.Context> supplier) {
         NetworkEvent.Context ctx = supplier.get();
         ctx.enqueueWork(() -> {
-            TileEntity te = ctx.getSender().getEntityWorld().getTileEntity(pos);
+            TileEntity te = McJtyLib.proxy.getClientWorld().getTileEntity(pos);
             if(!(te instanceof IClientCommandHandler)) {
                 Logging.log("TileEntity is not a ClientCommandHandler!");
                 return;
