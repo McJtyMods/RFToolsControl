@@ -59,12 +59,11 @@ public class CraftingStationTileEntity extends GenericTileEntity {
     public static final Key<Integer> PARAM_INDEX = new Key<>("index", Type.INTEGER);
 
     private final NoDirectionItemHander items = createItemHandler();
-    private final LazyOptional<NoDirectionItemHander> itemHandler = LazyOptional.of(() -> items);
-    private final LazyOptional<AutomationFilterItemHander> automationItemHandler = LazyOptional.of(() -> new AutomationFilterItemHander(items));
+    private final LazyOptional<AutomationFilterItemHander> itemHandler = LazyOptional.of(() -> new AutomationFilterItemHander(items));
 
     private final LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<CraftingStationContainer>("Crafter")
             .containerSupplier((windowId,player) -> new CraftingStationContainer(windowId, CONTAINER_FACTORY.get(), getPos(), CraftingStationTileEntity.this))
-            .itemHandler(itemHandler));
+            .itemHandler(() -> items));
 
     private final List<BlockPos> processorList = new ArrayList<>();
     private int currentTicket = 0;
@@ -469,7 +468,7 @@ public class CraftingStationTileEntity extends GenericTileEntity {
     @Override
     public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction facing) {
         if (cap == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) {
-            return automationItemHandler.cast();
+            return itemHandler.cast();
         }
         if (cap == CapabilityContainerProvider.CONTAINER_PROVIDER_CAPABILITY) {
             return screenHandler.cast();

@@ -140,15 +140,15 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
     private static final BiFunction<ParameterType, Object, Number> CONVERTOR_NUMBER = TypeConverters::convertToNumber;
 
     private final NoDirectionItemHander items = createItemHandler();
-    private final LazyOptional<NoDirectionItemHander> itemHandler = LazyOptional.of(() -> items);
-    private final LazyOptional<AutomationFilterItemHander> automationItemHandler = LazyOptional.of(() -> new AutomationFilterItemHander(items));
+    private final LazyOptional<AutomationFilterItemHander> itemHandler = LazyOptional.of(() -> new AutomationFilterItemHander(items));
 
-    private final LazyOptional<GenericEnergyStorage> energyHandler = LazyOptional.of(() -> new GenericEnergyStorage(this, true, Config.processorMaxenergy.get(), Config.processorReceivepertick.get()));
+    private final GenericEnergyStorage energyStorage = new GenericEnergyStorage(this, true, Config.processorMaxenergy.get(), Config.processorReceivepertick.get());
+    private final LazyOptional<GenericEnergyStorage> energyHandler = LazyOptional.of(() -> energyStorage);
 
     private final LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<ProcessorContainer>("Processor")
             .containerSupplier((windowId, player) -> ProcessorContainer.create(windowId, getPos(), ProcessorTileEntity.this))
-            .itemHandler(itemHandler)
-            .energyHandler(energyHandler));
+            .itemHandler(() -> items)
+            .energyHandler(() -> energyStorage));
 
     private final List<CpuCore> cpuCores = new ArrayList<>();
 
@@ -1468,20 +1468,18 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
     }
 
     private void run() {
-        energyHandler.ifPresent(h -> {
-            long rf = h.getEnergy();
+        long rf = energyStorage.getEnergy();
 
-            for (CpuCore core : cpuCores) {
-                if (core.hasProgram()) {
-                    int rft = Config.coreRFPerTick[core.getTier()].get();
-                    if (rft < rf) {
-                        core.run(this);
-                        h.consumeEnergy(rft);
-                        rf -= rft;
-                    }
+        for (CpuCore core : cpuCores) {
+            if (core.hasProgram()) {
+                int rft = Config.coreRFPerTick[core.getTier()].get();
+                if (rft < rf) {
+                    core.run(this);
+                    energyStorage.consumeEnergy(rft);
+                    rf -= rft;
                 }
             }
-        });
+        }
     }
 
     private void updateCores() {
@@ -3278,7 +3276,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
     @Override
     public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction facing) {
         if (cap == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) {
-            return automationItemHandler.cast();
+            return itemHandler.cast();
         }
         if (cap == CapabilityEnergy.ENERGY) {
             return energyHandler.cast();
