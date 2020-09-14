@@ -93,7 +93,8 @@ import java.util.stream.Collectors;
 
 import static mcjty.rftoolscontrol.modules.multitank.blocks.MultiTankTileEntity.MAXCAPACITY;
 import static mcjty.rftoolscontrol.modules.multitank.blocks.MultiTankTileEntity.TANKS;
-import static mcjty.rftoolscontrol.modules.processor.blocks.ProcessorContainer.*;
+import static mcjty.rftoolscontrol.modules.processor.blocks.ProcessorContainer.CONTAINER_FACTORY;
+import static mcjty.rftoolscontrol.modules.processor.blocks.ProcessorContainer.SLOT_EXPANSION;
 import static mcjty.rftoolscontrol.modules.processor.logic.running.ExceptionType.*;
 
 public class ProcessorTileEntity extends GenericTileEntity implements ITickableTileEntity, IProcessor {
@@ -140,17 +141,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
 
     private final NoDirectionItemHander items = createItemHandler();
     private final LazyOptional<NoDirectionItemHander> itemHandler = LazyOptional.of(() -> items);
-    private final LazyOptional<AutomationFilterItemHander> automationItemHandler = LazyOptional.of(() -> new AutomationFilterItemHander(items) {
-        @Override
-        public boolean canAutomationInsert(int slot) {
-            return slot >= SLOT_BUFFER && slot < SLOT_BUFFER + 3 * 8;
-        }
-
-        @Override
-        public boolean canAutomationExtract(int slot) {
-            return slot >= SLOT_BUFFER && slot < SLOT_BUFFER + 3 * 8;
-        }
-    });
+    private final LazyOptional<AutomationFilterItemHander> automationItemHandler = LazyOptional.of(() -> new AutomationFilterItemHander(items));
 
     private final LazyOptional<GenericEnergyStorage> energyHandler = LazyOptional.of(() -> new GenericEnergyStorage(this, true, Config.processorMaxenergy.get(), Config.processorReceivepertick.get()));
 
