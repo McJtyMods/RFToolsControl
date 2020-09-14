@@ -28,9 +28,9 @@ public class ProcessorContainer extends GenericContainer {
     public static final int SLOTS = EXPANSION_SLOTS + CARD_SLOTS + ITEM_SLOTS;
 
     public static final Lazy<ContainerFactory> CONTAINER_FACTORY = Lazy.of(() -> new ContainerFactory(SLOTS)
-            .box(container(), CONTAINER_INVENTORY, SLOT_EXPANSION, 10, 157, 4, 4)
-            .box(specific(new ItemStack(VariousModule.PROGRAM_CARD.get())), CONTAINER_INVENTORY, SLOT_CARD, 10, 14, CARD_SLOTS, 1)
-            .box(inputOutput(), CONTAINER_INVENTORY, SLOT_BUFFER, 199, 7, 3, 8)
+            .box(generic(), CONTAINER_INVENTORY, SLOT_EXPANSION, 10, 157, 4, 4)
+            .box(specific(new ItemStack(VariousModule.PROGRAM_CARD.get())).in().out(), CONTAINER_INVENTORY, SLOT_CARD, 10, 14, CARD_SLOTS, 1)
+            .box(generic().in().out(), CONTAINER_INVENTORY, SLOT_BUFFER, 199, 7, 3, 8)
             .playerSlots(91, 157));
 
     private ProcessorContainer(ContainerType<ProcessorContainer> type, int id, BlockPos pos, @Nullable GenericTileEntity te) {

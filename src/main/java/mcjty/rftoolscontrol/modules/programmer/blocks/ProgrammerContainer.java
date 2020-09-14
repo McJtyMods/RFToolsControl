@@ -14,8 +14,7 @@ import net.minecraftforge.items.wrapper.InvWrapper;
 
 import javax.annotation.Nullable;
 
-import static mcjty.lib.container.SlotDefinition.container;
-import static mcjty.lib.container.SlotDefinition.specific;
+import static mcjty.lib.container.SlotDefinition.*;
 
 public class ProgrammerContainer extends GenericContainer {
     public static final String CONTAINER_INVENTORY = "container";
@@ -23,8 +22,8 @@ public class ProgrammerContainer extends GenericContainer {
     public static final int SLOT_DUMMY = 1;
 
     public static final Lazy<ContainerFactory> CONTAINER_FACTORY = Lazy.of(() -> new ContainerFactory(2)
-            .box(specific(new ItemStack(VariousModule.PROGRAM_CARD.get())), CONTAINER_INVENTORY, SLOT_CARD, 91, 136, 1, 1)
-            .box(container(), CONTAINER_INVENTORY, SLOT_DUMMY, -1000, -1000, 1, 1)
+            .box(specific(new ItemStack(VariousModule.PROGRAM_CARD.get())).in().out(), CONTAINER_INVENTORY, SLOT_CARD, 91, 136, 1, 1)
+            .box(generic(), CONTAINER_INVENTORY, SLOT_DUMMY, -1000, -1000, 1, 1)
             .playerSlots(91, 157));
 
     public ProgrammerContainer(int id, ContainerFactory factory, BlockPos pos, @Nullable GenericTileEntity te) {
