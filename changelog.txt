@@ -1,5 +1,6 @@
-Upcoming:
+1.15-3.0.8:
 - Fixed a bug in the crafting station
+- Update to latest McJtyLib
 
 1.15-3.0.7:
 - Fixed a problem on servers
