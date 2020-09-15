@@ -1,5 +1,6 @@
-Upcoming:
+1.16-4.0.5:
 - Fixed a bug in the crafting station
+- Update to latest McJtyLib
 
 1.16-4.0.4-beta:
 - Update to latest McJtyLib
