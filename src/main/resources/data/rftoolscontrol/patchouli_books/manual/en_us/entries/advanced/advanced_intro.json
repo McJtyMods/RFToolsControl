@@ -1,12 +1,12 @@
 {
-  "name": "rftoolscontrol.entry.advanced_intro",
+  "name": "Advanced",
   "icon": "minecraft:nether_star",
   "category": "rftoolscontrol:category_rftoolscontrol_advanced",
   "sortnum": 10,
   "pages": [
     {
       "type": "text",
-      "text": "rftoolscontrol.page.advanced_intro0"
+      "text": "Stuff @todo"
     }
   ]
 }
