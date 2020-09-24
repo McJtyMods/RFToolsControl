@@ -11,7 +11,6 @@ import mcjty.rftoolscontrol.modules.processor.logic.registry.Functions;
 import mcjty.rftoolscontrol.modules.processor.logic.registry.OpcodeRegistry;
 import mcjty.rftoolscontrol.modules.processor.logic.registry.Opcodes;
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.fml.DeferredWorkQueue;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.InterModProcessEvent;
 
@@ -28,7 +27,7 @@ public class ModSetup extends DefaultModSetup {
     public void init(FMLCommonSetupEvent e) {
         super.init(e);
 
-        DeferredWorkQueue.runLater(() -> {
+        e.enqueueWork(() -> {
             CommandHandler.registerCommands();
         });
 
