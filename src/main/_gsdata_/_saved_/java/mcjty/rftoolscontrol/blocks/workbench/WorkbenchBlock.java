@@ -1,7 +1,6 @@
-package mcjty.rftoolscontrol.blocks.craftingstation;
+package mcjty.rftoolscontrol.blocks.workbench;
 
 import mcjty.lib.gui.GenericGuiContainer;
-import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.blocks.GenericRFToolsBlock;
 import mcjty.rftoolscontrol.setup.GuiProxy;
 import net.minecraft.block.material.Material;
@@ -16,27 +15,28 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.BiFunction;
 
-public class CraftingStationBlock extends GenericRFToolsBlock<CraftingStationTileEntity, CraftingStationContainer> {
+public class WorkbenchBlock extends GenericRFToolsBlock<WorkbenchTileEntity, WorkbenchContainer> {
 
-    public CraftingStationBlock() {
-        super(Material.IRON, CraftingStationTileEntity.class, CraftingStationContainer::new, "craftingstation", false);
+    public WorkbenchBlock() {
+        super(Material.IRON, WorkbenchTileEntity.class, WorkbenchContainer::new, "workbench", false);
     }
 
     @SideOnly(Side.CLIENT)
     @Override
-    public BiFunction<CraftingStationTileEntity, CraftingStationContainer, GenericGuiContainer<? super CraftingStationTileEntity>> getGuiFactory() {
-        return GuiCraftingStation::new;
+    public BiFunction<WorkbenchTileEntity, WorkbenchContainer, GenericGuiContainer<? super WorkbenchTileEntity>> getGuiFactory() {
+        return GuiWorkbench::new;
     }
 
     @Override
     public int getGuiID() {
-        return GuiProxy.GUI_CRAFTINGSTATION;
+        return GuiProxy.GUI_WORKBENCH;
     }
 
     @SideOnly(Side.CLIENT)
     @Override
     public void addInformation(ItemStack stack, World playerIn, List<String> list, ITooltipFlag advanced) {
         super.addInformation(stack, playerIn, list, advanced);
-        list.addAll(Arrays.asList(I18n.format("tooltips." + RFToolsControl.MODID + "." + "craftingstation").split("0x0a")));
+    
+        list.addAll(Arrays.asList(I18n.format("tooltips." + RFToolsControl.MODID + "." + "workbench").split("0x0a")));
     }
 }

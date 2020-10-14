@@ -3,7 +3,6 @@ package mcjty.rftoolscontrol.items.interactionmodule;
 import mcjty.lib.varia.Logging;
 import mcjty.rftools.api.screens.IModuleGuiBuilder;
 import mcjty.rftools.api.screens.IModuleProvider;
-import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.blocks.ModBlocks;
 import mcjty.rftoolscontrol.config.ConfigSetup;
 import mcjty.rftoolscontrol.items.GenericRFToolsItem;

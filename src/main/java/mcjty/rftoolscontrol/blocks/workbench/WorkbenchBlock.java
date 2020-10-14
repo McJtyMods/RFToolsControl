@@ -1,15 +1,18 @@
 package mcjty.rftoolscontrol.blocks.workbench;
 
 import mcjty.lib.gui.GenericGuiContainer;
+import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.blocks.GenericRFToolsBlock;
 import mcjty.rftoolscontrol.setup.GuiProxy;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.util.ITooltipFlag;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.BiFunction;
 
@@ -34,8 +37,7 @@ public class WorkbenchBlock extends GenericRFToolsBlock<WorkbenchTileEntity, Wor
     @Override
     public void addInformation(ItemStack stack, World playerIn, List<String> list, ITooltipFlag advanced) {
         super.addInformation(stack, playerIn, list, advanced);
-        list.add("A general workbench that works well");
-        list.add("with a processor but can also be");
-        list.add("used standalone");
+    
+        list.addAll(Arrays.asList(I18n.format("tooltips." + RFToolsControl.MODID + "." + "workbench").split("0x0a")));
     }
 }

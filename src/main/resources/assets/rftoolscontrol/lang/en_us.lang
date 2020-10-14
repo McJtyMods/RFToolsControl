@@ -29,3 +29,34 @@ tile.rftoolscontrol.tank.name=Multi Tank
 
 # Creative Tabs
 itemGroup.RFToolsControl=RFTools Control
+
+
+# Tooltips
+# 0x0a Indicates line break
+tooltips.rftoolscontrol.programmer=Use this block to make programs 0x0aon a program card for the processor
+tooltips.rftoolscontrol.program_card=Use this item in the programmer 0x0ato write your program and then 0x0ainsert it in the processor to run
+tooltips.rftoolscontrol.card_base=This item is the base ingredient 0x0afor many of the items and machines 0x0ain RFTools Control
+tooltips.rftoolscontrol.cpu_core_500=This CPU core can be used in the 0x0a processor to allow it to run programs
+tooltips.rftoolscontrol.crafting_card=This item can be used for auto 0x0acrafting. It stores ingredients 0x0aand end result for a recipe
+tooltips.rftoolscontrol.console_module=Sneak right-click on a processor to set the 0x0atarget for this module
+tooltips.rftoolscontrol.processor=The processor executes programs 0x0afor automation
+tooltips.rftoolscontrol.token.hascontents=This token is empty
+tooltips.rftoolscontrol.token.keyboard=This item is a simple token. It does 0x0anot do anything but it can store 0x0ainformation
+tooltips.rftoolscontrol.craftingstation=This block assists in auto crafting 0x0aoperations for a Processor
+tooltips.rftoolscontrol.tank=This is a tank that has capacity 0x0afor four types of liquids 0x0aThis block is meant for the processor 0x0aand cannot otherwise be used directly
+tooltips.rftoolscontrol.network_card=Insert this in the processor to 0x0aallow access to nearby nodes 0x0aUse 'net setup <name>' in Processor 0x0aconsole to setup the network
+
+# Must be separated into three segments by two 0x0a, otherwise NullPointerException will occur
+tooltips.rftoolscontrol.network_card.range=Range: 17x17x17 area 0x0aRange: 33x33x33 area 0x0aInter-process communication
+
+tooltips.rftoolscontrol.node=This node can be remotely accessed 0x0aby the processor that has a network 0x0acard installed
+tooltips.rftoolscontrol.workbench=A general workbench that works well 0x0awith a processor but can also be 0x0aused standalone
+tooltips.rftoolscontrol.graphics_card=The graphics card is needed to be able 0x0ato draw vector graphics
+
+# Must be separated into four paragraphs with three 0x0a, otherwise a NullPointerException will occur
+tooltips.rftoolscontrol.network_identifier=Linked to processor at 0x0adimension 0x0aSneak right-click on a processor to set 0x0athe target for this identifier
+
+tooltips.rftoolscontrol.ram_chip=Insert this item in the processor 0x0ato get eight extra variables (max 32)
+tooltips.rftoolscontrol.interaction_module=Sneak right-click on a processor to set the 0x0atarget for this module
+tooltips.rftoolscontrol.variable_module=Sneak right-click on a processor to set the 0x0atarget for this module
+tooltips.rftoolscontrol.vectorart_module=Sneak right-click on a processor to set the 0x0atarget for this module

@@ -1,7 +1,6 @@
 package mcjty.rftoolscontrol.blocks.craftingstation;
 
 import mcjty.lib.gui.GenericGuiContainer;
-import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.blocks.GenericRFToolsBlock;
 import mcjty.rftoolscontrol.setup.GuiProxy;
 import net.minecraft.block.material.Material;

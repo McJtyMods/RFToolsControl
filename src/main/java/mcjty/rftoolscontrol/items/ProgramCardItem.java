@@ -1,6 +1,8 @@
 package mcjty.rftoolscontrol.items;
 
+import mcjty.rftoolscontrol.RFToolsControl;
 import net.minecraft.client.util.ITooltipFlag;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.text.TextFormatting;
@@ -8,6 +10,8 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+
+import java.util.Arrays;
 import java.util.List;
 
 public class ProgramCardItem extends GenericRFToolsItem {
@@ -21,9 +25,7 @@ public class ProgramCardItem extends GenericRFToolsItem {
     @Override
     public void addInformation(ItemStack stack, World playerIn, List<String> list, ITooltipFlag advanced) {
         super.addInformation(stack, playerIn, list, advanced);
-        list.add("Use this item in the programmer");
-        list.add("to write your program and then");
-        list.add("insert it in the processor to run");
+        list.addAll(Arrays.asList(I18n.format("tooltips." + RFToolsControl.MODID + "."+"program_card").split("0x0a")));
         NBTTagCompound tagCompound = stack.getTagCompound();
         if (tagCompound != null) {
             list.add(TextFormatting.GREEN + "Name: " + tagCompound.getString("name"));

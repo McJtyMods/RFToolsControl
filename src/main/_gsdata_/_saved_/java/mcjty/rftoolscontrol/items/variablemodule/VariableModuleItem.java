@@ -1,9 +1,8 @@
-package mcjty.rftoolscontrol.items.interactionmodule;
+package mcjty.rftoolscontrol.items.variablemodule;
 
 import mcjty.lib.varia.Logging;
 import mcjty.rftools.api.screens.IModuleGuiBuilder;
 import mcjty.rftools.api.screens.IModuleProvider;
-import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.blocks.ModBlocks;
 import mcjty.rftoolscontrol.config.ConfigSetup;
 import mcjty.rftoolscontrol.items.GenericRFToolsItem;
@@ -23,12 +22,13 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import java.util.Arrays;
 import java.util.List;
 
-public class InteractionModuleItem extends GenericRFToolsItem implements IModuleProvider {
+public class VariableModuleItem extends GenericRFToolsItem implements IModuleProvider {
 
-    public InteractionModuleItem() {
-        super("interaction_module");
+    public VariableModuleItem() {
+        super("variable_module");
         setMaxStackSize(1);
     }
 
@@ -38,34 +38,35 @@ public class InteractionModuleItem extends GenericRFToolsItem implements IModule
     }
 
     @Override
-    public Class<InteractionScreenModule> getServerScreenModule() {
-        return InteractionScreenModule.class;
+    public Class<VariableScreenModule> getServerScreenModule() {
+        return VariableScreenModule.class;
     }
 
     @Override
-    public Class<InteractionClientScreenModule> getClientScreenModule() {
-        return InteractionClientScreenModule.class;
+    public Class<VariableClientScreenModule> getClientScreenModule() {
+        return VariableClientScreenModule.class;
     }
 
     @Override
     public String getName() {
-        return "INT";
+        return "VAR";
     }
 
     @Override
     public void createGui(IModuleGuiBuilder guiBuilder) {
         guiBuilder
-                .label("Label:").text("text", "Label text").color("color", "Label color").nl()
-                .label("Button:").text("button", "Button text").color("buttonColor", "Button color").nl()
-                .label("Signal:").text("signal", "Signal name").nl()
-                .choices("align", "Label alignment", "Left", "Center", "Right").nl();
+                .label("Label:").text("text", "Label text").color("color", "Color for the label").nl()
+                .label("Stats:").color("varcolor", "Color for the variable text").nl()
+                .label("Var:").integer("varIdx", "Index of the variable").nl()
+                .choices("align", "Label alignment", "Left", "Center", "Right").nl()
+                .block("monitor").nl();
     }
 
     @SideOnly(Side.CLIENT)
     @Override
     public void addInformation(ItemStack itemStack, World player, List<String> list, ITooltipFlag whatIsThis) {
         super.addInformation(itemStack, player, list, whatIsThis);
-        list.add(TextFormatting.GREEN + "Uses " + ConfigSetup.INTERACTMODULE_RFPERTICK.get() + " RF/tick");
+        list.add(TextFormatting.GREEN + "Uses " + ConfigSetup.VARIABLEMODULE_RFPERTICK.get() + " RF/tick");
         boolean hasTarget = false;
         NBTTagCompound tagCompound = itemStack.getTagCompound();
         if (tagCompound != null) {
@@ -80,11 +81,10 @@ public class InteractionModuleItem extends GenericRFToolsItem implements IModule
             }
         }
         if (!hasTarget) {
-            String[] interactionModuleI18n = I18n.format("tooltips." + RFToolsControl.MODID + "." + "interaction_module").split("0x0a");
-            for (String str : interactionModuleI18n){
+            String[] variableModuleI18n =I18n.format("tooltips." + RFToolsControl.MODID + "." + "variable_module").split("0x0a");
+            for (String str : variableModuleI18n){
                 list.add(TextFormatting.YELLOW + str);
             }
-            
         }
     }
 
@@ -104,7 +104,7 @@ public class InteractionModuleItem extends GenericRFToolsItem implements IModule
             tagCompound.setInteger("monitory", pos.getY());
             tagCompound.setInteger("monitorz", pos.getZ());
             if (world.isRemote) {
-                Logging.message(player, "Interaction module is set to block");
+                Logging.message(player, "Variable module is set to block");
             }
         } else {
             tagCompound.removeTag("monitordim");
@@ -112,7 +112,7 @@ public class InteractionModuleItem extends GenericRFToolsItem implements IModule
             tagCompound.removeTag("monitory");
             tagCompound.removeTag("monitorz");
             if (world.isRemote) {
-                Logging.message(player, "Interaction module is cleared");
+                Logging.message(player, "Variable module is cleared");
             }
         }
         stack.setTagCompound(tagCompound);

@@ -1,6 +1,5 @@
 package mcjty.rftoolscontrol.items;
 
-import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.config.ConfigSetup;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.item.ItemStack;
@@ -30,7 +29,7 @@ public class CPUCoreItem extends GenericRFToolsItem {
     @Override
     public void addInformation(ItemStack stack, World playerIn, List<String> list, ITooltipFlag advanced) {
         super.addInformation(stack, playerIn, list, advanced);
-        list.addAll(Arrays.asList(I18n.format("tooltips." + RFToolsControl.MODID + "." + "cpu_core_500").split("0x0a")));
+        list.addAll(Arrays.asList(I18n.format("tooltips." + RFToolsControl.MODID+"."+"cpu_core_500").split("0x0a")));
 
         list.add(TextFormatting.GREEN + "" + ConfigSetup.coreSpeed[tier].get() + " operations per tick");
         list.add(TextFormatting.GREEN + "" + ConfigSetup.coreRFPerTick[tier].get() + " RF per tick");

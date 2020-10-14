@@ -1,10 +1,12 @@
 package mcjty.rftoolscontrol.items;
 
 import mcjty.lib.varia.Logging;
+import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.blocks.ModBlocks;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.util.ITooltipFlag;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -37,20 +39,22 @@ public class NetworkIdentifierItem extends GenericRFToolsItem {
         super.addInformation(itemStack, player, list, whatIsThis);
         boolean hasTarget = false;
         NBTTagCompound tagCompound = itemStack.getTagCompound();
+        
+        String[] networkIdentifierI18N = I18n.format("tooltips." + RFToolsControl.MODID + "." + "network_identifier").split("0x0a");
         if (tagCompound != null) {
             if (tagCompound.hasKey("monitorx")) {
                 int monitordim = tagCompound.getInteger("monitordim");
                 int monitorx = tagCompound.getInteger("monitorx");
                 int monitory = tagCompound.getInteger("monitory");
                 int monitorz = tagCompound.getInteger("monitorz");
-                list.add(TextFormatting.YELLOW + "Linked to processor at " + monitorx + "," + monitory + "," + monitorz);
-                list.add(TextFormatting.YELLOW + "(dimension  " + monitordim + ")");
+                list.add(TextFormatting.YELLOW + networkIdentifierI18N[0] + monitorx + "," + monitory + "," + monitorz);
+                list.add(TextFormatting.YELLOW + "(" + networkIdentifierI18N[1] + monitordim + ")");
                 hasTarget = true;
             }
         }
         if (!hasTarget) {
-            list.add("Sneak right-click on a processor to set");
-            list.add("the target for this identifier");
+            list.add(networkIdentifierI18N[2]);
+            list.add(networkIdentifierI18N[3]);
         }
     }
 
