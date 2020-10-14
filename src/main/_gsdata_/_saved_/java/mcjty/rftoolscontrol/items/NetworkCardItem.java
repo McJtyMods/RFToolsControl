@@ -1,6 +1,5 @@
 package mcjty.rftoolscontrol.items;
 
-import mcjty.rftoolscontrol.RFToolsControl;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.item.ItemStack;
@@ -36,13 +35,13 @@ public class NetworkCardItem extends GenericRFToolsItem {
         
         list.addAll(Arrays.asList(I18n.format("tooltips." + RFToolsControl.MODID + "." + "network_card").split("0x0a")));
         
-        String[] networkCardRangeI18n = I18n.format("tooltips." + RFToolsControl.MODID + "." + "network_card.range").split("0x0a");
+        String[] strings = I18n.format("tooltips." + RFToolsControl.MODID + "." + "network_card.range").split("0x0a");
         
         if (tier == TIER_NORMAL) {
-            list.add(TextFormatting.GREEN + networkCardRangeI18n[0]);
+            list.add(TextFormatting.GREEN + strings[0]);
         } else {
-            list.add(TextFormatting.GREEN + networkCardRangeI18n[1]);
-            list.add(TextFormatting.GREEN + networkCardRangeI18n[2]);
+            list.add(TextFormatting.GREEN + strings[1]);
+            list.add(TextFormatting.GREEN + strings[2]);
         }
     }
 }

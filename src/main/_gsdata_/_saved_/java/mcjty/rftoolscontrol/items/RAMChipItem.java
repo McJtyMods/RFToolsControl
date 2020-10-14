@@ -1,6 +1,5 @@
 package mcjty.rftoolscontrol.items;
 
-import mcjty.rftoolscontrol.RFToolsControl;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.item.ItemStack;
@@ -11,10 +10,10 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import java.util.Arrays;
 import java.util.List;
 
-public class GraphicsCardItem extends GenericRFToolsItem {
+public class RAMChipItem extends GenericRFToolsItem {
 
-    public GraphicsCardItem() {
-        super("graphics_card");
+    public RAMChipItem() {
+        super("ram_chip");
         setMaxStackSize(1);
     }
 
@@ -22,6 +21,8 @@ public class GraphicsCardItem extends GenericRFToolsItem {
     @Override
     public void addInformation(ItemStack stack, World playerIn, List<String> list, ITooltipFlag advanced) {
         super.addInformation(stack, playerIn, list, advanced);
-        list.addAll(Arrays.asList(I18n.format("tooltips." + RFToolsControl.MODID + "." + "graphics_card").split("0x0a")));
+        
+        list.addAll(Arrays.asList(I18n.format("tooltips." + RFToolsControl.MODID + "." + "ram_chip").split("0x0a")));
     }
+
 }

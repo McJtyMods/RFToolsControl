@@ -3,12 +3,14 @@ package mcjty.rftoolscontrol.items.variablemodule;
 import mcjty.lib.varia.Logging;
 import mcjty.rftools.api.screens.IModuleGuiBuilder;
 import mcjty.rftools.api.screens.IModuleProvider;
+import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.blocks.ModBlocks;
 import mcjty.rftoolscontrol.config.ConfigSetup;
 import mcjty.rftoolscontrol.items.GenericRFToolsItem;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.util.ITooltipFlag;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -21,6 +23,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class VariableModuleItem extends GenericRFToolsItem implements IModuleProvider {
@@ -79,8 +82,10 @@ public class VariableModuleItem extends GenericRFToolsItem implements IModulePro
             }
         }
         if (!hasTarget) {
-            list.add(TextFormatting.YELLOW + "Sneak right-click on a processor to set the");
-            list.add(TextFormatting.YELLOW + "target for this module");
+            String[] variableModuleI18n =I18n.format("tooltips." + RFToolsControl.MODID + "." + "variable_module").split("0x0a");
+            for (String str : variableModuleI18n){
+                list.add(TextFormatting.YELLOW + str);
+            }
         }
     }
 

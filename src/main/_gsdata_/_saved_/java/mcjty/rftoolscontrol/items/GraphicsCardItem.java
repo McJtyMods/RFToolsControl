@@ -1,6 +1,5 @@
 package mcjty.rftoolscontrol.items;
 
-import mcjty.rftoolscontrol.RFToolsControl;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.item.ItemStack;

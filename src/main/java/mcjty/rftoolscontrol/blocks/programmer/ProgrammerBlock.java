@@ -1,15 +1,18 @@
 package mcjty.rftoolscontrol.blocks.programmer;
 
 import mcjty.lib.gui.GenericGuiContainer;
+import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.blocks.GenericRFToolsBlock;
 import mcjty.rftoolscontrol.setup.GuiProxy;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.util.ITooltipFlag;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.BiFunction;
 
@@ -35,7 +38,6 @@ public class ProgrammerBlock extends GenericRFToolsBlock<ProgrammerTileEntity, P
     @Override
     public void addInformation(ItemStack stack, World playerIn, List<String> list, ITooltipFlag advanced) {
         super.addInformation(stack, playerIn, list, advanced);
-        list.add("Use this block to make programs");
-        list.add("on a program card for the processor");
+        list.addAll(Arrays.asList(I18n.format("tooltips." + RFToolsControl.MODID+"."+"programmer").split("0x0a")));
     }
 }

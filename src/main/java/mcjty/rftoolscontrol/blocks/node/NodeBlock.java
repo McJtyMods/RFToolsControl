@@ -2,6 +2,7 @@ package mcjty.rftoolscontrol.blocks.node;
 
 import mcjty.lib.container.EmptyContainer;
 import mcjty.lib.gui.GenericGuiContainer;
+import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.blocks.GenericRFToolsBlock;
 import mcjty.rftoolscontrol.setup.GuiProxy;
 import mcjty.theoneprobe.api.IProbeHitData;
@@ -10,6 +11,7 @@ import mcjty.theoneprobe.api.ProbeMode;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.util.ITooltipFlag;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
@@ -22,6 +24,7 @@ import net.minecraftforge.fml.common.Optional;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.BiFunction;
 
@@ -51,9 +54,7 @@ public class NodeBlock extends GenericRFToolsBlock<NodeTileEntity, EmptyContaine
     @Override
     public void addInformation(ItemStack stack, World playerIn, List<String> list, ITooltipFlag advanced) {
         super.addInformation(stack, playerIn, list, advanced);
-        list.add("This node can be remotely accessed");
-        list.add("by the processor that has a network");
-        list.add("card installed");
+        list.addAll(Arrays.asList(I18n.format("tooltips." + RFToolsControl.MODID + "." + "node").split("0x0a")));
     }
 
     @Override

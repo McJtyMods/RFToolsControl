@@ -3,12 +3,14 @@ package mcjty.rftoolscontrol.items.vectorartmodule;
 import mcjty.lib.varia.Logging;
 import mcjty.rftools.api.screens.IModuleGuiBuilder;
 import mcjty.rftools.api.screens.IModuleProvider;
+import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.blocks.ModBlocks;
 import mcjty.rftoolscontrol.config.ConfigSetup;
 import mcjty.rftoolscontrol.items.GenericRFToolsItem;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.util.ITooltipFlag;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -75,8 +77,10 @@ public class VectorArtModuleItem extends GenericRFToolsItem implements IModulePr
             }
         }
         if (!hasTarget) {
-            list.add(TextFormatting.YELLOW + "Sneak right-click on a processor to set the");
-            list.add(TextFormatting.YELLOW + "target for this module");
+            String[] vectorartModuleI18n = I18n.format("tooltips." + RFToolsControl.MODID + "." + "vectorart_module").split("0x0a");
+            for (String str : vectorartModuleI18n){
+                list.add(TextFormatting.YELLOW + str);
+            }
         }
     }
 

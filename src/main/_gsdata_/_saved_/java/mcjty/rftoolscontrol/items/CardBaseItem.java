@@ -1,6 +1,5 @@
 package mcjty.rftoolscontrol.items;
 
-import mcjty.rftoolscontrol.RFToolsControl;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
@@ -22,7 +21,7 @@ public class CardBaseItem extends GenericRFToolsItem {
     @Override
     public void addInformation(ItemStack stack, @Nullable World playerIn, List<String> list, ITooltipFlag advanced) {
         super.addInformation(stack, playerIn, list, advanced);
-        list.addAll(Arrays.asList(I18n.format("tooltips." + RFToolsControl.MODID + "." + "card_base").split("0x0a")));
+        list.addAll(Arrays.asList(I18n.format("tooltips." + RFToolsControl.MODID+"."+"card_base").split("0x0a")));
 
     }
 }

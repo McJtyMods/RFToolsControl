@@ -1,6 +1,5 @@
 package mcjty.rftoolscontrol.items;
 
-import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.api.parameters.Parameter;
 import mcjty.rftoolscontrol.setup.GuiProxy;
 import mcjty.rftoolscontrol.logic.ParameterTools;
@@ -44,8 +43,8 @@ public class TokenItem extends GenericRFToolsItem {
         }
 
         if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT)) {
-            String[] tokenI18n = I18n.format("tooltips." + RFToolsControl.MODID + "." + "token.keyboard").split("0x0a");
-            for (String str : tokenI18n){
+            String[] strings = I18n.format("tooltips." + RFToolsControl.MODID+"."+"token.keyboard").split("0x0a");
+            for (String str : strings){
                 list.add(TextFormatting.WHITE + str);
             }
         } else {

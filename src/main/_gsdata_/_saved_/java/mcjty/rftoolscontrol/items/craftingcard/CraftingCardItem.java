@@ -25,7 +25,6 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -100,7 +99,7 @@ public class CraftingCardItem extends GenericRFToolsItem {
     @Override
     public void addInformation(ItemStack stack, World playerIn, List<String> list, ITooltipFlag advanced) {
         super.addInformation(stack, playerIn, list, advanced);
-        list.addAll(Arrays.asList(I18n.format("tooltips." + RFToolsControl.MODID + "." + "crafting_card").split("0x0a")));
+        list.addAll(Arrays.asList(I18n.format("tooltips." + RFToolsControl.MODID+"."+"crafting_card").split("0x0a")));
 
         boolean strictnbt = CraftingCardItem.isStrictNBT(stack);
         list.add(TextFormatting.GREEN + "Strict NBT: " + TextFormatting.WHITE + (strictnbt ? "yes" : "no"));
