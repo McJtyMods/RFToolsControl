@@ -33,8 +33,8 @@ itemGroup.RFToolsControl=RFTools Control
 
 # Tooltips
 # 0x0a Indicates line break
-tooltips.rftoolscontrol.programmer="Use this block to make programs 0x0aon a program card for the processor"
-tooltips.rftoolscontrol.program_card="Use this item in the programmer 0x0ato write your program and then 0x0ainsert it in the processor to run
+tooltips.rftoolscontrol.programmer=Use this block to make programs 0x0aon a program card for the processor
+tooltips.rftoolscontrol.program_card=Use this item in the programmer 0x0ato write your program and then 0x0ainsert it in the processor to run
 tooltips.rftoolscontrol.card_base=This item is the base ingredient 0x0afor many of the items and machines 0x0ain RFTools Control
 tooltips.rftoolscontrol.cpu_core_500=This CPU core can be used in the 0x0a processor to allow it to run programs
 tooltips.rftoolscontrol.crafting_card=This item can be used for auto 0x0acrafting. It stores ingredients 0x0aand end result for a recipe
