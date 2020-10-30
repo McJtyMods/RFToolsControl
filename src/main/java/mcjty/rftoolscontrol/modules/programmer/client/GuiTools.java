@@ -43,7 +43,7 @@ public class GuiTools {
                 .filledRectThickness(1);
         ask.bounds(x, y, 200, 40);
         Window askWindow = windowManager.createModalWindow(ask);
-        ask.children(label(title));
+        ask.children(label(title).desiredWidth(200));
         Panel buttons = horizontal().desiredWidth(100).desiredHeight(18);
         buttons.children(button("Cancel").event(() -> windowManager.closeWindow(askWindow)));
         ask.children(buttons);

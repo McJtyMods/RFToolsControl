@@ -1,3 +1,6 @@
+Upcoming:
+- Popup errors in gui's now fit their text better
+
 1.16-4.0.5:
 - Fixed a bug in the crafting station
 - Update to latest McJtyLib
