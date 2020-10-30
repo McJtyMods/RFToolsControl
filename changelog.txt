@@ -1,5 +1,6 @@
 Upcoming:
 - Popup errors in gui's now fit their text better
+- Clipboard support in the programmer is working again
 
 1.15-3.0.8:
 - Fixed a bug in the crafting station
