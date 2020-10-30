@@ -11,10 +11,6 @@ import mcjty.lib.gui.icons.IIcon;
 import mcjty.lib.gui.icons.ImageIcon;
 import mcjty.lib.gui.layout.HorizontalAlignment;
 import mcjty.lib.gui.layout.HorizontalLayout;
-import mcjty.lib.gui.widgets.Button;
-import mcjty.lib.gui.widgets.Label;
-import mcjty.lib.gui.widgets.Panel;
-import mcjty.lib.gui.widgets.TextField;
 import mcjty.lib.gui.widgets.*;
 import mcjty.lib.varia.Logging;
 import mcjty.rftoolsbase.api.control.code.Opcode;
@@ -40,6 +36,7 @@ import mcjty.rftoolscontrol.modules.programmer.network.PacketUpdateNBTItemInvent
 import mcjty.rftoolscontrol.modules.various.items.ProgramCardItem;
 import mcjty.rftoolscontrol.setup.Config;
 import mcjty.rftoolscontrol.setup.RFToolsCtrlMessages;
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.container.ClickType;
 import net.minecraft.inventory.container.Slot;
@@ -50,12 +47,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.lwjgl.glfw.GLFW;
 
-import java.awt.*;
-import java.awt.datatransfer.Clipboard;
-import java.awt.datatransfer.DataFlavor;
-import java.awt.datatransfer.StringSelection;
-import java.awt.datatransfer.UnsupportedFlavorException;
-import java.util.List;
 import java.util.*;
 
 import static mcjty.lib.gui.widgets.Widgets.*;
@@ -947,9 +938,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Pro
                     ProgramCardInstance instance = makeGridInstance(true);
                     String json = instance.writeToJson();
                     try {
-                        StringSelection selection = new StringSelection(json);
-                        Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-                        clipboard.setContents(selection, selection);
+                        this.minecraft.keyboardListener.setClipboardString(json);
                     } catch (Exception e) {
                         GuiTools.showMessage(minecraft, this, getWindowManager(), 50, 50, TextFormatting.RED + "Error copying to clipboard!");
                     }
@@ -970,9 +959,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Pro
                     ProgramCardInstance instance = makeGridInstance(true);
                     String json = instance.writeToJson();
                     try {
-                        StringSelection selection = new StringSelection(json);
-                        Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-                        clipboard.setContents(selection, selection);
+                        Minecraft.getInstance().keyboardListener.setClipboardString(json);
                         undoProgram = makeGridInstance(false);
                         clearGrid(checkSelection());
                     } catch (Exception e) {
@@ -982,13 +969,10 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Pro
                 return true;
             } else if (keyCode == GLFW.GLFW_KEY_V) {
                 try {
-                    Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-                    String data = (String) clipboard.getData(DataFlavor.stringFlavor);
+                    String data = Minecraft.getInstance().keyboardListener.getClipboardString();
                     ProgramCardInstance program = ProgramCardInstance.readFromJson(data);
                     undoProgram = makeGridInstance(false);
                     mergeProgram(program, getSelectedGridHolder());
-                } catch (UnsupportedFlavorException e) {
-                    GuiTools.showMessage(minecraft, this, getWindowManager(), 50, 50, TextFormatting.RED + "Clipboard does not contain program!");
                 } catch (Exception e) {
                     GuiTools.showMessage(minecraft, this, getWindowManager(), 50, 50, TextFormatting.RED + "Error reading from clipboard!");
                 }
