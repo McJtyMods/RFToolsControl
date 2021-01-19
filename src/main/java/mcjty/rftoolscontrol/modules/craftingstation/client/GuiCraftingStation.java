@@ -21,6 +21,8 @@ import mcjty.rftoolscontrol.setup.RFToolsCtrlMessages;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
 
 import java.util.ArrayList;
@@ -147,12 +149,14 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
     }
 
     @Override
-    protected List<String> addCustomLines(List<String> oldList, BlockRender blockRender, ItemStack stack) {
+    protected List<ITextComponent> addCustomLines(List<ITextComponent> oldList, BlockRender blockRender, ItemStack stack) {
         if (blockRender.getUserObject() instanceof Integer) {
-            List<String> newlist = new ArrayList<>();
-            newlist.add(TextFormatting.GREEN + "Click: "+ TextFormatting.WHITE + "craft single");
-            newlist.add(TextFormatting.GREEN + "Shift + click: "+ TextFormatting.WHITE + "craft amount");
-            newlist.add("");
+            List<ITextComponent> newlist = new ArrayList<>();
+            newlist.add(new StringTextComponent("Click: ").mergeStyle(TextFormatting.GREEN)
+                    .append(new StringTextComponent("craft single").mergeStyle(TextFormatting.WHITE)));
+            newlist.add(new StringTextComponent("Shift + click: ").mergeStyle(TextFormatting.GREEN)
+                    .append(new StringTextComponent("craft amount").mergeStyle(TextFormatting.WHITE)));
+            newlist.add(new StringTextComponent(""));
             newlist.addAll(oldList);
             return newlist;
         } else {
