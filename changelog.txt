@@ -1,4 +1,4 @@
-Upcoming:
+1.16-4.0.7:
 - Update for McJtyLib tooltip rendering
 
 1.16-4.0.6:
