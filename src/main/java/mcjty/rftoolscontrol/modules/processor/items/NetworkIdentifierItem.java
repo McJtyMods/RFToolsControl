@@ -20,6 +20,7 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.World;
+import net.minecraftforge.common.util.Lazy;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -28,7 +29,7 @@ import static mcjty.lib.builder.TooltipBuilder.*;
 
 public class NetworkIdentifierItem extends Item implements ITooltipSettings {
 
-    private final TooltipBuilder tooltipBuilder = new TooltipBuilder()
+    private final Lazy<TooltipBuilder> tooltipBuilder = () -> new TooltipBuilder()
             .info(header(),
                     gold(stack -> !ModuleTools.hasModuleTarget(stack)),
                     parameter("target", ModuleTools::hasModuleTarget, ModuleTools::getTargetString));
@@ -43,7 +44,7 @@ public class NetworkIdentifierItem extends Item implements ITooltipSettings {
     @Override
     public void addInformation(ItemStack itemStack, @Nullable World worldIn, List<ITextComponent> list, ITooltipFlag flag) {
         super.addInformation(itemStack, worldIn, list, flag);
-        tooltipBuilder.makeTooltip(getRegistryName(), itemStack, list, flag);
+        tooltipBuilder.get().makeTooltip(getRegistryName(), itemStack, list, flag);
     }
 
     @Override

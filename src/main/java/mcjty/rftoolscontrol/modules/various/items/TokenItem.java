@@ -14,6 +14,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.World;
+import net.minecraftforge.common.util.Lazy;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -24,7 +25,7 @@ public class TokenItem extends Item implements ITooltipSettings {
 
     public static final ManualEntry MANUAL = ManualHelper.create("rftoolscontrol:various/token");
 
-    private final TooltipBuilder tooltipBuilder = new TooltipBuilder()
+    private final Lazy<TooltipBuilder> tooltipBuilder = () -> new TooltipBuilder()
             .info(key("message.rftoolscontrol.shiftmessage"))
             .infoShift(header(),
                     gold(this::isEmpty),
@@ -78,6 +79,6 @@ public class TokenItem extends Item implements ITooltipSettings {
     @Override
     public void addInformation(ItemStack stack, @Nullable World worldIn, List<ITextComponent> list, ITooltipFlag flag) {
         super.addInformation(stack, worldIn, list, flag);
-        tooltipBuilder.makeTooltip(getRegistryName(), stack, list, flag);
+        tooltipBuilder.get().makeTooltip(getRegistryName(), stack, list, flag);
     }
 }

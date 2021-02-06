@@ -9,6 +9,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
+import net.minecraftforge.common.util.Lazy;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -22,7 +23,7 @@ public class NetworkCardItem extends Item implements ITooltipSettings {
     public static final int TIER_NORMAL = 0;
     public static final int TIER_ADVANCED = 1;
 
-    private final TooltipBuilder tooltipBuilder = new TooltipBuilder()
+    private final Lazy<TooltipBuilder> tooltipBuilder = () -> new TooltipBuilder()
             .info(header(),
                     gold(),
                     general("range", TextFormatting.GREEN),
@@ -43,6 +44,6 @@ public class NetworkCardItem extends Item implements ITooltipSettings {
     @Override
     public void addInformation(ItemStack stack, @Nullable World worldIn, List<ITextComponent> list, ITooltipFlag flag) {
         super.addInformation(stack, worldIn, list, flag);
-        tooltipBuilder.makeTooltip(getRegistryName(), stack, list, flag);
+        tooltipBuilder.get().makeTooltip(getRegistryName(), stack, list, flag);
     }
 }
