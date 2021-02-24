@@ -1,5 +1,5 @@
 modLoader="javafml"
-loaderVersion="[33,)"
+loaderVersion="[36,)"
 license="MIT License https://github.com/McJtyMods/RFToolsControl/blob/1.16/LICENCE"
 issueTrackerURL="http://github.com/McJtyMods/RFToolsControl/issues"
 displayURL="http://github.com/McJtyMods/RFToolsControl/"
@@ -19,18 +19,18 @@ Visual programming language for automation
 [[dependencies.rftoolscontrol]]
     modId="forge"
     mandatory=true
-    versionRange="[33,)"
+    versionRange="[36.0.42,)"
     ordering="NONE"
     side="BOTH"
 [[dependencies.rftoolscontrol]]
     modId="mcjtylib"
     mandatory=true
-    versionRange="[1.16-5.0.4,)"
+    versionRange="[1.16-5.0.16,)"
     ordering="AFTER"
     side="BOTH"
 [[dependencies.rftoolscontrol]]
     modId="rftoolsbase"
     mandatory=true
-    versionRange="[1.16-2.0.2,)"
+    versionRange="[1.16-2.0.10,)"
     ordering="AFTER"
     side="BOTH"
