@@ -1,3 +1,6 @@
+Upcoming:
+- It is again possible to drag items into programmer item slots
+
 1.16-4.0.7:
 - Update for McJtyLib tooltip rendering
 

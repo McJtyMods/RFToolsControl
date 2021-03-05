@@ -543,8 +543,8 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Pro
     }
 
     private IconHolder getHolder(int x, int y) {
-        Panel row = (Panel) gridList.getChild(y);
-        return (IconHolder) row.getChild(x);
+        Panel row = gridList.getChild(y);
+        return row.getChild(x);
     }
 
     private void validateAndHilight() {
@@ -978,6 +978,25 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Pro
                 }
             }
         }
+        return false;
+    }
+
+    @Override
+    public boolean mouseClickedFromEvent(double x, double y, int button) {
+        super.mouseClickedFromEvent(x, y, button);
+        // Don't cancel the event. We want to be able to drag slots
+        return false;
+    }
+
+    @Override
+    public boolean mouseReleasedFromEvent(double x, double y, int button) {
+        super.mouseReleasedFromEvent(x, y, button);
+        return false;
+    }
+
+    @Override
+    public boolean mouseScrolledFromEvent(double x, double y, double amount) {
+        super.mouseScrolledFromEvent(x, y, amount);
         return false;
     }
 
