@@ -153,9 +153,9 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
         if (blockRender.getUserObject() instanceof Integer) {
             List<ITextComponent> newlist = new ArrayList<>();
             newlist.add(new StringTextComponent("Click: ").mergeStyle(TextFormatting.GREEN)
-                    .append(new StringTextComponent("craft single").mergeStyle(TextFormatting.WHITE)));
+                    .appendSibling(new StringTextComponent("craft single").mergeStyle(TextFormatting.WHITE)));
             newlist.add(new StringTextComponent("Shift + click: ").mergeStyle(TextFormatting.GREEN)
-                    .append(new StringTextComponent("craft amount").mergeStyle(TextFormatting.WHITE)));
+                    .appendSibling(new StringTextComponent("craft amount").mergeStyle(TextFormatting.WHITE)));
             newlist.add(new StringTextComponent(""));
             newlist.addAll(oldList);
             return newlist;
