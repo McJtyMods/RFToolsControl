@@ -1,3 +1,6 @@
+Upcoming:
+- Fixed a problem with the storage control module which wouldn't fit in the processor anymore
+
 1.16-4.0.8:
 - It is again possible to drag items into programmer item slots
 

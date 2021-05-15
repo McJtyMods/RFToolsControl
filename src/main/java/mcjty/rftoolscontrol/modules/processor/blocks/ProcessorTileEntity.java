@@ -3257,8 +3257,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
                 }
                 Item item = stack.getItem();
                 if (isExpansionSlot(index)) {
-                    // @todo use object holder
-                    Item storageCardItem = ForgeRegistries.ITEMS.getValue(new ResourceLocation("rftools", "storage_control_module"));
+                    Item storageCardItem = RFToolsStuff.STORAGE_CONTROL_MODULE;
                     return item == ProcessorModule.GRAPHICS_CARD.get() || item == ProcessorModule.NETWORK_CARD.get() ||
                             item == ProcessorModule.ADVANCED_NETWORK_CARD.get() || item == ProcessorModule.CPU_CORE_500.get() ||
                             item == ProcessorModule.CPU_CORE_1000.get() || item == ProcessorModule.CPU_CORE_2000.get() ||
