@@ -16,15 +16,9 @@ public class RFToolsSupport {
         @Nullable
         @Override
         public Void apply(IScreenModuleRegistry manager) {
-            manager.registerModuleDataFactory(ModuleDataVariable.ID, buf -> {
-                return new ModuleDataVariable(ParameterTools.readFromBuf(buf));
-            });
-            manager.registerModuleDataFactory(ModuleDataLog.ID, buf -> {
-                return new ModuleDataLog(readLog(buf));
-            });
-            manager.registerModuleDataFactory(ModuleDataVectorArt.ID, buf -> {
-                return new ModuleDataVectorArt(readGfxOp(buf));
-            });
+            manager.registerModuleDataFactory(ModuleDataVariable.ID, buf -> new ModuleDataVariable(ParameterTools.readFromBuf(buf)));
+            manager.registerModuleDataFactory(ModuleDataLog.ID, buf -> new ModuleDataLog(readLog(buf)));
+            manager.registerModuleDataFactory(ModuleDataVectorArt.ID, buf -> new ModuleDataVectorArt(readGfxOp(buf)));
             return null;
         }
     }
