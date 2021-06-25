@@ -60,7 +60,7 @@ public class ParameterTypeTools {
                 return ((Inventory) value).getStringRepresentation();
             case PAR_ITEM:
                 ItemStack itemStack = (ItemStack) value;
-                return StringUtils.left(itemStack.getDisplayName().getString() /* was getFormattedText() */, 10);
+                return StringUtils.left(itemStack.getHoverName().getString() /* was getFormattedText() */, 10);
             case PAR_FLUID:
                 FluidStack fluidStack = (FluidStack) value;
                 return StringUtils.left(fluidStack.getDisplayName().getString() /* was getFormattedText() */, 10);
@@ -169,7 +169,7 @@ public class ParameterTypeTools {
             case PAR_ITEM:
                 if (tag.contains("item")) {
                     CompoundNBT tc = tag.getCompound("item");
-                    ItemStack stack = ItemStack.read(tc);
+                    ItemStack stack = ItemStack.of(tc);
                     // Fix for 1.10 0-sized stacks
                     if (stack.getCount() == 0) {
                         stack.setCount(1);
@@ -246,7 +246,7 @@ public class ParameterTypeTools {
             case PAR_ITEM:
                 ItemStack itemStack = (ItemStack) value;
                 CompoundNBT tc = new CompoundNBT();
-                itemStack.write(tc);
+                itemStack.save(tc);
                 tag.put("item", tc);
                 break;
             case PAR_FLUID:
@@ -302,7 +302,7 @@ public class ParameterTypeTools {
             case PAR_SIDE:
                 BlockSide side = (BlockSide) value;
                 if (side.getSide() != null) {
-                    object.add("side", new JsonPrimitive(side.getSide().getString()));
+                    object.add("side", new JsonPrimitive(side.getSide().getSerializedName()));
                 }
                 if (side.getNodeName() != null) {
                     object.add("node", new JsonPrimitive(side.getNodeName()));
@@ -313,9 +313,9 @@ public class ParameterTypeTools {
                 break;
             case PAR_INVENTORY:
                 Inventory inv = (Inventory) value;
-                object.add("side", new JsonPrimitive(inv.getSide().getString()));
+                object.add("side", new JsonPrimitive(inv.getSide().getSerializedName()));
                 if (inv.getIntSide() != null) {
-                    object.add("intside", new JsonPrimitive(inv.getIntSide().getString()));
+                    object.add("intside", new JsonPrimitive(inv.getIntSide().getSerializedName()));
                 }
                 if (inv.getNodeName() != null) {
                     object.add("node", new JsonPrimitive(inv.getNodeName()));
@@ -404,7 +404,7 @@ public class ParameterTypeTools {
                     String nbt = object.get("nbt").getAsString();
                     CompoundNBT tagCompound = null;
                     try {
-                        tagCompound = JsonToNBT.getTagFromJson(nbt);
+                        tagCompound = JsonToNBT.parseTag(nbt);
                     } catch (CommandSyntaxException e) {
                         // @todo What to do?
                     }
@@ -419,7 +419,7 @@ public class ParameterTypeTools {
                 if (object.has("nbt")) {
                     String nbt = object.get("nbt").getAsString();
                     try {
-                        fluidStack.setTag(JsonToNBT.getTagFromJson(nbt));
+                        fluidStack.setTag(JsonToNBT.parseTag(nbt));
                     } catch (CommandSyntaxException e) {
                         // @todo What to do?
                     }

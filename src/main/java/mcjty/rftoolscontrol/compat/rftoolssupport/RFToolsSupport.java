@@ -44,7 +44,7 @@ public class RFToolsSupport {
         }
         List<String> rc = new ArrayList<>(size);
         for (int i = 0 ; i < size ; i++) {
-            rc.add(buf.readString(32767));
+            rc.add(buf.readUtf(32767));
         }
         return rc;
     }

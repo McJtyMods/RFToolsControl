@@ -85,8 +85,8 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity, Proce
     public GuiProcessor(ProcessorTileEntity te, ProcessorContainer container, PlayerInventory inventory) {
         super(te, container, inventory, ProcessorModule.PROCESSOR.get().getManualEntry());
 
-        xSize = WIDTH;
-        ySize = HEIGHT;
+        imageWidth = WIDTH;
+        imageHeight = HEIGHT;
     }
 
     public static void register() {
@@ -96,7 +96,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity, Proce
             TileEntity te = container.getTe();
             return Tools.safeMap(te, (ProcessorTileEntity tile) -> new GuiProcessor(tile, container, inventory), "Invalid tile entity!");
         };
-        ScreenManager.registerFactory(ProcessorModule.PROCESSOR_CONTAINER_REMOTE.get(), factory);
+        ScreenManager.register(ProcessorModule.PROCESSOR_CONTAINER_REMOTE.get(), factory);
     }
 
     @Override
@@ -105,7 +105,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity, Proce
 
         // --- Main window ---
         Panel toplevel = Widgets.positional().background(mainBackground);
-        toplevel.bounds(guiLeft, guiTop, xSize, ySize);
+        toplevel.bounds(leftPos, topPos, imageWidth, imageHeight);
 
         energyBar = new EnergyBar().vertical()
                 .hint(122, 4, 70, 10)
@@ -181,10 +181,10 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity, Proce
         Panel listPanel = setupVariableListPanel();
         Panel sidePanel = Widgets.positional().background(sideBackground)
                 .children(listPanel);
-        sidePanel.bounds(guiLeft - SIDEWIDTH, guiTop, SIDEWIDTH, ySize);
+        sidePanel.bounds(leftPos - SIDEWIDTH, topPos, SIDEWIDTH, imageHeight);
         sideWindow = new Window(this, sidePanel);
 
-        minecraft.keyboardListener.enableRepeatEvents(true);
+        minecraft.keyboardHandler.setSendRepeatsToGui(true);
     }
 
     private void setupLogWindow(Panel toplevel) {
@@ -277,9 +277,9 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity, Proce
     }
 
     private void requestLists() {
-        RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketGetLog(tileEntity.getDimension(), tileEntity.getPos(), tileEntity.isDummy()));
-        RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketGetVariables(tileEntity.getPos(), tileEntity.getDimension(), tileEntity.isDummy()));
-        RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketGetFluids(tileEntity.getPos(), tileEntity.getDimension(), tileEntity.isDummy()));
+        RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketGetLog(tileEntity.getDimension(), tileEntity.getBlockPos(), tileEntity.isDummy()));
+        RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketGetVariables(tileEntity.getBlockPos(), tileEntity.getDimension(), tileEntity.isDummy()));
+        RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketGetFluids(tileEntity.getBlockPos(), tileEntity.getDimension(), tileEntity.isDummy()));
     }
 
     private void requestListsIfNeeded() {
@@ -346,9 +346,9 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity, Proce
             int fluidAlloc = cardInfo.getFluidAllocation();
 
             for (int i = 0; i < ProcessorTileEntity.ITEM_SLOTS; i++) {
-                Slot slot = container.getSlot(ProcessorContainer.SLOT_BUFFER + i);
-                if (x >= slot.xPos && x <= slot.xPos + 17
-                        && y >= slot.yPos && y <= slot.yPos + 17) {
+                Slot slot = menu.getSlot(ProcessorContainer.SLOT_BUFFER + i);
+                if (x >= slot.x && x <= slot.x + 17
+                        && y >= slot.y && y <= slot.y + 17) {
                     boolean allocated = ((itemAlloc >> i) & 1) != 0;
                     allocated = !allocated;
                     if (allocated) {
@@ -511,7 +511,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity, Proce
             editor.build(minecraft, this, editPanel, o -> {
                 CompoundNBT tag = new CompoundNBT();
                 ParameterTypeTools.writeToNBT(tag, type, o);
-                RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketVariableToServer(tileEntity.getPos(), varIdx, tag));
+                RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketVariableToServer(tileEntity.getBlockPos(), varIdx, tag));
             });
             editor.writeValue(parameter.getParameterValue());
             editor.constantOnly();
@@ -551,7 +551,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity, Proce
             if (entry.isAllocated()) {
                 fluidListMapping[fluidList.getChildCount()] = i;
                 Direction side = Direction.values()[i / TANKS];
-                String l = side.getString().substring(0, 1).toUpperCase() + (i % TANKS);
+                String l = side.getSerializedName().substring(0, 1).toUpperCase() + (i % TANKS);
                 Panel panel = horizontal().desiredWidth(40);
                 AbstractWidget<?> label;
                 if (setupMode != -1) {
@@ -621,7 +621,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity, Proce
     }
 
     @Override
-    protected void drawGuiContainerBackgroundLayer(MatrixStack matrixStack, float partialTicks, int mouseX, int mouseY) {
+    protected void renderBg(MatrixStack matrixStack, float partialTicks, int mouseX, int mouseY) {
 
         if (variableList.getChildCount() != tileEntity.getMaxvars()) {
             updateVariableList();
@@ -643,29 +643,29 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity, Proce
             return;
         }
 
-        matrixStack.push();
-        matrixStack.translate(guiLeft, guiTop, 0.0F);
+        matrixStack.pushPose();
+        matrixStack.translate(leftPos, topPos, 0.0F);
 
         CardInfo cardInfo = tileEntity.getCardInfo(setupMode);
         int itemAlloc = cardInfo.getItemAllocation();
 
         int index = 0;
         for (int i = 0; i < ProcessorTileEntity.ITEM_SLOTS; i++) {
-            Slot slot = container.getSlot(ProcessorContainer.SLOT_BUFFER + i);
+            Slot slot = menu.getSlot(ProcessorContainer.SLOT_BUFFER + i);
 
             boolean allocated = ((itemAlloc >> i) & 1) != 0;
             int border = allocated ? 0xffffffff : 0xaaaaaaaa;
             int fill = allocated ? 0x7700ff00 : (tileEntity.isItemAllocated(-1, i) ? 0x77660000 : 0x77444444);
-            RenderHelper.drawFlatBox(matrixStack, slot.xPos, slot.yPos,
-                    slot.xPos + 17, slot.yPos + 17,
+            RenderHelper.drawFlatBox(matrixStack, slot.x, slot.y,
+                    slot.x + 17, slot.y + 17,
                     border, fill);
             if (allocated) {
-                this.drawString(matrixStack, minecraft.fontRenderer, "" + index,
-                        slot.xPos + 4, slot.yPos + 4, 0xffffffff);
+                this.drawString(matrixStack, minecraft.font, "" + index,
+                        slot.x + 4, slot.y + 4, 0xffffffff);
                 index++;
             }
         }
 
-        matrixStack.pop();
+        matrixStack.popPose();
     }
 }

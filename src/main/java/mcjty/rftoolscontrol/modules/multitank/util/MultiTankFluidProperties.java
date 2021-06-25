@@ -67,7 +67,7 @@ public class MultiTankFluidProperties {
         if (contents.getAmount() <= 0) {
             contents = FluidStack.EMPTY;
         }
-        tankTileEntity.markDirty();
+        tankTileEntity.setChanged();
     }
 
     // Warning! Doesn't check if amount fits and is right liquid!
@@ -80,7 +80,7 @@ public class MultiTankFluidProperties {
         } else {
             contents.setAmount(contents.getAmount() + stack.getAmount());
         }
-        tankTileEntity.markDirty();
+        tankTileEntity.setChanged();
     }
 
     public void set(@Nonnull FluidStack stack) {
@@ -89,7 +89,7 @@ public class MultiTankFluidProperties {
         } else {
             contents = stack.copy();
         }
-        tankTileEntity.markDirty();
+        tankTileEntity.setChanged();
     }
 
     public int getCapacity() {

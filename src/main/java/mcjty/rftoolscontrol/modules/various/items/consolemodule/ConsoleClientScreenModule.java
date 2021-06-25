@@ -15,6 +15,8 @@ import net.minecraft.world.World;
 
 import java.util.List;
 
+import mcjty.rftoolsbase.api.screens.IClientScreenModule.TransformMode;
+
 public class ConsoleClientScreenModule implements IClientScreenModule<ModuleDataLog> {
 
     @Override
@@ -30,7 +32,7 @@ public class ConsoleClientScreenModule implements IClientScreenModule<ModuleData
     @Override
     public void render(MatrixStack matrixStack, IRenderTypeBuffer buffer, IModuleRenderHelper renderHelper, FontRenderer fontRenderer, int currenty, ModuleDataLog screenData, ModuleRenderInfo renderInfo) {
         // @todo 1.15 render system
-        GlStateManager.disableLighting();
+        GlStateManager._disableLighting();
         int xoffset = 7;
         if (screenData != null) {
             List<String> log = screenData.getLog();

@@ -32,7 +32,7 @@ public class PacketLogReady {
         } else {
             pos = null;
         }
-        command = buf.readString(32767);
+        command = buf.readUtf(32767);
         list = NetworkTools.readStringList(buf);
     }
 
@@ -50,7 +50,7 @@ public class PacketLogReady {
         } else {
             buf.writeBoolean(false);
         }
-        buf.writeString(command);
+        buf.writeUtf(command);
         NetworkTools.writeStringList(buf, list);
     }
 
@@ -67,7 +67,7 @@ public class PacketLogReady {
                 }
                 te = container.getTe();
             } else {
-                te = McJtyLib.proxy.getClientWorld().getTileEntity(pos);
+                te = McJtyLib.proxy.getClientWorld().getBlockEntity(pos);
                 if (!(te instanceof IClientCommandHandler)) {
                     Logging.log("TileEntity is not a ClientCommandHandler!");
                     return;
@@ -82,7 +82,7 @@ public class PacketLogReady {
     }
 
     private static ProcessorContainer getOpenContainer() {
-        Container container = McJtyLib.proxy.getClientPlayer().openContainer;
+        Container container = McJtyLib.proxy.getClientPlayer().containerMenu;
         if (container instanceof ProcessorContainer) {
             return (ProcessorContainer) container;
         } else {

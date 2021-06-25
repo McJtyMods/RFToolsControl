@@ -29,7 +29,7 @@ public class PacketVariablesReady {
         if (buf.readBoolean()) {
             pos = buf.readBlockPos();
         }
-        command = buf.readString(32767);
+        command = buf.readUtf(32767);
 
         int size = buf.readInt();
         if (size != -1) {
@@ -56,7 +56,7 @@ public class PacketVariablesReady {
         } else {
             buf.writeBoolean(false);
         }
-        buf.writeString(command);
+        buf.writeUtf(command);
         if (list == null) {
             buf.writeInt(-1);
         } else {
@@ -84,7 +84,7 @@ public class PacketVariablesReady {
                 }
                 te = container.getTe();
             } else {
-                te = McJtyLib.proxy.getClientWorld().getTileEntity(pos);
+                te = McJtyLib.proxy.getClientWorld().getBlockEntity(pos);
                 if (!(te instanceof IClientCommandHandler)) {
                     Logging.log("TileEntity is not a ClientCommandHandler!");
                     return;
@@ -99,7 +99,7 @@ public class PacketVariablesReady {
     }
 
     private static ProcessorContainer getOpenContainer() {
-        Container container = McJtyLib.proxy.getClientPlayer().openContainer;
+        Container container = McJtyLib.proxy.getClientPlayer().containerMenu;
         if (container instanceof ProcessorContainer) {
             return (ProcessorContainer) container;
         } else {

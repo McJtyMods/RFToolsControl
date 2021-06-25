@@ -24,7 +24,7 @@ public class Commands {
     }
 
     private static void exec(ProcessorTileEntity processor, String cmd) {
-        processor.markDirty();
+        processor.setChanged();
         String[] splitted = StringUtils.split(cmd, ' ');
         if (splitted.length == 0) {
             return;

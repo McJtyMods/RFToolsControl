@@ -40,23 +40,23 @@ public class ProcessorRenderer extends TileEntityRenderer<ProcessorTileEntity> {
             return;
         }
 
-        BlockState state = te.getWorld().getBlockState(te.getPos());
+        BlockState state = te.getLevel().getBlockState(te.getBlockPos());
         Block block = state.getBlock();
         if (!(block instanceof BaseBlock)) {
             return;
         }
         BaseBlock baseBlock = (BaseBlock) block;
 
-        matrixStack.push();
+        matrixStack.pushPose();
 
         Direction facing = baseBlock.getFrontDirection(baseBlock.getRotationType(), state);
 
         matrixStack.translate(0.5F, 1.5F, 0.5F);
 
         if (facing == Direction.UP) {
-            matrixStack.rotate(Vector3f.XP.rotationDegrees(-90.0F));
+            matrixStack.mulPose(Vector3f.XP.rotationDegrees(-90.0F));
         } else if (facing == Direction.DOWN) {
-            matrixStack.rotate(Vector3f.XP.rotationDegrees(90.0F));
+            matrixStack.mulPose(Vector3f.XP.rotationDegrees(90.0F));
         } else {
             float rotY = 0.0F;
             if (facing == Direction.NORTH) {
@@ -66,18 +66,18 @@ public class ProcessorRenderer extends TileEntityRenderer<ProcessorTileEntity> {
             } else if (facing == Direction.EAST) {
                 rotY = -90.0F;
             }
-            matrixStack.rotate(Vector3f.YP.rotationDegrees(-rotY));
+            matrixStack.mulPose(Vector3f.YP.rotationDegrees(-rotY));
         }
 
-        if (te.getWorld().isAirBlock(te.getPos().up())) {
+        if (te.getLevel().isEmptyBlock(te.getBlockPos().above())) {
             matrixStack.translate(0.0F, 0, -0.4375F + .4f);
         } else {
             matrixStack.translate(0.0F, 0, -0.4375F + .9f);
         }
 
-        renderHud(matrixStack, buffer, Minecraft.getInstance().fontRenderer, te);
+        renderHud(matrixStack, buffer, Minecraft.getInstance().font, te);
 
-        matrixStack.pop();
+        matrixStack.popPose();
     }
 
     private void renderHud(MatrixStack matrixStack, IRenderTypeBuffer buffer, FontRenderer fontrenderer, ProcessorTileEntity tileEntity) {
@@ -103,9 +103,9 @@ public class ProcessorRenderer extends TileEntityRenderer<ProcessorTileEntity> {
         long t = System.currentTimeMillis();
         if (t - tileEntity.clientTime > 250) {
             if (tileEntity.getShowHud() == HUD_DB) {
-                RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketGetDebugLog(tileEntity.getPos()));
+                RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketGetDebugLog(tileEntity.getBlockPos()));
             } else {
-                RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketGetLog(tileEntity.getDimension(), tileEntity.getPos(), false));
+                RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketGetLog(tileEntity.getDimension(), tileEntity.getBlockPos(), false));
             }
             tileEntity.clientTime = t;
         }
@@ -117,8 +117,8 @@ public class ProcessorRenderer extends TileEntityRenderer<ProcessorTileEntity> {
             if (i >= logsize - 11) {
                 // Check if this module has enough room
                 if (currenty + height <= 124) {
-                    fontrenderer.renderString(fontrenderer.trimStringToWidth(s, 115), 7, currenty, 0xffffffff, false,
-                            matrixStack.getLast().getMatrix(), buffer, false, 0, 0xf000f0);
+                    fontrenderer.drawInBatch(fontrenderer.plainSubstrByWidth(s, 115), 7, currenty, 0xffffffff, false,
+                            matrixStack.last().pose(), buffer, false, 0, 0xf000f0);
                     currenty += height;
                 }
             }
@@ -130,7 +130,7 @@ public class ProcessorRenderer extends TileEntityRenderer<ProcessorTileEntity> {
         long t = System.currentTimeMillis();
         if (t - tileEntity.clientTime > 250) {
             RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketSendServerCommand(RFToolsControl.MODID, CommandHandler.CMD_GETGRAPHICS,
-                    TypedMap.builder().put(CommandHandler.PARAM_POS, tileEntity.getPos()).build()));
+                    TypedMap.builder().put(CommandHandler.PARAM_POS, tileEntity.getBlockPos()).build()));
             tileEntity.clientTime = t;
         }
         List<GfxOp> ops = tileEntity.getClientGfxOps();

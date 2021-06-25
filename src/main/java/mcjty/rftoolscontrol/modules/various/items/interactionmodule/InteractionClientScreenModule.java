@@ -12,6 +12,8 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
+import mcjty.rftoolsbase.api.screens.IClientScreenModule.TransformMode;
+
 public class InteractionClientScreenModule implements IClientScreenModule<IModuleDataBoolean> {
     private String line = "";
     private String button = "";
@@ -41,9 +43,9 @@ public class InteractionClientScreenModule implements IClientScreenModule<IModul
         }
 
         // @todo 1.15 proper render system
-        GlStateManager.disableLighting();
-        GlStateManager.enableDepthTest();
-        GlStateManager.depthMask(false);
+        GlStateManager._disableLighting();
+        GlStateManager._enableDepthTest();
+        GlStateManager._depthMask(false);
         int xoffset;
         int buttonWidth;
         if (!line.isEmpty()) {

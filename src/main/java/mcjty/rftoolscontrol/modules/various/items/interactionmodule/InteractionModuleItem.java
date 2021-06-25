@@ -19,13 +19,15 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
+import net.minecraft.item.Item.Properties;
+
 public class InteractionModuleItem extends GenericModuleItem {
 
     public InteractionModuleItem() {
         super(new Properties()
-                .maxStackSize(1)
-                .maxDamage(1)
-                .group(RFToolsControl.setup.getTab()));
+                .stacksTo(1)
+                .durability(1)
+                .tab(RFToolsControl.setup.getTab()));
     }
 
     @Override
@@ -68,12 +70,12 @@ public class InteractionModuleItem extends GenericModuleItem {
     }
 
     @Override
-    public ActionResultType onItemUse(ItemUseContext context) {
+    public ActionResultType useOn(ItemUseContext context) {
         PlayerEntity player = context.getPlayer();
         Hand hand = context.getHand();
-        World world = context.getWorld();
-        BlockPos pos = context.getPos();
-        ItemStack stack = player.getHeldItem(hand);
+        World world = context.getLevel();
+        BlockPos pos = context.getClickedPos();
+        ItemStack stack = player.getItemInHand(hand);
         BlockState state = world.getBlockState(pos);
         Block block = state.getBlock();
         CompoundNBT tagCompound = stack.getTag();
@@ -86,7 +88,7 @@ public class InteractionModuleItem extends GenericModuleItem {
             tagCompound.putInt("monitorx", pos.getX());
             tagCompound.putInt("monitory", pos.getY());
             tagCompound.putInt("monitorz", pos.getZ());
-            if (world.isRemote) {
+            if (world.isClientSide) {
                 Logging.message(player, "Interaction module is set to block");
             }
         } else {
@@ -94,7 +96,7 @@ public class InteractionModuleItem extends GenericModuleItem {
             tagCompound.remove("monitorx");
             tagCompound.remove("monitory");
             tagCompound.remove("monitorz");
-            if (world.isRemote) {
+            if (world.isClientSide) {
                 Logging.message(player, "Interaction module is cleared");
             }
         }

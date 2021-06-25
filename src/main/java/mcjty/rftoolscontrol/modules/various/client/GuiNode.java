@@ -28,8 +28,8 @@ public class GuiNode extends GenericGuiContainer<NodeTileEntity, NodeContainer> 
     public GuiNode(NodeTileEntity te, NodeContainer container, PlayerInventory inventory) {
         super(te, container, inventory, /*@todo 1.15 GuiProxy.GUI_MANUAL_CONTROL*/ ManualEntry.EMPTY);
 
-        xSize = WIDTH;
-        ySize = HEIGHT;
+        imageWidth = WIDTH;
+        imageHeight = HEIGHT;
     }
 
     public static void register() {
@@ -52,10 +52,10 @@ public class GuiNode extends GenericGuiContainer<NodeTileEntity, NodeContainer> 
                 children(label("Channel:"), channelField, label("Node:"), nodeNameField);
         toplevel.children(bottomPanel);
 
-        toplevel.bounds(guiLeft, guiTop, WIDTH, HEIGHT);
+        toplevel.bounds(leftPos, topPos, WIDTH, HEIGHT);
         window = new Window(this, toplevel);
 
-        minecraft.keyboardListener.enableRepeatEvents(true);
+        minecraft.keyboardHandler.setSendRepeatsToGui(true);
     }
 
     private void updateNode() {
@@ -67,7 +67,7 @@ public class GuiNode extends GenericGuiContainer<NodeTileEntity, NodeContainer> 
     }
 
     @Override
-    protected void drawGuiContainerBackgroundLayer(MatrixStack matrixStack, float partialTicks, int mouseX, int mouseY) {
+    protected void renderBg(MatrixStack matrixStack, float partialTicks, int mouseX, int mouseY) {
         drawWindow(matrixStack);
     }
 }

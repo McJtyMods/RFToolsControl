@@ -15,6 +15,8 @@ import net.minecraft.world.World;
 
 import java.util.List;
 
+import mcjty.rftoolsbase.api.screens.IClientScreenModule.TransformMode;
+
 public class VectorArtClientScreenModule implements IClientScreenModule<ModuleDataVectorArt> {
 
     @Override

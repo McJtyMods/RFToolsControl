@@ -43,10 +43,10 @@ public class LogicInventoryTools {
         if (item1.getItem() != item2.getItem()) {
             return false;
         }
-        if (damage && item1.getDamage() != item2.getDamage()) {
+        if (damage && item1.getDamageValue() != item2.getDamageValue()) {
             return false;
         }
-        if (nbt && !ItemStack.areItemStackTagsEqual(item1, item2)) {
+        if (nbt && !ItemStack.tagMatches(item1, item2)) {
             return false;
         }
         return true;
@@ -56,7 +56,7 @@ public class LogicInventoryTools {
         if (other.isEmpty()) {
             return false;
         }
-        return thisItem.isItemEqual(other);
+        return thisItem.sameItem(other);
     }
 
 
@@ -190,11 +190,11 @@ public class LogicInventoryTools {
     }
 
     public static String inventoryToString(Inventory inv) {
-        String s = StringUtils.left(inv.getSide().getString().toUpperCase(), 1);
+        String s = StringUtils.left(inv.getSide().getSerializedName().toUpperCase(), 1);
         if (inv.getIntSide() == null) {
             s += "/*";
         } else {
-            String is = StringUtils.left(inv.getIntSide().getString().toUpperCase(), 1);
+            String is = StringUtils.left(inv.getIntSide().getSerializedName().toUpperCase(), 1);
             s += "/" + is;
         }
         if (inv.getNodeName() == null) {
@@ -249,7 +249,7 @@ public class LogicInventoryTools {
         if (bc.getSide() == null) {
             s = "*";
         } else {
-            s = StringUtils.left(bc.getSide().getString().toUpperCase(), 1);
+            s = StringUtils.left(bc.getSide().getSerializedName().toUpperCase(), 1);
         }
         if (bc.getNodeName() == null) {
             return s;
@@ -276,7 +276,7 @@ public class LogicInventoryTools {
 
     // @todo 1.15 is this the right way?
     public static int getCountFromIngredient(Ingredient ingredient) {
-        ItemStack[] stacks = ingredient.getMatchingStacks();
+        ItemStack[] stacks = ingredient.getItems();
         if (stacks.length > 0) {
             return stacks[0].getCount();
         } else {
@@ -286,7 +286,7 @@ public class LogicInventoryTools {
 
     // @todo 1.15 is this the right way?
     public static int getMaxStackSizeFromIngredient(Ingredient ingredient) {
-        ItemStack[] stacks = ingredient.getMatchingStacks();
+        ItemStack[] stacks = ingredient.getItems();
         if (stacks.length > 0) {
             return stacks[0].getMaxStackSize();
         } else {

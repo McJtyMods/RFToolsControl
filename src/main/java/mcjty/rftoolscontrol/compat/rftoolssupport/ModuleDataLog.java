@@ -33,7 +33,7 @@ public class ModuleDataLog implements IModuleData {
         }
         buf.writeInt(log.size());
         for (String s : log) {
-            buf.writeString(s);
+            buf.writeUtf(s);
         }
     }
 }

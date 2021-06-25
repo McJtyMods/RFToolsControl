@@ -25,8 +25,8 @@ public class GuiWorkbench extends GenericGuiContainer<WorkbenchTileEntity, Workb
     public GuiWorkbench(WorkbenchTileEntity te, WorkbenchContainer container, PlayerInventory inventory) {
         super(te, container, inventory, /*@todo 1.15 GuiProxy.GUI_MANUAL_CONTROL*/ ManualEntry.EMPTY);
 
-        xSize = WIDTH;
-        ySize = HEIGHT;
+        imageWidth = WIDTH;
+        imageHeight = HEIGHT;
     }
 
     public static void register() {
@@ -39,12 +39,12 @@ public class GuiWorkbench extends GenericGuiContainer<WorkbenchTileEntity, Workb
 
         Panel toplevel = positional().background(mainBackground);
 
-        toplevel.bounds(guiLeft, guiTop, WIDTH, HEIGHT);
+        toplevel.bounds(leftPos, topPos, WIDTH, HEIGHT);
         window = new Window(this, toplevel);
     }
 
     @Override
-    protected void drawGuiContainerBackgroundLayer(MatrixStack matrixStack, float partialTicks, int mouseX, int mouseY) {
+    protected void renderBg(MatrixStack matrixStack, float partialTicks, int mouseX, int mouseY) {
         drawWindow(matrixStack);
     }
 }

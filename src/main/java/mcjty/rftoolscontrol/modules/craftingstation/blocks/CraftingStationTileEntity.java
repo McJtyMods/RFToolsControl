@@ -62,7 +62,7 @@ public class CraftingStationTileEntity extends GenericTileEntity {
     private final LazyOptional<AutomationFilterItemHander> itemHandler = LazyOptional.of(() -> new AutomationFilterItemHander(items));
 
     private final LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<CraftingStationContainer>("Crafter")
-            .containerSupplier((windowId,player) -> new CraftingStationContainer(windowId, CONTAINER_FACTORY.get(), getPos(), CraftingStationTileEntity.this))
+            .containerSupplier((windowId,player) -> new CraftingStationContainer(windowId, CONTAINER_FACTORY.get(), getBlockPos(), CraftingStationTileEntity.this))
             .itemHandler(() -> items));
 
     private final List<BlockPos> processorList = new ArrayList<>();
@@ -78,7 +78,7 @@ public class CraftingStationTileEntity extends GenericTileEntity {
         if (!processorList.contains(pos)) {
             processorList.add(pos);
         }
-        markDirty();
+        setChanged();
     }
 
 
@@ -95,7 +95,7 @@ public class CraftingStationTileEntity extends GenericTileEntity {
 
     private Pair<ProcessorTileEntity, ItemStack> findCraftableItem(int index) {
         for (BlockPos p : processorList) {
-            TileEntity te = world.getTileEntity(p);
+            TileEntity te = level.getBlockEntity(p);
             if (te instanceof ProcessorTileEntity) {
                 ProcessorTileEntity processor = (ProcessorTileEntity) te;
                 ItemStackList items = ItemStackList.create();
@@ -121,7 +121,7 @@ public class CraftingStationTileEntity extends GenericTileEntity {
             }
         }
         if (foundRequest != null) {
-            markDirty();
+            setChanged();
             foundRequest.decrTodo();
             if (foundRequest.getTodo() <= 0) {
                 foundRequest.setOk(System.currentTimeMillis() + 1000);
@@ -148,7 +148,7 @@ public class CraftingStationTileEntity extends GenericTileEntity {
         for (CraftingRequest request : activeCraftingRequests) {
             if (ticket.equals(request.getTicket())) {
                 request.setFailed(System.currentTimeMillis() + 2000);
-                markDirty();
+                setChanged();
             }
         }
     }
@@ -214,7 +214,7 @@ public class CraftingStationTileEntity extends GenericTileEntity {
 
     public boolean request(@Nonnull Ingredient item, @Nullable Inventory destination) {
         for (BlockPos p : processorList) {
-            TileEntity te = world.getTileEntity(p);
+            TileEntity te = level.getBlockEntity(p);
             if (te instanceof ProcessorTileEntity) {
                 ProcessorTileEntity processor = (ProcessorTileEntity) te;
                 ItemStackList items = ItemStackList.create();
@@ -238,11 +238,11 @@ public class CraftingStationTileEntity extends GenericTileEntity {
 
     private String getNewTicket(@Nullable Inventory destInv) {
         currentTicket++;
-        markDirty();
+        setChanged();
         if (destInv != null) {
             return destInv.serialize() + "#" + currentTicket;
         } else {
-            return BlockPosTools.toString(pos) + ":" + currentTicket;
+            return BlockPosTools.toString(worldPosition) + ":" + currentTicket;
         }
     }
 
@@ -269,7 +269,7 @@ public class CraftingStationTileEntity extends GenericTileEntity {
     public ItemStackList getCraftableItems() {
         ItemStackList items = ItemStackList.create();
         for (BlockPos p : processorList) {
-            TileEntity te = world.getTileEntity(p);
+            TileEntity te = level.getBlockEntity(p);
             if (te instanceof ProcessorTileEntity) {
                 ProcessorTileEntity processor = (ProcessorTileEntity) te;
                 processor.getCraftableItems(items);
@@ -317,7 +317,7 @@ public class CraftingStationTileEntity extends GenericTileEntity {
         for (int i = 0; i < list.size(); i++) {
             CompoundNBT requestTag = list.getCompound(i);
             String craftId = requestTag.getString("craftId");
-            ItemStack stack = ItemStack.read(requestTag.getCompound("stack"));
+            ItemStack stack = ItemStack.of(requestTag.getCompound("stack"));
             int count = requestTag.getInt("count");
             CraftingRequest request = new CraftingRequest(craftId, stack, count);
             request.setFailed(requestTag.getLong("failed"));
@@ -336,8 +336,8 @@ public class CraftingStationTileEntity extends GenericTileEntity {
     }
 
     @Override
-    public CompoundNBT write(CompoundNBT tagCompound) {
-        super.write(tagCompound);
+    public CompoundNBT save(CompoundNBT tagCompound) {
+        super.save(tagCompound);
         writeProcessorList(tagCompound);
         writeRequests(tagCompound);
         return tagCompound;
@@ -356,7 +356,7 @@ public class CraftingStationTileEntity extends GenericTileEntity {
             CompoundNBT requestTag = new CompoundNBT();
             requestTag.putString("craftId", request.getTicket());
             CompoundNBT stackNbt = new CompoundNBT();
-            request.getStack().write(stackNbt);
+            request.getStack().save(stackNbt);
             requestTag.put("stack", stackNbt);
             requestTag.putInt("count", request.getTodo());
             requestTag.putLong("failed", request.getFailed());
@@ -382,7 +382,7 @@ public class CraftingStationTileEntity extends GenericTileEntity {
     private int findItem(String itemName, String nbtString) {
         int index = 0;
         for (BlockPos p : processorList) {
-            TileEntity te = world.getTileEntity(p);
+            TileEntity te = level.getBlockEntity(p);
             if (te instanceof ProcessorTileEntity) {
                 ProcessorTileEntity processor = (ProcessorTileEntity) te;
                 ItemStackList items = ItemStackList.create();

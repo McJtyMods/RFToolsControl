@@ -146,7 +146,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
     private final LazyOptional<GenericEnergyStorage> energyHandler = LazyOptional.of(() -> energyStorage);
 
     private final LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<ProcessorContainer>("Processor")
-            .containerSupplier((windowId, player) -> ProcessorContainer.create(windowId, getPos(), ProcessorTileEntity.this))
+            .containerSupplier((windowId, player) -> ProcessorContainer.create(windowId, getBlockPos(), ProcessorTileEntity.this))
             .itemHandler(() -> items)
             .energyHandler(() -> energyStorage));
 
@@ -255,7 +255,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
 
     public void setExclusive(boolean exclusive) {
         this.exclusive = exclusive;
-        markDirty();
+        setChanged();
     }
 
     public Parameter getParameter(int idx) {
@@ -274,12 +274,12 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
             if (p == null) {
                 throw new ProgException(EXCEPT_MISSINGNODE);
             }
-            TileEntity te = world.getTileEntity(p);
+            TileEntity te = level.getBlockEntity(p);
             if (!(te instanceof NodeTileEntity)) {
                 throw new ProgException(EXCEPT_MISSINGNODE);
             }
         } else {
-            p = pos;
+            p = worldPosition;
         }
         return p;
     }
@@ -291,7 +291,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
         if (p == null) {
             return 0;
         }
-        return world.getRedstonePower(p.offset(facing), facing);
+        return level.getSignal(p.relative(facing), facing);
     }
 
     @Override
@@ -308,12 +308,12 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
             level = 15;
         }
 
-        if (p.equals(pos)) {
+        if (p.equals(worldPosition)) {
             powerOut[facing.ordinal()] = level;
-            markDirty();
-            world.neighborChanged(this.pos.offset(facing), this.getBlockState().getBlock(), this.pos);
+            setChanged();
+            level.neighborChanged(this.worldPosition.relative(facing), this.getBlockState().getBlock(), this.worldPosition);
         } else {
-            NodeTileEntity te = (NodeTileEntity) world.getTileEntity(p);
+            NodeTileEntity te = (NodeTileEntity) level.getBlockEntity(p);
             te.setPowerOut(facing, level);
         }
     }
@@ -324,7 +324,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
 
     @Override
     public void tick() {
-        if (!world.isRemote) {
+        if (!level.isClientSide) {
             process();
             prevIn = powerLevel;
         }
@@ -333,7 +333,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
     private void process() {
         tickCount++;
 
-        markDirty();
+        setChanged();
         updateCores();
         compileCards();
         processEventQueue();
@@ -421,7 +421,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
         }
 
         for (BlockPos p : craftingStations) {
-            TileEntity te = world.getTileEntity(p);
+            TileEntity te = level.getBlockEntity(p);
             if (te instanceof CraftingStationTileEntity) {
                 CraftingStationTileEntity craftingStation = (CraftingStationTileEntity) te;
                 craftedItem = craftingStation.craftOk(this, ticket, craftedItem);
@@ -441,7 +441,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
         String ticket = program.getCraftTicket();
 
         for (BlockPos p : craftingStations) {
-            TileEntity te = world.getTileEntity(p);
+            TileEntity te = level.getBlockEntity(p);
             if (te instanceof CraftingStationTileEntity) {
                 CraftingStationTileEntity craftingStation = (CraftingStationTileEntity) te;
                 craftingStation.craftFail(ticket);
@@ -780,7 +780,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
         }
         WaitForItem waitForItem = new WaitForItem(program.getCraftTicket(), stack, inv);
         waitingForItems.add(waitForItem);
-        markDirty();
+        setChanged();
     }
 
     public void craftWaitTimed(IProgram program) {
@@ -789,12 +789,12 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
         }
         WaitForItem waitForItem = new WaitForItem(program.getCraftTicket(), ItemStack.EMPTY, null);
         waitingForItems.add(waitForItem);
-        markDirty();
+        setChanged();
     }
 
     public boolean isRequested(Ingredient ingredient) {
         for (BlockPos p : craftingStations) {
-            TileEntity te = world.getTileEntity(p);
+            TileEntity te = level.getBlockEntity(p);
             if (te instanceof CraftingStationTileEntity) {
                 CraftingStationTileEntity craftingStation = (CraftingStationTileEntity) te;
                 if (craftingStation.isRequested(ingredient)) {
@@ -810,7 +810,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
     @Override
     public boolean requestCraft(@Nonnull Ingredient ingredient, @Nullable Inventory inventory) {
         for (BlockPos p : craftingStations) {
-            TileEntity te = world.getTileEntity(p);
+            TileEntity te = level.getBlockEntity(p);
             if (te instanceof CraftingStationTileEntity) {
                 CraftingStationTileEntity craftingStation = (CraftingStationTileEntity) te;
                 if (craftingStation.request(ingredient, inventory)) {
@@ -859,7 +859,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
             return ItemStack.EMPTY;
         }
         for (BlockPos p : craftingStations) {
-            TileEntity te = world.getTileEntity(p);
+            TileEntity te = level.getBlockEntity(p);
             if (te instanceof CraftingStationTileEntity) {
                 CraftingStationTileEntity craftingStation = (CraftingStationTileEntity) te;
                 ItemStack stack = craftingStation.getCraftResult(program.getCraftTicket());
@@ -907,7 +907,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
                     ItemStack stack = evaluateItemParameter(compiledOpcode, null, 0);
                     Inventory inv = evaluateInventoryParameter(compiledOpcode, null, 1);
                     if (!stack.isEmpty()) {
-                        if (stack.isItemEqual(stackToCraft)) {
+                        if (stack.sameItem(stackToCraft)) {
                             runOrQueueEvent(i, event, ticket, null);
                             return;
                         }
@@ -1238,7 +1238,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
             powerOut[facing.ordinal()] = 0;
         }
         for (BlockPos np : networkNodes.values()) {
-            TileEntity te = world.getTileEntity(np);
+            TileEntity te = level.getBlockEntity(np);
             if (te instanceof NodeTileEntity) {
                 NodeTileEntity tileEntity = (NodeTileEntity) te;
                 for (Direction facing : Direction.values()) {
@@ -1252,7 +1252,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
             core.setDebug(false);
         }
 
-        markDirty();
+        setChanged();
     }
 
     @Override
@@ -1277,7 +1277,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
     public void clearLog() {
         logMessages.clear();
         lastException = null;
-        markDirty();
+        setChanged();
     }
 
     public void exception(ExceptionType exception, @Nullable RunningProgram program) {
@@ -1428,7 +1428,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
         for (int i = 0; i < MAXFLUIDVARS; i++) {
             if (isFluidSlotAvailable(i)) {
                 Direction side = Direction.values()[i / TANKS];
-                TileEntity te = world.getTileEntity(getPos().offset(side));
+                TileEntity te = level.getBlockEntity(getBlockPos().relative(side));
                 if (te instanceof MultiTankTileEntity) {
                     MultiTankTileEntity mtank = (MultiTankTileEntity) te;
                     MultiTankFluidProperties[] propertyList = mtank.getProperties();
@@ -1621,7 +1621,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
     }
 
     private MultiTankFluidProperties getFluidPropertiesFromMultiTank(Direction side, int idx) {
-        TileEntity te = world.getTileEntity(getPos().offset(side));
+        TileEntity te = level.getBlockEntity(getBlockPos().relative(side));
         if (te instanceof MultiTankTileEntity) {
             MultiTankTileEntity mtank = (MultiTankTileEntity) te;
             return mtank.getProperties()[idx];
@@ -1861,7 +1861,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
         if (!WorldTools.isLoaded(world, dest)) {
             throw new ProgException(EXCEPT_INVALIDDESTINATION);
         }
-        TileEntity te = world.getTileEntity(dest);
+        TileEntity te = world.getBlockEntity(dest);
         if (!(te instanceof ProcessorTileEntity)) {
             throw new ProgException(EXCEPT_INVALIDDESTINATION);
         }
@@ -1880,7 +1880,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
             orderedOps = null;
         }
         gfxOps.put(id, op);
-        markDirty();
+        setChanged();
     }
 
     private void sortOps() {
@@ -1927,7 +1927,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
             gfxOps.remove(id);
             orderedOps = null;
         }
-        markDirty();
+        setChanged();
     }
 
     public Map<String, GfxOp> getGfxOps() {
@@ -2019,13 +2019,13 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
     private void updateFluidSlotsAvailability() {
         fluidSlotsAvailable = 0;
         for (Direction facing : Direction.values()) {
-            TileEntity te = world.getTileEntity(getPos().offset(facing));
+            TileEntity te = level.getBlockEntity(getBlockPos().relative(facing));
             if (te instanceof MultiTankTileEntity) {
                 fluidSlotsAvailable |= 1 << facing.ordinal();
             }
         }
         fixCardInfoForSlotAvailability();
-        markDirty();
+        setChanged();
     }
 
     private void fixCardInfoForSlotAvailability() {
@@ -2118,7 +2118,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
         }
 
         if (varValue.getParameterType() == ParameterType.PAR_ITEM) {
-            return ((ItemStack) v1).isItemEqual((ItemStack) v2);
+            return ((ItemStack) v1).sameItem((ItemStack) v2);
         } else if (varValue.getParameterType() == ParameterType.PAR_FLUID) {
             return ((FluidStack) v1).isFluidEqual((FluidStack) v2);
         } else if (varValue.getParameterType() == ParameterType.PAR_VECTOR) {
@@ -2479,7 +2479,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
             throw new ProgException(EXCEPT_MISSINGSTORAGE);
         }
 
-        TileEntity te = world.getTileEntity(c);
+        TileEntity te = world.getBlockEntity(c);
         if (te == null) {
             throw new ProgException(EXCEPT_MISSINGSTORAGE);
         }
@@ -2506,7 +2506,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
                     return 0;
                 } else {
                     if (!itemMatcher.isEmpty()) {
-                        if (!ItemStack.areItemsEqual(stackInSlot, itemMatcher)) {
+                        if (!ItemStack.isSame(stackInSlot, itemMatcher)) {
                             return 0;
                         }
                     }
@@ -2532,7 +2532,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
         int cnt = 0;
         for (int i = 0; i < handler.getSlots(); i++) {
             ItemStack stack = handler.getStackInSlot(i);
-            if (!stack.isEmpty() && ItemStack.areItemsEqual(stack, itemMatcher)) {
+            if (!stack.isEmpty() && ItemStack.isSame(stack, itemMatcher)) {
                 cnt += stack.getCount();
             }
         }
@@ -2546,7 +2546,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
         if (np == null) {
             return null;
         }
-        return world.getTileEntity(np);
+        return level.getBlockEntity(np);
     }
 
     @Override
@@ -2555,7 +2555,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
         if (inv == null) {
             return null;
         }
-        BlockPos p = pos;
+        BlockPos p = worldPosition;
         if (inv.hasNodeName()) {
             if (!hasNetworkCard()) {
                 throw new ProgException(EXCEPT_MISSINGNETWORKCARD);
@@ -2568,7 +2568,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
         if (inv.getSide() == null) {
             return p;
         } else {
-            return p.offset(inv.getSide());
+            return p.relative(inv.getSide());
         }
     }
 
@@ -2683,8 +2683,8 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
     }
 
     @Override
-    public CompoundNBT write(CompoundNBT tagCompound) {
-        super.write(tagCompound);
+    public CompoundNBT save(CompoundNBT tagCompound) {
+        super.save(tagCompound);
         tagCompound.putInt("prevIn", prevIn);
         for (int i = 0; i < 6; i++) {
             tagCompound.putByte("p" + i, (byte) powerOut[i]);
@@ -2724,7 +2724,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
     private void readGraphicsOperations(CompoundNBT tagCompound) {
         gfxOps.clear();
         CompoundNBT opTag = tagCompound.getCompound("gfxop");
-        for (String key : opTag.keySet()) {
+        for (String key : opTag.getAllKeys()) {
             gfxOps.put(key, GfxOp.readFromNBT(opTag.getCompound(key)));
         }
         sortOps();
@@ -2759,7 +2759,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
 
             ItemStack stack;
             if (tag.contains("item")) {
-                stack = ItemStack.read(tag.getCompound("item"));
+                stack = ItemStack.of(tag.getCompound("item"));
             } else {
                 stack = ItemStack.EMPTY;
             }
@@ -3081,7 +3081,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
         cardInfo[card].setItemAllocation(itemAlloc);
         cardInfo[card].setVarAllocation(varAlloc);
         cardInfo[card].setFluidAllocation(fluidAlloc);
-        markDirty();
+        setChanged();
     }
 
     public void showNetworkInfo() {
@@ -3104,7 +3104,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
 
     public void setupNetwork(String name) {
         channel = name;
-        markDirty();
+        setChanged();
     }
 
     public void redstoneNodeChange(int previousMask, int newMask, String node) {
@@ -3133,8 +3133,8 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
         for (int x = -range; x <= range; x++) {
             for (int y = -range; y <= range; y++) {
                 for (int z = -range; z <= range; z++) {
-                    BlockPos n = new BlockPos(pos.getX() + x, pos.getY() + y, pos.getZ() + z);
-                    TileEntity te = world.getTileEntity(n);
+                    BlockPos n = new BlockPos(worldPosition.getX() + x, worldPosition.getY() + y, worldPosition.getZ() + z);
+                    TileEntity te = level.getBlockEntity(n);
                     if (te instanceof NodeTileEntity) {
                         NodeTileEntity node = (NodeTileEntity) te;
                         if (channel.equals(node.getChannelName())) {
@@ -3142,12 +3142,12 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
                                 log("Node is missing a name!");
                             } else {
                                 networkNodes.put(node.getNodeName(), n);
-                                node.setProcessor(getPos());
+                                node.setProcessor(getBlockPos());
                             }
                         }
                     } else if (te instanceof CraftingStationTileEntity) {
                         CraftingStationTileEntity craftingStation = (CraftingStationTileEntity) te;
-                        craftingStation.registerProcessor(pos);
+                        craftingStation.registerProcessor(worldPosition);
                         craftingStations.add(n);
                     }
                 }
@@ -3155,7 +3155,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
         }
         log("Found " + networkNodes.size() + " node(s)");
         log("Found " + craftingStations.size() + " crafting station(s)");
-        markDirty();
+        setChanged();
     }
 
     @Override
@@ -3231,9 +3231,9 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
 
     @Override
     public AxisAlignedBB getRenderBoundingBox() {
-        int xCoord = getPos().getX();
-        int yCoord = getPos().getY();
-        int zCoord = getPos().getZ();
+        int xCoord = getBlockPos().getX();
+        int yCoord = getBlockPos().getY();
+        int zCoord = getBlockPos().getZ();
         return new AxisAlignedBB(xCoord, yCoord, zCoord, xCoord + 1, yCoord + 21, zCoord + 1);
     }
 

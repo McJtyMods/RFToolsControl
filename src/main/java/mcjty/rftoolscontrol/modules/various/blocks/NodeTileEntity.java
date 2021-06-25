@@ -37,7 +37,7 @@ public class NodeTileEntity extends GenericTileEntity {
     private int powerOut[] = new int[] { 0, 0, 0, 0, 0, 0 };
 
     private final LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<NodeContainer>("Node")
-            .containerSupplier((windowId,player) -> new NodeContainer(windowId, NodeContainer.CONTAINER_FACTORY.get(), getPos(), NodeTileEntity.this)));
+            .containerSupplier((windowId,player) -> new NodeContainer(windowId, NodeContainer.CONTAINER_FACTORY.get(), getBlockPos(), NodeTileEntity.this)));
 
     public NodeTileEntity() {
         super(VariousModule.NODE_TILE.get());
@@ -57,14 +57,14 @@ public class NodeTileEntity extends GenericTileEntity {
 
     public void setProcessor(BlockPos processor) {
         this.processor = processor;
-        markDirty();
+        setChanged();
     }
 
     @Override
     public void setPowerInput(int powered) {
         if (powerLevel != powered) {
             if (processor != null) {
-                TileEntity te = getWorld().getTileEntity(processor);
+                TileEntity te = getLevel().getBlockEntity(processor);
                 if (te instanceof ProcessorTileEntity) {
                     ProcessorTileEntity processorTileEntity = (ProcessorTileEntity) te;
                     processorTileEntity.redstoneNodeChange(prevIn, powered, node);
@@ -81,8 +81,8 @@ public class NodeTileEntity extends GenericTileEntity {
 
     public void setPowerOut(Direction side, int powerOut) {
         this.powerOut[side.ordinal()] = powerOut;
-        markDirty();
-        getWorld().neighborChanged(this.pos.offset(side), this.getBlockState().getBlock(), this.pos);
+        setChanged();
+        getLevel().neighborChanged(this.worldPosition.relative(side), this.getBlockState().getBlock(), this.worldPosition);
     }
 
     @Override
@@ -104,8 +104,8 @@ public class NodeTileEntity extends GenericTileEntity {
     }
 
     @Override
-    public CompoundNBT write(CompoundNBT tagCompound) {
-        super.write(tagCompound);
+    public CompoundNBT save(CompoundNBT tagCompound) {
+        super.save(tagCompound);
         tagCompound.putInt("prevIn", prevIn);
         for (int i = 0 ; i < 6 ; i++) {
             tagCompound.putByte("p" + i, (byte) powerOut[i]);

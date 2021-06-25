@@ -25,13 +25,13 @@ public class PacketRequestsReady {
 
     public PacketRequestsReady(PacketBuffer buf) {
         pos = buf.readBlockPos();
-        command = buf.readString(32767);
+        command = buf.readUtf(32767);
 
         int size = buf.readInt();
         if (size != -1) {
             list = new ArrayList<>(size);
             for (int i = 0 ; i < size ; i++) {
-                String id = buf.readString(32767);
+                String id = buf.readUtf(32767);
                 ItemStack stack = NetworkTools.readItemStack(buf);
                 int amount = buf.readInt();
                 CraftingRequest request = new CraftingRequest(id, stack, amount);
@@ -54,14 +54,14 @@ public class PacketRequestsReady {
     public void toBytes(PacketBuffer buf) {
         buf.writeBlockPos(pos);
 
-        buf.writeString(command);
+        buf.writeUtf(command);
 
         if (list == null) {
             buf.writeInt(-1);
         } else {
             buf.writeInt(list.size());
             for (CraftingRequest item : list) {
-                buf.writeString(item.getTicket());
+                buf.writeUtf(item.getTicket());
                 NetworkTools.writeItemStack(buf, item.getStack());
                 buf.writeInt(item.getTodo());
                 buf.writeLong(item.getOk());
@@ -73,7 +73,7 @@ public class PacketRequestsReady {
     public void handle(Supplier<NetworkEvent.Context> supplier) {
         NetworkEvent.Context ctx = supplier.get();
         ctx.enqueueWork(() -> {
-            TileEntity te = McJtyLib.proxy.getClientWorld().getTileEntity(pos);
+            TileEntity te = McJtyLib.proxy.getClientWorld().getBlockEntity(pos);
             if(!(te instanceof IClientCommandHandler)) {
                 Logging.log("TileEntity is not a ClientCommandHandler!");
                 return;

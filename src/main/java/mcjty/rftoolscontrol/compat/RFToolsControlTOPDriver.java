@@ -56,7 +56,7 @@ public class RFToolsControlTOPDriver implements TOPDriver {
         @Override
         public void addProbeInfo(ProbeMode mode, IProbeInfo probeInfo, PlayerEntity player, World world, BlockState blockState, IProbeHitData data) {
             super.addProbeInfo(mode, probeInfo, player, world, blockState, data);
-            Tools.safeConsume(world.getTileEntity(data.getPos()), (NodeTileEntity node) -> {
+            Tools.safeConsume(world.getBlockEntity(data.getPos()), (NodeTileEntity node) -> {
                 probeInfo.text(CompoundText.createLabelInfo( "Channel: ", node.getChannelName()));
                 probeInfo.text(CompoundText.createLabelInfo( "Name: ", node.getNodeName()));
             }, "Bad tile entity!");
@@ -67,7 +67,7 @@ public class RFToolsControlTOPDriver implements TOPDriver {
         @Override
         public void addProbeInfo(ProbeMode mode, IProbeInfo probeInfo, PlayerEntity player, World world, BlockState blockState, IProbeHitData data) {
             super.addProbeInfo(mode, probeInfo, player, world, blockState, data);
-            Tools.safeConsume(world.getTileEntity(data.getPos()), (ProcessorTileEntity processor) -> {
+            Tools.safeConsume(world.getBlockEntity(data.getPos()), (ProcessorTileEntity processor) -> {
             if (processor.hasNetworkCard()) {
                 probeInfo.text(CompoundText.createLabelInfo( "Channel: ", processor.getChannelName()));
                 probeInfo.text(CompoundText.createLabelInfo( "Nodes: ", processor.getNodeCount()));

@@ -45,7 +45,7 @@ public class VariableScreenModule implements IScreenModule<ModuleDataVariable> {
             return null;
         }
 
-        TileEntity te = world.getTileEntity(coordinate);
+        TileEntity te = world.getBlockEntity(coordinate);
         if (te instanceof ProcessorTileEntity) {
             ProcessorTileEntity processor = (ProcessorTileEntity) te;
             Parameter parameter = processor.getParameter(varIdx);

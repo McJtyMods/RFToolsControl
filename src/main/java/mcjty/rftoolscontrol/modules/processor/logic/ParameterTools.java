@@ -30,7 +30,7 @@ public class ParameterTools {
         if (buf.readBoolean()) {
             switch (type) {
                 case PAR_STRING:
-                    builder.value(ParameterValue.constant(buf.readString(32767)));
+                    builder.value(ParameterValue.constant(buf.readUtf(32767)));
                     break;
                 case PAR_INTEGER:
                     builder.value(ParameterValue.constant(buf.readInt()));
@@ -60,7 +60,7 @@ public class ParameterTools {
                     break;
                 }
                 case PAR_SIDE: {
-                    String nodeName = buf.readString(32767);
+                    String nodeName = buf.readUtf(32767);
                     int sideIdx = buf.readByte();
                     Direction side = sideIdx == -1 ? null : Direction.values()[sideIdx];
                     builder.value(ParameterValue.constant(new BlockSide(nodeName, side)));
@@ -79,7 +79,7 @@ public class ParameterTools {
                     builder.value(ParameterValue.constant(NetworkTools.readFluidStack(buf)));
                     break;
                 case PAR_EXCEPTION:
-                    builder.value(ParameterValue.constant(ExceptionType.getExceptionForCode(buf.readString(32767))));
+                    builder.value(ParameterValue.constant(ExceptionType.getExceptionForCode(buf.readUtf(32767))));
                     break;
                 case PAR_TUPLE:
                     builder.value(ParameterValue.constant(new Tuple(buf.readInt(), buf.readInt())));
@@ -108,7 +108,7 @@ public class ParameterTools {
         buf.writeBoolean(true);
         switch (parameter.getParameterType()) {
             case PAR_STRING:
-                buf.writeString((String) value);
+                buf.writeUtf((String) value);
                 break;
             case PAR_INTEGER:
                 buf.writeInt((Integer) value);
@@ -137,7 +137,7 @@ public class ParameterTools {
             }
             case PAR_SIDE:
                 BlockSide bs = (BlockSide) value;
-                buf.writeString(bs.getNodeNameSafe());
+                buf.writeUtf(bs.getNodeNameSafe());
                 buf.writeByte(bs.getSide() == null ? -1 : bs.getSide().ordinal());
                 break;
             case PAR_BOOLEAN:
@@ -154,7 +154,7 @@ public class ParameterTools {
                 NetworkTools.writeFluidStack(buf, (FluidStack) value);
                 break;
             case PAR_EXCEPTION:
-                buf.writeString(((ExceptionType)value).getCode());
+                buf.writeUtf(((ExceptionType)value).getCode());
                 break;
             case PAR_TUPLE:
                 Tuple tuple = (Tuple) value;

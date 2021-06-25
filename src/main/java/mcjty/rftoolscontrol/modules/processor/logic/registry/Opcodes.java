@@ -364,7 +364,7 @@ public class Opcodes {
             .runnable(((processor, program, opcode) -> {
                 ItemStack item = processor.evaluateItemParameter(opcode, program, 0);
                 String tagName = processor.evaluateStringParameterNonNull(opcode, program, 1);
-                ITag<Item> tag = ItemTags.getCollection().get(new ResourceLocation(tagName));
+                ITag<Item> tag = ItemTags.getAllTags().getTag(new ResourceLocation(tagName));
                 if (tag == null) {
                     throw new ProgException(ExceptionType.EXCEPT_UNKNOWN_TAG);
                 }
@@ -496,7 +496,7 @@ public class Opcodes {
                 Integer amount = processor.evaluateIntegerParameter(opcode, program, 3);
                 int slotOut = processor.evaluateIntParameter(opcode, program, 4);
                 boolean routable = processor.evaluateBoolParameter(opcode, program, 6);
-                int cnt = ((ProcessorTileEntity)processor).fetchItems(program, inv, slot, Ingredient.fromStacks(item), routable, amount, slotOut);
+                int cnt = ((ProcessorTileEntity)processor).fetchItems(program, inv, slot, Ingredient.of(item), routable, amount, slotOut);
                 program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(cnt)).build());
                 return POSITIVE;
             }))
@@ -1263,7 +1263,7 @@ public class Opcodes {
             .runnable(((processor, program, opcode) -> {
                 ItemStack item = processor.evaluateItemParameterNonNull(opcode, program, 0);
                 Inventory inv = processor.evaluateInventoryParameter(opcode, program, 1);
-                processor.requestCraft(Ingredient.fromStacks(item), inv);
+                processor.requestCraft(Ingredient.of(item), inv);
                 return POSITIVE;
             }))
             .build();
@@ -1604,7 +1604,7 @@ public class Opcodes {
             .icon(6, 4)
             .runnable(((processor, program, opcode) -> {
                 ItemStack item = processor.evaluateItemParameterNonNull(opcode, program, 0);
-                int damage = item.getDamage();
+                int damage = item.getDamageValue();
                 program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(damage)).build());
                 return POSITIVE;
             }))
@@ -1621,7 +1621,7 @@ public class Opcodes {
             .icon(7, 4)
             .runnable(((processor, program, opcode) -> {
                 ItemStack item = processor.evaluateItemParameterNonNull(opcode, program, 0);
-                String name = item.getDisplayName().getString() /* was getFormattedText() */;
+                String name = item.getHoverName().getString() /* was getFormattedText() */;
                 program.setLastValue(Parameter.builder().type(PAR_STRING).value(ParameterValue.constant(name)).build());
                 return POSITIVE;
             }))

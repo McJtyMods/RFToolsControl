@@ -8,13 +8,13 @@ import net.minecraft.util.Direction;
 public class InventoryUtil {
 
     public static void writeBuf(Inventory inv, PacketBuffer buf) {
-        buf.writeString(inv.getNodeNameSafe());
+        buf.writeUtf(inv.getNodeNameSafe());
         buf.writeByte(inv.getSide().ordinal());
         buf.writeByte(inv.getIntSide() == null ? -1 : inv.getIntSide().ordinal());
     }
 
     public static Inventory readBuf(PacketBuffer buf) {
-        String nodeName = buf.readString(32767);
+        String nodeName = buf.readUtf(32767);
         int sideIdx = buf.readByte();
         Direction side = Direction.values()[sideIdx];
         sideIdx = buf.readByte();

@@ -34,7 +34,7 @@ public class MultiTankTileEntity extends GenericTileEntity {
     private final LazyOptional<MultiTankHandler> fluidHandler = LazyOptional.of(this::createFluidHandler);
 
     private final LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<MultiTankContainer>("Crafter")
-            .containerSupplier((windowId,player) -> new MultiTankContainer(windowId, MultiTankContainer.CONTAINER_FACTORY.get(), getPos(), MultiTankTileEntity.this)));
+            .containerSupplier((windowId,player) -> new MultiTankContainer(windowId, MultiTankContainer.CONTAINER_FACTORY.get(), getBlockPos(), MultiTankTileEntity.this)));
 
     public MultiTankTileEntity() {
         super(MultiTankModule.MULTITANK_TILE.get());

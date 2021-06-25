@@ -23,20 +23,20 @@ public class CommandHandler {
 
     public static void registerCommands() {
         McJtyLib.registerCommand(RFToolsControl.MODID, CMD_TESTRECIPE, (player, arguments) -> {
-            ItemStack heldItem = player.getHeldItem(Hand.MAIN_HAND);
+            ItemStack heldItem = player.getItemInHand(Hand.MAIN_HAND);
             if (heldItem.isEmpty()) {
                 return false;
             }
             if (heldItem.getItem() instanceof CraftingCardItem) {
-                CraftingCardItem.testRecipe(player.getEntityWorld(), heldItem);
+                CraftingCardItem.testRecipe(player.getCommandSenderWorld(), heldItem);
             }
             return true;
         });
         McJtyLib.registerCommand(RFToolsControl.MODID, CMD_GETGRAPHICS, (player, arguments) -> {
-            TileEntity te = player.getEntityWorld().getTileEntity(arguments.get(PARAM_POS));
+            TileEntity te = player.getCommandSenderWorld().getBlockEntity(arguments.get(PARAM_POS));
             if (te instanceof ProcessorTileEntity) {
                 ProcessorTileEntity processor = (ProcessorTileEntity) te;
-                RFToolsCtrlMessages.INSTANCE.sendTo(new PacketGraphicsReady(processor), ((ServerPlayerEntity)player).connection.netManager, NetworkDirection.PLAY_TO_CLIENT);
+                RFToolsCtrlMessages.INSTANCE.sendTo(new PacketGraphicsReady(processor), ((ServerPlayerEntity)player).connection.connection, NetworkDirection.PLAY_TO_CLIENT);
             }
             return true;
         });

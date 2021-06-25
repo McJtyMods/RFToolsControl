@@ -15,6 +15,8 @@ import java.util.List;
 
 import static mcjty.lib.builder.TooltipBuilder.header;
 
+import net.minecraft.item.Item.Properties;
+
 public class CardBaseItem extends Item implements ITooltipSettings {
 
     private final Lazy<TooltipBuilder> tooltipBuilder = () -> new TooltipBuilder()
@@ -22,13 +24,13 @@ public class CardBaseItem extends Item implements ITooltipSettings {
 
     public CardBaseItem() {
         super(new Properties()
-                .maxStackSize(64)
-                .group(RFToolsControl.setup.getTab()));
+                .stacksTo(64)
+                .tab(RFToolsControl.setup.getTab()));
     }
 
     @Override
-    public void addInformation(ItemStack stack, @Nullable World worldIn, List<ITextComponent> list, ITooltipFlag flag) {
-        super.addInformation(stack, worldIn, list, flag);
+    public void appendHoverText(ItemStack stack, @Nullable World worldIn, List<ITextComponent> list, ITooltipFlag flag) {
+        super.appendHoverText(stack, worldIn, list, flag);
         tooltipBuilder.get().makeTooltip(getRegistryName(), stack, list, flag);
     }
 }

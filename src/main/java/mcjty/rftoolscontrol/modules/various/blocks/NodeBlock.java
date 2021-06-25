@@ -32,13 +32,13 @@ public class NodeBlock extends BaseBlock {
 //    }
 
     private int getInputStrength(World world, BlockPos pos, Direction side) {
-        return world.getRedstonePower(pos.offset(side), side);
+        return world.getSignal(pos.relative(side), side);
     }
 
     @Override
     protected void checkRedstone(World world, BlockPos pos) {
         BlockState state = world.getBlockState(pos);
-        TileEntity te = world.getTileEntity(pos);
+        TileEntity te = world.getBlockEntity(pos);
         if (state.getBlock() instanceof NodeBlock && te instanceof NodeTileEntity) {
             NodeTileEntity processor = (NodeTileEntity)te;
             int powered = 0;
@@ -70,8 +70,8 @@ public class NodeBlock extends BaseBlock {
     }
 
     @Override
-    public int getStrongPower(BlockState state, IBlockReader world, BlockPos pos, Direction side) {
-        TileEntity te = world.getTileEntity(pos);
+    public int getDirectSignal(BlockState state, IBlockReader world, BlockPos pos, Direction side) {
+        TileEntity te = world.getBlockEntity(pos);
         if (state.getBlock() instanceof NodeBlock && te instanceof NodeTileEntity) {
             NodeTileEntity processor = (NodeTileEntity) te;
             return processor.getPowerOut(side.getOpposite());

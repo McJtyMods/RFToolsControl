@@ -13,6 +13,8 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
+import mcjty.rftoolsbase.api.screens.IClientScreenModule.TransformMode;
+
 public class VariableClientScreenModule implements IClientScreenModule<ModuleDataVariable> {
     private String line = "";
     private TextAlign textAlign = TextAlign.ALIGN_LEFT;
@@ -35,7 +37,7 @@ public class VariableClientScreenModule implements IClientScreenModule<ModuleDat
             labelCache = renderHelper.createTextRenderHelper().align(textAlign);
         }
 
-        GlStateManager.disableLighting();
+        GlStateManager._disableLighting();
         int xoffset;
         if (!line.isEmpty()) {
             labelCache.setup(line, 160, renderInfo);

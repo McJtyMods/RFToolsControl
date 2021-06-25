@@ -35,8 +35,8 @@ public class GfxOpLine extends GfxOp {
         float blue = (color & 255) / 255.0F;
 
         IVertexBuilder builder = buffer.getBuffer(CustomRenderTypes.OVERLAY_LINES);
-        builder.pos(matrixStack.getLast().getMatrix(), x1, y1, 0).color(red, green, blue, alpha).endVertex();
-        builder.pos(matrixStack.getLast().getMatrix(), x2, y2, 0).color(red, green, blue, alpha).endVertex();
+        builder.vertex(matrixStack.last().pose(), x1, y1, 0).color(red, green, blue, alpha).endVertex();
+        builder.vertex(matrixStack.last().pose(), x2, y2, 0).color(red, green, blue, alpha).endVertex();
     }
 
     @Override

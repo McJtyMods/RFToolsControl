@@ -33,7 +33,7 @@ public class WorkbenchTileEntity extends GenericTileEntity {
     private final LazyOptional<WorkbenchItemHandler> automationItemHandlerSide = LazyOptional.of(() -> new WorkbenchItemHandler(items, null));
 
     private final LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<WorkbenchContainer>("Workbench")
-            .containerSupplier((windowId, player) -> new WorkbenchContainer(windowId, WorkbenchContainer.CONTAINER_FACTORY.get(), getPos(), WorkbenchTileEntity.this))
+            .containerSupplier((windowId, player) -> new WorkbenchContainer(windowId, WorkbenchContainer.CONTAINER_FACTORY.get(), getBlockPos(), WorkbenchTileEntity.this))
             .itemHandler(() -> items));
 
     // This field contains the number of real items in the craft output slot. i.e. these are
@@ -73,8 +73,8 @@ public class WorkbenchTileEntity extends GenericTileEntity {
 
     @Nullable
     private IRecipe findRecipe(CraftingInventory workInventory) {
-        for (IRecipe r : McJtyLib.proxy.getRecipeManager(world).getRecipes()) {
-            if (r != null && IRecipeType.CRAFTING.equals(r.getType()) && r.matches(workInventory, world)) {
+        for (IRecipe r : McJtyLib.proxy.getRecipeManager(level).getRecipes()) {
+            if (r != null && IRecipeType.CRAFTING.equals(r.getType()) && r.matches(workInventory, level)) {
                 return r;
             }
         }
@@ -86,7 +86,7 @@ public class WorkbenchTileEntity extends GenericTileEntity {
             CraftingInventory workInventory = makeWorkInventory();
             IRecipe recipe = findRecipe(workInventory);
             if (recipe != null) {
-                ItemStack stack = recipe.getCraftingResult(workInventory);
+                ItemStack stack = recipe.assemble(workInventory);
                 items.setStackInSlot(WorkbenchContainer.SLOT_CRAFTOUTPUT, stack);
             } else {
                 items.setStackInSlot(WorkbenchContainer.SLOT_CRAFTOUTPUT, ItemStack.EMPTY);
@@ -98,12 +98,12 @@ public class WorkbenchTileEntity extends GenericTileEntity {
         CraftingInventory workInventory = new CraftingInventory(new Container(null, -1) {
             @SuppressWarnings("NullableProblems")
             @Override
-            public boolean canInteractWith(PlayerEntity var1) {
+            public boolean stillValid(PlayerEntity var1) {
                 return false;
             }
         }, 3, 3);
         for (int i = 0; i < 9; i++) {
-            workInventory.setInventorySlotContents(i, items.getStackInSlot(i + WorkbenchContainer.SLOT_CRAFTINPUT));
+            workInventory.setItem(i, items.getStackInSlot(i + WorkbenchContainer.SLOT_CRAFTINPUT));
         }
         return workInventory;
     }
@@ -149,7 +149,7 @@ public class WorkbenchTileEntity extends GenericTileEntity {
                                 if (!remainingItems.get(i).isEmpty()) {
                                     if (s.isEmpty()) {
                                         items.setStackInSlot(i + WorkbenchContainer.SLOT_CRAFTINPUT, remainingItems.get(i));
-                                    } else if (ItemStack.areItemsEqual(s, remainingItems.get(i)) && ItemStack.areItemStackTagsEqual(s, remainingItems.get(i))) {
+                                    } else if (ItemStack.isSame(s, remainingItems.get(i)) && ItemStack.tagMatches(s, remainingItems.get(i))) {
                                         ItemStack stack = remainingItems.get(i);
                                         stack.grow(s.getCount());
                                         items.setStackInSlot(i + WorkbenchContainer.SLOT_CRAFTINPUT, remainingItems.get(i));

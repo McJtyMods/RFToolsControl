@@ -38,8 +38,8 @@ public class GuiMultiTank extends GenericGuiContainer<MultiTankTileEntity, Multi
     public GuiMultiTank(MultiTankTileEntity te, MultiTankContainer container, PlayerInventory inventory) {
         super(te, container, inventory, /*@todo 1.15 GuiProxy.GUI_MANUAL_CONTROL*/ ManualEntry.EMPTY);
 
-        xSize = WIDTH;
-        ySize = HEIGHT;
+        imageWidth = WIDTH;
+        imageHeight = HEIGHT;
     }
 
     public static void register() {
@@ -51,7 +51,7 @@ public class GuiMultiTank extends GenericGuiContainer<MultiTankTileEntity, Multi
         super.init();
 
         Panel toplevel = positional().background(iconLocation);
-        toplevel.bounds(guiLeft, guiTop, xSize, ySize);
+        toplevel.bounds(leftPos, topPos, imageWidth, imageHeight);
 
         for (int i = 0 ; i < TANKS ; i++) {
             liquids[i] = new BlockRender()
@@ -67,7 +67,7 @@ public class GuiMultiTank extends GenericGuiContainer<MultiTankTileEntity, Multi
     }
 
     private void requestLists() {
-        RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketGetTankFluids(tileEntity.getPos()));
+        RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketGetTankFluids(tileEntity.getBlockPos()));
     }
 
     private void requestListsIfNeeded() {
@@ -95,7 +95,7 @@ public class GuiMultiTank extends GenericGuiContainer<MultiTankTileEntity, Multi
     }
 
     @Override
-    protected void drawGuiContainerBackgroundLayer(MatrixStack matrixStack, float partialTicks, int mouseX, int mouseY) {
+    protected void renderBg(MatrixStack matrixStack, float partialTicks, int mouseX, int mouseY) {
         updateLiquids();
         drawWindow(matrixStack);
     }

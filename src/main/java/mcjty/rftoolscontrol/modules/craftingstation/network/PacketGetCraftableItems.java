@@ -42,16 +42,16 @@ public class PacketGetCraftableItems {
     public void handle(Supplier<NetworkEvent.Context> supplier) {
         NetworkEvent.Context ctx = supplier.get();
         ctx.enqueueWork(() -> {
-            World world = ctx.getSender().getEntityWorld();
-            if (world.isBlockLoaded(pos)) {
-                TileEntity te = world.getTileEntity(pos);
+            World world = ctx.getSender().getCommandSenderWorld();
+            if (world.hasChunkAt(pos)) {
+                TileEntity te = world.getBlockEntity(pos);
                 if (!(te instanceof ICommandHandler)) {
                     Logging.log("TileEntity is not a CommandHandler!");
                     return;
                 }
                 ICommandHandler commandHandler = (ICommandHandler) te;
                 List<ItemStack> list = commandHandler.executeWithResultList(CraftingStationTileEntity.CMD_GETCRAFTABLE, params, Type.create(ItemStack.class));
-                RFToolsCtrlMessages.INSTANCE.sendTo(new PacketCraftableItemsReady(pos, CraftingStationTileEntity.CLIENTCMD_GETCRAFTABLE, list), ctx.getSender().connection.netManager, NetworkDirection.PLAY_TO_CLIENT);
+                RFToolsCtrlMessages.INSTANCE.sendTo(new PacketCraftableItemsReady(pos, CraftingStationTileEntity.CLIENTCMD_GETCRAFTABLE, list), ctx.getSender().connection.connection, NetworkDirection.PLAY_TO_CLIENT);
             }
         });
         ctx.setPacketHandled(true);

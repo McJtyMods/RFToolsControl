@@ -42,9 +42,9 @@ public class PacketGetTankFluids {
     public void handle(Supplier<NetworkEvent.Context> supplier) {
         NetworkEvent.Context ctx = supplier.get();
         ctx.enqueueWork(() -> {
-            World world = ctx.getSender().getEntityWorld();
-            if (world.isBlockLoaded(pos)) {
-                TileEntity te = world.getTileEntity(pos);
+            World world = ctx.getSender().getCommandSenderWorld();
+            if (world.hasChunkAt(pos)) {
+                TileEntity te = world.getBlockEntity(pos);
                 if (!(te instanceof ICommandHandler)) {
                     Logging.log("TileEntity is not a CommandHandler!");
                     return;
@@ -52,7 +52,7 @@ public class PacketGetTankFluids {
                 ICommandHandler commandHandler = (ICommandHandler) te;
                 List<FluidStack> list = commandHandler.executeWithResultList(MultiTankTileEntity.CMD_GETFLUIDS, params, Type.create(FluidStack.class));
                 RFToolsCtrlMessages.INSTANCE.sendTo(new PacketTankFluidsReady(pos, MultiTankTileEntity.CLIENTCMD_GETFLUIDS, list),
-                        ctx.getSender().connection.netManager, NetworkDirection.PLAY_TO_CLIENT);
+                        ctx.getSender().connection.connection, NetworkDirection.PLAY_TO_CLIENT);
             }
         });
         ctx.setPacketHandled(true);

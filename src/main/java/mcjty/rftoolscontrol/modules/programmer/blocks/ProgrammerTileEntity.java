@@ -28,7 +28,7 @@ public class ProgrammerTileEntity extends GenericTileEntity {
     private final LazyOptional<AutomationFilterItemHander> itemHandler = LazyOptional.of(() -> new AutomationFilterItemHander(items));
 
     private final LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<ProgrammerContainer>("Programmer")
-            .containerSupplier((windowId,player) -> new ProgrammerContainer(windowId, ProgrammerContainer.CONTAINER_FACTORY.get(), getPos(), ProgrammerTileEntity.this))
+            .containerSupplier((windowId,player) -> new ProgrammerContainer(windowId, ProgrammerContainer.CONTAINER_FACTORY.get(), getBlockPos(), ProgrammerTileEntity.this))
             .itemHandler(() -> items));
 
     public ProgrammerTileEntity() {

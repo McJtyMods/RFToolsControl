@@ -42,7 +42,7 @@ public class VectorArtScreenModule implements IScreenModule<ModuleDataVectorArt>
             return null;
         }
 
-        TileEntity te = world.getTileEntity(coordinate);
+        TileEntity te = world.getBlockEntity(coordinate);
         if (te instanceof ProcessorTileEntity) {
             ProcessorTileEntity processor = (ProcessorTileEntity) te;
             return new ModuleDataVectorArt(processor.getGfxOps(), processor.getOrderedOps());
@@ -94,14 +94,14 @@ public class VectorArtScreenModule implements IScreenModule<ModuleDataVectorArt>
                 }
 
                 if (clicked) {
-                    TileEntity te = world.getTileEntity(coordinate);
+                    TileEntity te = world.getBlockEntity(coordinate);
                     if (te instanceof ProcessorTileEntity) {
                         ProcessorTileEntity processor = (ProcessorTileEntity) te;
                         processor.signal(new Tuple(x, y+7));
                     }
                 }
             } else if (player != null) {
-                player.sendStatusMessage(new StringTextComponent(TextFormatting.RED + "Module is not linked to a processor!"), false);
+                player.displayClientMessage(new StringTextComponent(TextFormatting.RED + "Module is not linked to a processor!"), false);
             }
         }
     }

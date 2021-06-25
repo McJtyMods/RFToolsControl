@@ -42,9 +42,9 @@ public class PacketGetRequests {
     public void handle(Supplier<NetworkEvent.Context> supplier) {
         NetworkEvent.Context ctx = supplier.get();
         ctx.enqueueWork(() -> {
-            World world = ctx.getSender().getEntityWorld();
-            if (world.isBlockLoaded(pos)) {
-                TileEntity te = world.getTileEntity(pos);
+            World world = ctx.getSender().getCommandSenderWorld();
+            if (world.hasChunkAt(pos)) {
+                TileEntity te = world.getBlockEntity(pos);
                 if (!(te instanceof ICommandHandler)) {
                     Logging.log("TileEntity is not a CommandHandler!");
                     return;
@@ -52,7 +52,7 @@ public class PacketGetRequests {
                 ICommandHandler commandHandler = (ICommandHandler) te;
                 List<CraftingRequest> list = commandHandler.executeWithResultList(CraftingStationTileEntity.CMD_GETREQUESTS, params, Type.create(CraftingRequest.class));
                 RFToolsCtrlMessages.INSTANCE.sendTo(new PacketRequestsReady(pos, CraftingStationTileEntity.CLIENTCMD_GETREQUESTS, list),
-                        ctx.getSender().connection.netManager, NetworkDirection.PLAY_TO_CLIENT);
+                        ctx.getSender().connection.connection, NetworkDirection.PLAY_TO_CLIENT);
             }
         });
         ctx.setPacketHandled(true);

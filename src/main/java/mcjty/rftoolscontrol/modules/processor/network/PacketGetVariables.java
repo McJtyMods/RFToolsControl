@@ -52,9 +52,9 @@ public class PacketGetVariables {
     public void handle(Supplier<NetworkEvent.Context> supplier) {
         NetworkEvent.Context ctx = supplier.get();
         ctx.enqueueWork(() -> {
-            ServerWorld world = WorldTools.getWorld(ctx.getSender().getEntityWorld(), type);
-            if (world.isBlockLoaded(pos)) {
-                TileEntity te = world.getTileEntity(pos);
+            ServerWorld world = WorldTools.getWorld(ctx.getSender().getCommandSenderWorld(), type);
+            if (world.hasChunkAt(pos)) {
+                TileEntity te = world.getBlockEntity(pos);
                 if (!(te instanceof ICommandHandler)) {
                     Logging.log("TileEntity is not a CommandHandler!");
                     return;
@@ -62,7 +62,7 @@ public class PacketGetVariables {
                 ICommandHandler commandHandler = (ICommandHandler) te;
                 List<Parameter> list = commandHandler.executeWithResultList(ProcessorTileEntity.CMD_GETVARS, params, Type.create(Parameter.class));
                 RFToolsCtrlMessages.INSTANCE.sendTo(new PacketVariablesReady(fromTablet ? null : pos, ProcessorTileEntity.CLIENTCMD_GETVARS, list),
-                        ctx.getSender().connection.netManager, NetworkDirection.PLAY_TO_CLIENT);
+                        ctx.getSender().connection.connection, NetworkDirection.PLAY_TO_CLIENT);
             }
         });
         ctx.setPacketHandled(true);

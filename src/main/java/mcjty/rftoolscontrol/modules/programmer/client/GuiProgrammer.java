@@ -119,8 +119,8 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Pro
     public GuiProgrammer(ProgrammerTileEntity te, ProgrammerContainer container, PlayerInventory inventory) {
         super(te, container, inventory, ProgrammerModule.PROGRAMMER.get().getManualEntry());
 
-        xSize = WIDTH;
-        ySize = HEIGHT;
+        imageWidth = WIDTH;
+        imageHeight = HEIGHT;
 
         initIcons();
     }
@@ -153,19 +153,19 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Pro
         Panel gridPanel = setupGridPanel();
         Panel toplevel = positional().background(mainBackground)
                 .children(editorPanel, controlPanel, gridPanel);
-        toplevel.bounds(guiLeft, guiTop, xSize, ySize);
+        toplevel.bounds(leftPos, topPos, imageWidth, imageHeight);
         window = new Window(this, toplevel).addFocusEvent((focused) -> selectIcon(window, focused));
 
         // --- Side window ---
         Panel listPanel = setupListPanel();
         Panel sidePanel = positional().background(sideBackground).children(listPanel);
-        sidePanel.bounds(guiLeft - SIDEWIDTH, guiTop, SIDEWIDTH, ySize);
+        sidePanel.bounds(leftPos - SIDEWIDTH, topPos, SIDEWIDTH, imageHeight);
         sideWindow = new Window(this, sidePanel);
 
         loadProgram(ProgrammerContainer.SLOT_DUMMY);
 
         clearCategoryLabels();
-        minecraft.keyboardListener.enableRepeatEvents(true);
+        minecraft.keyboardHandler.setSendRepeatsToGui(true);
     }
 
     @Override
@@ -634,7 +634,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Pro
         }
         ProgramCardInstance instance = makeGridInstance(false);
         instance.writeToNBT(card);
-        RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketUpdateNBTItemInventoryProgrammer(tileEntity.getPos(),
+        RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketUpdateNBTItemInventoryProgrammer(tileEntity.getBlockPos(),
                 slot, card.getTag()));
     }
 
@@ -938,7 +938,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Pro
                     ProgramCardInstance instance = makeGridInstance(true);
                     String json = instance.writeToJson();
                     try {
-                        this.minecraft.keyboardListener.setClipboardString(json);
+                        this.minecraft.keyboardHandler.setClipboard(json);
                     } catch (Exception e) {
                         GuiTools.showMessage(minecraft, this, getWindowManager(), 50, 50, TextFormatting.RED + "Error copying to clipboard!");
                     }
@@ -959,7 +959,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Pro
                     ProgramCardInstance instance = makeGridInstance(true);
                     String json = instance.writeToJson();
                     try {
-                        Minecraft.getInstance().keyboardListener.setClipboardString(json);
+                        Minecraft.getInstance().keyboardHandler.setClipboard(json);
                         undoProgram = makeGridInstance(false);
                         clearGrid(checkSelection());
                     } catch (Exception e) {
@@ -969,7 +969,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Pro
                 return true;
             } else if (keyCode == GLFW.GLFW_KEY_V) {
                 try {
-                    String data = Minecraft.getInstance().keyboardListener.getClipboardString();
+                    String data = Minecraft.getInstance().keyboardHandler.getClipboard();
                     ProgramCardInstance program = ProgramCardInstance.readFromJson(data);
                     undoProgram = makeGridInstance(false);
                     mergeProgram(program, getSelectedGridHolder());
@@ -1002,11 +1002,11 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Pro
 
     @SuppressWarnings("NullableProblems")
     @Override
-    protected void handleMouseClick(Slot slotIn, int slotId, int mouseButton, ClickType type) {
+    protected void slotClicked(Slot slotIn, int slotId, int mouseButton, ClickType type) {
         if (slotId == -999) {
             return;
         }
-        super.handleMouseClick(slotIn, slotId, mouseButton, type);
+        super.slotClicked(slotIn, slotId, mouseButton, type);
     }
 
     private List<String> getIconTooltipGrid(int x, int y) {
@@ -1193,7 +1193,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Pro
     private int saveCounter = 10;
 
     @Override
-    protected void drawGuiContainerBackgroundLayer(MatrixStack matrixStack, float partialTicks, int mouseX, int mouseY) {
+    protected void renderBg(MatrixStack matrixStack, float partialTicks, int mouseX, int mouseY) {
         drawWindow(matrixStack);
 
         trashcan.setIcon(null);

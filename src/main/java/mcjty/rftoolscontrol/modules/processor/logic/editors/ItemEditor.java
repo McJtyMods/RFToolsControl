@@ -31,7 +31,7 @@ public class ItemEditor extends AbstractParameterEditor {
         blockRender.event(new BlockRenderEvent() {
             @Override
             public void select() {
-                ItemStack holding = Minecraft.getInstance().player.inventory.getItemStack();
+                ItemStack holding = Minecraft.getInstance().player.inventory.getCarried();
                 if (holding.isEmpty()) {
                     blockRender.renderItem(null);
                 } else {

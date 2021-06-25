@@ -40,7 +40,7 @@ public class ConsoleScreenModule implements IScreenModule<ModuleDataLog> {
             return null;
         }
 
-        TileEntity te = world.getTileEntity(coordinate);
+        TileEntity te = world.getBlockEntity(coordinate);
         if (te instanceof ProcessorTileEntity) {
             ProcessorTileEntity processor = (ProcessorTileEntity) te;
             List<String> lastMessages = processor.getLastMessages(12);

@@ -32,7 +32,7 @@ public class ProcessorBlock extends BaseBlock {
     @Override
     public void neighborChanged(BlockState state, World world, BlockPos pos, Block blockIn, BlockPos fromPos, boolean p_220069_6_) {
         super.neighborChanged(state, world, pos, blockIn, fromPos, p_220069_6_);
-        TileEntity te = world.getTileEntity(pos);
+        TileEntity te = world.getBlockEntity(pos);
         if (te instanceof ProcessorTileEntity) {
             ((ProcessorTileEntity) te).markFluidSlotsDirty();
         }
@@ -40,20 +40,20 @@ public class ProcessorBlock extends BaseBlock {
 
     @Override
     public void onNeighborChange(BlockState state, IWorldReader world, BlockPos pos, BlockPos neighbor) {
-        TileEntity te = world.getTileEntity(pos);
+        TileEntity te = world.getBlockEntity(pos);
         if (te instanceof ProcessorTileEntity) {
             ((ProcessorTileEntity) te).markFluidSlotsDirty();
         }
     }
 
     private int getInputStrength(World world, BlockPos pos, Direction side) {
-        return world.getRedstonePower(pos.offset(side), side);
+        return world.getSignal(pos.relative(side), side);
     }
 
     @Override
     protected void checkRedstone(World world, BlockPos pos) {
         BlockState state = world.getBlockState(pos);
-        TileEntity te = world.getTileEntity(pos);
+        TileEntity te = world.getBlockEntity(pos);
         if (state.getBlock() instanceof ProcessorBlock && te instanceof ProcessorTileEntity) {
             ProcessorTileEntity processor = (ProcessorTileEntity)te;
             int powered = 0;
@@ -86,8 +86,8 @@ public class ProcessorBlock extends BaseBlock {
 
     // @todo 1.15
     @Override
-    public int getStrongPower(BlockState state, IBlockReader world, BlockPos pos, Direction side) {
-        TileEntity te = world.getTileEntity(pos);
+    public int getDirectSignal(BlockState state, IBlockReader world, BlockPos pos, Direction side) {
+        TileEntity te = world.getBlockEntity(pos);
         if (state.getBlock() instanceof ProcessorBlock && te instanceof ProcessorTileEntity) {
             ProcessorTileEntity processor = (ProcessorTileEntity) te;
             return processor.getPowerOut(side.getOpposite());

@@ -17,6 +17,8 @@ import java.util.List;
 import static mcjty.lib.builder.TooltipBuilder.header;
 import static mcjty.lib.builder.TooltipBuilder.parameter;
 
+import net.minecraft.item.Item.Properties;
+
 public class CPUCoreItem extends Item implements ITooltipSettings {
 
     private final int tier;
@@ -28,8 +30,8 @@ public class CPUCoreItem extends Item implements ITooltipSettings {
 
     public CPUCoreItem(int tier) {
         super(new Properties()
-                .maxStackSize(1)
-                .group(RFToolsControl.setup.getTab()));
+                .stacksTo(1)
+                .tab(RFToolsControl.setup.getTab()));
         this.tier = tier;
     }
 
@@ -38,8 +40,8 @@ public class CPUCoreItem extends Item implements ITooltipSettings {
     }
 
     @Override
-    public void addInformation(ItemStack stack, @Nullable World worldIn, List<ITextComponent> list, ITooltipFlag flag) {
-        super.addInformation(stack, worldIn, list, flag);
+    public void appendHoverText(ItemStack stack, @Nullable World worldIn, List<ITextComponent> list, ITooltipFlag flag) {
+        super.appendHoverText(stack, worldIn, list, flag);
         tooltipBuilder.get().makeTooltip(getRegistryName(), stack, list, flag);
     }
 }

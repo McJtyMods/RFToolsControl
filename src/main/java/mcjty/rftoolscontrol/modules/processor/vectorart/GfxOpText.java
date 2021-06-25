@@ -26,7 +26,7 @@ public class GfxOpText extends GfxOp {
 
     @Override
     public void render(MatrixStack matrixStack, IRenderTypeBuffer buffer) {
-        Minecraft.getInstance().fontRenderer.renderString(text, x, y, color, false, matrixStack.getLast().getMatrix(), buffer, false, 0, 0xf000f0);
+        Minecraft.getInstance().font.drawInBatch(text, x, y, color, false, matrixStack.last().pose(), buffer, false, 0, 0xf000f0);
     }
 
     @Override
@@ -54,7 +54,7 @@ public class GfxOpText extends GfxOp {
     protected void readFromBufInternal(PacketBuffer buf) {
         x = buf.readByte();
         y = buf.readByte();
-        text = buf.readString(32767);
+        text = buf.readUtf(32767);
         color = buf.readInt();
     }
 
@@ -62,7 +62,7 @@ public class GfxOpText extends GfxOp {
     protected void writeToBufInternal(PacketBuffer buf) {
         buf.writeByte(x);
         buf.writeByte(y);
-        buf.writeString(text);
+        buf.writeUtf(text);
         buf.writeInt(color);
     }
 }

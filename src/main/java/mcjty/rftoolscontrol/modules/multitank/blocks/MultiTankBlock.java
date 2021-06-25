@@ -15,7 +15,7 @@ import static mcjty.lib.builder.TooltipBuilder.key;
 
 public class MultiTankBlock extends BaseBlock {
 
-    public static final VoxelShape SMALLER_CUBE = VoxelShapes.create(0.01f, 0.01f, 0.01f, 0.99f, 0.99f, 0.99f);
+    public static final VoxelShape SMALLER_CUBE = VoxelShapes.box(0.01f, 0.01f, 0.01f, 0.99f, 0.99f, 0.99f);
 
     public MultiTankBlock() {
         super(new BlockBuilder()
@@ -31,7 +31,7 @@ public class MultiTankBlock extends BaseBlock {
     }
 
     @Override
-    public VoxelShape getRenderShape(BlockState state, IBlockReader world, BlockPos pos) {
+    public VoxelShape getOcclusionShape(BlockState state, IBlockReader world, BlockPos pos) {
         return SMALLER_CUBE;
     }
 }

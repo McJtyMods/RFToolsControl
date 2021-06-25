@@ -23,7 +23,7 @@ public class PacketVariableToServer {
     public void toBytes(PacketBuffer buf) {
         buf.writeBlockPos(pos);
         buf.writeInt(varIndex);
-        buf.writeCompoundTag(tagCompound);
+        buf.writeNbt(tagCompound);
     }
 
     public PacketVariableToServer() {
@@ -32,7 +32,7 @@ public class PacketVariableToServer {
     public PacketVariableToServer(PacketBuffer buf) {
         pos = buf.readBlockPos();
         varIndex = buf.readInt();
-        tagCompound = buf.readCompoundTag();
+        tagCompound = buf.readNbt();
     }
 
     public PacketVariableToServer(BlockPos pos, int varIndex, CompoundNBT tagCompound) {
@@ -45,7 +45,7 @@ public class PacketVariableToServer {
         NetworkEvent.Context ctx = supplier.get();
         ctx.enqueueWork(() -> {
             PlayerEntity playerEntity = ctx.getSender();
-            TileEntity te = playerEntity.getEntityWorld().getTileEntity(pos);
+            TileEntity te = playerEntity.getCommandSenderWorld().getBlockEntity(pos);
             if (te instanceof ProcessorTileEntity) {
                 ProcessorTileEntity processor = (ProcessorTileEntity) te;
                 Parameter[] variables = processor.getVariableArray();
@@ -58,7 +58,7 @@ public class PacketVariableToServer {
                             .type(type)
                             .value(value)
                             .build();
-                    processor.markDirty();
+                    processor.setChanged();
                 }
             }
         });

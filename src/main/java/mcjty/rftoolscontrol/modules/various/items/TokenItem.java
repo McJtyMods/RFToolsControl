@@ -21,6 +21,8 @@ import java.util.List;
 
 import static mcjty.lib.builder.TooltipBuilder.*;
 
+import net.minecraft.item.Item.Properties;
+
 public class TokenItem extends Item implements ITooltipSettings {
 
     public static final ManualEntry MANUAL = ManualHelper.create("rftoolscontrol:various/token");
@@ -71,14 +73,14 @@ public class TokenItem extends Item implements ITooltipSettings {
 
     public TokenItem() {
         super(new Properties()
-                .maxStackSize(64)
-                .group(RFToolsControl.setup.getTab()));
+                .stacksTo(64)
+                .tab(RFToolsControl.setup.getTab()));
     }
 
 
     @Override
-    public void addInformation(ItemStack stack, @Nullable World worldIn, List<ITextComponent> list, ITooltipFlag flag) {
-        super.addInformation(stack, worldIn, list, flag);
+    public void appendHoverText(ItemStack stack, @Nullable World worldIn, List<ITextComponent> list, ITooltipFlag flag) {
+        super.appendHoverText(stack, worldIn, list, flag);
         tooltipBuilder.get().makeTooltip(getRegistryName(), stack, list, flag);
     }
 }

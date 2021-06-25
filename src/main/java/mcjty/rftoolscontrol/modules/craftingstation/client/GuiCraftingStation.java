@@ -59,8 +59,8 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
     public GuiCraftingStation(CraftingStationTileEntity te, CraftingStationContainer container, PlayerInventory inventory) {
         super(te, container, inventory, /*@todo 1.15 GuiProxy.GUI_MANUAL_CONTROL*/ ManualEntry.EMPTY);
 
-        xSize = WIDTH;
-        ySize = HEIGHT;
+        imageWidth = WIDTH;
+        imageHeight = HEIGHT;
     }
 
     public static void register() {
@@ -77,7 +77,7 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
         initProgressList(toplevel);
         initButtons(toplevel);
 
-        toplevel.bounds(guiLeft, guiTop, WIDTH, HEIGHT);
+        toplevel.bounds(leftPos, topPos, WIDTH, HEIGHT);
         window = new Window(this, toplevel);
 
         window.event("cancel", (source, params) -> cancelRequest());
@@ -116,8 +116,8 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
     }
 
     private void requestLists() {
-        RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketGetCraftableItems(tileEntity.getPos()));
-        RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketGetRequests(tileEntity.getPos()));
+        RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketGetCraftableItems(tileEntity.getBlockPos()));
+        RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketGetRequests(tileEntity.getBlockPos()));
     }
 
     private void requestListsIfNeeded() {
@@ -152,10 +152,10 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
     protected List<ITextComponent> addCustomLines(List<ITextComponent> oldList, BlockRender blockRender, ItemStack stack) {
         if (blockRender.getUserObject() instanceof Integer) {
             List<ITextComponent> newlist = new ArrayList<>();
-            newlist.add(new StringTextComponent("Click: ").mergeStyle(TextFormatting.GREEN)
-                    .appendSibling(new StringTextComponent("craft single").mergeStyle(TextFormatting.WHITE)));
-            newlist.add(new StringTextComponent("Shift + click: ").mergeStyle(TextFormatting.GREEN)
-                    .appendSibling(new StringTextComponent("craft amount").mergeStyle(TextFormatting.WHITE)));
+            newlist.add(new StringTextComponent("Click: ").withStyle(TextFormatting.GREEN)
+                    .append(new StringTextComponent("craft single").withStyle(TextFormatting.WHITE)));
+            newlist.add(new StringTextComponent("Shift + click: ").withStyle(TextFormatting.GREEN)
+                    .append(new StringTextComponent("craft amount").withStyle(TextFormatting.WHITE)));
             newlist.add(new StringTextComponent(""));
             newlist.addAll(oldList);
             return newlist;
@@ -168,13 +168,13 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
     private void updateRecipeList() {
         String filterText = searchField.getText().toLowerCase().trim();
 
-        fromServer_craftables.sort(Comparator.comparing(r -> r.getDisplayName().getString()));  // @todo getFormattedText
+        fromServer_craftables.sort(Comparator.comparing(r -> r.getHoverName().getString()));  // @todo getFormattedText
 
         recipeList.removeChildren();
         Panel panel = null;
         int index = 0;
         for (ItemStack stack : fromServer_craftables) {
-            String displayName = stack.getDisplayName().getString() /* was getFormattedText() */;
+            String displayName = stack.getHoverName().getString() /* was getFormattedText() */;
             if ((!filterText.isEmpty()) && !displayName.toLowerCase().contains(filterText)) {
                 continue;
             }
@@ -240,7 +240,7 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
     }
 
     @Override
-    protected void drawGuiContainerBackgroundLayer(MatrixStack matrixStack, float partialTicks, int mouseX, int mouseY) {
+    protected void renderBg(MatrixStack matrixStack, float partialTicks, int mouseX, int mouseY) {
         requestListsIfNeeded();
         updateRecipeList();
         updateRequestList();
