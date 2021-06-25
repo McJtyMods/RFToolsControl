@@ -295,26 +295,26 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
     }
 
     @Override
-    public void setPowerOut(@Nonnull BlockSide side, int level) {
+    public void setPowerOut(@Nonnull BlockSide side, int amount) {
         Direction facing = side.getSide();
         BlockPos p = getAdjacentPosition(side);
         if (p == null) {
             return;
         }
 
-        if (level < 0) {
-            level = 0;
-        } else if (level > 15) {
-            level = 15;
+        if (amount < 0) {
+            amount = 0;
+        } else if (amount > 15) {
+            amount = 15;
         }
 
         if (p.equals(worldPosition)) {
-            powerOut[facing.ordinal()] = level;
+            powerOut[facing.ordinal()] = amount;
             setChanged();
             level.neighborChanged(this.worldPosition.relative(facing), this.getBlockState().getBlock(), this.worldPosition);
         } else {
             NodeTileEntity te = (NodeTileEntity) level.getBlockEntity(p);
-            te.setPowerOut(facing, level);
+            te.setPowerOut(facing, amount);
         }
     }
 
