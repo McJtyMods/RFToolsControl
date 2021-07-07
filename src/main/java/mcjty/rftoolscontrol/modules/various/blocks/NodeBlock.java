@@ -70,7 +70,7 @@ public class NodeBlock extends BaseBlock {
     }
 
     @Override
-    public int getDirectSignal(BlockState state, IBlockReader world, BlockPos pos, Direction side) {
+    public int getSignal(BlockState state, IBlockReader world, BlockPos pos, Direction side) {
         TileEntity te = world.getBlockEntity(pos);
         if (state.getBlock() instanceof NodeBlock && te instanceof NodeTileEntity) {
             NodeTileEntity processor = (NodeTileEntity) te;

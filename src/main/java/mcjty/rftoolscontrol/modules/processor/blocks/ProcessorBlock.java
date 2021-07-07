@@ -84,9 +84,8 @@ public class ProcessorBlock extends BaseBlock {
         return true;
     }
 
-    // @todo 1.15
     @Override
-    public int getDirectSignal(BlockState state, IBlockReader world, BlockPos pos, Direction side) {
+    public int getSignal(BlockState state, IBlockReader world, BlockPos pos, Direction side) {
         TileEntity te = world.getBlockEntity(pos);
         if (state.getBlock() instanceof ProcessorBlock && te instanceof ProcessorTileEntity) {
             ProcessorTileEntity processor = (ProcessorTileEntity) te;

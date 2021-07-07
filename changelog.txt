@@ -1,5 +1,6 @@
 Upcoming:
 - Fixed programmer card tooltip
+- Fixed a problem with the node and processor not doing redstone output correctly
 
 1.16-4.0.10:
 - Fixed integration between RFTools Control and RFTools Storage for the screen modules

@@ -312,6 +312,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
             powerOut[facing.ordinal()] = amount;
             setChanged();
             level.neighborChanged(this.worldPosition.relative(facing), this.getBlockState().getBlock(), this.worldPosition);
+//            getLevel().neighborChanged(this.worldPosition.relative(outputSide), state.getBlock(), this.worldPosition);
         } else {
             NodeTileEntity te = (NodeTileEntity) level.getBlockEntity(p);
             te.setPowerOut(facing, amount);
