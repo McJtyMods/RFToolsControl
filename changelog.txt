@@ -1,3 +1,6 @@
+Upcoming:
+- Fixed programmer card tooltip
+
 1.16-4.0.10:
 - Fixed integration between RFTools Control and RFTools Storage for the screen modules
 
