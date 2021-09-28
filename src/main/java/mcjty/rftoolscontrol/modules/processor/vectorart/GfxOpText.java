@@ -1,6 +1,7 @@
 package mcjty.rftoolscontrol.modules.processor.vectorart;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
+import mcjty.lib.client.RenderHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.nbt.CompoundNBT;
@@ -26,7 +27,7 @@ public class GfxOpText extends GfxOp {
 
     @Override
     public void render(MatrixStack matrixStack, IRenderTypeBuffer buffer) {
-        Minecraft.getInstance().font.drawInBatch(text, x, y, color, false, matrixStack.last().pose(), buffer, false, 0, 0xf000f0);
+        Minecraft.getInstance().font.drawInBatch(text, x, y, color, false, matrixStack.last().pose(), buffer, false, 0, RenderHelper.MAX_BRIGHTNESS);
     }
 
     @Override

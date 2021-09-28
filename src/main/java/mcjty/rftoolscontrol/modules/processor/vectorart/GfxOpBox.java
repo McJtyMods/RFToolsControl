@@ -28,7 +28,7 @@ public class GfxOpBox extends GfxOp {
 
     @Override
     public void render(MatrixStack matrixStack, IRenderTypeBuffer buffer) {
-        RenderHelper.drawBeveledBox(matrixStack, buffer, x, y, x+w-1, y+h-1, color, color, color, 0xf000f0);
+        RenderHelper.drawBeveledBox(matrixStack, buffer, x, y, x+w-1, y+h-1, color, color, color, RenderHelper.MAX_BRIGHTNESS);
     }
 
     @Override

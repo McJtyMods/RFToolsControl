@@ -2,6 +2,7 @@ package mcjty.rftoolscontrol.modules.processor.client;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import mcjty.lib.blocks.BaseBlock;
+import mcjty.lib.client.RenderHelper;
 import mcjty.lib.network.PacketSendServerCommand;
 import mcjty.lib.typed.TypedMap;
 import mcjty.rftoolscontrol.CommandHandler;
@@ -118,7 +119,7 @@ public class ProcessorRenderer extends TileEntityRenderer<ProcessorTileEntity> {
                 // Check if this module has enough room
                 if (currenty + height <= 124) {
                     fontrenderer.drawInBatch(fontrenderer.plainSubstrByWidth(s, 115), 7, currenty, 0xffffffff, false,
-                            matrixStack.last().pose(), buffer, false, 0, 0xf000f0);
+                            matrixStack.last().pose(), buffer, false, 0, RenderHelper.MAX_BRIGHTNESS);
                     currenty += height;
                 }
             }
