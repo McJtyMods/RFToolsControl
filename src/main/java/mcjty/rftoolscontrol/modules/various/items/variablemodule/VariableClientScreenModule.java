@@ -2,7 +2,6 @@ package mcjty.rftoolscontrol.modules.various.items.variablemodule;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.platform.GlStateManager;
-import mcjty.lib.varia.DimensionId;
 import mcjty.rftoolsbase.api.screens.*;
 import mcjty.rftoolscontrol.compat.rftoolssupport.ModuleDataVariable;
 import mcjty.rftoolscontrol.modules.processor.logic.Parameter;
@@ -10,10 +9,9 @@ import mcjty.rftoolscontrol.modules.processor.logic.TypeConverters;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.RegistryKey;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-
-import mcjty.rftoolsbase.api.screens.IClientScreenModule.TransformMode;
 
 public class VariableClientScreenModule implements IClientScreenModule<ModuleDataVariable> {
     private String line = "";
@@ -63,7 +61,7 @@ public class VariableClientScreenModule implements IClientScreenModule<ModuleDat
     }
 
     @Override
-    public void setupFromNBT(CompoundNBT tagCompound, DimensionId dim, BlockPos pos) {
+    public void setupFromNBT(CompoundNBT tagCompound, RegistryKey<World> dim, BlockPos pos) {
         if (tagCompound != null) {
             int varIdx = -1;
             if (tagCompound.contains("varIdx")) {

@@ -3,16 +3,14 @@ package mcjty.rftoolscontrol.modules.various.items.interactionmodule;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.platform.GlStateManager;
 import mcjty.lib.client.RenderHelper;
-import mcjty.lib.varia.DimensionId;
 import mcjty.rftoolsbase.api.screens.*;
 import mcjty.rftoolsbase.api.screens.data.IModuleDataBoolean;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.RegistryKey;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-
-import mcjty.rftoolsbase.api.screens.IClientScreenModule.TransformMode;
 
 public class InteractionClientScreenModule implements IClientScreenModule<IModuleDataBoolean> {
     private String line = "";
@@ -82,7 +80,7 @@ public class InteractionClientScreenModule implements IClientScreenModule<IModul
     }
 
     @Override
-    public void setupFromNBT(CompoundNBT tagCompound, DimensionId dim, BlockPos pos) {
+    public void setupFromNBT(CompoundNBT tagCompound, RegistryKey<World> dim, BlockPos pos) {
         if (tagCompound != null) {
             line = tagCompound.getString("text");
             button = tagCompound.getString("button");
