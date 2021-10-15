@@ -1,7 +1,6 @@
 package mcjty.rftoolscontrol.modules.various.items.interactionmodule;
 
 import mcjty.lib.varia.BlockPosTools;
-import mcjty.lib.varia.DimensionId;
 import mcjty.lib.varia.WorldTools;
 import mcjty.rftoolsbase.api.screens.IScreenDataHelper;
 import mcjty.rftoolsbase.api.screens.IScreenModule;
@@ -13,8 +12,10 @@ import net.minecraft.block.Block;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.RegistryKey;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
@@ -32,18 +33,18 @@ public class InteractionScreenModule implements IScreenModule<IModuleDataBoolean
     }
 
     @Override
-    public void setupFromNBT(CompoundNBT tagCompound, DimensionId dim, BlockPos pos) {
+    public void setupFromNBT(CompoundNBT tagCompound, RegistryKey<World> dim, BlockPos pos) {
         if (tagCompound != null) {
             line = tagCompound.getString("text");
             signal = tagCompound.getString("signal");
             coordinate = BlockPosTools.INVALID;
             if (tagCompound.contains("monitorx")) {
-                DimensionId dim1 = DimensionId.overworld();
+                RegistryKey<World> dim1 = World.OVERWORLD;
                 if (tagCompound.contains("monitordim")) {
-                    dim1 = DimensionId.fromResourceLocation(new ResourceLocation(tagCompound.getString("monitordim")));
+                    dim1 = RegistryKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation(tagCompound.getString("monitordim")));
                 } else {
                     // Compatibility reasons
-                    dim1 = DimensionId.fromResourceLocation(new ResourceLocation(tagCompound.getString("dim")));
+                    dim1 = RegistryKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation(tagCompound.getString("dim")));
                 }
                 if (Objects.equals(dim, dim1)) {
                     BlockPos c = new BlockPos(tagCompound.getInt("monitorx"), tagCompound.getInt("monitory"), tagCompound.getInt("monitorz"));

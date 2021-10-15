@@ -68,6 +68,7 @@ import net.minecraft.util.RegistryKey;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
@@ -81,7 +82,6 @@ import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.registries.ForgeRegistries;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nonnull;
@@ -213,7 +213,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
     private final Set<String> locks = new HashSet<>();
 
     // If set this is a dummy tile entity
-    private DimensionId dummyType = null;
+    private RegistryKey<World> dummyType = null;
 
 
     public ProcessorTileEntity() {
@@ -230,7 +230,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
     }
 
     // Used for a dummy tile entity (tablet usage)
-    public ProcessorTileEntity(DimensionId type) {
+    public ProcessorTileEntity(RegistryKey<World> type) {
         this();
         dummyType = type;
     }
@@ -242,7 +242,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
     }
 
     @Override
-    public DimensionId getDimension() {
+    public RegistryKey<World> getDimension() {
         if (dummyType != null) {
             return dummyType;
         }
@@ -1857,7 +1857,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
         int monitorx = tagCompound.getInt("monitorx");
         int monitory = tagCompound.getInt("monitory");
         int monitorz = tagCompound.getInt("monitorz");
-        ServerWorld world = WorldTools.getWorld(DimensionId.fromResourceLocation(new ResourceLocation(monitordim)));
+        ServerWorld world = WorldTools.getWorld(RegistryKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation(monitordim)));
         BlockPos dest = new BlockPos(monitorx, monitory, monitorz);
         if (!WorldTools.isLoaded(world, dest)) {
             throw new ProgException(EXCEPT_INVALIDDESTINATION);
@@ -2471,7 +2471,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
         CompoundNBT tagCompound = storageStack.getTag();
         BlockPos c = new BlockPos(tagCompound.getInt("monitorx"), tagCompound.getInt("monitory"), tagCompound.getInt("monitorz"));
         String dim = tagCompound.getString("monitordim");
-        World world = WorldTools.getWorld(DimensionId.fromResourceLocation(new ResourceLocation(dim)));
+        World world = WorldTools.getWorld(RegistryKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation(dim)));
         if (world == null) {
             throw new ProgException(EXCEPT_MISSINGSTORAGE);
         }
