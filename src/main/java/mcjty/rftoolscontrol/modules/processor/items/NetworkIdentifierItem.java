@@ -2,7 +2,6 @@ package mcjty.rftoolscontrol.modules.processor.items;
 
 import mcjty.lib.builder.TooltipBuilder;
 import mcjty.lib.tooltips.ITooltipSettings;
-import mcjty.lib.varia.DimensionId;
 import mcjty.lib.varia.Logging;
 import mcjty.lib.varia.ModuleTools;
 import mcjty.rftoolscontrol.RFToolsControl;
@@ -26,8 +25,6 @@ import javax.annotation.Nullable;
 import java.util.List;
 
 import static mcjty.lib.builder.TooltipBuilder.*;
-
-import net.minecraft.item.Item.Properties;
 
 public class NetworkIdentifierItem extends Item implements ITooltipSettings {
 
@@ -64,7 +61,7 @@ public class NetworkIdentifierItem extends Item implements ITooltipSettings {
         }
 
         if (block == ProcessorModule.PROCESSOR.get()) {
-            tagCompound.putString("monitordim", DimensionId.fromWorld(world).getRegistryName().toString());
+            tagCompound.putString("monitordim", world.dimension().location().toString());
             tagCompound.putInt("monitorx", pos.getX());
             tagCompound.putInt("monitory", pos.getY());
             tagCompound.putInt("monitorz", pos.getZ());

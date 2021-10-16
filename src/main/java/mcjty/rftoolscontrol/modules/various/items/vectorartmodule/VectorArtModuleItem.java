@@ -1,10 +1,9 @@
 package mcjty.rftoolscontrol.modules.various.items.vectorartmodule;
 
-import mcjty.lib.varia.DimensionId;
 import mcjty.lib.varia.Logging;
+import mcjty.lib.varia.ModuleTools;
 import mcjty.rftoolsbase.api.screens.IModuleGuiBuilder;
 import mcjty.rftoolsbase.tools.GenericModuleItem;
-import mcjty.lib.varia.ModuleTools;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.modules.processor.ProcessorModule;
 import mcjty.rftoolscontrol.setup.Config;
@@ -18,8 +17,6 @@ import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-
-import net.minecraft.item.Item.Properties;
 
 public class VectorArtModuleItem extends GenericModuleItem {
 
@@ -81,7 +78,7 @@ public class VectorArtModuleItem extends GenericModuleItem {
         }
 
         if (block == ProcessorModule.PROCESSOR.get()) {
-            tagCompound.putString("monitordim", DimensionId.fromWorld(world).getRegistryName().toString());
+            tagCompound.putString("monitordim", world.dimension().location().toString());
             tagCompound.putInt("monitorx", pos.getX());
             tagCompound.putInt("monitory", pos.getY());
             tagCompound.putInt("monitorz", pos.getZ());

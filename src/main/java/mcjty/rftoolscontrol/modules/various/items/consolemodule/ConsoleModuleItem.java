@@ -2,7 +2,6 @@ package mcjty.rftoolscontrol.modules.various.items.consolemodule;
 
 import mcjty.lib.client.GuiTools;
 import mcjty.lib.tileentity.GenericTileEntity;
-import mcjty.lib.varia.DimensionId;
 import mcjty.lib.varia.Logging;
 import mcjty.lib.varia.ModuleTools;
 import mcjty.rftoolsbase.api.screens.IModuleGuiBuilder;
@@ -122,7 +121,7 @@ public class ConsoleModuleItem extends GenericModuleItem implements ITabletSuppo
         }
 
         if (block == ProcessorModule.PROCESSOR.get()) {
-            tagCompound.putString("monitordim", DimensionId.fromWorld(world).getRegistryName().toString());
+            tagCompound.putString("monitordim", world.dimension().location().toString());
             tagCompound.putInt("monitorx", pos.getX());
             tagCompound.putInt("monitory", pos.getY());
             tagCompound.putInt("monitorz", pos.getZ());
