@@ -12,7 +12,7 @@ import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.BlockPosTools;
 import mcjty.lib.varia.Cached;
 import mcjty.lib.varia.EnergyTools;
-import mcjty.lib.varia.WorldTools;
+import mcjty.lib.varia.LevelTools;
 import mcjty.rftoolsbase.api.control.code.Function;
 import mcjty.rftoolsbase.api.control.code.ICompiledOpcode;
 import mcjty.rftoolsbase.api.control.code.IOpcodeRunnable;
@@ -1858,9 +1858,9 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
         int monitorx = tagCompound.getInt("monitorx");
         int monitory = tagCompound.getInt("monitory");
         int monitorz = tagCompound.getInt("monitorz");
-        ServerWorld world = WorldTools.getLevel(WorldTools.getId(monitordim));
+        ServerWorld world = LevelTools.getLevel(LevelTools.getId(monitordim));
         BlockPos dest = new BlockPos(monitorx, monitory, monitorz);
-        if (!WorldTools.isLoaded(world, dest)) {
+        if (!LevelTools.isLoaded(world, dest)) {
             throw new ProgException(EXCEPT_INVALIDDESTINATION);
         }
         TileEntity te = world.getBlockEntity(dest);
@@ -2472,12 +2472,12 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
         CompoundNBT tagCompound = storageStack.getTag();
         BlockPos c = new BlockPos(tagCompound.getInt("monitorx"), tagCompound.getInt("monitory"), tagCompound.getInt("monitorz"));
         String dim = tagCompound.getString("monitordim");
-        World world = WorldTools.getLevel(WorldTools.getId(dim));
+        World world = LevelTools.getLevel(LevelTools.getId(dim));
         if (world == null) {
             throw new ProgException(EXCEPT_MISSINGSTORAGE);
         }
 
-        if (!WorldTools.isLoaded(world, c)) {
+        if (!LevelTools.isLoaded(world, c)) {
             throw new ProgException(EXCEPT_MISSINGSTORAGE);
         }
 

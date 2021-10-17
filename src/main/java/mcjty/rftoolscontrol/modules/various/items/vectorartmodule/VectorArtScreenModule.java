@@ -1,7 +1,7 @@
 package mcjty.rftoolscontrol.modules.various.items.vectorartmodule;
 
 import mcjty.lib.varia.BlockPosTools;
-import mcjty.lib.varia.WorldTools;
+import mcjty.lib.varia.LevelTools;
 import mcjty.rftoolsbase.api.control.parameters.Tuple;
 import mcjty.rftoolsbase.api.screens.IScreenDataHelper;
 import mcjty.rftoolsbase.api.screens.IScreenModule;
@@ -14,9 +14,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.RegistryKey;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.registry.Registry;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
@@ -29,12 +27,12 @@ public class VectorArtScreenModule implements IScreenModule<ModuleDataVectorArt>
 
     @Override
     public ModuleDataVectorArt getData(IScreenDataHelper h, World worldObj, long millis) {
-        World world = WorldTools.getLevel(worldObj, dim);
+        World world = LevelTools.getLevel(worldObj, dim);
         if (world == null) {
             return null;
         }
 
-        if (!WorldTools.isLoaded(world, coordinate)) {
+        if (!LevelTools.isLoaded(world, coordinate)) {
             return null;
         }
 
@@ -57,10 +55,10 @@ public class VectorArtScreenModule implements IScreenModule<ModuleDataVectorArt>
             coordinate = BlockPosTools.INVALID;
             if (tagCompound.contains("monitorx")) {
                 if (tagCompound.contains("monitordim")) {
-                    this.dim = WorldTools.getId(tagCompound.getString("monitordim"));
+                    this.dim = LevelTools.getId(tagCompound.getString("monitordim"));
                 } else {
                     // Compatibility reasons
-                    this.dim = WorldTools.getId(tagCompound.getString("dim"));
+                    this.dim = LevelTools.getId(tagCompound.getString("dim"));
                 }
                 if (Objects.equals(dim, this.dim)) {
                     BlockPos c = new BlockPos(tagCompound.getInt("monitorx"), tagCompound.getInt("monitory"), tagCompound.getInt("monitorz"));
@@ -85,7 +83,7 @@ public class VectorArtScreenModule implements IScreenModule<ModuleDataVectorArt>
         int xoffset = 0;
         if (x >= xoffset) {
             if (coordinate.getY() != -1) {
-                if (!WorldTools.isLoaded(world, coordinate)) {
+                if (!LevelTools.isLoaded(world, coordinate)) {
                     return;
                 }
 

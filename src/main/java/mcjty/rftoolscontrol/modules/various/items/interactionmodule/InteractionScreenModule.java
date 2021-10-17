@@ -1,7 +1,7 @@
 package mcjty.rftoolscontrol.modules.various.items.interactionmodule;
 
 import mcjty.lib.varia.BlockPosTools;
-import mcjty.lib.varia.WorldTools;
+import mcjty.lib.varia.LevelTools;
 import mcjty.rftoolsbase.api.screens.IScreenDataHelper;
 import mcjty.rftoolsbase.api.screens.IScreenModule;
 import mcjty.rftoolsbase.api.screens.data.IModuleDataBoolean;
@@ -39,10 +39,10 @@ public class InteractionScreenModule implements IScreenModule<IModuleDataBoolean
             if (tagCompound.contains("monitorx")) {
                 RegistryKey<World> dim1 = World.OVERWORLD;
                 if (tagCompound.contains("monitordim")) {
-                    dim1 = WorldTools.getId(tagCompound.getString("monitordim"));
+                    dim1 = LevelTools.getId(tagCompound.getString("monitordim"));
                 } else {
                     // Compatibility reasons
-                    dim1 = WorldTools.getId(tagCompound.getString("dim"));
+                    dim1 = LevelTools.getId(tagCompound.getString("dim"));
                 }
                 if (Objects.equals(dim, dim1)) {
                     BlockPos c = new BlockPos(tagCompound.getInt("monitorx"), tagCompound.getInt("monitory"), tagCompound.getInt("monitorz"));
@@ -72,7 +72,7 @@ public class InteractionScreenModule implements IScreenModule<IModuleDataBoolean
         }
         if (x >= xoffset) {
             if (coordinate.getY() != -1) {
-                if (!WorldTools.isLoaded(world, coordinate)) {
+                if (!LevelTools.isLoaded(world, coordinate)) {
                     return;
                 }
 

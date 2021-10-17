@@ -1,7 +1,7 @@
 package mcjty.rftoolscontrol.modules.various.items.consolemodule;
 
 import mcjty.lib.varia.BlockPosTools;
-import mcjty.lib.varia.WorldTools;
+import mcjty.lib.varia.LevelTools;
 import mcjty.rftoolsbase.api.screens.IScreenDataHelper;
 import mcjty.rftoolsbase.api.screens.IScreenModule;
 import mcjty.rftoolscontrol.compat.rftoolssupport.ModuleDataLog;
@@ -25,12 +25,12 @@ public class ConsoleScreenModule implements IScreenModule<ModuleDataLog> {
 
     @Override
     public ModuleDataLog getData(IScreenDataHelper h, World worldObj, long millis) {
-        World world = WorldTools.getLevel(worldObj, dim);
+        World world = LevelTools.getLevel(worldObj, dim);
         if (world == null) {
             return null;
         }
 
-        if (!WorldTools.isLoaded(world, coordinate)) {
+        if (!LevelTools.isLoaded(world, coordinate)) {
             return null;
         }
 
@@ -54,10 +54,10 @@ public class ConsoleScreenModule implements IScreenModule<ModuleDataLog> {
             coordinate = BlockPosTools.INVALID;
             if (tagCompound.contains("monitorx")) {
                 if (tagCompound.contains("monitordim")) {
-                    this.dim = WorldTools.getId(tagCompound.getString("monitordim"));
+                    this.dim = LevelTools.getId(tagCompound.getString("monitordim"));
                 } else {
                     // Compatibility reasons
-                    this.dim = WorldTools.getId(tagCompound.getString("dim"));
+                    this.dim = LevelTools.getId(tagCompound.getString("dim"));
                 }
                 if (Objects.equals(dim, this.dim)) {
                     BlockPos c = new BlockPos(tagCompound.getInt("monitorx"), tagCompound.getInt("monitory"), tagCompound.getInt("monitorz"));

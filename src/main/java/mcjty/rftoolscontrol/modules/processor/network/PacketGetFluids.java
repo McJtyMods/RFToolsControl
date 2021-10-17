@@ -6,7 +6,7 @@ import mcjty.lib.network.TypedMapTools;
 import mcjty.lib.typed.Type;
 import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.Logging;
-import mcjty.lib.varia.WorldTools;
+import mcjty.lib.varia.LevelTools;
 import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorTileEntity;
 import mcjty.rftoolscontrol.setup.RFToolsCtrlMessages;
 import net.minecraft.network.PacketBuffer;
@@ -31,7 +31,7 @@ public class PacketGetFluids {
 
     public PacketGetFluids(PacketBuffer buf) {
         pos = buf.readBlockPos();
-        type = WorldTools.getId(buf.readResourceLocation());
+        type = LevelTools.getId(buf.readResourceLocation());
         params = TypedMapTools.readArguments(buf);
         fromTablet = buf.readBoolean();
     }
@@ -53,7 +53,7 @@ public class PacketGetFluids {
     public void handle(Supplier<NetworkEvent.Context> supplier) {
         NetworkEvent.Context ctx = supplier.get();
         ctx.enqueueWork(() -> {
-            ServerWorld world = WorldTools.getLevel(ctx.getSender().getCommandSenderWorld(), type);
+            ServerWorld world = LevelTools.getLevel(ctx.getSender().getCommandSenderWorld(), type);
             if (world.hasChunkAt(pos)) {
                 TileEntity te = world.getBlockEntity(pos);
                 if (!(te instanceof ICommandHandler)) {
