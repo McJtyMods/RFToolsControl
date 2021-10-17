@@ -29,7 +29,7 @@ public class VectorArtScreenModule implements IScreenModule<ModuleDataVectorArt>
 
     @Override
     public ModuleDataVectorArt getData(IScreenDataHelper h, World worldObj, long millis) {
-        World world = WorldTools.getWorld(worldObj, dim);
+        World world = WorldTools.getLevel(worldObj, dim);
         if (world == null) {
             return null;
         }
@@ -57,10 +57,10 @@ public class VectorArtScreenModule implements IScreenModule<ModuleDataVectorArt>
             coordinate = BlockPosTools.INVALID;
             if (tagCompound.contains("monitorx")) {
                 if (tagCompound.contains("monitordim")) {
-                    this.dim = RegistryKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation(tagCompound.getString("monitordim")));
+                    this.dim = WorldTools.getId(tagCompound.getString("monitordim"));
                 } else {
                     // Compatibility reasons
-                    this.dim = RegistryKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation(tagCompound.getString("dim")));
+                    this.dim = WorldTools.getId(tagCompound.getString("dim"));
                 }
                 if (Objects.equals(dim, this.dim)) {
                     BlockPos c = new BlockPos(tagCompound.getInt("monitorx"), tagCompound.getInt("monitory"), tagCompound.getInt("monitorz"));

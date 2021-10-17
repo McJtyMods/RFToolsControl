@@ -13,9 +13,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.RegistryKey;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.registry.Registry;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
@@ -41,10 +39,10 @@ public class InteractionScreenModule implements IScreenModule<IModuleDataBoolean
             if (tagCompound.contains("monitorx")) {
                 RegistryKey<World> dim1 = World.OVERWORLD;
                 if (tagCompound.contains("monitordim")) {
-                    dim1 = RegistryKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation(tagCompound.getString("monitordim")));
+                    dim1 = WorldTools.getId(tagCompound.getString("monitordim"));
                 } else {
                     // Compatibility reasons
-                    dim1 = RegistryKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation(tagCompound.getString("dim")));
+                    dim1 = WorldTools.getId(tagCompound.getString("dim"));
                 }
                 if (Objects.equals(dim, dim1)) {
                     BlockPos c = new BlockPos(tagCompound.getInt("monitorx"), tagCompound.getInt("monitory"), tagCompound.getInt("monitorz"));

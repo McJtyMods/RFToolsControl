@@ -9,7 +9,10 @@ import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.lib.typed.Key;
 import mcjty.lib.typed.Type;
 import mcjty.lib.typed.TypedMap;
-import mcjty.lib.varia.*;
+import mcjty.lib.varia.BlockPosTools;
+import mcjty.lib.varia.Cached;
+import mcjty.lib.varia.EnergyTools;
+import mcjty.lib.varia.WorldTools;
 import mcjty.rftoolsbase.api.control.code.Function;
 import mcjty.rftoolsbase.api.control.code.ICompiledOpcode;
 import mcjty.rftoolsbase.api.control.code.IOpcodeRunnable;
@@ -65,10 +68,8 @@ import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.RegistryKey;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.registry.Registry;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
@@ -1857,7 +1858,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
         int monitorx = tagCompound.getInt("monitorx");
         int monitory = tagCompound.getInt("monitory");
         int monitorz = tagCompound.getInt("monitorz");
-        ServerWorld world = WorldTools.getWorld(RegistryKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation(monitordim)));
+        ServerWorld world = WorldTools.getLevel(WorldTools.getId(monitordim));
         BlockPos dest = new BlockPos(monitorx, monitory, monitorz);
         if (!WorldTools.isLoaded(world, dest)) {
             throw new ProgException(EXCEPT_INVALIDDESTINATION);
@@ -2471,7 +2472,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
         CompoundNBT tagCompound = storageStack.getTag();
         BlockPos c = new BlockPos(tagCompound.getInt("monitorx"), tagCompound.getInt("monitory"), tagCompound.getInt("monitorz"));
         String dim = tagCompound.getString("monitordim");
-        World world = WorldTools.getWorld(RegistryKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation(dim)));
+        World world = WorldTools.getLevel(WorldTools.getId(dim));
         if (world == null) {
             throw new ProgException(EXCEPT_MISSINGSTORAGE);
         }
