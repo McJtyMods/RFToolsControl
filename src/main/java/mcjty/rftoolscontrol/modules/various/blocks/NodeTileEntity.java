@@ -7,6 +7,8 @@ import mcjty.lib.typed.Key;
 import mcjty.lib.typed.Type;
 import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.BlockPosTools;
+import mcjty.lib.varia.Tools;
+import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorTileEntity;
 import mcjty.rftoolscontrol.modules.various.VariousModule;
 import net.minecraft.entity.player.PlayerEntity;
@@ -14,6 +16,7 @@ import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
@@ -34,10 +37,12 @@ public class NodeTileEntity extends GenericTileEntity {
 
     // Bitmask for all six sides
     private int prevIn = 0;
-    private int powerOut[] = new int[] { 0, 0, 0, 0, 0, 0 };
+    private int powerOut[] = new int[]{0, 0, 0, 0, 0, 0};
 
     private final LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<NodeContainer>("Node")
-            .containerSupplier((windowId,player) -> new NodeContainer(windowId, NodeContainer.CONTAINER_FACTORY.get(), getBlockPos(), NodeTileEntity.this)));
+            .containerSupplier((windowId, player) -> new NodeContainer(windowId, NodeContainer.CONTAINER_FACTORY.get(), getBlockPos(), NodeTileEntity.this))
+            .dataListener(Tools.string(new ResourceLocation(RFToolsControl.MODID, "channel"), this::getChannelName, this::setChannelName))
+            .dataListener(Tools.string(new ResourceLocation(RFToolsControl.MODID, "node"), this::getNodeName, this::setNodeName)));
 
     public NodeTileEntity() {
         super(VariousModule.NODE_TILE.get());
@@ -49,6 +54,16 @@ public class NodeTileEntity extends GenericTileEntity {
 
     public String getChannelName() {
         return channel;
+    }
+
+    public void setChannelName(String channel) {
+        this.channel = channel;
+        setChanged();
+    }
+
+    public void setNodeName(String node) {
+        this.node = node;
+        setChanged();
     }
 
     public BlockPos getProcessor() {
@@ -89,7 +104,7 @@ public class NodeTileEntity extends GenericTileEntity {
     public void read(CompoundNBT tagCompound) {
         super.read(tagCompound);
         prevIn = tagCompound.getInt("prevIn");
-        for (int i = 0 ; i < 6 ; i++) {
+        for (int i = 0; i < 6; i++) {
             powerOut[i] = tagCompound.getByte("p" + i);
         }
     }
@@ -107,7 +122,7 @@ public class NodeTileEntity extends GenericTileEntity {
     public CompoundNBT save(CompoundNBT tagCompound) {
         super.save(tagCompound);
         tagCompound.putInt("prevIn", prevIn);
-        for (int i = 0 ; i < 6 ; i++) {
+        for (int i = 0; i < 6; i++) {
             tagCompound.putByte("p" + i, (byte) powerOut[i]);
         }
         return tagCompound;
@@ -137,7 +152,7 @@ public class NodeTileEntity extends GenericTileEntity {
         if (CMD_UPDATE.equals(command)) {
             this.node = args.get(PARAM_NODE);
             this.channel = args.get(PARAM_CHANNEL);
-            markDirtyClient();
+            setChanged();
             return true;
         }
         return false;
