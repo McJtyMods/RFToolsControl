@@ -2,7 +2,6 @@ package mcjty.rftoolscontrol.modules.programmer.blocks;
 
 
 import mcjty.lib.api.container.DefaultContainerProvider;
-import mcjty.lib.container.AutomationFilterItemHander;
 import mcjty.lib.container.NoDirectionItemHander;
 import mcjty.lib.tileentity.Cap;
 import mcjty.lib.tileentity.CapType;
@@ -19,9 +18,8 @@ import net.minecraftforge.common.util.LazyOptional;
 
 public class ProgrammerTileEntity extends GenericTileEntity {
 
+    @Cap(type = CapType.ITEMS_AUTOMATION)
     private final NoDirectionItemHander items = createItemHandler();
-    @Cap(type = CapType.ITEMS)
-    private final LazyOptional<AutomationFilterItemHander> itemHandler = LazyOptional.of(() -> new AutomationFilterItemHander(items));
 
     @Cap(type = CapType.CONTAINER)
     private final LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<ProgrammerContainer>("Programmer")

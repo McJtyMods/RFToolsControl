@@ -1,7 +1,6 @@
 package mcjty.rftoolscontrol.modules.craftingstation.blocks;
 
 import mcjty.lib.api.container.DefaultContainerProvider;
-import mcjty.lib.container.AutomationFilterItemHander;
 import mcjty.lib.container.NoDirectionItemHander;
 import mcjty.lib.tileentity.Cap;
 import mcjty.lib.tileentity.CapType;
@@ -57,9 +56,8 @@ public class CraftingStationTileEntity extends GenericTileEntity {
     public static final String CMD_CANCEL = "station.cancel";
     public static final Key<Integer> PARAM_INDEX = new Key<>("index", Type.INTEGER);
 
+    @Cap(type = CapType.ITEMS_AUTOMATION)
     private final NoDirectionItemHander items = createItemHandler();
-    @Cap(type = CapType.ITEMS)
-    private final LazyOptional<AutomationFilterItemHander> itemHandler = LazyOptional.of(() -> new AutomationFilterItemHander(items));
 
     @Cap(type = CapType.CONTAINER)
     private final LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<CraftingStationContainer>("Crafter")

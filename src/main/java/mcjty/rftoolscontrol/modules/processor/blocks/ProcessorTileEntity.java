@@ -1,7 +1,6 @@
 package mcjty.rftoolscontrol.modules.processor.blocks;
 
 import mcjty.lib.api.container.DefaultContainerProvider;
-import mcjty.lib.container.AutomationFilterItemHander;
 import mcjty.lib.container.NoDirectionItemHander;
 import mcjty.lib.tileentity.Cap;
 import mcjty.lib.tileentity.CapType;
@@ -140,9 +139,8 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
     private static final BiFunction<ParameterType, Object, Boolean> CONVERTOR_BOOL = TypeConverters::convertToBool;
     private static final BiFunction<ParameterType, Object, Number> CONVERTOR_NUMBER = TypeConverters::convertToNumber;
 
+    @Cap(type = CapType.ITEMS_AUTOMATION)
     private final NoDirectionItemHander items = createItemHandler();
-    @Cap(type = CapType.ITEMS)
-    private final LazyOptional<AutomationFilterItemHander> itemHandler = LazyOptional.of(() -> new AutomationFilterItemHander(items));
 
     @Cap(type = CapType.ENERGY)
     private final GenericEnergyStorage energyStorage = new GenericEnergyStorage(this, true, Config.processorMaxenergy.get(), Config.processorReceivepertick.get());
