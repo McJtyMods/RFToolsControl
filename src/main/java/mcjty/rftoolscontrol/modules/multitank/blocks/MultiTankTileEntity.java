@@ -1,7 +1,8 @@
 package mcjty.rftoolscontrol.modules.multitank.blocks;
 
-import mcjty.lib.api.container.CapabilityContainerProvider;
 import mcjty.lib.api.container.DefaultContainerProvider;
+import mcjty.lib.tileentity.Cap;
+import mcjty.lib.tileentity.CapType;
 import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.lib.typed.Type;
 import mcjty.lib.typed.TypedMap;
@@ -10,11 +11,8 @@ import mcjty.rftoolscontrol.modules.multitank.util.MultiTankFluidProperties;
 import mcjty.rftoolscontrol.modules.multitank.util.MultiTankHandler;
 import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.Direction;
-import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
@@ -31,8 +29,10 @@ public class MultiTankTileEntity extends GenericTileEntity {
 
     private final MultiTankFluidProperties properties[] = new MultiTankFluidProperties[TANKS];
 
+    @Cap(type = CapType.FLUIDS)
     private final LazyOptional<MultiTankHandler> fluidHandler = LazyOptional.of(this::createFluidHandler);
 
+    @Cap(type = CapType.CONTAINER)
     private final LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<MultiTankContainer>("Crafter")
             .containerSupplier((windowId,player) -> new MultiTankContainer(windowId, MultiTankContainer.CONTAINER_FACTORY.get(), getBlockPos(), MultiTankTileEntity.this)));
 
@@ -108,17 +108,4 @@ public class MultiTankTileEntity extends GenericTileEntity {
     private MultiTankHandler createFluidHandler() {
         return new MultiTankHandler(this);
     }
-
-    @Nonnull
-    @Override
-    public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, Direction facing) {
-        if (cap == CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY) {
-            return fluidHandler.cast();
-        }
-        if (cap == CapabilityContainerProvider.CONTAINER_PROVIDER_CAPABILITY) {
-            return screenHandler.cast();
-        }
-        return super.getCapability(cap, facing);
-    }
-
 }

@@ -1,9 +1,10 @@
 package mcjty.rftoolscontrol.modules.processor.blocks;
 
-import mcjty.lib.api.container.CapabilityContainerProvider;
 import mcjty.lib.api.container.DefaultContainerProvider;
 import mcjty.lib.container.AutomationFilterItemHander;
 import mcjty.lib.container.NoDirectionItemHander;
+import mcjty.lib.tileentity.Cap;
+import mcjty.lib.tileentity.CapType;
 import mcjty.lib.tileentity.GenericEnergyStorage;
 import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.lib.typed.Key;
@@ -73,7 +74,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
-import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.energy.CapabilityEnergy;
@@ -141,11 +141,14 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
     private static final BiFunction<ParameterType, Object, Number> CONVERTOR_NUMBER = TypeConverters::convertToNumber;
 
     private final NoDirectionItemHander items = createItemHandler();
+    @Cap(type = CapType.ITEMS)
     private final LazyOptional<AutomationFilterItemHander> itemHandler = LazyOptional.of(() -> new AutomationFilterItemHander(items));
 
     private final GenericEnergyStorage energyStorage = new GenericEnergyStorage(this, true, Config.processorMaxenergy.get(), Config.processorReceivepertick.get());
+    @Cap(type = CapType.ENERGY)
     private final LazyOptional<GenericEnergyStorage> energyHandler = LazyOptional.of(() -> energyStorage);
 
+    @Cap(type = CapType.CONTAINER)
     private final LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<ProcessorContainer>("Processor")
             .containerSupplier((windowId, player) -> ProcessorContainer.create(windowId, getBlockPos(), ProcessorTileEntity.this))
             .itemHandler(() -> items)
@@ -3271,20 +3274,5 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
             }
 
         };
-    }
-
-    @Nonnull
-    @Override
-    public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction facing) {
-        if (cap == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) {
-            return itemHandler.cast();
-        }
-        if (cap == CapabilityEnergy.ENERGY) {
-            return energyHandler.cast();
-        }
-        if (cap == CapabilityContainerProvider.CONTAINER_PROVIDER_CAPABILITY) {
-            return screenHandler.cast();
-        }
-        return super.getCapability(cap, facing);
     }
 }

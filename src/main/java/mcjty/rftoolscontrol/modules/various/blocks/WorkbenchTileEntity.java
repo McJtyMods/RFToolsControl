@@ -2,10 +2,11 @@ package mcjty.rftoolscontrol.modules.various.blocks;
 
 
 import mcjty.lib.McJtyLib;
-import mcjty.lib.api.container.CapabilityContainerProvider;
 import mcjty.lib.api.container.DefaultContainerProvider;
 import mcjty.lib.container.AutomationFilterItemHander;
 import mcjty.lib.container.NoDirectionItemHander;
+import mcjty.lib.tileentity.Cap;
+import mcjty.lib.tileentity.CapType;
 import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.rftoolscontrol.modules.various.VariousModule;
 import net.minecraft.entity.player.PlayerEntity;
@@ -32,6 +33,7 @@ public class WorkbenchTileEntity extends GenericTileEntity {
     private final LazyOptional<WorkbenchItemHandler> automationItemHandlerDown = LazyOptional.of(() -> new WorkbenchItemHandler(items, Direction.DOWN));
     private final LazyOptional<WorkbenchItemHandler> automationItemHandlerSide = LazyOptional.of(() -> new WorkbenchItemHandler(items, null));
 
+    @Cap(type = CapType.CONTAINER)
     private final LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<WorkbenchContainer>("Workbench")
             .containerSupplier((windowId, player) -> new WorkbenchContainer(windowId, WorkbenchContainer.CONTAINER_FACTORY.get(), getBlockPos(), WorkbenchTileEntity.this))
             .itemHandler(() -> items));
@@ -196,9 +198,6 @@ public class WorkbenchTileEntity extends GenericTileEntity {
                 return automationItemHandlerUp.cast();
             }
             return automationItemHandlerSide.cast();
-        }
-        if (cap == CapabilityContainerProvider.CONTAINER_PROVIDER_CAPABILITY) {
-            return screenHandler.cast();
         }
         return super.getCapability(cap, facing);
     }
