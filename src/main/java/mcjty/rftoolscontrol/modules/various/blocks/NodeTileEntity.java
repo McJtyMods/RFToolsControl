@@ -1,18 +1,18 @@
 package mcjty.rftoolscontrol.modules.various.blocks;
 
 import mcjty.lib.api.container.DefaultContainerProvider;
+import mcjty.lib.blockcommands.Command;
+import mcjty.lib.blockcommands.ServerCommand;
 import mcjty.lib.tileentity.Cap;
 import mcjty.lib.tileentity.CapType;
 import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.lib.typed.Key;
 import mcjty.lib.typed.Type;
-import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.BlockPosTools;
 import mcjty.lib.varia.Sync;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorTileEntity;
 import mcjty.rftoolscontrol.modules.various.VariousModule;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
@@ -22,10 +22,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.util.LazyOptional;
 
 public class NodeTileEntity extends GenericTileEntity {
-
-    public static final String CMD_UPDATE = "node.update";
-    public static final Key<String> PARAM_NODE = new Key<>("node", Type.STRING);
-    public static final Key<String> PARAM_CHANNEL = new Key<>("channel", Type.STRING);
 
     private String channel;
     private String node;
@@ -141,18 +137,13 @@ public class NodeTileEntity extends GenericTileEntity {
         }
     }
 
-    @Override
-    public boolean execute(PlayerEntity playerMP, String command, TypedMap args) {
-        boolean rc = super.execute(playerMP, command, args);
-        if (rc) {
-            return true;
-        }
-        if (CMD_UPDATE.equals(command)) {
-            this.node = args.get(PARAM_NODE);
-            this.channel = args.get(PARAM_CHANNEL);
-            setChanged();
-            return true;
-        }
-        return false;
-    }
+    public static final Key<String> PARAM_NODE = new Key<>("node", Type.STRING);
+    public static final Key<String> PARAM_CHANNEL = new Key<>("channel", Type.STRING);
+    @ServerCommand
+    public static final Command<?> CMD_UPDATE = Command.<NodeTileEntity>create("node.update")
+            .buildCommand((te, player, params) -> {
+                te.node = params.get(PARAM_NODE);
+                te.channel = params.get(PARAM_CHANNEL);
+                te.setChanged();
+            });
 }

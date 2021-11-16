@@ -1,6 +1,8 @@
 package mcjty.rftoolscontrol.modules.craftingstation.blocks;
 
 import mcjty.lib.api.container.DefaultContainerProvider;
+import mcjty.lib.blockcommands.Command;
+import mcjty.lib.blockcommands.ServerCommand;
 import mcjty.lib.container.NoDirectionItemHander;
 import mcjty.lib.tileentity.Cap;
 import mcjty.lib.tileentity.CapType;
@@ -18,7 +20,6 @@ import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorTileEntity;
 import mcjty.rftoolscontrol.modules.processor.logic.running.ExceptionType;
 import mcjty.rftoolscontrol.modules.processor.logic.running.ProgException;
 import mcjty.rftoolscontrol.setup.Config;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.Ingredient;
@@ -47,14 +48,6 @@ public class CraftingStationTileEntity extends GenericTileEntity {
     public static final String CLIENTCMD_GETCRAFTABLE = "getCraftable";
     public static final String CMD_GETREQUESTS = "getRequests";
     public static final String CLIENTCMD_GETREQUESTS = "getRequests";
-
-    public static final String CMD_REQUEST = "station.request";
-    public static final Key<String> PARAM_ITEMNAME = new Key<>("itemname", Type.STRING);
-    public static final Key<String> PARAM_NBT = new Key<>("nbt", Type.STRING);
-    public static final Key<Integer> PARAM_AMOUNT = new Key<>("amount", Type.INTEGER);
-
-    public static final String CMD_CANCEL = "station.cancel";
-    public static final Key<Integer> PARAM_INDEX = new Key<>("index", Type.INTEGER);
 
     @Cap(type = CapType.ITEMS_AUTOMATION)
     private final NoDirectionItemHander items = createItemHandler();
@@ -404,29 +397,26 @@ public class CraftingStationTileEntity extends GenericTileEntity {
     }
 
 
-    @Override
-    public boolean execute(PlayerEntity playerMP, String command, TypedMap params) {
-        boolean rc = super.execute(playerMP, command, params);
-        if (rc) {
-            return true;
-        }
-        if (CMD_REQUEST.equals(command)) {
-            String itemName = params.get(PARAM_ITEMNAME);
-            String nbtString = params.get(PARAM_NBT);
-            int index = findItem(itemName, nbtString);
-            if (index == -1) {
-                return true;
-            }
-            int amount = params.get(PARAM_AMOUNT);
-            startCraft(index, amount);
-            return true;
-        } else if (CMD_CANCEL.equals(command)) {
-            int index = params.get(PARAM_INDEX);
-            cancelCraft(index);
-            return true;
-        }
-        return false;
-    }
+    public static final Key<String> PARAM_ITEMNAME = new Key<>("itemname", Type.STRING);
+    public static final Key<String> PARAM_NBT = new Key<>("nbt", Type.STRING);
+    public static final Key<Integer> PARAM_AMOUNT = new Key<>("amount", Type.INTEGER);
+    @ServerCommand
+    public static final Command<?> CMD_REQUEST = Command.<CraftingStationTileEntity>create("station.request")
+            .buildCommand((te, player, params) -> {
+                String itemName = params.get(PARAM_ITEMNAME);
+                String nbtString = params.get(PARAM_NBT);
+                int index = te.findItem(itemName, nbtString);
+                if (index == -1) {
+                    return;
+                }
+                te.startCraft(index, params.get(PARAM_AMOUNT));
+            });
+
+    public static final Key<Integer> PARAM_INDEX = new Key<>("index", Type.INTEGER);
+    @ServerCommand
+    public static final Command<?> CMD_CANCEL = Command.<CraftingStationTileEntity>create("station.cancel")
+            .buildCommand((te, player, params) -> te.cancelCraft(params.get(PARAM_INDEX)));
+
 
     @Nonnull
     @Override
