@@ -140,8 +140,8 @@ public class NodeTileEntity extends GenericTileEntity {
     public static final Key<String> PARAM_NODE = new Key<>("node", Type.STRING);
     public static final Key<String> PARAM_CHANNEL = new Key<>("channel", Type.STRING);
     @ServerCommand
-    public static final Command<?> CMD_UPDATE = Command.<NodeTileEntity>create("node.update")
-            .buildCommand((te, player, params) -> {
+    public static final Command<?> CMD_UPDATE = Command.<NodeTileEntity>create("node.update",
+            (te, player, params) -> {
                 te.node = params.get(PARAM_NODE);
                 te.channel = params.get(PARAM_CHANNEL);
                 te.setChanged();

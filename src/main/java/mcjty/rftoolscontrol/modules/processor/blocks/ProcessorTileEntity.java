@@ -1,6 +1,8 @@
 package mcjty.rftoolscontrol.modules.processor.blocks;
 
 import mcjty.lib.api.container.DefaultContainerProvider;
+import mcjty.lib.blockcommands.Command;
+import mcjty.lib.blockcommands.ServerCommand;
 import mcjty.lib.container.NoDirectionItemHander;
 import mcjty.lib.tileentity.Cap;
 import mcjty.lib.tileentity.CapType;
@@ -55,7 +57,6 @@ import mcjty.rftoolscontrol.modules.various.blocks.NodeTileEntity;
 import mcjty.rftoolscontrol.modules.various.blocks.WorkbenchTileEntity;
 import mcjty.rftoolscontrol.modules.various.items.TokenItem;
 import mcjty.rftoolscontrol.setup.Config;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -106,26 +107,14 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
     public static final int MAXVARS = 32;
     public static final int MAXFLUIDVARS = 4 * 6;
 
-    public static final String CMD_ALLOCATE = "allocate";
-    public static final String CMD_EXECUTE = "execute";
     public static final String CMD_GETLOG = "getLog";
-    public static final String CMD_GETDEBUGLOG = "getDebugLog";
-    public static final String CMD_SETEXCLUSIVE = "setExclusive";
-    public static final String CMD_SETHUDMODE = "setHudMode";
     public static final String CLIENTCMD_GETLOG = "getLog";
+    public static final String CMD_GETDEBUGLOG = "getDebugLog";
     public static final String CLIENTCMD_GETDEBUGLOG = "getDebugLog";
     public static final String CMD_GETVARS = "getVars";
     public static final String CLIENTCMD_GETVARS = "getVars";
     public static final String CMD_GETFLUIDS = "getFluids";
     public static final String CLIENTCMD_GETFLUIDS = "getFluids";
-
-    public static final Key<Integer> PARAM_CARD = new Key<>("card", Type.INTEGER);
-    public static final Key<Integer> PARAM_ITEMS = new Key<>("items", Type.INTEGER);
-    public static final Key<Integer> PARAM_VARS = new Key<>("vars", Type.INTEGER);
-    public static final Key<Integer> PARAM_FLUID = new Key<>("fluids", Type.INTEGER);
-    public static final Key<String> PARAM_CMD = new Key<>("cmd", Type.STRING);
-    public static final Key<Boolean> PARAM_EXCLUSIVE = new Key<>("exclusive", Type.BOOLEAN);
-    public static final Key<Integer> PARAM_HUDMODE = new Key<>("hudmode", Type.INTEGER);
 
     private static final BiFunction<ParameterType, Object, ItemStack> CONVERTOR_ITEM = TypeConverters::convertToItem;
     private static final BiFunction<ParameterType, Object, FluidStack> CONVERTOR_FLUID = TypeConverters::convertToFluid;
@@ -3160,33 +3149,32 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
         setChanged();
     }
 
-    @Override
-    public boolean execute(PlayerEntity playerMP, String command, TypedMap args) {
-        boolean rc = super.execute(playerMP, command, args);
-        if (rc) {
-            return true;
-        }
-        if (CMD_ALLOCATE.equals(command)) {
-            int card = args.get(PARAM_CARD);
-            int itemAlloc = args.get(PARAM_ITEMS);
-            int varAlloc = args.get(PARAM_VARS);
-            int fluidAlloc = args.get(PARAM_FLUID);
-            allocate(card, itemAlloc, varAlloc, fluidAlloc);
-            return true;
-        } else if (CMD_EXECUTE.equals(command)) {
-            Commands.executeCommand(this, args.get(PARAM_CMD));
-            return true;
-        } else if (CMD_SETEXCLUSIVE.equals(command)) {
-            boolean v = args.get(PARAM_EXCLUSIVE);
-            setExclusive(v);
-            return true;
-        } else if (CMD_SETHUDMODE.equals(command)) {
-            int v = args.get(PARAM_HUDMODE);
-            setShowHud(v);
-            return true;
-        }
-        return false;
-    }
+    public static final Key<Integer> PARAM_CARD = new Key<>("card", Type.INTEGER);
+    public static final Key<Integer> PARAM_ITEMS = new Key<>("items", Type.INTEGER);
+    public static final Key<Integer> PARAM_VARS = new Key<>("vars", Type.INTEGER);
+    public static final Key<Integer> PARAM_FLUID = new Key<>("fluids", Type.INTEGER);
+    public static final Key<String> PARAM_CMD = new Key<>("cmd", Type.STRING);
+    public static final Key<Boolean> PARAM_EXCLUSIVE = new Key<>("exclusive", Type.BOOLEAN);
+    public static final Key<Integer> PARAM_HUDMODE = new Key<>("hudmode", Type.INTEGER);
+
+    @ServerCommand
+    public static final Command<?> CMD_ALLOCATE = Command.<ProcessorTileEntity>create("allocate",
+            (te, player, params) -> {
+                int card = params.get(PARAM_CARD);
+                int itemAlloc = params.get(PARAM_ITEMS);
+                int varAlloc = params.get(PARAM_VARS);
+                int fluidAlloc = params.get(PARAM_FLUID);
+                te.allocate(card, itemAlloc, varAlloc, fluidAlloc);
+            });
+    @ServerCommand
+    public static final Command<?> CMD_EXECUTE = Command.<ProcessorTileEntity>create("execute",
+            (te, player, params) -> Commands.executeCommand(te, params.get(PARAM_CMD)));
+    @ServerCommand
+    public static final Command<?> CMD_SETEXCLUSIVE = Command.<ProcessorTileEntity>create("setExclusive",
+            (te, player, params) -> te.setExclusive(params.get(PARAM_EXCLUSIVE)));
+    @ServerCommand
+    public static final Command<?> CMD_SETHUDMODE = Command.<ProcessorTileEntity>create("setHudMode",
+            (te, player, params) -> te.setShowHud(params.get(PARAM_HUDMODE)));
 
     @Nonnull
     @Override

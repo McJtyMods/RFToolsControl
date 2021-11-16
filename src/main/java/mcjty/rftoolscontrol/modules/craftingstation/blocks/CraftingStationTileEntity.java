@@ -401,8 +401,8 @@ public class CraftingStationTileEntity extends GenericTileEntity {
     public static final Key<String> PARAM_NBT = new Key<>("nbt", Type.STRING);
     public static final Key<Integer> PARAM_AMOUNT = new Key<>("amount", Type.INTEGER);
     @ServerCommand
-    public static final Command<?> CMD_REQUEST = Command.<CraftingStationTileEntity>create("station.request")
-            .buildCommand((te, player, params) -> {
+    public static final Command<?> CMD_REQUEST = Command.<CraftingStationTileEntity>create("station.request",
+            (te, player, params) -> {
                 String itemName = params.get(PARAM_ITEMNAME);
                 String nbtString = params.get(PARAM_NBT);
                 int index = te.findItem(itemName, nbtString);
@@ -414,8 +414,8 @@ public class CraftingStationTileEntity extends GenericTileEntity {
 
     public static final Key<Integer> PARAM_INDEX = new Key<>("index", Type.INTEGER);
     @ServerCommand
-    public static final Command<?> CMD_CANCEL = Command.<CraftingStationTileEntity>create("station.cancel")
-            .buildCommand((te, player, params) -> te.cancelCraft(params.get(PARAM_INDEX)));
+    public static final Command<?> CMD_CANCEL = Command.<CraftingStationTileEntity>create("station.cancel",
+            (te, player, params) -> te.cancelCraft(params.get(PARAM_INDEX)));
 
 
     @Nonnull
