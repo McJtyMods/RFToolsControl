@@ -17,9 +17,9 @@ import java.util.function.Supplier;
 
 public class PacketTankFluidsReady {
 
-    public BlockPos pos;
-    public List<FluidStack> list;
-    public String command;
+    private BlockPos pos;
+    private List<FluidStack> list;
+    private String command;
 
     public PacketTankFluidsReady(PacketBuffer buf) {
         pos = buf.readBlockPos();

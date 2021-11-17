@@ -509,7 +509,6 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
             IStorageScanner scanner = getScannerForInv(inv);
 
             CardInfo info = this.cardInfo[((RunningProgram) program).getCardIndex()];
-            IItemHandler itemHandler = items;
             int e = 0;
             if (extSlot != null) {
                 e = extSlot;
@@ -518,7 +517,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
             int failed = 0;
             for (int slot = slot1; slot <= slot2; slot++) {
                 int realSlot = info.getRealSlot(slot);
-                ItemStack stack = itemHandler.getStackInSlot(realSlot);
+                ItemStack stack = ((IItemHandler) items).getStackInSlot(realSlot);
                 if (!stack.isEmpty()) {
                     ItemStack remaining = LogicInventoryTools.insertItem(handler, scanner, stack, extSlot == null ? null : e);
                     if (!remaining.isEmpty()) {
@@ -558,7 +557,6 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
 
         CardInfo info = this.cardInfo[((RunningProgram) program).getCardIndex()];
 
-        IItemHandler itemHandler = items;
         int slot = slot1;
 
         List<Ingredient> ingredients;
@@ -572,7 +570,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
         int failed = 0;
         for (Ingredient ingredient : ingredients) {
             int realSlot = info.getRealSlot(slot);
-            ItemStack localStack = itemHandler.getStackInSlot(realSlot);
+            ItemStack localStack = ((IItemHandler) items).getStackInSlot(realSlot);
             if (ingredient != Ingredient.EMPTY) {
 //                if (!InventoryTools.areItemsEqual(ingredient, localStack, true, false, oredict)) {
                 if (!ingredient.test(localStack)) {
@@ -627,7 +625,6 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
                     return requested;
                 }
                 // We got everything;
-                IItemHandler itemHandler = items;
                 int slot = slot1;
 
                 for (Ingredient ingredient : ingredients) {
@@ -635,7 +632,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
                     if (ingredient != Ingredient.EMPTY) {
                         ItemStack stack = LogicInventoryTools.extractItem(handler, scanner, LogicInventoryTools.getCountFromIngredient(ingredient), true, ingredient, null);
                         if (!stack.isEmpty()) {
-                            itemHandler.insertItem(realSlot, stack, false);
+                            ((IItemHandler) items).insertItem(realSlot, stack, false);
                         }
                     }
                     slot++;
@@ -728,7 +725,6 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
             }
             CardInfo info = this.cardInfo[((RunningProgram) program).getCardIndex()];
 
-            IItemHandler itemHandler = items;
             int slot = slot1;
 
             List<Ingredient> ingredients;
@@ -745,7 +741,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
                 if (ingredient != Ingredient.EMPTY) {
                     ItemStack stack = LogicInventoryTools.extractItem(handler, scanner, LogicInventoryTools.getCountFromIngredient(ingredient), true, ingredient, null);
                     if (!stack.isEmpty()) {
-                        ItemStack remainder = itemHandler.insertItem(realSlot, stack, false);
+                        ItemStack remainder = ((IItemHandler) items).insertItem(realSlot, stack, false);
                         if (!remainder.isEmpty()) {
                             LogicInventoryTools.insertItem(handler, scanner, remainder, null);
                         }
@@ -1705,7 +1701,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
             if (fluidStack == null) {
                 // Just drain any fluid
                 FluidStack drained = handler.drain(newAmount, IFluidHandler.FluidAction.SIMULATE);
-                if (drained != null) {
+                if (!drained.isEmpty()) {
                     // Check if the fluid matches
                     if ((!properties.hasContents()) || properties.getContentsInternal().isFluidEqual(drained)) {
                         drained = handler.drain(newAmount, IFluidHandler.FluidAction.EXECUTE);
@@ -1719,7 +1715,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
                 FluidStack todrain = fluidStack.copy();
                 todrain.setAmount(newAmount);
                 FluidStack drained = handler.drain(todrain, IFluidHandler.FluidAction.EXECUTE);
-                if (drained != null) {
+                if (!drained.isEmpty()) {
                     int drainedAmount = drained.getAmount();
                     if (properties.hasContents()) {
                         drained.setAmount(drained.getAmount() + properties.getContentsInternal().getAmount());
@@ -1796,8 +1792,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
     public ItemStack getItemInternal(IProgram program, int virtualSlot) {
         CardInfo info = this.cardInfo[((RunningProgram) program).getCardIndex()];
         int realSlot = info.getRealSlot(virtualSlot);
-        IItemHandler capability = items;
-        return capability.getStackInSlot(realSlot);
+        return items.getStackInSlot(realSlot);
     }
 
     public int pushItems(IProgram program, Inventory inv, Integer slot, @Nullable Integer amount, int virtualSlot) {
@@ -1834,8 +1829,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
 
         Integer realVariable = info.getRealVar(variableSlot);
 
-        IItemHandler handler = items;
-        ItemStack idCard = handler.getStackInSlot(realIdSlot);
+        ItemStack idCard = items.getStackInSlot(realIdSlot);
         if (idCard.isEmpty() || !(idCard.getItem() instanceof NetworkIdentifierItem)) {
             throw new ProgException(EXCEPT_NOTANIDENTIFIER);
         }
@@ -2443,9 +2437,6 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
 
     public int countItemStorage(ItemStack stack, boolean routable) {
         IStorageScanner scanner = getStorageScanner();
-        if (scanner == null) {
-            return 0;
-        }
         return scanner.countItems(stack, routable);
     }
 
@@ -2586,9 +2577,6 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
     }
 
     private LazyOptional<IItemHandler> getItemHandlerAt(@Nonnull TileEntity te, Direction intSide) {
-        if (te == null) {
-            throw new ProgException(EXCEPT_INVALIDINVENTORY);
-        }
         LazyOptional<IItemHandler> capability = te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, intSide);
         if (!capability.isPresent()) {
             throw new ProgException(EXCEPT_INVALIDINVENTORY);
@@ -2673,8 +2661,9 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
         }
     }
 
+    @Nonnull
     @Override
-    public CompoundNBT save(CompoundNBT tagCompound) {
+    public CompoundNBT save(@Nonnull CompoundNBT tagCompound) {
         super.save(tagCompound);
         tagCompound.putInt("prevIn", prevIn);
         for (int i = 0; i < 6; i++) {
@@ -3241,7 +3230,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
             }
 
             @Override
-            public boolean isItemValid(int index, ItemStack stack) {
+            public boolean isItemValid(int index, @Nonnull ItemStack stack) {
                 if (stack.isEmpty()) {
                     return true;
                 }

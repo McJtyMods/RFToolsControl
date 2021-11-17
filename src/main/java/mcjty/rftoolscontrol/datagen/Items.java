@@ -10,6 +10,8 @@ import mcjty.rftoolscontrol.modules.various.VariousModule;
 import net.minecraft.data.DataGenerator;
 import net.minecraftforge.common.data.ExistingFileHelper;
 
+import javax.annotation.Nonnull;
+
 public class Items extends BaseItemModelProvider {
 
     public Items(DataGenerator generator, ExistingFileHelper existingFileHelper) {
@@ -43,6 +45,7 @@ public class Items extends BaseItemModelProvider {
         itemGenerated(VariousModule.TABLET_PROCESSOR.get(), "item/tablet_processor");
     }
 
+    @Nonnull
     @Override
     public String getName() {
         return "RFTools Control Item Models";

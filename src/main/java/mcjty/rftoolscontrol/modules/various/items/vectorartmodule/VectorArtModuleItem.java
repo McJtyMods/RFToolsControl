@@ -18,6 +18,8 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
+import javax.annotation.Nonnull;
+
 public class VectorArtModuleItem extends GenericModuleItem {
 
     public VectorArtModuleItem() {
@@ -63,6 +65,7 @@ public class VectorArtModuleItem extends GenericModuleItem {
                 .block("monitor").nl();
     }
 
+    @Nonnull
     @Override
     public ActionResultType useOn(ItemUseContext context) {
         PlayerEntity player = context.getPlayer();

@@ -8,6 +8,8 @@ import mcjty.rftoolscontrol.modules.programmer.ProgrammerModule;
 import mcjty.rftoolscontrol.modules.various.VariousModule;
 import net.minecraft.data.DataGenerator;
 
+import javax.annotation.Nonnull;
+
 public class LootTables extends BaseLootTableProvider {
 
     public LootTables(DataGenerator dataGeneratorIn) {
@@ -24,6 +26,7 @@ public class LootTables extends BaseLootTableProvider {
         addStandardTable(CraftingStationModule.CRAFTING_STATION.get());
     }
 
+    @Nonnull
     @Override
     public String getName() {
         return "RFToolsControl LootTables";

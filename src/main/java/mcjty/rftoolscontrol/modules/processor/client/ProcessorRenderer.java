@@ -24,6 +24,7 @@ import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.util.Direction;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 
+import javax.annotation.Nonnull;
 import java.util.List;
 
 import static mcjty.rftoolscontrol.modules.processor.blocks.ProcessorTileEntity.*;
@@ -36,7 +37,7 @@ public class ProcessorRenderer extends TileEntityRenderer<ProcessorTileEntity> {
     }
 
     @Override
-    public void render(ProcessorTileEntity te, float partialTicks, MatrixStack matrixStack, IRenderTypeBuffer buffer, int combinedLightIn, int combinedOverlayIn) {
+    public void render(ProcessorTileEntity te, float partialTicks, @Nonnull MatrixStack matrixStack, @Nonnull IRenderTypeBuffer buffer, int combinedLightIn, int combinedOverlayIn) {
         if (te.getShowHud() == HUD_OFF) {
             return;
         }

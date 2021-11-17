@@ -18,6 +18,8 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
+import javax.annotation.Nonnull;
+
 public class InteractionModuleItem extends GenericModuleItem {
 
     public InteractionModuleItem() {
@@ -66,6 +68,7 @@ public class InteractionModuleItem extends GenericModuleItem {
                 .choices("align", "Label alignment", "Left", "Center", "Right").nl();
     }
 
+    @Nonnull
     @Override
     public ActionResultType useOn(ItemUseContext context) {
         PlayerEntity player = context.getPlayer();

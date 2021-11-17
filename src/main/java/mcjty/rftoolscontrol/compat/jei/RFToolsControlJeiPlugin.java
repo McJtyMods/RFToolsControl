@@ -11,9 +11,12 @@ import mezz.jei.api.registration.IRecipeTransferRegistration;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 
+import javax.annotation.Nonnull;
+
 @JeiPlugin
 public class RFToolsControlJeiPlugin implements IModPlugin {
 
+    @Nonnull
     @Override
     public ResourceLocation getPluginUid() {
         return new ResourceLocation(RFToolsControl.MODID, "rftoolscontrol");

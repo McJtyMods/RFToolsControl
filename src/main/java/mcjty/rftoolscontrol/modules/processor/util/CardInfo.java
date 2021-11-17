@@ -81,9 +81,6 @@ public class CardInfo {
                 fluidCache[idx] = -1;
             }
         }
-        if (virtualSlot < 0 && virtualSlot >= MultiTankTileEntity.TANKS * 6) {
-            throw new ProgException(EXCEPT_NOINTERNALFLUIDSLOT);
-        }
         int realSlot = fluidCache[virtualSlot];
         if (realSlot == -1) {
             throw new ProgException(EXCEPT_NOINTERNALFLUIDSLOT);
@@ -113,9 +110,6 @@ public class CardInfo {
                 slotCache[idx] = -1;
             }
         }
-        if (virtualSlot < 0 && virtualSlot >= ProcessorTileEntity.ITEM_SLOTS) {
-            throw new ProgException(EXCEPT_NOINTERNALSLOT);
-        }
         int realSlot = slotCache[virtualSlot];
         if (realSlot == -1) {
             throw new ProgException(EXCEPT_NOINTERNALSLOT);
@@ -137,9 +131,6 @@ public class CardInfo {
             for ( ; idx < ProcessorTileEntity.MAXVARS ; idx++) {
                 varCache[idx] = -1;
             }
-        }
-        if (virtualVar < 0 && virtualVar >= ProcessorTileEntity.MAXVARS) {
-            return -1;
         }
         return varCache[virtualVar];
     }

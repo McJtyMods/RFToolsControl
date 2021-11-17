@@ -263,10 +263,6 @@ public class Functions {
 
     @Nonnull
     public static List<Function> getFunctionsByType(ParameterType type) {
-        if (FUNCTIONS_BY_TYPE.containsKey(type)) {
-            return FUNCTIONS_BY_TYPE.get(type);
-        } else {
-            return Collections.emptyList();
-        }
+        return FUNCTIONS_BY_TYPE.getOrDefault(type, Collections.emptyList());
     }
 }

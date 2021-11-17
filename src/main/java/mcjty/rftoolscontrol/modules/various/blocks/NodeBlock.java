@@ -10,6 +10,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import static mcjty.lib.builder.TooltipBuilder.header;
@@ -70,7 +71,7 @@ public class NodeBlock extends BaseBlock {
     }
 
     @Override
-    public int getSignal(BlockState state, IBlockReader world, BlockPos pos, Direction side) {
+    public int getSignal(BlockState state, IBlockReader world, @Nonnull BlockPos pos, @Nonnull Direction side) {
         TileEntity te = world.getBlockEntity(pos);
         if (state.getBlock() instanceof NodeBlock && te instanceof NodeTileEntity) {
             NodeTileEntity processor = (NodeTileEntity) te;

@@ -105,6 +105,7 @@ public class MultiTankTileEntity extends GenericTileEntity {
 
     private MultiTankHandler handler = null;
 
+    @Nonnull
     private MultiTankHandler createFluidHandler() {
         return new MultiTankHandler(this);
     }

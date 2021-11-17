@@ -12,6 +12,8 @@ import mcjty.rftoolscontrol.modules.various.blocks.WorkbenchTileEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.util.ResourceLocation;
 
+import javax.annotation.Nonnull;
+
 import static mcjty.lib.gui.widgets.Widgets.positional;
 
 
@@ -44,7 +46,7 @@ public class GuiWorkbench extends GenericGuiContainer<WorkbenchTileEntity, Workb
     }
 
     @Override
-    protected void renderBg(MatrixStack matrixStack, float partialTicks, int mouseX, int mouseY) {
+    protected void renderBg(@Nonnull MatrixStack matrixStack, float partialTicks, int mouseX, int mouseY) {
         drawWindow(matrixStack);
     }
 }

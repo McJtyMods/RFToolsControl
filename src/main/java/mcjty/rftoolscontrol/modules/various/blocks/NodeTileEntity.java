@@ -21,6 +21,8 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.util.LazyOptional;
 
+import javax.annotation.Nonnull;
+
 public class NodeTileEntity extends GenericTileEntity {
 
     private String channel;
@@ -112,8 +114,9 @@ public class NodeTileEntity extends GenericTileEntity {
         processor = BlockPosTools.read(info, "processor");
     }
 
+    @Nonnull
     @Override
-    public CompoundNBT save(CompoundNBT tagCompound) {
+    public CompoundNBT save(@Nonnull CompoundNBT tagCompound) {
         super.save(tagCompound);
         tagCompound.putInt("prevIn", prevIn);
         for (int i = 0; i < 6; i++) {

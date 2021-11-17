@@ -13,6 +13,7 @@ import net.minecraft.world.IBlockReader;
 import net.minecraft.world.IWorldReader;
 import net.minecraft.world.World;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import static mcjty.lib.builder.TooltipBuilder.header;
@@ -30,8 +31,8 @@ public class ProcessorBlock extends BaseBlock {
     }
 
     @Override
-    public void neighborChanged(BlockState state, World world, BlockPos pos, Block blockIn, BlockPos fromPos, boolean p_220069_6_) {
-        super.neighborChanged(state, world, pos, blockIn, fromPos, p_220069_6_);
+    public void neighborChanged(@Nonnull BlockState state, @Nonnull World world, @Nonnull BlockPos pos, @Nonnull Block blockIn, @Nonnull BlockPos fromPos, boolean isMoving) {
+        super.neighborChanged(state, world, pos, blockIn, fromPos, isMoving);
         TileEntity te = world.getBlockEntity(pos);
         if (te instanceof ProcessorTileEntity) {
             ((ProcessorTileEntity) te).markFluidSlotsDirty();
@@ -85,7 +86,7 @@ public class ProcessorBlock extends BaseBlock {
     }
 
     @Override
-    public int getSignal(BlockState state, IBlockReader world, BlockPos pos, Direction side) {
+    public int getSignal(BlockState state, IBlockReader world, @Nonnull BlockPos pos, @Nonnull Direction side) {
         TileEntity te = world.getBlockEntity(pos);
         if (state.getBlock() instanceof ProcessorBlock && te instanceof ProcessorTileEntity) {
             ProcessorTileEntity processor = (ProcessorTileEntity) te;

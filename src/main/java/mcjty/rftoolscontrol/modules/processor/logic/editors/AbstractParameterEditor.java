@@ -221,7 +221,7 @@ public abstract class AbstractParameterEditor implements ParameterEditor {
 
     private void switchPage(String page, ParameterEditorCallback callback) {
         for (int i = 0 ; i < buttonPanel.getChildCount() ; i++) {
-            ToggleButton button = (ToggleButton) buttonPanel.getChild(i);
+            ToggleButton button = buttonPanel.getChild(i);
             if (!page.equals(button.getText())) {
                 button.pressed(false);
             } else {

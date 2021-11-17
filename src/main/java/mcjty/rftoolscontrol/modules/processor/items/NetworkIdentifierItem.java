@@ -21,6 +21,7 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Lazy;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 
@@ -41,11 +42,12 @@ public class NetworkIdentifierItem extends Item implements ITooltipSettings {
     }
 
     @Override
-    public void appendHoverText(ItemStack itemStack, @Nullable World worldIn, List<ITextComponent> list, ITooltipFlag flag) {
+    public void appendHoverText(@Nonnull ItemStack itemStack, @Nullable World worldIn, @Nonnull List<ITextComponent> list, @Nonnull ITooltipFlag flag) {
         super.appendHoverText(itemStack, worldIn, list, flag);
         tooltipBuilder.get().makeTooltip(getRegistryName(), itemStack, list, flag);
     }
 
+    @Nonnull
     @Override
     public ActionResultType useOn(ItemUseContext context) {
         PlayerEntity player = context.getPlayer();

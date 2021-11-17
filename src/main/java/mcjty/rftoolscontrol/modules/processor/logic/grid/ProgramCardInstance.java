@@ -3,6 +3,7 @@ package mcjty.rftoolscontrol.modules.processor.logic.grid;
 import com.google.gson.*;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.INBT;
 import net.minecraft.nbt.ListNBT;
 import net.minecraftforge.common.util.Constants;
 
@@ -48,8 +49,8 @@ public class ProgramCardInstance {
         ProgramCardInstance instance = new ProgramCardInstance();
 
         ListNBT grid = tagCompound.getList("grid", Constants.NBT.TAG_COMPOUND);
-        for (int i = 0 ; i < grid.size() ; i++) {
-            CompoundNBT gridElement = (CompoundNBT) grid.get(i);
+        for (INBT inbt : grid) {
+            CompoundNBT gridElement = (CompoundNBT) inbt;
             parseElement(gridElement, instance);
         }
         return instance;

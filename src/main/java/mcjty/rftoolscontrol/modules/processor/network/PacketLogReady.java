@@ -7,7 +7,6 @@ import mcjty.lib.network.NetworkTools;
 import mcjty.lib.typed.Type;
 import mcjty.lib.varia.Logging;
 import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorContainer;
-import net.minecraft.client.Minecraft;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.tileentity.TileEntity;
@@ -22,9 +21,9 @@ import java.util.function.Supplier;
 
 public class PacketLogReady {
 
-    public BlockPos pos;
-    public List<String> list;
-    public String command;
+    private BlockPos pos;
+    private List<String> list;
+    private String command;
 
     public PacketLogReady(PacketBuffer buf) {
         if (buf.readBoolean()) {

@@ -47,6 +47,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.lwjgl.glfw.GLFW;
 
+import javax.annotation.Nonnull;
 import java.util.*;
 
 import static mcjty.lib.gui.widgets.Widgets.*;
@@ -59,7 +60,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Pro
     public static final int GRID_HEIGHT = 10;
     public static final int GRID_WIDTH = 11;
 
-    public static int ICONSIZE = 20;
+    public static final int ICONSIZE = 20;
 
     private static final ResourceLocation mainBackground = new ResourceLocation(RFToolsControl.MODID, "textures/gui/programmer.png");
     private static final ResourceLocation sideBackground = new ResourceLocation(RFToolsControl.MODID, "textures/gui/sidegui.png");
@@ -616,9 +617,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Pro
         }
         String cardName = ProgramCardItem.getCardName(card);
         if (cardName.isEmpty() || McJtyLib.proxy.isSneaking()) {
-            GuiTools.askSomething(minecraft, this, getWindowManager(), 50, 50, "Card name:", cardName, s -> {
-                saveProgram(slot, s);
-            });
+            GuiTools.askSomething(minecraft, this, getWindowManager(), 50, 50, "Card name:", cardName, s -> saveProgram(slot, s));
         } else {
             saveProgram(slot, cardName);
         }
@@ -1193,7 +1192,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Pro
     private int saveCounter = 10;
 
     @Override
-    protected void renderBg(MatrixStack matrixStack, float partialTicks, int mouseX, int mouseY) {
+    protected void renderBg(@Nonnull MatrixStack matrixStack, float partialTicks, int mouseX, int mouseY) {
         drawWindow(matrixStack);
 
         trashcan.setIcon(null);

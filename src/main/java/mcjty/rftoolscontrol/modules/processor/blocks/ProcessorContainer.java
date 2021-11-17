@@ -14,6 +14,7 @@ import net.minecraftforge.common.util.Lazy;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.wrapper.InvWrapper;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import static mcjty.lib.container.SlotDefinition.generic;
@@ -56,7 +57,7 @@ public class ProcessorContainer extends GenericContainer {
     }
 
     @Override
-    public boolean stillValid(PlayerEntity player) {
+    public boolean stillValid(@Nonnull PlayerEntity player) {
         // If we are a remote container our canInteractWith should ignore distance
         if (isRemoteContainer()) {
             return te == null || !te.isRemoved();

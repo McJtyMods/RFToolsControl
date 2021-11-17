@@ -18,9 +18,9 @@ import java.util.function.Supplier;
 
 public class PacketCraftableItemsReady {
 
-    public BlockPos pos;
-    public List<ItemStack> list;
-    public String command;
+    private BlockPos pos;
+    private List<ItemStack> list;
+    private String command;
 
     public PacketCraftableItemsReady(PacketBuffer buf) {
         pos = buf.readBlockPos();

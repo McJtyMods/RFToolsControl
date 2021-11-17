@@ -27,6 +27,7 @@ public class QueuedEvent {
         return compiledEvent;
     }
 
+    @Nullable
     public String getTicket() {
         return ticket;
     }

@@ -20,6 +20,8 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fluids.FluidStack;
 
+import javax.annotation.Nonnull;
+
 import static mcjty.lib.gui.widgets.Widgets.label;
 import static mcjty.lib.gui.widgets.Widgets.positional;
 import static mcjty.rftoolscontrol.modules.multitank.blocks.MultiTankTileEntity.TANKS;
@@ -95,7 +97,7 @@ public class GuiMultiTank extends GenericGuiContainer<MultiTankTileEntity, Multi
     }
 
     @Override
-    protected void renderBg(MatrixStack matrixStack, float partialTicks, int mouseX, int mouseY) {
+    protected void renderBg(@Nonnull MatrixStack matrixStack, float partialTicks, int mouseX, int mouseY) {
         updateLiquids();
         drawWindow(matrixStack);
     }

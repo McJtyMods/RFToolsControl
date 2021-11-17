@@ -4,6 +4,7 @@ import mcjty.rftoolsbase.api.control.parameters.IParameter;
 import mcjty.rftoolsbase.api.control.parameters.ParameterType;
 import mcjty.rftoolsbase.api.control.parameters.ParameterValue;
 
+import javax.annotation.Nonnull;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -22,7 +23,7 @@ public class Parameter implements IParameter {
     }
 
     @Override
-    public int compareTo(IParameter parameter) {
+    public int compareTo(@Nonnull IParameter parameter) {
         switch (parameterType) {
             case PAR_STRING:
                 return TypeConverters.convertToString(this).compareTo(TypeConverters.convertToString(parameter));
@@ -62,6 +63,19 @@ public class Parameter implements IParameter {
                         });
         }
         return 0;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Parameter parameter = (Parameter) o;
+        return parameterType == parameter.parameterType && Objects.equals(parameterValue, parameter.parameterValue);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(parameterType, parameterValue);
     }
 
     private static int compareLists(List<Parameter> l1, List<Parameter> l2) {

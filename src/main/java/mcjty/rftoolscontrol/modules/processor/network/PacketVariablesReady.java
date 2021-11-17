@@ -21,9 +21,9 @@ import java.util.function.Supplier;
 
 public class PacketVariablesReady {
 
-    public BlockPos pos;
-    public List<Parameter> list;
-    public String command;
+    private BlockPos pos;
+    private List<Parameter> list;
+    private String command;
 
     public PacketVariablesReady(PacketBuffer buf) {
         if (buf.readBoolean()) {

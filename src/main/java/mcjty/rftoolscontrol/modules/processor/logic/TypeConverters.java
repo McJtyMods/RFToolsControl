@@ -525,9 +525,8 @@ public class TypeConverters {
 
     private static String vectorToString(List<Parameter> v, int max) {
         StringBuilder builder = new StringBuilder('[');
-        List<Parameter> vector = v;
         boolean first = true;
-        for (Parameter par : vector) {
+        for (Parameter par : v) {
             if (!first) {
                 builder.append(',');
             }

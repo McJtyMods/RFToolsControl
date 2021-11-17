@@ -13,7 +13,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.tags.ITag;
 import net.minecraft.tags.ItemTags;
-import net.minecraft.tags.Tag;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fluids.FluidStack;
@@ -916,9 +915,7 @@ public class Opcodes {
                     "are not adjacent to each other")
             .opcodeOutput(SINGLE)
             .icon(11, 1)
-            .runnable(((processor, program, opcode) -> {
-                return POSITIVE;
-            }))
+            .runnable(((processor, program, opcode) -> POSITIVE))
             .build();
     public static final Opcode DO_COMMENT = Opcode.builder()
             .id("do_comment")
@@ -932,9 +929,7 @@ public class Opcodes {
             .parameter(ParameterDescription.builder().name("comment2").type(PAR_STRING).optional().description("second comment line").build())
             .parameter(ParameterDescription.builder().name("comment3").type(PAR_STRING).optional().description("third comment line").build())
             .icon(11, 9)
-            .runnable(((processor, program, opcode) -> {
-                return POSITIVE;
-            }))
+            .runnable(((processor, program, opcode) -> POSITIVE))
             .build();
 
     public static final Opcode EVENT_CRAFT = Opcode.builder()
@@ -1134,9 +1129,7 @@ public class Opcodes {
             .opcodeOutput(YESNO)
             .parameter(ParameterDescription.builder().name("v").type(PAR_BOOLEAN).description("value to test").build())
             .icon(1, 3)
-            .runnable(((processor, program, opcode) -> {
-                return processor.evaluateBoolParameter(opcode, program, 0) ? POSITIVE : NEGATIVE;
-            }))
+            .runnable(((processor, program, opcode) -> processor.evaluateBoolParameter(opcode, program, 0) ? POSITIVE : NEGATIVE))
             .build();
 
     public static final Opcode EVENT_CRAFTRESUME = Opcode.builder()

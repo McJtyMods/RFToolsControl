@@ -54,13 +54,14 @@ public class ConsoleModuleItem extends GenericModuleItem implements ITabletSuppo
         RegistryKey<World> dimensionType = ModuleTools.getDimensionFromModule(containingItem);
         GuiTools.openRemoteGui(player, dimensionType, pos, te -> new INamedContainerProvider() {
             @Override
+            @Nonnull
             public ITextComponent getDisplayName() {
                 return new StringTextComponent("Remote Processor Console");
             }
 
-            @Nullable
+            @Nonnull
             @Override
-            public Container createMenu(int id, PlayerInventory inventory, PlayerEntity player) {
+            public Container createMenu(int id, @Nonnull PlayerInventory inventory, @Nonnull PlayerEntity player) {
                 ProcessorContainer container = ProcessorContainer.createRemote(id, pos, (GenericTileEntity) te);
                 te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).ifPresent(h -> {
                     container.setupInventories(h, inventory);
@@ -107,6 +108,7 @@ public class ConsoleModuleItem extends GenericModuleItem implements ITabletSuppo
     }
 
     @Override
+    @Nonnull
     public ActionResultType useOn(ItemUseContext context) {
         PlayerEntity player = context.getPlayer();
         Hand hand = context.getHand();

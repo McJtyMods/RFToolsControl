@@ -13,6 +13,8 @@ import mcjty.rftoolscontrol.modules.various.blocks.NodeTileEntity;
 import mcjty.rftoolscontrol.setup.RFToolsCtrlMessages;
 import net.minecraft.entity.player.PlayerInventory;
 
+import javax.annotation.Nonnull;
+
 import static mcjty.lib.gui.widgets.Widgets.*;
 import static mcjty.rftoolscontrol.modules.various.blocks.NodeTileEntity.PARAM_CHANNEL;
 import static mcjty.rftoolscontrol.modules.various.blocks.NodeTileEntity.PARAM_NODE;
@@ -67,7 +69,7 @@ public class GuiNode extends GenericGuiContainer<NodeTileEntity, NodeContainer> 
     }
 
     @Override
-    protected void renderBg(MatrixStack matrixStack, float partialTicks, int mouseX, int mouseY) {
+    protected void renderBg(@Nonnull MatrixStack matrixStack, float partialTicks, int mouseX, int mouseY) {
         drawWindow(matrixStack);
     }
 }

@@ -19,9 +19,9 @@ import java.util.function.Supplier;
 
 public class PacketRequestsReady {
 
-    public BlockPos pos;
-    public List<CraftingRequest> list;
-    public String command;
+    private BlockPos pos;
+    private List<CraftingRequest> list;
+    private String command;
 
     public PacketRequestsReady(PacketBuffer buf) {
         pos = buf.readBlockPos();

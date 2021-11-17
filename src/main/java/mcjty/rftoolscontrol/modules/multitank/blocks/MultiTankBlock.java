@@ -10,6 +10,8 @@ import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.world.IBlockReader;
 
+import javax.annotation.Nonnull;
+
 import static mcjty.lib.builder.TooltipBuilder.header;
 import static mcjty.lib.builder.TooltipBuilder.key;
 
@@ -30,8 +32,9 @@ public class MultiTankBlock extends BaseBlock {
         return RotationType.NONE;
     }
 
+    @Nonnull
     @Override
-    public VoxelShape getOcclusionShape(BlockState state, IBlockReader world, BlockPos pos) {
+    public VoxelShape getOcclusionShape(@Nonnull BlockState state, @Nonnull IBlockReader world, @Nonnull BlockPos pos) {
         return SMALLER_CUBE;
     }
 }

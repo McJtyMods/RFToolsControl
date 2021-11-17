@@ -25,6 +25,7 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -143,8 +144,12 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
             panel.children(blockRender);
             boolean failed = request.getFailed() != -1;
             boolean ok = request.getOk() != -1;
-            panel.children(label(failed ? "Failed!" : (ok ? "Ok" : "Wait (" + request.getTodo() + ")"))
-                    .color(failed ? 0xffff3030 : (ok ? 0xff30ff30 : StyleConfig.colorTextNormal)));
+            if (failed) {
+                panel.children(label("Failed!").color(0xffff3030));
+            } else {
+                panel.children(label(ok ? "Ok" : "Wait (" + request.getTodo() + ")")
+                        .color(ok ? 0xff30ff30 : StyleConfig.colorTextNormal));
+            }
         }
     }
 
@@ -240,7 +245,7 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
     }
 
     @Override
-    protected void renderBg(MatrixStack matrixStack, float partialTicks, int mouseX, int mouseY) {
+    protected void renderBg(@Nonnull MatrixStack matrixStack, float partialTicks, int mouseX, int mouseY) {
         requestListsIfNeeded();
         updateRecipeList();
         updateRequestList();

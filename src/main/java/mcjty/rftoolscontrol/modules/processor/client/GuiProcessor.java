@@ -37,6 +37,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fluids.FluidStack;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -149,7 +150,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity, Proce
         }
         hudMode.event((newChoice) -> {
             String choice = hudMode.getCurrentChoice();
-            int m = HUD_OFF;
+            int m;
             if ("Off".equals(choice)) {
                 m = HUD_OFF;
             } else if ("Log".equals(choice)) {
@@ -556,7 +557,12 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity, Proce
                 AbstractWidget<?> label;
                 if (setupMode != -1) {
                     boolean allocated = ((fluidAlloc >> i) & 1) != 0;
-                    int fill = allocated ? 0x7700ff00 : (tileEntity.isFluidAllocated(-1, i) ? 0x77660000 : 0x77444444);
+                    int fill;
+                    if (allocated) {
+                        fill = 0x7700ff00;
+                    } else {
+                        fill = tileEntity.isFluidAllocated(-1, i) ? 0x77660000 : 0x77444444;
+                    }
                     panel.filledBackground(fill);
                     if (allocated) {
                         label = label(String.valueOf(index)).color(0xffffffff).desiredWidth(26).userObject("allowed");
@@ -600,7 +606,12 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity, Proce
             Panel panel = horizontal().desiredWidth(40);
             if (setupMode != -1) {
                 boolean allocated = ((varAlloc >> i) & 1) != 0;
-                int fill = allocated ? 0x7700ff00 : (tileEntity.isVarAllocated(-1, i) ? 0x77660000 : 0x77444444);
+                int fill;
+                if (allocated) {
+                    fill = 0x7700ff00;
+                } else {
+                    fill = tileEntity.isVarAllocated(-1, i) ? 0x77660000 : 0x77444444;
+                }
                 panel.filledBackground(fill);
                 if (allocated) {
                     panel.children(label(String.valueOf(index)).color(0xffffffff).desiredWidth(26).userObject("allowed"));
@@ -621,7 +632,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity, Proce
     }
 
     @Override
-    protected void renderBg(MatrixStack matrixStack, float partialTicks, int mouseX, int mouseY) {
+    protected void renderBg(@Nonnull MatrixStack matrixStack, float partialTicks, int mouseX, int mouseY) {
 
         if (variableList.getChildCount() != tileEntity.getMaxvars()) {
             updateVariableList();
@@ -655,12 +666,17 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity, Proce
 
             boolean allocated = ((itemAlloc >> i) & 1) != 0;
             int border = allocated ? 0xffffffff : 0xaaaaaaaa;
-            int fill = allocated ? 0x7700ff00 : (tileEntity.isItemAllocated(-1, i) ? 0x77660000 : 0x77444444);
+            int fill;
+            if (allocated) {
+                fill = 0x7700ff00;
+            } else {
+                fill = tileEntity.isItemAllocated(-1, i) ? 0x77660000 : 0x77444444;
+            }
             RenderHelper.drawFlatBox(matrixStack, slot.x, slot.y,
                     slot.x + 17, slot.y + 17,
                     border, fill);
             if (allocated) {
-                this.drawString(matrixStack, minecraft.font, "" + index,
+                this.drawString(matrixStack, minecraft.font, String.valueOf(index),
                         slot.x + 4, slot.y + 4, 0xffffffff);
                 index++;
             }

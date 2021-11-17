@@ -14,6 +14,7 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Lazy;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 
@@ -41,7 +42,7 @@ public class ProgramCardItem extends Item implements ITooltipSettings {
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, @Nullable World worldIn, List<ITextComponent> list, ITooltipFlag flag) {
+    public void appendHoverText(@Nonnull ItemStack stack, @Nullable World worldIn, @Nonnull List<ITextComponent> list, @Nonnull ITooltipFlag flag) {
         super.appendHoverText(stack, worldIn, list, flag);
         tooltipBuilder.get().makeTooltip(getRegistryName(), stack, list, flag);
     }

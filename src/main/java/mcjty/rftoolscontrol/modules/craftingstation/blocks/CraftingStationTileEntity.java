@@ -327,8 +327,9 @@ public class CraftingStationTileEntity extends GenericTileEntity {
         }
     }
 
+    @Nonnull
     @Override
-    public CompoundNBT save(CompoundNBT tagCompound) {
+    public CompoundNBT save(@Nonnull CompoundNBT tagCompound) {
         super.save(tagCompound);
         writeProcessorList(tagCompound);
         writeRequests(tagCompound);

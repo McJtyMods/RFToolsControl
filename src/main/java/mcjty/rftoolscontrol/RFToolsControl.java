@@ -18,8 +18,8 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 public class RFToolsControl {
     public static final String MODID = "rftoolscontrol";
 
-    public static ModSetup setup = new ModSetup();
-    private Modules modules = new Modules();
+    public static final ModSetup setup = new ModSetup();
+    private final Modules modules = new Modules();
     public static RFToolsControl instance;
 
     public RFToolsControl() {

@@ -14,9 +14,9 @@ import java.util.function.Supplier;
 
 public class PacketUpdateNBTItemInventoryProgrammer {
 
-    public BlockPos pos;
-    public int slotIndex;
-    public CompoundNBT tagCompound;
+    private BlockPos pos;
+    private int slotIndex;
+    private CompoundNBT tagCompound;
 
     public PacketUpdateNBTItemInventoryProgrammer(PacketBuffer buf) {
         pos = buf.readBlockPos();

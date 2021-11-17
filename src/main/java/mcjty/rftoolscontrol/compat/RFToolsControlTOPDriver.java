@@ -14,7 +14,6 @@ import mcjty.theoneprobe.api.ProbeMode;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 
 import java.util.HashMap;

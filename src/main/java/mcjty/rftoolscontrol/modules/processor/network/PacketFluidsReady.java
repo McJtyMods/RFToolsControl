@@ -21,9 +21,9 @@ import java.util.function.Supplier;
 
 public class PacketFluidsReady {
 
-    public BlockPos pos;
-    public List<PacketGetFluids.FluidEntry> list;
-    public String command;
+    private BlockPos pos;
+    private List<PacketGetFluids.FluidEntry> list;
+    private String command;
 
     public PacketFluidsReady(PacketBuffer buf) {
         if (buf.readBoolean()) {

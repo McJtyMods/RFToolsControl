@@ -23,6 +23,7 @@ public class RFToolsSupport {
         }
     }
 
+    @Nullable
     private static List<GfxOp> readGfxOp(PacketBuffer buf) {
         int size = buf.readInt();
         if (size == 0) {
@@ -37,6 +38,7 @@ public class RFToolsSupport {
         return operations;
     }
 
+    @Nullable
     private static List<String> readLog(PacketBuffer buf) {
         int size = buf.readInt();
         if (size == 0) {
