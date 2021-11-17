@@ -1,12 +1,9 @@
 package mcjty.rftoolscontrol.modules.multitank.network;
 
 
-import mcjty.lib.network.IClientCommandHandler;
 import mcjty.lib.network.NetworkTools;
-import mcjty.lib.typed.Type;
-import mcjty.lib.varia.Logging;
+import mcjty.lib.tileentity.GenericTileEntity;
 import net.minecraft.network.PacketBuffer;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.network.NetworkEvent;
@@ -70,15 +67,7 @@ public class PacketTankFluidsReady {
     public void handle(Supplier<NetworkEvent.Context> supplier) {
         NetworkEvent.Context ctx = supplier.get();
         ctx.enqueueWork(() -> {
-            TileEntity te = ctx.getSender().getCommandSenderWorld().getBlockEntity(pos);
-            if(!(te instanceof IClientCommandHandler)) {
-                Logging.log("TileEntity is not a ClientCommandHandler!");
-                return;
-            }
-            IClientCommandHandler clientCommandHandler = (IClientCommandHandler) te;
-            if (!clientCommandHandler.receiveListFromServer(command, list, Type.create(FluidStack.class))) {
-                Logging.log("Command " + command + " was not handled!");
-            }
+            GenericTileEntity.executeClientCommandHelper(pos, command, list);
         });
         ctx.setPacketHandled(true);
     }

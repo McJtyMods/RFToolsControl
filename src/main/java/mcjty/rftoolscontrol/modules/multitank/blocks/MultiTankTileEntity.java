@@ -1,11 +1,11 @@
 package mcjty.rftoolscontrol.modules.multitank.blocks;
 
 import mcjty.lib.api.container.DefaultContainerProvider;
+import mcjty.lib.blockcommands.ListCommand;
+import mcjty.lib.blockcommands.ServerCommand;
 import mcjty.lib.tileentity.Cap;
 import mcjty.lib.tileentity.CapType;
 import mcjty.lib.tileentity.GenericTileEntity;
-import mcjty.lib.typed.Type;
-import mcjty.lib.typed.TypedMap;
 import mcjty.rftoolscontrol.modules.multitank.MultiTankModule;
 import mcjty.rftoolscontrol.modules.multitank.util.MultiTankFluidProperties;
 import mcjty.rftoolscontrol.modules.multitank.util.MultiTankHandler;
@@ -16,13 +16,9 @@ import net.minecraftforge.fluids.FluidStack;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class MultiTankTileEntity extends GenericTileEntity {
-
-    public static final String CMD_GETFLUIDS = "getFluids";
-    public static final String CLIENTCMD_GETFLUIDS = "getFluids";
 
     public static final int TANKS = 4;
     public static final int MAXCAPACITY = 10000;
@@ -70,38 +66,20 @@ public class MultiTankTileEntity extends GenericTileEntity {
         }
     }
 
-    @Nonnull
-    @Override
-    public <T> List<T> executeWithResultList(String command, TypedMap args, Type<T> type) {
-        List<T> rc = super.executeWithResultList(command, args, type);
-        if (!rc.isEmpty()) {
-            return rc;
-        }
-        if (CMD_GETFLUIDS.equals(command)) {
-            List<FluidStack> result = new ArrayList<>(TANKS);
-            for (MultiTankFluidProperties property : properties) {
-                result.add(property.getContents());
-            }
-            return type.convert(result);
-        }
-        return Collections.emptyList();
-    }
-
-    @Override
-    public <T> boolean receiveListFromServer(String command, List<T> list, Type<T> type) {
-        boolean rc = super.receiveListFromServer(command, list, type);
-        if (rc) {
-            return true;
-        }
-        if (CLIENTCMD_GETFLUIDS.equals(command)) {
-            for (int i = 0 ; i < TANKS ; i++) {
-                properties[i].set((FluidStack)list.get(i));
-            }
-            return true;
-        }
-        return false;
-    }
-
+    @ServerCommand
+    public static final ListCommand<?, ?> CMD_GETFLUIDS = ListCommand.<MultiTankTileEntity, FluidStack>create("getFluids",
+            (te, player, params) -> {
+                List<FluidStack> result = new ArrayList<>(TANKS);
+                for (MultiTankFluidProperties property : te.properties) {
+                    result.add(property.getContents());
+                }
+                return result;
+            },
+            (te, player, params, list) -> {
+                for (int i = 0 ; i < TANKS ; i++) {
+                    te.properties[i].set(list.get(i));
+                }
+            });
 
     private MultiTankHandler handler = null;
 

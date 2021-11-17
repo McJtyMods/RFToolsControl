@@ -2,6 +2,7 @@ package mcjty.rftoolscontrol.modules.processor.blocks;
 
 import mcjty.lib.api.container.DefaultContainerProvider;
 import mcjty.lib.blockcommands.Command;
+import mcjty.lib.blockcommands.ListCommand;
 import mcjty.lib.blockcommands.ServerCommand;
 import mcjty.lib.container.NoDirectionItemHander;
 import mcjty.lib.tileentity.Cap;
@@ -10,7 +11,6 @@ import mcjty.lib.tileentity.GenericEnergyStorage;
 import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.lib.typed.Key;
 import mcjty.lib.typed.Type;
-import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.BlockPosTools;
 import mcjty.lib.varia.Cached;
 import mcjty.lib.varia.EnergyTools;
@@ -106,15 +106,6 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
     public static final int EXPANSION_SLOTS = 4 * 4;
     public static final int MAXVARS = 32;
     public static final int MAXFLUIDVARS = 4 * 6;
-
-    public static final String CMD_GETLOG = "getLog";
-    public static final String CLIENTCMD_GETLOG = "getLog";
-    public static final String CMD_GETDEBUGLOG = "getDebugLog";
-    public static final String CLIENTCMD_GETDEBUGLOG = "getDebugLog";
-    public static final String CMD_GETVARS = "getVars";
-    public static final String CLIENTCMD_GETVARS = "getVars";
-    public static final String CMD_GETFLUIDS = "getFluids";
-    public static final String CLIENTCMD_GETFLUIDS = "getFluids";
 
     private static final BiFunction<ParameterType, Object, ItemStack> CONVERTOR_ITEM = TypeConverters::convertToItem;
     private static final BiFunction<ParameterType, Object, FluidStack> CONVERTOR_FLUID = TypeConverters::convertToFluid;
@@ -3165,48 +3156,25 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
     public static final Command<?> CMD_SETHUDMODE = Command.<ProcessorTileEntity>create("setHudMode",
             (te, player, params) -> te.setShowHud(params.get(PARAM_HUDMODE)));
 
-    @Nonnull
-    @Override
-    public <T> List<T> executeWithResultList(String command, TypedMap args, Type<T> type) {
-        List<T> rc = super.executeWithResultList(command, args, type);
-        if (!rc.isEmpty()) {
-            return rc;
-        }
-        if (CMD_GETLOG.equals(command)) {
-            return type.convert(getLog());
-        } else if (CMD_GETDEBUGLOG.equals(command)) {
-            return type.convert(getDebugLog());
-        } else if (CMD_GETVARS.equals(command)) {
-            return type.convert(getVariables());
-        } else if (CMD_GETFLUIDS.equals(command)) {
-            return type.convert(getFluids());
-        }
-        return Collections.emptyList();
-    }
+    @ServerCommand
+    public static final ListCommand<?, ?> CMD_GETLOG = ListCommand.<ProcessorTileEntity, String>create("getLog",
+            (te, player, params) -> te.getLog(),
+            (te, player, params, list) -> te.clientLog = list);
 
-    @Override
-    public <T> boolean receiveListFromServer(String command, List<T> list, Type<T> type) {
-        boolean rc = super.receiveListFromServer(command, list, type);
-        if (rc) {
-            return true;
-        }
-        if (CLIENTCMD_GETLOG.equals(command)) {
-            clientLog = Type.STRING.convert(list);
-            return true;
-        } else if (CLIENTCMD_GETDEBUGLOG.equals(command)) {
-            clientDebugLog = Type.STRING.convert(list);
-            return true;
-        } else if (CLIENTCMD_GETVARS.equals(command)) {
-            GuiProcessor.storeVarsForClient(Type.create(Parameter.class).convert(list));
-            return true;
-        } else if (CLIENTCMD_GETFLUIDS.equals(command)) {
-            GuiProcessor.storeFluidsForClient(Type.create(PacketGetFluids.FluidEntry.class).convert(list));
-            return true;
-        }
-        return false;
-    }
+    @ServerCommand
+    public static final ListCommand<?, ?> CMD_GETDEBUGLOG = ListCommand.<ProcessorTileEntity, String>create("getDebugLog",
+            (te, player, params) -> te.getDebugLog(),
+            (te, player, params, list) -> te.clientDebugLog = list);
 
-    @SuppressWarnings("NullableProblems")
+    @ServerCommand
+    public static final ListCommand<?, ?> CMD_GETVARS = ListCommand.<ProcessorTileEntity, Parameter>create("getVars",
+            (te, player, params) -> te.getVariables(),
+            (te, player, params, list) -> GuiProcessor.storeVarsForClient(list));
+
+    @ServerCommand
+    public static final ListCommand<?, ?> CMD_GETFLUIDS = ListCommand.<ProcessorTileEntity, PacketGetFluids.FluidEntry>create("getFluids",
+            (te, player, params) -> te.getFluids(),
+            (te, player, params, list) -> GuiProcessor.storeFluidsForClient(list));
 
     @Override
     public AxisAlignedBB getRenderBoundingBox() {

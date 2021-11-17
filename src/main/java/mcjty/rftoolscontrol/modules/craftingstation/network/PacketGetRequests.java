@@ -1,9 +1,8 @@
 package mcjty.rftoolscontrol.modules.craftingstation.network;
 
 
-import mcjty.lib.network.ICommandHandler;
 import mcjty.lib.network.TypedMapTools;
-import mcjty.lib.typed.Type;
+import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.Logging;
 import mcjty.rftoolscontrol.modules.craftingstation.blocks.CraftingStationTileEntity;
@@ -45,14 +44,14 @@ public class PacketGetRequests {
             World world = ctx.getSender().getCommandSenderWorld();
             if (world.hasChunkAt(pos)) {
                 TileEntity te = world.getBlockEntity(pos);
-                if (!(te instanceof ICommandHandler)) {
-                    Logging.log("TileEntity is not a CommandHandler!");
+                if (te instanceof GenericTileEntity) {
+                    List<CraftingRequest> list = ((GenericTileEntity) te).executeServerCommandList(CraftingStationTileEntity.CMD_GETREQUESTS.getName(), ctx.getSender(), params, CraftingRequest.class);
+                    RFToolsCtrlMessages.INSTANCE.sendTo(new PacketRequestsReady(pos, CraftingStationTileEntity.CMD_GETREQUESTS.getName(), list),
+                            ctx.getSender().connection.connection, NetworkDirection.PLAY_TO_CLIENT);
+                } else {
+                    Logging.log("Command is not handled!");
                     return;
                 }
-                ICommandHandler commandHandler = (ICommandHandler) te;
-                List<CraftingRequest> list = commandHandler.executeWithResultList(CraftingStationTileEntity.CMD_GETREQUESTS, params, Type.create(CraftingRequest.class));
-                RFToolsCtrlMessages.INSTANCE.sendTo(new PacketRequestsReady(pos, CraftingStationTileEntity.CLIENTCMD_GETREQUESTS, list),
-                        ctx.getSender().connection.connection, NetworkDirection.PLAY_TO_CLIENT);
             }
         });
         ctx.setPacketHandled(true);

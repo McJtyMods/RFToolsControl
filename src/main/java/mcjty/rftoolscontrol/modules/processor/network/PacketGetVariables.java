@@ -1,11 +1,9 @@
 package mcjty.rftoolscontrol.modules.processor.network;
 
 
-import mcjty.lib.network.ICommandHandler;
 import mcjty.lib.network.TypedMapTools;
-import mcjty.lib.typed.Type;
+import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.lib.typed.TypedMap;
-import mcjty.lib.varia.Logging;
 import mcjty.lib.varia.LevelTools;
 import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorTileEntity;
 import mcjty.rftoolscontrol.modules.processor.logic.Parameter;
@@ -56,14 +54,11 @@ public class PacketGetVariables {
             ServerWorld world = LevelTools.getLevel(ctx.getSender().getCommandSenderWorld(), type);
             if (world.hasChunkAt(pos)) {
                 TileEntity te = world.getBlockEntity(pos);
-                if (!(te instanceof ICommandHandler)) {
-                    Logging.log("TileEntity is not a CommandHandler!");
-                    return;
+                if (te instanceof GenericTileEntity) {
+                    List<Parameter> list = ((GenericTileEntity) te).executeServerCommandList(ProcessorTileEntity.CMD_GETVARS.getName(), ctx.getSender(), params, Parameter.class);
+                    RFToolsCtrlMessages.INSTANCE.sendTo(new PacketVariablesReady(fromTablet ? null : pos, ProcessorTileEntity.CMD_GETVARS.getName(), list),
+                            ctx.getSender().connection.connection, NetworkDirection.PLAY_TO_CLIENT);
                 }
-                ICommandHandler commandHandler = (ICommandHandler) te;
-                List<Parameter> list = commandHandler.executeWithResultList(ProcessorTileEntity.CMD_GETVARS, params, Type.create(Parameter.class));
-                RFToolsCtrlMessages.INSTANCE.sendTo(new PacketVariablesReady(fromTablet ? null : pos, ProcessorTileEntity.CLIENTCMD_GETVARS, list),
-                        ctx.getSender().connection.connection, NetworkDirection.PLAY_TO_CLIENT);
             }
         });
         ctx.setPacketHandled(true);

@@ -1,11 +1,9 @@
 package mcjty.rftoolscontrol.modules.processor.network;
 
 
-import mcjty.lib.network.ICommandHandler;
 import mcjty.lib.network.TypedMapTools;
-import mcjty.lib.typed.Type;
+import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.lib.typed.TypedMap;
-import mcjty.lib.varia.Logging;
 import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorTileEntity;
 import mcjty.rftoolscontrol.setup.RFToolsCtrlMessages;
 import net.minecraft.network.PacketBuffer;
@@ -44,13 +42,10 @@ public class PacketGetDebugLog {
             World world = ctx.getSender().getCommandSenderWorld();
             if (world.hasChunkAt(pos)) {
                 TileEntity te = world.getBlockEntity(pos);
-                if (!(te instanceof ICommandHandler)) {
-                    Logging.log("TileEntity is not a CommandHandler!");
-                    return;
+                if (te instanceof GenericTileEntity) {
+                    List<String> list = ((GenericTileEntity) te).executeServerCommandList(ProcessorTileEntity.CMD_GETDEBUGLOG.getName(), ctx.getSender(), params, String.class);
+                    RFToolsCtrlMessages.INSTANCE.sendTo(new PacketLogReady(pos, ProcessorTileEntity.CMD_GETDEBUGLOG.getName(), list), ctx.getSender().connection.connection, NetworkDirection.PLAY_TO_CLIENT);
                 }
-                ICommandHandler commandHandler = (ICommandHandler) te;
-                List<String> list = commandHandler.executeWithResultList(ProcessorTileEntity.CMD_GETDEBUGLOG, params, Type.STRING);
-                RFToolsCtrlMessages.INSTANCE.sendTo(new PacketLogReady(pos, ProcessorTileEntity.CLIENTCMD_GETDEBUGLOG, list), ctx.getSender().connection.connection, NetworkDirection.PLAY_TO_CLIENT);
             }
         });
         ctx.setPacketHandled(true);

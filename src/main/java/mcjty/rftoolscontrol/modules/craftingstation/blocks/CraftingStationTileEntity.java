@@ -2,6 +2,7 @@ package mcjty.rftoolscontrol.modules.craftingstation.blocks;
 
 import mcjty.lib.api.container.DefaultContainerProvider;
 import mcjty.lib.blockcommands.Command;
+import mcjty.lib.blockcommands.ListCommand;
 import mcjty.lib.blockcommands.ServerCommand;
 import mcjty.lib.container.NoDirectionItemHander;
 import mcjty.lib.tileentity.Cap;
@@ -9,7 +10,6 @@ import mcjty.lib.tileentity.CapType;
 import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.lib.typed.Key;
 import mcjty.lib.typed.Type;
-import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.BlockPosTools;
 import mcjty.lib.varia.ItemStackList;
 import mcjty.rftoolsbase.api.control.parameters.Inventory;
@@ -37,17 +37,11 @@ import org.apache.commons.lang3.tuple.Pair;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import static mcjty.rftoolscontrol.modules.craftingstation.blocks.CraftingStationContainer.CONTAINER_FACTORY;
 
 public class CraftingStationTileEntity extends GenericTileEntity {
-
-    public static final String CMD_GETCRAFTABLE = "getCraftable";
-    public static final String CLIENTCMD_GETCRAFTABLE = "getCraftable";
-    public static final String CMD_GETREQUESTS = "getRequests";
-    public static final String CLIENTCMD_GETREQUESTS = "getRequests";
 
     @Cap(type = CapType.ITEMS_AUTOMATION)
     private final NoDirectionItemHander items = createItemHandler();
@@ -418,37 +412,15 @@ public class CraftingStationTileEntity extends GenericTileEntity {
     public static final Command<?> CMD_CANCEL = Command.<CraftingStationTileEntity>create("station.cancel",
             (te, player, params) -> te.cancelCraft(params.get(PARAM_INDEX)));
 
+    @ServerCommand
+    public static final ListCommand<?, ?> CMD_GETCRAFTABLE = ListCommand.<CraftingStationTileEntity, ItemStack>create("getCraftable",
+            (te, player, params) -> te.getCraftableItems(),
+            (te, player, params, list) -> GuiCraftingStation.storeCraftableForClient(list));
 
-    @Nonnull
-    @Override
-    public <T> List<T> executeWithResultList(String command, TypedMap args, Type<T> type) {
-        List<T> rc = super.executeWithResultList(command, args, type);
-        if (!rc.isEmpty()) {
-            return rc;
-        }
-        if (CMD_GETCRAFTABLE.equals(command)) {
-            return type.convert(getCraftableItems());
-        } else if (CMD_GETREQUESTS.equals(command)) {
-            return type.convert(getRequests());
-        }
-        return Collections.emptyList();
-    }
-
-    @Override
-    public <T> boolean receiveListFromServer(String command, List<T> list, Type<T> type) {
-        boolean rc = super.receiveListFromServer(command, list, type);
-        if (rc) {
-            return true;
-        }
-        if (CLIENTCMD_GETCRAFTABLE.equals(command)) {
-            GuiCraftingStation.storeCraftableForClient(Type.create(ItemStack.class).convert(list));
-            return true;
-        } else if (CLIENTCMD_GETREQUESTS.equals(command)) {
-            GuiCraftingStation.storeRequestsForClient(Type.create(CraftingRequest.class).convert(list));
-            return true;
-        }
-        return false;
-    }
+    @ServerCommand
+    public static final ListCommand<?, ?> CMD_GETREQUESTS = ListCommand.<CraftingStationTileEntity, CraftingRequest>create("getRequests",
+            (te, player, params) -> te.getRequests(),
+            (te, player, params, list) -> GuiCraftingStation.storeRequestsForClient(list));
 
     private NoDirectionItemHander createItemHandler() {
         return new NoDirectionItemHander(CraftingStationTileEntity.this, CONTAINER_FACTORY.get());

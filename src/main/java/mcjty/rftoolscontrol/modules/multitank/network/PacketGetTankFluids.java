@@ -1,9 +1,8 @@
 package mcjty.rftoolscontrol.modules.multitank.network;
 
 
-import mcjty.lib.network.ICommandHandler;
 import mcjty.lib.network.TypedMapTools;
-import mcjty.lib.typed.Type;
+import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.Logging;
 import mcjty.rftoolscontrol.modules.multitank.blocks.MultiTankTileEntity;
@@ -45,14 +44,14 @@ public class PacketGetTankFluids {
             World world = ctx.getSender().getCommandSenderWorld();
             if (world.hasChunkAt(pos)) {
                 TileEntity te = world.getBlockEntity(pos);
-                if (!(te instanceof ICommandHandler)) {
-                    Logging.log("TileEntity is not a CommandHandler!");
+                if (te instanceof GenericTileEntity) {
+                    List<FluidStack> list = ((GenericTileEntity) te).executeServerCommandList(MultiTankTileEntity.CMD_GETFLUIDS.getName(), ctx.getSender(), params, FluidStack.class);
+                    RFToolsCtrlMessages.INSTANCE.sendTo(new PacketTankFluidsReady(pos, MultiTankTileEntity.CMD_GETFLUIDS.getName(), list),
+                            ctx.getSender().connection.connection, NetworkDirection.PLAY_TO_CLIENT);
+                } else {
+                    Logging.log("Command not handled!");
                     return;
                 }
-                ICommandHandler commandHandler = (ICommandHandler) te;
-                List<FluidStack> list = commandHandler.executeWithResultList(MultiTankTileEntity.CMD_GETFLUIDS, params, Type.create(FluidStack.class));
-                RFToolsCtrlMessages.INSTANCE.sendTo(new PacketTankFluidsReady(pos, MultiTankTileEntity.CLIENTCMD_GETFLUIDS, list),
-                        ctx.getSender().connection.connection, NetworkDirection.PLAY_TO_CLIENT);
             }
         });
         ctx.setPacketHandled(true);

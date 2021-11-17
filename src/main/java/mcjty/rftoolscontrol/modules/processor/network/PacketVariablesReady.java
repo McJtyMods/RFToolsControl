@@ -2,8 +2,8 @@ package mcjty.rftoolscontrol.modules.processor.network;
 
 
 import mcjty.lib.McJtyLib;
-import mcjty.lib.network.IClientCommandHandler;
-import mcjty.lib.typed.Type;
+import mcjty.lib.tileentity.GenericTileEntity;
+import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.Logging;
 import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorContainer;
 import mcjty.rftoolscontrol.modules.processor.logic.Parameter;
@@ -85,14 +85,9 @@ public class PacketVariablesReady {
                 te = container.getTe();
             } else {
                 te = McJtyLib.proxy.getClientWorld().getBlockEntity(pos);
-                if (!(te instanceof IClientCommandHandler)) {
-                    Logging.log("TileEntity is not a ClientCommandHandler!");
-                    return;
-                }
             }
-            IClientCommandHandler clientCommandHandler = (IClientCommandHandler) te;
-            if (!clientCommandHandler.receiveListFromServer(command, list, Type.create(Parameter.class))) {
-                Logging.log("Command " + command + " was not handled!");
+            if (te instanceof GenericTileEntity) {
+                ((GenericTileEntity) te).executeClientCommandList(command, McJtyLib.proxy.getClientPlayer(), TypedMap.EMPTY, list);
             }
         });
         ctx.setPacketHandled(true);
