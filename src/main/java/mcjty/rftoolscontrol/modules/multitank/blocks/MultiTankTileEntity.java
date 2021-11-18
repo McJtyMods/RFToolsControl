@@ -66,7 +66,7 @@ public class MultiTankTileEntity extends GenericTileEntity {
         }
     }
 
-    @ServerCommand
+    @ServerCommand(type = FluidStack.class)
     public static final ListCommand<?, ?> CMD_GETFLUIDS = ListCommand.<MultiTankTileEntity, FluidStack>create("rftoolscontrol.tank.getFluids",
             (te, player, params) -> {
                 List<FluidStack> result = new ArrayList<>(TANKS);

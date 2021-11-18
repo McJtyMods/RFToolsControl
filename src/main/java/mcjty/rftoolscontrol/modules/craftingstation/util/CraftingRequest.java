@@ -1,8 +1,12 @@
 package mcjty.rftoolscontrol.modules.craftingstation.util;
 
+import mcjty.lib.blockcommands.ISerializer;
 import mcjty.lib.network.NetworkTools;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketBuffer;
+
+import java.util.function.BiConsumer;
+import java.util.function.Function;
 
 public class CraftingRequest {
     private final String ticket;
@@ -11,28 +15,36 @@ public class CraftingRequest {
     private long ok = -1;                 // If != -1we are ok but show for a while longer
     private int todo = 0;                 // Todo counter
 
+    public static class Serializer implements ISerializer<CraftingRequest> {
+        @Override
+        public Function<PacketBuffer, CraftingRequest> getDeserializer() {
+            return buf -> {
+                String id = buf.readUtf(32767);
+                ItemStack stack1 = NetworkTools.readItemStack(buf);
+                int amount = buf.readInt();
+                CraftingRequest request = new CraftingRequest(id, stack1, amount);
+                request.setOk(buf.readLong());
+                request.setFailed(buf.readLong());
+                return request;
+            };
+        }
+
+        @Override
+        public BiConsumer<PacketBuffer, CraftingRequest> getSerializer() {
+            return (buf, item) -> {
+                buf.writeUtf(item.getTicket());
+                NetworkTools.writeItemStack(buf, item.getStack());
+                buf.writeInt(item.getTodo());
+                buf.writeLong(item.getOk());
+                buf.writeLong(item.getFailed());
+            };
+        }
+    }
+
     public CraftingRequest(String ticket, ItemStack stack, int todo) {
         this.ticket = ticket;
         this.stack = stack;
         this.todo = todo;
-    }
-
-    public static CraftingRequest fromPacket(PacketBuffer buf) {
-        String id = buf.readUtf(32767);
-        ItemStack stack = NetworkTools.readItemStack(buf);
-        int amount = buf.readInt();
-        CraftingRequest request = new CraftingRequest(id, stack, amount);
-        request.setOk(buf.readLong());
-        request.setFailed(buf.readLong());
-        return request;
-    }
-
-    public static void toPacket(PacketBuffer buf, CraftingRequest item) {
-        buf.writeUtf(item.getTicket());
-        NetworkTools.writeItemStack(buf, item.getStack());
-        buf.writeInt(item.getTodo());
-        buf.writeLong(item.getOk());
-        buf.writeLong(item.getFailed());
     }
 
     public String getTicket() {

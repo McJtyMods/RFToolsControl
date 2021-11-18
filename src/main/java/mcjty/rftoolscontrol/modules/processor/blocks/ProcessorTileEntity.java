@@ -3156,22 +3156,22 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
     public static final Command<?> CMD_SETHUDMODE = Command.<ProcessorTileEntity>create("setHudMode",
             (te, player, params) -> te.setShowHud(params.get(PARAM_HUDMODE)));
 
-    @ServerCommand
+    @ServerCommand(type = String.class)
     public static final ListCommand<?, ?> CMD_GETDEBUGLOG = ListCommand.<ProcessorTileEntity, String>create("rftoolscontrol.processor.getDebugLog",
             (te, player, params) -> te.getDebugLog(),
             (te, player, params, list) -> te.clientDebugLog = list);
 
-    @ServerCommand
+    @ServerCommand(type = String.class)
     public static final ListCommand<?, ?> CMD_GETLOG = ListCommand.<ProcessorTileEntity, String>create("rftoolscontrol.processor.getLog",
             (te, player, params) -> te.getLog(),
             (te, player, params, list) -> te.clientLog = list);
 
-    @ServerCommand
+    @ServerCommand(type = Parameter.class, serializer = Parameter.Serializer.class)
     public static final ListCommand<?, ?> CMD_GETVARS = ListCommand.<ProcessorTileEntity, Parameter>create("rftoolscontrol.processor.getVars",
             (te, player, params) -> te.getVariables(),
             (te, player, params, list) -> GuiProcessor.storeVarsForClient(list));
 
-    @ServerCommand
+    @ServerCommand(type = PacketGetFluids.FluidEntry.class, serializer = PacketGetFluids.FluidEntry.Serializer.class)
     public static final ListCommand<?, ?> CMD_GETFLUIDS = ListCommand.<ProcessorTileEntity, PacketGetFluids.FluidEntry>create("rftoolscontrol.processor.getFluids",
             (te, player, params) -> te.getFluids(),
             (te, player, params, list) -> GuiProcessor.storeFluidsForClient(list));

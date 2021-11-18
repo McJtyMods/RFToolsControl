@@ -1,6 +1,7 @@
 package mcjty.rftoolscontrol.modules.processor.network;
 
 
+import mcjty.lib.blockcommands.ISerializer;
 import mcjty.lib.network.NetworkTools;
 import mcjty.lib.network.TypedMapTools;
 import mcjty.lib.tileentity.GenericTileEntity;
@@ -19,6 +20,8 @@ import net.minecraftforge.fml.network.NetworkDirection;
 import net.minecraftforge.fml.network.NetworkEvent;
 
 import java.util.List;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class PacketGetFluids {
@@ -67,6 +70,18 @@ public class PacketGetFluids {
     public static class FluidEntry {
         private final FluidStack fluidStack;
         private final boolean allocated;
+
+        public static class Serializer implements ISerializer<FluidEntry> {
+            @Override
+            public Function<PacketBuffer, FluidEntry> getDeserializer() {
+                return FluidEntry::fromPacket;
+            }
+
+            @Override
+            public BiConsumer<PacketBuffer, FluidEntry> getSerializer() {
+                return FluidEntry::toPacket;
+            }
+        }
 
         public FluidEntry(FluidStack fluidStack, boolean allocated) {
             this.fluidStack = fluidStack;

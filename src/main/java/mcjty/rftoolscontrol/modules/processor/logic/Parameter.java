@@ -1,13 +1,17 @@
 package mcjty.rftoolscontrol.modules.processor.logic;
 
+import mcjty.lib.blockcommands.ISerializer;
 import mcjty.rftoolsbase.api.control.parameters.IParameter;
 import mcjty.rftoolsbase.api.control.parameters.ParameterType;
 import mcjty.rftoolsbase.api.control.parameters.ParameterValue;
+import net.minecraft.network.PacketBuffer;
 
 import javax.annotation.Nonnull;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
 
 /**
  * A representation of a parameter.
@@ -20,6 +24,18 @@ public class Parameter implements IParameter {
     private Parameter(Builder builder) {
         parameterType = builder.parameterType;
         parameterValue = builder.parameterValue;
+    }
+
+    public static class Serializer implements ISerializer<Parameter> {
+        @Override
+        public Function<PacketBuffer, Parameter> getDeserializer() {
+            return ParameterTools::readFromBuf;
+        }
+
+        @Override
+        public BiConsumer<PacketBuffer, Parameter> getSerializer() {
+            return ParameterTools::writeToBuf;
+        }
     }
 
     @Override
