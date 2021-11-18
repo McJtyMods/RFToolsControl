@@ -1,6 +1,7 @@
 package mcjty.rftoolscontrol.modules.processor.network;
 
 
+import mcjty.lib.network.NetworkTools;
 import mcjty.lib.network.TypedMapTools;
 import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.lib.typed.TypedMap;
@@ -70,6 +71,35 @@ public class PacketGetFluids {
         public FluidEntry(FluidStack fluidStack, boolean allocated) {
             this.fluidStack = fluidStack;
             this.allocated = allocated;
+        }
+
+        public static FluidEntry fromPacket(PacketBuffer buf) {
+            if (buf.readBoolean()) {
+                FluidStack fluidStack = null;
+                if (buf.readBoolean()) {
+                    fluidStack = NetworkTools.readFluidStack(buf);
+                }
+                boolean allocated = buf.readBoolean();
+                PacketGetFluids.FluidEntry item = new PacketGetFluids.FluidEntry(fluidStack, allocated);
+                return item;
+            } else {
+                return null;
+            }
+        }
+
+        public static void toPacket(PacketBuffer buf, FluidEntry item) {
+            if (item == null) {
+                buf.writeBoolean(false);
+            } else {
+                buf.writeBoolean(true);
+                if (item.getFluidStack() != null) {
+                    buf.writeBoolean(true);
+                    NetworkTools.writeFluidStack(buf, item.getFluidStack());
+                } else {
+                    buf.writeBoolean(false);
+                }
+                buf.writeBoolean(item.isAllocated());
+            }
         }
 
         public FluidStack getFluidStack() {

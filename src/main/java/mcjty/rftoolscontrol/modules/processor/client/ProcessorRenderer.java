@@ -3,13 +3,13 @@ package mcjty.rftoolscontrol.modules.processor.client;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import mcjty.lib.blocks.BaseBlock;
 import mcjty.lib.client.RenderHelper;
+import mcjty.lib.network.PacketGetListFromServer;
 import mcjty.lib.network.PacketSendServerCommand;
 import mcjty.lib.typed.TypedMap;
 import mcjty.rftoolscontrol.CommandHandler;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.modules.processor.ProcessorModule;
 import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorTileEntity;
-import mcjty.rftoolscontrol.modules.processor.network.PacketGetDebugLog;
 import mcjty.rftoolscontrol.modules.processor.network.PacketGetLog;
 import mcjty.rftoolscontrol.modules.processor.vectorart.GfxOp;
 import mcjty.rftoolscontrol.setup.RFToolsCtrlMessages;
@@ -18,10 +18,10 @@ import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.client.renderer.tileentity.TileEntityRenderer;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.util.Direction;
+import net.minecraft.util.math.vector.Vector3f;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 
 import javax.annotation.Nonnull;
@@ -105,7 +105,7 @@ public class ProcessorRenderer extends TileEntityRenderer<ProcessorTileEntity> {
         long t = System.currentTimeMillis();
         if (t - tileEntity.clientTime > 250) {
             if (tileEntity.getShowHud() == HUD_DB) {
-                RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketGetDebugLog(tileEntity.getBlockPos()));
+                RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketGetListFromServer(tileEntity.getBlockPos(), CMD_GETDEBUGLOG.getName()));
             } else {
                 RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketGetLog(tileEntity.getDimension(), tileEntity.getBlockPos(), false));
             }

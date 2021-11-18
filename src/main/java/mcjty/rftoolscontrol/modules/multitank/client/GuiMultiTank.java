@@ -9,11 +9,11 @@ import mcjty.lib.gui.layout.VerticalAlignment;
 import mcjty.lib.gui.widgets.BlockRender;
 import mcjty.lib.gui.widgets.Label;
 import mcjty.lib.gui.widgets.Panel;
+import mcjty.lib.network.PacketGetListFromServer;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.modules.multitank.MultiTankModule;
 import mcjty.rftoolscontrol.modules.multitank.blocks.MultiTankContainer;
 import mcjty.rftoolscontrol.modules.multitank.blocks.MultiTankTileEntity;
-import mcjty.rftoolscontrol.modules.multitank.network.PacketGetTankFluids;
 import mcjty.rftoolscontrol.modules.multitank.util.MultiTankFluidProperties;
 import mcjty.rftoolscontrol.setup.RFToolsCtrlMessages;
 import net.minecraft.entity.player.PlayerInventory;
@@ -69,7 +69,7 @@ public class GuiMultiTank extends GenericGuiContainer<MultiTankTileEntity, Multi
     }
 
     private void requestLists() {
-        RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketGetTankFluids(tileEntity.getBlockPos()));
+        RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketGetListFromServer(tileEntity.getBlockPos(), MultiTankTileEntity.CMD_GETFLUIDS.getName()));
     }
 
     private void requestListsIfNeeded() {

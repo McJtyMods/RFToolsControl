@@ -2,7 +2,6 @@ package mcjty.rftoolscontrol.modules.processor.network;
 
 
 import mcjty.lib.McJtyLib;
-import mcjty.lib.network.NetworkTools;
 import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.Logging;
@@ -11,7 +10,6 @@ import net.minecraft.inventory.container.Container;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.network.NetworkEvent;
 
 import javax.annotation.Nullable;
@@ -35,13 +33,7 @@ public class PacketFluidsReady {
         if (size != -1) {
             list = new ArrayList<>(size);
             for (int i = 0 ; i < size ; i++) {
-                FluidStack fluidStack = null;
-                if (buf.readBoolean()) {
-                    fluidStack = NetworkTools.readFluidStack(buf);
-                }
-                boolean allocated = buf.readBoolean();
-                PacketGetFluids.FluidEntry item = new PacketGetFluids.FluidEntry(fluidStack, allocated);
-                list.add(item);
+                list.add(PacketGetFluids.FluidEntry.fromPacket(buf));
             }
         } else {
             list = null;
@@ -70,17 +62,7 @@ public class PacketFluidsReady {
         } else {
             buf.writeInt(list.size());
             for (PacketGetFluids.FluidEntry item : list) {
-                if (item == null) {
-                    buf.writeByte(-1);
-                } else {
-                    if (item.getFluidStack() != null) {
-                        buf.writeBoolean(true);
-                        NetworkTools.writeFluidStack(buf, item.getFluidStack());
-                    } else {
-                        buf.writeBoolean(false);
-                    }
-                    buf.writeBoolean(item.isAllocated());
-                }
+                PacketGetFluids.FluidEntry.toPacket(buf, item);
             }
         }
     }

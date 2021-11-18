@@ -8,13 +8,12 @@ import mcjty.lib.gui.ManualEntry;
 import mcjty.lib.gui.Window;
 import mcjty.lib.gui.events.BlockRenderEvent;
 import mcjty.lib.gui.widgets.*;
+import mcjty.lib.network.PacketGetListFromServer;
 import mcjty.lib.typed.TypedMap;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.modules.craftingstation.CraftingStationModule;
 import mcjty.rftoolscontrol.modules.craftingstation.blocks.CraftingStationContainer;
 import mcjty.rftoolscontrol.modules.craftingstation.blocks.CraftingStationTileEntity;
-import mcjty.rftoolscontrol.modules.craftingstation.network.PacketGetCraftableItems;
-import mcjty.rftoolscontrol.modules.craftingstation.network.PacketGetRequests;
 import mcjty.rftoolscontrol.modules.craftingstation.util.CraftingRequest;
 import mcjty.rftoolscontrol.modules.programmer.client.GuiTools;
 import mcjty.rftoolscontrol.setup.RFToolsCtrlMessages;
@@ -117,8 +116,8 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
     }
 
     private void requestLists() {
-        RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketGetCraftableItems(tileEntity.getBlockPos()));
-        RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketGetRequests(tileEntity.getBlockPos()));
+        RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketGetListFromServer(tileEntity.getBlockPos(), CMD_GETCRAFTABLE.getName()));
+        RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketGetListFromServer(tileEntity.getBlockPos(), CMD_GETREQUESTS.getName()));
     }
 
     private void requestListsIfNeeded() {

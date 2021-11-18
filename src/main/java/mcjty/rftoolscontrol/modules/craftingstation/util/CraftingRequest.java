@@ -1,6 +1,8 @@
 package mcjty.rftoolscontrol.modules.craftingstation.util;
 
+import mcjty.lib.network.NetworkTools;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.PacketBuffer;
 
 public class CraftingRequest {
     private final String ticket;
@@ -13,6 +15,24 @@ public class CraftingRequest {
         this.ticket = ticket;
         this.stack = stack;
         this.todo = todo;
+    }
+
+    public static CraftingRequest fromPacket(PacketBuffer buf) {
+        String id = buf.readUtf(32767);
+        ItemStack stack = NetworkTools.readItemStack(buf);
+        int amount = buf.readInt();
+        CraftingRequest request = new CraftingRequest(id, stack, amount);
+        request.setOk(buf.readLong());
+        request.setFailed(buf.readLong());
+        return request;
+    }
+
+    public static void toPacket(PacketBuffer buf, CraftingRequest item) {
+        buf.writeUtf(item.getTicket());
+        NetworkTools.writeItemStack(buf, item.getStack());
+        buf.writeInt(item.getTodo());
+        buf.writeLong(item.getOk());
+        buf.writeLong(item.getFailed());
     }
 
     public String getTicket() {

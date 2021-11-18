@@ -413,12 +413,12 @@ public class CraftingStationTileEntity extends GenericTileEntity {
             (te, player, params) -> te.cancelCraft(params.get(PARAM_INDEX)));
 
     @ServerCommand
-    public static final ListCommand<?, ?> CMD_GETCRAFTABLE = ListCommand.<CraftingStationTileEntity, ItemStack>create("getCraftable",
+    public static final ListCommand<?, ?> CMD_GETCRAFTABLE = ListCommand.<CraftingStationTileEntity, ItemStack>create("rftoolscontrol.station.getCraftable",
             (te, player, params) -> te.getCraftableItems(),
             (te, player, params, list) -> GuiCraftingStation.storeCraftableForClient(list));
 
     @ServerCommand
-    public static final ListCommand<?, ?> CMD_GETREQUESTS = ListCommand.<CraftingStationTileEntity, CraftingRequest>create("getRequests",
+    public static final ListCommand<?, ?> CMD_GETREQUESTS = ListCommand.<CraftingStationTileEntity, CraftingRequest>create("rftoolscontrol.station.getRequests",
             (te, player, params) -> te.getRequests(),
             (te, player, params, list) -> GuiCraftingStation.storeRequestsForClient(list));
 

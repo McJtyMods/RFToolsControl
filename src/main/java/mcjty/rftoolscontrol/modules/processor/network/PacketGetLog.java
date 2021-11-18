@@ -1,5 +1,6 @@
 package mcjty.rftoolscontrol.modules.processor.network;
 
+import mcjty.lib.network.PacketGetListFromServer;
 import mcjty.lib.network.TypedMapTools;
 import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.lib.typed.TypedMap;
@@ -15,41 +16,50 @@ import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.fml.network.NetworkDirection;
 import net.minecraftforge.fml.network.NetworkEvent;
 
+import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.function.Supplier;
 
-public class PacketGetLog {
+public class PacketGetLog extends PacketGetListFromServer {
 
-    protected BlockPos pos;
-    protected RegistryKey<World> type;
-    protected TypedMap params;
     private boolean fromTablet;
 
     public PacketGetLog(PacketBuffer buf) {
-        pos = buf.readBlockPos();
-        type = LevelTools.getId(buf.readResourceLocation());
-        params = TypedMapTools.readArguments(buf);
+        super(buf);
         fromTablet = buf.readBoolean();
     }
 
-    public PacketGetLog(RegistryKey<World> type, BlockPos pos, boolean fromTablet) {
-        this.pos = pos;
-        this.type = type;
-        this.params = TypedMap.EMPTY;
+    public PacketGetLog(RegistryKey<World> dimension, BlockPos pos, boolean fromTablet) {
+        super(dimension, pos, ProcessorTileEntity.CMD_GETLOG.getName(), TypedMap.EMPTY);
         this.fromTablet = fromTablet;
     }
 
+    public PacketGetLog(RegistryKey<World> dimension, BlockPos pos, String cmd, @Nonnull TypedMap params) {
+        super(dimension, pos, cmd, params);
+        fromTablet = false;
+    }
+
+    public PacketGetLog(BlockPos pos, String cmd, @Nonnull TypedMap params) {
+        super(pos, cmd, params);
+        fromTablet = false;
+    }
+
+    public PacketGetLog(BlockPos pos, String cmd) {
+        super(pos, cmd);
+        fromTablet = false;
+    }
+
+    @Override
     public void toBytes(PacketBuffer buf) {
-        buf.writeBlockPos(pos);
-        buf.writeResourceLocation(type.location());
-        TypedMapTools.writeArguments(buf, params);
+        super.toBytes(buf);
         buf.writeBoolean(fromTablet);
     }
 
+    @Override
     public void handle(Supplier<NetworkEvent.Context> supplier) {
         NetworkEvent.Context ctx = supplier.get();
         ctx.enqueueWork(() -> {
-            ServerWorld world = LevelTools.getLevel(ctx.getSender().getCommandSenderWorld(), type);
+            ServerWorld world = LevelTools.getLevel(ctx.getSender().getCommandSenderWorld(), dimension);
             if (world.hasChunkAt(pos)) {
                 TileEntity te = world.getBlockEntity(pos);
                 if (te instanceof GenericTileEntity) {
