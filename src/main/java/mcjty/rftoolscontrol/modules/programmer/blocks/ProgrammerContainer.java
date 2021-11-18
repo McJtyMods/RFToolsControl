@@ -17,13 +17,12 @@ import javax.annotation.Nullable;
 import static mcjty.lib.container.SlotDefinition.*;
 
 public class ProgrammerContainer extends GenericContainer {
-    public static final String CONTAINER_INVENTORY = "container";
     public static final int SLOT_CARD = 0;
     public static final int SLOT_DUMMY = 1;
 
     public static final Lazy<ContainerFactory> CONTAINER_FACTORY = Lazy.of(() -> new ContainerFactory(2)
-            .box(specific(new ItemStack(VariousModule.PROGRAM_CARD.get())).in().out(), CONTAINER_INVENTORY, SLOT_CARD, 91, 136, 1, 1)
-            .box(generic(), CONTAINER_INVENTORY, SLOT_DUMMY, -1000, -1000, 1, 1)
+            .box(specific(new ItemStack(VariousModule.PROGRAM_CARD.get())).in().out(), SLOT_CARD, 91, 136, 1, 1)
+            .box(generic(), SLOT_DUMMY, -1000, -1000, 1, 1)
             .playerSlots(91, 157));
 
     public ProgrammerContainer(int id, ContainerFactory factory, BlockPos pos, @Nullable GenericTileEntity te) {
@@ -32,7 +31,7 @@ public class ProgrammerContainer extends GenericContainer {
 
     @Override
     public void setupInventories(IItemHandler itemHandler, PlayerInventory inventory) {
-        addInventory(CONTAINER_INVENTORY, itemHandler);
+        addInventory(ContainerFactory.CONTAINER_CONTAINER, itemHandler);
         addInventory(ContainerFactory.CONTAINER_PLAYER, new InvWrapper(inventory));
         generateSlots(inventory.player);
     }

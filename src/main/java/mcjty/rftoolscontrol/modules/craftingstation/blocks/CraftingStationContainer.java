@@ -15,12 +15,11 @@ import static mcjty.lib.container.SlotDefinition.generic;
 import static mcjty.rftoolscontrol.modules.craftingstation.CraftingStationModule.CRAFTING_STATION_CONTAINER;
 
 public class CraftingStationContainer extends GenericContainer {
-    public static final String CONTAINER_INVENTORY = "container";
 
     public static final int SLOT_OUTPUT = 0;
 
     public static final Lazy<ContainerFactory> CONTAINER_FACTORY = Lazy.of(() -> new ContainerFactory(9)
-            .box(generic(), CONTAINER_INVENTORY, SLOT_OUTPUT, 6, 157, 3, 3)
+            .box(generic(), SLOT_OUTPUT, 6, 157, 3, 3)
             .playerSlots(66, 157));
 
     public CraftingStationContainer(int id, ContainerFactory factory, BlockPos pos, @Nullable GenericTileEntity te) {
@@ -29,7 +28,7 @@ public class CraftingStationContainer extends GenericContainer {
 
     @Override
     public void setupInventories(IItemHandler itemHandler, PlayerInventory inventory) {
-        addInventory(CONTAINER_INVENTORY, itemHandler);
+        addInventory(ContainerFactory.CONTAINER_CONTAINER, itemHandler);
         addInventory(ContainerFactory.CONTAINER_PLAYER, new InvWrapper(inventory));
         generateSlots(inventory.player);
     }
