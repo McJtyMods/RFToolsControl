@@ -83,7 +83,7 @@ public class PacketFluidsReady {
                 te = McJtyLib.proxy.getClientWorld().getBlockEntity(pos);
             }
             if (te instanceof GenericTileEntity) {
-                ((GenericTileEntity) te).executeClientCommandList(command, McJtyLib.proxy.getClientPlayer(), TypedMap.EMPTY, list);
+                ((GenericTileEntity) te).handleListFromServer(command, McJtyLib.proxy.getClientPlayer(), TypedMap.EMPTY, list);
             }
         });
         ctx.setPacketHandled(true);
