@@ -2630,7 +2630,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
 
     public void setShowHud(int showHud) {
         this.showHud = showHud;
-        setChanged();
+        markDirtyClient();
     }
 
     @Override
