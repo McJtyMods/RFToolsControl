@@ -5,6 +5,7 @@ import mcjty.lib.blockcommands.Command;
 import mcjty.lib.blockcommands.ListCommand;
 import mcjty.lib.blockcommands.ServerCommand;
 import mcjty.lib.container.NoDirectionItemHander;
+import mcjty.lib.sync.SyncToGui;
 import mcjty.lib.tileentity.Cap;
 import mcjty.lib.tileentity.CapType;
 import mcjty.lib.tileentity.GenericEnergyStorage;
@@ -137,6 +138,8 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
     public static final int HUD_LOG = 1;
     public static final int HUD_DB = 2;
     public static final int HUD_GFX = 3;
+
+    @SyncToGui
     private int showHud = HUD_OFF;
 
     // If true some cards might need compiling
@@ -156,6 +159,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
     // Client-side only: for the HUD
     private final List<GfxOp> clientGfxOps = new ArrayList<>();
 
+    @SyncToGui
     private boolean exclusive = false;
 
     private String lastException = null;
