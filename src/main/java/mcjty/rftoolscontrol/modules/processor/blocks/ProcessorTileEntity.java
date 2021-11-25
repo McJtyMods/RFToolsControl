@@ -5,7 +5,7 @@ import mcjty.lib.bindings.GuiValue;
 import mcjty.lib.blockcommands.Command;
 import mcjty.lib.blockcommands.ListCommand;
 import mcjty.lib.blockcommands.ServerCommand;
-import mcjty.lib.container.NoDirectionItemHander;
+import mcjty.lib.container.GenericItemHandler;
 import mcjty.lib.tileentity.Cap;
 import mcjty.lib.tileentity.CapType;
 import mcjty.lib.tileentity.GenericEnergyStorage;
@@ -121,7 +121,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
     private static final BiFunction<ParameterType, Object, Number> CONVERTOR_NUMBER = TypeConverters::convertToNumber;
 
     @Cap(type = CapType.ITEMS_AUTOMATION)
-    private final NoDirectionItemHander items = createItemHandler();
+    private final GenericItemHandler items = createItemHandler();
 
     @Cap(type = CapType.ENERGY)
     private final GenericEnergyStorage energyStorage = new GenericEnergyStorage(this, true, Config.processorMaxenergy.get(), Config.processorReceivepertick.get());
@@ -3189,8 +3189,8 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
         return new AxisAlignedBB(xCoord, yCoord, zCoord, xCoord + 1, yCoord + 21, zCoord + 1);
     }
 
-    private NoDirectionItemHander createItemHandler() {
-        return new NoDirectionItemHander(ProcessorTileEntity.this, CONTAINER_FACTORY.get()) {
+    private GenericItemHandler createItemHandler() {
+        return new GenericItemHandler(ProcessorTileEntity.this, CONTAINER_FACTORY.get()) {
 
             @Override
             protected void onUpdate(int index) {

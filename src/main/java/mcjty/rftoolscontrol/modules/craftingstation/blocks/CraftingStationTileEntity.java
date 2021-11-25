@@ -6,7 +6,7 @@ import mcjty.lib.blockcommands.ListCommand;
 import mcjty.lib.blockcommands.ServerCommand;
 import mcjty.lib.container.ContainerFactory;
 import mcjty.lib.container.GenericContainer;
-import mcjty.lib.container.NoDirectionItemHander;
+import mcjty.lib.container.GenericItemHandler;
 import mcjty.lib.tileentity.Cap;
 import mcjty.lib.tileentity.CapType;
 import mcjty.lib.tileentity.GenericTileEntity;
@@ -55,7 +55,7 @@ public class CraftingStationTileEntity extends GenericTileEntity {
             .playerSlots(66, 157));
 
     @Cap(type = CapType.ITEMS_AUTOMATION)
-    private final NoDirectionItemHander items = createItemHandler();
+    private final GenericItemHandler items = createItemHandler();
 
     @Cap(type = CapType.CONTAINER)
     private final LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<GenericContainer>("Crafter")
@@ -434,7 +434,7 @@ public class CraftingStationTileEntity extends GenericTileEntity {
             (te, player, params) -> te.getRequests(),
             (te, player, params, list) -> GuiCraftingStation.storeRequestsForClient(list));
 
-    private NoDirectionItemHander createItemHandler() {
-        return new NoDirectionItemHander(CraftingStationTileEntity.this, CONTAINER_FACTORY.get());
+    private GenericItemHandler createItemHandler() {
+        return new GenericItemHandler(CraftingStationTileEntity.this, CONTAINER_FACTORY.get());
     }
 }

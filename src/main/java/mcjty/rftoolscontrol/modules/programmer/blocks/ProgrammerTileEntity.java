@@ -4,7 +4,7 @@ package mcjty.rftoolscontrol.modules.programmer.blocks;
 import mcjty.lib.api.container.DefaultContainerProvider;
 import mcjty.lib.container.ContainerFactory;
 import mcjty.lib.container.GenericContainer;
-import mcjty.lib.container.NoDirectionItemHander;
+import mcjty.lib.container.GenericItemHandler;
 import mcjty.lib.tileentity.Cap;
 import mcjty.lib.tileentity.CapType;
 import mcjty.lib.tileentity.GenericTileEntity;
@@ -34,7 +34,7 @@ public class ProgrammerTileEntity extends GenericTileEntity {
             .playerSlots(91, 157));
 
     @Cap(type = CapType.ITEMS_AUTOMATION)
-    private final NoDirectionItemHander items = createItemHandler();
+    private final GenericItemHandler items = createItemHandler();
 
     @Cap(type = CapType.CONTAINER)
     private final LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<GenericContainer>("Programmer")
@@ -47,7 +47,7 @@ public class ProgrammerTileEntity extends GenericTileEntity {
         items.setStackInSlot(SLOT_DUMMY, new ItemStack(VariousModule.PROGRAM_CARD.get()));
     }
 
-    public NoDirectionItemHander getItems() {
+    public GenericItemHandler getItems() {
         return items;
     }
 
@@ -78,8 +78,8 @@ public class ProgrammerTileEntity extends GenericTileEntity {
         }
     }
 
-    private NoDirectionItemHander createItemHandler() {
-        return new NoDirectionItemHander(ProgrammerTileEntity.this, CONTAINER_FACTORY.get());
+    private GenericItemHandler createItemHandler() {
+        return new GenericItemHandler(ProgrammerTileEntity.this, CONTAINER_FACTORY.get());
     }
 }
 

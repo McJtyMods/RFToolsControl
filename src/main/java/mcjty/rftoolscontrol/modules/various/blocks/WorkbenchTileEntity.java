@@ -5,7 +5,7 @@ import mcjty.lib.McJtyLib;
 import mcjty.lib.api.container.DefaultContainerProvider;
 import mcjty.lib.container.AutomationFilterItemHander;
 import mcjty.lib.container.ContainerFactory;
-import mcjty.lib.container.NoDirectionItemHander;
+import mcjty.lib.container.GenericItemHandler;
 import mcjty.lib.container.SlotDefinition;
 import mcjty.lib.tileentity.Cap;
 import mcjty.lib.tileentity.CapType;
@@ -43,7 +43,7 @@ public class WorkbenchTileEntity extends GenericTileEntity {
             .box(generic(), SLOT_BUFFER, 6, 99, 9, 3)
             .playerSlots(6, 157));
 
-    private final NoDirectionItemHander items = createItemHandler();
+    private final GenericItemHandler items = createItemHandler();
     private final LazyOptional<WorkbenchItemHandler> automationItemHandlerUp = LazyOptional.of(() -> new WorkbenchItemHandler(items, Direction.UP));
     private final LazyOptional<WorkbenchItemHandler> automationItemHandlerDown = LazyOptional.of(() -> new WorkbenchItemHandler(items, Direction.DOWN));
     private final LazyOptional<WorkbenchItemHandler> automationItemHandlerSide = LazyOptional.of(() -> new WorkbenchItemHandler(items, null));
@@ -128,8 +128,8 @@ public class WorkbenchTileEntity extends GenericTileEntity {
     public void craftItem() {
     }
 
-    private NoDirectionItemHander createItemHandler() {
-        return new NoDirectionItemHander(WorkbenchTileEntity.this, CONTAINER_FACTORY.get()) {
+    private GenericItemHandler createItemHandler() {
+        return new GenericItemHandler(WorkbenchTileEntity.this, CONTAINER_FACTORY.get()) {
 
             // While crafting we don't update the recipe
             private int crafting = 0;
@@ -221,7 +221,7 @@ public class WorkbenchTileEntity extends GenericTileEntity {
 
         private final Direction direction;
 
-        public WorkbenchItemHandler(NoDirectionItemHander wrapped, @Nullable Direction direction) {
+        public WorkbenchItemHandler(GenericItemHandler wrapped, @Nullable Direction direction) {
             super(wrapped);
             this.direction = direction;
         }
