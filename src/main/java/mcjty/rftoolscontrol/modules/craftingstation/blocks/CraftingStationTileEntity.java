@@ -60,7 +60,8 @@ public class CraftingStationTileEntity extends GenericTileEntity {
     @Cap(type = CapType.CONTAINER)
     private final LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<GenericContainer>("Crafter")
             .containerSupplier(container(CRAFTING_STATION_CONTAINER, CONTAINER_FACTORY, this))
-            .itemHandler(() -> items));
+            .itemHandler(() -> items)
+            .setupSync(this));
 
     private final List<BlockPos> processorList = new ArrayList<>();
     private int currentTicket = 0;

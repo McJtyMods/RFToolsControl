@@ -33,7 +33,7 @@ public class MultiTankTileEntity extends GenericTileEntity {
     private final LazyOptional<MultiTankHandler> fluidHandler = LazyOptional.of(this::createFluidHandler);
 
     @Cap(type = CapType.CONTAINER)
-    private final LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<GenericContainer>("Crafter")
+    private final LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<GenericContainer>("Multi tank")
             .containerSupplier(empty(MULTITANK_CONTAINER, this))
             .setupSync(this));
 
