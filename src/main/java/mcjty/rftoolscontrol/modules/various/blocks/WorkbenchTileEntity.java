@@ -135,7 +135,7 @@ public class WorkbenchTileEntity extends GenericTileEntity {
             private int crafting = 0;
 
             @Override
-            protected void onUpdate(int index) {
+            protected void onUpdate(int index, ItemStack stack) {
                 if (isCraftInputSlot(index)) {
                     if (crafting <= 0) {
                         updateRecipe();

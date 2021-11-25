@@ -121,7 +121,14 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
     private static final BiFunction<ParameterType, Object, Number> CONVERTOR_NUMBER = TypeConverters::convertToNumber;
 
     @Cap(type = CapType.ITEMS_AUTOMATION)
-    private final GenericItemHandler items = createItemHandler();
+    private final GenericItemHandler items = GenericItemHandler.create(this, CONTAINER_FACTORY, (slot, stack) -> {
+        if (isExpansionSlot(slot)) {
+            return isValidExpansionItem(stack.getItem());
+        } else if (isCardSlot(slot)) {
+            return stack.getItem() == VariousModule.PROGRAM_CARD.get();
+        }
+        return true;
+    }, (slot, stack) -> onUpdateCard(slot));
 
     @Cap(type = CapType.ENERGY)
     private final GenericEnergyStorage energyStorage = new GenericEnergyStorage(this, true, Config.processorMaxenergy.get(), Config.processorReceivepertick.get());
@@ -3134,6 +3141,24 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
         setChanged();
     }
 
+    private boolean isValidExpansionItem(Item item) {
+        Item storageCardItem = RFToolsStuff.STORAGE_CONTROL_MODULE;
+        return item == ProcessorModule.GRAPHICS_CARD.get() || item == ProcessorModule.NETWORK_CARD.get() ||
+                item == ProcessorModule.ADVANCED_NETWORK_CARD.get() || item == ProcessorModule.CPU_CORE_500.get() ||
+                item == ProcessorModule.CPU_CORE_1000.get() || item == ProcessorModule.CPU_CORE_2000.get() ||
+                item == ProcessorModule.RAM_CHIP.get() || item == storageCardItem || item instanceof FilterModuleItem;
+    }
+
+    private void onUpdateCard(int index) {
+        if (isCardSlot(index)) {
+            removeCard(index - ProcessorContainer.SLOT_CARD);
+            cardsDirty = true;
+        } else if (isExpansionSlot(index)) {
+            clearExpansions();
+        }
+    }
+
+
     public static final Key<Integer> PARAM_CARD = new Key<>("card", Type.INTEGER);
     public static final Key<Integer> PARAM_ITEMS = new Key<>("items", Type.INTEGER);
     public static final Key<Integer> PARAM_VARS = new Key<>("vars", Type.INTEGER);
@@ -3189,37 +3214,4 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
         return new AxisAlignedBB(xCoord, yCoord, zCoord, xCoord + 1, yCoord + 21, zCoord + 1);
     }
 
-    private GenericItemHandler createItemHandler() {
-        return new GenericItemHandler(ProcessorTileEntity.this, CONTAINER_FACTORY.get()) {
-
-            @Override
-            protected void onUpdate(int index) {
-                if (isCardSlot(index)) {
-                    removeCard(index - ProcessorContainer.SLOT_CARD);
-                    cardsDirty = true;
-                } else if (isExpansionSlot(index)) {
-                    clearExpansions();
-                }
-            }
-
-            @Override
-            public boolean isItemValid(int index, @Nonnull ItemStack stack) {
-                if (stack.isEmpty()) {
-                    return true;
-                }
-                Item item = stack.getItem();
-                if (isExpansionSlot(index)) {
-                    Item storageCardItem = RFToolsStuff.STORAGE_CONTROL_MODULE;
-                    return item == ProcessorModule.GRAPHICS_CARD.get() || item == ProcessorModule.NETWORK_CARD.get() ||
-                            item == ProcessorModule.ADVANCED_NETWORK_CARD.get() || item == ProcessorModule.CPU_CORE_500.get() ||
-                            item == ProcessorModule.CPU_CORE_1000.get() || item == ProcessorModule.CPU_CORE_2000.get() ||
-                            item == ProcessorModule.RAM_CHIP.get() || item == storageCardItem || item instanceof FilterModuleItem;
-                } else if (isCardSlot(index)) {
-                    return item == VariousModule.PROGRAM_CARD.get();
-                }
-                return true;
-            }
-
-        };
-    }
 }

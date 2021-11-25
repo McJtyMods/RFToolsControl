@@ -34,7 +34,7 @@ public class ProgrammerTileEntity extends GenericTileEntity {
             .playerSlots(91, 157));
 
     @Cap(type = CapType.ITEMS_AUTOMATION)
-    private final GenericItemHandler items = createItemHandler();
+    private final GenericItemHandler items = GenericItemHandler.create(this, CONTAINER_FACTORY);
 
     @Cap(type = CapType.CONTAINER)
     private final LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<GenericContainer>("Programmer")
@@ -78,8 +78,5 @@ public class ProgrammerTileEntity extends GenericTileEntity {
         }
     }
 
-    private GenericItemHandler createItemHandler() {
-        return new GenericItemHandler(ProgrammerTileEntity.this, CONTAINER_FACTORY.get());
-    }
 }
 
