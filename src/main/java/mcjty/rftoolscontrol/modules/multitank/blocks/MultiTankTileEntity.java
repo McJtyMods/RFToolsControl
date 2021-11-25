@@ -3,6 +3,7 @@ package mcjty.rftoolscontrol.modules.multitank.blocks;
 import mcjty.lib.api.container.DefaultContainerProvider;
 import mcjty.lib.blockcommands.ListCommand;
 import mcjty.lib.blockcommands.ServerCommand;
+import mcjty.lib.container.GenericContainer;
 import mcjty.lib.tileentity.Cap;
 import mcjty.lib.tileentity.CapType;
 import mcjty.lib.tileentity.GenericTileEntity;
@@ -18,6 +19,9 @@ import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 
+import static mcjty.lib.api.container.DefaultContainerProvider.empty;
+import static mcjty.rftoolscontrol.modules.multitank.MultiTankModule.MULTITANK_CONTAINER;
+
 public class MultiTankTileEntity extends GenericTileEntity {
 
     public static final int TANKS = 4;
@@ -29,8 +33,9 @@ public class MultiTankTileEntity extends GenericTileEntity {
     private final LazyOptional<MultiTankHandler> fluidHandler = LazyOptional.of(this::createFluidHandler);
 
     @Cap(type = CapType.CONTAINER)
-    private final LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<MultiTankContainer>("Crafter")
-            .containerSupplier(windowId -> new MultiTankContainer(windowId, MultiTankContainer.CONTAINER_FACTORY.get(), getBlockPos(), MultiTankTileEntity.this)));
+    private final LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<GenericContainer>("Crafter")
+            .containerSupplier(empty(MULTITANK_CONTAINER, this))
+            .setupSync(this));
 
     public MultiTankTileEntity() {
         super(MultiTankModule.MULTITANK_TILE.get());

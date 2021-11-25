@@ -3,6 +3,7 @@ package mcjty.rftoolscontrol.modules.programmer.client;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import mcjty.lib.McJtyLib;
 import mcjty.lib.base.StyleConfig;
+import mcjty.lib.container.GenericContainer;
 import mcjty.lib.gui.GenericGuiContainer;
 import mcjty.lib.gui.Window;
 import mcjty.lib.gui.WindowManager;
@@ -30,7 +31,6 @@ import mcjty.rftoolscontrol.modules.processor.logic.grid.GridPos;
 import mcjty.rftoolscontrol.modules.processor.logic.grid.ProgramCardInstance;
 import mcjty.rftoolscontrol.modules.processor.logic.registry.Opcodes;
 import mcjty.rftoolscontrol.modules.programmer.ProgrammerModule;
-import mcjty.rftoolscontrol.modules.programmer.blocks.ProgrammerContainer;
 import mcjty.rftoolscontrol.modules.programmer.blocks.ProgrammerTileEntity;
 import mcjty.rftoolscontrol.modules.programmer.network.PacketUpdateNBTItemInventoryProgrammer;
 import mcjty.rftoolscontrol.modules.various.items.ProgramCardItem;
@@ -52,7 +52,7 @@ import java.util.*;
 
 import static mcjty.lib.gui.widgets.Widgets.*;
 
-public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, ProgrammerContainer> {
+public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, GenericContainer> {
     public static final int SIDEWIDTH = 80;
     public static final int WIDTH = 256;
     public static final int HEIGHT = 236;
@@ -117,7 +117,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Pro
         errorIcon2 = new ImageIcon("E2").setDimensions(ICONSIZE, ICONSIZE).setImage(icons, 2 * ICONSIZE, 8 * ICONSIZE);
     }
 
-    public GuiProgrammer(ProgrammerTileEntity te, ProgrammerContainer container, PlayerInventory inventory) {
+    public GuiProgrammer(ProgrammerTileEntity te, GenericContainer container, PlayerInventory inventory) {
         super(te, container, inventory, ProgrammerModule.PROGRAMMER.get().getManualEntry());
 
         imageWidth = WIDTH;
@@ -163,7 +163,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Pro
         sidePanel.bounds(leftPos - SIDEWIDTH, topPos, SIDEWIDTH, imageHeight);
         sideWindow = new Window(this, sidePanel);
 
-        loadProgram(ProgrammerContainer.SLOT_DUMMY);
+        loadProgram(ProgrammerTileEntity.SLOT_DUMMY);
 
         clearCategoryLabels();
         minecraft.keyboardHandler.setSendRepeatsToGui(true);
@@ -802,13 +802,13 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Pro
                 .children(
                         button("Load")
                                 .tooltips(TextFormatting.YELLOW + "Load program", "Load the current program", "from a program card")
-                                .desiredHeight(15).event(() -> loadProgram(ProgrammerContainer.SLOT_CARD)),
+                                .desiredHeight(15).event(() -> loadProgram(ProgrammerTileEntity.SLOT_CARD)),
                         button("Save")
                                 .tooltips(TextFormatting.YELLOW + "Save program",
                                         "Save the current program",
                                         "to a program card",
                                         TextFormatting.GREEN + "Press shift to change name")
-                                .desiredHeight(15).event(() -> askNameAndSave(ProgrammerContainer.SLOT_CARD)),
+                                .desiredHeight(15).event(() -> askNameAndSave(ProgrammerTileEntity.SLOT_CARD)),
                         button("Clear")
                                 .tooltips(TextFormatting.YELLOW + "Clear program", "Remove all opcodes on the grid", "(press Ctrl-Z if this was a mistake)")
                                 .desiredHeight(15).event(this::clearProgram),
@@ -1200,7 +1200,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Pro
         if (saveCounter < 0) {
             saveCounter = 10;
             validateAndHilight();
-            saveProgram(ProgrammerContainer.SLOT_DUMMY, null);
+            saveProgram(ProgrammerTileEntity.SLOT_DUMMY, null);
         }
     }
 }

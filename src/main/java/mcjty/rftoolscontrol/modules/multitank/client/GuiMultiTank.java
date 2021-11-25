@@ -1,6 +1,7 @@
 package mcjty.rftoolscontrol.modules.multitank.client;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
+import mcjty.lib.container.GenericContainer;
 import mcjty.lib.gui.GenericGuiContainer;
 import mcjty.lib.gui.ManualEntry;
 import mcjty.lib.gui.Window;
@@ -12,7 +13,6 @@ import mcjty.lib.gui.widgets.Panel;
 import mcjty.lib.network.PacketGetListFromServer;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.modules.multitank.MultiTankModule;
-import mcjty.rftoolscontrol.modules.multitank.blocks.MultiTankContainer;
 import mcjty.rftoolscontrol.modules.multitank.blocks.MultiTankTileEntity;
 import mcjty.rftoolscontrol.modules.multitank.util.MultiTankFluidProperties;
 import mcjty.rftoolscontrol.setup.RFToolsCtrlMessages;
@@ -26,7 +26,7 @@ import static mcjty.lib.gui.widgets.Widgets.label;
 import static mcjty.lib.gui.widgets.Widgets.positional;
 import static mcjty.rftoolscontrol.modules.multitank.blocks.MultiTankTileEntity.TANKS;
 
-public class GuiMultiTank extends GenericGuiContainer<MultiTankTileEntity, MultiTankContainer> {
+public class GuiMultiTank extends GenericGuiContainer<MultiTankTileEntity, GenericContainer> {
 
     public static final int WIDTH = 180;
     public static final int HEIGHT = 87;
@@ -37,7 +37,7 @@ public class GuiMultiTank extends GenericGuiContainer<MultiTankTileEntity, Multi
     private BlockRender liquids[] = new BlockRender[TANKS];
     private Label labels[] = new Label[TANKS];
 
-    public GuiMultiTank(MultiTankTileEntity te, MultiTankContainer container, PlayerInventory inventory) {
+    public GuiMultiTank(MultiTankTileEntity te, GenericContainer container, PlayerInventory inventory) {
         super(te, container, inventory, /*@todo 1.15 GuiProxy.GUI_MANUAL_CONTROL*/ ManualEntry.EMPTY);
 
         imageWidth = WIDTH;

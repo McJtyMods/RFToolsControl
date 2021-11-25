@@ -30,7 +30,7 @@ public class VariousModule implements IModule {
     public static final RegistryObject<BaseBlock> NODE = BLOCKS.register("node", NodeBlock::new);
     public static final RegistryObject<TileEntityType<NodeTileEntity>> NODE_TILE = TILES.register("node", () -> TileEntityType.Builder.of(NodeTileEntity::new, NODE.get()).build(null));
     public static final RegistryObject<Item> NODE_ITEM = ITEMS.register("node", () -> new BlockItem(NODE.get(), Registration.createStandardProperties()));
-    public static final RegistryObject<ContainerType<NodeContainer>> NODE_CONTAINER = CONTAINERS.register("node", GenericContainer::createContainerType);
+    public static final RegistryObject<ContainerType<GenericContainer>> NODE_CONTAINER = CONTAINERS.register("node", GenericContainer::createContainerType);
 
     public static final RegistryObject<BaseBlock> WORKBENCH = BLOCKS.register("workbench", WorkbenchBlock::new);
     public static final RegistryObject<TileEntityType<WorkbenchTileEntity>> WORKBENCH_TILE = TILES.register("workbench", () -> TileEntityType.Builder.of(WorkbenchTileEntity::new, WORKBENCH.get()).build(null));

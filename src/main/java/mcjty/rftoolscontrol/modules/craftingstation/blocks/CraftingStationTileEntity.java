@@ -4,6 +4,8 @@ import mcjty.lib.api.container.DefaultContainerProvider;
 import mcjty.lib.blockcommands.Command;
 import mcjty.lib.blockcommands.ListCommand;
 import mcjty.lib.blockcommands.ServerCommand;
+import mcjty.lib.container.ContainerFactory;
+import mcjty.lib.container.GenericContainer;
 import mcjty.lib.container.NoDirectionItemHander;
 import mcjty.lib.tileentity.Cap;
 import mcjty.lib.tileentity.CapType;
@@ -28,6 +30,7 @@ import net.minecraft.nbt.ListNBT;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.common.util.Lazy;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
@@ -39,16 +42,24 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-import static mcjty.rftoolscontrol.modules.craftingstation.blocks.CraftingStationContainer.CONTAINER_FACTORY;
+import static mcjty.lib.api.container.DefaultContainerProvider.container;
+import static mcjty.lib.container.SlotDefinition.generic;
+import static mcjty.rftoolscontrol.modules.craftingstation.CraftingStationModule.CRAFTING_STATION_CONTAINER;
 
 public class CraftingStationTileEntity extends GenericTileEntity {
+
+    public static final int SLOT_OUTPUT = 0;
+
+    public static final Lazy<ContainerFactory> CONTAINER_FACTORY = Lazy.of(() -> new ContainerFactory(9)
+            .box(generic(), SLOT_OUTPUT, 6, 157, 3, 3)
+            .playerSlots(66, 157));
 
     @Cap(type = CapType.ITEMS_AUTOMATION)
     private final NoDirectionItemHander items = createItemHandler();
 
     @Cap(type = CapType.CONTAINER)
-    private final LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<CraftingStationContainer>("Crafter")
-            .containerSupplier(windowId -> new CraftingStationContainer(windowId, CONTAINER_FACTORY.get(), getBlockPos(), CraftingStationTileEntity.this))
+    private final LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<GenericContainer>("Crafter")
+            .containerSupplier(container(CRAFTING_STATION_CONTAINER, CONTAINER_FACTORY, this))
             .itemHandler(() -> items));
 
     private final List<BlockPos> processorList = new ArrayList<>();

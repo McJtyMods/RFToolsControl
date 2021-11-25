@@ -4,7 +4,6 @@ import mcjty.lib.blocks.BaseBlock;
 import mcjty.lib.container.GenericContainer;
 import mcjty.lib.modules.IModule;
 import mcjty.rftoolscontrol.modules.multitank.blocks.MultiTankBlock;
-import mcjty.rftoolscontrol.modules.multitank.blocks.MultiTankContainer;
 import mcjty.rftoolscontrol.modules.multitank.blocks.MultiTankTileEntity;
 import mcjty.rftoolscontrol.modules.multitank.client.ClientSetup;
 import mcjty.rftoolscontrol.modules.multitank.client.GuiMultiTank;
@@ -24,7 +23,7 @@ public class MultiTankModule implements IModule {
     public static final RegistryObject<BaseBlock> MULTITANK = BLOCKS.register("tank", MultiTankBlock::new);
     public static final RegistryObject<TileEntityType<MultiTankTileEntity>> MULTITANK_TILE = TILES.register("tank", () -> TileEntityType.Builder.of(MultiTankTileEntity::new, MULTITANK.get()).build(null));
     public static final RegistryObject<Item> MULTITANK_ITEM = ITEMS.register("tank", () -> new BlockItem(MULTITANK.get(), Registration.createStandardProperties()));
-    public static final RegistryObject<ContainerType<MultiTankContainer>> MULTITANK_CONTAINER = CONTAINERS.register("tank", GenericContainer::createContainerType);
+    public static final RegistryObject<ContainerType<GenericContainer>> MULTITANK_CONTAINER = CONTAINERS.register("tank", GenericContainer::createContainerType);
 
     @Override
     public void init(FMLCommonSetupEvent event) {

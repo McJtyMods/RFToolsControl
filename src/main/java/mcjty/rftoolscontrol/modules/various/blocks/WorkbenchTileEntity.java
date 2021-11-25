@@ -4,7 +4,9 @@ package mcjty.rftoolscontrol.modules.various.blocks;
 import mcjty.lib.McJtyLib;
 import mcjty.lib.api.container.DefaultContainerProvider;
 import mcjty.lib.container.AutomationFilterItemHander;
+import mcjty.lib.container.ContainerFactory;
 import mcjty.lib.container.NoDirectionItemHander;
+import mcjty.lib.container.SlotDefinition;
 import mcjty.lib.tileentity.Cap;
 import mcjty.lib.tileentity.CapType;
 import mcjty.lib.tileentity.GenericTileEntity;
@@ -19,6 +21,7 @@ import net.minecraft.item.crafting.IRecipeType;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.Direction;
 import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.util.Lazy;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.CapabilityItemHandler;
 
@@ -26,7 +29,19 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 
+import static mcjty.lib.container.SlotDefinition.generic;
+
 public class WorkbenchTileEntity extends GenericTileEntity {
+
+    public static final int SLOT_CRAFTINPUT = 0;
+    public static final int SLOT_CRAFTOUTPUT = 9;
+    public static final int SLOT_BUFFER = 10;
+    public static final int BUFFER_SIZE = 9*3;
+    public static final Lazy<ContainerFactory> CONTAINER_FACTORY = Lazy.of(() -> new ContainerFactory(BUFFER_SIZE + 10)
+            .box(generic(), SLOT_CRAFTINPUT, 42, 27, 3, 3)
+            .box(SlotDefinition.craftResult().onCraft((tileEntity, playerEntity, stack) -> ((WorkbenchTileEntity)tileEntity).craftItem()), SLOT_CRAFTOUTPUT, 114, 45, 1, 1)
+            .box(generic(), SLOT_BUFFER, 6, 99, 9, 3)
+            .playerSlots(6, 157));
 
     private final NoDirectionItemHander items = createItemHandler();
     private final LazyOptional<WorkbenchItemHandler> automationItemHandlerUp = LazyOptional.of(() -> new WorkbenchItemHandler(items, Direction.UP));
@@ -35,7 +50,7 @@ public class WorkbenchTileEntity extends GenericTileEntity {
 
     @Cap(type = CapType.CONTAINER)
     private final LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<WorkbenchContainer>("Workbench")
-            .containerSupplier(windowId -> new WorkbenchContainer(windowId, WorkbenchContainer.CONTAINER_FACTORY.get(), getBlockPos(), WorkbenchTileEntity.this))
+            .containerSupplier(windowId -> new WorkbenchContainer(windowId, CONTAINER_FACTORY.get(), getBlockPos(), WorkbenchTileEntity.this))
             .itemHandler(() -> items));
 
     // This field contains the number of real items in the craft output slot. i.e. these are
@@ -62,15 +77,15 @@ public class WorkbenchTileEntity extends GenericTileEntity {
     }
 
     private boolean isCraftInputSlot(int slot) {
-        return slot >= WorkbenchContainer.SLOT_CRAFTINPUT && slot < WorkbenchContainer.SLOT_CRAFTOUTPUT;
+        return slot >= SLOT_CRAFTINPUT && slot < SLOT_CRAFTOUTPUT;
     }
 
     private boolean isBufferSlot(int slot) {
-        return slot >= WorkbenchContainer.SLOT_BUFFER && slot < WorkbenchContainer.SLOT_BUFFER + WorkbenchContainer.BUFFER_SIZE;
+        return slot >= SLOT_BUFFER && slot < SLOT_BUFFER + BUFFER_SIZE;
     }
 
     private boolean isCraftOutput(int slot) {
-        return slot == WorkbenchContainer.SLOT_CRAFTOUTPUT;
+        return slot == SLOT_CRAFTOUTPUT;
     }
 
     @Nullable
@@ -84,14 +99,14 @@ public class WorkbenchTileEntity extends GenericTileEntity {
     }
 
     private void updateRecipe() {
-        if (items.getStackInSlot(WorkbenchContainer.SLOT_CRAFTOUTPUT).isEmpty() || realItems == 0) {
+        if (items.getStackInSlot(SLOT_CRAFTOUTPUT).isEmpty() || realItems == 0) {
             CraftingInventory workInventory = makeWorkInventory();
             IRecipe recipe = findRecipe(workInventory);
             if (recipe != null) {
                 ItemStack stack = recipe.assemble(workInventory);
-                items.setStackInSlot(WorkbenchContainer.SLOT_CRAFTOUTPUT, stack);
+                items.setStackInSlot(SLOT_CRAFTOUTPUT, stack);
             } else {
-                items.setStackInSlot(WorkbenchContainer.SLOT_CRAFTOUTPUT, ItemStack.EMPTY);
+                items.setStackInSlot(SLOT_CRAFTOUTPUT, ItemStack.EMPTY);
             }
         }
     }
@@ -105,7 +120,7 @@ public class WorkbenchTileEntity extends GenericTileEntity {
             }
         }, 3, 3);
         for (int i = 0; i < 9; i++) {
-            workInventory.setItem(i, items.getStackInSlot(i + WorkbenchContainer.SLOT_CRAFTINPUT));
+            workInventory.setItem(i, items.getStackInSlot(i + SLOT_CRAFTINPUT));
         }
         return workInventory;
     }
@@ -114,7 +129,7 @@ public class WorkbenchTileEntity extends GenericTileEntity {
     }
 
     private NoDirectionItemHander createItemHandler() {
-        return new NoDirectionItemHander(WorkbenchTileEntity.this, WorkbenchContainer.CONTAINER_FACTORY.get()) {
+        return new NoDirectionItemHander(WorkbenchTileEntity.this, CONTAINER_FACTORY.get()) {
 
             // While crafting we don't update the recipe
             private int crafting = 0;
@@ -142,19 +157,19 @@ public class WorkbenchTileEntity extends GenericTileEntity {
                             crafting++;
                             List<ItemStack> remainingItems = recipe.getRemainingItems(workInventory);
                             for (int i = 0; i < 9; i++) {
-                                ItemStack s = items.getStackInSlot(i + WorkbenchContainer.SLOT_CRAFTINPUT);
+                                ItemStack s = items.getStackInSlot(i + SLOT_CRAFTINPUT);
                                 if (!s.isEmpty()) {
-                                    super.extractItem(i + WorkbenchContainer.SLOT_CRAFTINPUT, 1, false);
-                                    s = items.getStackInSlot(i + WorkbenchContainer.SLOT_CRAFTINPUT);
+                                    super.extractItem(i + SLOT_CRAFTINPUT, 1, false);
+                                    s = items.getStackInSlot(i + SLOT_CRAFTINPUT);
                                 }
 
                                 if (!remainingItems.get(i).isEmpty()) {
                                     if (s.isEmpty()) {
-                                        items.setStackInSlot(i + WorkbenchContainer.SLOT_CRAFTINPUT, remainingItems.get(i));
+                                        items.setStackInSlot(i + SLOT_CRAFTINPUT, remainingItems.get(i));
                                     } else if (ItemStack.isSame(s, remainingItems.get(i)) && ItemStack.tagMatches(s, remainingItems.get(i))) {
                                         ItemStack stack = remainingItems.get(i);
                                         stack.grow(s.getCount());
-                                        items.setStackInSlot(i + WorkbenchContainer.SLOT_CRAFTINPUT, remainingItems.get(i));
+                                        items.setStackInSlot(i + SLOT_CRAFTINPUT, remainingItems.get(i));
                                     } else {
                                         // @todo
                                         // Not enough room!

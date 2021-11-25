@@ -1,31 +1,30 @@
 package mcjty.rftoolscontrol.modules.various.blocks;
 
 import mcjty.lib.api.container.DefaultContainerProvider;
-import mcjty.lib.blockcommands.Command;
-import mcjty.lib.blockcommands.ServerCommand;
+import mcjty.lib.bindings.GuiValue;
+import mcjty.lib.container.GenericContainer;
 import mcjty.lib.tileentity.Cap;
 import mcjty.lib.tileentity.CapType;
 import mcjty.lib.tileentity.GenericTileEntity;
-import mcjty.lib.typed.Key;
-import mcjty.lib.typed.Type;
 import mcjty.lib.varia.BlockPosTools;
-import mcjty.lib.varia.Sync;
-import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorTileEntity;
 import mcjty.rftoolscontrol.modules.various.VariousModule;
 import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.util.LazyOptional;
 
 import javax.annotation.Nonnull;
 
+import static mcjty.lib.api.container.DefaultContainerProvider.empty;
+
 public class NodeTileEntity extends GenericTileEntity {
 
+    @GuiValue
     private String channel;
+    @GuiValue
     private String node;
 
     private BlockPos processor = null;
@@ -35,10 +34,9 @@ public class NodeTileEntity extends GenericTileEntity {
     private int powerOut[] = new int[]{0, 0, 0, 0, 0, 0};
 
     @Cap(type = CapType.CONTAINER)
-    private final LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<NodeContainer>("Node")
-            .containerSupplier(windowId -> new NodeContainer(windowId, NodeContainer.CONTAINER_FACTORY.get(), getBlockPos(), NodeTileEntity.this))
-            .dataListener(Sync.string(new ResourceLocation(RFToolsControl.MODID, "channel"), this::getChannelName, this::setChannelName))
-            .dataListener(Sync.string(new ResourceLocation(RFToolsControl.MODID, "node"), this::getNodeName, this::setNodeName)));
+    private final LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<GenericContainer>("Node")
+            .containerSupplier(empty(VariousModule.NODE_CONTAINER, this))
+            .setupSync(this));
 
     public NodeTileEntity() {
         super(VariousModule.NODE_TILE.get());
@@ -139,14 +137,4 @@ public class NodeTileEntity extends GenericTileEntity {
             BlockPosTools.write(info, "processor", processor);
         }
     }
-
-    public static final Key<String> PARAM_NODE = new Key<>("node", Type.STRING);
-    public static final Key<String> PARAM_CHANNEL = new Key<>("channel", Type.STRING);
-    @ServerCommand
-    public static final Command<?> CMD_UPDATE = Command.<NodeTileEntity>create("node.update",
-            (te, player, params) -> {
-                te.node = params.get(PARAM_NODE);
-                te.channel = params.get(PARAM_CHANNEL);
-                te.setChanged();
-            });
 }

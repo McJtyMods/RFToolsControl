@@ -2,6 +2,8 @@ package mcjty.rftoolscontrol.modules.programmer.blocks;
 
 
 import mcjty.lib.api.container.DefaultContainerProvider;
+import mcjty.lib.container.ContainerFactory;
+import mcjty.lib.container.GenericContainer;
 import mcjty.lib.container.NoDirectionItemHander;
 import mcjty.lib.tileentity.Cap;
 import mcjty.lib.tileentity.CapType;
@@ -13,22 +15,35 @@ import mcjty.rftoolscontrol.modules.various.items.ProgramCardItem;
 import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.INBT;
+import net.minecraftforge.common.util.Lazy;
 import net.minecraftforge.common.util.LazyOptional;
+
+import static mcjty.lib.api.container.DefaultContainerProvider.container;
+import static mcjty.lib.container.SlotDefinition.generic;
+import static mcjty.lib.container.SlotDefinition.specific;
+import static mcjty.rftoolscontrol.modules.programmer.ProgrammerModule.PROGRAMMER_CONTAINER;
 
 
 public class ProgrammerTileEntity extends GenericTileEntity {
+
+    public static final int SLOT_CARD = 0;
+    public static final int SLOT_DUMMY = 1;
+    public static final Lazy<ContainerFactory> CONTAINER_FACTORY = Lazy.of(() -> new ContainerFactory(2)
+            .box(specific(new ItemStack(VariousModule.PROGRAM_CARD.get())).in().out(), SLOT_CARD, 91, 136, 1, 1)
+            .box(generic(), SLOT_DUMMY, -1000, -1000, 1, 1)
+            .playerSlots(91, 157));
 
     @Cap(type = CapType.ITEMS_AUTOMATION)
     private final NoDirectionItemHander items = createItemHandler();
 
     @Cap(type = CapType.CONTAINER)
-    private final LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<ProgrammerContainer>("Programmer")
-            .containerSupplier(windowId -> new ProgrammerContainer(windowId, ProgrammerContainer.CONTAINER_FACTORY.get(), getBlockPos(), ProgrammerTileEntity.this))
+    private final LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<GenericContainer>("Programmer")
+            .containerSupplier(container(PROGRAMMER_CONTAINER, CONTAINER_FACTORY, this))
             .itemHandler(() -> items));
 
     public ProgrammerTileEntity() {
         super(ProgrammerModule.PROGRAMMER_TILE.get());
-        items.setStackInSlot(ProgrammerContainer.SLOT_DUMMY, new ItemStack(VariousModule.PROGRAM_CARD.get()));
+        items.setStackInSlot(SLOT_DUMMY, new ItemStack(VariousModule.PROGRAM_CARD.get()));
     }
 
     public NoDirectionItemHander getItems() {
@@ -41,14 +56,14 @@ public class ProgrammerTileEntity extends GenericTileEntity {
         super.setPowerInput(powered);
         if (p != powerLevel && powerLevel > 0) {
             // Copy program in programmer to card
-            ItemStack dummy = items.getStackInSlot(ProgrammerContainer.SLOT_DUMMY);
+            ItemStack dummy = items.getStackInSlot(SLOT_DUMMY);
             if (dummy.isEmpty()) {
                 return;
             }
             if (!dummy.hasTag()) {
                 return;
             }
-            ItemStack card = items.getStackInSlot(ProgrammerContainer.SLOT_CARD);
+            ItemStack card = items.getStackInSlot(SLOT_CARD);
             if (card.isEmpty()) {
                 return;
             }
@@ -63,7 +78,7 @@ public class ProgrammerTileEntity extends GenericTileEntity {
     }
 
     private NoDirectionItemHander createItemHandler() {
-        return new NoDirectionItemHander(ProgrammerTileEntity.this, ProgrammerContainer.CONTAINER_FACTORY.get());
+        return new NoDirectionItemHander(ProgrammerTileEntity.this, CONTAINER_FACTORY.get());
     }
 }
 

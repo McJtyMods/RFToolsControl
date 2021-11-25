@@ -3,6 +3,7 @@ package mcjty.rftoolscontrol.modules.craftingstation.client;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import mcjty.lib.McJtyLib;
 import mcjty.lib.base.StyleConfig;
+import mcjty.lib.container.GenericContainer;
 import mcjty.lib.gui.GenericGuiContainer;
 import mcjty.lib.gui.ManualEntry;
 import mcjty.lib.gui.Window;
@@ -12,7 +13,6 @@ import mcjty.lib.network.PacketGetListFromServer;
 import mcjty.lib.typed.TypedMap;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.modules.craftingstation.CraftingStationModule;
-import mcjty.rftoolscontrol.modules.craftingstation.blocks.CraftingStationContainer;
 import mcjty.rftoolscontrol.modules.craftingstation.blocks.CraftingStationTileEntity;
 import mcjty.rftoolscontrol.modules.craftingstation.util.CraftingRequest;
 import mcjty.rftoolscontrol.modules.programmer.client.GuiTools;
@@ -32,7 +32,7 @@ import java.util.List;
 import static mcjty.lib.gui.widgets.Widgets.*;
 import static mcjty.rftoolscontrol.modules.craftingstation.blocks.CraftingStationTileEntity.*;
 
-public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileEntity, CraftingStationContainer> {
+public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileEntity, GenericContainer> {
 
     public static final int WIDTH = 231;
     public static final int HEIGHT = 236;
@@ -56,7 +56,7 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
 
     private int listDirty = 0;
 
-    public GuiCraftingStation(CraftingStationTileEntity te, CraftingStationContainer container, PlayerInventory inventory) {
+    public GuiCraftingStation(CraftingStationTileEntity te, GenericContainer container, PlayerInventory inventory) {
         super(te, container, inventory, /*@todo 1.15 GuiProxy.GUI_MANUAL_CONTROL*/ ManualEntry.EMPTY);
 
         imageWidth = WIDTH;
