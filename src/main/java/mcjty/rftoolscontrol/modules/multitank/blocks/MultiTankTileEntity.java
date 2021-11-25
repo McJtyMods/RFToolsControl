@@ -30,7 +30,7 @@ public class MultiTankTileEntity extends GenericTileEntity {
 
     @Cap(type = CapType.CONTAINER)
     private final LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<MultiTankContainer>("Crafter")
-            .containerSupplier((windowId,player) -> new MultiTankContainer(windowId, MultiTankContainer.CONTAINER_FACTORY.get(), getBlockPos(), MultiTankTileEntity.this)));
+            .containerSupplier(windowId -> new MultiTankContainer(windowId, MultiTankContainer.CONTAINER_FACTORY.get(), getBlockPos(), MultiTankTileEntity.this)));
 
     public MultiTankTileEntity() {
         super(MultiTankModule.MULTITANK_TILE.get());

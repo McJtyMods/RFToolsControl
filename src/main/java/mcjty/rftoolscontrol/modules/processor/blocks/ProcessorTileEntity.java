@@ -128,7 +128,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
 
     @Cap(type = CapType.CONTAINER)
     private final LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<ProcessorContainer>("Processor")
-            .containerSupplier((windowId, player) -> ProcessorContainer.create(windowId, getBlockPos(), ProcessorTileEntity.this))
+            .containerSupplier(windowId -> ProcessorContainer.create(windowId, getBlockPos(), ProcessorTileEntity.this))
             .itemHandler(() -> items)
             .energyHandler(() -> energyStorage)
             .setupSync(this));

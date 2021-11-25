@@ -36,7 +36,7 @@ public class NodeTileEntity extends GenericTileEntity {
 
     @Cap(type = CapType.CONTAINER)
     private final LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<NodeContainer>("Node")
-            .containerSupplier((windowId, player) -> new NodeContainer(windowId, NodeContainer.CONTAINER_FACTORY.get(), getBlockPos(), NodeTileEntity.this))
+            .containerSupplier(windowId -> new NodeContainer(windowId, NodeContainer.CONTAINER_FACTORY.get(), getBlockPos(), NodeTileEntity.this))
             .dataListener(Sync.string(new ResourceLocation(RFToolsControl.MODID, "channel"), this::getChannelName, this::setChannelName))
             .dataListener(Sync.string(new ResourceLocation(RFToolsControl.MODID, "node"), this::getNodeName, this::setNodeName)));
 

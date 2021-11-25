@@ -48,7 +48,7 @@ public class CraftingStationTileEntity extends GenericTileEntity {
 
     @Cap(type = CapType.CONTAINER)
     private final LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<CraftingStationContainer>("Crafter")
-            .containerSupplier((windowId,player) -> new CraftingStationContainer(windowId, CONTAINER_FACTORY.get(), getBlockPos(), CraftingStationTileEntity.this))
+            .containerSupplier(windowId -> new CraftingStationContainer(windowId, CONTAINER_FACTORY.get(), getBlockPos(), CraftingStationTileEntity.this))
             .itemHandler(() -> items));
 
     private final List<BlockPos> processorList = new ArrayList<>();

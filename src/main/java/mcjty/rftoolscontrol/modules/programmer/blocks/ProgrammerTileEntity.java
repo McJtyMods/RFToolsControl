@@ -23,7 +23,7 @@ public class ProgrammerTileEntity extends GenericTileEntity {
 
     @Cap(type = CapType.CONTAINER)
     private final LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<ProgrammerContainer>("Programmer")
-            .containerSupplier((windowId,player) -> new ProgrammerContainer(windowId, ProgrammerContainer.CONTAINER_FACTORY.get(), getBlockPos(), ProgrammerTileEntity.this))
+            .containerSupplier(windowId -> new ProgrammerContainer(windowId, ProgrammerContainer.CONTAINER_FACTORY.get(), getBlockPos(), ProgrammerTileEntity.this))
             .itemHandler(() -> items));
 
     public ProgrammerTileEntity() {
