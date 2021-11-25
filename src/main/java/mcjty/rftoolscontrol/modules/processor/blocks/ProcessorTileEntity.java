@@ -1,11 +1,11 @@
 package mcjty.rftoolscontrol.modules.processor.blocks;
 
 import mcjty.lib.api.container.DefaultContainerProvider;
+import mcjty.lib.bindings.GuiValue;
 import mcjty.lib.blockcommands.Command;
 import mcjty.lib.blockcommands.ListCommand;
 import mcjty.lib.blockcommands.ServerCommand;
 import mcjty.lib.container.NoDirectionItemHander;
-import mcjty.lib.sync.SyncToGui;
 import mcjty.lib.tileentity.Cap;
 import mcjty.lib.tileentity.CapType;
 import mcjty.lib.tileentity.GenericEnergyStorage;
@@ -130,7 +130,8 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
     private final LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<ProcessorContainer>("Processor")
             .containerSupplier((windowId, player) -> ProcessorContainer.create(windowId, getBlockPos(), ProcessorTileEntity.this))
             .itemHandler(() -> items)
-            .energyHandler(() -> energyStorage));
+            .energyHandler(() -> energyStorage)
+            .setupSync(this));
 
     private final List<CpuCore> cpuCores = new ArrayList<>();
 
@@ -139,7 +140,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
     public static final int HUD_DB = 2;
     public static final int HUD_GFX = 3;
 
-    @SyncToGui
+    @GuiValue
     private int showHud = HUD_OFF;
 
     // If true some cards might need compiling
@@ -159,7 +160,7 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
     // Client-side only: for the HUD
     private final List<GfxOp> clientGfxOps = new ArrayList<>();
 
-    @SyncToGui
+    @GuiValue
     private boolean exclusive = false;
 
     private String lastException = null;
