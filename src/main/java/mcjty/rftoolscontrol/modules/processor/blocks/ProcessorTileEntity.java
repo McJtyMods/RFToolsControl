@@ -121,14 +121,17 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
     private static final BiFunction<ParameterType, Object, Number> CONVERTOR_NUMBER = TypeConverters::convertToNumber;
 
     @Cap(type = CapType.ITEMS_AUTOMATION)
-    private final GenericItemHandler items = GenericItemHandler.create(this, CONTAINER_FACTORY, (slot, stack) -> {
-        if (isExpansionSlot(slot)) {
-            return isValidExpansionItem(stack.getItem());
-        } else if (isCardSlot(slot)) {
-            return stack.getItem() == VariousModule.PROGRAM_CARD.get();
-        }
-        return true;
-    }, (slot, stack) -> onUpdateCard(slot));
+    private final GenericItemHandler items = GenericItemHandler.create(this, CONTAINER_FACTORY)
+            .itemValid((slot, stack) -> {
+                if (isExpansionSlot(slot)) {
+                    return isValidExpansionItem(stack.getItem());
+                } else if (isCardSlot(slot)) {
+                    return stack.getItem() == VariousModule.PROGRAM_CARD.get();
+                }
+                return true;
+            })
+            .onUpdate((slot, stack) -> onUpdateCard(slot))
+            .build();
 
     @Cap(type = CapType.ENERGY)
     private final GenericEnergyStorage energyStorage = new GenericEnergyStorage(this, true, Config.processorMaxenergy.get(), Config.processorReceivepertick.get());
