@@ -1,3 +1,7 @@
+Upcoming:
+- Updated to latest version of McJtyLib
+- The hud for the Processor is full bright again making it easier to read
+
 1.16-4.0.11:
 - Fixed programmer card tooltip
 - Fixed a problem with the node and processor not doing redstone output correctly
