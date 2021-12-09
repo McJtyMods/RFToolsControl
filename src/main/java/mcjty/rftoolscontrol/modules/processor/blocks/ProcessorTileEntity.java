@@ -2642,14 +2642,14 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
     }
 
     @Override
-    public void readClientDataFromNBT(CompoundNBT tagCompound) {
+    public void loadClientDataFromNBT(CompoundNBT tagCompound) {
         exclusive = tagCompound.getBoolean("exclusive");
         showHud = tagCompound.getByte("hud");
         readCardInfo(tagCompound);
     }
 
     @Override
-    public void writeClientDataToNBT(CompoundNBT tagCompound) {
+    public void saveClientDataToNBT(CompoundNBT tagCompound) {
         tagCompound.putBoolean("exclusive", exclusive);
         tagCompound.putByte("hud", (byte) showHud);
         writeCardInfo(tagCompound);
