@@ -9,7 +9,7 @@ import mcjty.lib.container.GenericItemHandler;
 import mcjty.lib.tileentity.Cap;
 import mcjty.lib.tileentity.CapType;
 import mcjty.lib.tileentity.GenericEnergyStorage;
-import mcjty.lib.tileentity.GenericTileEntity;
+import mcjty.lib.tileentity.TickingTileEntity;
 import mcjty.lib.typed.Key;
 import mcjty.lib.typed.Type;
 import mcjty.lib.varia.BlockPosTools;
@@ -66,7 +66,6 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.INBT;
 import net.minecraft.nbt.ListNBT;
 import net.minecraft.nbt.StringNBT;
-import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.RegistryKey;
@@ -99,7 +98,7 @@ import static mcjty.rftoolscontrol.modules.processor.blocks.ProcessorContainer.C
 import static mcjty.rftoolscontrol.modules.processor.blocks.ProcessorContainer.SLOT_EXPANSION;
 import static mcjty.rftoolscontrol.modules.processor.logic.running.ExceptionType.*;
 
-public class ProcessorTileEntity extends GenericTileEntity implements ITickableTileEntity, IProcessor {
+public class ProcessorTileEntity extends TickingTileEntity implements IProcessor {
 
     // Number of card slots the processor supports
     public static final int CARD_SLOTS = 6;
@@ -320,11 +319,9 @@ public class ProcessorTileEntity extends GenericTileEntity implements ITickableT
     }
 
     @Override
-    public void tick() {
-        if (!level.isClientSide) {
-            process();
-            prevIn = powerLevel;
-        }
+    public void tickServer() {
+        process();
+        prevIn = powerLevel;
     }
 
     private void process() {
