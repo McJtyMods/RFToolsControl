@@ -49,8 +49,8 @@ public class MultiTankTileEntity extends GenericTileEntity {
     }
 
     @Override
-    protected void readInfo(CompoundNBT tagCompound) {
-        super.readInfo(tagCompound);
+    protected void loadInfo(CompoundNBT tagCompound) {
+        super.loadInfo(tagCompound);
         CompoundNBT info = tagCompound.getCompound("Info");
         for (int i = 0 ; i < TANKS ; i++) {
             properties[i] = new MultiTankFluidProperties(this, FluidStack.loadFluidStackFromNBT(info.getCompound("f" + i)), MAXCAPACITY);
@@ -58,8 +58,8 @@ public class MultiTankTileEntity extends GenericTileEntity {
     }
 
     @Override
-    protected void writeInfo(CompoundNBT tagCompound) {
-        super.writeInfo(tagCompound);
+    protected void saveInfo(CompoundNBT tagCompound) {
+        super.saveInfo(tagCompound);
         CompoundNBT info = getOrCreateInfo(tagCompound);
         for (int i = 0 ; i < TANKS ; i++) {
             FluidStack contents = properties[i].getContents();
