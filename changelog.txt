@@ -1,3 +1,6 @@
+Upcoming:
+- Updated to latest version of McJtyLib
+
 1.16-4.0.12:
 - Updated to latest version of McJtyLib
 - The hud for the Processor is full bright again making it easier to read
