@@ -1,10 +1,10 @@
 package mcjty.rftoolscontrol.modules.processor.network;
 
 
-import mcjty.lib.McJtyLib;
 import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.Logging;
+import mcjty.lib.varia.SafeClientTools;
 import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorContainer;
 import mcjty.rftoolscontrol.modules.processor.logic.Parameter;
 import mcjty.rftoolscontrol.modules.processor.logic.ParameterTools;
@@ -84,17 +84,17 @@ public class PacketVariablesReady {
                 }
                 te = container.getTe();
             } else {
-                te = McJtyLib.proxy.getClientWorld().getBlockEntity(pos);
+                te = SafeClientTools.getClientWorld().getBlockEntity(pos);
             }
             if (te instanceof GenericTileEntity) {
-                ((GenericTileEntity) te).handleListFromServer(command, McJtyLib.proxy.getClientPlayer(), TypedMap.EMPTY, list);
+                ((GenericTileEntity) te).handleListFromServer(command, SafeClientTools.getClientPlayer(), TypedMap.EMPTY, list);
             }
         });
         ctx.setPacketHandled(true);
     }
 
     private static ProcessorContainer getOpenContainer() {
-        Container container = McJtyLib.proxy.getClientPlayer().containerMenu;
+        Container container = SafeClientTools.getClientPlayer().containerMenu;
         if (container instanceof ProcessorContainer) {
             return (ProcessorContainer) container;
         } else {

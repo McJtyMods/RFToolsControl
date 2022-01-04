@@ -1,7 +1,6 @@
 package mcjty.rftoolscontrol.modules.programmer.client;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
-import mcjty.lib.McJtyLib;
 import mcjty.lib.base.StyleConfig;
 import mcjty.lib.container.GenericContainer;
 import mcjty.lib.gui.GenericGuiContainer;
@@ -14,6 +13,7 @@ import mcjty.lib.gui.layout.HorizontalAlignment;
 import mcjty.lib.gui.layout.HorizontalLayout;
 import mcjty.lib.gui.widgets.*;
 import mcjty.lib.varia.Logging;
+import mcjty.lib.varia.SafeClientTools;
 import mcjty.rftoolsbase.api.control.code.Opcode;
 import mcjty.rftoolsbase.api.control.code.OpcodeCategory;
 import mcjty.rftoolsbase.api.control.code.OpcodeOutput;
@@ -238,7 +238,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Gen
     }
 
     private List<String> getGridIconTooltips(int finalX, int finalY) {
-        if (McJtyLib.proxy.isCtrlKeyDown()) {
+        if (SafeClientTools.isCtrlKeyDown()) {
             List<String> tooltips = new ArrayList<>();
             if (Config.tooltipVerbosityLevel.get() >= 2) {
                 tooltips.add(TextFormatting.GREEN + "Ctrl-Click to add or remove selection");
@@ -298,7 +298,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Gen
     }
 
     private void gridIconClicked(IIcon icon, int x, int y, int dx, int dy) {
-        if (McJtyLib.proxy.isCtrlKeyDown()) {
+        if (SafeClientTools.isCtrlKeyDown()) {
             long time = System.currentTimeMillis();
             boolean doubleclick = false;
             if (prevTime != -1L && time - prevTime < 250L) {
@@ -616,7 +616,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Gen
             return;
         }
         String cardName = ProgramCardItem.getCardName(card);
-        if (cardName.isEmpty() || McJtyLib.proxy.isSneaking()) {
+        if (cardName.isEmpty() || SafeClientTools.isSneaking()) {
             GuiTools.askSomething(minecraft, this, getWindowManager(), 50, 50, "Card name:", cardName, s -> saveProgram(slot, s));
         } else {
             saveProgram(slot, cardName);
@@ -927,7 +927,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Gen
     }
 
     private boolean handleClipboard(int keyCode) {
-        if (McJtyLib.proxy.isCtrlKeyDown()) {
+        if (SafeClientTools.isCtrlKeyDown()) {
             if (keyCode == GLFW.GLFW_KEY_A) {
                 selectAll();
             } else if (keyCode == GLFW.GLFW_KEY_C) {
@@ -1028,7 +1028,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Gen
                         }
                     }
                 }
-            } else if (McJtyLib.proxy.isSneaking()) {
+            } else if (SafeClientTools.isSneaking()) {
                 tooltips.add(description.get(0) + TextFormatting.WHITE + " [" + x + "," + y + "]");
                 Map<String, Object> data = icon.getData() == null ? Collections.emptyMap() : icon.getData();
                 for (ParameterDescription parameter : opcode.getParameters()) {
@@ -1054,7 +1054,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Gen
             Opcode opcode = Opcodes.OPCODES.get(icon.getID());
             List<String> description = opcode.getDescription();
             List<String> tooltips = new ArrayList<>();
-            if (McJtyLib.proxy.isSneaking()) {
+            if (SafeClientTools.isSneaking()) {
                 tooltips.addAll(description);
                 for (ParameterDescription parameter : opcode.getParameters()) {
                     boolean first = true;

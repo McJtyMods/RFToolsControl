@@ -1,7 +1,6 @@
 package mcjty.rftoolscontrol.modules.craftingstation.client;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
-import mcjty.lib.McJtyLib;
 import mcjty.lib.base.StyleConfig;
 import mcjty.lib.container.GenericContainer;
 import mcjty.lib.gui.GenericGuiContainer;
@@ -11,6 +10,7 @@ import mcjty.lib.gui.events.BlockRenderEvent;
 import mcjty.lib.gui.widgets.*;
 import mcjty.lib.network.PacketGetListFromServer;
 import mcjty.lib.typed.TypedMap;
+import mcjty.lib.varia.SafeClientTools;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.modules.craftingstation.CraftingStationModule;
 import mcjty.rftoolscontrol.modules.craftingstation.blocks.CraftingStationTileEntity;
@@ -199,7 +199,7 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
                 public void select() {
                     Object item = blockRender.getRenderItem();
                     if (item != null) {
-                        boolean shift = McJtyLib.proxy.isSneaking();
+                        boolean shift = SafeClientTools.isSneaking();
                         Object index = blockRender.getUserObject();
                         if (shift) {
                             askAmountToCraft(stack);

@@ -1,7 +1,6 @@
 package mcjty.rftoolscontrol.modules.various.blocks;
 
 
-import mcjty.lib.McJtyLib;
 import mcjty.lib.api.container.DefaultContainerProvider;
 import mcjty.lib.container.AutomationFilterItemHander;
 import mcjty.lib.container.ContainerFactory;
@@ -10,6 +9,7 @@ import mcjty.lib.container.SlotDefinition;
 import mcjty.lib.tileentity.Cap;
 import mcjty.lib.tileentity.CapType;
 import mcjty.lib.tileentity.GenericTileEntity;
+import mcjty.lib.varia.SafeClientTools;
 import mcjty.rftoolscontrol.modules.various.VariousModule;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.CraftingInventory;
@@ -90,7 +90,7 @@ public class WorkbenchTileEntity extends GenericTileEntity {
 
     @Nullable
     private IRecipe findRecipe(CraftingInventory workInventory) {
-        for (IRecipe r : McJtyLib.proxy.getRecipeManager(level).getRecipes()) {
+        for (IRecipe r : SafeClientTools.getRecipeManager(level).getRecipes()) {
             if (r != null && IRecipeType.CRAFTING.equals(r.getType()) && r.matches(workInventory, level)) {
                 return r;
             }
