@@ -34,16 +34,16 @@ public class ProcessorContainer extends GenericContainer {
             .box(generic().in().out(), SLOT_BUFFER, 199, 7, 3, 8)
             .playerSlots(91, 157));
 
-    private ProcessorContainer(ContainerType<ProcessorContainer> type, int id, BlockPos pos, @Nullable GenericTileEntity te) {
-        super(type, id, CONTAINER_FACTORY.get(), pos, te);
+    private ProcessorContainer(ContainerType<ProcessorContainer> type, int id, BlockPos pos, @Nullable GenericTileEntity te, @Nonnull PlayerEntity player) {
+        super(type, id, CONTAINER_FACTORY.get(), pos, te, player);
     }
 
-    public static ProcessorContainer create(int id, BlockPos pos, @Nullable GenericTileEntity te) {
-        return new ProcessorContainer(ProcessorModule.PROCESSOR_CONTAINER.get(), id, pos, te);
+    public static ProcessorContainer create(int id, BlockPos pos, @Nullable GenericTileEntity te, @Nonnull PlayerEntity player) {
+        return new ProcessorContainer(ProcessorModule.PROCESSOR_CONTAINER.get(), id, pos, te, player);
     }
 
-    public static ProcessorContainer createRemote(int id, BlockPos pos, @Nullable GenericTileEntity te) {
-        return new ProcessorContainer(ProcessorModule.PROCESSOR_CONTAINER_REMOTE.get(), id, pos, te) {
+    public static ProcessorContainer createRemote(int id, BlockPos pos, @Nullable GenericTileEntity te, @Nonnull PlayerEntity player) {
+        return new ProcessorContainer(ProcessorModule.PROCESSOR_CONTAINER_REMOTE.get(), id, pos, te, player) {
             @Override
             protected boolean isRemoteContainer() {
                 return true;

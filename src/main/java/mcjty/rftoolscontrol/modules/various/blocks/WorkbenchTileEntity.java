@@ -50,7 +50,7 @@ public class WorkbenchTileEntity extends GenericTileEntity {
 
     @Cap(type = CapType.CONTAINER)
     private final LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<WorkbenchContainer>("Workbench")
-            .containerSupplier(windowId -> new WorkbenchContainer(windowId, CONTAINER_FACTORY.get(), getBlockPos(), WorkbenchTileEntity.this))
+            .containerSupplier((windowId, player) -> new WorkbenchContainer(windowId, CONTAINER_FACTORY.get(), getBlockPos(), WorkbenchTileEntity.this, player))
             .itemHandler(() -> items));
 
     // This field contains the number of real items in the craft output slot. i.e. these are
