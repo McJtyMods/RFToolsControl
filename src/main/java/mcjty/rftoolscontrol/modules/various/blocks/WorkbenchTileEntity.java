@@ -18,6 +18,7 @@ import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.item.crafting.IRecipeType;
+import net.minecraft.item.crafting.RecipeManager;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.Direction;
 import net.minecraftforge.common.capabilities.Capability;
@@ -90,7 +91,8 @@ public class WorkbenchTileEntity extends GenericTileEntity {
 
     @Nullable
     private IRecipe findRecipe(CraftingInventory workInventory) {
-        for (IRecipe r : SafeClientTools.getRecipeManager(level).getRecipes()) {
+        RecipeManager manager = level.isClientSide() ? SafeClientTools.getRecipeManager(level) : level.getServer().getRecipeManager();
+        for (IRecipe r : manager.getRecipes()) {
             if (r != null && IRecipeType.CRAFTING.equals(r.getType()) && r.matches(workInventory, level)) {
                 return r;
             }
