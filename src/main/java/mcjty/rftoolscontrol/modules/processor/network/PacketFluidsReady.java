@@ -20,8 +20,8 @@ import java.util.function.Supplier;
 public class PacketFluidsReady {
 
     private BlockPos pos;
-    private List<PacketGetFluids.FluidEntry> list;
-    private String command;
+    private final List<PacketGetFluids.FluidEntry> list;
+    private final String command;
 
     public PacketFluidsReady(FriendlyByteBuf buf) {
         if (buf.readBoolean()) {

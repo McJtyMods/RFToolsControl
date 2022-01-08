@@ -39,7 +39,7 @@ public class IntegerEditor extends AbstractParameterEditor {
                     int i = Integer.parseInt(value);
                     value = "$" + Integer.toHexString(i);
                     field.text(value);
-                } catch (NumberFormatException e) {
+                } catch (NumberFormatException ignored) {
                 }
             }
         } else {

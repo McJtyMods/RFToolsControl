@@ -40,45 +40,31 @@ public class Parameter implements IParameter {
 
     @Override
     public int compareTo(@Nonnull IParameter parameter) {
-        switch (parameterType) {
-            case PAR_STRING:
-                return TypeConverters.convertToString(this).compareTo(TypeConverters.convertToString(parameter));
-            case PAR_INTEGER:
-                return Integer.compare(TypeConverters.convertToInt(this), TypeConverters.convertToInt(parameter));
-            case PAR_FLOAT:
-                return Float.compare(TypeConverters.convertToFloat(this), TypeConverters.convertToFloat(parameter));
-            case PAR_SIDE:
-                return Objects.compare(TypeConverters.convertToSide(this), TypeConverters.convertToSide(parameter),
-                        Comparator.naturalOrder());
-            case PAR_BOOLEAN:
-                return Boolean.compare(TypeConverters.convertToBool(this), TypeConverters.convertToBool(parameter));
-            case PAR_INVENTORY:
-                return 0;       // Undefined
-            case PAR_ITEM:
-                return Objects.compare(TypeConverters.convertToItem(this), TypeConverters.convertToItem(parameter),
-                        Comparator.comparing(s -> s.getItem().getRegistryName()));
-            case PAR_EXCEPTION:
-                return 0;
-            case PAR_TUPLE:
-                return Objects.compare(TypeConverters.convertToTuple(this), TypeConverters.convertToTuple(parameter),
-                        Comparator.naturalOrder());
-            case PAR_FLUID:
-                return Objects.compare(TypeConverters.convertToFluid(this), TypeConverters.convertToFluid(parameter),
-                        Comparator.comparing(s -> s.getFluid().getRegistryName().toString()));
-            case PAR_VECTOR:
-                return Objects.compare(TypeConverters.convertToVector(this), TypeConverters.convertToVector(parameter),
-                        Parameter::compareLists);
-            case PAR_LONG:
-                return Long.compare(TypeConverters.convertToLong(this), TypeConverters.convertToLong(parameter));
-            case PAR_NUMBER:
-                return Objects.compare(TypeConverters.convertToNumber(this), TypeConverters.convertToNumber(parameter),
-                        (n1, n2) -> {
-                            Double d1 = n1.doubleValue();
-                            Double d2 = n2.doubleValue();
-                            return Objects.compare(d1, d2, Comparator.naturalOrder());
-                        });
-        }
-        return 0;
+        return switch (parameterType) {
+            case PAR_STRING -> TypeConverters.convertToString(this).compareTo(TypeConverters.convertToString(parameter));
+            case PAR_INTEGER -> Integer.compare(TypeConverters.convertToInt(this), TypeConverters.convertToInt(parameter));
+            case PAR_FLOAT -> Float.compare(TypeConverters.convertToFloat(this), TypeConverters.convertToFloat(parameter));
+            case PAR_SIDE -> Objects.compare(TypeConverters.convertToSide(this), TypeConverters.convertToSide(parameter),
+                    Comparator.naturalOrder());
+            case PAR_BOOLEAN -> Boolean.compare(TypeConverters.convertToBool(this), TypeConverters.convertToBool(parameter));
+            case PAR_INVENTORY -> 0;       // Undefined
+            case PAR_ITEM -> Objects.compare(TypeConverters.convertToItem(this), TypeConverters.convertToItem(parameter),
+                    Comparator.comparing(s -> s.getItem().getRegistryName()));
+            case PAR_EXCEPTION -> 0;
+            case PAR_TUPLE -> Objects.compare(TypeConverters.convertToTuple(this), TypeConverters.convertToTuple(parameter),
+                    Comparator.naturalOrder());
+            case PAR_FLUID -> Objects.compare(TypeConverters.convertToFluid(this), TypeConverters.convertToFluid(parameter),
+                    Comparator.comparing(s -> s.getFluid().getRegistryName().toString()));
+            case PAR_VECTOR -> Objects.compare(TypeConverters.convertToVector(this), TypeConverters.convertToVector(parameter),
+                    Parameter::compareLists);
+            case PAR_LONG -> Long.compare(TypeConverters.convertToLong(this), TypeConverters.convertToLong(parameter));
+            case PAR_NUMBER -> Objects.compare(TypeConverters.convertToNumber(this), TypeConverters.convertToNumber(parameter),
+                    (n1, n2) -> {
+                        Double d1 = n1.doubleValue();
+                        Double d2 = n2.doubleValue();
+                        return Objects.compare(d1, d2, Comparator.naturalOrder());
+                    });
+        };
     }
 
     @Override

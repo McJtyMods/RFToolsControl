@@ -55,8 +55,7 @@ public class ProcessorBlock extends BaseBlock {
     protected void checkRedstone(Level world, BlockPos pos) {
         BlockState state = world.getBlockState(pos);
         BlockEntity te = world.getBlockEntity(pos);
-        if (state.getBlock() instanceof ProcessorBlock && te instanceof ProcessorTileEntity) {
-            ProcessorTileEntity processor = (ProcessorTileEntity)te;
+        if (state.getBlock() instanceof ProcessorBlock && te instanceof ProcessorTileEntity processor) {
             int powered = 0;
             if (getInputStrength(world, pos, Direction.DOWN) > 0) {
                 powered += 1;
@@ -88,8 +87,7 @@ public class ProcessorBlock extends BaseBlock {
     @Override
     public int getSignal(BlockState state, BlockGetter world, @Nonnull BlockPos pos, @Nonnull Direction side) {
         BlockEntity te = world.getBlockEntity(pos);
-        if (state.getBlock() instanceof ProcessorBlock && te instanceof ProcessorTileEntity) {
-            ProcessorTileEntity processor = (ProcessorTileEntity) te;
+        if (state.getBlock() instanceof ProcessorBlock && te instanceof ProcessorTileEntity processor) {
             return processor.getPowerOut(side.getOpposite());
         }
         return 0;

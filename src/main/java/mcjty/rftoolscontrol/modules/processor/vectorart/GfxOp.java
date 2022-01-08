@@ -37,19 +37,11 @@ public abstract class GfxOp {
     }
 
     private static GfxOp createGfxOp(GfxOpType type) {
-        GfxOp op = null;
-        switch (type) {
-            case OP_BOX:
-                op = new GfxOpBox();
-                break;
-            case OP_LINE:
-                op = new GfxOpLine();
-                break;
-            case OP_TEXT:
-                op = new GfxOpText();
-                break;
-        }
-        return op;
+        return switch (type) {
+            case OP_BOX -> new GfxOpBox();
+            case OP_LINE -> new GfxOpLine();
+            case OP_TEXT -> new GfxOpText();
+        };
     }
 
     public void writeToBuf(FriendlyByteBuf buf) {

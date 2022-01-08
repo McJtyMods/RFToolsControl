@@ -40,8 +40,7 @@ public class NodeBlock extends BaseBlock {
     protected void checkRedstone(Level world, BlockPos pos) {
         BlockState state = world.getBlockState(pos);
         BlockEntity te = world.getBlockEntity(pos);
-        if (state.getBlock() instanceof NodeBlock && te instanceof NodeTileEntity) {
-            NodeTileEntity processor = (NodeTileEntity)te;
+        if (state.getBlock() instanceof NodeBlock && te instanceof NodeTileEntity processor) {
             int powered = 0;
             if (getInputStrength(world, pos, Direction.DOWN) > 0) {
                 powered += 1;

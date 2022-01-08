@@ -11,8 +11,8 @@ import mcjty.rftoolscontrol.modules.multitank.MultiTankModule;
 import mcjty.rftoolscontrol.modules.multitank.util.MultiTankFluidProperties;
 import mcjty.rftoolscontrol.modules.multitank.util.MultiTankHandler;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.MenuProvider;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.MenuProvider;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fluids.FluidStack;
@@ -29,7 +29,7 @@ public class MultiTankTileEntity extends GenericTileEntity {
     public static final int TANKS = 4;
     public static final int MAXCAPACITY = 10000;
 
-    private final MultiTankFluidProperties properties[] = new MultiTankFluidProperties[TANKS];
+    private final MultiTankFluidProperties[] properties = new MultiTankFluidProperties[TANKS];
 
     @Cap(type = CapType.FLUIDS)
     private final LazyOptional<MultiTankHandler> fluidHandler = LazyOptional.of(this::createFluidHandler);
@@ -87,8 +87,6 @@ public class MultiTankTileEntity extends GenericTileEntity {
                     te.properties[i].set(list.get(i));
                 }
             });
-
-    private MultiTankHandler handler = null;
 
     @Nonnull
     private MultiTankHandler createFluidHandler() {

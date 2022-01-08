@@ -272,7 +272,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Gen
         if (done.contains(pos)) {
             return;
         }
-        IIcon icon = getHolder(pos.getX(), pos.getY()).getIcon();
+        IIcon icon = getHolder(pos.x(), pos.y()).getIcon();
         if (icon == null) {
             return;
         }
@@ -288,10 +288,10 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Gen
     }
 
     private boolean checkValidGridPos(GridPos pos) {
-        if (pos.getX() < 0 || pos.getX() >= GRID_WIDTH) {
+        if (pos.x() < 0 || pos.x() >= GRID_WIDTH) {
             return false;
         }
-        if (pos.getY() < 0 || pos.getY() >= GRID_HEIGHT) {
+        if (pos.y() < 0 || pos.y() >= GRID_HEIGHT) {
             return false;
         }
         return true;
@@ -376,7 +376,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Gen
 
     private void handleConnectorHighlight(int finalX, int finalY, IIcon iIcon, int dx, int dy) {
         if (prevHighlightConnector != null) {
-            IconHolder h = getHolder(prevHighlightConnector.getX(), prevHighlightConnector.getY());
+            IconHolder h = getHolder(prevHighlightConnector.x(), prevHighlightConnector.y());
             if (h.getIcon() != null) {
                 h.getIcon().removeOverlay("H");
             }
@@ -565,7 +565,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Gen
         List<Pair<GridPos, String>> errors = ProgramValidator.validate(instance);
         for (Pair<GridPos, String> entry : errors) {
             GridPos p = entry.getKey();
-            IconHolder h = getHolder(p.getX(), p.getY());
+            IconHolder h = getHolder(p.x(), p.y());
             h.getIcon().addOverlay((time % 2000) < 1000 ? errorIcon1 : errorIcon2);
         }
     }
@@ -588,7 +588,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Gen
                     Widget<?> child = errorList.getChild(errorList.getSelected());
                     GridPos pos = (GridPos) child.getUserObject();
                     if (pos != null) {
-                        window.setTextFocus(getHolder(pos.getX(), pos.getY()));
+                        window.setTextFocus(getHolder(pos.x(), pos.y()));
                     }
                 }
                 getWindowManager().closeWindow(modalWindow);
@@ -696,8 +696,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Gen
     }
 
     private GridPos getSelectedGridHolder() {
-        if (window.getTextFocus() instanceof IconHolder) {
-            IconHolder holder = (IconHolder) window.getTextFocus();
+        if (window.getTextFocus() instanceof IconHolder holder) {
             if (holder.getUserObject() instanceof GridPos) {
                 return (GridPos) holder.getUserObject();
             }
@@ -716,27 +715,27 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Gen
             posy = 0;
             leftTop = new GridPos(0, 0);
         } else {
-            posx = pos.getX();
-            posy = pos.getY();
+            posx = pos.x();
+            posy = pos.y();
 
             for (Map.Entry<GridPos, GridInstance> entry : instance.getGridInstances().entrySet()) {
-                int x = entry.getKey().getX();
-                int y = entry.getKey().getY();
-                if (x < leftTop.getX()) {
+                int x = entry.getKey().x();
+                int y = entry.getKey().y();
+                if (x < leftTop.x()) {
                     leftTop = entry.getKey();
-                } else if (x == leftTop.getX() && y < leftTop.getY()) {
+                } else if (x == leftTop.x() && y < leftTop.y()) {
                     leftTop = entry.getKey();
                 }
             }
-            if (leftTop.getX() > 1000) {
+            if (leftTop.x() > 1000) {
                 return; // Nothing to do
             }
         }
 
         // Check if the program fits in the grid
         for (Map.Entry<GridPos, GridInstance> entry : instance.getGridInstances().entrySet()) {
-            int x = entry.getKey().getX() - leftTop.getX() + posx;
-            int y = entry.getKey().getY() - leftTop.getY() + posy;
+            int x = entry.getKey().x() - leftTop.x() + posx;
+            int y = entry.getKey().y() - leftTop.y() + posy;
             if (!checkValidGridPos(new GridPos(x, y))) {
                 GuiTools.showMessage(minecraft, this, getWindowManager(), 50, 50, ChatFormatting.RED + "No room for clipboard here!");
                 return;
@@ -749,16 +748,16 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Gen
 
         // There is room
         for (Map.Entry<GridPos, GridInstance> entry : instance.getGridInstances().entrySet()) {
-            int x = entry.getKey().getX() - leftTop.getX() + posx;
-            int y = entry.getKey().getY() - leftTop.getY() + posy;
+            int x = entry.getKey().x() - leftTop.x() + posx;
+            int y = entry.getKey().y() - leftTop.y() + posy;
             loadGridInstance(entry, x, y);
         }
     }
 
     private void loadProgram(ProgramCardInstance instance) {
         for (Map.Entry<GridPos, GridInstance> entry : instance.getGridInstances().entrySet()) {
-            int x = entry.getKey().getX();
-            int y = entry.getKey().getY();
+            int x = entry.getKey().x();
+            int y = entry.getKey().y();
             loadGridInstance(entry, x, y);
         }
     }
@@ -1083,9 +1082,8 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Gen
     }
 
     private void selectIcon(Window parent, Widget<?> focused) {
-        if (parent == window && focused instanceof IconHolder) {
+        if (parent == window && focused instanceof IconHolder iconHolder) {
             clearEditorPanel();
-            IconHolder iconHolder = (IconHolder) focused;
             IIcon icon = iconHolder.getIcon();
             if (icon != null) {
                 setEditorPanel(iconHolder, icon);

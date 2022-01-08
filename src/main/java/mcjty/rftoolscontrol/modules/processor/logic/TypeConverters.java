@@ -72,7 +72,7 @@ public class TypeConverters {
                 return (FluidStack) v;
             case PAR_ITEM:
                 ItemStack itemStack = (ItemStack) v;
-                return FluidUtil.getFluidContained(itemStack).map(f -> f).orElse(FluidStack.EMPTY);
+                return FluidUtil.getFluidContained(itemStack).orElse(FluidStack.EMPTY);
             case PAR_INTEGER:
             case PAR_LONG:
             case PAR_FLOAT:
@@ -285,32 +285,18 @@ public class TypeConverters {
         if (v == null) {
             return false;
         }
-        switch (type) {
-            case PAR_STRING:
-                return !((String) v).isEmpty();
-            case PAR_INTEGER:
-                return ((Integer) v) != 0;
-            case PAR_LONG:
-                return ((Long) v) != 0;
-            case PAR_FLOAT:
-                return ((Float) v) != 0;
-            case PAR_NUMBER:
-                return castToInt(v) != 0;
-            case PAR_BOOLEAN:
-                return (Boolean) v;
-            case PAR_TUPLE:
-                return ((Tuple) v).getX() != 0 || ((Tuple) v).getY() != 0;
-            case PAR_VECTOR:
-                return !((List<?>)v).isEmpty();
-            case PAR_ITEM:
-                return !((ItemStack) v).isEmpty();
-            case PAR_SIDE:
-            case PAR_INVENTORY:
-            case PAR_FLUID:
-            case PAR_EXCEPTION:
-                return true;
-        }
-        return false;
+        return switch (type) {
+            case PAR_STRING -> !((String) v).isEmpty();
+            case PAR_INTEGER -> ((Integer) v) != 0;
+            case PAR_LONG -> ((Long) v) != 0;
+            case PAR_FLOAT -> ((Float) v) != 0;
+            case PAR_NUMBER -> castToInt(v) != 0;
+            case PAR_BOOLEAN -> (Boolean) v;
+            case PAR_TUPLE -> ((Tuple) v).getX() != 0 || ((Tuple) v).getY() != 0;
+            case PAR_VECTOR -> !((List<?>) v).isEmpty();
+            case PAR_ITEM -> !((ItemStack) v).isEmpty();
+            case PAR_SIDE, PAR_INVENTORY, PAR_FLUID, PAR_EXCEPTION -> true;
+        };
     }
 
     public static int convertToInt(IParameter value) {
@@ -409,11 +395,11 @@ public class TypeConverters {
             case PAR_BOOLEAN:
                 return ((Boolean) v) ? 1L : 0L;
             case PAR_ITEM:
-                return Long.valueOf(((ItemStack) v).getCount());
+                return (long) ((ItemStack) v).getCount();
             case PAR_FLUID:
-                return Long.valueOf(((FluidStack) v).getAmount());
+                return (long) ((FluidStack) v).getAmount();
             case PAR_VECTOR:
-                return Long.valueOf(((List<?>)v).size());
+                return (long) ((List<?>) v).size();
             case PAR_EXCEPTION:
             case PAR_TUPLE:
             case PAR_SIDE:
@@ -446,11 +432,11 @@ public class TypeConverters {
             case PAR_BOOLEAN:
                 return ((Boolean) v) ? 1L : 0L;
             case PAR_ITEM:
-                return Integer.valueOf(((ItemStack) v).getCount());
+                return ((ItemStack) v).getCount();
             case PAR_FLUID:
-                return Integer.valueOf(((FluidStack) v).getAmount());
+                return ((FluidStack) v).getAmount();
             case PAR_VECTOR:
-                return Integer.valueOf(((List<?>)v).size());
+                return ((List<?>) v).size();
             case PAR_EXCEPTION:
             case PAR_TUPLE:
             case PAR_SIDE:

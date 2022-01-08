@@ -22,8 +22,8 @@ import java.util.function.Supplier;
 public class PacketVariablesReady {
 
     private BlockPos pos;
-    private List<Parameter> list;
-    private String command;
+    private final List<Parameter> list;
+    private final String command;
 
     public PacketVariablesReady(FriendlyByteBuf buf) {
         if (buf.readBoolean()) {

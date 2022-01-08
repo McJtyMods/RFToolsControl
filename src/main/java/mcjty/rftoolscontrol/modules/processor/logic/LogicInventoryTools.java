@@ -232,16 +232,16 @@ public class LogicInventoryTools {
     }
 
     public static Direction getSideFromChar(char is) {
-        switch (is) {
-            case '*': return null;
-            case 'D': return Direction.DOWN;
-            case 'U': return Direction.UP;
-            case 'W': return Direction.WEST;
-            case 'E': return Direction.EAST;
-            case 'S': return Direction.SOUTH;
-            case 'N': return Direction.NORTH;
-        }
-        return null;
+        return switch (is) {
+            case '*' -> null;
+            case 'D' -> Direction.DOWN;
+            case 'U' -> Direction.UP;
+            case 'W' -> Direction.WEST;
+            case 'E' -> Direction.EAST;
+            case 'S' -> Direction.SOUTH;
+            case 'N' -> Direction.NORTH;
+            default -> null;
+        };
     }
 
     public static String blockSideToString(BlockSide bc) {

@@ -32,7 +32,7 @@ public class NodeTileEntity extends GenericTileEntity {
 
     // Bitmask for all six sides
     private int prevIn = 0;
-    private int powerOut[] = new int[]{0, 0, 0, 0, 0, 0};
+    private final int[] powerOut = new int[]{0, 0, 0, 0, 0, 0};
 
     @Cap(type = CapType.CONTAINER)
     private final LazyOptional<MenuProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<GenericContainer>("Node")
@@ -75,9 +75,8 @@ public class NodeTileEntity extends GenericTileEntity {
         if (powerLevel != powered) {
             if (processor != null) {
                 BlockEntity te = getLevel().getBlockEntity(processor);
-                if (te instanceof ProcessorTileEntity) {
-                    ProcessorTileEntity processorTileEntity = (ProcessorTileEntity) te;
-                    processorTileEntity.redstoneNodeChange(prevIn, powered, node);
+                if (te instanceof ProcessorTileEntity processor) {
+                    processor.redstoneNodeChange(prevIn, powered, node);
                 }
             }
             prevIn = powered;

@@ -17,9 +17,9 @@ import java.util.function.Supplier;
 
 public class PacketGraphicsReady {
 
-    private BlockPos pos;
-    private Map<String, GfxOp> gfxOps;
-    private List<String> orderedOps;
+    private final BlockPos pos;
+    private final Map<String, GfxOp> gfxOps;
+    private final List<String> orderedOps;
 
     public void toBytes(FriendlyByteBuf buf) {
         buf.writeBlockPos(pos);
@@ -61,8 +61,7 @@ public class PacketGraphicsReady {
         NetworkEvent.Context ctx = supplier.get();
         ctx.enqueueWork(() -> {
             BlockEntity te = SafeClientTools.getClientWorld().getBlockEntity(pos);
-            if (te instanceof ProcessorTileEntity) {
-                ProcessorTileEntity processor = (ProcessorTileEntity) te;
+            if (te instanceof ProcessorTileEntity processor) {
                 processor.setClientOrderedGfx(gfxOps, orderedOps);
             }
         });

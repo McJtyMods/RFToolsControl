@@ -42,35 +42,24 @@ public enum Connection {
     }
 
     public GridPos offset(GridPos coordinate) {
-        switch (this) {
-            case UP_NEG:
-            case UP:
-                return GridPos.pos(coordinate.getX(), coordinate.getY()-1);
-            case DOWN_NEG:
-            case DOWN:
-                return GridPos.pos(coordinate.getX(), coordinate.getY()+1);
-            case LEFT_NEG:
-            case LEFT:
-                return GridPos.pos(coordinate.getX()-1, coordinate.getY());
-            case RIGHT_NEG:
-            case RIGHT:
-                return GridPos.pos(coordinate.getX()+1, coordinate.getY());
-            default:
-                return coordinate;
-        }
+        return switch (this) {
+            case UP_NEG, UP -> GridPos.pos(coordinate.x(), coordinate.y() - 1);
+            case DOWN_NEG, DOWN -> GridPos.pos(coordinate.x(), coordinate.y() + 1);
+            case LEFT_NEG, LEFT -> GridPos.pos(coordinate.x() - 1, coordinate.y());
+            case RIGHT_NEG, RIGHT -> GridPos.pos(coordinate.x() + 1, coordinate.y());
+        };
     }
 
     public Connection getOpposite() {
-        switch (this) {
-            case UP: return UP_NEG;
-            case DOWN: return DOWN_NEG;
-            case LEFT: return LEFT_NEG;
-            case RIGHT: return RIGHT_NEG;
-            case UP_NEG: return UP;
-            case DOWN_NEG: return DOWN;
-            case LEFT_NEG: return LEFT;
-            case RIGHT_NEG: return RIGHT;
-        }
-        return this;
+        return switch (this) {
+            case UP -> UP_NEG;
+            case DOWN -> DOWN_NEG;
+            case LEFT -> LEFT_NEG;
+            case RIGHT -> RIGHT_NEG;
+            case UP_NEG -> UP;
+            case DOWN_NEG -> DOWN;
+            case LEFT_NEG -> LEFT;
+            case RIGHT_NEG -> RIGHT;
+        };
     }
 }

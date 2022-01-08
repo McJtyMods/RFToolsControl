@@ -55,7 +55,7 @@ public class RunningProgram implements IProgram {
     private CpuCore core;
 
     // Opcode index, variable index
-    private List<FlowStack> loopStack = new ArrayList<>();
+    private final List<FlowStack> loopStack = new ArrayList<>();
 
     private static class FlowStack {
         private final int current;
@@ -83,8 +83,8 @@ public class RunningProgram implements IProgram {
     }
 
     public void startFromEvent(CompiledEvent event) {
-        this.current = event.getIndex();
-        this.eventIndex = event.getIndex();
+        this.current = event.index();
+        this.eventIndex = event.index();
     }
 
     public void setCurrent(int current) {

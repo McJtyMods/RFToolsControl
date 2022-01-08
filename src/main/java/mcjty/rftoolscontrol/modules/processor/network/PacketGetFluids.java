@@ -26,10 +26,10 @@ import java.util.function.Supplier;
 
 public class PacketGetFluids {
 
-    private BlockPos pos;
-    private ResourceKey<Level> type;
-    private TypedMap params;
-    private boolean fromTablet;
+    private final BlockPos pos;
+    private final ResourceKey<Level> type;
+    private final TypedMap params;
+    private final boolean fromTablet;
 
     public PacketGetFluids(FriendlyByteBuf buf) {
         pos = buf.readBlockPos();
@@ -95,8 +95,7 @@ public class PacketGetFluids {
                     fluidStack = NetworkTools.readFluidStack(buf);
                 }
                 boolean allocated = buf.readBoolean();
-                PacketGetFluids.FluidEntry item = new PacketGetFluids.FluidEntry(fluidStack, allocated);
-                return item;
+                return new FluidEntry(fluidStack, allocated);
             } else {
                 return null;
             }

@@ -18,9 +18,6 @@ public class GuiNode extends GenericGuiContainer<NodeTileEntity, GenericContaine
     public static final int WIDTH = 220;
     public static final int HEIGHT = 30;
 
-    private TextField channelField;
-    private TextField nodeNameField;
-
     public GuiNode(NodeTileEntity te, GenericContainer container, Inventory inventory) {
         super(te, container, inventory, /*@todo 1.15 GuiProxy.GUI_MANUAL_CONTROL*/ ManualEntry.EMPTY);
 
@@ -38,10 +35,10 @@ public class GuiNode extends GenericGuiContainer<NodeTileEntity, GenericContaine
 
         Panel toplevel = vertical().filledRectThickness(2);
 
-        channelField = new TextField().tooltips("Set the name of the network", "channel to connect too");
+        TextField channelField = new TextField().tooltips("Set the name of the network", "channel to connect too");
         channelField.name("channel");
 
-        nodeNameField = new TextField().tooltips("Set the name of this node");
+        TextField nodeNameField = new TextField().tooltips("Set the name of this node");
         channelField.name("node");
 
         Panel bottomPanel = horizontal().

@@ -11,7 +11,7 @@ import java.util.Map;
 
 public class ProgramCardInstance {
 
-    private Map<GridPos, GridInstance> gridInstances = new HashMap<>();
+    private final Map<GridPos, GridInstance> gridInstances = new HashMap<>();
 
     public Map<GridPos, GridInstance> getGridInstances() {
         return gridInstances;
@@ -102,8 +102,8 @@ public class ProgramCardInstance {
 
     private JsonElement buildCoordinateElement(GridPos pos) {
         JsonObject jsonObject = new JsonObject();
-        jsonObject.add("x", new JsonPrimitive(pos.getX()));
-        jsonObject.add("y", new JsonPrimitive(pos.getY()));
+        jsonObject.add("x", new JsonPrimitive(pos.x()));
+        jsonObject.add("y", new JsonPrimitive(pos.y()));
         return jsonObject;
     }
 
@@ -113,8 +113,8 @@ public class ProgramCardInstance {
 
         for (Map.Entry<GridPos, GridInstance> entry : gridInstances.entrySet()) {
             GridPos coordinate = entry.getKey();
-            int x = coordinate.getX();
-            int y = coordinate.getY();
+            int x = coordinate.x();
+            int y = coordinate.y();
             GridInstance gridInstance = entry.getValue();
             CompoundTag tag = gridInstance.writeToNBT(x, y);
             grid.add(tag);

@@ -16,17 +16,14 @@ import net.minecraftforge.network.NetworkEvent;
 import java.util.function.Supplier;
 
 public class PacketVariableToServer {
-    private BlockPos pos;
-    private int varIndex;
-    private CompoundTag tagCompound;
+    private final BlockPos pos;
+    private final int varIndex;
+    private final CompoundTag tagCompound;
 
     public void toBytes(FriendlyByteBuf buf) {
         buf.writeBlockPos(pos);
         buf.writeInt(varIndex);
         buf.writeNbt(tagCompound);
-    }
-
-    public PacketVariableToServer() {
     }
 
     public PacketVariableToServer(FriendlyByteBuf buf) {
@@ -46,8 +43,7 @@ public class PacketVariableToServer {
         ctx.enqueueWork(() -> {
             Player playerEntity = ctx.getSender();
             BlockEntity te = playerEntity.getCommandSenderWorld().getBlockEntity(pos);
-            if (te instanceof ProcessorTileEntity) {
-                ProcessorTileEntity processor = (ProcessorTileEntity) te;
+            if (te instanceof ProcessorTileEntity processor) {
                 Parameter[] variables = processor.getVariableArray();
                 if (varIndex < variables.length) {
                     Parameter parameter = variables[varIndex];

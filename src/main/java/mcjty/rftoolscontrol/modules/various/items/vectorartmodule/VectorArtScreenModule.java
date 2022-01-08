@@ -42,8 +42,7 @@ public class VectorArtScreenModule implements IScreenModule<ModuleDataVectorArt>
         }
 
         BlockEntity te = world.getBlockEntity(coordinate);
-        if (te instanceof ProcessorTileEntity) {
-            ProcessorTileEntity processor = (ProcessorTileEntity) te;
+        if (te instanceof ProcessorTileEntity processor) {
             return new ModuleDataVectorArt(processor.getGfxOps(), processor.getOrderedOps());
         }
         return null;

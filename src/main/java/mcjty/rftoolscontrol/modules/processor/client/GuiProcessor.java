@@ -39,6 +39,7 @@ import net.minecraftforge.fluids.FluidStack;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -57,7 +58,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity, Proce
 
     private Window sideWindow;
     private EnergyBar energyBar;
-    private ToggleButton[] setupButtons = new ToggleButton[ProcessorTileEntity.CARD_SLOTS];
+    private final ToggleButton[] setupButtons = new ToggleButton[ProcessorTileEntity.CARD_SLOTS];
     private WidgetList log;
     private WidgetList variableList;
     private WidgetList fluidList;
@@ -65,10 +66,10 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity, Proce
     private ToggleButton exclusive;
     private ChoiceLabel hudMode;
 
-    private static List<String> commandHistory = new ArrayList<>();
+    private static final List<String> commandHistory = new ArrayList<>();
     private static int commandHistoryIndex = -1;
 
-    private int[] fluidListMapping = new int[TANKS * 6];
+    private final int[] fluidListMapping = new int[TANKS * 6];
     private static List<PacketGetFluids.FluidEntry> fromServer_fluids = new ArrayList<>();
 
     public static void storeFluidsForClient(List<PacketGetFluids.FluidEntry> messages) {
@@ -135,18 +136,10 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity, Proce
                 .choiceTooltip("Db", "Show a debug display")
                 .choiceTooltip("Gfx", "Graphics display");
         switch (tileEntity.getShowHud()) {
-            case HUD_OFF:
-                hudMode.choice("Off");
-                break;
-            case HUD_LOG:
-                hudMode.choice("Log");
-                break;
-            case HUD_DB:
-                hudMode.choice("Db");
-                break;
-            case HUD_GFX:
-                hudMode.choice("Gfx");
-                break;
+            case HUD_OFF -> hudMode.choice("Off");
+            case HUD_LOG -> hudMode.choice("Log");
+            case HUD_DB -> hudMode.choice("Db");
+            case HUD_GFX -> hudMode.choice("Gfx");
         }
         hudMode.event((newChoice) -> {
             String choice = hudMode.getCurrentChoice();
@@ -533,9 +526,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity, Proce
 
     private void updateFluidList() {
         fluidList.removeChildren();
-        for (int i = 0; i < fluidListMapping.length; i++) {
-            fluidListMapping[i] = -1;
-        }
+        Arrays.fill(fluidListMapping, -1);
 
         int setupMode = getSetupMode();
 

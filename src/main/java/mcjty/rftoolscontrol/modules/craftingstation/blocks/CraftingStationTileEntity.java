@@ -95,8 +95,7 @@ public class CraftingStationTileEntity extends GenericTileEntity {
     private Pair<ProcessorTileEntity, ItemStack> findCraftableItem(int index) {
         for (BlockPos p : processorList) {
             BlockEntity te = level.getBlockEntity(p);
-            if (te instanceof ProcessorTileEntity) {
-                ProcessorTileEntity processor = (ProcessorTileEntity) te;
+            if (te instanceof ProcessorTileEntity processor) {
                 ItemStackList items = ItemStackList.create();
                 processor.getCraftableItems(items);
                 for (ItemStack item : items) {
@@ -135,8 +134,7 @@ public class CraftingStationTileEntity extends GenericTileEntity {
                             .orElseThrow(() -> new ProgException(ExceptionType.EXCEPT_INVALIDINVENTORY));
                  } else {
                     getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY)
-                            .map(h -> ItemHandlerHelper.insertItem(h, stack, false))
-                            .orElse(ItemStack.EMPTY);
+                            .map(h -> ItemHandlerHelper.insertItem(h, stack, false));
                 }
             }
         }
@@ -155,7 +153,7 @@ public class CraftingStationTileEntity extends GenericTileEntity {
     private void cancelCraft(int index) {
         try {
             activeCraftingRequests.remove(index);
-        } catch (Exception e) {
+        } catch (Exception ignored) {
 
         }
     }
@@ -214,8 +212,7 @@ public class CraftingStationTileEntity extends GenericTileEntity {
     public boolean request(@Nonnull Ingredient item, @Nullable Inventory destination) {
         for (BlockPos p : processorList) {
             BlockEntity te = level.getBlockEntity(p);
-            if (te instanceof ProcessorTileEntity) {
-                ProcessorTileEntity processor = (ProcessorTileEntity) te;
+            if (te instanceof ProcessorTileEntity processor) {
                 ItemStackList items = ItemStackList.create();
                 processor.getCraftableItems(items);
                 for (ItemStack i : items) {
@@ -269,8 +266,7 @@ public class CraftingStationTileEntity extends GenericTileEntity {
         ItemStackList items = ItemStackList.create();
         for (BlockPos p : processorList) {
             BlockEntity te = level.getBlockEntity(p);
-            if (te instanceof ProcessorTileEntity) {
-                ProcessorTileEntity processor = (ProcessorTileEntity) te;
+            if (te instanceof ProcessorTileEntity processor) {
                 processor.getCraftableItems(items);
             }
         }
@@ -381,8 +377,7 @@ public class CraftingStationTileEntity extends GenericTileEntity {
         int index = 0;
         for (BlockPos p : processorList) {
             BlockEntity te = level.getBlockEntity(p);
-            if (te instanceof ProcessorTileEntity) {
-                ProcessorTileEntity processor = (ProcessorTileEntity) te;
+            if (te instanceof ProcessorTileEntity processor) {
                 ItemStackList items = ItemStackList.create();
                 processor.getCraftableItems(items);
                 for (ItemStack item : items) {

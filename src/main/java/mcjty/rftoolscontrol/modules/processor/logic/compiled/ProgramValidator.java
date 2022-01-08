@@ -35,7 +35,7 @@ public class ProgramValidator {
             if (!Opcodes.DO_COMMENT.getId().equals(opcode.getId())) {
                 GridPos p = entry.getKey();
                 if (!opcode.isEvent() && !reachableLocations.contains(p)) {
-                    errors.add(Pair.of(p, "Unreachable: " + p.getX() + "," + p.getY()));
+                    errors.add(Pair.of(p, "Unreachable: " + p.x() + "," + p.y()));
                 }
             }
         }
@@ -52,7 +52,7 @@ public class ProgramValidator {
                 Parameter par = i < parameters.size() ? parameters.get(i) : null;
                 if (!desc.isOptional()) {
                     if (par == null || par.getParameterValue() == null || (par.getParameterValue().isConstant() && par.getParameterValue().getValue() == null)) {
-                        errors.add(Pair.of(p, "Missing parameter (" + desc.getName() + "): " + p.getX() + "," + p.getY()));
+                        errors.add(Pair.of(p, "Missing parameter (" + desc.getName() + "): " + p.x() + "," + p.y()));
                     }
                 }
             }

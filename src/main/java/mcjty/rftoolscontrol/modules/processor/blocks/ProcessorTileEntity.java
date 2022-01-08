@@ -181,7 +181,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
 
     // Bitmask for all six sides
     private int prevIn = 0;
-    private int powerOut[] = new int[]{0, 0, 0, 0, 0, 0};
+    private final int[] powerOut = new int[]{0, 0, 0, 0, 0, 0};
 
     private int tickCount = 0;
 
@@ -342,20 +342,20 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
     private void processEventQueue() {
         QueuedEvent queuedEvent = eventQueue.peek();
         if (queuedEvent != null) {
-            CompiledEvent compiledEvent = queuedEvent.getCompiledEvent();
-            if (compiledEvent.isSingle() && runningEvents.contains(Pair.of(queuedEvent.getCardIndex(), compiledEvent.getIndex()))) {
+            CompiledEvent compiledEvent = queuedEvent.compiledEvent();
+            if (compiledEvent.single() && runningEvents.contains(Pair.of(queuedEvent.cardIndex(), compiledEvent.index()))) {
                 return;
             }
-            CpuCore core = findAvailableCore(queuedEvent.getCardIndex());
+            CpuCore core = findAvailableCore(queuedEvent.cardIndex());
             if (core != null) {
                 eventQueue.remove();
-                RunningProgram program = new RunningProgram(queuedEvent.getCardIndex());
+                RunningProgram program = new RunningProgram(queuedEvent.cardIndex());
                 program.startFromEvent(compiledEvent);
-                program.setCraftTicket(queuedEvent.getTicket());
-                program.setLastValue(queuedEvent.getParameter());
+                program.setCraftTicket(queuedEvent.ticket());
+                program.setLastValue(queuedEvent.parameter());
                 core.startProgram(program);
-                if (compiledEvent.isSingle()) {
-                    runningEvents.add(Pair.of(queuedEvent.getCardIndex(), compiledEvent.getIndex()));
+                if (compiledEvent.single()) {
+                    runningEvents.add(Pair.of(queuedEvent.cardIndex(), compiledEvent.index()));
                 }
             }
         }
@@ -367,7 +367,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
                 CompiledCard compiledCard = info.getCompiledCard();
                 if (compiledCard != null) {
                     for (CompiledEvent event : compiledCard.getEvents(Opcodes.EVENT_CRAFT)) {
-                        int index = event.getIndex();
+                        int index = event.index();
                         CompiledOpcode compiledOpcode = compiledCard.getOpcodes().get(index);
                         ItemStack stack = evaluateItemParameter(compiledOpcode, null, 0);
                         Inventory inv = evaluateInventoryParameter(compiledOpcode, null, 1);
@@ -892,7 +892,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
             CompiledCard compiledCard = info.getCompiledCard();
             if (compiledCard != null) {
                 for (CompiledEvent event : compiledCard.getEvents(Opcodes.EVENT_CRAFT)) {
-                    int index = event.getIndex();
+                    int index = event.index();
                     CompiledOpcode compiledOpcode = compiledCard.getOpcodes().get(index);
                     ItemStack stack = evaluateItemParameter(compiledOpcode, null, 0);
                     Inventory inv = evaluateInventoryParameter(compiledOpcode, null, 1);
@@ -930,7 +930,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
 
     private void handleEventsCraftResume(int cardIndex, CompiledCard compiledCard) {
         for (CompiledEvent event : compiledCard.getEvents(Opcodes.EVENT_CRAFTRESUME)) {
-            int index = event.getIndex();
+            int index = event.index();
             CompiledOpcode compiledOpcode = compiledCard.getOpcodes().get(index);
             int ticks = evaluateIntParameter(compiledOpcode, null, 0);
             if (ticks > 0 && tickCount % ticks == 0) {
@@ -939,15 +939,15 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
                     int foundIdx = -1;
                     for (int i = 0; i < waitingForItems.size(); i++) {
                         WaitForItem wfi = waitingForItems.get(i);
-                        if (wfi.getInventory() == null || wfi.getItemStack().isEmpty()) {
+                        if (wfi.inventory() == null || wfi.itemStack().isEmpty()) {
                             foundIdx = i;
                             found = wfi;
                             break;
                         } else {
-                            int cnt = getItemHandlerAt(wfi.getInventory())
-                                    .map(handler -> countItemInHandler(wfi.getItemStack(), handler))
+                            int cnt = getItemHandlerAt(wfi.inventory())
+                                    .map(handler -> countItemInHandler(wfi.itemStack(), handler))
                                     .orElse(0);
-                            if (cnt >= wfi.getItemStack().getCount()) {
+                            if (cnt >= wfi.itemStack().getCount()) {
                                 foundIdx = i;
                                 found = wfi;
                                 break;
@@ -956,7 +956,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
                     }
                     if (found != null) {
                         waitingForItems.remove(foundIdx);
-                        runOrQueueEvent(cardIndex, event, found.getTicket(), null);
+                        runOrQueueEvent(cardIndex, event, found.ticket(), null);
                     }
                 }
             }
@@ -965,7 +965,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
 
     private void handleEventsTimer(int i, CompiledCard compiledCard) {
         for (CompiledEvent event : compiledCard.getEvents(Opcodes.EVENT_TIMER)) {
-            int index = event.getIndex();
+            int index = event.index();
             CompiledOpcode compiledOpcode = compiledCard.getOpcodes().get(index);
             int ticks = evaluateIntParameter(compiledOpcode, null, 0);
             if (ticks > 0 && tickCount % ticks == 0) {
@@ -978,7 +978,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         int redstoneOffMask = prevIn & ~powerLevel;
         if (redstoneOffMask != 0) {
             for (CompiledEvent event : compiledCard.getEvents(Opcodes.EVENT_REDSTONE_OFF)) {
-                int index = event.getIndex();
+                int index = event.index();
                 CompiledOpcode compiledOpcode = compiledCard.getOpcodes().get(index);
                 BlockSide side = evaluateSideParameter(compiledOpcode, null, 0);
                 if (side == null || !side.hasNodeName()) {
@@ -995,7 +995,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         int redstoneOnMask = powerLevel & ~prevIn;
         if (redstoneOnMask != 0) {
             for (CompiledEvent event : compiledCard.getEvents(Opcodes.EVENT_REDSTONE_ON)) {
-                int index = event.getIndex();
+                int index = event.index();
                 CompiledOpcode compiledOpcode = compiledCard.getOpcodes().get(index);
                 BlockSide side = evaluateSideParameter(compiledOpcode, null, 0);
                 if (side == null || !side.hasNodeName()) {
@@ -1012,7 +1012,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         int redstoneOffMask = prevMask & ~newMask;
         if (redstoneOffMask != 0) {
             for (CompiledEvent event : compiledCard.getEvents(Opcodes.EVENT_REDSTONE_OFF)) {
-                int index = event.getIndex();
+                int index = event.index();
                 CompiledOpcode compiledOpcode = compiledCard.getOpcodes().get(index);
                 BlockSide side = evaluateSideParameter(compiledOpcode, null, 0);
                 if (side != null && node.equals(side.getNodeName())) {
@@ -1029,7 +1029,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         int redstoneOnMask = newMask & ~prevMask;
         if (redstoneOnMask != 0) {
             for (CompiledEvent event : compiledCard.getEvents(Opcodes.EVENT_REDSTONE_ON)) {
-                int index = event.getIndex();
+                int index = event.index();
                 CompiledOpcode compiledOpcode = compiledCard.getOpcodes().get(index);
                 BlockSide side = evaluateSideParameter(compiledOpcode, null, 0);
                 if (side != null && node.equals(side.getNodeName())) {
@@ -1047,7 +1047,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
     }
 
     private void runOrDropEvent(int cardIndex, CompiledEvent event, @Nullable String ticket, @Nullable Parameter parameter) {
-        if (event.isSingle() && runningEvents.contains(Pair.of(cardIndex, event.getIndex()))) {
+        if (event.single() && runningEvents.contains(Pair.of(cardIndex, event.index()))) {
             // Already running and single
             return;
         }
@@ -1056,8 +1056,8 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
             // No available core. First we check if this exact event is already
             // in the queue. If so we drop it. Otherwise we add it
             for (QueuedEvent q : eventQueue) {
-                if (q.getCardIndex() == cardIndex) {
-                    if (q.getCompiledEvent().equals(event)) {
+                if (q.cardIndex() == cardIndex) {
+                    if (q.compiledEvent().equals(event)) {
                         // This event is already in the queue. Just drop it
                         return;
                     }
@@ -1071,14 +1071,14 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
             program.setCraftTicket(ticket);
             program.setLastValue(parameter);
             core.startProgram(program);
-            if (event.isSingle()) {
-                runningEvents.add(Pair.of(cardIndex, event.getIndex()));
+            if (event.single()) {
+                runningEvents.add(Pair.of(cardIndex, event.index()));
             }
         }
     }
 
     private void runOrQueueEvent(int cardIndex, CompiledEvent event, @Nullable String ticket, @Nullable Parameter parameter) {
-        if (event.isSingle() && runningEvents.contains(Pair.of(cardIndex, event.getIndex()))) {
+        if (event.single() && runningEvents.contains(Pair.of(cardIndex, event.index()))) {
             // Already running and single
             queueEvent(cardIndex, event, ticket, parameter);
             return;
@@ -1093,8 +1093,8 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
             program.setCraftTicket(ticket);
             program.setLastValue(parameter);
             core.startProgram(program);
-            if (event.isSingle()) {
-                runningEvents.add(Pair.of(cardIndex, event.getIndex()));
+            if (event.single()) {
+                runningEvents.add(Pair.of(cardIndex, event.index()));
             }
         }
     }
@@ -1115,7 +1115,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
             CompiledCard compiledCard = info.getCompiledCard();
             if (compiledCard != null) {
                 for (CompiledEvent event : compiledCard.getEvents(Opcodes.EVENT_SIGNAL)) {
-                    int index = event.getIndex();
+                    int index = event.index();
                     CompiledOpcode compiledOpcode = compiledCard.getOpcodes().get(index);
                     String sig = evaluateStringParameter(compiledOpcode, null, 0);
                     if (signal.equals(sig)) {
@@ -1136,7 +1136,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
             CompiledCard compiledCard = info.getCompiledCard();
             if (compiledCard != null) {
                 for (CompiledEvent event : compiledCard.getEvents(Opcodes.EVENT_GFX_SELECT)) {
-                    int index = event.getIndex();
+                    int index = event.index();
                     runOrQueueEvent(i, event, null, Parameter.builder()
                             .type(ParameterType.PAR_TUPLE)
                             .value(ParameterValue.constant(location))
@@ -1154,7 +1154,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
             CompiledCard compiledCard = info.getCompiledCard();
             if (compiledCard != null) {
                 for (CompiledEvent event : compiledCard.getEvents(Opcodes.EVENT_MESSAGE)) {
-                    int index = event.getIndex();
+                    int index = event.index();
                     CompiledOpcode compiledOpcode = compiledCard.getOpcodes().get(index);
                     String messageName = evaluateStringParameter(compiledOpcode, null, 0);
                     if (name.equals(messageName)) {
@@ -1278,7 +1278,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
                 CompiledCard compiledCard = info.getCompiledCard();
                 if (compiledCard != null) {
                     for (CompiledEvent event : compiledCard.getEvents(Opcodes.EVENT_EXCEPTION)) {
-                        int index = event.getIndex();
+                        int index = event.index();
                         CompiledOpcode compiledOpcode = compiledCard.getOpcodes().get(index);
                         String code = evaluateStringParameter(compiledOpcode, null, 0);
                         if (exception.getCode().equals(code)) {
@@ -2133,12 +2133,12 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         CompiledCard compiledCard = info.getCompiledCard();
         if (compiledCard != null) {
             for (CompiledEvent event : compiledCard.getEvents(Opcodes.EVENT_SIGNAL)) {
-                int index = event.getIndex();
+                int index = event.index();
                 CompiledOpcode compiledOpcode = compiledCard.getOpcodes().get(index);
                 String sig = evaluateStringParameter(compiledOpcode, null, 0);
                 if (signal.equals(sig)) {
                     p.pushCall(p.getCurrentOpcode(this).getPrimaryIndex());
-                    p.setCurrent(event.getIndex());
+                    p.setCurrent(event.index());
                     return;
                 }
             }
@@ -2601,7 +2601,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
 
         Queue<QueuedEvent> newQueue = new ArrayDeque<>();
         for (QueuedEvent event : eventQueue) {
-            if (event.getCardIndex() != index) {
+            if (event.cardIndex() != index) {
                 newQueue.add(event);
             }
         }
@@ -2899,12 +2899,12 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         ListTag waitingList = new ListTag();
         for (WaitForItem waitingForItem : waitingForItems) {
             CompoundTag tag = new CompoundTag();
-            tag.putString("ticket", waitingForItem.getTicket());
-            if (waitingForItem.getInventory() != null) {
-                tag.put("inv", InventoryUtil.writeToNBT(waitingForItem.getInventory()));
+            tag.putString("ticket", waitingForItem.ticket());
+            if (waitingForItem.inventory() != null) {
+                tag.put("inv", InventoryUtil.writeToNBT(waitingForItem.inventory()));
             }
-            if (!waitingForItem.getItemStack().isEmpty()) {
-                tag.put("item", waitingForItem.getItemStack().serializeNBT());
+            if (!waitingForItem.itemStack().isEmpty()) {
+                tag.put("item", waitingForItem.itemStack().serializeNBT());
             }
             waitingList.add(tag);
         }
@@ -2972,14 +2972,14 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         ListTag eventQueueList = new ListTag();
         for (QueuedEvent queuedEvent : eventQueue) {
             CompoundTag tag = new CompoundTag();
-            tag.putInt("card", queuedEvent.getCardIndex());
-            tag.putInt("index", queuedEvent.getCompiledEvent().getIndex());
-            tag.putBoolean("single", queuedEvent.getCompiledEvent().isSingle());
-            if (queuedEvent.getTicket() != null) {
-                tag.putString("ticket", queuedEvent.getTicket());
+            tag.putInt("card", queuedEvent.cardIndex());
+            tag.putInt("index", queuedEvent.compiledEvent().index());
+            tag.putBoolean("single", queuedEvent.compiledEvent().single());
+            if (queuedEvent.ticket() != null) {
+                tag.putString("ticket", queuedEvent.ticket());
             }
-            if (queuedEvent.getParameter() != null) {
-                CompoundTag parTag = ParameterTools.writeToNBT(queuedEvent.getParameter());
+            if (queuedEvent.parameter() != null) {
+                CompoundTag parTag = ParameterTools.writeToNBT(queuedEvent.parameter());
                 tag.put("parameter", parTag);
             }
             eventQueueList.add(tag);

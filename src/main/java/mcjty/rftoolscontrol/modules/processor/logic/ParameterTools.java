@@ -29,69 +29,38 @@ public class ParameterTools {
         Parameter.Builder builder = Parameter.builder().type(type);
         if (buf.readBoolean()) {
             switch (type) {
-                case PAR_STRING:
-                    builder.value(ParameterValue.constant(buf.readUtf(32767)));
-                    break;
-                case PAR_INTEGER:
-                    builder.value(ParameterValue.constant(buf.readInt()));
-                    break;
-                case PAR_LONG:
-                    builder.value(ParameterValue.constant(buf.readLong()));
-                    break;
-                case PAR_FLOAT:
-                    builder.value(ParameterValue.constant(buf.readFloat()));
-                    break;
-                case PAR_NUMBER: {
+                case PAR_STRING -> builder.value(ParameterValue.constant(buf.readUtf(32767)));
+                case PAR_INTEGER -> builder.value(ParameterValue.constant(buf.readInt()));
+                case PAR_LONG -> builder.value(ParameterValue.constant(buf.readLong()));
+                case PAR_FLOAT -> builder.value(ParameterValue.constant(buf.readFloat()));
+                case PAR_NUMBER -> {
                     byte t = buf.readByte();
                     switch (t) {
-                        case 0:
-                            builder.value(ParameterValue.constant(buf.readInt()));
-                            break;
-                        case 1:
-                            builder.value(ParameterValue.constant(buf.readLong()));
-                            break;
-                        case 2:
-                            builder.value(ParameterValue.constant(buf.readFloat()));
-                            break;
-                        case 3:
-                            builder.value(ParameterValue.constant(buf.readDouble()));
-                            break;
+                        case 0 -> builder.value(ParameterValue.constant(buf.readInt()));
+                        case 1 -> builder.value(ParameterValue.constant(buf.readLong()));
+                        case 2 -> builder.value(ParameterValue.constant(buf.readFloat()));
+                        case 3 -> builder.value(ParameterValue.constant(buf.readDouble()));
                     }
-                    break;
                 }
-                case PAR_SIDE: {
+                case PAR_SIDE -> {
                     String nodeName = buf.readUtf(32767);
                     int sideIdx = buf.readByte();
                     Direction side = sideIdx == -1 ? null : Direction.values()[sideIdx];
                     builder.value(ParameterValue.constant(new BlockSide(nodeName, side)));
-                    break;
                 }
-                case PAR_BOOLEAN:
-                    builder.value(ParameterValue.constant(buf.readBoolean()));
-                    break;
-                case PAR_INVENTORY:
-                    builder.value(ParameterValue.constant(InventoryUtil.readBuf(buf)));
-                    break;
-                case PAR_ITEM:
-                    builder.value(ParameterValue.constant(NetworkTools.readItemStack(buf)));
-                    break;
-                case PAR_FLUID:
-                    builder.value(ParameterValue.constant(NetworkTools.readFluidStack(buf)));
-                    break;
-                case PAR_EXCEPTION:
-                    builder.value(ParameterValue.constant(ExceptionType.getExceptionForCode(buf.readUtf(32767))));
-                    break;
-                case PAR_TUPLE:
-                    builder.value(ParameterValue.constant(new Tuple(buf.readInt(), buf.readInt())));
-                    break;
-                case PAR_VECTOR: {
+                case PAR_BOOLEAN -> builder.value(ParameterValue.constant(buf.readBoolean()));
+                case PAR_INVENTORY -> builder.value(ParameterValue.constant(InventoryUtil.readBuf(buf)));
+                case PAR_ITEM -> builder.value(ParameterValue.constant(NetworkTools.readItemStack(buf)));
+                case PAR_FLUID -> builder.value(ParameterValue.constant(NetworkTools.readFluidStack(buf)));
+                case PAR_EXCEPTION -> builder.value(ParameterValue.constant(ExceptionType.getExceptionForCode(buf.readUtf(32767))));
+                case PAR_TUPLE -> builder.value(ParameterValue.constant(new Tuple(buf.readInt(), buf.readInt())));
+                case PAR_VECTOR -> {
                     int size = buf.readInt();
                     List<Parameter> vector = new ArrayList<>(size);
-                    for (int i = 0 ; i < size ; i++) {
+                    for (int i = 0; i < size; i++) {
                         vector.add(readFromBuf(buf));
                     }
                     builder.value(ParameterValue.constant(Collections.unmodifiableList(vector)));
-                    break;
                 }
             }
         }

@@ -83,8 +83,7 @@ public class InteractionScreenModule implements IScreenModule<IModuleDataBoolean
 
                 if (clicked) {
                     BlockEntity te = world.getBlockEntity(coordinate);
-                    if (te instanceof ProcessorTileEntity) {
-                        ProcessorTileEntity processor = (ProcessorTileEntity) te;
+                    if (te instanceof ProcessorTileEntity processor) {
                         processor.signal(signal);
                     }
                 }

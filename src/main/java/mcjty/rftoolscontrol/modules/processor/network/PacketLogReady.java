@@ -21,9 +21,9 @@ import java.util.function.Supplier;
 
 public class PacketLogReady {
 
-    private BlockPos pos;
-    private List<String> list;
-    private String command;
+    private final BlockPos pos;
+    private final List<String> list;
+    private final String command;
 
     public PacketLogReady(FriendlyByteBuf buf) {
         if (buf.readBoolean()) {

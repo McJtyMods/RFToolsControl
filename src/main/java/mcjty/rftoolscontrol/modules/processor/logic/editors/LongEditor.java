@@ -40,7 +40,7 @@ public class LongEditor extends AbstractParameterEditor {
                     long i = Long.parseLong(value);
                     value = "$" + Long.toHexString(i);
                     field.text(value);
-                } catch (NumberFormatException e) {
+                } catch (NumberFormatException ignored) {
                 }
             }
         } else {

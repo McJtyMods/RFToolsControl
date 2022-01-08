@@ -21,9 +21,9 @@ public class CardInfo {
 
     private CompiledCard compiledCard;
 
-    private int slotCache[] = null;
-    private int varCache[] = null;
-    private int fluidCache[] = null;
+    private int[] slotCache = null;
+    private int[] varCache = null;
+    private int[] fluidCache = null;
 
     public int getFluidAllocation() {
         return fluidAllocation;

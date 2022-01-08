@@ -34,8 +34,7 @@ public class CommandHandler {
         });
         McJtyLib.registerCommand(RFToolsControl.MODID, CMD_GETGRAPHICS, (player, arguments) -> {
             BlockEntity te = player.getCommandSenderWorld().getBlockEntity(arguments.get(PARAM_POS));
-            if (te instanceof ProcessorTileEntity) {
-                ProcessorTileEntity processor = (ProcessorTileEntity) te;
+            if (te instanceof ProcessorTileEntity processor) {
                 RFToolsCtrlMessages.INSTANCE.sendTo(new PacketGraphicsReady(processor), ((ServerPlayer)player).connection.connection, NetworkDirection.PLAY_TO_CLIENT);
             }
             return true;

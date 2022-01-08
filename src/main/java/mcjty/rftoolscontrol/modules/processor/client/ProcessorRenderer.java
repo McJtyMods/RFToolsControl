@@ -43,10 +43,9 @@ public class ProcessorRenderer implements BlockEntityRenderer<ProcessorTileEntit
 
         BlockState state = te.getLevel().getBlockState(te.getBlockPos());
         Block block = state.getBlock();
-        if (!(block instanceof BaseBlock)) {
+        if (!(block instanceof BaseBlock baseBlock)) {
             return;
         }
-        BaseBlock baseBlock = (BaseBlock) block;
 
         matrixStack.pushPose();
 
@@ -59,14 +58,12 @@ public class ProcessorRenderer implements BlockEntityRenderer<ProcessorTileEntit
         } else if (facing == Direction.DOWN) {
             matrixStack.mulPose(Vector3f.XP.rotationDegrees(90.0F));
         } else {
-            float rotY = 0.0F;
-            if (facing == Direction.NORTH) {
-                rotY = 180.0F;
-            } else if (facing == Direction.WEST) {
-                rotY = 90.0F;
-            } else if (facing == Direction.EAST) {
-                rotY = -90.0F;
-            }
+            float rotY = switch (facing) {
+                case NORTH -> 180.0F;
+                case WEST -> 90.0F;
+                case EAST -> -90.0F;
+                default -> 0.0F;
+            };
             matrixStack.mulPose(Vector3f.YP.rotationDegrees(-rotY));
         }
 
