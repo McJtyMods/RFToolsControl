@@ -1,0 +1,11 @@
+{
+  "replace": false,
+  "values": [
+    "rftoolscontrol:craftingstation",
+    "rftoolscontrol:tank",
+    "rftoolscontrol:processor",
+    "rftoolscontrol:programmer",
+    "rftoolscontrol:node",
+    "rftoolscontrol:workbench"
+  ]
+}
