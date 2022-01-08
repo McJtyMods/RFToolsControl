@@ -5,7 +5,7 @@ import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorContainer;
 import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorTileEntity;
 import mcjty.rftoolscontrol.modules.processor.logic.compiled.CompiledCard;
 import mcjty.rftoolscontrol.modules.processor.logic.running.ProgException;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.CompoundTag;
 
 import static mcjty.rftoolscontrol.modules.processor.logic.running.ExceptionType.EXCEPT_NOINTERNALFLUIDSLOT;
 import static mcjty.rftoolscontrol.modules.processor.logic.running.ExceptionType.EXCEPT_NOINTERNALSLOT;
@@ -142,15 +142,15 @@ public class CardInfo {
         return getRealVar((int)virtualVar);
     }
 
-    public CompoundNBT writeToNBT() {
-        CompoundNBT tag = new CompoundNBT();
+    public CompoundTag writeToNBT() {
+        CompoundTag tag = new CompoundTag();
         tag.putInt("itemAlloc", itemAllocation);
         tag.putInt("varAlloc", varAllocation);
         tag.putInt("fluidAlloc", fluidAllocation);
         return tag;
     }
 
-    public static CardInfo readFromNBT(CompoundNBT tag) {
+    public static CardInfo readFromNBT(CompoundTag tag) {
         CardInfo cardInfo = new CardInfo();
         cardInfo.itemAllocation = tag.getInt("itemAlloc");
         cardInfo.varAllocation = tag.getInt("varAlloc");

@@ -1,6 +1,6 @@
 package mcjty.rftoolscontrol.modules.processor.client;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import mcjty.lib.client.RenderHelper;
 import mcjty.lib.gui.GenericGuiContainer;
 import mcjty.lib.gui.Window;
@@ -27,14 +27,14 @@ import mcjty.rftoolscontrol.modules.processor.network.PacketVariableToServer;
 import mcjty.rftoolscontrol.modules.processor.util.CardInfo;
 import mcjty.rftoolscontrol.modules.programmer.client.GuiTools;
 import mcjty.rftoolscontrol.setup.RFToolsCtrlMessages;
-import net.minecraft.client.gui.ScreenManager;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.container.Slot;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.TextFormatting;
+import net.minecraft.client.gui.screens.MenuScreens;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.ChatFormatting;
 import net.minecraftforge.fluids.FluidStack;
 
 import javax.annotation.Nonnull;
@@ -83,7 +83,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity, Proce
 
     private int listDirty = 0;
 
-    public GuiProcessor(ProcessorTileEntity te, ProcessorContainer container, PlayerInventory inventory) {
+    public GuiProcessor(ProcessorTileEntity te, ProcessorContainer container, Inventory inventory) {
         super(te, container, inventory, ProcessorModule.PROCESSOR.get().getManualEntry());
 
         imageWidth = WIDTH;
@@ -93,11 +93,11 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity, Proce
     public static void register() {
         register(ProcessorModule.PROCESSOR_CONTAINER.get(), GuiProcessor::new);
 
-        ScreenManager.IScreenFactory<ProcessorContainer, GuiProcessor> factory = (container, inventory, title) -> {
-            TileEntity te = container.getTe();
+        MenuScreens.ScreenConstructor<ProcessorContainer, GuiProcessor> factory = (container, inventory, title) -> {
+            BlockEntity te = container.getTe();
             return Tools.safeMap(te, (ProcessorTileEntity tile) -> new GuiProcessor(tile, container, inventory), "Invalid tile entity!");
         };
-        ScreenManager.register(ProcessorModule.PROCESSOR_CONTAINER_REMOTE.get(), factory);
+        MenuScreens.register(ProcessorModule.PROCESSOR_CONTAINER_REMOTE.get(), factory);
     }
 
     @Override
@@ -117,7 +117,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity, Proce
                 .hint(122, 16, 40, 15)
                 .checkMarker(true)
                 .text("Excl.")
-                .tooltips(TextFormatting.YELLOW + "Exclusive mode", "If pressed then programs on", "card X can only run on core X");
+                .tooltips(ChatFormatting.YELLOW + "Exclusive mode", "If pressed then programs on", "card X can only run on core X");
         exclusive.pressed(tileEntity.isExclusive());
         exclusive
                 .event(() -> {
@@ -171,7 +171,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity, Proce
             int finalI = i;
             setupButtons[i] = new ToggleButton()
                     .event(() -> setupMode(setupButtons[finalI]))
-                    .tooltips(TextFormatting.YELLOW + "Resource allocation", "Setup item and variable", "allocation for this card")
+                    .tooltips(ChatFormatting.YELLOW + "Resource allocation", "Setup item and variable", "allocation for this card")
                     .hint(11 + i * 18, 6, 15, 7)
                     .userObject("allowed");
             toplevel.children(setupButtons[i]);
@@ -510,7 +510,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity, Proce
             editPanel = Widgets.positional()
                     .filledRectThickness(1);
             editor.build(minecraft, this, editPanel, o -> {
-                CompoundNBT tag = new CompoundNBT();
+                CompoundTag tag = new CompoundTag();
                 ParameterTypeTools.writeToNBT(tag, type, o);
                 RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketVariableToServer(tileEntity.getBlockPos(), varIdx, tag));
             });
@@ -579,8 +579,8 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity, Proce
                 if (fluidStack != null) {
                     BlockRender fluid = new BlockRender().renderItem(fluidStack);
                     fluid.tooltips(
-                            TextFormatting.GREEN + "Fluid: " + TextFormatting.WHITE + fluidStack.getDisplayName().getString() /* was getFormattedText() */,
-                            TextFormatting.GREEN + "Amount: " + TextFormatting.WHITE + fluidStack.getAmount() + "mb");
+                            ChatFormatting.GREEN + "Fluid: " + ChatFormatting.WHITE + fluidStack.getDisplayName().getString() /* was getFormattedText() */,
+                            ChatFormatting.GREEN + "Amount: " + ChatFormatting.WHITE + fluidStack.getAmount() + "mb");
                     fluid.userObject("allowed");
                     panel.children(fluid);
                 }
@@ -632,7 +632,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity, Proce
     }
 
     @Override
-    protected void renderBg(@Nonnull MatrixStack matrixStack, float partialTicks, int mouseX, int mouseY) {
+    protected void renderBg(@Nonnull PoseStack matrixStack, float partialTicks, int mouseX, int mouseY) {
 
         if (variableList.getChildCount() != tileEntity.getMaxvars()) {
             updateVariableList();
@@ -648,7 +648,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity, Proce
         drawAllocatedSlots(matrixStack);
     }
 
-    private void drawAllocatedSlots(MatrixStack matrixStack) {
+    private void drawAllocatedSlots(PoseStack matrixStack) {
         int setupMode = getSetupMode();
         if (setupMode == -1) {
             return;

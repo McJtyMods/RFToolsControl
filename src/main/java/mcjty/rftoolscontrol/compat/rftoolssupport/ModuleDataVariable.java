@@ -4,7 +4,7 @@ import mcjty.rftoolsbase.api.screens.data.IModuleData;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.modules.processor.logic.Parameter;
 import mcjty.rftoolscontrol.modules.processor.logic.ParameterTools;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.network.FriendlyByteBuf;
 
 public class ModuleDataVariable implements IModuleData {
 
@@ -26,7 +26,7 @@ public class ModuleDataVariable implements IModuleData {
     }
 
     @Override
-    public void writeToBuf(PacketBuffer buf) {
+    public void writeToBuf(FriendlyByteBuf buf) {
         if (parameter == null) {
             buf.writeByte(-1);
             return;

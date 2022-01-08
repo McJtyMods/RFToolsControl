@@ -4,11 +4,11 @@ import mcjty.lib.blocks.BaseBlock;
 import mcjty.lib.blocks.RotationType;
 import mcjty.lib.builder.BlockBuilder;
 import mcjty.rftoolscontrol.compat.RFToolsControlTOPDriver;
-import net.minecraft.block.BlockState;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.util.math.shapes.VoxelShapes;
-import net.minecraft.world.IBlockReader;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.level.BlockGetter;
 
 import javax.annotation.Nonnull;
 
@@ -17,7 +17,7 @@ import static mcjty.lib.builder.TooltipBuilder.key;
 
 public class MultiTankBlock extends BaseBlock {
 
-    public static final VoxelShape SMALLER_CUBE = VoxelShapes.box(0.01f, 0.01f, 0.01f, 0.99f, 0.99f, 0.99f);
+    public static final VoxelShape SMALLER_CUBE = Shapes.box(0.01f, 0.01f, 0.01f, 0.99f, 0.99f, 0.99f);
 
     public MultiTankBlock() {
         super(new BlockBuilder()
@@ -34,7 +34,7 @@ public class MultiTankBlock extends BaseBlock {
 
     @Nonnull
     @Override
-    public VoxelShape getOcclusionShape(@Nonnull BlockState state, @Nonnull IBlockReader world, @Nonnull BlockPos pos) {
+    public VoxelShape getOcclusionShape(@Nonnull BlockState state, @Nonnull BlockGetter world, @Nonnull BlockPos pos) {
         return SMALLER_CUBE;
     }
 }

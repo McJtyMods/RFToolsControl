@@ -9,24 +9,24 @@ import mcjty.rftoolscontrol.modules.processor.ProcessorModule;
 import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorTileEntity;
 import mcjty.rftoolscontrol.modules.processor.logic.Parameter;
 import mcjty.rftoolscontrol.setup.Config;
-import net.minecraft.block.Block;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.RegistryKey;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 
 import java.util.Objects;
 
 public class VariableScreenModule implements IScreenModule<ModuleDataVariable> {
-    private RegistryKey<World> dim = World.OVERWORLD;
+    private ResourceKey<Level> dim = Level.OVERWORLD;
     private BlockPos coordinate = BlockPosTools.INVALID;
     private int varIdx = -1;
 
     @Override
-    public ModuleDataVariable getData(IScreenDataHelper h, World worldObj, long millis) {
-        World world = LevelTools.getLevel(worldObj, dim);
+    public ModuleDataVariable getData(IScreenDataHelper h, Level worldObj, long millis) {
+        Level world = LevelTools.getLevel(worldObj, dim);
         if (world == null) {
             return null;
         }
@@ -44,7 +44,7 @@ public class VariableScreenModule implements IScreenModule<ModuleDataVariable> {
             return null;
         }
 
-        TileEntity te = world.getBlockEntity(coordinate);
+        BlockEntity te = world.getBlockEntity(coordinate);
         if (te instanceof ProcessorTileEntity) {
             ProcessorTileEntity processor = (ProcessorTileEntity) te;
             Parameter parameter = processor.getParameter(varIdx);
@@ -54,7 +54,7 @@ public class VariableScreenModule implements IScreenModule<ModuleDataVariable> {
     }
 
     @Override
-    public void setupFromNBT(CompoundNBT tagCompound, RegistryKey<World> dim, BlockPos pos) {
+    public void setupFromNBT(CompoundTag tagCompound, ResourceKey<Level> dim, BlockPos pos) {
         if (tagCompound != null) {
             if (tagCompound.contains("varIdx")) {
                 varIdx = tagCompound.getInt("varIdx");
@@ -88,6 +88,6 @@ public class VariableScreenModule implements IScreenModule<ModuleDataVariable> {
     }
 
     @Override
-    public void mouseClick(World world, int x, int y, boolean clicked, PlayerEntity player) {
+    public void mouseClick(Level world, int x, int y, boolean clicked, Player player) {
     }
 }

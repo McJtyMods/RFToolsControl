@@ -3,12 +3,12 @@ package mcjty.rftoolscontrol.modules.various.blocks;
 import mcjty.lib.blocks.BaseBlock;
 import mcjty.lib.builder.BlockBuilder;
 import mcjty.rftoolscontrol.compat.RFToolsControlTOPDriver;
-import net.minecraft.block.BlockState;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.World;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.Direction;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -32,14 +32,14 @@ public class NodeBlock extends BaseBlock {
 //        return true;
 //    }
 
-    private int getInputStrength(World world, BlockPos pos, Direction side) {
+    private int getInputStrength(Level world, BlockPos pos, Direction side) {
         return world.getSignal(pos.relative(side), side);
     }
 
     @Override
-    protected void checkRedstone(World world, BlockPos pos) {
+    protected void checkRedstone(Level world, BlockPos pos) {
         BlockState state = world.getBlockState(pos);
-        TileEntity te = world.getBlockEntity(pos);
+        BlockEntity te = world.getBlockEntity(pos);
         if (state.getBlock() instanceof NodeBlock && te instanceof NodeTileEntity) {
             NodeTileEntity processor = (NodeTileEntity)te;
             int powered = 0;
@@ -66,15 +66,14 @@ public class NodeBlock extends BaseBlock {
     }
 
     @Override
-    public boolean canConnectRedstone(BlockState state, IBlockReader world, BlockPos pos, @Nullable Direction side) {
+    public boolean canConnectRedstone(BlockState state, BlockGetter world, BlockPos pos, @Nullable Direction side) {
         return true;
     }
 
     @Override
-    public int getSignal(BlockState state, IBlockReader world, @Nonnull BlockPos pos, @Nonnull Direction side) {
-        TileEntity te = world.getBlockEntity(pos);
-        if (state.getBlock() instanceof NodeBlock && te instanceof NodeTileEntity) {
-            NodeTileEntity processor = (NodeTileEntity) te;
+    public int getSignal(BlockState state, BlockGetter world, @Nonnull BlockPos pos, @Nonnull Direction side) {
+        BlockEntity te = world.getBlockEntity(pos);
+        if (state.getBlock() instanceof NodeBlock && te instanceof NodeTileEntity processor) {
             return processor.getPowerOut(side.getOpposite());
         }
         return 0;

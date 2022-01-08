@@ -9,7 +9,7 @@ import mcjty.lib.gui.widgets.TextField;
 import mcjty.rftoolscontrol.modules.various.VariousModule;
 import mcjty.rftoolscontrol.modules.various.blocks.NodeTileEntity;
 import mcjty.rftoolscontrol.setup.RFToolsCtrlMessages;
-import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.world.entity.player.Inventory;
 
 import static mcjty.lib.gui.widgets.Widgets.*;
 
@@ -21,7 +21,7 @@ public class GuiNode extends GenericGuiContainer<NodeTileEntity, GenericContaine
     private TextField channelField;
     private TextField nodeNameField;
 
-    public GuiNode(NodeTileEntity te, GenericContainer container, PlayerInventory inventory) {
+    public GuiNode(NodeTileEntity te, GenericContainer container, Inventory inventory) {
         super(te, container, inventory, /*@todo 1.15 GuiProxy.GUI_MANUAL_CONTROL*/ ManualEntry.EMPTY);
 
         imageWidth = WIDTH;

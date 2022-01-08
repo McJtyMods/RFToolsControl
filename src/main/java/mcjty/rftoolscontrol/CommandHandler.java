@@ -7,12 +7,12 @@ import mcjty.rftoolsbase.modules.crafting.items.CraftingCardItem;
 import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorTileEntity;
 import mcjty.rftoolscontrol.modules.processor.network.PacketGraphicsReady;
 import mcjty.rftoolscontrol.setup.RFToolsCtrlMessages;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.fml.network.NetworkDirection;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.core.BlockPos;
+import net.minecraftforge.network.NetworkDirection;
 
 public class CommandHandler {
 
@@ -23,7 +23,7 @@ public class CommandHandler {
 
     public static void registerCommands() {
         McJtyLib.registerCommand(RFToolsControl.MODID, CMD_TESTRECIPE, (player, arguments) -> {
-            ItemStack heldItem = player.getItemInHand(Hand.MAIN_HAND);
+            ItemStack heldItem = player.getItemInHand(InteractionHand.MAIN_HAND);
             if (heldItem.isEmpty()) {
                 return false;
             }
@@ -33,10 +33,10 @@ public class CommandHandler {
             return true;
         });
         McJtyLib.registerCommand(RFToolsControl.MODID, CMD_GETGRAPHICS, (player, arguments) -> {
-            TileEntity te = player.getCommandSenderWorld().getBlockEntity(arguments.get(PARAM_POS));
+            BlockEntity te = player.getCommandSenderWorld().getBlockEntity(arguments.get(PARAM_POS));
             if (te instanceof ProcessorTileEntity) {
                 ProcessorTileEntity processor = (ProcessorTileEntity) te;
-                RFToolsCtrlMessages.INSTANCE.sendTo(new PacketGraphicsReady(processor), ((ServerPlayerEntity)player).connection.connection, NetworkDirection.PLAY_TO_CLIENT);
+                RFToolsCtrlMessages.INSTANCE.sendTo(new PacketGraphicsReady(processor), ((ServerPlayer)player).connection.connection, NetworkDirection.PLAY_TO_CLIENT);
             }
             return true;
         });

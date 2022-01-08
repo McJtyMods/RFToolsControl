@@ -8,14 +8,14 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import mcjty.rftoolsbase.api.control.parameters.*;
 import mcjty.rftoolscontrol.modules.processor.logic.registry.Functions;
 import mcjty.rftoolscontrol.modules.processor.logic.running.ExceptionType;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.JsonToNBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.util.Direction;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.common.util.Constants;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.nbt.TagParser;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.apache.commons.lang3.StringUtils;
@@ -102,7 +102,7 @@ public class ParameterTypeTools {
         }
     }
 
-    public static void writeToNBT(CompoundNBT tag, ParameterType type, ParameterValue value) {
+    public static void writeToNBT(CompoundTag tag, ParameterType type, ParameterValue value) {
         if (value.isVariable()) {
             tag.putInt("varIdx", value.getVariableIndex());
         } else if (value.isFunction()) {
@@ -115,7 +115,7 @@ public class ParameterTypeTools {
         }
     }
 
-    public static ParameterValue readFromNBT(CompoundNBT tag, ParameterType type) {
+    public static ParameterValue readFromNBT(CompoundTag tag, ParameterType type) {
         if (tag.contains("varIdx")) {
             return ParameterValue.variable(tag.getInt("varIdx"));
         } else if (tag.contains("funId")) {
@@ -127,7 +127,7 @@ public class ParameterTypeTools {
         }
     }
 
-    private static ParameterValue readFromNBTInternal(CompoundNBT tag, ParameterType type) {
+    private static ParameterValue readFromNBTInternal(CompoundTag tag, ParameterType type) {
         switch (type) {
             case PAR_STRING:
                 return ParameterValue.constant(tag.getString("v"));
@@ -168,7 +168,7 @@ public class ParameterTypeTools {
                 return ParameterValue.constant(new Inventory(name, side, intSide));
             case PAR_ITEM:
                 if (tag.contains("item")) {
-                    CompoundNBT tc = tag.getCompound("item");
+                    CompoundTag tc = tag.getCompound("item");
                     ItemStack stack = ItemStack.of(tc);
                     // Fix for 1.10 0-sized stacks
                     if (stack.getCount() == 0) {
@@ -179,7 +179,7 @@ public class ParameterTypeTools {
                 return ParameterValue.constant(ItemStack.EMPTY);
             case PAR_FLUID:
                 if (tag.contains("fluid")) {
-                    CompoundNBT tc = tag.getCompound("fluid");
+                    CompoundTag tc = tag.getCompound("fluid");
                     FluidStack stack = FluidStack.loadFluidStackFromNBT(tc);
                     return ParameterValue.constant(stack);
                 }
@@ -190,7 +190,7 @@ public class ParameterTypeTools {
             case PAR_TUPLE:
                 return ParameterValue.constant(new Tuple(tag.getInt("x"), tag.getInt("y")));
             case PAR_VECTOR:
-                ListNBT array = tag.getList("vector", Constants.NBT.TAG_COMPOUND);
+                ListTag array = tag.getList("vector", Tag.TAG_COMPOUND);
                 List<Parameter> vector = new ArrayList<>();
                 for (int i = 0 ; i < array.size() ; i++) {
                     vector.add(ParameterTools.readFromNBT(array.getCompound(i)));
@@ -200,7 +200,7 @@ public class ParameterTypeTools {
         return ParameterValue.constant(null);
     }
 
-    private static void writeToNBTInternal(CompoundNBT tag, ParameterType type, Object value) {
+    private static void writeToNBTInternal(CompoundTag tag, ParameterType type, Object value) {
         switch (type) {
             case PAR_STRING:
                 tag.putString("v", (String) value);
@@ -245,13 +245,13 @@ public class ParameterTypeTools {
                 break;
             case PAR_ITEM:
                 ItemStack itemStack = (ItemStack) value;
-                CompoundNBT tc = new CompoundNBT();
+                CompoundTag tc = new CompoundTag();
                 itemStack.save(tc);
                 tag.put("item", tc);
                 break;
             case PAR_FLUID:
                 FluidStack fluidStack = (FluidStack) value;
-                CompoundNBT fluidTc = new CompoundNBT();
+                CompoundTag fluidTc = new CompoundTag();
                 fluidStack.writeToNBT(fluidTc);
                 tag.put("fluid", fluidTc);
                 break;
@@ -265,7 +265,7 @@ public class ParameterTypeTools {
                 break;
             case PAR_VECTOR:
                 List<Parameter> vector = (List<Parameter>) value;
-                ListNBT list = new ListNBT();
+                ListTag list = new ListTag();
                 for (Parameter p : vector) {
                     list.add(ParameterTools.writeToNBT(p));
                 }
@@ -402,9 +402,9 @@ public class ParameterTypeTools {
                 ItemStack stack = new ItemStack(item, amount);
                 if (object.has("nbt")) {
                     String nbt = object.get("nbt").getAsString();
-                    CompoundNBT tagCompound = null;
+                    CompoundTag tagCompound = null;
                     try {
-                        tagCompound = JsonToNBT.parseTag(nbt);
+                        tagCompound = TagParser.parseTag(nbt);
                     } catch (CommandSyntaxException e) {
                         // @todo What to do?
                     }
@@ -419,7 +419,7 @@ public class ParameterTypeTools {
                 if (object.has("nbt")) {
                     String nbt = object.get("nbt").getAsString();
                     try {
-                        fluidStack.setTag(JsonToNBT.parseTag(nbt));
+                        fluidStack.setTag(TagParser.parseTag(nbt));
                     } catch (CommandSyntaxException e) {
                         // @todo What to do?
                     }

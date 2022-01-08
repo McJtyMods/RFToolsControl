@@ -4,10 +4,10 @@ package mcjty.rftoolscontrol.modules.processor.network;
 import mcjty.lib.varia.SafeClientTools;
 import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorTileEntity;
 import mcjty.rftoolscontrol.modules.processor.vectorart.GfxOp;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.BlockPos;
+import net.minecraftforge.network.NetworkEvent;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,7 +21,7 @@ public class PacketGraphicsReady {
     private Map<String, GfxOp> gfxOps;
     private List<String> orderedOps;
 
-    public void toBytes(PacketBuffer buf) {
+    public void toBytes(FriendlyByteBuf buf) {
         buf.writeBlockPos(pos);
         buf.writeInt(gfxOps.size());
         for (Map.Entry<String, GfxOp> entry : gfxOps.entrySet()) {
@@ -34,7 +34,7 @@ public class PacketGraphicsReady {
         }
     }
 
-    public PacketGraphicsReady(PacketBuffer buf) {
+    public PacketGraphicsReady(FriendlyByteBuf buf) {
         pos = buf.readBlockPos();
         int size = buf.readInt();
         gfxOps = new HashMap<>(size);
@@ -60,7 +60,7 @@ public class PacketGraphicsReady {
     public void handle(Supplier<NetworkEvent.Context> supplier) {
         NetworkEvent.Context ctx = supplier.get();
         ctx.enqueueWork(() -> {
-            TileEntity te = SafeClientTools.getClientWorld().getBlockEntity(pos);
+            BlockEntity te = SafeClientTools.getClientWorld().getBlockEntity(pos);
             if (te instanceof ProcessorTileEntity) {
                 ProcessorTileEntity processor = (ProcessorTileEntity) te;
                 processor.setClientOrderedGfx(gfxOps, orderedOps);

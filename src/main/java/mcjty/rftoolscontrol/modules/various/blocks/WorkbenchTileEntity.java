@@ -11,16 +11,18 @@ import mcjty.lib.tileentity.CapType;
 import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.lib.varia.SafeClientTools;
 import mcjty.rftoolscontrol.modules.various.VariousModule;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.CraftingInventory;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.inventory.container.INamedContainerProvider;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.item.crafting.IRecipeType;
-import net.minecraft.item.crafting.RecipeManager;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.Direction;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.CraftingContainer;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.item.crafting.RecipeManager;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.Lazy;
 import net.minecraftforge.common.util.LazyOptional;
@@ -50,7 +52,7 @@ public class WorkbenchTileEntity extends GenericTileEntity {
     private final LazyOptional<WorkbenchItemHandler> automationItemHandlerSide = LazyOptional.of(() -> new WorkbenchItemHandler(items, null));
 
     @Cap(type = CapType.CONTAINER)
-    private final LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<WorkbenchContainer>("Workbench")
+    private final LazyOptional<MenuProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<WorkbenchContainer>("Workbench")
             .containerSupplier((windowId, player) -> new WorkbenchContainer(windowId, CONTAINER_FACTORY.get(), getBlockPos(), WorkbenchTileEntity.this, player))
             .itemHandler(() -> items));
 
@@ -58,22 +60,22 @@ public class WorkbenchTileEntity extends GenericTileEntity {
     // items that are already crafted but only (partially) consumed.
     private int realItems = 0;
 
-    public WorkbenchTileEntity() {
-        super(VariousModule.WORKBENCH_TILE.get());
+    public WorkbenchTileEntity(BlockPos pos, BlockState state) {
+        super(VariousModule.WORKBENCH_TILE.get(), pos, state);
     }
 
 
     @Override
-    protected void loadInfo(CompoundNBT tagCompound) {
+    protected void loadInfo(CompoundTag tagCompound) {
         super.loadInfo(tagCompound);
-        CompoundNBT info = tagCompound.getCompound("Info");
+        CompoundTag info = tagCompound.getCompound("Info");
         realItems = info.getInt("realItems");
     }
 
     @Override
-    protected void saveInfo(CompoundNBT tagCompound) {
+    protected void saveInfo(CompoundTag tagCompound) {
         super.saveInfo(tagCompound);
-        CompoundNBT info = getOrCreateInfo(tagCompound);
+        CompoundTag info = getOrCreateInfo(tagCompound);
         info.putInt("realItems", realItems);
     }
 
@@ -90,10 +92,10 @@ public class WorkbenchTileEntity extends GenericTileEntity {
     }
 
     @Nullable
-    private IRecipe findRecipe(CraftingInventory workInventory) {
-        RecipeManager manager = level.isClientSide() ? SafeClientTools.getRecipeManager(level) : level.getServer().getRecipeManager();
-        for (IRecipe r : manager.getRecipes()) {
-            if (r != null && IRecipeType.CRAFTING.equals(r.getType()) && r.matches(workInventory, level)) {
+    private Recipe findRecipe(CraftingContainer workInventory) {
+        RecipeManager manager = level.getRecipeManager();
+        for (Recipe r : manager.getRecipes()) {
+            if (r != null && RecipeType.CRAFTING.equals(r.getType()) && r.matches(workInventory, level)) {
                 return r;
             }
         }
@@ -102,8 +104,8 @@ public class WorkbenchTileEntity extends GenericTileEntity {
 
     private void updateRecipe() {
         if (items.getStackInSlot(SLOT_CRAFTOUTPUT).isEmpty() || realItems == 0) {
-            CraftingInventory workInventory = makeWorkInventory();
-            IRecipe recipe = findRecipe(workInventory);
+            CraftingContainer workInventory = makeWorkInventory();
+            Recipe recipe = findRecipe(workInventory);
             if (recipe != null) {
                 ItemStack stack = recipe.assemble(workInventory);
                 items.setStackInSlot(SLOT_CRAFTOUTPUT, stack);
@@ -113,11 +115,11 @@ public class WorkbenchTileEntity extends GenericTileEntity {
         }
     }
 
-    private CraftingInventory makeWorkInventory() {
-        CraftingInventory workInventory = new CraftingInventory(new Container(null, -1) {
+    private CraftingContainer makeWorkInventory() {
+        CraftingContainer workInventory = new CraftingContainer(new AbstractContainerMenu(null, -1) {
             @SuppressWarnings("NullableProblems")
             @Override
-            public boolean stillValid(PlayerEntity var1) {
+            public boolean stillValid(Player var1) {
                 return false;
             }
         }, 3, 3);
@@ -153,8 +155,8 @@ public class WorkbenchTileEntity extends GenericTileEntity {
                     return super.extractItem(slot, amount, simulate);
                 } else {
                     if (isCraftOutput(slot) && realItems == 0) {
-                        CraftingInventory workInventory = makeWorkInventory();
-                        IRecipe recipe = findRecipe(workInventory);
+                        CraftingContainer workInventory = makeWorkInventory();
+                        Recipe recipe = findRecipe(workInventory);
                         if (recipe != null) {
                             crafting++;
                             List<ItemStack> remainingItems = recipe.getRemainingItems(workInventory);

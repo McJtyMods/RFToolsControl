@@ -8,11 +8,11 @@ import mcjty.lib.varia.SafeClientTools;
 import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorContainer;
 import mcjty.rftoolscontrol.modules.processor.logic.Parameter;
 import mcjty.rftoolscontrol.modules.processor.logic.ParameterTools;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.BlockPos;
+import net.minecraftforge.network.NetworkEvent;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -25,7 +25,7 @@ public class PacketVariablesReady {
     private List<Parameter> list;
     private String command;
 
-    public PacketVariablesReady(PacketBuffer buf) {
+    public PacketVariablesReady(FriendlyByteBuf buf) {
         if (buf.readBoolean()) {
             pos = buf.readBlockPos();
         }
@@ -49,7 +49,7 @@ public class PacketVariablesReady {
         this.list.addAll(list);
     }
 
-    public void toBytes(PacketBuffer buf) {
+    public void toBytes(FriendlyByteBuf buf) {
         if (pos != null) {
             buf.writeBoolean(true);
             buf.writeBlockPos(pos);
@@ -74,7 +74,7 @@ public class PacketVariablesReady {
     public void handle(Supplier<NetworkEvent.Context> supplier) {
         NetworkEvent.Context ctx = supplier.get();
         ctx.enqueueWork(() -> {
-            TileEntity te;
+            BlockEntity te;
             if (pos == null) {
                 // We are working from a tablet. Find the tile entity through the open container
                 ProcessorContainer container = getOpenContainer();
@@ -94,7 +94,7 @@ public class PacketVariablesReady {
     }
 
     private static ProcessorContainer getOpenContainer() {
-        Container container = SafeClientTools.getClientPlayer().containerMenu;
+        AbstractContainerMenu container = SafeClientTools.getClientPlayer().containerMenu;
         if (container instanceof ProcessorContainer) {
             return (ProcessorContainer) container;
         } else {

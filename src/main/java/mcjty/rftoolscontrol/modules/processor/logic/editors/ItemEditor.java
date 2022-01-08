@@ -8,8 +8,8 @@ import mcjty.lib.gui.widgets.Widgets;
 import mcjty.rftoolsbase.api.control.parameters.ParameterType;
 import mcjty.rftoolsbase.api.control.parameters.ParameterValue;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.item.ItemStack;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.world.item.ItemStack;
 
 import static mcjty.lib.gui.widgets.Widgets.horizontal;
 
@@ -31,7 +31,7 @@ public class ItemEditor extends AbstractParameterEditor {
         blockRender.event(new BlockRenderEvent() {
             @Override
             public void select() {
-                ItemStack holding = Minecraft.getInstance().player.inventory.getCarried();
+                ItemStack holding = Minecraft.getInstance().player.containerMenu.getCarried();
                 if (holding.isEmpty()) {
                     blockRender.renderItem(null);
                 } else {

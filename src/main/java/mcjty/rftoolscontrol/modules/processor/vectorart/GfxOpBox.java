@@ -1,10 +1,10 @@
 package mcjty.rftoolscontrol.modules.processor.vectorart;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import mcjty.lib.client.RenderHelper;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
 
 public class GfxOpBox extends GfxOp {
 
@@ -27,7 +27,7 @@ public class GfxOpBox extends GfxOp {
     }
 
     @Override
-    public void render(MatrixStack matrixStack, IRenderTypeBuffer buffer) {
+    public void render(PoseStack matrixStack, MultiBufferSource buffer) {
         RenderHelper.drawBeveledBox(matrixStack, buffer, x, y, x+w-1, y+h-1, color, color, color, RenderHelper.MAX_BRIGHTNESS);
     }
 
@@ -37,7 +37,7 @@ public class GfxOpBox extends GfxOp {
     }
 
     @Override
-    protected void readFromNBTInternal(CompoundNBT tag) {
+    protected void readFromNBTInternal(CompoundTag tag) {
         x = tag.getByte("x");
         y = tag.getByte("y");
         w = tag.getByte("w");
@@ -46,7 +46,7 @@ public class GfxOpBox extends GfxOp {
     }
 
     @Override
-    protected void writeToNBTInternal(CompoundNBT tag) {
+    protected void writeToNBTInternal(CompoundTag tag) {
         tag.putByte("x", (byte) x);
         tag.putByte("y", (byte) y);
         tag.putByte("w", (byte) w);
@@ -55,7 +55,7 @@ public class GfxOpBox extends GfxOp {
     }
 
     @Override
-    protected void readFromBufInternal(PacketBuffer buf) {
+    protected void readFromBufInternal(FriendlyByteBuf buf) {
         x = buf.readByte();
         y = buf.readByte();
         w = buf.readByte();
@@ -64,7 +64,7 @@ public class GfxOpBox extends GfxOp {
     }
 
     @Override
-    protected void writeToBufInternal(PacketBuffer buf) {
+    protected void writeToBufInternal(FriendlyByteBuf buf) {
         buf.writeByte(x);
         buf.writeByte(y);
         buf.writeByte(w);

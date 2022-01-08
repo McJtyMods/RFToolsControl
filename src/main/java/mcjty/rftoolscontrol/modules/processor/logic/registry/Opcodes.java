@@ -8,13 +8,13 @@ import mcjty.rftoolscontrol.modules.processor.logic.Parameter;
 import mcjty.rftoolscontrol.modules.processor.logic.ParameterTools;
 import mcjty.rftoolscontrol.modules.processor.logic.running.ExceptionType;
 import mcjty.rftoolscontrol.modules.processor.logic.running.ProgException;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.tags.ITag;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.tags.Tag;
 import net.minecraft.tags.ItemTags;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.TextFormatting;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.ChatFormatting;
 import net.minecraftforge.fluids.FluidStack;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -32,7 +32,7 @@ public class Opcodes {
     public static final Opcode DO_REDSTONE = Opcode.builder()
             .id("do_rs")
             .description(
-                    TextFormatting.GREEN + "Operation: set redstone",
+                    ChatFormatting.GREEN + "Operation: set redstone",
                     "set redstone level at a specific side",
                     "on the processor or a node in the network")
             .opcodeOutput(SINGLE)
@@ -50,7 +50,7 @@ public class Opcodes {
     public static final Opcode EVENT_REDSTONE_ON = Opcode.builder()
             .id("ev_rs_on")
             .description(
-                    TextFormatting.GREEN + "Event: redstone on",
+                    ChatFormatting.GREEN + "Event: redstone on",
                     "execute program when redstone signal at",
                     "a specific side (or in general) goes on")
             .opcodeOutput(SINGLE)
@@ -63,7 +63,7 @@ public class Opcodes {
     public static final Opcode EVENT_REDSTONE_OFF = Opcode.builder()
             .id("ev_rs_off")
             .description(
-                    TextFormatting.GREEN + "Event: redstone off",
+                    ChatFormatting.GREEN + "Event: redstone off",
                     "execute program when redstone signal at",
                     "a specific side (or in general) goes off")
             .opcodeOutput(SINGLE)
@@ -77,7 +77,7 @@ public class Opcodes {
     public static final Opcode EVENT_SIGNAL = Opcode.builder()
             .id("ev_signal")
             .description(
-                    TextFormatting.GREEN + "Event: signal",
+                    ChatFormatting.GREEN + "Event: signal",
                     "execute program when a signal is",
                     "received from an rftools screen",
                     "or from the processor console")
@@ -92,7 +92,7 @@ public class Opcodes {
     public static final Opcode DO_DELAY = Opcode.builder()
             .id("do_delay")
             .description(
-                    TextFormatting.GREEN + "Operation: wait",
+                    ChatFormatting.GREEN + "Operation: wait",
                     "wait a specific number of ticks")
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("ticks").type(PAR_INTEGER).description("amount of ticks to wait").build())
@@ -107,7 +107,7 @@ public class Opcodes {
     public static final Opcode EVAL_COUNTINV = Opcode.builder()
             .id("eval_countinv")
             .description(
-                    TextFormatting.GREEN + "Eval: count items external",
+                    ChatFormatting.GREEN + "Eval: count items external",
                     "count the amount of items in a specific slot",
                     "or of a certain type in an external inventory",
                     "adjacent to the processor or a connected node",
@@ -134,7 +134,7 @@ public class Opcodes {
     public static final Opcode EVAL_GETITEM = Opcode.builder()
             .id("eval_getitem")
             .description(
-                    TextFormatting.GREEN + "Eval: examine item",
+                    ChatFormatting.GREEN + "Eval: examine item",
                     "examine an item in a specific slot",
                     "from an external inventory adjacent to",
                     "the processor or a connected node")
@@ -161,7 +161,7 @@ public class Opcodes {
     public static final Opcode EVAL_GETTAGS = Opcode.builder()
             .id("eval_gettags")
             .description(
-                    TextFormatting.GREEN + "Eval: get tags",
+                    ChatFormatting.GREEN + "Eval: get tags",
                     "get all tags from an item")
             .outputDescription("all tags (vector)")
             .category(CATEGORY_ITEMS)
@@ -182,7 +182,7 @@ public class Opcodes {
     public static final Opcode EVAL_REDSTONE = Opcode.builder()
             .id("eval_rs")
             .description(
-                    TextFormatting.GREEN + "Eval: read redstone",
+                    ChatFormatting.GREEN + "Eval: read redstone",
                     "read the redstone value coming to a specific",
                     "side of the processor or a connected node")
             .outputDescription("read redstone value (integer)")
@@ -201,7 +201,7 @@ public class Opcodes {
     public static final Opcode DO_STOP = Opcode.builder()
             .id("do_stop")
             .description(
-                    TextFormatting.GREEN + "Operation: stop program",
+                    ChatFormatting.GREEN + "Operation: stop program",
                     "stop executing at this point",
                     "you normally don't have to use this",
                     "manually except to break a loop")
@@ -217,7 +217,7 @@ public class Opcodes {
     public static final Opcode DO_STOP_OR_RESUME = Opcode.builder()
             .id("do_stop_or_resume")
             .description(
-                    TextFormatting.GREEN + "Operation: stop/resume")
+                    ChatFormatting.GREEN + "Operation: stop/resume")
             .deprecated(true)   // Not really deprecated but this prevents it being in the list
             .opcodeOutput(NONE)
             .icon(7, 0)
@@ -230,7 +230,7 @@ public class Opcodes {
     public static final Opcode DO_LOG = Opcode.builder()
             .id("do_log")
             .description(
-                    TextFormatting.GREEN + "Operation: log message",
+                    ChatFormatting.GREEN + "Operation: log message",
                     "log a message on the processor console")
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("message").type(PAR_STRING).description("message to output").build())
@@ -245,7 +245,7 @@ public class Opcodes {
     public static final Opcode EVENT_TIMER = Opcode.builder()
             .id("ev_timer")
             .description(
-                    TextFormatting.GREEN + "Event: repeat",
+                    ChatFormatting.GREEN + "Event: repeat",
                     "execute program every <N> ticks")
             .opcodeOutput(SINGLE)
             .isEvent(true)
@@ -257,7 +257,7 @@ public class Opcodes {
     public static final Opcode TEST_GT = Opcode.builder()
             .id("test_gt")
             .description(
-                    TextFormatting.GREEN + "Test: greater than",
+                    ChatFormatting.GREEN + "Test: greater than",
                     "check if the first value is greater",
                     "then the second value")
             .opcodeOutput(YESNO)
@@ -276,7 +276,7 @@ public class Opcodes {
     public static final Opcode TEST_EQ = Opcode.builder()
             .id("test_eq")
             .description(
-                    TextFormatting.GREEN + "Test: equality",
+                    ChatFormatting.GREEN + "Test: equality",
                     "check if the first value is equal",
                     "to the second value")
             .opcodeOutput(YESNO)
@@ -295,7 +295,7 @@ public class Opcodes {
     public static final Opcode TEST_GT_NUMBER = Opcode.builder()
             .id("test_gt_number")
             .description(
-                    TextFormatting.GREEN + "Test: greater than",
+                    ChatFormatting.GREEN + "Test: greater than",
                     "check if the first number is greater",
                     "then the second number")
             .opcodeOutput(YESNO)
@@ -313,7 +313,7 @@ public class Opcodes {
     public static final Opcode TEST_EQ_NUMBER = Opcode.builder()
             .id("test_eq_number")
             .description(
-                    TextFormatting.GREEN + "Test: equality",
+                    ChatFormatting.GREEN + "Test: equality",
                     "check if the first number is equal",
                     "to the second number")
             .opcodeOutput(YESNO)
@@ -331,7 +331,7 @@ public class Opcodes {
     public static final Opcode TEST_EQ_ITEM = Opcode.builder()
             .id("test_eq_item")
             .description(
-                    TextFormatting.GREEN + "Test: item equality",
+                    ChatFormatting.GREEN + "Test: item equality",
                     "check if the first item is equal",
                     "to the second item")
             .opcodeOutput(YESNO)
@@ -353,7 +353,7 @@ public class Opcodes {
     public static final Opcode TEST_TAG = Opcode.builder()
             .id("test_tag")
             .description(
-                    TextFormatting.GREEN + "Test: tag on item",
+                    ChatFormatting.GREEN + "Test: tag on item",
                     "check if the item has the given tag")
             .opcodeOutput(YESNO)
             .category(CATEGORY_ITEMS)
@@ -363,7 +363,7 @@ public class Opcodes {
             .runnable(((processor, program, opcode) -> {
                 ItemStack item = processor.evaluateItemParameter(opcode, program, 0);
                 String tagName = processor.evaluateStringParameterNonNull(opcode, program, 1);
-                ITag<Item> tag = ItemTags.getAllTags().getTag(new ResourceLocation(tagName));
+                Tag<Item> tag = ItemTags.getAllTags().getTag(new ResourceLocation(tagName));
                 if (tag == null) {
                     throw new ProgException(ExceptionType.EXCEPT_UNKNOWN_TAG);
                 }
@@ -374,7 +374,7 @@ public class Opcodes {
     public static final Opcode TEST_FILTER = Opcode.builder()
             .id("test_filter")
             .description(
-                    TextFormatting.GREEN + "Test: using filter",
+                    ChatFormatting.GREEN + "Test: using filter",
                     "check if the item matches one of the filters",
                     "in the expansion slots")
             .opcodeOutput(YESNO)
@@ -392,7 +392,7 @@ public class Opcodes {
     public static final Opcode TEST_GT_VAR = Opcode.builder()
             .id("test_gt_var")
             .description(
-                    TextFormatting.GREEN + "Test: greater than var",
+                    ChatFormatting.GREEN + "Test: greater than var",
                     "check if the last result is greater",
                     "then a value in a variable")
             .opcodeOutput(YESNO)
@@ -407,7 +407,7 @@ public class Opcodes {
     public static final Opcode TEST_EQ_VAR = Opcode.builder()
             .id("test_eq_var")
             .description(
-                    TextFormatting.GREEN + "Test: equality with var",
+                    ChatFormatting.GREEN + "Test: equality with var",
                     "check if the last result is equal",
                     "to a value in a variable")
             .opcodeOutput(YESNO)
@@ -422,7 +422,7 @@ public class Opcodes {
     public static final Opcode DO_FETCHLIQUID = Opcode.builder()
             .id("do_fetchliquid")
             .description(
-                    TextFormatting.GREEN + "Operation: fetch liquid",
+                    ChatFormatting.GREEN + "Operation: fetch liquid",
                     "fetch a liquid from an external tank adjacent",
                     "to the processor or a connected node and place",
                     "the result in an internal tank (provided by",
@@ -448,7 +448,7 @@ public class Opcodes {
     public static final Opcode DO_PUSHLIQUID = Opcode.builder()
             .id("do_pushliquid")
             .description(
-                    TextFormatting.GREEN + "Operation: push liquid",
+                    ChatFormatting.GREEN + "Operation: push liquid",
                     "push a liquid to an external tank adjacent",
                     "to the processor or a connected node",
                     "from an internal tank (provided by",
@@ -473,7 +473,7 @@ public class Opcodes {
     public static final Opcode DO_FETCHITEMS = Opcode.builder()
             .id("do_fetchitems")
             .description(
-                    TextFormatting.GREEN + "Operation: fetch items",
+                    ChatFormatting.GREEN + "Operation: fetch items",
                     "fetch items from an external inventory adjacent",
                     "to the processor or a connected node and place",
                     "the result in the internal inventory",
@@ -504,7 +504,7 @@ public class Opcodes {
     public static final Opcode DO_FETCHITEMS_FILTER = Opcode.builder()
             .id("do_fetchitems_filter")
             .description(
-                    TextFormatting.GREEN + "Operation: fetch items (filter)",
+                    ChatFormatting.GREEN + "Operation: fetch items (filter)",
                     "fetch items from an external inventory adjacent",
                     "to the processor or a connected node and place",
                     "the result in the internal inventory",
@@ -531,7 +531,7 @@ public class Opcodes {
     public static final Opcode DO_PUSHITEMS = Opcode.builder()
             .id("do_pushitems")
             .description(
-                    TextFormatting.GREEN + "Operation: push items",
+                    ChatFormatting.GREEN + "Operation: push items",
                     "push items to an external inventory",
                     "adjacent to the processor or a connected",
                     "node from the internal inventory",
@@ -558,7 +558,7 @@ public class Opcodes {
     public static final Opcode EVAL_COUNTINVINT = Opcode.builder()
             .id("eval_countinvint")
             .description(
-                    TextFormatting.GREEN + "Eval: count items internal",
+                    ChatFormatting.GREEN + "Eval: count items internal",
                     "count the amount of items in a",
                     "specific slot in the processor inventory")
             .outputDescription("amount of items (integer)")
@@ -578,7 +578,7 @@ public class Opcodes {
     public static final Opcode DO_SETVAR = Opcode.builder()
             .id("do_setvar")
             .description(
-                    TextFormatting.GREEN + "Operation: set variable",
+                    ChatFormatting.GREEN + "Operation: set variable",
                     "copy the last returned value to",
                     "the specified variable")
             .opcodeOutput(SINGLE)
@@ -594,7 +594,7 @@ public class Opcodes {
     public static final Opcode DO_ADD = Opcode.builder()
             .id("do_add")
             .description(
-                    TextFormatting.GREEN + "Operation: add integers",
+                    ChatFormatting.GREEN + "Operation: add integers",
                     "add the two given integers")
             .outputDescription("v1 + v2 (integer)")
             .deprecated(true)
@@ -613,7 +613,7 @@ public class Opcodes {
     public static final Opcode DO_ADD_NUMBERS = Opcode.builder()
             .id("do_add_numbers")
             .description(
-                    TextFormatting.GREEN + "Operation: add numbers",
+                    ChatFormatting.GREEN + "Operation: add numbers",
                     "add the two given numbers",
                     "(integer, long, float, ...)")
             .outputDescription("v1 + v2 (numbers)")
@@ -634,7 +634,7 @@ public class Opcodes {
     public static final Opcode DO_SUBTRACT = Opcode.builder()
             .id("do_subtract")
             .description(
-                    TextFormatting.GREEN + "Operation: subtract integers",
+                    ChatFormatting.GREEN + "Operation: subtract integers",
                     "subtract the two given integers")
             .outputDescription("v1 - v2 (integer)")
             .deprecated(true)
@@ -654,7 +654,7 @@ public class Opcodes {
     public static final Opcode DO_SUBTRACT_NUMBERS = Opcode.builder()
             .id("do_subtract_numbers")
             .description(
-                    TextFormatting.GREEN + "Operation: subtract numbers",
+                    ChatFormatting.GREEN + "Operation: subtract numbers",
                     "subtract the two given numbers",
                     "(integer, long, float, ...)")
             .outputDescription("v1 - v2 (numbers)")
@@ -675,7 +675,7 @@ public class Opcodes {
     public static final Opcode DO_DIVIDE = Opcode.builder()
             .id("do_divide")
             .description(
-                    TextFormatting.GREEN + "Operation: divide integers",
+                    ChatFormatting.GREEN + "Operation: divide integers",
                     "divide the two given integers")
             .outputDescription("v1 / v2 (integer)")
             .deprecated(true)
@@ -694,7 +694,7 @@ public class Opcodes {
     public static final Opcode DO_DIVIDE_NUMBERS = Opcode.builder()
             .id("do_divide_numbers")
             .description(
-                    TextFormatting.GREEN + "Operation: divide numbers",
+                    ChatFormatting.GREEN + "Operation: divide numbers",
                     "divide the two given numbers",
                     "(integer, long, float, ...)")
             .outputDescription("v1 / v2 (number)")
@@ -715,7 +715,7 @@ public class Opcodes {
     public static final Opcode DO_MULTIPLY = Opcode.builder()
             .id("do_multiply")
             .description(
-                    TextFormatting.GREEN + "Operation: multiply integers",
+                    ChatFormatting.GREEN + "Operation: multiply integers",
                     "multiply the two given integers")
             .outputDescription("v1 * v2 (integer)")
             .deprecated(true)
@@ -734,7 +734,7 @@ public class Opcodes {
     public static final Opcode DO_MULTIPLY_NUMBERS = Opcode.builder()
             .id("do_multiply_long")
             .description(
-                    TextFormatting.GREEN + "Operation: multiply numbers",
+                    ChatFormatting.GREEN + "Operation: multiply numbers",
                     "multiply the two given numbers",
                     "(integer, long, float, ...)")
             .outputDescription("v1 * v2 (number)")
@@ -755,7 +755,7 @@ public class Opcodes {
     public static final Opcode DO_MODULO = Opcode.builder()
             .id("do_modulo")
             .description(
-                    TextFormatting.GREEN + "Operation: modulo",
+                    ChatFormatting.GREEN + "Operation: modulo",
                     "calculate the modulo of two given integers")
             .outputDescription("v1 % v2 (integer)")
             .deprecated(true)
@@ -774,7 +774,7 @@ public class Opcodes {
     public static final Opcode DO_MODULO_NUMBERS = Opcode.builder()
             .id("do_modulo_long")
             .description(
-                    TextFormatting.GREEN + "Operation: modulo on numbers",
+                    ChatFormatting.GREEN + "Operation: modulo on numbers",
                     "calculate the modulo of two given numbers",
                     "(integer, long, float, ...)")
             .outputDescription("v1 % v2 (number)")
@@ -795,7 +795,7 @@ public class Opcodes {
     public static final Opcode DO_CONCAT = Opcode.builder()
             .id("do_concat")
             .description(
-                    TextFormatting.GREEN + "Operation: string concat",
+                    ChatFormatting.GREEN + "Operation: string concat",
                     "concatenate the two given strings")
             .outputDescription("v1 + v2 (string)")
             .opcodeOutput(SINGLE)
@@ -813,7 +813,7 @@ public class Opcodes {
     public static final Opcode EVAL_GETMACHINEINFO = Opcode.builder()
             .id("eval_getmachineinfo")
             .description(
-                    TextFormatting.GREEN + "Eval: get machine specific info",
+                    ChatFormatting.GREEN + "Eval: get machine specific info",
                     "various machines in RFTools support machine",
                     "specific info that you get using this opcode")
             .outputDescription("info (string)")
@@ -834,7 +834,7 @@ public class Opcodes {
     public static final Opcode EVAL_GETRF = Opcode.builder()
             .id("eval_getrf")
             .description(
-                    TextFormatting.GREEN + "Eval: get RF in machine",
+                    ChatFormatting.GREEN + "Eval: get RF in machine",
                     "get the amount of RF/Forge Energy stored in",
                     "a specific machine adjacent to the processor",
                     "or a connected node")
@@ -853,7 +853,7 @@ public class Opcodes {
     public static final Opcode EVAL_GETRF_LONG = Opcode.builder()
             .id("eval_getrf_long")
             .description(
-                    TextFormatting.GREEN + "Eval: get RF in machine",
+                    ChatFormatting.GREEN + "Eval: get RF in machine",
                     "get the amount of RF/Forge Energy stored in",
                     "a specific machine adjacent to the processor",
                     "or a connected node")
@@ -872,7 +872,7 @@ public class Opcodes {
     public static final Opcode EVAL_GETMAXRF = Opcode.builder()
             .id("eval_getmaxrf")
             .description(
-                    TextFormatting.GREEN + "Eval: get max RF in machine",
+                    ChatFormatting.GREEN + "Eval: get max RF in machine",
                     "get the maximum amount of RF/Forge Energy stored",
                     "in a specific machine adjacent to the procesor",
                     "or a connected node")
@@ -891,7 +891,7 @@ public class Opcodes {
     public static final Opcode EVAL_GETMAXRF_LONG = Opcode.builder()
             .id("eval_getmaxrf_long")
             .description(
-                    TextFormatting.GREEN + "Eval: get max RF in machine",
+                    ChatFormatting.GREEN + "Eval: get max RF in machine",
                     "get the maximum amount of RF/Forge Energy stored",
                     "in a specific machine adjacent to the procesor",
                     "or a connected node")
@@ -910,7 +910,7 @@ public class Opcodes {
     public static final Opcode DO_WIRE = Opcode.builder()
             .id("do_wire")
             .description(
-                    TextFormatting.GREEN + "Operation: wire",
+                    ChatFormatting.GREEN + "Operation: wire",
                     "use this to connect opcodes that",
                     "are not adjacent to each other")
             .opcodeOutput(SINGLE)
@@ -920,7 +920,7 @@ public class Opcodes {
     public static final Opcode DO_COMMENT = Opcode.builder()
             .id("do_comment")
             .description(
-                    TextFormatting.GREEN + "Operation: comment",
+                    ChatFormatting.GREEN + "Operation: comment",
                     "this acts like a wire except that you",
                     "can also add some comments. These",
                     "don't do anything in the program")
@@ -935,7 +935,7 @@ public class Opcodes {
     public static final Opcode EVENT_CRAFT = Opcode.builder()
             .id("ev_craft")
             .description(
-                    TextFormatting.GREEN + "Event: craft",
+                    ChatFormatting.GREEN + "Event: craft",
                     "execute program when a crafting",
                     "station requests a specific item",
                     "or for an inventory with crafting cards",
@@ -952,7 +952,7 @@ public class Opcodes {
     public static final Opcode DO_CRAFTOK = Opcode.builder()
             .id("do_craftok")
             .description(
-                    TextFormatting.GREEN + "Operation: mark craft ok",
+                    ChatFormatting.GREEN + "Operation: mark craft ok",
                     "as a result of a crafting event you can use",
                     "this opcode to mark the craft operation as ok",
                     "The optional item in the slot will be sent back to",
@@ -970,7 +970,7 @@ public class Opcodes {
     public static final Opcode DO_CRAFTFAIL = Opcode.builder()
             .id("do_craftfail")
             .description(
-                    TextFormatting.GREEN + "Operation: mark craft failure",
+                    ChatFormatting.GREEN + "Operation: mark craft failure",
                     "as a result of a crafting event",
                     "you can use this opcode to mark",
                     "the craft operation as failed")
@@ -986,7 +986,7 @@ public class Opcodes {
     public static final Opcode DO_GETINGREDIENTS = Opcode.builder()
             .id("do_getingredients")
             .description(
-                    TextFormatting.GREEN + "Operation: get ingredients",
+                    ChatFormatting.GREEN + "Operation: get ingredients",
                     "given a crafting card inventory get the needed and",
                     "missing ingredients from another inventory and insert",
                     "in processor. Can also be used with a storage scanner",
@@ -1015,7 +1015,7 @@ public class Opcodes {
     public static final Opcode DO_GETINGREDIENTS_SMART = Opcode.builder()
             .id("do_getingredients_smart")
             .description(
-                    TextFormatting.GREEN + "Operation: get ingredients smart",
+                    ChatFormatting.GREEN + "Operation: get ingredients smart",
                     "check if all ingredients are available in another",
                     "inventory or storage system. If so fetch them in the",
                     "processor. Otherwise try to request all missing items",
@@ -1047,7 +1047,7 @@ public class Opcodes {
     public static final Opcode DO_PUSHMULTI = Opcode.builder()
             .id("do_pushmulti")
             .description(
-                    TextFormatting.GREEN + "Operation: push multiple items",
+                    ChatFormatting.GREEN + "Operation: push multiple items",
                     "push multiple items from the internal inventory",
                     "to an external inventory adjacent to the processor",
                     "or a connected node. Also works on storage system")
@@ -1074,7 +1074,7 @@ public class Opcodes {
     public static final Opcode DO_PUSHWORKBENCH = Opcode.builder()
             .id("do_pushworkbench")
             .description(
-                    TextFormatting.GREEN + "Operation: push items to workbench",
+                    ChatFormatting.GREEN + "Operation: push items to workbench",
                     "push multiple items from the internal inventory to a",
                     "workbench adjacent to the processor or a connected node.",
                     "This operation will use a crafting card to push exactly (and",
@@ -1107,7 +1107,7 @@ public class Opcodes {
     public static final Opcode DO_SETCRAFTTICKET = Opcode.builder()
             .id("do_setticket")
             .description(
-                    TextFormatting.GREEN + "Operation: set craft ticket",
+                    ChatFormatting.GREEN + "Operation: set craft ticket",
                     "set a craft ticket so that you can resume",
                     "a previously stored crafting operation")
             .category(CATEGORY_CRAFTING)
@@ -1124,7 +1124,7 @@ public class Opcodes {
     public static final Opcode TEST_SET = Opcode.builder()
             .id("test_set")
             .description(
-                    TextFormatting.GREEN + "Test: is value set/true",
+                    ChatFormatting.GREEN + "Test: is value set/true",
                     "check if the boolean value is true")
             .opcodeOutput(YESNO)
             .parameter(ParameterDescription.builder().name("v").type(PAR_BOOLEAN).description("value to test").build())
@@ -1135,7 +1135,7 @@ public class Opcodes {
     public static final Opcode EVENT_CRAFTRESUME = Opcode.builder()
             .id("ev_craftresume")
             .description(
-                    TextFormatting.GREEN + "Event: craft resume",
+                    ChatFormatting.GREEN + "Event: craft resume",
                     "resume crafting operation",
                     "This operation sets the crafting ticket")
             .category(CATEGORY_CRAFTING)
@@ -1149,7 +1149,7 @@ public class Opcodes {
     public static final Opcode DO_CRAFTWAIT = Opcode.builder()
             .id("do_craftwait")
             .description(
-                    TextFormatting.GREEN + "Operation: wait for finished craft (item)",
+                    ChatFormatting.GREEN + "Operation: wait for finished craft (item)",
                     "suspend the crafting operation and resume it",
                     "as soon as a certain item appears in an inventory")
             .category(CATEGORY_CRAFTING)
@@ -1168,7 +1168,7 @@ public class Opcodes {
     public static final Opcode DO_CRAFTWAIT_TIMED = Opcode.builder()
             .id("do_craftwait_ticked")
             .description(
-                    TextFormatting.GREEN + "Operation: wait for finished craft (timed)",
+                    ChatFormatting.GREEN + "Operation: wait for finished craft (timed)",
                     "suspend the crafting operation and resume",
                     "it at regular times")
             .category(CATEGORY_CRAFTING)
@@ -1183,7 +1183,7 @@ public class Opcodes {
     public static final Opcode EVENT_EXCEPTION = Opcode.builder()
             .id("ev_exception")
             .description(
-                    TextFormatting.GREEN + "Event: exception",
+                    ChatFormatting.GREEN + "Event: exception",
                     "execute program on exception")
             .parameter(ParameterDescription.builder().name("exception").type(PAR_EXCEPTION).description("the exception code to catch").build())
             .parameter(ParameterDescription.builder().name("single").type(PAR_BOOLEAN).optional().description("only one simultaneous run").build())
@@ -1195,7 +1195,7 @@ public class Opcodes {
     public static final Opcode DO_LOCK = Opcode.builder()
             .id("do_lock")
             .description(
-                    TextFormatting.GREEN + "Operation: test and lock",
+                    ChatFormatting.GREEN + "Operation: test and lock",
                     "test if a named lock is free and if it",
                     "is place the lock and continue. If the",
                     "lock is not free wait until it is")
@@ -1210,7 +1210,7 @@ public class Opcodes {
     public static final Opcode DO_RELEASELOCK = Opcode.builder()
             .id("do_releaselock")
             .description(
-                    TextFormatting.GREEN + "Operation: release lock",
+                    ChatFormatting.GREEN + "Operation: release lock",
                     "release a named lock")
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("name").type(PAR_STRING).description("name of the lock").build())
@@ -1225,7 +1225,7 @@ public class Opcodes {
     public static final Opcode EVAL_LOCK = Opcode.builder()
             .id("eval_lock")
             .description(
-                    TextFormatting.GREEN + "Eval: test lock",
+                    ChatFormatting.GREEN + "Eval: test lock",
                     "test if the named lock is set and",
                     "return true if it is")
             .outputDescription("true if lock is set (boolean)")
@@ -1243,7 +1243,7 @@ public class Opcodes {
     public static final Opcode DO_REQUESTCRAFT = Opcode.builder()
             .id("do_requestcraft")
             .description(
-                    TextFormatting.GREEN + "Operation: request craft",
+                    ChatFormatting.GREEN + "Operation: request craft",
                     "request crafting for a specific item from a",
                     "connected crafting station. If the optional inventory",
                     "is given the craft result will be directed there",
@@ -1264,7 +1264,7 @@ public class Opcodes {
     public static final Opcode EVAL_GETITEMINT = Opcode.builder()
             .id("eval_getitemint")
             .description(
-                    TextFormatting.GREEN + "Eval: examine item internal",
+                    ChatFormatting.GREEN + "Eval: examine item internal",
                     "examine an item in a specific slot",
                     "in the processor")
             .category(CATEGORY_ITEMS)
@@ -1286,7 +1286,7 @@ public class Opcodes {
     public static final Opcode TEST_LOOP = Opcode.builder()
             .id("test_loop")
             .description(
-                    TextFormatting.GREEN + "Test: loop",
+                    ChatFormatting.GREEN + "Test: loop",
                     "loop a variable until it reaches a specific value",
                     "Make sure to set the variable to the starting value",
                     "of the loop before this opcode.",
@@ -1307,7 +1307,7 @@ public class Opcodes {
     public static final Opcode TEST_CALL = Opcode.builder()
             .id("test_call")
             .description(
-                    TextFormatting.GREEN + "Test: call function",
+                    ChatFormatting.GREEN + "Test: call function",
                     "call a function (signal). When that code has",
                     "done executing resume execution here",
                     "Note that the signal has to be defined on the",
@@ -1325,7 +1325,7 @@ public class Opcodes {
     public static final Opcode EVAL_INTEGER = Opcode.builder()
             .id("eval_integer")
             .description(
-                    TextFormatting.GREEN + "Eval: integer",
+                    ChatFormatting.GREEN + "Eval: integer",
                     "evaluate an integer and set it as",
                     "the result for future opcodes to use")
             .outputDescription("integer result (integer)")
@@ -1343,7 +1343,7 @@ public class Opcodes {
     public static final Opcode EVAL_NUMBER = Opcode.builder()
             .id("eval_number")
             .description(
-                    TextFormatting.GREEN + "Eval: number",
+                    ChatFormatting.GREEN + "Eval: number",
                     "evaluate a number and set it as",
                     "the result for future opcodes to use")
             .outputDescription("long result (number)")
@@ -1360,7 +1360,7 @@ public class Opcodes {
     public static final Opcode EVAL_STRING = Opcode.builder()
             .id("eval_string")
             .description(
-                    TextFormatting.GREEN + "Eval: string",
+                    ChatFormatting.GREEN + "Eval: string",
                     "evaluate a string and set it as",
                     "the result for future opcodes to use")
             .outputDescription("string result (string)")
@@ -1377,7 +1377,7 @@ public class Opcodes {
     public static final Opcode EVAL_INGREDIENTS = Opcode.builder()
             .id("eval_ingredients")
             .description(
-                    TextFormatting.GREEN + "Eval: check ingredients",
+                    ChatFormatting.GREEN + "Eval: check ingredients",
                     "given a crafting card inventory check if all",
                     "the ingredients for the given recipe are present",
                     "at exactly the right amount and right spot")
@@ -1403,7 +1403,7 @@ public class Opcodes {
     public static final Opcode EVAL_COUNTCRAFTS = Opcode.builder()
             .id("eval_countcrafts")
             .description(
-                    TextFormatting.GREEN + "Eval: count crafts",
+                    ChatFormatting.GREEN + "Eval: count crafts",
                     "Given a crafting card and an inventory adjacent",
                     "to the processor or a connected node, return how",
                     "many times the crafting operation can be performed",
@@ -1427,7 +1427,7 @@ public class Opcodes {
     public static final Opcode EVAL_GETCRAFTINGCARD = Opcode.builder()
             .id("eval_getcraftingcard")
             .description(
-                    TextFormatting.GREEN + "Eval: get crafting card",
+                    ChatFormatting.GREEN + "Eval: get crafting card",
                     "Given an inventory adjacent to the processor or",
                     "a connected node. And given an item to be crafted,",
                     "find a crafting card that has this item as output")
@@ -1449,7 +1449,7 @@ public class Opcodes {
     public static final Opcode EVAL_INVENTORY = Opcode.builder()
             .id("eval_inventory")
             .description(
-                    TextFormatting.GREEN + "Eval: inventory",
+                    ChatFormatting.GREEN + "Eval: inventory",
                     "get an inventory adjacent to the processor",
                     "or a connected node and put it as the last",
                     "result (useful for storing in variables)",
@@ -1469,7 +1469,7 @@ public class Opcodes {
     public static final Opcode EVAL_EXAMINELIQUID = Opcode.builder()
             .id("eval_examineliquid")
             .description(
-                    TextFormatting.GREEN + "Eval: examine liquid",
+                    ChatFormatting.GREEN + "Eval: examine liquid",
                     "examine a liquid in a specific slot",
                     "from an external tank adjacent to",
                     "the processor or a connected node")
@@ -1490,7 +1490,7 @@ public class Opcodes {
     public static final Opcode EVAL_EXAMINELIQUIDINT = Opcode.builder()
             .id("eval_examineliquidint")
             .description(
-                    TextFormatting.GREEN + "Eval: examine liquid internal",
+                    ChatFormatting.GREEN + "Eval: examine liquid internal",
                     "examine a liquid in a liquid slot")
             .outputDescription("fluidstack in target slot (stack)")
             .category(CATEGORY_LIQUIDS)
@@ -1508,7 +1508,7 @@ public class Opcodes {
     public static final Opcode EVAL_GETLIQUIDNAME = Opcode.builder()
             .id("eval_getliquidname")
             .description(
-                    TextFormatting.GREEN + "Eval: get liquid name",
+                    ChatFormatting.GREEN + "Eval: get liquid name",
                     "get the readable name from a liquid")
             .outputDescription("item name (string)")
             .category(CATEGORY_LIQUIDS)
@@ -1526,7 +1526,7 @@ public class Opcodes {
     public static final Opcode EVAL_GETLIQUID = Opcode.builder()
             .id("eval_getliquid")
             .description(
-                    TextFormatting.GREEN + "Eval: get liquid in tank",
+                    ChatFormatting.GREEN + "Eval: get liquid in tank",
                     "get the amount of liquid stored in a",
                     "specific tank adjacent to the",
                     "processor or a connected node")
@@ -1546,7 +1546,7 @@ public class Opcodes {
     public static final Opcode EVAL_GETMAXLIQUID = Opcode.builder()
             .id("eval_getmaxliquid")
             .description(
-                    TextFormatting.GREEN + "Eval: get max liquid in tank",
+                    ChatFormatting.GREEN + "Eval: get max liquid in tank",
                     "get the maximum amount of liquid stored",
                     "in a specific tank adjacent to the",
                     "processor or a connected node")
@@ -1566,7 +1566,7 @@ public class Opcodes {
     public static final Opcode DO_SIGNAL = Opcode.builder()
             .id("do_signal")
             .description(
-                    TextFormatting.GREEN + "Operation: send signal",
+                    ChatFormatting.GREEN + "Operation: send signal",
                     "send a signal to a program that has a signal event",
                     "installed on this processor. That program will",
                     "start as soon as a core is available to do so",
@@ -1588,7 +1588,7 @@ public class Opcodes {
     public static final Opcode EVAL_GETDAMAGE = Opcode.builder()
             .id("eval_getdamage")
             .description(
-                    TextFormatting.GREEN + "Eval: get damage",
+                    ChatFormatting.GREEN + "Eval: get damage",
                     "get the damage value from an item")
             .outputDescription("damage value (integer)")
             .category(CATEGORY_ITEMS)
@@ -1605,7 +1605,7 @@ public class Opcodes {
     public static final Opcode EVAL_GETNAME = Opcode.builder()
             .id("eval_getname")
             .description(
-                    TextFormatting.GREEN + "Eval: get name",
+                    ChatFormatting.GREEN + "Eval: get name",
                     "get the readable name from an item")
             .outputDescription("item name (string)")
             .category(CATEGORY_ITEMS)
@@ -1623,7 +1623,7 @@ public class Opcodes {
     public static final Opcode TEST_NBT_EQ = Opcode.builder()
             .id("test_nbt_eq")
             .description(
-                    TextFormatting.GREEN + "Test: NBT equality",
+                    ChatFormatting.GREEN + "Test: NBT equality",
                     "check if a specific tag of the first item",
                     "is exactly equal to the value of that tag of",
                     "the second item")
@@ -1645,7 +1645,7 @@ public class Opcodes {
     public static final Opcode DO_SETTOKEN = Opcode.builder()
             .id("do_settoken")
             .description(
-                    TextFormatting.GREEN + "Operation: set value in token",
+                    ChatFormatting.GREEN + "Operation: set value in token",
                     "copy the last returned value to a token",
                     "item in an internal slot")
             .opcodeOutput(SINGLE)
@@ -1660,7 +1660,7 @@ public class Opcodes {
     public static final Opcode EVAL_GETTOKEN = Opcode.builder()
             .id("eval_gettoken")
             .description(
-                    TextFormatting.GREEN + "Eval: get value from token",
+                    ChatFormatting.GREEN + "Eval: get value from token",
                     "get the value out of a token in an internal slot")
             .outputDescription("token value (any type)")
             .opcodeOutput(SINGLE)
@@ -1676,7 +1676,7 @@ public class Opcodes {
     public static final Opcode EVENT_MESSAGE = Opcode.builder()
             .id("ev_message")
             .description(
-                    TextFormatting.GREEN + "Event: message",
+                    ChatFormatting.GREEN + "Event: message",
                     "receive a message from another processor",
                     "If that message was sent with a variable",
                     "then the last value will be set to that")
@@ -1691,7 +1691,7 @@ public class Opcodes {
     public static final Opcode DO_MESSAGE = Opcode.builder()
             .id("do_message")
             .description(
-                    TextFormatting.GREEN + "Operation: send message",
+                    ChatFormatting.GREEN + "Operation: send message",
                     "send a message to another processor",
                     "This needs a network identifier in a slot",
                     "and an advanced networking card",
@@ -1713,9 +1713,9 @@ public class Opcodes {
     public static final Opcode DO_GFX_BOX_OLD = Opcode.builder()
             .id("do_gfx_box")
             .description(
-                    TextFormatting.GREEN + "Operation: gfx box",
+                    ChatFormatting.GREEN + "Operation: gfx box",
                     "draw a box",
-                    TextFormatting.RED + "Needs a graphics card")
+                    ChatFormatting.RED + "Needs a graphics card")
             .category(CATEGORY_GRAPHICS)
             .opcodeOutput(SINGLE)
             .deprecated(true)
@@ -1740,9 +1740,9 @@ public class Opcodes {
     public static final Opcode DO_GFX_LINE_OLD = Opcode.builder()
             .id("do_gfx_line")
             .description(
-                    TextFormatting.GREEN + "Operation: gfx line",
+                    ChatFormatting.GREEN + "Operation: gfx line",
                     "draw a line",
-                    TextFormatting.RED + "Needs a graphics card")
+                    ChatFormatting.RED + "Needs a graphics card")
             .category(CATEGORY_GRAPHICS)
             .opcodeOutput(SINGLE)
             .deprecated(true)
@@ -1767,9 +1767,9 @@ public class Opcodes {
     public static final Opcode DO_GFX_TEXT_OLD = Opcode.builder()
             .id("do_gfx_text")
             .description(
-                    TextFormatting.GREEN + "Operation: gfx text",
+                    ChatFormatting.GREEN + "Operation: gfx text",
                     "draw text",
-                    TextFormatting.RED + "Needs a graphics card")
+                    ChatFormatting.RED + "Needs a graphics card")
             .category(CATEGORY_GRAPHICS)
             .opcodeOutput(SINGLE)
             .deprecated(true)
@@ -1792,9 +1792,9 @@ public class Opcodes {
     public static final Opcode DO_GFX_BOX = Opcode.builder()
             .id("do_box")
             .description(
-                    TextFormatting.GREEN + "Operation: gfx box",
+                    ChatFormatting.GREEN + "Operation: gfx box",
                     "draw a box",
-                    TextFormatting.RED + "Needs a graphics card")
+                    ChatFormatting.RED + "Needs a graphics card")
             .category(CATEGORY_GRAPHICS)
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("id").type(PAR_STRING).description("id (used to identify this box)").build())
@@ -1814,9 +1814,9 @@ public class Opcodes {
     public static final Opcode DO_GFX_LINE = Opcode.builder()
             .id("do_line")
             .description(
-                    TextFormatting.GREEN + "Operation: gfx line",
+                    ChatFormatting.GREEN + "Operation: gfx line",
                     "draw a line",
-                    TextFormatting.RED + "Needs a graphics card")
+                    ChatFormatting.RED + "Needs a graphics card")
             .category(CATEGORY_GRAPHICS)
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("id").type(PAR_STRING).description("id (used to identify this line)").build())
@@ -1836,9 +1836,9 @@ public class Opcodes {
     public static final Opcode DO_GFX_TEXT = Opcode.builder()
             .id("do_text")
             .description(
-                    TextFormatting.GREEN + "Operation: gfx text",
+                    ChatFormatting.GREEN + "Operation: gfx text",
                     "draw text",
-                    TextFormatting.RED + "Needs a graphics card")
+                    ChatFormatting.RED + "Needs a graphics card")
             .category(CATEGORY_GRAPHICS)
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("id").type(PAR_STRING).description("id (used to identify this text)").build())
@@ -1858,10 +1858,10 @@ public class Opcodes {
     public static final Opcode DO_GFX_CLEAR = Opcode.builder()
             .id("do_gfx_clear")
             .description(
-                    TextFormatting.GREEN + "Operation: gfx clear",
+                    ChatFormatting.GREEN + "Operation: gfx clear",
                     "clear an operation with a specific id or",
                     "all operations",
-                    TextFormatting.RED + "Needs a graphics card")
+                    ChatFormatting.RED + "Needs a graphics card")
             .category(CATEGORY_GRAPHICS)
             .opcodeOutput(SINGLE)
             .parameter(ParameterDescription.builder().name("id").type(PAR_STRING).optional().description("id to delete or empty to delete all").build())
@@ -1875,7 +1875,7 @@ public class Opcodes {
     public static final Opcode EVAL_RANDOM = Opcode.builder()
             .id("eval_random")
             .description(
-                    TextFormatting.GREEN + "Eval: random integer",
+                    ChatFormatting.GREEN + "Eval: random integer",
                     "get a random integer between two values")
             .outputDescription("random result (integer)")
             .category(CATEGORY_NUMBERS)
@@ -1894,7 +1894,7 @@ public class Opcodes {
     public static final Opcode EVAL_TUPLE = Opcode.builder()
             .id("eval_tuple")
             .description(
-                    TextFormatting.GREEN + "Eval: tuple",
+                    ChatFormatting.GREEN + "Eval: tuple",
                     "evaluate a tuple (two integers) and set it",
                     "as the result for future opcodes to use")
             .outputDescription("tuple result (tuple)")
@@ -1918,7 +1918,7 @@ public class Opcodes {
     public static final Opcode EVENT_GFX_SELECT = Opcode.builder()
             .id("ev_select")
             .description(
-                    TextFormatting.GREEN + "Event: gfx select",
+                    ChatFormatting.GREEN + "Event: gfx select",
                     "execute program when a screen with a",
                     "vector module is selected.",
                     "The last value will be set to the tuple",
@@ -1933,7 +1933,7 @@ public class Opcodes {
     public static final Opcode EVAL_SLOTS = Opcode.builder()
             .id("eval_slots")
             .description(
-                    TextFormatting.GREEN + "Eval: get number of slots",
+                    ChatFormatting.GREEN + "Eval: get number of slots",
                     "return the amount of slots in an",
                     "external inventory")
             .outputDescription("amount of slots (integer)")
@@ -1952,7 +1952,7 @@ public class Opcodes {
     public static final Opcode EVAL_ITEM = Opcode.builder()
             .id("eval_item")
             .description(
-                    TextFormatting.GREEN + "Eval: evaluate item",
+                    ChatFormatting.GREEN + "Eval: evaluate item",
                     "set the last value to a specific item")
             .outputDescription("itemstack (stack)")
             .category(CATEGORY_ITEMS)
@@ -1969,7 +1969,7 @@ public class Opcodes {
     public static final Opcode EVAL_FLUID = Opcode.builder()
             .id("eval_fluid")
             .description(
-                    TextFormatting.GREEN + "Eval: evaluate fluid",
+                    ChatFormatting.GREEN + "Eval: evaluate fluid",
                     "set the last value to a specific fluid")
             .outputDescription("fluidstack (fluid)")
             .category(CATEGORY_LIQUIDS)
@@ -1986,7 +1986,7 @@ public class Opcodes {
     public static final Opcode EVAL_VECTOR = Opcode.builder()
             .id("eval_vector")
             .description(
-                    TextFormatting.GREEN + "Eval: vector",
+                    ChatFormatting.GREEN + "Eval: vector",
                     "set the last value to a vector",
                     "Leave empty for empty vector")
             .outputDescription("vector (vector)")
@@ -2007,7 +2007,7 @@ public class Opcodes {
     public static final Opcode EVAL_VECTOR_INDICES = Opcode.builder()
             .id("eval_vector_indices")
             .description(
-                    TextFormatting.GREEN + "Eval: vector indices",
+                    ChatFormatting.GREEN + "Eval: vector indices",
                     "generate a vector starting of the given length",
                     "with integers starting at 0")
             .outputDescription("vector (vector)")
@@ -2029,7 +2029,7 @@ public class Opcodes {
     public static final Opcode DO_VECTOR_SORT = Opcode.builder()
             .id("do_vector_sort")
             .description(
-                    TextFormatting.GREEN + "Operation: vector sort",
+                    ChatFormatting.GREEN + "Operation: vector sort",
                     "sort the last value (vector) and set the",
                     "last value to the sorted vector.",
                     "If the optional second vector is given",
@@ -2061,7 +2061,7 @@ public class Opcodes {
     public static final Opcode EVAL_VECTOR_ELEMENT = Opcode.builder()
             .id("eval_vector_element")
             .description(
-                    TextFormatting.GREEN + "Eval: evaluate element from vector",
+                    ChatFormatting.GREEN + "Eval: evaluate element from vector",
                     "get a specific element out of a vector")
             .outputDescription("element (any type)")
             .category(CATEGORY_VECTORS)
@@ -2082,7 +2082,7 @@ public class Opcodes {
     public static final Opcode DO_VECTOR_PUSH = Opcode.builder()
             .id("do_vector_push")
             .description(
-                    TextFormatting.GREEN + "Operation: push item to vector",
+                    ChatFormatting.GREEN + "Operation: push item to vector",
                     "add an item in a variable to a vector and",
                     "return a new vector")
             .category(CATEGORY_VECTORS)
@@ -2103,7 +2103,7 @@ public class Opcodes {
     public static final Opcode DO_VECTOR_PUSH_INT = Opcode.builder()
             .id("do_vector_push_int")
             .description(
-                    TextFormatting.GREEN + "Operation: push integer to vector",
+                    ChatFormatting.GREEN + "Operation: push integer to vector",
                     "add an integer to a vector and",
                     "return a new vector")
             .category(CATEGORY_VECTORS)
@@ -2124,7 +2124,7 @@ public class Opcodes {
     public static final Opcode DO_VECTOR_POP = Opcode.builder()
             .id("do_vector_pop")
             .description(
-                    TextFormatting.GREEN + "Operation: pop item from vector",
+                    ChatFormatting.GREEN + "Operation: pop item from vector",
                     "remove the last item from a vector and",
                     "return a new vector")
             .category(CATEGORY_VECTORS)

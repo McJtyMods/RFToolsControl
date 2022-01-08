@@ -8,7 +8,7 @@ import mcjty.rftoolscontrol.modules.processor.logic.compiled.CompiledOpcode;
 import mcjty.rftoolscontrol.modules.processor.logic.running.CpuCore;
 import mcjty.rftoolscontrol.modules.processor.logic.running.ExceptionType;
 import mcjty.rftoolscontrol.modules.processor.logic.running.RunningProgram;
-import net.minecraft.util.text.TextFormatting;
+import net.minecraft.ChatFormatting;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
@@ -34,11 +34,11 @@ public class Commands {
             processor.clearLog();
         } else if ("stop".equals(cmd)) {
             int n = processor.stopPrograms();
-            processor.log(TextFormatting.YELLOW + "Stopped " + n + " programs!");
+            processor.log(ChatFormatting.YELLOW + "Stopped " + n + " programs!");
         } else if ("list".equals(cmd)) {
             processor.listStatus();
         } else if ("reset".equals(cmd)) {
-            processor.log(TextFormatting.YELLOW + "Reset the processor!");
+            processor.log(ChatFormatting.YELLOW + "Reset the processor!");
             processor.reset();
         } else if ("signal".equals(cmd)) {
             String signal = splitted[1].toLowerCase();
@@ -63,12 +63,12 @@ public class Commands {
         String sub = splitted[1].toLowerCase();
         if ("set".equals(sub)) {
             if (splitted.length <= 2) {
-                processor.log(TextFormatting.RED + "Missing variable index!");
+                processor.log(ChatFormatting.RED + "Missing variable index!");
                 return;
             }
             int index = Integer.parseInt(splitted[2]);
             if (index < 0 || index >= ProcessorTileEntity.MAXVARS) {
-                processor.log(TextFormatting.RED + "Wrong variable index!");
+                processor.log(ChatFormatting.RED + "Wrong variable index!");
                 return;
             }
             processor.setWatch(index, false);
@@ -86,23 +86,23 @@ public class Commands {
             }
         } else if ("break".equals(sub)) {
             if (splitted.length <= 2) {
-                processor.log(TextFormatting.RED + "Missing variable index!");
+                processor.log(ChatFormatting.RED + "Missing variable index!");
                 return;
             }
             int index = Integer.parseInt(splitted[2]);
             if (index < 0 || index >= ProcessorTileEntity.MAXVARS) {
-                processor.log(TextFormatting.RED + "Wrong variable index!");
+                processor.log(ChatFormatting.RED + "Wrong variable index!");
                 return;
             }
             processor.setWatch(index, true);
         } else if ("clear".equals(sub)) {
             if (splitted.length <= 2) {
-                processor.log(TextFormatting.RED + "Missing variable index!");
+                processor.log(ChatFormatting.RED + "Missing variable index!");
                 return;
             }
             int index = Integer.parseInt(splitted[2]);
             if (index < 0 || index >= ProcessorTileEntity.MAXVARS) {
-                processor.log(TextFormatting.RED + "Wrong variable index!");
+                processor.log(ChatFormatting.RED + "Wrong variable index!");
                 return;
             }
             processor.clearWatch(index);
@@ -119,32 +119,32 @@ public class Commands {
                 try {
                     int core = Integer.parseInt(splitted[2]);
                     cores.get(core).setDebug(true);
-                    processor.log(TextFormatting.YELLOW + "Debug mode for core: " + core);
+                    processor.log(ChatFormatting.YELLOW + "Debug mode for core: " + core);
                 } catch (Exception e) {
-                    processor.log(TextFormatting.RED + "Bad core number");
+                    processor.log(ChatFormatting.RED + "Bad core number");
                     return;
                 }
             } else {
                 for (CpuCore core : cores) {
                     core.setDebug(true);
                 }
-                processor.log(TextFormatting.YELLOW + "Debug mode for all cores");
+                processor.log(ChatFormatting.YELLOW + "Debug mode for all cores");
             }
         } else if ("resume".equals(sub)) {
             if (splitted.length > 2) {
                 try {
                     int core = Integer.parseInt(splitted[2]);
                     cores.get(core).setDebug(false);
-                    processor.log(TextFormatting.YELLOW + "Resume core: " + core);
+                    processor.log(ChatFormatting.YELLOW + "Resume core: " + core);
                 } catch (Exception e) {
-                    processor.log(TextFormatting.RED + "Bad core number");
+                    processor.log(ChatFormatting.RED + "Bad core number");
                     return;
                 }
             } else {
                 for (CpuCore core : cores) {
                     core.setDebug(false);
                 }
-                processor.log(TextFormatting.YELLOW + "Resume all cores");
+                processor.log(ChatFormatting.YELLOW + "Resume all cores");
             }
         } else if ("info".equals(sub)) {
             for (int i = 0; i < cores.size(); i++) {
@@ -166,16 +166,16 @@ public class Commands {
                     if (core.hasProgram()) {
                         IParameter value = core.getProgram().getLastValue();
                         if (value == null || value.getParameterValue() == null) {
-                            processor.log(TextFormatting.YELLOW + "Last value not set");
+                            processor.log(ChatFormatting.YELLOW + "Last value not set");
                         } else {
                             ParameterType type = value.getParameterType();
-                            processor.log(TextFormatting.YELLOW + "Last " + type.getName() + ": " + TypeConverters.convertToString(value));
+                            processor.log(ChatFormatting.YELLOW + "Last " + type.getName() + ": " + TypeConverters.convertToString(value));
                         }
                     } else {
-                        processor.log(TextFormatting.YELLOW + "No program!");
+                        processor.log(ChatFormatting.YELLOW + "No program!");
                     }
                 } catch (Exception e) {
-                    processor.log(TextFormatting.RED + "Bad core number");
+                    processor.log(ChatFormatting.RED + "Bad core number");
                     return;
                 }
             } else {
@@ -184,10 +184,10 @@ public class Commands {
                     if (core.hasProgram()) {
                         IParameter value = core.getProgram().getLastValue();
                         if (value == null || value.getParameterValue() == null) {
-                            processor.log(TextFormatting.YELLOW + "" + i + ": Last value not set");
+                            processor.log(ChatFormatting.YELLOW + "" + i + ": Last value not set");
                         } else {
                             ParameterType type = value.getParameterType();
-                            processor.log(TextFormatting.YELLOW + "" + i + ": Last " + type.getName() + ": " + TypeConverters.convertToString(value));
+                            processor.log(ChatFormatting.YELLOW + "" + i + ": Last " + type.getName() + ": " + TypeConverters.convertToString(value));
                         }
                     }
                     i++;
@@ -202,24 +202,24 @@ public class Commands {
             }
             int c = 0;
             if (cnt == 0) {
-                processor.log(TextFormatting.RED + "Not debugging");
+                processor.log(ChatFormatting.RED + "Not debugging");
                 return;
             } else if (cnt > 1) {
                 if (splitted.length <= 2) {
-                    processor.log(TextFormatting.RED + "Missing core number");
+                    processor.log(ChatFormatting.RED + "Missing core number");
                     return;
                 }
                 try {
                     c = Integer.parseInt(splitted[2]);
                 } catch (Exception e) {
-                    processor.log(TextFormatting.RED + "Bad core number");
+                    processor.log(ChatFormatting.RED + "Bad core number");
                     return;
                 }
             }
             CpuCore core = cores.get(c);
             RunningProgram program = core.getProgram();
             if (program == null) {
-                processor.log(TextFormatting.RED + "Core " + c + ": " + "not running");
+                processor.log(ChatFormatting.RED + "Core " + c + ": " + "not running");
                 return;
             }
             core.step(processor, core);
@@ -236,7 +236,7 @@ public class Commands {
         String id = currentOpcode.getOpcode().getId();
         processor.log("Core " + i + ": [" + x + "," + y + "] " + id);
         if (program.getLock() != null) {
-            processor.log(TextFormatting.YELLOW + "[LOCKED on " + program.getLock() + "]!");
+            processor.log(ChatFormatting.YELLOW + "[LOCKED on " + program.getLock() + "]!");
         }
     }
 

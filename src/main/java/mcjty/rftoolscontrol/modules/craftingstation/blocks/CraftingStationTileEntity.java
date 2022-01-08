@@ -22,14 +22,15 @@ import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorTileEntity;
 import mcjty.rftoolscontrol.modules.processor.logic.running.ExceptionType;
 import mcjty.rftoolscontrol.modules.processor.logic.running.ProgException;
 import mcjty.rftoolscontrol.setup.Config;
-import net.minecraft.inventory.container.INamedContainerProvider;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.common.util.Constants;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.util.Lazy;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.CapabilityItemHandler;
@@ -58,7 +59,7 @@ public class CraftingStationTileEntity extends GenericTileEntity {
     private final GenericItemHandler items = GenericItemHandler.basic(this, CONTAINER_FACTORY);
 
     @Cap(type = CapType.CONTAINER)
-    private final LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<GenericContainer>("Crafter")
+    private final LazyOptional<MenuProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<GenericContainer>("Crafter")
             .containerSupplier(container(CRAFTING_STATION_CONTAINER, CONTAINER_FACTORY, this))
             .itemHandler(() -> items)
             .setupSync(this));
@@ -68,8 +69,8 @@ public class CraftingStationTileEntity extends GenericTileEntity {
     private List<CraftingRequest> activeCraftingRequests = new ArrayList<>();
     private int cleanupCounter = 50;
 
-    public CraftingStationTileEntity() {
-        super(CraftingStationModule.CRAFTING_STATION_TILE.get());
+    public CraftingStationTileEntity(BlockPos pos, BlockState state) {
+        super(CraftingStationModule.CRAFTING_STATION_TILE.get(), pos, state);
     }
 
     public void registerProcessor(BlockPos pos) {
@@ -93,7 +94,7 @@ public class CraftingStationTileEntity extends GenericTileEntity {
 
     private Pair<ProcessorTileEntity, ItemStack> findCraftableItem(int index) {
         for (BlockPos p : processorList) {
-            TileEntity te = level.getBlockEntity(p);
+            BlockEntity te = level.getBlockEntity(p);
             if (te instanceof ProcessorTileEntity) {
                 ProcessorTileEntity processor = (ProcessorTileEntity) te;
                 ItemStackList items = ItemStackList.create();
@@ -212,7 +213,7 @@ public class CraftingStationTileEntity extends GenericTileEntity {
 
     public boolean request(@Nonnull Ingredient item, @Nullable Inventory destination) {
         for (BlockPos p : processorList) {
-            TileEntity te = level.getBlockEntity(p);
+            BlockEntity te = level.getBlockEntity(p);
             if (te instanceof ProcessorTileEntity) {
                 ProcessorTileEntity processor = (ProcessorTileEntity) te;
                 ItemStackList items = ItemStackList.create();
@@ -267,7 +268,7 @@ public class CraftingStationTileEntity extends GenericTileEntity {
     public ItemStackList getCraftableItems() {
         ItemStackList items = ItemStackList.create();
         for (BlockPos p : processorList) {
-            TileEntity te = level.getBlockEntity(p);
+            BlockEntity te = level.getBlockEntity(p);
             if (te instanceof ProcessorTileEntity) {
                 ProcessorTileEntity processor = (ProcessorTileEntity) te;
                 processor.getCraftableItems(items);
@@ -296,24 +297,24 @@ public class CraftingStationTileEntity extends GenericTileEntity {
     }
 
     @Override
-    public void load(CompoundNBT tagCompound) {
+    public void load(CompoundTag tagCompound) {
         super.load(tagCompound);
         readProcessorList(tagCompound);
         readRequests(tagCompound);
     }
 
     @Override
-    protected void loadInfo(CompoundNBT tagCompound) {
+    protected void loadInfo(CompoundTag tagCompound) {
         super.loadInfo(tagCompound);
-        CompoundNBT info = tagCompound.getCompound("Info");
+        CompoundTag info = tagCompound.getCompound("Info");
         currentTicket = info.getInt("craftId");
     }
 
-    private void readRequests(CompoundNBT tagCompound) {
-        ListNBT list = tagCompound.getList("requests", Constants.NBT.TAG_COMPOUND);
+    private void readRequests(CompoundTag tagCompound) {
+        ListTag list = tagCompound.getList("requests", Tag.TAG_COMPOUND);
         activeCraftingRequests.clear();
         for (int i = 0; i < list.size(); i++) {
-            CompoundNBT requestTag = list.getCompound(i);
+            CompoundTag requestTag = list.getCompound(i);
             String craftId = requestTag.getString("craftId");
             ItemStack stack = ItemStack.of(requestTag.getCompound("stack"));
             int count = requestTag.getInt("count");
@@ -324,35 +325,35 @@ public class CraftingStationTileEntity extends GenericTileEntity {
         }
     }
 
-    private void readProcessorList(CompoundNBT tagCompound) {
-        ListNBT list = tagCompound.getList("processors", Constants.NBT.TAG_COMPOUND);
+    private void readProcessorList(CompoundTag tagCompound) {
+        ListTag list = tagCompound.getList("processors", Tag.TAG_COMPOUND);
         processorList.clear();
         for (int i = 0; i < list.size(); i++) {
-            CompoundNBT tag = list.getCompound(i);
+            CompoundTag tag = list.getCompound(i);
             processorList.add(new BlockPos(tag.getInt("x"), tag.getInt("y"), tag.getInt("z")));
         }
     }
 
     @Override
-    public void saveAdditional(@Nonnull CompoundNBT tagCompound) {
+    public void saveAdditional(@Nonnull CompoundTag tagCompound) {
         super.saveAdditional(tagCompound);
         writeProcessorList(tagCompound);
         writeRequests(tagCompound);
     }
 
     @Override
-    protected void saveInfo(CompoundNBT tagCompound) {
+    protected void saveInfo(CompoundTag tagCompound) {
         super.saveInfo(tagCompound);
-        CompoundNBT info = getOrCreateInfo(tagCompound);
+        CompoundTag info = getOrCreateInfo(tagCompound);
         info.putInt("craftId", currentTicket);
     }
 
-    private void writeRequests(CompoundNBT tagCompound) {
-        ListNBT list = new ListNBT();
+    private void writeRequests(CompoundTag tagCompound) {
+        ListTag list = new ListTag();
         for (CraftingRequest request : activeCraftingRequests) {
-            CompoundNBT requestTag = new CompoundNBT();
+            CompoundTag requestTag = new CompoundTag();
             requestTag.putString("craftId", request.getTicket());
-            CompoundNBT stackNbt = new CompoundNBT();
+            CompoundTag stackNbt = new CompoundTag();
             request.getStack().save(stackNbt);
             requestTag.put("stack", stackNbt);
             requestTag.putInt("count", request.getTodo());
@@ -364,10 +365,10 @@ public class CraftingStationTileEntity extends GenericTileEntity {
         tagCompound.put("requests", list);
     }
 
-    private void writeProcessorList(CompoundNBT tagCompound) {
-        ListNBT list = new ListNBT();
+    private void writeProcessorList(CompoundTag tagCompound) {
+        ListTag list = new ListTag();
         for (BlockPos p : processorList) {
-            CompoundNBT tag = new CompoundNBT();
+            CompoundTag tag = new CompoundTag();
             tag.putInt("x", p.getX());
             tag.putInt("y", p.getY());
             tag.putInt("z", p.getZ());
@@ -379,7 +380,7 @@ public class CraftingStationTileEntity extends GenericTileEntity {
     private int findItem(String itemName, String nbtString) {
         int index = 0;
         for (BlockPos p : processorList) {
-            TileEntity te = level.getBlockEntity(p);
+            BlockEntity te = level.getBlockEntity(p);
             if (te instanceof ProcessorTileEntity) {
                 ProcessorTileEntity processor = (ProcessorTileEntity) te;
                 ItemStackList items = ItemStackList.create();

@@ -6,7 +6,7 @@ import mcjty.lib.gui.widgets.TextField;
 import mcjty.rftoolsbase.api.control.parameters.ParameterType;
 import mcjty.rftoolsbase.api.control.parameters.ParameterValue;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.screens.Screen;
 
 import static mcjty.lib.gui.widgets.Widgets.horizontal;
 

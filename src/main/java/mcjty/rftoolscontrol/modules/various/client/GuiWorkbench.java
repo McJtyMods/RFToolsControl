@@ -1,6 +1,6 @@
 package mcjty.rftoolscontrol.modules.various.client;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import mcjty.lib.gui.GenericGuiContainer;
 import mcjty.lib.gui.ManualEntry;
 import mcjty.lib.gui.Window;
@@ -9,8 +9,8 @@ import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.modules.various.VariousModule;
 import mcjty.rftoolscontrol.modules.various.blocks.WorkbenchContainer;
 import mcjty.rftoolscontrol.modules.various.blocks.WorkbenchTileEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nonnull;
 
@@ -24,7 +24,7 @@ public class GuiWorkbench extends GenericGuiContainer<WorkbenchTileEntity, Workb
 
     private static final ResourceLocation mainBackground = new ResourceLocation(RFToolsControl.MODID, "textures/gui/workbench.png");
 
-    public GuiWorkbench(WorkbenchTileEntity te, WorkbenchContainer container, PlayerInventory inventory) {
+    public GuiWorkbench(WorkbenchTileEntity te, WorkbenchContainer container, Inventory inventory) {
         super(te, container, inventory, /*@todo 1.15 GuiProxy.GUI_MANUAL_CONTROL*/ ManualEntry.EMPTY);
 
         imageWidth = WIDTH;
@@ -46,7 +46,7 @@ public class GuiWorkbench extends GenericGuiContainer<WorkbenchTileEntity, Workb
     }
 
     @Override
-    protected void renderBg(@Nonnull MatrixStack matrixStack, float partialTicks, int mouseX, int mouseY) {
+    protected void renderBg(@Nonnull PoseStack matrixStack, float partialTicks, int mouseX, int mouseY) {
         drawWindow(matrixStack);
     }
 }

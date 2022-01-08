@@ -12,9 +12,11 @@ import mcjty.rftoolscontrol.modules.processor.logic.grid.ProgramCardInstance;
 import mcjty.rftoolscontrol.modules.programmer.ProgrammerModule;
 import mcjty.rftoolscontrol.modules.various.VariousModule;
 import mcjty.rftoolscontrol.modules.various.items.ProgramCardItem;
-import net.minecraft.inventory.container.INamedContainerProvider;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.INBT;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.Tag;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.util.Lazy;
 import net.minecraftforge.common.util.LazyOptional;
 
@@ -37,13 +39,13 @@ public class ProgrammerTileEntity extends GenericTileEntity {
     private final GenericItemHandler items = GenericItemHandler.basic(this, CONTAINER_FACTORY);
 
     @Cap(type = CapType.CONTAINER)
-    private final LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<GenericContainer>("Programmer")
+    private final LazyOptional<MenuProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<GenericContainer>("Programmer")
             .containerSupplier(container(PROGRAMMER_CONTAINER, CONTAINER_FACTORY, this))
             .itemHandler(() -> items)
             .setupSync(this));
 
-    public ProgrammerTileEntity() {
-        super(ProgrammerModule.PROGRAMMER_TILE.get());
+    public ProgrammerTileEntity(BlockPos pos, BlockState state) {
+        super(ProgrammerModule.PROGRAMMER_TILE.get(), pos, state);
         items.setStackInSlot(SLOT_DUMMY, new ItemStack(VariousModule.PROGRAM_CARD.get()));
     }
 
@@ -73,7 +75,7 @@ public class ProgrammerTileEntity extends GenericTileEntity {
                 return;
             }
             ProgramCardItem.setCardName(card, ProgramCardItem.getCardName(dummy));
-            INBT newGrid = dummy.getTag().get("grid").copy();
+            Tag newGrid = dummy.getTag().get("grid").copy();
             card.getTag().put("grid", newGrid);
         }
     }

@@ -11,7 +11,7 @@ import mcjty.rftoolscontrol.modules.processor.logic.registry.FunctionRegistry;
 import mcjty.rftoolscontrol.modules.processor.logic.registry.Functions;
 import mcjty.rftoolscontrol.modules.processor.logic.registry.OpcodeRegistry;
 import mcjty.rftoolscontrol.modules.processor.logic.registry.Opcodes;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fml.InterModComms;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.InterModProcessEvent;

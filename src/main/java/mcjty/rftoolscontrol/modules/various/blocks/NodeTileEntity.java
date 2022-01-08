@@ -9,11 +9,12 @@ import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.lib.varia.BlockPosTools;
 import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorTileEntity;
 import mcjty.rftoolscontrol.modules.various.VariousModule;
-import net.minecraft.inventory.container.INamedContainerProvider;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.Direction;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.util.LazyOptional;
 
 import javax.annotation.Nonnull;
@@ -34,12 +35,12 @@ public class NodeTileEntity extends GenericTileEntity {
     private int powerOut[] = new int[]{0, 0, 0, 0, 0, 0};
 
     @Cap(type = CapType.CONTAINER)
-    private final LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<GenericContainer>("Node")
+    private final LazyOptional<MenuProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<GenericContainer>("Node")
             .containerSupplier(empty(VariousModule.NODE_CONTAINER, this))
             .setupSync(this));
 
-    public NodeTileEntity() {
-        super(VariousModule.NODE_TILE.get());
+    public NodeTileEntity(BlockPos pos, BlockState state) {
+        super(VariousModule.NODE_TILE.get(), pos, state);
     }
 
     public String getNodeName() {
@@ -73,7 +74,7 @@ public class NodeTileEntity extends GenericTileEntity {
     public void setPowerInput(int powered) {
         if (powerLevel != powered) {
             if (processor != null) {
-                TileEntity te = getLevel().getBlockEntity(processor);
+                BlockEntity te = getLevel().getBlockEntity(processor);
                 if (te instanceof ProcessorTileEntity) {
                     ProcessorTileEntity processorTileEntity = (ProcessorTileEntity) te;
                     processorTileEntity.redstoneNodeChange(prevIn, powered, node);
@@ -95,7 +96,7 @@ public class NodeTileEntity extends GenericTileEntity {
     }
 
     @Override
-    public void load(CompoundNBT tagCompound) {
+    public void load(CompoundTag tagCompound) {
         super.load(tagCompound);
         prevIn = tagCompound.getInt("prevIn");
         for (int i = 0; i < 6; i++) {
@@ -104,16 +105,16 @@ public class NodeTileEntity extends GenericTileEntity {
     }
 
     @Override
-    protected void loadInfo(CompoundNBT tagCompound) {
+    protected void loadInfo(CompoundTag tagCompound) {
         super.loadInfo(tagCompound);
-        CompoundNBT info = tagCompound.getCompound("Info");
+        CompoundTag info = tagCompound.getCompound("Info");
         channel = info.getString("channel");
         node = info.getString("node");
         processor = BlockPosTools.read(info, "processor");
     }
 
     @Override
-    public void saveAdditional(@Nonnull CompoundNBT tagCompound) {
+    public void saveAdditional(@Nonnull CompoundTag tagCompound) {
         super.saveAdditional(tagCompound);
         tagCompound.putInt("prevIn", prevIn);
         for (int i = 0; i < 6; i++) {
@@ -122,9 +123,9 @@ public class NodeTileEntity extends GenericTileEntity {
     }
 
     @Override
-    protected void saveInfo(CompoundNBT tagCompound) {
+    protected void saveInfo(CompoundTag tagCompound) {
         super.saveInfo(tagCompound);
-        CompoundNBT info = getOrCreateInfo(tagCompound);
+        CompoundTag info = getOrCreateInfo(tagCompound);
         if (channel != null) {
             info.putString("channel", channel);
         }

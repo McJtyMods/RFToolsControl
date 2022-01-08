@@ -8,40 +8,40 @@ import mcjty.lib.varia.LevelTools;
 import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorTileEntity;
 import mcjty.rftoolscontrol.modules.processor.logic.Parameter;
 import mcjty.rftoolscontrol.setup.RFToolsCtrlMessages;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.RegistryKey;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
-import net.minecraftforge.fml.network.NetworkDirection;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraftforge.network.NetworkDirection;
+import net.minecraftforge.network.NetworkEvent;
 
 import java.util.List;
 import java.util.function.Supplier;
 
 public class PacketGetVariables {
 
-    private BlockPos pos;
-    private RegistryKey<World> type;
-    private TypedMap params;
-    private boolean fromTablet;
+    private final BlockPos pos;
+    private final ResourceKey<Level> type;
+    private final TypedMap params;
+    private final boolean fromTablet;
 
-    public PacketGetVariables(PacketBuffer buf) {
+    public PacketGetVariables(FriendlyByteBuf buf) {
         pos = buf.readBlockPos();
         type = LevelTools.getId(buf.readResourceLocation());
         params = TypedMapTools.readArguments(buf);
         fromTablet = buf.readBoolean();
     }
 
-    public PacketGetVariables(BlockPos pos, RegistryKey<World> type, boolean fromTablet) {
+    public PacketGetVariables(BlockPos pos, ResourceKey<Level> type, boolean fromTablet) {
         this.pos = pos;
         this.type = type;
         this.params = TypedMap.EMPTY;
         this.fromTablet = fromTablet;
     }
 
-    public void toBytes(PacketBuffer buf) {
+    public void toBytes(FriendlyByteBuf buf) {
         buf.writeBlockPos(pos);
         buf.writeResourceLocation(type.location());
         TypedMapTools.writeArguments(buf, params);
@@ -51,12 +51,12 @@ public class PacketGetVariables {
     public void handle(Supplier<NetworkEvent.Context> supplier) {
         NetworkEvent.Context ctx = supplier.get();
         ctx.enqueueWork(() -> {
-            ServerWorld world = LevelTools.getLevel(ctx.getSender().getCommandSenderWorld(), type);
+            ServerLevel world = LevelTools.getLevel(ctx.getSender().getCommandSenderWorld(), type);
             if (world.hasChunkAt(pos)) {
-                TileEntity te = world.getBlockEntity(pos);
+                BlockEntity te = world.getBlockEntity(pos);
                 if (te instanceof GenericTileEntity) {
-                    List<Parameter> list = ((GenericTileEntity) te).executeServerCommandList(ProcessorTileEntity.CMD_GETVARS.getName(), ctx.getSender(), params, Parameter.class);
-                    RFToolsCtrlMessages.INSTANCE.sendTo(new PacketVariablesReady(fromTablet ? null : pos, ProcessorTileEntity.CMD_GETVARS.getName(), list),
+                    List<Parameter> list = ((GenericTileEntity) te).executeServerCommandList(ProcessorTileEntity.CMD_GETVARS.name(), ctx.getSender(), params, Parameter.class);
+                    RFToolsCtrlMessages.INSTANCE.sendTo(new PacketVariablesReady(fromTablet ? null : pos, ProcessorTileEntity.CMD_GETVARS.name(), list),
                             ctx.getSender().connection.connection, NetworkDirection.PLAY_TO_CLIENT);
                 }
             }

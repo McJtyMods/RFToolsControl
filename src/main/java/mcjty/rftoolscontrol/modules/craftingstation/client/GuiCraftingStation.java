@@ -1,6 +1,6 @@
 package mcjty.rftoolscontrol.modules.craftingstation.client;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import mcjty.lib.base.StyleConfig;
 import mcjty.lib.container.GenericContainer;
 import mcjty.lib.gui.GenericGuiContainer;
@@ -17,12 +17,12 @@ import mcjty.rftoolscontrol.modules.craftingstation.blocks.CraftingStationTileEn
 import mcjty.rftoolscontrol.modules.craftingstation.util.CraftingRequest;
 import mcjty.rftoolscontrol.modules.programmer.client.GuiTools;
 import mcjty.rftoolscontrol.setup.RFToolsCtrlMessages;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TextFormatting;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.ChatFormatting;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
@@ -56,7 +56,7 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
 
     private int listDirty = 0;
 
-    public GuiCraftingStation(CraftingStationTileEntity te, GenericContainer container, PlayerInventory inventory) {
+    public GuiCraftingStation(CraftingStationTileEntity te, GenericContainer container, Inventory inventory) {
         super(te, container, inventory, /*@todo 1.15 GuiProxy.GUI_MANUAL_CONTROL*/ ManualEntry.EMPTY);
 
         imageWidth = WIDTH;
@@ -87,7 +87,7 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
         searchField = textfield(5, 5, WIDTH-46-10, 16);
         cancelButton = button(WIDTH-46-5, 5, 46, 16, "Cancel")
                 .channel("cancel")
-                .tooltips(TextFormatting.YELLOW + "Cancel request", "Cancel the currently selected", "crafting request");
+                .tooltips(ChatFormatting.YELLOW + "Cancel request", "Cancel the currently selected", "crafting request");
         toplevel.children(cancelButton, searchField);
     }
 
@@ -116,8 +116,8 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
     }
 
     private void requestLists() {
-        RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketGetListFromServer(tileEntity.getBlockPos(), CMD_GETCRAFTABLE.getName()));
-        RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketGetListFromServer(tileEntity.getBlockPos(), CMD_GETREQUESTS.getName()));
+        RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketGetListFromServer(tileEntity.getBlockPos(), CMD_GETCRAFTABLE.name()));
+        RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketGetListFromServer(tileEntity.getBlockPos(), CMD_GETREQUESTS.name()));
     }
 
     private void requestListsIfNeeded() {
@@ -153,14 +153,14 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
     }
 
     @Override
-    protected List<ITextComponent> addCustomLines(List<ITextComponent> oldList, BlockRender blockRender, ItemStack stack) {
+    protected List<Component> addCustomLines(List<Component> oldList, BlockRender blockRender, ItemStack stack) {
         if (blockRender.getUserObject() instanceof Integer) {
-            List<ITextComponent> newlist = new ArrayList<>();
-            newlist.add(new StringTextComponent("Click: ").withStyle(TextFormatting.GREEN)
-                    .append(new StringTextComponent("craft single").withStyle(TextFormatting.WHITE)));
-            newlist.add(new StringTextComponent("Shift + click: ").withStyle(TextFormatting.GREEN)
-                    .append(new StringTextComponent("craft amount").withStyle(TextFormatting.WHITE)));
-            newlist.add(new StringTextComponent(""));
+            List<Component> newlist = new ArrayList<>();
+            newlist.add(new TextComponent("Click: ").withStyle(ChatFormatting.GREEN)
+                    .append(new TextComponent("craft single").withStyle(ChatFormatting.WHITE)));
+            newlist.add(new TextComponent("Shift + click: ").withStyle(ChatFormatting.GREEN)
+                    .append(new TextComponent("craft amount").withStyle(ChatFormatting.WHITE)));
+            newlist.add(new TextComponent(""));
             newlist.addAll(oldList);
             return newlist;
         } else {
@@ -244,7 +244,7 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
     }
 
     @Override
-    protected void renderBg(@Nonnull MatrixStack matrixStack, float partialTicks, int mouseX, int mouseY) {
+    protected void renderBg(@Nonnull PoseStack matrixStack, float partialTicks, int mouseX, int mouseY) {
         requestListsIfNeeded();
         updateRecipeList();
         updateRequestList();

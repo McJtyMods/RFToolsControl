@@ -4,14 +4,14 @@ import mcjty.lib.blocks.BaseBlock;
 import mcjty.lib.builder.BlockBuilder;
 import mcjty.rftoolsbase.tools.ManualHelper;
 import mcjty.rftoolscontrol.compat.RFToolsControlTOPDriver;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.IWorldReader;
-import net.minecraft.world.World;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.Direction;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.Level;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -31,30 +31,30 @@ public class ProcessorBlock extends BaseBlock {
     }
 
     @Override
-    public void neighborChanged(@Nonnull BlockState state, @Nonnull World world, @Nonnull BlockPos pos, @Nonnull Block blockIn, @Nonnull BlockPos fromPos, boolean isMoving) {
+    public void neighborChanged(@Nonnull BlockState state, @Nonnull Level world, @Nonnull BlockPos pos, @Nonnull Block blockIn, @Nonnull BlockPos fromPos, boolean isMoving) {
         super.neighborChanged(state, world, pos, blockIn, fromPos, isMoving);
-        TileEntity te = world.getBlockEntity(pos);
+        BlockEntity te = world.getBlockEntity(pos);
         if (te instanceof ProcessorTileEntity) {
             ((ProcessorTileEntity) te).markFluidSlotsDirty();
         }
     }
 
     @Override
-    public void onNeighborChange(BlockState state, IWorldReader world, BlockPos pos, BlockPos neighbor) {
-        TileEntity te = world.getBlockEntity(pos);
+    public void onNeighborChange(BlockState state, LevelReader world, BlockPos pos, BlockPos neighbor) {
+        BlockEntity te = world.getBlockEntity(pos);
         if (te instanceof ProcessorTileEntity) {
             ((ProcessorTileEntity) te).markFluidSlotsDirty();
         }
     }
 
-    private int getInputStrength(World world, BlockPos pos, Direction side) {
+    private int getInputStrength(Level world, BlockPos pos, Direction side) {
         return world.getSignal(pos.relative(side), side);
     }
 
     @Override
-    protected void checkRedstone(World world, BlockPos pos) {
+    protected void checkRedstone(Level world, BlockPos pos) {
         BlockState state = world.getBlockState(pos);
-        TileEntity te = world.getBlockEntity(pos);
+        BlockEntity te = world.getBlockEntity(pos);
         if (state.getBlock() instanceof ProcessorBlock && te instanceof ProcessorTileEntity) {
             ProcessorTileEntity processor = (ProcessorTileEntity)te;
             int powered = 0;
@@ -81,13 +81,13 @@ public class ProcessorBlock extends BaseBlock {
     }
 
     @Override
-    public boolean canConnectRedstone(BlockState state, IBlockReader world, BlockPos pos, @Nullable Direction side) {
+    public boolean canConnectRedstone(BlockState state, BlockGetter world, BlockPos pos, @Nullable Direction side) {
         return true;
     }
 
     @Override
-    public int getSignal(BlockState state, IBlockReader world, @Nonnull BlockPos pos, @Nonnull Direction side) {
-        TileEntity te = world.getBlockEntity(pos);
+    public int getSignal(BlockState state, BlockGetter world, @Nonnull BlockPos pos, @Nonnull Direction side) {
+        BlockEntity te = world.getBlockEntity(pos);
         if (state.getBlock() instanceof ProcessorBlock && te instanceof ProcessorTileEntity) {
             ProcessorTileEntity processor = (ProcessorTileEntity) te;
             return processor.getPowerOut(side.getOpposite());

@@ -10,13 +10,13 @@ import mcjty.rftoolscontrol.modules.processor.client.GuiProcessor;
 import mcjty.rftoolscontrol.modules.processor.client.ProcessorRenderer;
 import mcjty.rftoolscontrol.modules.processor.items.*;
 import mcjty.rftoolscontrol.setup.Registration;
-import net.minecraft.inventory.container.ContainerType;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.Item;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraftforge.fml.RegistryObject;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.registries.RegistryObject;
 
 import static mcjty.rftoolscontrol.setup.Registration.*;
 
@@ -24,9 +24,9 @@ public class ProcessorModule implements IModule {
 
     public static final RegistryObject<BaseBlock> PROCESSOR = BLOCKS.register("processor", ProcessorBlock::new);
     public static final RegistryObject<Item> PROCESSOR_ITEM = ITEMS.register("processor", () -> new BlockItem(PROCESSOR.get(), Registration.createStandardProperties()));
-    public static final RegistryObject<TileEntityType<ProcessorTileEntity>> PROCESSOR_TILE = TILES.register("processor", () -> TileEntityType.Builder.of(ProcessorTileEntity::new, PROCESSOR.get()).build(null));
-    public static final RegistryObject<ContainerType<ProcessorContainer>> PROCESSOR_CONTAINER = CONTAINERS.register("processor", GenericContainer::createContainerType);
-    public static final RegistryObject<ContainerType<ProcessorContainer>> PROCESSOR_CONTAINER_REMOTE = CONTAINERS.register("processor_remote",
+    public static final RegistryObject<BlockEntityType<ProcessorTileEntity>> PROCESSOR_TILE = TILES.register("processor", () -> BlockEntityType.Builder.of(ProcessorTileEntity::new, PROCESSOR.get()).build(null));
+    public static final RegistryObject<MenuType<ProcessorContainer>> PROCESSOR_CONTAINER = CONTAINERS.register("processor", GenericContainer::createContainerType);
+    public static final RegistryObject<MenuType<ProcessorContainer>> PROCESSOR_CONTAINER_REMOTE = CONTAINERS.register("processor_remote",
             () -> GenericContainer.createRemoteContainerType(ProcessorTileEntity::new, ProcessorContainer::createRemote, ProcessorContainer.SLOTS));
 
     public static final RegistryObject<CPUCoreItem> CPU_CORE_500 = ITEMS.register("cpu_core_500", () -> new CPUCoreItem(0));

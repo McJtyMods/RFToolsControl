@@ -1,11 +1,10 @@
 package mcjty.rftoolscontrol.modules.processor.logic.grid;
 
 import com.google.gson.*;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.INBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraftforge.common.util.Constants;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.world.item.ItemStack;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -42,21 +41,21 @@ public class ProgramCardInstance {
     }
 
     public static ProgramCardInstance parseInstance(ItemStack card) {
-        CompoundNBT tagCompound = card.getTag();
+        CompoundTag tagCompound = card.getTag();
         if (tagCompound == null) {
             return null;
         }
         ProgramCardInstance instance = new ProgramCardInstance();
 
-        ListNBT grid = tagCompound.getList("grid", Constants.NBT.TAG_COMPOUND);
-        for (INBT inbt : grid) {
-            CompoundNBT gridElement = (CompoundNBT) inbt;
+        ListTag grid = tagCompound.getList("grid", Tag.TAG_COMPOUND);
+        for (Tag inbt : grid) {
+            CompoundTag gridElement = (CompoundTag) inbt;
             parseElement(gridElement, instance);
         }
         return instance;
     }
 
-    private static void parseElement(CompoundNBT tag, ProgramCardInstance instance) {
+    private static void parseElement(CompoundTag tag, ProgramCardInstance instance) {
         int x = tag.getInt("x");
         int y = tag.getInt("y");
         GridInstance gi = GridInstance.readFromNBT(tag);
@@ -109,15 +108,15 @@ public class ProgramCardInstance {
     }
 
     public void writeToNBT(ItemStack card) {
-        CompoundNBT tagCompound = card.getOrCreateTag();
-        ListNBT grid = new ListNBT();
+        CompoundTag tagCompound = card.getOrCreateTag();
+        ListTag grid = new ListTag();
 
         for (Map.Entry<GridPos, GridInstance> entry : gridInstances.entrySet()) {
             GridPos coordinate = entry.getKey();
             int x = coordinate.getX();
             int y = coordinate.getY();
             GridInstance gridInstance = entry.getValue();
-            CompoundNBT tag = gridInstance.writeToNBT(x, y);
+            CompoundTag tag = gridInstance.writeToNBT(x, y);
             grid.add(tag);
         }
 

@@ -8,8 +8,8 @@ import mcjty.rftoolsbase.api.control.parameters.BlockSide;
 import mcjty.rftoolsbase.api.control.parameters.ParameterType;
 import mcjty.rftoolsbase.api.control.parameters.ParameterValue;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.util.Direction;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.core.Direction;
 import org.apache.commons.lang3.StringUtils;
 
 import static mcjty.lib.gui.widgets.Widgets.vertical;

@@ -2,7 +2,7 @@ package mcjty.rftoolscontrol.compat.rftoolssupport;
 
 import mcjty.rftoolsbase.api.screens.data.IModuleData;
 import mcjty.rftoolscontrol.RFToolsControl;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.network.FriendlyByteBuf;
 
 import java.util.List;
 
@@ -26,7 +26,7 @@ public class ModuleDataLog implements IModuleData {
     }
 
     @Override
-    public void writeToBuf(PacketBuffer buf) {
+    public void writeToBuf(FriendlyByteBuf buf) {
         if (log == null) {
             buf.writeInt(0);
             return;

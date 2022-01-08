@@ -10,8 +10,10 @@ import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.rftoolscontrol.modules.multitank.MultiTankModule;
 import mcjty.rftoolscontrol.modules.multitank.util.MultiTankFluidProperties;
 import mcjty.rftoolscontrol.modules.multitank.util.MultiTankHandler;
-import net.minecraft.inventory.container.INamedContainerProvider;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fluids.FluidStack;
 
@@ -33,12 +35,12 @@ public class MultiTankTileEntity extends GenericTileEntity {
     private final LazyOptional<MultiTankHandler> fluidHandler = LazyOptional.of(this::createFluidHandler);
 
     @Cap(type = CapType.CONTAINER)
-    private final LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<GenericContainer>("Multi tank")
+    private final LazyOptional<MenuProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<GenericContainer>("Multi tank")
             .containerSupplier(empty(MULTITANK_CONTAINER, this))
             .setupSync(this));
 
-    public MultiTankTileEntity() {
-        super(MultiTankModule.MULTITANK_TILE.get());
+    public MultiTankTileEntity(BlockPos pos, BlockState state) {
+        super(MultiTankModule.MULTITANK_TILE.get(), pos, state);
         for (int i = 0 ; i < TANKS ; i++) {
             properties[i] = new MultiTankFluidProperties(this, FluidStack.EMPTY, MAXCAPACITY);
         }
@@ -49,22 +51,22 @@ public class MultiTankTileEntity extends GenericTileEntity {
     }
 
     @Override
-    protected void loadInfo(CompoundNBT tagCompound) {
+    protected void loadInfo(CompoundTag tagCompound) {
         super.loadInfo(tagCompound);
-        CompoundNBT info = tagCompound.getCompound("Info");
+        CompoundTag info = tagCompound.getCompound("Info");
         for (int i = 0 ; i < TANKS ; i++) {
             properties[i] = new MultiTankFluidProperties(this, FluidStack.loadFluidStackFromNBT(info.getCompound("f" + i)), MAXCAPACITY);
         }
     }
 
     @Override
-    protected void saveInfo(CompoundNBT tagCompound) {
+    protected void saveInfo(CompoundTag tagCompound) {
         super.saveInfo(tagCompound);
-        CompoundNBT info = getOrCreateInfo(tagCompound);
+        CompoundTag info = getOrCreateInfo(tagCompound);
         for (int i = 0 ; i < TANKS ; i++) {
             FluidStack contents = properties[i].getContents();
             if (!contents.isEmpty()) {
-                CompoundNBT tag = new CompoundNBT();
+                CompoundTag tag = new CompoundTag();
                 contents.writeToNBT(tag);
                 info.put("f" + i, tag);
             }

@@ -1,6 +1,6 @@
 package mcjty.rftoolscontrol.modules.programmer.client;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import mcjty.lib.base.StyleConfig;
 import mcjty.lib.container.GenericContainer;
 import mcjty.lib.gui.GenericGuiContainer;
@@ -37,12 +37,12 @@ import mcjty.rftoolscontrol.modules.various.items.ProgramCardItem;
 import mcjty.rftoolscontrol.setup.Config;
 import mcjty.rftoolscontrol.setup.RFToolsCtrlMessages;
 import net.minecraft.client.Minecraft;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.container.ClickType;
-import net.minecraft.inventory.container.Slot;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.TextFormatting;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.ChatFormatting;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.lwjgl.glfw.GLFW;
@@ -117,7 +117,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Gen
         errorIcon2 = new ImageIcon("E2").setDimensions(ICONSIZE, ICONSIZE).setImage(icons, 2 * ICONSIZE, 8 * ICONSIZE);
     }
 
-    public GuiProgrammer(ProgrammerTileEntity te, GenericContainer container, PlayerInventory inventory) {
+    public GuiProgrammer(ProgrammerTileEntity te, GenericContainer container, Inventory inventory) {
         super(te, container, inventory, ProgrammerModule.PROGRAMMER.get().getManualEntry());
 
         imageWidth = WIDTH;
@@ -241,23 +241,23 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Gen
         if (SafeClientTools.isCtrlKeyDown()) {
             List<String> tooltips = new ArrayList<>();
             if (Config.tooltipVerbosityLevel.get() >= 2) {
-                tooltips.add(TextFormatting.GREEN + "Ctrl-Click to add or remove selection");
-                tooltips.add(TextFormatting.GREEN + "Ctrl-Double click to (de)select sequence");
-                tooltips.add(TextFormatting.YELLOW + "Ctrl-A to select entire grid");
-                tooltips.add(TextFormatting.YELLOW + "Ctrl-C to copy selected grid");
-                tooltips.add(TextFormatting.YELLOW + "Ctrl-X to cut selected grid");
-                tooltips.add(TextFormatting.YELLOW + "Ctrl-V to paste to selected grid");
-                tooltips.add(TextFormatting.YELLOW + "Ctrl-Z undo last paste operation");
+                tooltips.add(ChatFormatting.GREEN + "Ctrl-Click to add or remove selection");
+                tooltips.add(ChatFormatting.GREEN + "Ctrl-Double click to (de)select sequence");
+                tooltips.add(ChatFormatting.YELLOW + "Ctrl-A to select entire grid");
+                tooltips.add(ChatFormatting.YELLOW + "Ctrl-C to copy selected grid");
+                tooltips.add(ChatFormatting.YELLOW + "Ctrl-X to cut selected grid");
+                tooltips.add(ChatFormatting.YELLOW + "Ctrl-V to paste to selected grid");
+                tooltips.add(ChatFormatting.YELLOW + "Ctrl-Z undo last paste operation");
             } else if (Config.tooltipVerbosityLevel.get() >= 1) {
-                tooltips.add(TextFormatting.GREEN + "Use Ctrl with A, C, X, V or Z");
+                tooltips.add(ChatFormatting.GREEN + "Use Ctrl with A, C, X, V or Z");
             }
             return tooltips;
         } else if (prevHighlightConnector != null) {
             List<String> tooltips = new ArrayList<>();
             if (Config.doubleClickToChangeConnector.get()) {
-                tooltips.add(TextFormatting.GREEN + "Double click to change connector");
+                tooltips.add(ChatFormatting.GREEN + "Double click to change connector");
             } else {
-                tooltips.add(TextFormatting.GREEN + "Click to change connector");
+                tooltips.add(ChatFormatting.GREEN + "Click to change connector");
             }
             return tooltips;
         } else {
@@ -738,11 +738,11 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Gen
             int x = entry.getKey().getX() - leftTop.getX() + posx;
             int y = entry.getKey().getY() - leftTop.getY() + posy;
             if (!checkValidGridPos(new GridPos(x, y))) {
-                GuiTools.showMessage(minecraft, this, getWindowManager(), 50, 50, TextFormatting.RED + "No room for clipboard here!");
+                GuiTools.showMessage(minecraft, this, getWindowManager(), 50, 50, ChatFormatting.RED + "No room for clipboard here!");
                 return;
             }
             if (getHolder(x, y).getIcon() != null) {
-                GuiTools.showMessage(minecraft, this, getWindowManager(), 50, 50, TextFormatting.RED + "No room for clipboard here!");
+                GuiTools.showMessage(minecraft, this, getWindowManager(), 50, 50, ChatFormatting.RED + "No room for clipboard here!");
                 return;
             }
         }
@@ -796,24 +796,24 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Gen
                 .desiredHeight(14)
                 .border(1)
                 .borderColor(0xffff0000)
-                .tooltips(TextFormatting.YELLOW + "Delete opcode", "Drop opcodes here to", "delete them")
+                .tooltips(ChatFormatting.YELLOW + "Delete opcode", "Drop opcodes here to", "delete them")
                 .selectable(false);
         return horizontal(1, 2).hint(108, 136, 145, 18)
                 .children(
                         button("Load")
-                                .tooltips(TextFormatting.YELLOW + "Load program", "Load the current program", "from a program card")
+                                .tooltips(ChatFormatting.YELLOW + "Load program", "Load the current program", "from a program card")
                                 .desiredHeight(15).event(() -> loadProgram(ProgrammerTileEntity.SLOT_CARD)),
                         button("Save")
-                                .tooltips(TextFormatting.YELLOW + "Save program",
+                                .tooltips(ChatFormatting.YELLOW + "Save program",
                                         "Save the current program",
                                         "to a program card",
-                                        TextFormatting.GREEN + "Press shift to change name")
+                                        ChatFormatting.GREEN + "Press shift to change name")
                                 .desiredHeight(15).event(() -> askNameAndSave(ProgrammerTileEntity.SLOT_CARD)),
                         button("Clear")
-                                .tooltips(TextFormatting.YELLOW + "Clear program", "Remove all opcodes on the grid", "(press Ctrl-Z if this was a mistake)")
+                                .tooltips(ChatFormatting.YELLOW + "Clear program", "Remove all opcodes on the grid", "(press Ctrl-Z if this was a mistake)")
                                 .desiredHeight(15).event(this::clearProgram),
                         button("Val")
-                                .tooltips(TextFormatting.YELLOW + "Validate program", "Perform some basic validations on", "the current program", "Double click on error", "to highlight opcode")
+                                .tooltips(ChatFormatting.YELLOW + "Validate program", "Perform some basic validations on", "the current program", "Double click on error", "to highlight opcode")
                                 .desiredHeight(15)
                                 .event(this::validateProgram),
                         trashcan);
@@ -932,14 +932,14 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Gen
                 selectAll();
             } else if (keyCode == GLFW.GLFW_KEY_C) {
                 if (!checkSelection()) {
-                    GuiTools.showMessage(minecraft, this, getWindowManager(), 50, 50, TextFormatting.RED + "Nothing is selected!");
+                    GuiTools.showMessage(minecraft, this, getWindowManager(), 50, 50, ChatFormatting.RED + "Nothing is selected!");
                 } else {
                     ProgramCardInstance instance = makeGridInstance(true);
                     String json = instance.writeToJson();
                     try {
                         this.minecraft.keyboardHandler.setClipboard(json);
                     } catch (Exception e) {
-                        GuiTools.showMessage(minecraft, this, getWindowManager(), 50, 50, TextFormatting.RED + "Error copying to clipboard!");
+                        GuiTools.showMessage(minecraft, this, getWindowManager(), 50, 50, ChatFormatting.RED + "Error copying to clipboard!");
                     }
                 }
                 return true;
@@ -953,7 +953,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Gen
                 return true;
             } else if (keyCode == GLFW.GLFW_KEY_X) {
                 if (!checkSelection()) {
-                    GuiTools.showMessage(minecraft, this, getWindowManager(), 50, 50, TextFormatting.RED + "Nothing is selected!");
+                    GuiTools.showMessage(minecraft, this, getWindowManager(), 50, 50, ChatFormatting.RED + "Nothing is selected!");
                 } else {
                     ProgramCardInstance instance = makeGridInstance(true);
                     String json = instance.writeToJson();
@@ -962,7 +962,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Gen
                         undoProgram = makeGridInstance(false);
                         clearGrid(checkSelection());
                     } catch (Exception e) {
-                        GuiTools.showMessage(minecraft, this, getWindowManager(), 50, 50, TextFormatting.RED + "Error copying to clipboard!");
+                        GuiTools.showMessage(minecraft, this, getWindowManager(), 50, 50, ChatFormatting.RED + "Error copying to clipboard!");
                     }
                 }
                 return true;
@@ -973,7 +973,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Gen
                     undoProgram = makeGridInstance(false);
                     mergeProgram(program, getSelectedGridHolder());
                 } catch (Exception e) {
-                    GuiTools.showMessage(minecraft, this, getWindowManager(), 50, 50, TextFormatting.RED + "Error reading from clipboard!");
+                    GuiTools.showMessage(minecraft, this, getWindowManager(), 50, 50, ChatFormatting.RED + "Error reading from clipboard!");
                 }
             }
         }
@@ -1024,20 +1024,20 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Gen
                     if (value != null) {
                         String s = ParameterTypeTools.stringRepresentation(parameter.getType(), value);
                         if (!s.isEmpty()) {
-                            tooltips.add(TextFormatting.BLUE + s);
+                            tooltips.add(ChatFormatting.BLUE + s);
                         }
                     }
                 }
             } else if (SafeClientTools.isSneaking()) {
-                tooltips.add(description.get(0) + TextFormatting.WHITE + " [" + x + "," + y + "]");
+                tooltips.add(description.get(0) + ChatFormatting.WHITE + " [" + x + "," + y + "]");
                 Map<String, Object> data = icon.getData() == null ? Collections.emptyMap() : icon.getData();
                 for (ParameterDescription parameter : opcode.getParameters()) {
                     String name = parameter.getName();
                     ParameterValue value = (ParameterValue) data.get(name);
                     if (value != null) {
-                        tooltips.add(TextFormatting.BLUE + "Par " + name + ": " + ParameterTypeTools.stringRepresentation(parameter.getType(), value));
+                        tooltips.add(ChatFormatting.BLUE + "Par " + name + ": " + ParameterTypeTools.stringRepresentation(parameter.getType(), value));
                     } else {
-                        tooltips.add(TextFormatting.BLUE + "Par " + name + ": NULL");
+                        tooltips.add(ChatFormatting.BLUE + "Par " + name + ": NULL");
                     }
                 }
             } else {
@@ -1061,18 +1061,18 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Gen
                     for (int i = 0; i < parameter.getDescription().size(); i++) {
                         String s = parameter.getDescription().get(i);
                         if (first) {
-                            s = TextFormatting.BLUE + "Par '" + parameter.getName() + "': " + s;
+                            s = ChatFormatting.BLUE + "Par '" + parameter.getName() + "': " + s;
                             first = false;
                         } else {
-                            s = TextFormatting.BLUE + "      " + s;
+                            s = ChatFormatting.BLUE + "      " + s;
                         }
                         if (parameter.isOptional() && i == parameter.getDescription().size() - 1) {
-                            s += TextFormatting.GOLD + " [Optional]";
+                            s += ChatFormatting.GOLD + " [Optional]";
                         }
                         tooltips.add(s);
                     }
                 }
-                tooltips.add(TextFormatting.YELLOW + "Result: " + opcode.getOutputDescription());
+                tooltips.add(ChatFormatting.YELLOW + "Result: " + opcode.getOutputDescription());
             } else {
                 tooltips.add(description.get(0));
                 tooltips.add("<Shift for more info>");
@@ -1099,10 +1099,10 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Gen
                 .desiredHeight(13);
         List<String> description = new ArrayList<>(parameter.getDescription());
         if (parameter.isOptional()) {
-            description.set(description.size() - 1, description.get(description.size() - 1) + TextFormatting.GOLD + " [Optional]");
+            description.set(description.size() - 1, description.get(description.size() - 1) + ChatFormatting.GOLD + " [Optional]");
         }
         if (tempDefault != null && !tempDefault.isEmpty()) {
-            description.add(TextFormatting.BLUE + tempDefault);
+            description.add(ChatFormatting.BLUE + tempDefault);
         }
 
         String[] tooltips = description.toArray(new String[description.size()]);
@@ -1192,7 +1192,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Gen
     private int saveCounter = 10;
 
     @Override
-    protected void renderBg(@Nonnull MatrixStack matrixStack, float partialTicks, int mouseX, int mouseY) {
+    protected void renderBg(@Nonnull PoseStack matrixStack, float partialTicks, int mouseX, int mouseY) {
         drawWindow(matrixStack);
 
         trashcan.setIcon(null);

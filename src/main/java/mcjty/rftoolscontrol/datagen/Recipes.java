@@ -7,9 +7,9 @@ import mcjty.rftoolscontrol.modules.multitank.MultiTankModule;
 import mcjty.rftoolscontrol.modules.processor.ProcessorModule;
 import mcjty.rftoolscontrol.modules.programmer.ProgrammerModule;
 import net.minecraft.data.DataGenerator;
-import net.minecraft.data.IFinishedRecipe;
-import net.minecraft.data.ShapedRecipeBuilder;
-import net.minecraft.item.Items;
+import net.minecraft.data.recipes.FinishedRecipe;
+import net.minecraft.data.recipes.ShapedRecipeBuilder;
+import net.minecraft.world.item.Items;
 import net.minecraftforge.common.Tags;
 
 import javax.annotation.Nonnull;
@@ -24,7 +24,7 @@ public class Recipes extends BaseRecipeProvider {
     }
 
     @Override
-    protected void buildShapelessRecipes(@Nonnull Consumer<IFinishedRecipe> consumer) {
+    protected void buildCraftingRecipes(@Nonnull Consumer<FinishedRecipe> consumer) {
         build(consumer, ShapedRecipeBuilder.shaped(ProcessorModule.ADVANCED_NETWORK_CARD.get())
                         .define('M', ProcessorModule.NETWORK_CARD.get())
                         .unlockedBy("network_card", has(ProcessorModule.NETWORK_CARD.get())),

@@ -18,12 +18,12 @@ public class LootTables extends BaseLootTableProvider {
 
     @Override
     protected void addTables() {
-        addStandardTable(ProcessorModule.PROCESSOR.get());
-        addStandardTable(ProgrammerModule.PROGRAMMER.get());
-        addStandardTable(VariousModule.WORKBENCH.get());
-        addStandardTable(VariousModule.NODE.get());
-        addStandardTable(MultiTankModule.MULTITANK.get());
-        addStandardTable(CraftingStationModule.CRAFTING_STATION.get());
+        addStandardTable(ProcessorModule.PROCESSOR.get(), ProcessorModule.PROCESSOR_TILE.get());
+        addStandardTable(ProgrammerModule.PROGRAMMER.get(), ProgrammerModule.PROGRAMMER_TILE.get());
+        addStandardTable(VariousModule.WORKBENCH.get(), VariousModule.WORKBENCH_TILE.get());
+        addStandardTable(VariousModule.NODE.get(), VariousModule.NODE_TILE.get());
+        addStandardTable(MultiTankModule.MULTITANK.get(), MultiTankModule.MULTITANK_TILE.get());
+        addStandardTable(CraftingStationModule.CRAFTING_STATION.get(), CraftingStationModule.CRAFTING_STATION_TILE.get());
     }
 
     @Nonnull

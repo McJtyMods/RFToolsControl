@@ -1,6 +1,7 @@
 package mcjty.rftoolscontrol.modules.processor.client;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Vector3f;
 import mcjty.lib.blocks.BaseBlock;
 import mcjty.lib.client.RenderHelper;
 import mcjty.lib.network.PacketGetListFromServer;
@@ -13,16 +14,15 @@ import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorTileEntity;
 import mcjty.rftoolscontrol.modules.processor.network.PacketGetLog;
 import mcjty.rftoolscontrol.modules.processor.vectorart.GfxOp;
 import mcjty.rftoolscontrol.setup.RFToolsCtrlMessages;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.tileentity.TileEntityRenderer;
-import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.vector.Vector3f;
-import net.minecraftforge.fml.client.registry.ClientRegistry;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
+import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -30,14 +30,13 @@ import java.util.List;
 import static mcjty.rftoolscontrol.modules.processor.blocks.ProcessorTileEntity.*;
 
 
-public class ProcessorRenderer extends TileEntityRenderer<ProcessorTileEntity> {
+public class ProcessorRenderer implements BlockEntityRenderer<ProcessorTileEntity> {
 
-    public ProcessorRenderer(TileEntityRendererDispatcher rendererDispatcherIn) {
-        super(rendererDispatcherIn);
+    public ProcessorRenderer(BlockEntityRendererProvider.Context context) {
     }
 
     @Override
-    public void render(ProcessorTileEntity te, float partialTicks, @Nonnull MatrixStack matrixStack, @Nonnull IRenderTypeBuffer buffer, int combinedLightIn, int combinedOverlayIn) {
+    public void render(ProcessorTileEntity te, float partialTicks, @Nonnull PoseStack matrixStack, @Nonnull MultiBufferSource buffer, int combinedLightIn, int combinedOverlayIn) {
         if (te.getShowHud() == HUD_OFF) {
             return;
         }
@@ -82,7 +81,7 @@ public class ProcessorRenderer extends TileEntityRenderer<ProcessorTileEntity> {
         matrixStack.popPose();
     }
 
-    private void renderHud(MatrixStack matrixStack, IRenderTypeBuffer buffer, FontRenderer fontrenderer, ProcessorTileEntity tileEntity) {
+    private void renderHud(PoseStack matrixStack, MultiBufferSource buffer, Font fontrenderer, ProcessorTileEntity tileEntity) {
         float f3;
         float factor = 0 + 1.0f;
         int currenty = 7;
@@ -100,12 +99,12 @@ public class ProcessorRenderer extends TileEntityRenderer<ProcessorTileEntity> {
         }
     }
 
-    private void renderLog(MatrixStack matrixStack, IRenderTypeBuffer buffer, FontRenderer fontrenderer, ProcessorTileEntity tileEntity, int currenty) {
+    private void renderLog(PoseStack matrixStack, MultiBufferSource buffer, Font fontrenderer, ProcessorTileEntity tileEntity, int currenty) {
         List<String> log = tileEntity.getShowHud() == HUD_DB ? tileEntity.getClientDebugLog() : tileEntity.getClientLog();
         long t = System.currentTimeMillis();
         if (t - tileEntity.clientTime > 250) {
             if (tileEntity.getShowHud() == HUD_DB) {
-                RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketGetListFromServer(tileEntity.getBlockPos(), CMD_GETDEBUGLOG.getName()));
+                RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketGetListFromServer(tileEntity.getBlockPos(), CMD_GETDEBUGLOG.name()));
             } else {
                 RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketGetLog(tileEntity.getDimension(), tileEntity.getBlockPos(), false));
             }
@@ -128,7 +127,7 @@ public class ProcessorRenderer extends TileEntityRenderer<ProcessorTileEntity> {
         }
     }
 
-    private void renderGfx(MatrixStack matrixStack, IRenderTypeBuffer buffer, ProcessorTileEntity tileEntity) {
+    private void renderGfx(PoseStack matrixStack, MultiBufferSource buffer, ProcessorTileEntity tileEntity) {
         long t = System.currentTimeMillis();
         if (t - tileEntity.clientTime > 250) {
             RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketSendServerCommand(RFToolsControl.MODID, CommandHandler.CMD_GETGRAPHICS,
@@ -144,6 +143,6 @@ public class ProcessorRenderer extends TileEntityRenderer<ProcessorTileEntity> {
     }
 
     public static void register() {
-        ClientRegistry.bindTileEntityRenderer(ProcessorModule.PROCESSOR_TILE.get(), ProcessorRenderer::new);
+        BlockEntityRenderers.register(ProcessorModule.PROCESSOR_TILE.get(), ProcessorRenderer::new);
     }
 }

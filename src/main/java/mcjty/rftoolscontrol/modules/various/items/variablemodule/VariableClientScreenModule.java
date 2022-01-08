@@ -1,17 +1,19 @@
 package mcjty.rftoolscontrol.modules.various.items.variablemodule;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.platform.GlStateManager;
 import mcjty.rftoolsbase.api.screens.*;
 import mcjty.rftoolscontrol.compat.rftoolssupport.ModuleDataVariable;
 import mcjty.rftoolscontrol.modules.processor.logic.Parameter;
 import mcjty.rftoolscontrol.modules.processor.logic.TypeConverters;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.RegistryKey;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
+
+import mcjty.rftoolsbase.api.screens.IClientScreenModule.TransformMode;
 
 public class VariableClientScreenModule implements IClientScreenModule<ModuleDataVariable> {
     private String line = "";
@@ -30,12 +32,12 @@ public class VariableClientScreenModule implements IClientScreenModule<ModuleDat
     }
 
     @Override
-    public void render(MatrixStack matrixStack, IRenderTypeBuffer buffer, IModuleRenderHelper renderHelper, FontRenderer fontRenderer, int currenty, ModuleDataVariable screenData, ModuleRenderInfo renderInfo) {
+    public void render(PoseStack matrixStack, MultiBufferSource buffer, IModuleRenderHelper renderHelper, Font fontRenderer, int currenty, ModuleDataVariable screenData, ModuleRenderInfo renderInfo) {
         if (labelCache == null) {
             labelCache = renderHelper.createTextRenderHelper().align(textAlign);
         }
 
-        GlStateManager._disableLighting();
+//        GlStateManager._disableLighting();    // @todo 1.18
         int xoffset;
         if (!line.isEmpty()) {
             labelCache.setup(line, 160, renderInfo);
@@ -56,12 +58,12 @@ public class VariableClientScreenModule implements IClientScreenModule<ModuleDat
     }
 
     @Override
-    public void mouseClick(World world, int x, int y, boolean clicked) {
+    public void mouseClick(Level world, int x, int y, boolean clicked) {
 
     }
 
     @Override
-    public void setupFromNBT(CompoundNBT tagCompound, RegistryKey<World> dim, BlockPos pos) {
+    public void setupFromNBT(CompoundTag tagCompound, ResourceKey<Level> dim, BlockPos pos) {
         if (tagCompound != null) {
             int varIdx = -1;
             if (tagCompound.contains("varIdx")) {

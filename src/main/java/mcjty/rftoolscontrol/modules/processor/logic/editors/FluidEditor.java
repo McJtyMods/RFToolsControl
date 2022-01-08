@@ -8,8 +8,8 @@ import mcjty.lib.gui.widgets.Widgets;
 import mcjty.rftoolsbase.api.control.parameters.ParameterType;
 import mcjty.rftoolsbase.api.control.parameters.ParameterValue;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.item.ItemStack;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 
@@ -36,7 +36,7 @@ public class FluidEditor extends AbstractParameterEditor {
         blockRender.event(new BlockRenderEvent() {
             @Override
             public void select() {
-                ItemStack holding = Minecraft.getInstance().player.inventory.getCarried();
+                ItemStack holding = Minecraft.getInstance().player.containerMenu.getCarried();
                 if (holding.isEmpty()) {
                     blockRender.renderItem(null);
                 } else {
@@ -58,8 +58,7 @@ public class FluidEditor extends AbstractParameterEditor {
         if (renderItem instanceof ItemStack) {
             FluidStack fluidStack = stackToFluid((ItemStack) renderItem);
             return ParameterValue.constant(fluidStack);
-        } else if (renderItem instanceof FluidStack) {
-            FluidStack stack = (FluidStack) renderItem;
+        } else if (renderItem instanceof FluidStack stack) {
             return ParameterValue.constant(stack);
         }
         return ParameterValue.constant(null);

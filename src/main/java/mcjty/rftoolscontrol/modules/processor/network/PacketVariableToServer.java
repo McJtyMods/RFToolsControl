@@ -6,21 +6,21 @@ import mcjty.rftoolsbase.api.control.parameters.ParameterValue;
 import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorTileEntity;
 import mcjty.rftoolscontrol.modules.processor.logic.Parameter;
 import mcjty.rftoolscontrol.modules.processor.logic.ParameterTypeTools;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.BlockPos;
+import net.minecraftforge.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
 public class PacketVariableToServer {
     private BlockPos pos;
     private int varIndex;
-    private CompoundNBT tagCompound;
+    private CompoundTag tagCompound;
 
-    public void toBytes(PacketBuffer buf) {
+    public void toBytes(FriendlyByteBuf buf) {
         buf.writeBlockPos(pos);
         buf.writeInt(varIndex);
         buf.writeNbt(tagCompound);
@@ -29,13 +29,13 @@ public class PacketVariableToServer {
     public PacketVariableToServer() {
     }
 
-    public PacketVariableToServer(PacketBuffer buf) {
+    public PacketVariableToServer(FriendlyByteBuf buf) {
         pos = buf.readBlockPos();
         varIndex = buf.readInt();
         tagCompound = buf.readNbt();
     }
 
-    public PacketVariableToServer(BlockPos pos, int varIndex, CompoundNBT tagCompound) {
+    public PacketVariableToServer(BlockPos pos, int varIndex, CompoundTag tagCompound) {
         this.pos = pos;
         this.varIndex = varIndex;
         this.tagCompound = tagCompound;
@@ -44,8 +44,8 @@ public class PacketVariableToServer {
     public void handle(Supplier<NetworkEvent.Context> supplier) {
         NetworkEvent.Context ctx = supplier.get();
         ctx.enqueueWork(() -> {
-            PlayerEntity playerEntity = ctx.getSender();
-            TileEntity te = playerEntity.getCommandSenderWorld().getBlockEntity(pos);
+            Player playerEntity = ctx.getSender();
+            BlockEntity te = playerEntity.getCommandSenderWorld().getBlockEntity(pos);
             if (te instanceof ProcessorTileEntity) {
                 ProcessorTileEntity processor = (ProcessorTileEntity) te;
                 Parameter[] variables = processor.getVariableArray();

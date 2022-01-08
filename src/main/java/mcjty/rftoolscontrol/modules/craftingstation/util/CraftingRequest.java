@@ -2,8 +2,8 @@ package mcjty.rftoolscontrol.modules.craftingstation.util;
 
 import mcjty.lib.blockcommands.ISerializer;
 import mcjty.lib.network.NetworkTools;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.network.FriendlyByteBuf;
 
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -17,7 +17,7 @@ public class CraftingRequest {
 
     public static class Serializer implements ISerializer<CraftingRequest> {
         @Override
-        public Function<PacketBuffer, CraftingRequest> getDeserializer() {
+        public Function<FriendlyByteBuf, CraftingRequest> getDeserializer() {
             return buf -> {
                 String id = buf.readUtf(32767);
                 ItemStack stack1 = NetworkTools.readItemStack(buf);
@@ -30,7 +30,7 @@ public class CraftingRequest {
         }
 
         @Override
-        public BiConsumer<PacketBuffer, CraftingRequest> getSerializer() {
+        public BiConsumer<FriendlyByteBuf, CraftingRequest> getSerializer() {
             return (buf, item) -> {
                 buf.writeUtf(item.getTicket());
                 NetworkTools.writeItemStack(buf, item.getStack());

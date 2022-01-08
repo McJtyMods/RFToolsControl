@@ -1,35 +1,35 @@
 package mcjty.rftoolscontrol.modules.processor.vectorart;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.PacketBuffer;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
 
 public abstract class GfxOp {
 
-    public abstract void render(MatrixStack matrixStack, IRenderTypeBuffer buffer);
+    public abstract void render(PoseStack matrixStack, MultiBufferSource buffer);
 
     public abstract GfxOpType getType();
 
-    public static GfxOp readFromNBT(CompoundNBT tag) {
+    public static GfxOp readFromNBT(CompoundTag tag) {
         GfxOpType type = GfxOpType.values()[tag.getByte("type")];
         GfxOp op = createGfxOp(type);
         op.readFromNBTInternal(tag);
         return op;
     }
 
-    public CompoundNBT writeToNBT() {
-        CompoundNBT tag = new CompoundNBT();
+    public CompoundTag writeToNBT() {
+        CompoundTag tag = new CompoundTag();
         tag.putByte("type", (byte) getType().ordinal());
         writeToNBTInternal(tag);
         return tag;
     }
 
-    protected abstract void readFromNBTInternal(CompoundNBT tag);
+    protected abstract void readFromNBTInternal(CompoundTag tag);
 
-    protected abstract void writeToNBTInternal(CompoundNBT tag);
+    protected abstract void writeToNBTInternal(CompoundTag tag);
 
-    public static GfxOp readFromBuf(PacketBuffer buf) {
+    public static GfxOp readFromBuf(FriendlyByteBuf buf) {
         GfxOpType type = GfxOpType.values()[buf.readByte()];
         GfxOp op = createGfxOp(type);
         op.readFromBufInternal(buf);
@@ -52,14 +52,14 @@ public abstract class GfxOp {
         return op;
     }
 
-    public void writeToBuf(PacketBuffer buf) {
+    public void writeToBuf(FriendlyByteBuf buf) {
         buf.writeByte(getType().ordinal());
         writeToBufInternal(buf);
     }
 
-    protected abstract void readFromBufInternal(PacketBuffer buf);
+    protected abstract void readFromBufInternal(FriendlyByteBuf buf);
 
-    protected abstract void writeToBufInternal(PacketBuffer buf);
+    protected abstract void writeToBufInternal(FriendlyByteBuf buf);
 
 
 }

@@ -9,15 +9,15 @@ import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.LevelTools;
 import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorTileEntity;
 import mcjty.rftoolscontrol.setup.RFToolsCtrlMessages;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.RegistryKey;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fml.network.NetworkDirection;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraftforge.network.NetworkDirection;
+import net.minecraftforge.network.NetworkEvent;
 
 import java.util.List;
 import java.util.function.BiConsumer;
@@ -27,25 +27,25 @@ import java.util.function.Supplier;
 public class PacketGetFluids {
 
     private BlockPos pos;
-    private RegistryKey<World> type;
+    private ResourceKey<Level> type;
     private TypedMap params;
     private boolean fromTablet;
 
-    public PacketGetFluids(PacketBuffer buf) {
+    public PacketGetFluids(FriendlyByteBuf buf) {
         pos = buf.readBlockPos();
         type = LevelTools.getId(buf.readResourceLocation());
         params = TypedMapTools.readArguments(buf);
         fromTablet = buf.readBoolean();
     }
 
-    public PacketGetFluids(BlockPos pos, RegistryKey<World> type, boolean fromTablet) {
+    public PacketGetFluids(BlockPos pos, ResourceKey<Level> type, boolean fromTablet) {
         this.pos = pos;
         this.type = type;
         this.params = TypedMap.EMPTY;
         this.fromTablet = fromTablet;
     }
 
-    public void toBytes(PacketBuffer buf) {
+    public void toBytes(FriendlyByteBuf buf) {
         buf.writeBlockPos(pos);
         buf.writeResourceLocation(type.location());
         TypedMapTools.writeArguments(buf, params);
@@ -55,12 +55,12 @@ public class PacketGetFluids {
     public void handle(Supplier<NetworkEvent.Context> supplier) {
         NetworkEvent.Context ctx = supplier.get();
         ctx.enqueueWork(() -> {
-            ServerWorld world = LevelTools.getLevel(ctx.getSender().getCommandSenderWorld(), type);
+            ServerLevel world = LevelTools.getLevel(ctx.getSender().getCommandSenderWorld(), type);
             if (world.hasChunkAt(pos)) {
-                TileEntity te = world.getBlockEntity(pos);
+                BlockEntity te = world.getBlockEntity(pos);
                 if (te instanceof GenericTileEntity) {
-                    List<FluidEntry> list = ((GenericTileEntity) te).executeServerCommandList(ProcessorTileEntity.CMD_GETFLUIDS.getName(), ctx.getSender(), params, FluidEntry.class);
-                    RFToolsCtrlMessages.INSTANCE.sendTo(new PacketFluidsReady(fromTablet ? null : pos, ProcessorTileEntity.CMD_GETFLUIDS.getName(), list), ctx.getSender().connection.connection, NetworkDirection.PLAY_TO_CLIENT);
+                    List<FluidEntry> list = ((GenericTileEntity) te).executeServerCommandList(ProcessorTileEntity.CMD_GETFLUIDS.name(), ctx.getSender(), params, FluidEntry.class);
+                    RFToolsCtrlMessages.INSTANCE.sendTo(new PacketFluidsReady(fromTablet ? null : pos, ProcessorTileEntity.CMD_GETFLUIDS.name(), list), ctx.getSender().connection.connection, NetworkDirection.PLAY_TO_CLIENT);
                 }
             }
         });
@@ -73,12 +73,12 @@ public class PacketGetFluids {
 
         public static class Serializer implements ISerializer<FluidEntry> {
             @Override
-            public Function<PacketBuffer, FluidEntry> getDeserializer() {
+            public Function<FriendlyByteBuf, FluidEntry> getDeserializer() {
                 return FluidEntry::fromPacket;
             }
 
             @Override
-            public BiConsumer<PacketBuffer, FluidEntry> getSerializer() {
+            public BiConsumer<FriendlyByteBuf, FluidEntry> getSerializer() {
                 return FluidEntry::toPacket;
             }
         }
@@ -88,7 +88,7 @@ public class PacketGetFluids {
             this.allocated = allocated;
         }
 
-        public static FluidEntry fromPacket(PacketBuffer buf) {
+        public static FluidEntry fromPacket(FriendlyByteBuf buf) {
             if (buf.readBoolean()) {
                 FluidStack fluidStack = null;
                 if (buf.readBoolean()) {
@@ -102,7 +102,7 @@ public class PacketGetFluids {
             }
         }
 
-        public static void toPacket(PacketBuffer buf, FluidEntry item) {
+        public static void toPacket(FriendlyByteBuf buf, FluidEntry item) {
             if (item == null) {
                 buf.writeBoolean(false);
             } else {

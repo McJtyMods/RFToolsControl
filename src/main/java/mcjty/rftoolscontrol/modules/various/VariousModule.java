@@ -15,11 +15,11 @@ import mcjty.rftoolscontrol.modules.various.items.interactionmodule.InteractionM
 import mcjty.rftoolscontrol.modules.various.items.variablemodule.VariableModuleItem;
 import mcjty.rftoolscontrol.modules.various.items.vectorartmodule.VectorArtModuleItem;
 import mcjty.rftoolscontrol.setup.Registration;
-import net.minecraft.inventory.container.ContainerType;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.Item;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraftforge.fml.RegistryObject;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraftforge.registries.RegistryObject;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 
@@ -28,14 +28,14 @@ import static mcjty.rftoolscontrol.setup.Registration.*;
 public class VariousModule implements IModule {
 
     public static final RegistryObject<BaseBlock> NODE = BLOCKS.register("node", NodeBlock::new);
-    public static final RegistryObject<TileEntityType<NodeTileEntity>> NODE_TILE = TILES.register("node", () -> TileEntityType.Builder.of(NodeTileEntity::new, NODE.get()).build(null));
+    public static final RegistryObject<BlockEntityType<NodeTileEntity>> NODE_TILE = TILES.register("node", () -> BlockEntityType.Builder.of(NodeTileEntity::new, NODE.get()).build(null));
     public static final RegistryObject<Item> NODE_ITEM = ITEMS.register("node", () -> new BlockItem(NODE.get(), Registration.createStandardProperties()));
-    public static final RegistryObject<ContainerType<GenericContainer>> NODE_CONTAINER = CONTAINERS.register("node", GenericContainer::createContainerType);
+    public static final RegistryObject<MenuType<GenericContainer>> NODE_CONTAINER = CONTAINERS.register("node", GenericContainer::createContainerType);
 
     public static final RegistryObject<BaseBlock> WORKBENCH = BLOCKS.register("workbench", WorkbenchBlock::new);
-    public static final RegistryObject<TileEntityType<WorkbenchTileEntity>> WORKBENCH_TILE = TILES.register("workbench", () -> TileEntityType.Builder.of(WorkbenchTileEntity::new, WORKBENCH.get()).build(null));
+    public static final RegistryObject<BlockEntityType<WorkbenchTileEntity>> WORKBENCH_TILE = TILES.register("workbench", () -> BlockEntityType.Builder.of(WorkbenchTileEntity::new, WORKBENCH.get()).build(null));
     public static final RegistryObject<Item> WORKBENCH_ITEM = ITEMS.register("workbench", () -> new BlockItem(WORKBENCH.get(), Registration.createStandardProperties()));
-    public static final RegistryObject<ContainerType<WorkbenchContainer>> WORKBENCH_CONTAINER = CONTAINERS.register("workbench", GenericContainer::createContainerType);
+    public static final RegistryObject<MenuType<WorkbenchContainer>> WORKBENCH_CONTAINER = CONTAINERS.register("workbench", GenericContainer::createContainerType);
 
     public static final RegistryObject<CardBaseItem> CARD_BASE = ITEMS.register("card_base", CardBaseItem::new);
     public static final RegistryObject<TokenItem> TOKEN = ITEMS.register("token", TokenItem::new);

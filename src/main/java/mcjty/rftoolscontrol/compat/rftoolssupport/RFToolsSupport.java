@@ -3,7 +3,7 @@ package mcjty.rftoolscontrol.compat.rftoolssupport;
 import mcjty.rftoolsbase.api.screens.IScreenModuleRegistry;
 import mcjty.rftoolscontrol.modules.processor.logic.ParameterTools;
 import mcjty.rftoolscontrol.modules.processor.vectorart.GfxOp;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.network.FriendlyByteBuf;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -24,7 +24,7 @@ public class RFToolsSupport {
     }
 
     @Nullable
-    private static List<GfxOp> readGfxOp(PacketBuffer buf) {
+    private static List<GfxOp> readGfxOp(FriendlyByteBuf buf) {
         int size = buf.readInt();
         if (size == 0) {
             return null;
@@ -39,7 +39,7 @@ public class RFToolsSupport {
     }
 
     @Nullable
-    private static List<String> readLog(PacketBuffer buf) {
+    private static List<String> readLog(FriendlyByteBuf buf) {
         int size = buf.readInt();
         if (size == 0) {
             return null;

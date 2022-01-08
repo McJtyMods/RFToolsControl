@@ -1,11 +1,11 @@
 package mcjty.rftoolscontrol.modules.processor.vectorart;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import mcjty.lib.client.CustomRenderTypes;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
 
 public class GfxOpLine extends GfxOp {
 
@@ -28,13 +28,13 @@ public class GfxOpLine extends GfxOp {
     }
 
     @Override
-    public void render(MatrixStack matrixStack, IRenderTypeBuffer buffer) {
+    public void render(PoseStack matrixStack, MultiBufferSource buffer) {
         float alpha = (color >> 24 & 255) / 255.0F;
         float red = (color >> 16 & 255) / 255.0F;
         float green = (color >> 8 & 255) / 255.0F;
         float blue = (color & 255) / 255.0F;
 
-        IVertexBuilder builder = buffer.getBuffer(CustomRenderTypes.OVERLAY_LINES);
+        VertexConsumer builder = buffer.getBuffer(CustomRenderTypes.OVERLAY_LINES);
         builder.vertex(matrixStack.last().pose(), x1, y1, 0).color(red, green, blue, alpha).endVertex();
         builder.vertex(matrixStack.last().pose(), x2, y2, 0).color(red, green, blue, alpha).endVertex();
     }
@@ -45,7 +45,7 @@ public class GfxOpLine extends GfxOp {
     }
 
     @Override
-    protected void readFromNBTInternal(CompoundNBT tag) {
+    protected void readFromNBTInternal(CompoundTag tag) {
         x1 = tag.getByte("x1");
         y1 = tag.getByte("y1");
         x2 = tag.getByte("x2");
@@ -54,7 +54,7 @@ public class GfxOpLine extends GfxOp {
     }
 
     @Override
-    protected void writeToNBTInternal(CompoundNBT tag) {
+    protected void writeToNBTInternal(CompoundTag tag) {
         tag.putByte("x1", (byte) x1);
         tag.putByte("y1", (byte) y1);
         tag.putByte("x2", (byte) x2);
@@ -63,7 +63,7 @@ public class GfxOpLine extends GfxOp {
     }
 
     @Override
-    protected void readFromBufInternal(PacketBuffer buf) {
+    protected void readFromBufInternal(FriendlyByteBuf buf) {
         x1 = buf.readByte();
         y1 = buf.readByte();
         x2 = buf.readByte();
@@ -72,7 +72,7 @@ public class GfxOpLine extends GfxOp {
     }
 
     @Override
-    protected void writeToBufInternal(PacketBuffer buf) {
+    protected void writeToBufInternal(FriendlyByteBuf buf) {
         buf.writeByte(x1);
         buf.writeByte(y1);
         buf.writeByte(x2);

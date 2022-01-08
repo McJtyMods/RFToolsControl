@@ -5,11 +5,11 @@ import mcjty.lib.container.GenericContainer;
 import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.rftoolscontrol.modules.processor.ProcessorModule;
 import mcjty.rftoolscontrol.modules.various.VariousModule;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.container.ContainerType;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.core.BlockPos;
 import net.minecraftforge.common.util.Lazy;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.wrapper.InvWrapper;
@@ -34,15 +34,15 @@ public class ProcessorContainer extends GenericContainer {
             .box(generic().in().out(), SLOT_BUFFER, 199, 7, 3, 8)
             .playerSlots(91, 157));
 
-    private ProcessorContainer(ContainerType<ProcessorContainer> type, int id, BlockPos pos, @Nullable GenericTileEntity te, @Nonnull PlayerEntity player) {
+    private ProcessorContainer(MenuType<ProcessorContainer> type, int id, BlockPos pos, @Nullable GenericTileEntity te, @Nonnull Player player) {
         super(type, id, CONTAINER_FACTORY.get(), pos, te, player);
     }
 
-    public static ProcessorContainer create(int id, BlockPos pos, @Nullable GenericTileEntity te, @Nonnull PlayerEntity player) {
+    public static ProcessorContainer create(int id, BlockPos pos, @Nullable GenericTileEntity te, @Nonnull Player player) {
         return new ProcessorContainer(ProcessorModule.PROCESSOR_CONTAINER.get(), id, pos, te, player);
     }
 
-    public static ProcessorContainer createRemote(int id, BlockPos pos, @Nullable GenericTileEntity te, @Nonnull PlayerEntity player) {
+    public static ProcessorContainer createRemote(int id, BlockPos pos, @Nullable GenericTileEntity te, @Nonnull Player player) {
         return new ProcessorContainer(ProcessorModule.PROCESSOR_CONTAINER_REMOTE.get(), id, pos, te, player) {
             @Override
             protected boolean isRemoteContainer() {
@@ -56,7 +56,7 @@ public class ProcessorContainer extends GenericContainer {
     }
 
     @Override
-    public boolean stillValid(@Nonnull PlayerEntity player) {
+    public boolean stillValid(@Nonnull Player player) {
         // If we are a remote container our canInteractWith should ignore distance
         if (isRemoteContainer()) {
             return te == null || !te.isRemoved();
@@ -67,7 +67,7 @@ public class ProcessorContainer extends GenericContainer {
 
 
     @Override
-    public void setupInventories(IItemHandler itemHandler, PlayerInventory inventory) {
+    public void setupInventories(IItemHandler itemHandler, Inventory inventory) {
         addInventory(ContainerFactory.CONTAINER_CONTAINER, itemHandler);
         addInventory(ContainerFactory.CONTAINER_PLAYER, new InvWrapper(inventory));
         generateSlots(inventory.player);

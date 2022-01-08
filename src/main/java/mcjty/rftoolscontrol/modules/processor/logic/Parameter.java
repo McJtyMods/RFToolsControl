@@ -4,7 +4,7 @@ import mcjty.lib.blockcommands.ISerializer;
 import mcjty.rftoolsbase.api.control.parameters.IParameter;
 import mcjty.rftoolsbase.api.control.parameters.ParameterType;
 import mcjty.rftoolsbase.api.control.parameters.ParameterValue;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.network.FriendlyByteBuf;
 
 import javax.annotation.Nonnull;
 import java.util.Comparator;
@@ -28,12 +28,12 @@ public class Parameter implements IParameter {
 
     public static class Serializer implements ISerializer<Parameter> {
         @Override
-        public Function<PacketBuffer, Parameter> getDeserializer() {
+        public Function<FriendlyByteBuf, Parameter> getDeserializer() {
             return ParameterTools::readFromBuf;
         }
 
         @Override
-        public BiConsumer<PacketBuffer, Parameter> getSerializer() {
+        public BiConsumer<FriendlyByteBuf, Parameter> getSerializer() {
             return ParameterTools::writeToBuf;
         }
     }

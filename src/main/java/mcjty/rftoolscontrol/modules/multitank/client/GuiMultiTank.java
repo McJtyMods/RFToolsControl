@@ -1,6 +1,6 @@
 package mcjty.rftoolscontrol.modules.multitank.client;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import mcjty.lib.container.GenericContainer;
 import mcjty.lib.gui.GenericGuiContainer;
 import mcjty.lib.gui.ManualEntry;
@@ -16,8 +16,8 @@ import mcjty.rftoolscontrol.modules.multitank.MultiTankModule;
 import mcjty.rftoolscontrol.modules.multitank.blocks.MultiTankTileEntity;
 import mcjty.rftoolscontrol.modules.multitank.util.MultiTankFluidProperties;
 import mcjty.rftoolscontrol.setup.RFToolsCtrlMessages;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.fluids.FluidStack;
 
 import javax.annotation.Nonnull;
@@ -34,10 +34,10 @@ public class GuiMultiTank extends GenericGuiContainer<MultiTankTileEntity, Gener
     private static final ResourceLocation iconLocation = new ResourceLocation(RFToolsControl.MODID, "textures/gui/tank.png");
     private int listDirty = 0;
 
-    private BlockRender liquids[] = new BlockRender[TANKS];
-    private Label labels[] = new Label[TANKS];
+    private final BlockRender[] liquids = new BlockRender[TANKS];
+    private final Label[] labels = new Label[TANKS];
 
-    public GuiMultiTank(MultiTankTileEntity te, GenericContainer container, PlayerInventory inventory) {
+    public GuiMultiTank(MultiTankTileEntity te, GenericContainer container, Inventory inventory) {
         super(te, container, inventory, /*@todo 1.15 GuiProxy.GUI_MANUAL_CONTROL*/ ManualEntry.EMPTY);
 
         imageWidth = WIDTH;
@@ -69,7 +69,7 @@ public class GuiMultiTank extends GenericGuiContainer<MultiTankTileEntity, Gener
     }
 
     private void requestLists() {
-        RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketGetListFromServer(tileEntity.getBlockPos(), MultiTankTileEntity.CMD_GETFLUIDS.getName()));
+        RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketGetListFromServer(tileEntity.getBlockPos(), MultiTankTileEntity.CMD_GETFLUIDS.name()));
     }
 
     private void requestListsIfNeeded() {
@@ -97,7 +97,7 @@ public class GuiMultiTank extends GenericGuiContainer<MultiTankTileEntity, Gener
     }
 
     @Override
-    protected void renderBg(@Nonnull MatrixStack matrixStack, float partialTicks, int mouseX, int mouseY) {
+    protected void renderBg(@Nonnull PoseStack matrixStack, float partialTicks, int mouseX, int mouseY) {
         updateLiquids();
         drawWindow(matrixStack);
     }

@@ -58,23 +58,23 @@ import mcjty.rftoolscontrol.modules.various.blocks.NodeTileEntity;
 import mcjty.rftoolscontrol.modules.various.blocks.WorkbenchTileEntity;
 import mcjty.rftoolscontrol.modules.various.items.TokenItem;
 import mcjty.rftoolscontrol.setup.Config;
-import net.minecraft.inventory.container.INamedContainerProvider;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.INBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.nbt.StringNBT;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.RegistryKey;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
-import net.minecraftforge.common.util.Constants;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.StringTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.energy.IEnergyStorage;
@@ -136,7 +136,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
     private final GenericEnergyStorage energyStorage = new GenericEnergyStorage(this, true, Config.processorMaxenergy.get(), Config.processorReceivepertick.get());
 
     @Cap(type = CapType.CONTAINER)
-    private final LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<ProcessorContainer>("Processor")
+    private final LazyOptional<MenuProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<ProcessorContainer>("Processor")
             .containerSupplier((windowId, player) -> ProcessorContainer.create(windowId, getBlockPos(), ProcessorTileEntity.this, player))
             .itemHandler(() -> items)
             .energyHandler(() -> energyStorage)
@@ -208,11 +208,11 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
     private final Set<String> locks = new HashSet<>();
 
     // If set this is a dummy tile entity
-    private RegistryKey<World> dummyType = null;
+    private ResourceKey<Level> dummyType = null;
 
 
-    public ProcessorTileEntity() {
-        super(ProcessorModule.PROCESSOR_TILE.get());
+    public ProcessorTileEntity(BlockPos pos, BlockState state) {
+        super(ProcessorModule.PROCESSOR_TILE.get(), pos, state);
 //        super(ConfigSetup.processorMaxenergy.get(), ConfigSetup.processorReceivepertick.get());
         for (int i = 0; i < cardInfo.length; i++) {
             cardInfo[i] = new CardInfo();
@@ -225,8 +225,8 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
     }
 
     // Used for a dummy tile entity (tablet usage)
-    public ProcessorTileEntity(RegistryKey<World> type) {
-        this();
+    public ProcessorTileEntity(ResourceKey<Level> type, BlockPos pos) {
+        this(pos, null);
         dummyType = type;
     }
 
@@ -237,7 +237,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
     }
 
     @Override
-    public RegistryKey<World> getDimension() {
+    public ResourceKey<Level> getDimension() {
         if (dummyType != null) {
             return dummyType;
         }
@@ -269,7 +269,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
             if (p == null) {
                 throw new ProgException(EXCEPT_MISSINGNODE);
             }
-            TileEntity te = level.getBlockEntity(p);
+            BlockEntity te = level.getBlockEntity(p);
             if (!(te instanceof NodeTileEntity)) {
                 throw new ProgException(EXCEPT_MISSINGNODE);
             }
@@ -415,7 +415,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         }
 
         for (BlockPos p : craftingStations) {
-            TileEntity te = level.getBlockEntity(p);
+            BlockEntity te = level.getBlockEntity(p);
             if (te instanceof CraftingStationTileEntity) {
                 CraftingStationTileEntity craftingStation = (CraftingStationTileEntity) te;
                 craftedItem = craftingStation.craftOk(this, ticket, craftedItem);
@@ -435,7 +435,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         String ticket = program.getCraftTicket();
 
         for (BlockPos p : craftingStations) {
-            TileEntity te = level.getBlockEntity(p);
+            BlockEntity te = level.getBlockEntity(p);
             if (te instanceof CraftingStationTileEntity) {
                 CraftingStationTileEntity craftingStation = (CraftingStationTileEntity) te;
                 craftingStation.craftFail(ticket);
@@ -451,7 +451,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
             throw new ProgException(EXCEPT_MISSINGCRAFTRESULT);
         }
 
-        TileEntity te = getTileEntityAt(workbench);
+        BlockEntity te = getTileEntityAt(workbench);
         if (!(te instanceof WorkbenchTileEntity)) {
             throw new ProgException(EXCEPT_NOTAWORKBENCH);
         }
@@ -784,7 +784,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
 
     public boolean isRequested(Ingredient ingredient) {
         for (BlockPos p : craftingStations) {
-            TileEntity te = level.getBlockEntity(p);
+            BlockEntity te = level.getBlockEntity(p);
             if (te instanceof CraftingStationTileEntity) {
                 CraftingStationTileEntity craftingStation = (CraftingStationTileEntity) te;
                 if (craftingStation.isRequested(ingredient)) {
@@ -800,7 +800,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
     @Override
     public boolean requestCraft(@Nonnull Ingredient ingredient, @Nullable Inventory inventory) {
         for (BlockPos p : craftingStations) {
-            TileEntity te = level.getBlockEntity(p);
+            BlockEntity te = level.getBlockEntity(p);
             if (te instanceof CraftingStationTileEntity) {
                 CraftingStationTileEntity craftingStation = (CraftingStationTileEntity) te;
                 if (craftingStation.request(ingredient, inventory)) {
@@ -829,7 +829,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
             return CraftingCardItem.getResult(itemStack);
         }
         if (itemStack.getItem() instanceof TokenItem && itemStack.hasTag()) {
-            CompoundNBT tag = itemStack.getTag().getCompound("parameter");
+            CompoundTag tag = itemStack.getTag().getCompound("parameter");
             if (tag.isEmpty()) {
                 return ItemStack.EMPTY;
             }
@@ -849,7 +849,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
             return ItemStack.EMPTY;
         }
         for (BlockPos p : craftingStations) {
-            TileEntity te = level.getBlockEntity(p);
+            BlockEntity te = level.getBlockEntity(p);
             if (te instanceof CraftingStationTileEntity) {
                 CraftingStationTileEntity craftingStation = (CraftingStationTileEntity) te;
                 ItemStack stack = craftingStation.getCraftResult(program.getCraftTicket());
@@ -1194,7 +1194,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
 
         if (lastException != null) {
             long dt = System.currentTimeMillis() - lastExceptionTime;
-            log("Last: " + TextFormatting.RED + lastException);
+            log("Last: " + ChatFormatting.RED + lastException);
             if (dt > 60000 * 60) {
                 log("(" + (dt / (60000 / 60)) + "hours ago)");
             } else if (dt > 60000) {
@@ -1228,7 +1228,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
             powerOut[facing.ordinal()] = 0;
         }
         for (BlockPos np : networkNodes.values()) {
-            TileEntity te = level.getBlockEntity(np);
+            BlockEntity te = level.getBlockEntity(np);
             if (te instanceof NodeTileEntity) {
                 NodeTileEntity tileEntity = (NodeTileEntity) te;
                 for (Direction facing : Direction.values()) {
@@ -1294,17 +1294,17 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         if (program != null) {
             CompiledCard card = getCompiledCard(program.getCardIndex());
             if (card == null) {
-                message = TextFormatting.RED + "INTERNAL: " + exception.getDescription();
+                message = ChatFormatting.RED + "INTERNAL: " + exception.getDescription();
             } else {
                 CompiledOpcode opcode = program.getCurrentOpcode(this);
                 int gridX = opcode.getGridX();
                 int gridY = opcode.getGridY();
 
 
-                message = TextFormatting.RED + "[" + gridX + "," + gridY + "] " + exception.getDescription() + " (" + program.getCardIndex() + ")";
+                message = ChatFormatting.RED + "[" + gridX + "," + gridY + "] " + exception.getDescription() + " (" + program.getCardIndex() + ")";
             }
         } else {
-            message = TextFormatting.RED + exception.getDescription();
+            message = ChatFormatting.RED + exception.getDescription();
         }
         lastException = message;
         lastExceptionTime = System.currentTimeMillis();
@@ -1326,7 +1326,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
     private List<String> getDebugLog() {
         List<String> result = new ArrayList<>();
         for (int i = 0; i < Math.min(5, cpuCores.size()); i++) {
-            result.add(TextFormatting.BLUE + "Core " + i + " " + TextFormatting.WHITE + getStatus(i));
+            result.add(ChatFormatting.BLUE + "Core " + i + " " + ChatFormatting.WHITE + getStatus(i));
         }
 
         showWithWarn("Event queue: ", eventQueue.size(), 20, result);
@@ -1335,7 +1335,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
 
         if (lastException != null) {
             long dt = System.currentTimeMillis() - lastExceptionTime;
-            result.add(TextFormatting.RED + lastException);
+            result.add(ChatFormatting.RED + lastException);
             if (dt > 60000 * 60) {
                 result.add("(" + (dt / (60000 / 60)) + "hours ago)");
             } else if (dt > 60000) {
@@ -1352,9 +1352,9 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
 
     private void showWithWarn(String label, int size, int max, List<String> result) {
         if (size >= max) {
-            result.add(label + TextFormatting.RED + size);
+            result.add(label + ChatFormatting.RED + size);
         } else {
-            result.add(label + TextFormatting.GREEN + size);
+            result.add(label + ChatFormatting.GREEN + size);
         }
     }
 
@@ -1418,7 +1418,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         for (int i = 0; i < MAXFLUIDVARS; i++) {
             if (isFluidSlotAvailable(i)) {
                 Direction side = Direction.values()[i / TANKS];
-                TileEntity te = level.getBlockEntity(getBlockPos().relative(side));
+                BlockEntity te = level.getBlockEntity(getBlockPos().relative(side));
                 if (te instanceof MultiTankTileEntity) {
                     MultiTankTileEntity mtank = (MultiTankTileEntity) te;
                     MultiTankFluidProperties[] propertyList = mtank.getProperties();
@@ -1507,7 +1507,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
     }
 
     public String getMachineInfo(Inventory side, int idx) {
-        TileEntity te = getTileEntityAt(side);
+        BlockEntity te = getTileEntityAt(side);
         return te.getCapability(CapabilityMachineInformation.MACHINE_INFORMATION_CAPABILITY).map(h -> {
             if (idx < 0 || idx >= h.getTagCount()) {
                 throw new ProgException(EXCEPT_INVALIDMACHINE_INDEX);
@@ -1518,7 +1518,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
 
     @Override
     public int getEnergy(Inventory side) {
-        TileEntity te = getTileEntityAt(side);
+        BlockEntity te = getTileEntityAt(side);
         if (te == null) {
             throw new ProgException(EXCEPT_NORF);
         }
@@ -1528,7 +1528,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
 
     @Override
     public int getMaxEnergy(Inventory side) {
-        TileEntity te = getTileEntityAt(side);
+        BlockEntity te = getTileEntityAt(side);
         if (te == null) {
             throw new ProgException(EXCEPT_NORF);
         }
@@ -1538,22 +1538,22 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
 
     @Override
     public long getEnergyLong(Inventory side) {
-        TileEntity te = getTileEntityAt(side);
+        BlockEntity te = getTileEntityAt(side);
         EnergyTools.EnergyLevel level = EnergyTools.getEnergyLevelMulti(te, null);  // @todo fix side
-        if (level.getMaxEnergy() >= 0) {
+        if (level.maxEnergy() >= 0) {
             throw new ProgException(EXCEPT_NORF);
         }
-        return level.getEnergy();
+        return level.energy();
     }
 
     @Override
     public long getMaxEnergyLong(Inventory side) {
-        TileEntity te = getTileEntityAt(side);
+        BlockEntity te = getTileEntityAt(side);
         EnergyTools.EnergyLevel level = EnergyTools.getEnergyLevelMulti(te, null);  // @todo fix side
-        if (level.getMaxEnergy() >= 0) {
+        if (level.maxEnergy() >= 0) {
             throw new ProgException(EXCEPT_NORF);
         }
-        return level.getMaxEnergy();
+        return level.maxEnergy();
     }
 
     @Override
@@ -1599,8 +1599,8 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         if ((!v1.hasTag()) || (!v2.hasTag())) {
             return v1.hasTag() == v2.hasTag();
         }
-        INBT tag1 = v1.getTag().get(tag);
-        INBT tag2 = v2.getTag().get(tag);
+        Tag tag1 = v1.getTag().get(tag);
+        Tag tag2 = v2.getTag().get(tag);
         if (tag1 == tag2) {
             return true;
         }
@@ -1611,7 +1611,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
     }
 
     private MultiTankFluidProperties getFluidPropertiesFromMultiTank(Direction side, int idx) {
-        TileEntity te = level.getBlockEntity(getBlockPos().relative(side));
+        BlockEntity te = level.getBlockEntity(getBlockPos().relative(side));
         if (te instanceof MultiTankTileEntity) {
             MultiTankTileEntity mtank = (MultiTankTileEntity) te;
             return mtank.getProperties()[idx];
@@ -1836,7 +1836,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         if (idCard.isEmpty() || !(idCard.getItem() instanceof NetworkIdentifierItem)) {
             throw new ProgException(EXCEPT_NOTANIDENTIFIER);
         }
-        CompoundNBT tagCompound = idCard.getTag();
+        CompoundTag tagCompound = idCard.getTag();
         if (tagCompound == null || !tagCompound.contains("monitorx")) {
             throw new ProgException(EXCEPT_INVALIDDESTINATION);
         }
@@ -1844,12 +1844,12 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         int monitorx = tagCompound.getInt("monitorx");
         int monitory = tagCompound.getInt("monitory");
         int monitorz = tagCompound.getInt("monitorz");
-        ServerWorld world = LevelTools.getLevel(LevelTools.getId(monitordim));
+        ServerLevel world = LevelTools.getLevel(LevelTools.getId(monitordim));
         BlockPos dest = new BlockPos(monitorx, monitory, monitorz);
         if (!LevelTools.isLoaded(world, dest)) {
             throw new ProgException(EXCEPT_INVALIDDESTINATION);
         }
-        TileEntity te = world.getBlockEntity(dest);
+        BlockEntity te = world.getBlockEntity(dest);
         if (!(te instanceof ProcessorTileEntity)) {
             throw new ProgException(EXCEPT_INVALIDDESTINATION);
         }
@@ -2007,7 +2007,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
     private void updateFluidSlotsAvailability() {
         fluidSlotsAvailable = 0;
         for (Direction facing : Direction.values()) {
-            TileEntity te = level.getBlockEntity(getBlockPos().relative(facing));
+            BlockEntity te = level.getBlockEntity(getBlockPos().relative(facing));
             if (te instanceof MultiTankTileEntity) {
                 fluidSlotsAvailable |= 1 << facing.ordinal();
             }
@@ -2175,13 +2175,13 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
             throw new ProgException(EXCEPT_NOTATOKEN);
         }
         if (!stack.hasTag()) {
-            stack.setTag(new CompoundNBT());
+            stack.setTag(new CompoundTag());
         }
         Parameter lastValue = (Parameter) program.getLastValue();
         if (lastValue == null) {
             stack.getTag().remove("parameter");
         } else {
-            CompoundNBT tag = ParameterTools.writeToNBT(lastValue);
+            CompoundTag tag = ParameterTools.writeToNBT(lastValue);
             stack.getTag().put("parameter", tag);
         }
     }
@@ -2197,7 +2197,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         if (!stack.hasTag()) {
             return null;
         }
-        CompoundNBT tag = stack.getTag().getCompound("parameter");
+        CompoundTag tag = stack.getTag().getCompound("parameter");
         if (tag.isEmpty()) {
             return null;
         }
@@ -2216,7 +2216,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         if (watchInfos[realVar] != null) {
             Parameter oldValue = variables[realVar];
             if (isWatchTriggered(oldValue, value)) {
-                log(TextFormatting.BLUE + "W" + realVar + ": " + TypeConverters.convertToString(value));
+                log(ChatFormatting.BLUE + "W" + realVar + ": " + TypeConverters.convertToString(value));
                 if (watchInfos[realVar].isBreakOnChange()) {
                     CpuCore core = ((RunningProgram) program).getCore();    // @todo ugly cast
                     core.setDebug(true);
@@ -2452,10 +2452,10 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         if (!storageStack.hasTag()) {
             throw new ProgException(EXCEPT_MISSINGSTORAGECARD);
         }
-        CompoundNBT tagCompound = storageStack.getTag();
+        CompoundTag tagCompound = storageStack.getTag();
         BlockPos c = new BlockPos(tagCompound.getInt("monitorx"), tagCompound.getInt("monitory"), tagCompound.getInt("monitorz"));
         String dim = tagCompound.getString("monitordim");
-        World world = LevelTools.getLevel(LevelTools.getId(dim));
+        Level world = LevelTools.getLevel(LevelTools.getId(dim));
         if (world == null) {
             throw new ProgException(EXCEPT_MISSINGSTORAGE);
         }
@@ -2464,7 +2464,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
             throw new ProgException(EXCEPT_MISSINGSTORAGE);
         }
 
-        TileEntity te = world.getBlockEntity(c);
+        BlockEntity te = world.getBlockEntity(c);
         if (te == null) {
             throw new ProgException(EXCEPT_MISSINGSTORAGE);
         }
@@ -2526,7 +2526,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
 
     @Override
     @Nullable
-    public TileEntity getTileEntityAt(@Nullable BlockSide inv) {
+    public BlockEntity getTileEntityAt(@Nullable BlockSide inv) {
         BlockPos np = getPositionAt(inv);
         if (np == null) {
             return null;
@@ -2560,7 +2560,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
     @Override
     @Nonnull
     public LazyOptional<IFluidHandler> getFluidHandlerAt(@Nonnull Inventory inv) {
-        TileEntity te = getTileEntityAt(inv);
+        BlockEntity te = getTileEntityAt(inv);
         if (te == null) {
             throw new ProgException(EXCEPT_NOLIQUID);
         }
@@ -2575,11 +2575,11 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
     @Nonnull
     public LazyOptional<IItemHandler> getItemHandlerAt(@Nonnull Inventory inv) {
         Direction intSide = inv.getIntSide();
-        TileEntity te = getTileEntityAt(inv);
+        BlockEntity te = getTileEntityAt(inv);
         return getItemHandlerAt(te, intSide);
     }
 
-    private LazyOptional<IItemHandler> getItemHandlerAt(@Nonnull TileEntity te, Direction intSide) {
+    private LazyOptional<IItemHandler> getItemHandlerAt(@Nonnull BlockEntity te, Direction intSide) {
         LazyOptional<IItemHandler> capability = te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, intSide);
         if (!capability.isPresent()) {
             throw new ProgException(EXCEPT_INVALIDINVENTORY);
@@ -2642,21 +2642,21 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
     }
 
     @Override
-    public void loadClientDataFromNBT(CompoundNBT tagCompound) {
+    public void loadClientDataFromNBT(CompoundTag tagCompound) {
         exclusive = tagCompound.getBoolean("exclusive");
         showHud = tagCompound.getByte("hud");
         readCardInfo(tagCompound);
     }
 
     @Override
-    public void saveClientDataToNBT(CompoundNBT tagCompound) {
+    public void saveClientDataToNBT(CompoundTag tagCompound) {
         tagCompound.putBoolean("exclusive", exclusive);
         tagCompound.putByte("hud", (byte) showHud);
         writeCardInfo(tagCompound);
     }
 
     @Override
-    public void load(CompoundNBT tagCompound) {
+    public void load(CompoundTag tagCompound) {
         super.load(tagCompound);
         prevIn = tagCompound.getInt("prevIn");
         for (int i = 0; i < 6; i++) {
@@ -2665,7 +2665,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
     }
 
     @Override
-    public void saveAdditional(@Nonnull CompoundNBT tagCompound) {
+    public void saveAdditional(@Nonnull CompoundTag tagCompound) {
         super.saveAdditional(tagCompound);
         tagCompound.putInt("prevIn", prevIn);
         for (int i = 0; i < 6; i++) {
@@ -2674,9 +2674,9 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
     }
 
     @Override
-    protected void loadInfo(CompoundNBT tagCompound) {
+    protected void loadInfo(CompoundTag tagCompound) {
         super.loadInfo(tagCompound);
-        CompoundNBT info = tagCompound.getCompound("Info");
+        CompoundTag info = tagCompound.getCompound("Info");
         tickCount = info.getInt("tickCount");
         channel = info.getString("channel");
         exclusive = info.getBoolean("exclusive");
@@ -2702,40 +2702,40 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         readGraphicsOperations(info);
     }
 
-    private void readGraphicsOperations(CompoundNBT tagCompound) {
+    private void readGraphicsOperations(CompoundTag tagCompound) {
         gfxOps.clear();
-        CompoundNBT opTag = tagCompound.getCompound("gfxop");
+        CompoundTag opTag = tagCompound.getCompound("gfxop");
         for (String key : opTag.getAllKeys()) {
             gfxOps.put(key, GfxOp.readFromNBT(opTag.getCompound(key)));
         }
         sortOps();
     }
 
-    private void readRunningEvents(CompoundNBT tagCompound) {
+    private void readRunningEvents(CompoundTag tagCompound) {
         runningEvents.clear();
-        ListNBT evList = tagCompound.getList("singev", Constants.NBT.TAG_COMPOUND);
+        ListTag evList = tagCompound.getList("singev", Tag.TAG_COMPOUND);
         for (int i = 0; i < evList.size(); i++) {
-            CompoundNBT tag = evList.getCompound(i);
+            CompoundTag tag = evList.getCompound(i);
             int cardIndex = tag.getInt("card");
             int eventIndex = tag.getInt("event");
             runningEvents.add(Pair.of(cardIndex, eventIndex));
         }
     }
 
-    private void readLocks(CompoundNBT tagCompound) {
+    private void readLocks(CompoundTag tagCompound) {
         locks.clear();
-        ListNBT lockList = tagCompound.getList("locks", Constants.NBT.TAG_STRING);
+        ListTag lockList = tagCompound.getList("locks", Tag.TAG_STRING);
         for (int i = 0; i < lockList.size(); i++) {
             String name = lockList.getString(i);
             locks.add(name);
         }
     }
 
-    private void readWaitingForItems(CompoundNBT tagCompound) {
+    private void readWaitingForItems(CompoundTag tagCompound) {
         waitingForItems.clear();
-        ListNBT waitingList = tagCompound.getList("waiting", Constants.NBT.TAG_COMPOUND);
+        ListTag waitingList = tagCompound.getList("waiting", Tag.TAG_COMPOUND);
         for (int i = 0; i < waitingList.size(); i++) {
-            CompoundNBT tag = waitingList.getCompound(i);
+            CompoundTag tag = waitingList.getCompound(i);
             String ticket = tag.getString("ticket");
 
             ItemStack stack;
@@ -2758,35 +2758,35 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
     }
 
 
-    private void readCraftingStations(CompoundNBT tagCompound) {
+    private void readCraftingStations(CompoundTag tagCompound) {
         craftingStations.clear();
-        ListNBT stationList = tagCompound.getList("stations", Constants.NBT.TAG_COMPOUND);
+        ListTag stationList = tagCompound.getList("stations", Tag.TAG_COMPOUND);
         for (int i = 0; i < stationList.size(); i++) {
-            CompoundNBT tag = stationList.getCompound(i);
+            CompoundTag tag = stationList.getCompound(i);
             BlockPos nodePos = new BlockPos(tag.getInt("nodex"), tag.getInt("nodey"), tag.getInt("nodez"));
             craftingStations.add(nodePos);
         }
     }
 
-    private void readNetworkNodes(CompoundNBT tagCompound) {
+    private void readNetworkNodes(CompoundTag tagCompound) {
         networkNodes.clear();
-        ListNBT networkList = tagCompound.getList("nodes", Constants.NBT.TAG_COMPOUND);
+        ListTag networkList = tagCompound.getList("nodes", Tag.TAG_COMPOUND);
         for (int i = 0; i < networkList.size(); i++) {
-            CompoundNBT tag = networkList.getCompound(i);
+            CompoundTag tag = networkList.getCompound(i);
             String name = tag.getString("name");
             BlockPos nodePos = new BlockPos(tag.getInt("nodex"), tag.getInt("nodey"), tag.getInt("nodez"));
             networkNodes.put(name, nodePos);
         }
     }
 
-    private void readVariables(CompoundNBT tagCompound) {
+    private void readVariables(CompoundTag tagCompound) {
         for (int i = 0; i < MAXVARS; i++) {
             variables[i] = null;
             watchInfos[i] = null;
         }
-        ListNBT varList = tagCompound.getList("vars", Constants.NBT.TAG_COMPOUND);
+        ListTag varList = tagCompound.getList("vars", Tag.TAG_COMPOUND);
         for (int i = 0; i < varList.size(); i++) {
-            CompoundNBT var = varList.getCompound(i);
+            CompoundTag var = varList.getCompound(i);
             int index = var.getInt("varidx");
             variables[index] = ParameterTools.readFromNBT(var);
             if (var.contains("watch")) {
@@ -2796,16 +2796,16 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         }
     }
 
-    private void readLog(CompoundNBT tagCompound) {
+    private void readLog(CompoundTag tagCompound) {
         logMessages.clear();
-        ListNBT logList = tagCompound.getList("log", Constants.NBT.TAG_STRING);
+        ListTag logList = tagCompound.getList("log", Tag.TAG_STRING);
         for (int i = 0; i < logList.size(); i++) {
             logMessages.add(logList.getString(i));
         }
     }
 
-    private void readCores(CompoundNBT tagCompound) {
-        ListNBT coreList = tagCompound.getList("cores", Constants.NBT.TAG_COMPOUND);
+    private void readCores(CompoundTag tagCompound) {
+        ListTag coreList = tagCompound.getList("cores", Tag.TAG_COMPOUND);
         cpuCores.clear();
         coresDirty = false;
         for (int i = 0; i < coreList.size(); i++) {
@@ -2818,11 +2818,11 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         }
     }
 
-    private void readEventQueue(CompoundNBT tagCompound) {
+    private void readEventQueue(CompoundTag tagCompound) {
         eventQueue.clear();
-        ListNBT eventQueueList = tagCompound.getList("events", Constants.NBT.TAG_COMPOUND);
+        ListTag eventQueueList = tagCompound.getList("events", Tag.TAG_COMPOUND);
         for (int i = 0; i < eventQueueList.size(); i++) {
-            CompoundNBT tag = eventQueueList.getCompound(i);
+            CompoundTag tag = eventQueueList.getCompound(i);
             int card = tag.getInt("card");
             int index = tag.getInt("index");
             boolean single = tag.getBoolean("single");
@@ -2835,17 +2835,17 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         }
     }
 
-    private void readCardInfo(CompoundNBT tagCompound) {
-        ListNBT cardInfoList = tagCompound.getList("cardInfo", Constants.NBT.TAG_COMPOUND);
+    private void readCardInfo(CompoundTag tagCompound) {
+        ListTag cardInfoList = tagCompound.getList("cardInfo", Tag.TAG_COMPOUND);
         for (int i = 0; i < cardInfoList.size(); i++) {
             cardInfo[i] = CardInfo.readFromNBT(cardInfoList.getCompound(i));
         }
     }
 
     @Override
-    protected void saveInfo(CompoundNBT tagCompound) {
+    protected void saveInfo(CompoundTag tagCompound) {
         super.saveInfo(tagCompound);
-        CompoundNBT info = getOrCreateInfo(tagCompound);
+        CompoundTag info = getOrCreateInfo(tagCompound);
         info.putInt("tickCount", tickCount);
         info.putString("channel", channel == null ? "" : channel);
         info.putBoolean("exclusive", exclusive);
@@ -2868,18 +2868,18 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         writeGraphicsOperation(info);
     }
 
-    private void writeGraphicsOperation(CompoundNBT tagCompound) {
-        CompoundNBT opTag = new CompoundNBT();
+    private void writeGraphicsOperation(CompoundTag tagCompound) {
+        CompoundTag opTag = new CompoundTag();
         for (Map.Entry<String, GfxOp> entry : gfxOps.entrySet()) {
             opTag.put(entry.getKey(), entry.getValue().writeToNBT());
         }
         tagCompound.put("gfxop", opTag);
     }
 
-    private void writeRunningEvents(CompoundNBT tagCompound) {
-        ListNBT evList = new ListNBT();
+    private void writeRunningEvents(CompoundTag tagCompound) {
+        ListTag evList = new ListTag();
         for (Pair<Integer, Integer> pair : runningEvents) {
-            CompoundNBT tag = new CompoundNBT();
+            CompoundTag tag = new CompoundTag();
             tag.putInt("card", pair.getLeft());
             tag.putInt("event", pair.getRight());
             evList.add(tag);
@@ -2887,18 +2887,18 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         tagCompound.put("singev", evList);
     }
 
-    private void writeLocks(CompoundNBT tagCompound) {
-        ListNBT lockList = new ListNBT();
+    private void writeLocks(CompoundTag tagCompound) {
+        ListTag lockList = new ListTag();
         for (String name : locks) {
-            lockList.add(StringNBT.valueOf(name));
+            lockList.add(StringTag.valueOf(name));
         }
         tagCompound.put("locks", lockList);
     }
 
-    private void writeWaitingForItems(CompoundNBT tagCompound) {
-        ListNBT waitingList = new ListNBT();
+    private void writeWaitingForItems(CompoundTag tagCompound) {
+        ListTag waitingList = new ListTag();
         for (WaitForItem waitingForItem : waitingForItems) {
-            CompoundNBT tag = new CompoundNBT();
+            CompoundTag tag = new CompoundTag();
             tag.putString("ticket", waitingForItem.getTicket());
             if (waitingForItem.getInventory() != null) {
                 tag.put("inv", InventoryUtil.writeToNBT(waitingForItem.getInventory()));
@@ -2912,10 +2912,10 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
     }
 
 
-    private void writeCraftingStations(CompoundNBT tagCompound) {
-        ListNBT stationList = new ListNBT();
+    private void writeCraftingStations(CompoundTag tagCompound) {
+        ListTag stationList = new ListTag();
         for (BlockPos pos : craftingStations) {
-            CompoundNBT tag = new CompoundNBT();
+            CompoundTag tag = new CompoundTag();
             tag.putInt("nodex", pos.getX());
             tag.putInt("nodey", pos.getY());
             tag.putInt("nodez", pos.getZ());
@@ -2924,10 +2924,10 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         tagCompound.put("stations", stationList);
     }
 
-    private void writeNetworkNodes(CompoundNBT tagCompound) {
-        ListNBT networkList = new ListNBT();
+    private void writeNetworkNodes(CompoundTag tagCompound) {
+        ListTag networkList = new ListTag();
         for (Map.Entry<String, BlockPos> entry : networkNodes.entrySet()) {
-            CompoundNBT tag = new CompoundNBT();
+            CompoundTag tag = new CompoundTag();
             tag.putString("name", entry.getKey());
             tag.putInt("nodex", entry.getValue().getX());
             tag.putInt("nodey", entry.getValue().getY());
@@ -2937,11 +2937,11 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         tagCompound.put("nodes", networkList);
     }
 
-    private void writeVariables(CompoundNBT tagCompound) {
-        ListNBT varList = new ListNBT();
+    private void writeVariables(CompoundTag tagCompound) {
+        ListTag varList = new ListTag();
         for (int i = 0; i < MAXVARS; i++) {
             if (variables[i] != null) {
-                CompoundNBT var = ParameterTools.writeToNBT(variables[i]);
+                CompoundTag var = ParameterTools.writeToNBT(variables[i]);
                 var.putInt("varidx", i);
                 if (watchInfos[i] != null) {
                     var.putBoolean("watch", watchInfos[i].isBreakOnChange());
@@ -2952,26 +2952,26 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         tagCompound.put("vars", varList);
     }
 
-    private void writeLog(CompoundNBT tagCompound) {
-        ListNBT logList = new ListNBT();
+    private void writeLog(CompoundTag tagCompound) {
+        ListTag logList = new ListTag();
         for (String message : logMessages) {
-            logList.add(StringNBT.valueOf(message));
+            logList.add(StringTag.valueOf(message));
         }
         tagCompound.put("log", logList);
     }
 
-    private void writeCores(CompoundNBT tagCompound) {
-        ListNBT coreList = new ListNBT();
+    private void writeCores(CompoundTag tagCompound) {
+        ListTag coreList = new ListTag();
         for (CpuCore core : cpuCores) {
             coreList.add(core.writeToNBT());
         }
         tagCompound.put("cores", coreList);
     }
 
-    private void writeEventQueue(CompoundNBT tagCompound) {
-        ListNBT eventQueueList = new ListNBT();
+    private void writeEventQueue(CompoundTag tagCompound) {
+        ListTag eventQueueList = new ListTag();
         for (QueuedEvent queuedEvent : eventQueue) {
-            CompoundNBT tag = new CompoundNBT();
+            CompoundTag tag = new CompoundTag();
             tag.putInt("card", queuedEvent.getCardIndex());
             tag.putInt("index", queuedEvent.getCompiledEvent().getIndex());
             tag.putBoolean("single", queuedEvent.getCompiledEvent().isSingle());
@@ -2979,7 +2979,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
                 tag.putString("ticket", queuedEvent.getTicket());
             }
             if (queuedEvent.getParameter() != null) {
-                CompoundNBT parTag = ParameterTools.writeToNBT(queuedEvent.getParameter());
+                CompoundTag parTag = ParameterTools.writeToNBT(queuedEvent.getParameter());
                 tag.put("parameter", parTag);
             }
             eventQueueList.add(tag);
@@ -2987,8 +2987,8 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         tagCompound.put("events", eventQueueList);
     }
 
-    private void writeCardInfo(CompoundNBT tagCompound) {
-        ListNBT cardInfoList = new ListNBT();
+    private void writeCardInfo(CompoundTag tagCompound) {
+        ListTag cardInfoList = new ListTag();
         for (CardInfo info : cardInfo) {
             cardInfoList.add(info.writeToNBT());
         }
@@ -3075,10 +3075,10 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
             log("No nodes or crafting stations!");
         } else {
             for (Map.Entry<String, BlockPos> entry : networkNodes.entrySet()) {
-                log(TextFormatting.GREEN + "Node " + TextFormatting.YELLOW + entry.getKey() + TextFormatting.GREEN + " at " + TextFormatting.YELLOW + BlockPosTools.toString(entry.getValue()));
+                log(ChatFormatting.GREEN + "Node " + ChatFormatting.YELLOW + entry.getKey() + ChatFormatting.GREEN + " at " + ChatFormatting.YELLOW + BlockPosTools.toString(entry.getValue()));
             }
             for (BlockPos station : craftingStations) {
-                log(TextFormatting.GREEN + "Crafting station at " + TextFormatting.YELLOW + BlockPosTools.toString(station));
+                log(ChatFormatting.GREEN + "Crafting station at " + ChatFormatting.YELLOW + BlockPosTools.toString(station));
             }
         }
     }
@@ -3101,11 +3101,11 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
 
     public void scanNodes() {
         if (!hasNetworkCard()) {
-            log(TextFormatting.RED + "No network card!");
+            log(ChatFormatting.RED + "No network card!");
             return;
         }
         if (channel == null || channel.isEmpty()) {
-            log(TextFormatting.RED + "Setup a channel first!");
+            log(ChatFormatting.RED + "Setup a channel first!");
             return;
         }
         networkNodes.clear();
@@ -3115,7 +3115,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
             for (int y = -range; y <= range; y++) {
                 for (int z = -range; z <= range; z++) {
                     BlockPos n = new BlockPos(worldPosition.getX() + x, worldPosition.getY() + y, worldPosition.getZ() + z);
-                    TileEntity te = level.getBlockEntity(n);
+                    BlockEntity te = level.getBlockEntity(n);
                     if (te instanceof NodeTileEntity) {
                         NodeTileEntity node = (NodeTileEntity) te;
                         if (channel.equals(node.getChannelName())) {
@@ -3205,11 +3205,11 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
             (te, player, params, list) -> GuiProcessor.storeFluidsForClient(list));
 
     @Override
-    public AxisAlignedBB getRenderBoundingBox() {
+    public AABB getRenderBoundingBox() {
         int xCoord = getBlockPos().getX();
         int yCoord = getBlockPos().getY();
         int zCoord = getBlockPos().getZ();
-        return new AxisAlignedBB(xCoord, yCoord, zCoord, xCoord + 1, yCoord + 21, zCoord + 1);
+        return new AABB(xCoord, yCoord, zCoord, xCoord + 1, yCoord + 21, zCoord + 1);
     }
 
 }

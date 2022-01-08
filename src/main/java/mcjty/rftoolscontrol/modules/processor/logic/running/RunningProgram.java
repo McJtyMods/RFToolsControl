@@ -13,9 +13,9 @@ import mcjty.rftoolscontrol.modules.processor.logic.compiled.CompiledCard;
 import mcjty.rftoolscontrol.modules.processor.logic.compiled.CompiledEvent;
 import mcjty.rftoolscontrol.modules.processor.logic.compiled.CompiledOpcode;
 import mcjty.rftoolscontrol.setup.Config;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraftforge.common.util.Constants;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 
@@ -242,7 +242,7 @@ public class RunningProgram implements IProgram {
         return opcodeCache;
     }
 
-    public void writeToNBT(CompoundNBT tag) {
+    public void writeToNBT(CompoundTag tag) {
         tag.putInt("card", cardIndex);
         tag.putInt("current", current);
         tag.putInt("event", eventIndex);
@@ -255,15 +255,15 @@ public class RunningProgram implements IProgram {
             tag.putString("lock", lock);
         }
         if (lastValue != null) {
-            CompoundNBT varTag = new CompoundNBT();
+            CompoundTag varTag = new CompoundTag();
             varTag.putInt("type", lastValue.getParameterType().ordinal());
             ParameterTypeTools.writeToNBT(varTag, lastValue.getParameterType(), lastValue.getParameterValue());
             tag.put("lastvar", varTag);
         }
         if (!loopStack.isEmpty()) {
-            ListNBT loopList = new ListNBT();
+            ListTag loopList = new ListTag();
             for (FlowStack pair : loopStack) {
-                CompoundNBT t = new CompoundNBT();
+                CompoundTag t = new CompoundTag();
                 t.putInt("index", pair.getCurrent());
                 t.putInt("var", pair.getVar() == null ? -1 : pair.getVar());
                 loopList.add(t);
@@ -272,7 +272,7 @@ public class RunningProgram implements IProgram {
         }
     }
 
-    public static RunningProgram readFromNBT(CompoundNBT tag) {
+    public static RunningProgram readFromNBT(CompoundTag tag) {
         if (!tag.contains("card")) {
             return null;
         }
@@ -289,16 +289,16 @@ public class RunningProgram implements IProgram {
             program.lock = tag.getString("lock");
         }
         if (tag.contains("lastvar")) {
-            CompoundNBT varTag = tag.getCompound("lastvar");
+            CompoundTag varTag = tag.getCompound("lastvar");
             int t = varTag.getInt("type");
             ParameterType type = ParameterType.values()[t];
             program.lastValue = Parameter.builder().type(type).value(ParameterTypeTools.readFromNBT(varTag, type)).build();
         }
         if (tag.contains("loopStack")) {
             program.loopStack.clear();
-            ListNBT loopList = tag.getList("loopStack", Constants.NBT.TAG_COMPOUND);
+            ListTag loopList = tag.getList("loopStack", Tag.TAG_COMPOUND);
             for (int i = 0 ; i < loopList.size() ; i++) {
-                CompoundNBT t = loopList.getCompound(i);
+                CompoundTag t = loopList.getCompound(i);
                 int var = tag.getInt("var");
                 program.loopStack.add(new FlowStack(tag.getInt("index"), var == -1 ? null : var));
             }

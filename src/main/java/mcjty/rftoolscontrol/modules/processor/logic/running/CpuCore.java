@@ -2,7 +2,7 @@ package mcjty.rftoolscontrol.modules.processor.logic.running;
 
 import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorTileEntity;
 import mcjty.rftoolscontrol.setup.Config;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.CompoundTag;
 
 public class CpuCore {
 
@@ -91,8 +91,8 @@ public class CpuCore {
         program.setCore(this);
     }
 
-    public CompoundNBT writeToNBT() {
-        CompoundNBT tag = new CompoundNBT();
+    public CompoundTag writeToNBT() {
+        CompoundTag tag = new CompoundTag();
         if (program != null) {
             program.writeToNBT(tag);
         }
@@ -101,7 +101,7 @@ public class CpuCore {
         return tag;
     }
 
-    public void readFromNBT(CompoundNBT tag) {
+    public void readFromNBT(CompoundTag tag) {
         program = RunningProgram.readFromNBT(tag);
         if (program != null) {
             program.setCore(this);

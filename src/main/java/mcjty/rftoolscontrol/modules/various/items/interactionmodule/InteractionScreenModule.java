@@ -8,15 +8,15 @@ import mcjty.rftoolsbase.api.screens.data.IModuleDataBoolean;
 import mcjty.rftoolscontrol.modules.processor.ProcessorModule;
 import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorTileEntity;
 import mcjty.rftoolscontrol.setup.Config;
-import net.minecraft.block.Block;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.RegistryKey;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.world.World;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.ChatFormatting;
+import net.minecraft.world.level.Level;
 
 import java.util.Objects;
 
@@ -26,18 +26,18 @@ public class InteractionScreenModule implements IScreenModule<IModuleDataBoolean
     private String signal = "";
 
     @Override
-    public IModuleDataBoolean getData(IScreenDataHelper helper, World worldObj, long millis) {
+    public IModuleDataBoolean getData(IScreenDataHelper helper, Level worldObj, long millis) {
         return null;
     }
 
     @Override
-    public void setupFromNBT(CompoundNBT tagCompound, RegistryKey<World> dim, BlockPos pos) {
+    public void setupFromNBT(CompoundTag tagCompound, ResourceKey<Level> dim, BlockPos pos) {
         if (tagCompound != null) {
             line = tagCompound.getString("text");
             signal = tagCompound.getString("signal");
             coordinate = BlockPosTools.INVALID;
             if (tagCompound.contains("monitorx")) {
-                RegistryKey<World> dim1 = World.OVERWORLD;
+                ResourceKey<Level> dim1 = Level.OVERWORLD;
                 if (tagCompound.contains("monitordim")) {
                     dim1 = LevelTools.getId(tagCompound.getString("monitordim"));
                 } else {
@@ -63,7 +63,7 @@ public class InteractionScreenModule implements IScreenModule<IModuleDataBoolean
     }
 
     @Override
-    public void mouseClick(World world, int x, int y, boolean clicked, PlayerEntity player) {
+    public void mouseClick(Level world, int x, int y, boolean clicked, Player player) {
         int xoffset;
         if (!line.isEmpty()) {
             xoffset = 80;
@@ -82,14 +82,14 @@ public class InteractionScreenModule implements IScreenModule<IModuleDataBoolean
                 }
 
                 if (clicked) {
-                    TileEntity te = world.getBlockEntity(coordinate);
+                    BlockEntity te = world.getBlockEntity(coordinate);
                     if (te instanceof ProcessorTileEntity) {
                         ProcessorTileEntity processor = (ProcessorTileEntity) te;
                         processor.signal(signal);
                     }
                 }
             } else if (player != null) {
-                player.displayClientMessage(new StringTextComponent(TextFormatting.RED + "Module is not linked to a processor!"), false);
+                player.displayClientMessage(new TextComponent(ChatFormatting.RED + "Module is not linked to a processor!"), false);
             }
         }
     }

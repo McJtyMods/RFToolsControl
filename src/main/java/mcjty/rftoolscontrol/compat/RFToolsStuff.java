@@ -1,6 +1,6 @@
 package mcjty.rftoolscontrol.compat;
 
-import net.minecraft.item.Item;
+import net.minecraft.world.item.Item;
 import net.minecraftforge.registries.ObjectHolder;
 
 public class RFToolsStuff {
