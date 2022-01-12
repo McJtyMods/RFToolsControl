@@ -1,4 +1,4 @@
-Upcoming:
+1.18-5.0.1:
 - Fixed a problem with items not getting restored when breaking and placing blocks
 
 1.18-5.0.0:
