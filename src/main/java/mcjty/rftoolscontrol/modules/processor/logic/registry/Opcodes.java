@@ -8,13 +8,13 @@ import mcjty.rftoolscontrol.modules.processor.logic.Parameter;
 import mcjty.rftoolscontrol.modules.processor.logic.ParameterTools;
 import mcjty.rftoolscontrol.modules.processor.logic.running.ExceptionType;
 import mcjty.rftoolscontrol.modules.processor.logic.running.ProgException;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.tags.Tag;
-import net.minecraft.tags.ItemTags;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.ChatFormatting;
 import net.minecraftforge.fluids.FluidStack;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -171,8 +171,8 @@ public class Opcodes {
             .runnable(((processor, program, opcode) -> {
                 ItemStack item = processor.evaluateItemParameter(opcode, program, 0);
                 List<IParameter> vector = new ArrayList<>();
-                for (ResourceLocation tag : item.getItem().getTags()) {
-                    vector.add(Parameter.builder().type(PAR_STRING).value(ParameterValue.constant(tag.toString())).build());
+                for (TagKey<Item> tag : item.getItem().builtInRegistryHolder().tags().collect(Collectors.toSet())) {
+                    vector.add(Parameter.builder().type(PAR_STRING).value(ParameterValue.constant(tag.location().toString())).build());
                 }
                 program.setLastValue(Parameter.builder().type(PAR_VECTOR).value(ParameterValue.constant(vector)).build());
                 return POSITIVE;
@@ -363,11 +363,11 @@ public class Opcodes {
             .runnable(((processor, program, opcode) -> {
                 ItemStack item = processor.evaluateItemParameter(opcode, program, 0);
                 String tagName = processor.evaluateStringParameterNonNull(opcode, program, 1);
-                Tag<Item> tag = ItemTags.getAllTags().getTag(new ResourceLocation(tagName));
-                if (tag == null) {
-                    throw new ProgException(ExceptionType.EXCEPT_UNKNOWN_TAG);
-                }
-                return tag.contains(item.getItem()) ? POSITIVE : NEGATIVE;
+                TagKey<Item> tag = TagKey.create(Registry.ITEM.key(), new ResourceLocation(tagName));
+//                if (tag == null) {
+//                    throw new ProgException(ExceptionType.EXCEPT_UNKNOWN_TAG);
+//                }
+                return item.getItem().builtInRegistryHolder().is(tag) ? POSITIVE : NEGATIVE;
             }))
             .build();
 
