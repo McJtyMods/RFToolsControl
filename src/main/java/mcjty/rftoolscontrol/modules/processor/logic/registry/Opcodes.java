@@ -1,5 +1,6 @@
 package mcjty.rftoolscontrol.modules.processor.logic.registry;
 
+import mcjty.lib.varia.TagTools;
 import mcjty.rftoolsbase.api.control.code.Opcode;
 import mcjty.rftoolsbase.api.control.parameters.*;
 import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorTileEntity;
@@ -171,7 +172,7 @@ public class Opcodes {
             .runnable(((processor, program, opcode) -> {
                 ItemStack item = processor.evaluateItemParameter(opcode, program, 0);
                 List<IParameter> vector = new ArrayList<>();
-                for (TagKey<Item> tag : item.getItem().builtInRegistryHolder().tags().collect(Collectors.toSet())) {
+                for (TagKey<Item> tag : TagTools.getTags(item.getItem())) {
                     vector.add(Parameter.builder().type(PAR_STRING).value(ParameterValue.constant(tag.location().toString())).build());
                 }
                 program.setLastValue(Parameter.builder().type(PAR_VECTOR).value(ParameterValue.constant(vector)).build());
