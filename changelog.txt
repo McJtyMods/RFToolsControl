@@ -1,3 +1,6 @@
+Upcoming:
+- Fixed a bug with the node gui. It was not possible to fill in the channel and filling the node actually changed the channel
+
 1.16-4.0.14:
 - Updated to latest version of McJtyLib
 
