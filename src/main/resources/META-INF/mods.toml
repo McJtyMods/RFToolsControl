@@ -25,12 +25,12 @@ Visual programming language for automation
 [[dependencies.rftoolscontrol]]
     modId="mcjtylib"
     mandatory=true
-    versionRange="[1.18-6.0.9,)"
+    versionRange="[1.18-6.0.11,)"
     ordering="AFTER"
     side="BOTH"
 [[dependencies.rftoolscontrol]]
     modId="rftoolsbase"
     mandatory=true
-    versionRange="[1.18-3.0.5,)"
+    versionRange="[1.18-3.0.7,)"
     ordering="AFTER"
     side="BOTH"
