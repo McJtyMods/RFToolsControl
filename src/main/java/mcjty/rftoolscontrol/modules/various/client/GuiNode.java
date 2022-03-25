@@ -39,7 +39,7 @@ public class GuiNode extends GenericGuiContainer<NodeTileEntity, GenericContaine
         channelField.name("channel");
 
         TextField nodeNameField = new TextField().tooltips("Set the name of this node");
-        channelField.name("node");
+        nodeNameField.name("node");
 
         Panel bottomPanel = horizontal().
                 children(label("Channel:"), channelField, label("Node:"), nodeNameField);
