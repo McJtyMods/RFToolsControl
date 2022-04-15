@@ -1723,7 +1723,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
                     if (properties.hasContents()) {
                         drained.setAmount(drained.getAmount() + properties.getContentsInternal().getAmount());
                     }
-                    properties.fill(drained);
+                    properties.set(drained);
                     return drainedAmount;
                 }
             }
