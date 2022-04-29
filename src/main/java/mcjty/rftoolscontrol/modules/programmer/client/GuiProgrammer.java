@@ -982,9 +982,10 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Gen
 
     @Override
     public boolean mouseClickedFromEvent(double x, double y, int button) {
+        Slot slot = this.getSlotUnderMouse();
         super.mouseClickedFromEvent(x, y, button);
-        // Don't cancel the event. We want to be able to drag slots
-        return false;
+        // Don't cancel the event if we clicked a slot. We want to be able to drag slots
+        return slot == null;
     }
 
     @Override
