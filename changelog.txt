@@ -1,4 +1,4 @@
-Upcoming:
+1.16-4.0.17:
 - Fixed a problem with the programmer gui where some functions would not be selectable
 
 1.16-4.0.16:
