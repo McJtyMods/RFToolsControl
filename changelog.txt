@@ -1,3 +1,6 @@
+Upcoming:
+- Fixed a problem with the programmer gui where some functions would not be selectable
+
 1.18-5.0.4:
 - Fixed a fluid dupe bug
 
