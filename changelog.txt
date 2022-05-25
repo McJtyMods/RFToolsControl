@@ -1,3 +1,6 @@
+Upcoming:
+- Use GuiTools from McJtyLib (moved from here)
+
 1.18-5.0.5:
 - Fixed a problem with the programmer gui where some functions would not be selectable
 

@@ -15,7 +15,7 @@ import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.modules.craftingstation.CraftingStationModule;
 import mcjty.rftoolscontrol.modules.craftingstation.blocks.CraftingStationTileEntity;
 import mcjty.rftoolscontrol.modules.craftingstation.util.CraftingRequest;
-import mcjty.rftoolscontrol.modules.programmer.client.GuiTools;
+import mcjty.lib.gui.GuiPopupTools;
 import mcjty.rftoolscontrol.setup.RFToolsCtrlMessages;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
@@ -226,7 +226,7 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
     }
 
     private void askAmountToCraft(ItemStack stack) {
-        GuiTools.askSomething(minecraft, this, getWindowManager(), 220, 50, "Craft amount:", "", s -> {
+        GuiPopupTools.askSomething(minecraft, this, getWindowManager(), 220, 50, "Craft amount:", "", s -> {
             Integer a = safeParse(s);
             if (a != null) {
                 requestItem(stack, a);

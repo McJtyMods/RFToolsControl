@@ -25,7 +25,7 @@ import mcjty.rftoolscontrol.modules.processor.network.PacketGetLog;
 import mcjty.rftoolscontrol.modules.processor.network.PacketGetVariables;
 import mcjty.rftoolscontrol.modules.processor.network.PacketVariableToServer;
 import mcjty.rftoolscontrol.modules.processor.util.CardInfo;
-import mcjty.rftoolscontrol.modules.programmer.client.GuiTools;
+import mcjty.lib.gui.GuiPopupTools;
 import mcjty.rftoolscontrol.setup.RFToolsCtrlMessages;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.world.entity.player.Inventory;
@@ -488,12 +488,12 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity, Proce
             return;
         }
         if (fromServer_vars.get(varIdx) == null) {
-            GuiTools.showMessage(minecraft, this, getWindowManager(), 50, 50, "Variable is not defined!");
+            GuiPopupTools.showMessage(minecraft, this, getWindowManager(), 50, 50, "Variable is not defined!");
             return;
         }
         Parameter parameter = fromServer_vars.get(varIdx);
         if (parameter == null) {
-            GuiTools.showMessage(minecraft, this, getWindowManager(), 50, 50, "Variable is not defined!");
+            GuiPopupTools.showMessage(minecraft, this, getWindowManager(), 50, 50, "Variable is not defined!");
             return;
         }
         ParameterType type = parameter.getParameterType();
