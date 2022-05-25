@@ -4,6 +4,7 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import mcjty.lib.base.StyleConfig;
 import mcjty.lib.container.GenericContainer;
 import mcjty.lib.gui.GenericGuiContainer;
+import mcjty.lib.gui.GuiPopupTools;
 import mcjty.lib.gui.Window;
 import mcjty.lib.gui.WindowManager;
 import mcjty.lib.gui.events.SelectionEvent;
@@ -612,12 +613,12 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Gen
     private void askNameAndSave(int slot) {
         ItemStack card = tileEntity.getItems().getStackInSlot(slot);
         if (card.isEmpty()) {
-            GuiTools.showMessage(minecraft, this, getWindowManager(), 50, 50, "No card!");
+            GuiPopupTools.showMessage(minecraft, this, getWindowManager(), 50, 50, "No card!");
             return;
         }
         String cardName = ProgramCardItem.getCardName(card);
         if (cardName.isEmpty() || SafeClientTools.isSneaking()) {
-            GuiTools.askSomething(minecraft, this, getWindowManager(), 50, 50, "Card name:", cardName, s -> saveProgram(slot, s));
+            GuiPopupTools.askSomething(minecraft, this, getWindowManager(), 50, 50, "Card name:", cardName, s -> saveProgram(slot, s));
         } else {
             saveProgram(slot, cardName);
         }
@@ -738,11 +739,11 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Gen
             int x = entry.getKey().getX() - leftTop.getX() + posx;
             int y = entry.getKey().getY() - leftTop.getY() + posy;
             if (!checkValidGridPos(new GridPos(x, y))) {
-                GuiTools.showMessage(minecraft, this, getWindowManager(), 50, 50, TextFormatting.RED + "No room for clipboard here!");
+                GuiPopupTools.showMessage(minecraft, this, getWindowManager(), 50, 50, TextFormatting.RED + "No room for clipboard here!");
                 return;
             }
             if (getHolder(x, y).getIcon() != null) {
-                GuiTools.showMessage(minecraft, this, getWindowManager(), 50, 50, TextFormatting.RED + "No room for clipboard here!");
+                GuiPopupTools.showMessage(minecraft, this, getWindowManager(), 50, 50, TextFormatting.RED + "No room for clipboard here!");
                 return;
             }
         }
@@ -932,14 +933,14 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Gen
                 selectAll();
             } else if (keyCode == GLFW.GLFW_KEY_C) {
                 if (!checkSelection()) {
-                    GuiTools.showMessage(minecraft, this, getWindowManager(), 50, 50, TextFormatting.RED + "Nothing is selected!");
+                    GuiPopupTools.showMessage(minecraft, this, getWindowManager(), 50, 50, TextFormatting.RED + "Nothing is selected!");
                 } else {
                     ProgramCardInstance instance = makeGridInstance(true);
                     String json = instance.writeToJson();
                     try {
                         this.minecraft.keyboardHandler.setClipboard(json);
                     } catch (Exception e) {
-                        GuiTools.showMessage(minecraft, this, getWindowManager(), 50, 50, TextFormatting.RED + "Error copying to clipboard!");
+                        GuiPopupTools.showMessage(minecraft, this, getWindowManager(), 50, 50, TextFormatting.RED + "Error copying to clipboard!");
                     }
                 }
                 return true;
@@ -953,7 +954,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Gen
                 return true;
             } else if (keyCode == GLFW.GLFW_KEY_X) {
                 if (!checkSelection()) {
-                    GuiTools.showMessage(minecraft, this, getWindowManager(), 50, 50, TextFormatting.RED + "Nothing is selected!");
+                    GuiPopupTools.showMessage(minecraft, this, getWindowManager(), 50, 50, TextFormatting.RED + "Nothing is selected!");
                 } else {
                     ProgramCardInstance instance = makeGridInstance(true);
                     String json = instance.writeToJson();
@@ -962,7 +963,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Gen
                         undoProgram = makeGridInstance(false);
                         clearGrid(checkSelection());
                     } catch (Exception e) {
-                        GuiTools.showMessage(minecraft, this, getWindowManager(), 50, 50, TextFormatting.RED + "Error copying to clipboard!");
+                        GuiPopupTools.showMessage(minecraft, this, getWindowManager(), 50, 50, TextFormatting.RED + "Error copying to clipboard!");
                     }
                 }
                 return true;
@@ -973,7 +974,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Gen
                     undoProgram = makeGridInstance(false);
                     mergeProgram(program, getSelectedGridHolder());
                 } catch (Exception e) {
-                    GuiTools.showMessage(minecraft, this, getWindowManager(), 50, 50, TextFormatting.RED + "Error reading from clipboard!");
+                    GuiPopupTools.showMessage(minecraft, this, getWindowManager(), 50, 50, TextFormatting.RED + "Error reading from clipboard!");
                 }
             }
         }
