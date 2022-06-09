@@ -1,6 +1,7 @@
 package mcjty.rftoolscontrol.modules.various.items.vectorartmodule;
 
 import mcjty.lib.varia.BlockPosTools;
+import mcjty.lib.varia.ComponentFactory;
 import mcjty.lib.varia.LevelTools;
 import mcjty.rftoolsbase.api.control.parameters.Tuple;
 import mcjty.rftoolsbase.api.screens.IScreenDataHelper;
@@ -9,15 +10,14 @@ import mcjty.rftoolscontrol.compat.rftoolssupport.ModuleDataVectorArt;
 import mcjty.rftoolscontrol.modules.processor.ProcessorModule;
 import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorTileEntity;
 import mcjty.rftoolscontrol.setup.Config;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 import java.util.Objects;
 
@@ -99,7 +99,7 @@ public class VectorArtScreenModule implements IScreenModule<ModuleDataVectorArt>
                     }
                 }
             } else if (player != null) {
-                player.displayClientMessage(new TextComponent(ChatFormatting.RED + "Module is not linked to a processor!"), false);
+                player.displayClientMessage(ComponentFactory.literal(ChatFormatting.RED + "Module is not linked to a processor!"), false);
             }
         }
     }

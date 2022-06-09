@@ -1,6 +1,7 @@
 package mcjty.rftoolscontrol.modules.various.items.interactionmodule;
 
 import mcjty.lib.varia.BlockPosTools;
+import mcjty.lib.varia.ComponentFactory;
 import mcjty.lib.varia.LevelTools;
 import mcjty.rftoolsbase.api.screens.IScreenDataHelper;
 import mcjty.rftoolsbase.api.screens.IScreenModule;
@@ -8,15 +9,14 @@ import mcjty.rftoolsbase.api.screens.data.IModuleDataBoolean;
 import mcjty.rftoolscontrol.modules.processor.ProcessorModule;
 import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorTileEntity;
 import mcjty.rftoolscontrol.setup.Config;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 import java.util.Objects;
 
@@ -88,7 +88,7 @@ public class InteractionScreenModule implements IScreenModule<IModuleDataBoolean
                     }
                 }
             } else if (player != null) {
-                player.displayClientMessage(new TextComponent(ChatFormatting.RED + "Module is not linked to a processor!"), false);
+                player.displayClientMessage(ComponentFactory.literal(ChatFormatting.RED + "Module is not linked to a processor!"), false);
             }
         }
     }

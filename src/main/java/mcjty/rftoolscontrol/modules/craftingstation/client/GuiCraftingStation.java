@@ -4,25 +4,25 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import mcjty.lib.base.StyleConfig;
 import mcjty.lib.container.GenericContainer;
 import mcjty.lib.gui.GenericGuiContainer;
+import mcjty.lib.gui.GuiPopupTools;
 import mcjty.lib.gui.ManualEntry;
 import mcjty.lib.gui.Window;
 import mcjty.lib.gui.events.BlockRenderEvent;
 import mcjty.lib.gui.widgets.*;
 import mcjty.lib.network.PacketGetListFromServer;
 import mcjty.lib.typed.TypedMap;
+import mcjty.lib.varia.ComponentFactory;
 import mcjty.lib.varia.SafeClientTools;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.modules.craftingstation.CraftingStationModule;
 import mcjty.rftoolscontrol.modules.craftingstation.blocks.CraftingStationTileEntity;
 import mcjty.rftoolscontrol.modules.craftingstation.util.CraftingRequest;
-import mcjty.lib.gui.GuiPopupTools;
 import mcjty.rftoolscontrol.setup.RFToolsCtrlMessages;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.ChatFormatting;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
@@ -156,11 +156,11 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
     protected List<Component> addCustomLines(List<Component> oldList, BlockRender blockRender, ItemStack stack) {
         if (blockRender.getUserObject() instanceof Integer) {
             List<Component> newlist = new ArrayList<>();
-            newlist.add(new TextComponent("Click: ").withStyle(ChatFormatting.GREEN)
-                    .append(new TextComponent("craft single").withStyle(ChatFormatting.WHITE)));
-            newlist.add(new TextComponent("Shift + click: ").withStyle(ChatFormatting.GREEN)
-                    .append(new TextComponent("craft amount").withStyle(ChatFormatting.WHITE)));
-            newlist.add(new TextComponent(""));
+            newlist.add(ComponentFactory.literal("Click: ").withStyle(ChatFormatting.GREEN)
+                    .append(ComponentFactory.literal("craft single").withStyle(ChatFormatting.WHITE)));
+            newlist.add(ComponentFactory.literal("Shift + click: ").withStyle(ChatFormatting.GREEN)
+                    .append(ComponentFactory.literal("craft amount").withStyle(ChatFormatting.WHITE)));
+            newlist.add(ComponentFactory.literal(""));
             newlist.addAll(oldList);
             return newlist;
         } else {
