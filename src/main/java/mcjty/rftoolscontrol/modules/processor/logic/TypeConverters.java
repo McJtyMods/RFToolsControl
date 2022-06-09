@@ -1,11 +1,12 @@
 package mcjty.rftoolscontrol.modules.processor.logic;
 
 import mcjty.lib.varia.FluidTools;
+import mcjty.lib.varia.Tools;
 import mcjty.rftoolsbase.api.control.parameters.*;
 import mcjty.rftoolscontrol.modules.processor.logic.running.ExceptionType;
 import mcjty.rftoolscontrol.modules.processor.logic.running.ProgException;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidUtil;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -489,12 +490,12 @@ public class TypeConverters {
                 return ((Boolean) v) ? "true" : "false";
             case PAR_ITEM:
                 if (!((ItemStack) v).isEmpty()) {
-                    return ((ItemStack) v).getItem().getRegistryName().toString();
+                    return Tools.getId((ItemStack) v).toString();
                 } else {
                     return null;
                 }
             case PAR_FLUID:
-                return ((FluidStack) v).getFluid().getRegistryName().toString();
+                return Tools.getId((FluidStack) v).toString();
             case PAR_INVENTORY:
                 return LogicInventoryTools.inventoryToString((Inventory) v);
             case PAR_SIDE:

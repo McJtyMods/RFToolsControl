@@ -14,6 +14,7 @@ import mcjty.lib.typed.Key;
 import mcjty.lib.typed.Type;
 import mcjty.lib.varia.BlockPosTools;
 import mcjty.lib.varia.ItemStackList;
+import mcjty.lib.varia.Tools;
 import mcjty.rftoolsbase.api.control.parameters.Inventory;
 import mcjty.rftoolscontrol.modules.craftingstation.CraftingStationModule;
 import mcjty.rftoolscontrol.modules.craftingstation.client.GuiCraftingStation;
@@ -381,7 +382,7 @@ public class CraftingStationTileEntity extends GenericTileEntity {
                 ItemStackList items = ItemStackList.create();
                 processor.getCraftableItems(items);
                 for (ItemStack item : items) {
-                    if (itemName.equals(item.getItem().getRegistryName().toString())) {
+                    if (itemName.equals(Tools.getId(item).toString())) {
                         if (item.hasTag()) {
                             if (nbtString.equalsIgnoreCase(item.serializeNBT().toString())) {
                                 return index;

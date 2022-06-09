@@ -1,6 +1,7 @@
 package mcjty.rftoolscontrol.modules.processor.logic;
 
 import mcjty.lib.blockcommands.ISerializer;
+import mcjty.lib.varia.Tools;
 import mcjty.rftoolsbase.api.control.parameters.IParameter;
 import mcjty.rftoolsbase.api.control.parameters.ParameterType;
 import mcjty.rftoolsbase.api.control.parameters.ParameterValue;
@@ -49,12 +50,12 @@ public class Parameter implements IParameter {
             case PAR_BOOLEAN -> Boolean.compare(TypeConverters.convertToBool(this), TypeConverters.convertToBool(parameter));
             case PAR_INVENTORY -> 0;       // Undefined
             case PAR_ITEM -> Objects.compare(TypeConverters.convertToItem(this), TypeConverters.convertToItem(parameter),
-                    Comparator.comparing(s -> s.getItem().getRegistryName()));
+                    Comparator.comparing(Tools::getId));
             case PAR_EXCEPTION -> 0;
             case PAR_TUPLE -> Objects.compare(TypeConverters.convertToTuple(this), TypeConverters.convertToTuple(parameter),
                     Comparator.naturalOrder());
             case PAR_FLUID -> Objects.compare(TypeConverters.convertToFluid(this), TypeConverters.convertToFluid(parameter),
-                    Comparator.comparing(s -> s.getFluid().getRegistryName().toString()));
+                    Comparator.comparing(s -> Tools.getId(s).toString()));
             case PAR_VECTOR -> Objects.compare(TypeConverters.convertToVector(this), TypeConverters.convertToVector(parameter),
                     Parameter::compareLists);
             case PAR_LONG -> Long.compare(TypeConverters.convertToLong(this), TypeConverters.convertToLong(parameter));

@@ -13,6 +13,7 @@ import mcjty.lib.network.PacketGetListFromServer;
 import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.ComponentFactory;
 import mcjty.lib.varia.SafeClientTools;
+import mcjty.lib.varia.Tools;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.modules.craftingstation.CraftingStationModule;
 import mcjty.rftoolscontrol.modules.craftingstation.blocks.CraftingStationTileEntity;
@@ -237,7 +238,7 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
     private void requestItem(ItemStack stack, int amount) {
         sendServerCommandTyped(RFToolsCtrlMessages.INSTANCE, CraftingStationTileEntity.CMD_REQUEST,
                 TypedMap.builder()
-                        .put(PARAM_ITEMNAME, stack.getItem().getRegistryName().toString())
+                        .put(PARAM_ITEMNAME, Tools.getId(stack).toString())
                         .put(PARAM_NBT, stack.hasTag() ? stack.serializeNBT().toString() : "")
                         .put(PARAM_AMOUNT, amount)
                         .build());

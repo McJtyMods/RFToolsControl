@@ -5,6 +5,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import mcjty.lib.varia.Tools;
 import mcjty.rftoolsbase.api.control.parameters.*;
 import mcjty.rftoolscontrol.modules.processor.logic.registry.Functions;
 import mcjty.rftoolscontrol.modules.processor.logic.running.ExceptionType;
@@ -323,7 +324,7 @@ public class ParameterTypeTools {
                 break;
             case PAR_ITEM:
                 ItemStack item = (ItemStack) value;
-                object.add("item", new JsonPrimitive(item.getItem().getRegistryName().toString()));
+                object.add("item", new JsonPrimitive(Tools.getId(item).toString()));
                 if (item.getCount() != 1) {
                     object.add("amount", new JsonPrimitive(item.getCount()));
                 }
@@ -334,7 +335,7 @@ public class ParameterTypeTools {
                 break;
             case PAR_FLUID:
                 FluidStack fluidStack = (FluidStack) value;
-                object.add("fluid", new JsonPrimitive(fluidStack.getFluid().getRegistryName().toString()));
+                object.add("fluid", new JsonPrimitive(Tools.getId(fluidStack).toString()));
                 object.add("amount", new JsonPrimitive(fluidStack.getAmount()));
                 if (fluidStack.hasTag()) {
                     object.add("nbt", new JsonPrimitive(fluidStack.getTag().toString()));
