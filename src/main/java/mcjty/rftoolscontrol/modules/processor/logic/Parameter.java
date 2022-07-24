@@ -50,7 +50,7 @@ public class Parameter implements IParameter {
             case PAR_BOOLEAN -> Boolean.compare(TypeConverters.convertToBool(this), TypeConverters.convertToBool(parameter));
             case PAR_INVENTORY -> 0;       // Undefined
             case PAR_ITEM -> Objects.compare(TypeConverters.convertToItem(this), TypeConverters.convertToItem(parameter),
-                    Comparator.comparing(Tools::getId));
+                    Comparator.comparing(item -> Tools.getId(item)));
             case PAR_EXCEPTION -> 0;
             case PAR_TUPLE -> Objects.compare(TypeConverters.convertToTuple(this), TypeConverters.convertToTuple(parameter),
                     Comparator.naturalOrder());

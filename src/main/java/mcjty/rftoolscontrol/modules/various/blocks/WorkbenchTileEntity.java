@@ -122,6 +122,11 @@ public class WorkbenchTileEntity extends GenericTileEntity {
             public boolean stillValid(Player var1) {
                 return false;
             }
+
+            @Override
+            public ItemStack quickMoveStack(Player player, int slot) {
+                return ItemStack.EMPTY;
+            }
         }, 3, 3);
         for (int i = 0; i < 9; i++) {
             workInventory.setItem(i, items.getStackInSlot(i + SLOT_CRAFTINPUT));
