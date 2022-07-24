@@ -6,11 +6,11 @@ import mcjty.rftoolscontrol.modules.various.blocks.WorkbenchContainer;
 import mcjty.rftoolscontrol.modules.various.blocks.WorkbenchTileEntity;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
-import mezz.jei.api.constants.VanillaRecipeCategoryUid;
+import mezz.jei.api.constants.RecipeTypes;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeTransferRegistration;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
 
@@ -25,11 +25,11 @@ public class RFToolsControlJeiPlugin implements IModPlugin {
 
     @Override
     public void registerRecipeTransferHandlers(IRecipeTransferRegistration registration) {
-        registration.addRecipeTransferHandler(WorkbenchContainer.class, VanillaRecipeCategoryUid.CRAFTING, WorkbenchTileEntity.SLOT_CRAFTINPUT, 9, WorkbenchTileEntity.SLOT_BUFFER, WorkbenchTileEntity.BUFFER_SIZE + 9*4);
+        registration.addRecipeTransferHandler(WorkbenchContainer.class, VariousModule.WORKBENCH_CONTAINER.get(), RecipeTypes.CRAFTING, WorkbenchTileEntity.SLOT_CRAFTINPUT, 9, WorkbenchTileEntity.SLOT_BUFFER, WorkbenchTileEntity.BUFFER_SIZE + 9*4);
     }
 
     @Override
     public void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
-        registration.addRecipeCatalyst(new ItemStack(VariousModule.WORKBENCH.get()), VanillaRecipeCategoryUid.CRAFTING);
+        registration.addRecipeCatalyst(new ItemStack(VariousModule.WORKBENCH.get()), RecipeTypes.CRAFTING);
     }
 }

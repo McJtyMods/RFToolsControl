@@ -1,13 +1,15 @@
 package mcjty.rftoolscontrol.compat;
 
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
-import net.minecraftforge.registries.ObjectHolder;
+import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.RegistryObject;
 
 public class RFToolsStuff {
 
-    @ObjectHolder("rftoolsstorage:storage_control_module")
-    public static Item STORAGE_CONTROL_MODULE;
+    public static RegistryObject<Item> STORAGE_CONTROL_MODULE = RegistryObject.create(new ResourceLocation("rftoolsstorage", "storage_control_module"), ForgeRegistries.ITEMS);
+    public static RegistryObject<Item> CRAFTING_CARD = RegistryObject.create(new ResourceLocation("rftoolsbase", "crafting_card"), ForgeRegistries.ITEMS);
 
-    @ObjectHolder("rftoolsbase:crafting_card")
-    public static Item CRAFTING_CARD;
+    public static void init() {
+    }
 }

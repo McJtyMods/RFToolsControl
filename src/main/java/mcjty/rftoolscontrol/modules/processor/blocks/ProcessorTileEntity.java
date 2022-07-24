@@ -384,7 +384,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
                             getItemHandlerAt(inv).ifPresent(handler -> {
                                 for (int i = 0; i < handler.getSlots(); i++) {
                                     ItemStack s = handler.getStackInSlot(i);
-                                    if (!s.isEmpty() && s.getItem() == RFToolsStuff.CRAFTING_CARD) {
+                                    if (!s.isEmpty() && s.getItem() == RFToolsStuff.CRAFTING_CARD.get()) {
                                         ItemStack result = CraftingCardItem.getResult(s);
                                         if (!result.isEmpty()) {
                                             stacks.add(result);
@@ -874,7 +874,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
     private ItemStack findCraftingCard(IItemHandler handler, ItemStack craftResult) {
         for (int j = 0; j < handler.getSlots(); j++) {
             ItemStack s = handler.getStackInSlot(j);
-            if (!s.isEmpty() && s.getItem() == RFToolsStuff.CRAFTING_CARD) {
+            if (!s.isEmpty() && s.getItem() == RFToolsStuff.CRAFTING_CARD.get()) {
                 ItemStack result = CraftingCardItem.getResult(s);
                 if (!result.isEmpty()) {
                     if (LogicInventoryTools.areItemsEqual(result, craftResult, true, true)) {
@@ -1975,7 +1975,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
             hasNetworkCard = -1;
             hasGraphicsCard = false;
             storageCard = -1;
-            Item storageCardItem = RFToolsStuff.STORAGE_CONTROL_MODULE;
+            Item storageCardItem = RFToolsStuff.STORAGE_CONTROL_MODULE.get();
             for (int i = SLOT_EXPANSION; i < SLOT_EXPANSION + EXPANSION_SLOTS; i++) {
                 ItemStack stack = items.getStackInSlot(i);
                 if (!stack.isEmpty()) {
@@ -3140,7 +3140,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
     }
 
     private boolean isValidExpansionItem(Item item) {
-        Item storageCardItem = RFToolsStuff.STORAGE_CONTROL_MODULE;
+        Item storageCardItem = RFToolsStuff.STORAGE_CONTROL_MODULE.get();
         return item == ProcessorModule.GRAPHICS_CARD.get() || item == ProcessorModule.NETWORK_CARD.get() ||
                 item == ProcessorModule.ADVANCED_NETWORK_CARD.get() || item == ProcessorModule.CPU_CORE_500.get() ||
                 item == ProcessorModule.CPU_CORE_1000.get() || item == ProcessorModule.CPU_CORE_2000.get() ||

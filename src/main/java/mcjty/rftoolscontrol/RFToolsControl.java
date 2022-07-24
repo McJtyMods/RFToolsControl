@@ -1,6 +1,7 @@
 package mcjty.rftoolscontrol;
 
 import mcjty.lib.modules.Modules;
+import mcjty.rftoolscontrol.compat.RFToolsStuff;
 import mcjty.rftoolscontrol.modules.craftingstation.CraftingStationModule;
 import mcjty.rftoolscontrol.modules.multitank.MultiTankModule;
 import mcjty.rftoolscontrol.modules.processor.ProcessorModule;
@@ -25,6 +26,7 @@ public class RFToolsControl {
 
     public RFToolsControl() {
         instance = this;
+        RFToolsStuff.init();
         setupModules();
 
         Config.register(modules);
