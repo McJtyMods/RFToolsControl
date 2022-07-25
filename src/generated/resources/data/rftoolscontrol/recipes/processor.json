@@ -1,11 +1,9 @@
 {
   "type": "minecraft:crafting_shaped",
-  "pattern": [
-    "rqr",
-    "MFM",
-    "rqr"
-  ],
   "key": {
+    "F": {
+      "item": "rftoolsbase:machine_frame"
+    },
     "M": {
       "item": "rftoolscontrol:card_base"
     },
@@ -14,11 +12,13 @@
     },
     "r": {
       "item": "minecraft:redstone"
-    },
-    "F": {
-      "item": "rftoolsbase:machine_frame"
     }
   },
+  "pattern": [
+    "rqr",
+    "MFM",
+    "rqr"
+  ],
   "result": {
     "item": "rftoolscontrol:processor"
   }

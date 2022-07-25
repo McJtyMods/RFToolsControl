@@ -1,10 +1,5 @@
 {
   "type": "minecraft:crafting_shaped",
-  "pattern": [
-    "Fii",
-    "iGG",
-    "iGG"
-  ],
   "key": {
     "F": {
       "item": "rftoolsbase:machine_frame"
@@ -16,6 +11,11 @@
       "tag": "forge:ingots/iron"
     }
   },
+  "pattern": [
+    "Fii",
+    "iGG",
+    "iGG"
+  ],
   "result": {
     "item": "rftoolscontrol:tank"
   }

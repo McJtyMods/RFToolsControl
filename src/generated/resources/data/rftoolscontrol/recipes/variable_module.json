@@ -1,24 +1,24 @@
 {
   "type": "minecraft:crafting_shaped",
+  "key": {
+    "M": {
+      "item": "rftoolscontrol:card_base"
+    },
+    "i": {
+      "tag": "forge:ingots/iron"
+    },
+    "r": {
+      "item": "minecraft:redstone"
+    },
+    "z": {
+      "tag": "forge:dyes/black"
+    }
+  },
   "pattern": [
     " M ",
     "rir",
     " z "
   ],
-  "key": {
-    "M": {
-      "item": "rftoolscontrol:card_base"
-    },
-    "z": {
-      "tag": "forge:dyes/black"
-    },
-    "r": {
-      "item": "minecraft:redstone"
-    },
-    "i": {
-      "tag": "forge:ingots/iron"
-    }
-  },
   "result": {
     "item": "rftoolscontrol:variable_module"
   }

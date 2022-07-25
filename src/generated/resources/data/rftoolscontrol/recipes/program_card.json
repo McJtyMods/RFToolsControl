@@ -1,9 +1,5 @@
 {
   "type": "minecraft:crafting_shaped",
-  "pattern": [
-    "pp",
-    "Mp"
-  ],
   "key": {
     "M": {
       "item": "rftoolscontrol:card_base"
@@ -12,6 +8,10 @@
       "item": "minecraft:paper"
     }
   },
+  "pattern": [
+    "pp",
+    "Mp"
+  ],
   "result": {
     "item": "rftoolscontrol:program_card"
   }

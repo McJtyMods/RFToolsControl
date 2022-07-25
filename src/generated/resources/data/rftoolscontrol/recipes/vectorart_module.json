@@ -1,27 +1,27 @@
 {
   "type": "minecraft:crafting_shaped",
+  "key": {
+    "I": {
+      "tag": "forge:ingots/gold"
+    },
+    "M": {
+      "item": "rftoolscontrol:card_base"
+    },
+    "P": {
+      "tag": "forge:glass_panes"
+    },
+    "r": {
+      "item": "minecraft:redstone"
+    },
+    "z": {
+      "tag": "forge:dyes/black"
+    }
+  },
   "pattern": [
     "PMP",
     "rIr",
     "PzP"
   ],
-  "key": {
-    "M": {
-      "item": "rftoolscontrol:card_base"
-    },
-    "z": {
-      "tag": "forge:dyes/black"
-    },
-    "P": {
-      "tag": "forge:glass_panes"
-    },
-    "I": {
-      "tag": "forge:ingots/gold"
-    },
-    "r": {
-      "item": "minecraft:redstone"
-    }
-  },
   "result": {
     "item": "rftoolscontrol:vectorart_module"
   }

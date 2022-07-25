@@ -4,9 +4,9 @@
       "model": "rftoolscontrol:block/node",
       "x": 90
     },
-    "facing=up": {
+    "facing=east": {
       "model": "rftoolscontrol:block/node",
-      "x": -90
+      "y": 90
     },
     "facing=north": {
       "model": "rftoolscontrol:block/node"
@@ -15,13 +15,13 @@
       "model": "rftoolscontrol:block/node",
       "y": 180
     },
+    "facing=up": {
+      "model": "rftoolscontrol:block/node",
+      "x": -90
+    },
     "facing=west": {
       "model": "rftoolscontrol:block/node",
       "y": 270
-    },
-    "facing=east": {
-      "model": "rftoolscontrol:block/node",
-      "y": 90
     }
   }
 }

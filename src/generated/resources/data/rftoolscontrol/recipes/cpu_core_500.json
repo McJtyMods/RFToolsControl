@@ -1,10 +1,5 @@
 {
   "type": "minecraft:crafting_shaped",
-  "pattern": [
-    "rgr",
-    "pMp",
-    "rgr"
-  ],
   "key": {
     "M": {
       "item": "rftoolscontrol:card_base"
@@ -19,6 +14,11 @@
       "item": "minecraft:redstone"
     }
   },
+  "pattern": [
+    "rgr",
+    "pMp",
+    "rgr"
+  ],
   "result": {
     "item": "rftoolscontrol:cpu_core_500"
   }

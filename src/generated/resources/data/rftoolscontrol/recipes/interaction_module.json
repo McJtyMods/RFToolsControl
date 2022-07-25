@@ -1,27 +1,27 @@
 {
   "type": "minecraft:crafting_shaped",
+  "key": {
+    "M": {
+      "item": "rftoolscontrol:card_base"
+    },
+    "P": {
+      "item": "minecraft:stone_pressure_plate"
+    },
+    "i": {
+      "tag": "forge:ingots/iron"
+    },
+    "r": {
+      "item": "minecraft:redstone"
+    },
+    "z": {
+      "tag": "forge:dyes/black"
+    }
+  },
   "pattern": [
     "PMP",
     "rir",
     " z "
   ],
-  "key": {
-    "M": {
-      "item": "rftoolscontrol:card_base"
-    },
-    "z": {
-      "tag": "forge:dyes/black"
-    },
-    "P": {
-      "item": "minecraft:stone_pressure_plate"
-    },
-    "r": {
-      "item": "minecraft:redstone"
-    },
-    "i": {
-      "tag": "forge:ingots/iron"
-    }
-  },
   "result": {
     "item": "rftoolscontrol:interaction_module"
   }
