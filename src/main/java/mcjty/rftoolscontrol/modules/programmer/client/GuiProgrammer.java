@@ -22,7 +22,7 @@ import mcjty.rftoolsbase.api.control.parameters.ParameterDescription;
 import mcjty.rftoolsbase.api.control.parameters.ParameterValue;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.modules.processor.logic.Connection;
-import mcjty.rftoolscontrol.modules.processor.logic.Parameter;
+import mcjty.rftoolsbase.api.control.parameters.Parameter;
 import mcjty.rftoolscontrol.modules.processor.logic.ParameterTypeTools;
 import mcjty.rftoolscontrol.modules.processor.logic.compiled.ProgramValidator;
 import mcjty.rftoolscontrol.modules.processor.logic.editors.ParameterEditor;

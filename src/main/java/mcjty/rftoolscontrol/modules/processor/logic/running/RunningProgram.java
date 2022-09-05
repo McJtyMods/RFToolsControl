@@ -6,7 +6,7 @@ import mcjty.rftoolsbase.api.control.parameters.IParameter;
 import mcjty.rftoolsbase.api.control.parameters.ParameterType;
 import mcjty.rftoolsbase.api.control.parameters.ParameterValue;
 import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorTileEntity;
-import mcjty.rftoolscontrol.modules.processor.logic.Parameter;
+import mcjty.rftoolsbase.api.control.parameters.Parameter;
 import mcjty.rftoolscontrol.modules.processor.logic.ParameterTypeTools;
 import mcjty.rftoolscontrol.modules.processor.logic.TypeConverters;
 import mcjty.rftoolscontrol.modules.processor.logic.compiled.CompiledCard;

@@ -6,7 +6,7 @@ import mcjty.lib.tooltips.ITooltipSettings;
 import mcjty.lib.varia.Tools;
 import mcjty.rftoolsbase.tools.ManualHelper;
 import mcjty.rftoolscontrol.RFToolsControl;
-import mcjty.rftoolscontrol.modules.processor.logic.Parameter;
+import mcjty.rftoolsbase.api.control.parameters.Parameter;
 import mcjty.rftoolscontrol.modules.processor.logic.ParameterTools;
 import mcjty.rftoolscontrol.modules.processor.logic.ParameterTypeTools;
 import net.minecraft.nbt.CompoundTag;

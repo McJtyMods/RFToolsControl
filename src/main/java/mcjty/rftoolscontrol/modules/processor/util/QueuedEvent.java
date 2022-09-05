@@ -1,6 +1,6 @@
 package mcjty.rftoolscontrol.modules.processor.util;
 
-import mcjty.rftoolscontrol.modules.processor.logic.Parameter;
+import mcjty.rftoolsbase.api.control.parameters.Parameter;
 import mcjty.rftoolscontrol.modules.processor.logic.compiled.CompiledEvent;
 
 import javax.annotation.Nullable;

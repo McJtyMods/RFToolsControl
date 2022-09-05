@@ -5,7 +5,6 @@ import mcjty.rftoolsbase.api.control.code.Opcode;
 import mcjty.rftoolsbase.api.control.parameters.*;
 import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorTileEntity;
 import mcjty.rftoolscontrol.modules.processor.logic.LogicInventoryTools;
-import mcjty.rftoolscontrol.modules.processor.logic.Parameter;
 import mcjty.rftoolscontrol.modules.processor.logic.ParameterTools;
 import mcjty.rftoolscontrol.modules.processor.logic.running.ExceptionType;
 import mcjty.rftoolscontrol.modules.processor.logic.running.ProgException;
@@ -2046,12 +2045,13 @@ public class Opcodes {
                 List<IParameter> vector = processor.evaluateVectorParameterNonNull(opcode, program, 0);
                 List<IParameter> compare = processor.evaluateVectorParameter(opcode, program, 1);
                 if (compare == null) {
-                    vector.sort(Comparator.naturalOrder());
+                    vector.sort(ParameterTools::compare);
                     program.setLastValue(Parameter.builder().type(PAR_VECTOR).value(ParameterValue.constant(vector)).build());
                 } else {
                     List<IParameter> result = IntStream.range(0, vector.size())
                             .mapToObj(i -> Pair.of(vector.get(i), compare.get(i)))
-                            .sorted(Comparator.comparing(Pair::getRight))
+//                            .sorted(Comparator.comparing(Pair::getRight))
+                            .sorted((p1, p2) -> ParameterTools.compare(p1.getRight(), p2.getRight()))
                             .map(Pair::getLeft)
                             .collect(Collectors.toList());
                     program.setLastValue(Parameter.builder().type(PAR_VECTOR).value(ParameterValue.constant(result)).build());

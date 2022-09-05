@@ -33,10 +33,7 @@ import mcjty.rftoolscontrol.modules.multitank.util.MultiTankFluidProperties;
 import mcjty.rftoolscontrol.modules.processor.ProcessorModule;
 import mcjty.rftoolscontrol.modules.processor.client.GuiProcessor;
 import mcjty.rftoolscontrol.modules.processor.items.*;
-import mcjty.rftoolscontrol.modules.processor.logic.LogicInventoryTools;
-import mcjty.rftoolscontrol.modules.processor.logic.Parameter;
-import mcjty.rftoolscontrol.modules.processor.logic.ParameterTools;
-import mcjty.rftoolscontrol.modules.processor.logic.TypeConverters;
+import mcjty.rftoolscontrol.modules.processor.logic.*;
 import mcjty.rftoolscontrol.modules.processor.logic.compiled.CompiledCard;
 import mcjty.rftoolscontrol.modules.processor.logic.compiled.CompiledEvent;
 import mcjty.rftoolscontrol.modules.processor.logic.compiled.CompiledOpcode;
@@ -2234,7 +2231,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         } else if (value == null) {
             return true;
         } else {
-            return value.compareTo(old) != 0;
+            return ParameterTools.compare(value, old) != 0;
         }
     }
 
@@ -3194,7 +3191,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
             (te, player, params) -> te.getLog(),
             (te, player, params, list) -> te.clientLog = list);
 
-    @ServerCommand(type = Parameter.class, serializer = Parameter.Serializer.class)
+    @ServerCommand(type = Parameter.class, serializer = ParameterSerializer.class)
     public static final ListCommand<?, ?> CMD_GETVARS = ListCommand.<ProcessorTileEntity, Parameter>create("rftoolscontrol.processor.getVars",
             (te, player, params) -> te.getVariables(),
             (te, player, params, list) -> GuiProcessor.storeVarsForClient(list));

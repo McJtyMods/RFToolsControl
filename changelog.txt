@@ -1,3 +1,6 @@
+Upcoming:
+- Moved the Parameter class from RFToolsControl to the API
+
 1.18-5.0.6:
 - Use GuiPopupTools from McJtyLib (moved from here)
 

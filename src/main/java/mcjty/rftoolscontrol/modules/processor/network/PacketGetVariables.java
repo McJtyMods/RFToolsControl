@@ -6,7 +6,7 @@ import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.LevelTools;
 import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorTileEntity;
-import mcjty.rftoolscontrol.modules.processor.logic.Parameter;
+import mcjty.rftoolsbase.api.control.parameters.Parameter;
 import mcjty.rftoolscontrol.setup.RFToolsCtrlMessages;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.level.block.entity.BlockEntity;

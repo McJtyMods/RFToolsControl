@@ -8,7 +8,7 @@ import mcjty.rftoolsbase.api.control.code.Opcode;
 import mcjty.rftoolsbase.api.control.parameters.ParameterDescription;
 import mcjty.rftoolsbase.api.control.parameters.ParameterValue;
 import mcjty.rftoolscontrol.modules.processor.logic.Connection;
-import mcjty.rftoolscontrol.modules.processor.logic.Parameter;
+import mcjty.rftoolsbase.api.control.parameters.Parameter;
 import mcjty.rftoolscontrol.modules.processor.logic.ParameterTools;
 import mcjty.rftoolscontrol.modules.processor.logic.registry.Opcodes;
 import net.minecraft.nbt.CompoundTag;

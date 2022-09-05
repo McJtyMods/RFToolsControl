@@ -6,7 +6,7 @@ import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.Logging;
 import mcjty.lib.varia.SafeClientTools;
 import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorContainer;
-import mcjty.rftoolscontrol.modules.processor.logic.Parameter;
+import mcjty.rftoolsbase.api.control.parameters.Parameter;
 import mcjty.rftoolscontrol.modules.processor.logic.ParameterTools;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.network.FriendlyByteBuf;

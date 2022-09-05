@@ -16,7 +16,7 @@ import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.modules.processor.ProcessorModule;
 import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorContainer;
 import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorTileEntity;
-import mcjty.rftoolscontrol.modules.processor.logic.Parameter;
+import mcjty.rftoolsbase.api.control.parameters.Parameter;
 import mcjty.rftoolscontrol.modules.processor.logic.ParameterTypeTools;
 import mcjty.rftoolscontrol.modules.processor.logic.editors.ParameterEditor;
 import mcjty.rftoolscontrol.modules.processor.logic.editors.ParameterEditors;
