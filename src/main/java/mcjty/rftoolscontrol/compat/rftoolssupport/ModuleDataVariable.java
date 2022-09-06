@@ -1,8 +1,8 @@
 package mcjty.rftoolscontrol.compat.rftoolssupport;
 
+import mcjty.rftoolsbase.api.control.parameters.Parameter;
 import mcjty.rftoolsbase.api.screens.data.IModuleData;
 import mcjty.rftoolscontrol.RFToolsControl;
-import mcjty.rftoolscontrol.modules.processor.logic.Parameter;
 import mcjty.rftoolscontrol.modules.processor.logic.ParameterTools;
 import net.minecraft.network.FriendlyByteBuf;
 

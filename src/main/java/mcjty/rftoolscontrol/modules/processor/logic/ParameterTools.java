@@ -4,19 +4,19 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import mcjty.lib.network.NetworkTools;
+import mcjty.lib.varia.Tools;
 import mcjty.rftoolsbase.api.control.parameters.*;
 import mcjty.rftoolscontrol.modules.processor.logic.registry.InventoryUtil;
 import mcjty.rftoolscontrol.modules.processor.logic.running.ExceptionType;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.core.Direction;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fluids.FluidStack;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 public class ParameterTools {
 
@@ -171,7 +171,7 @@ public class ParameterTools {
     /**
      * Warning! Only use this function when the type of the two elements is the same!
      */
-    public static int compare(Parameter par1, Parameter par2) {
+    public static int compare(IParameter par1, IParameter par2) {
         Object v1 = par1.getParameterValue().getValue();
         Object v2 = par2.getParameterValue().getValue();
         if (v1 == null) {
@@ -400,5 +400,60 @@ public class ParameterTools {
         } else {
             return TypeConverters.castToInt(n1) % TypeConverters.castToInt(n2);
         }
+    }
+
+    public static int compareParameterLists(List<Parameter> l1, List<Parameter> l2) {
+        int i = 0;
+        while (i < l1.size() && i < l2.size()) {
+            int rc = ParameterTools.compare(l1.get(i), l2.get(i));
+            if (rc != 0) {
+                return rc;
+            }
+            i++;
+        }
+        if (i < l1.size()) {
+            return 1;
+        } else if (i < l2.size()) {
+            return -1;
+        }
+        return 0;
+    }
+
+    static int compareParameters(@Nonnull IParameter par1, @Nonnull IParameter parameter) {
+        return switch (par1.getParameterType()) {
+            case PAR_STRING ->
+                    TypeConverters.convertToString(par1).compareTo(TypeConverters.convertToString(parameter));
+            case PAR_INTEGER ->
+                    Integer.compare(TypeConverters.convertToInt(par1), TypeConverters.convertToInt(parameter));
+            case PAR_FLOAT ->
+                    Float.compare(TypeConverters.convertToFloat(par1), TypeConverters.convertToFloat(parameter));
+            case PAR_SIDE ->
+                    Objects.compare(TypeConverters.convertToSide(par1), TypeConverters.convertToSide(parameter),
+                            Comparator.naturalOrder());
+            case PAR_BOOLEAN ->
+                    Boolean.compare(TypeConverters.convertToBool(par1), TypeConverters.convertToBool(parameter));
+            case PAR_INVENTORY -> 0;       // Undefined
+            case PAR_ITEM ->
+                    Objects.compare(TypeConverters.convertToItem(par1), TypeConverters.convertToItem(parameter),
+                            Comparator.comparing(Tools::getId));
+            case PAR_EXCEPTION -> 0;
+            case PAR_TUPLE ->
+                    Objects.compare(TypeConverters.convertToTuple(par1), TypeConverters.convertToTuple(parameter),
+                            Comparator.naturalOrder());
+            case PAR_FLUID ->
+                    Objects.compare(TypeConverters.convertToFluid(par1), TypeConverters.convertToFluid(parameter),
+                            Comparator.comparing(s -> Tools.getId(s).toString()));
+            case PAR_VECTOR ->
+                    Objects.compare(TypeConverters.convertToVector(par1), TypeConverters.convertToVector(parameter),
+                            ParameterTools::compareParameterLists);
+            case PAR_LONG -> Long.compare(TypeConverters.convertToLong(par1), TypeConverters.convertToLong(parameter));
+            case PAR_NUMBER ->
+                    Objects.compare(TypeConverters.convertToNumber(par1), TypeConverters.convertToNumber(parameter),
+                            (n1, n2) -> {
+                                Double d1 = n1.doubleValue();
+                                Double d2 = n2.doubleValue();
+                                return Objects.compare(d1, d2, Comparator.naturalOrder());
+                            });
+        };
     }
 }
