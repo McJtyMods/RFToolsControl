@@ -1,3 +1,6 @@
+Upcoming:
+- Fix patchouli manual
+
 1.18-5.0.7:
 - Moved the Parameter class from RFToolsControl to the API
 
