@@ -23,9 +23,7 @@ public class CardBaseItem extends Item implements ITooltipSettings {
             .info(header());
 
     public CardBaseItem() {
-        super(new Properties()
-                .stacksTo(64)
-                .tab(RFToolsControl.setup.getTab()));
+        super(RFToolsControl.setup.defaultProperties().stacksTo(64));
     }
 
     @Override

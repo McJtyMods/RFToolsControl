@@ -36,10 +36,9 @@ import javax.annotation.Nonnull;
 public class ConsoleModuleItem extends GenericModuleItem implements ITabletSupport {
 
     public ConsoleModuleItem() {
-        super(new Properties()
+        super(RFToolsControl.setup.defaultProperties()
                 .stacksTo(1)
-                .durability(1)
-                .tab(RFToolsControl.setup.getTab()));
+                .durability(1));
     }
 
     @Override

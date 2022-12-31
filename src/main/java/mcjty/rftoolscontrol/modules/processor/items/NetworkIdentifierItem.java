@@ -36,10 +36,9 @@ public class NetworkIdentifierItem extends Item implements ITooltipSettings {
                     parameter("target", ModuleTools::hasModuleTarget, ModuleTools::getTargetString));
 
     public NetworkIdentifierItem() {
-        super(new Properties()
+        super(RFToolsControl.setup.defaultProperties()
                 .stacksTo(1)
-                .durability(1)
-                .tab(RFToolsControl.setup.getTab()));
+                .durability(1));
     }
 
     @Override

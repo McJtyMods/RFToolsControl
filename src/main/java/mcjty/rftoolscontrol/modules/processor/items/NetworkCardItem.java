@@ -32,9 +32,7 @@ public class NetworkCardItem extends Item implements ITooltipSettings {
                     general("extra", stack -> getTier() == TIER_ADVANCED, ChatFormatting.GREEN));
 
     public NetworkCardItem(int tier) {
-        super(new Properties()
-                .stacksTo(1)
-                .tab(RFToolsControl.setup.getTab()));
+        super(RFToolsControl.setup.defaultProperties().stacksTo(1));
         this.tier = tier;
     }
 

@@ -22,9 +22,7 @@ public class GraphicsCardItem extends Item implements ITooltipSettings {
     private final Lazy<TooltipBuilder> tooltipBuilder = () -> new TooltipBuilder().info(header());
 
     public GraphicsCardItem() {
-        super(new Properties()
-                .stacksTo(1)
-                .tab(RFToolsControl.setup.getTab()));
+        super(RFToolsControl.setup.defaultProperties().stacksTo(1));
     }
 
     @Override

@@ -29,9 +29,7 @@ public class CPUCoreItem extends Item implements ITooltipSettings {
                     parameter("power", stack -> Integer.toString(Config.coreRFPerTick[getTier()].get())));
 
     public CPUCoreItem(int tier) {
-        super(new Properties()
-                .stacksTo(1)
-                .tab(RFToolsControl.setup.getTab()));
+        super(RFToolsControl.setup.defaultProperties().stacksTo(1));
         this.tier = tier;
     }
 

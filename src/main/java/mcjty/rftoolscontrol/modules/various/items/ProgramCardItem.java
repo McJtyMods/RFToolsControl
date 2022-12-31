@@ -30,9 +30,7 @@ public class ProgramCardItem extends Item implements ITooltipSettings {
             .info(header(), parameter("name", stack -> NBTTools.getString(stack, "name", "<unset>")));
 
     public ProgramCardItem() {
-        super(new Properties()
-                .stacksTo(1)
-                .tab(RFToolsControl.setup.getTab()));
+        super(RFToolsControl.setup.defaultProperties().stacksTo(1));
     }
 
     @Override

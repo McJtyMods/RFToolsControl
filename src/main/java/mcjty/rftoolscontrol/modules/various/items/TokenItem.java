@@ -72,9 +72,7 @@ public class TokenItem extends Item implements ITooltipSettings {
     }
 
     public TokenItem() {
-        super(new Properties()
-                .stacksTo(64)
-                .tab(RFToolsControl.setup.getTab()));
+        super(RFToolsControl.setup.defaultProperties().stacksTo(64));
     }
 
 

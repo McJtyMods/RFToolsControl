@@ -23,9 +23,7 @@ public class RAMChipItem extends Item implements ITooltipSettings {
             .info(header());
 
     public RAMChipItem() {
-        super(new Properties()
-                .stacksTo(1)
-                .tab(RFToolsControl.setup.getTab()));
+        super(RFToolsControl.setup.defaultProperties().stacksTo(1));
     }
 
 
