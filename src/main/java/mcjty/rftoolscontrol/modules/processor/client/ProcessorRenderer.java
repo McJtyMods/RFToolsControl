@@ -1,7 +1,6 @@
 package mcjty.rftoolscontrol.modules.processor.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Vector3f;
 import mcjty.lib.blocks.BaseBlock;
 import mcjty.lib.client.RenderHelper;
 import mcjty.lib.network.PacketGetListFromServer;
@@ -54,9 +53,9 @@ public class ProcessorRenderer implements BlockEntityRenderer<ProcessorTileEntit
         matrixStack.translate(0.5F, 1.5F, 0.5F);
 
         if (facing == Direction.UP) {
-            matrixStack.mulPose(Vector3f.XP.rotationDegrees(-90.0F));
+            RenderHelper.rotateXP(matrixStack, -90.f);
         } else if (facing == Direction.DOWN) {
-            matrixStack.mulPose(Vector3f.XP.rotationDegrees(90.0F));
+            RenderHelper.rotateXP(matrixStack, 90.f);
         } else {
             float rotY = switch (facing) {
                 case NORTH -> 180.0F;
@@ -64,7 +63,7 @@ public class ProcessorRenderer implements BlockEntityRenderer<ProcessorTileEntit
                 case EAST -> -90.0F;
                 default -> 0.0F;
             };
-            matrixStack.mulPose(Vector3f.YP.rotationDegrees(-rotY));
+            RenderHelper.rotateYP(matrixStack, -rotY);
         }
 
         if (te.getLevel().isEmptyBlock(te.getBlockPos().above())) {
