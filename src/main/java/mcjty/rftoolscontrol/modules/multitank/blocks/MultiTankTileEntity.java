@@ -40,7 +40,7 @@ public class MultiTankTileEntity extends GenericTileEntity {
             .setupSync(this));
 
     public MultiTankTileEntity(BlockPos pos, BlockState state) {
-        super(MultiTankModule.MULTITANK_TILE.get(), pos, state);
+        super(MultiTankModule.TYPE_MULTITANK.get(), pos, state);
         for (int i = 0 ; i < TANKS ; i++) {
             properties[i] = new MultiTankFluidProperties(this, FluidStack.EMPTY, MAXCAPACITY);
         }

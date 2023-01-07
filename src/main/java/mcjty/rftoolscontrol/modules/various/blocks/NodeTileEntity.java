@@ -40,7 +40,7 @@ public class NodeTileEntity extends GenericTileEntity {
             .setupSync(this));
 
     public NodeTileEntity(BlockPos pos, BlockState state) {
-        super(VariousModule.NODE_TILE.get(), pos, state);
+        super(VariousModule.TYPE_NODE.get(), pos, state);
     }
 
     public String getNodeName() {

@@ -71,7 +71,7 @@ public class CraftingStationTileEntity extends GenericTileEntity {
     private int cleanupCounter = 50;
 
     public CraftingStationTileEntity(BlockPos pos, BlockState state) {
-        super(CraftingStationModule.CRAFTING_STATION_TILE.get(), pos, state);
+        super(CraftingStationModule.TYPE_CRAFTING_STATION.get(), pos, state);
     }
 
     public void registerProcessor(BlockPos pos) {

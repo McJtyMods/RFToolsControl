@@ -4,7 +4,7 @@
     "rftoolscontrol:tank",
     "rftoolscontrol:processor",
     "rftoolscontrol:programmer",
-    "rftoolscontrol:node",
-    "rftoolscontrol:workbench"
+    "rftoolscontrol:workbench",
+    "rftoolscontrol:node"
   ]
 }

@@ -45,7 +45,7 @@ public class ProgrammerTileEntity extends GenericTileEntity {
             .setupSync(this));
 
     public ProgrammerTileEntity(BlockPos pos, BlockState state) {
-        super(ProgrammerModule.PROGRAMMER_TILE.get(), pos, state);
+        super(ProgrammerModule.TYPE_PROGRAMMER.get(), pos, state);
         items.setStackInSlot(SLOT_DUMMY, new ItemStack(VariousModule.PROGRAM_CARD.get()));
     }
 

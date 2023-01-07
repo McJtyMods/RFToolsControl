@@ -9,7 +9,6 @@ import mcjty.lib.container.SlotDefinition;
 import mcjty.lib.tileentity.Cap;
 import mcjty.lib.tileentity.CapType;
 import mcjty.lib.tileentity.GenericTileEntity;
-import mcjty.lib.varia.SafeClientTools;
 import mcjty.rftoolscontrol.modules.various.VariousModule;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
@@ -61,7 +60,7 @@ public class WorkbenchTileEntity extends GenericTileEntity {
     private int realItems = 0;
 
     public WorkbenchTileEntity(BlockPos pos, BlockState state) {
-        super(VariousModule.WORKBENCH_TILE.get(), pos, state);
+        super(VariousModule.TYPE_WORKBENCH.get(), pos, state);
     }
 
 
