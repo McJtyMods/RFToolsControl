@@ -5,6 +5,7 @@ import mcjty.lib.setup.DefaultModSetup;
 import mcjty.rftoolsbase.api.control.registry.IFunctionRegistry;
 import mcjty.rftoolsbase.api.control.registry.IOpcodeRegistry;
 import mcjty.rftoolscontrol.CommandHandler;
+import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.compat.rftoolssupport.RFToolsSupport;
 import mcjty.rftoolscontrol.modules.processor.ProcessorModule;
 import mcjty.rftoolscontrol.modules.processor.logic.registry.FunctionRegistry;
@@ -22,7 +23,7 @@ import java.util.function.Supplier;
 public class ModSetup extends DefaultModSetup {
 
     public ModSetup() {
-        createTab("rftoolscontrol", () -> new ItemStack(ProcessorModule.PROCESSOR.get()));
+        createTab(RFToolsControl.MODID, "rftoolscontrol", () -> new ItemStack(ProcessorModule.PROCESSOR.get()));
     }
 
     @Override

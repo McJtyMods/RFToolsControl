@@ -9,7 +9,6 @@ import mcjty.rftoolscontrol.modules.processor.logic.ParameterTools;
 import mcjty.rftoolscontrol.modules.processor.logic.running.ExceptionType;
 import mcjty.rftoolscontrol.modules.processor.logic.running.ProgException;
 import net.minecraft.ChatFormatting;
-import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
@@ -363,7 +362,7 @@ public class Opcodes {
             .runnable(((processor, program, opcode) -> {
                 ItemStack item = processor.evaluateItemParameter(opcode, program, 0);
                 String tagName = processor.evaluateStringParameterNonNull(opcode, program, 1);
-                TagKey<Item> tag = TagKey.create(Registry.ITEM.key(), new ResourceLocation(tagName));
+                TagKey<Item> tag = TagTools.createItemTagKey(new ResourceLocation(tagName));
 //                if (tag == null) {
 //                    throw new ProgException(ExceptionType.EXCEPT_UNKNOWN_TAG);
 //                }

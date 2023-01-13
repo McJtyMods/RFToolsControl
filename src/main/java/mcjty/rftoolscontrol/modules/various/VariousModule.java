@@ -29,30 +29,31 @@ import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.registries.RegistryObject;
 
 import static mcjty.lib.datagen.DataGen.has;
+import static mcjty.rftoolscontrol.RFToolsControl.tab;
 import static mcjty.rftoolscontrol.setup.Registration.*;
 
 public class VariousModule implements IModule {
 
     public static final RegistryObject<BaseBlock> NODE = BLOCKS.register("node", NodeBlock::new);
     public static final RegistryObject<BlockEntityType<NodeTileEntity>> TYPE_NODE = TILES.register("node", () -> BlockEntityType.Builder.of(NodeTileEntity::new, NODE.get()).build(null));
-    public static final RegistryObject<Item> NODE_ITEM = ITEMS.register("node", () -> new BlockItem(NODE.get(), Registration.createStandardProperties()));
+    public static final RegistryObject<Item> NODE_ITEM = ITEMS.register("node", tab(() -> new BlockItem(NODE.get(), Registration.createStandardProperties())));
     public static final RegistryObject<MenuType<GenericContainer>> NODE_CONTAINER = CONTAINERS.register("node", GenericContainer::createContainerType);
 
     public static final RegistryObject<BaseBlock> WORKBENCH = BLOCKS.register("workbench", WorkbenchBlock::new);
     public static final RegistryObject<BlockEntityType<WorkbenchTileEntity>> TYPE_WORKBENCH = TILES.register("workbench", () -> BlockEntityType.Builder.of(WorkbenchTileEntity::new, WORKBENCH.get()).build(null));
-    public static final RegistryObject<Item> WORKBENCH_ITEM = ITEMS.register("workbench", () -> new BlockItem(WORKBENCH.get(), Registration.createStandardProperties()));
+    public static final RegistryObject<Item> WORKBENCH_ITEM = ITEMS.register("workbench", tab(() -> new BlockItem(WORKBENCH.get(), Registration.createStandardProperties())));
     public static final RegistryObject<MenuType<WorkbenchContainer>> WORKBENCH_CONTAINER = CONTAINERS.register("workbench", GenericContainer::createContainerType);
 
-    public static final RegistryObject<CardBaseItem> CARD_BASE = ITEMS.register("card_base", CardBaseItem::new);
-    public static final RegistryObject<TokenItem> TOKEN = ITEMS.register("token", TokenItem::new);
+    public static final RegistryObject<CardBaseItem> CARD_BASE = ITEMS.register("card_base", tab(CardBaseItem::new));
+    public static final RegistryObject<TokenItem> TOKEN = ITEMS.register("token", tab(TokenItem::new));
 
-    public static final RegistryObject<ProgramCardItem> PROGRAM_CARD = ITEMS.register("program_card", ProgramCardItem::new);
-    public static final RegistryObject<VariableModuleItem> VARIABLE_MODULE = ITEMS.register("variable_module", VariableModuleItem::new);
-    public static final RegistryObject<InteractionModuleItem> INTERACTION_MODULE = ITEMS.register("interaction_module", InteractionModuleItem::new);
-    public static final RegistryObject<ConsoleModuleItem> CONSOLE_MODULE = ITEMS.register("console_module", ConsoleModuleItem::new);
-    public static final RegistryObject<VectorArtModuleItem> VECTORART_MODULE = ITEMS.register("vectorart_module", VectorArtModuleItem::new);
+    public static final RegistryObject<ProgramCardItem> PROGRAM_CARD = ITEMS.register("program_card", tab(ProgramCardItem::new));
+    public static final RegistryObject<VariableModuleItem> VARIABLE_MODULE = ITEMS.register("variable_module", tab(VariableModuleItem::new));
+    public static final RegistryObject<InteractionModuleItem> INTERACTION_MODULE = ITEMS.register("interaction_module", tab(InteractionModuleItem::new));
+    public static final RegistryObject<ConsoleModuleItem> CONSOLE_MODULE = ITEMS.register("console_module", tab(ConsoleModuleItem::new));
+    public static final RegistryObject<VectorArtModuleItem> VECTORART_MODULE = ITEMS.register("vectorart_module", tab(VectorArtModuleItem::new));
 
-    public static final RegistryObject<TabletItem> TABLET_PROCESSOR = ITEMS.register("tablet_processor", TabletItem::new);
+    public static final RegistryObject<TabletItem> TABLET_PROCESSOR = ITEMS.register("tablet_processor", tab(TabletItem::new));
 
     @Override
     public void init(FMLCommonSetupEvent event) {

@@ -21,13 +21,14 @@ import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.registries.RegistryObject;
 
 import static mcjty.lib.datagen.DataGen.has;
+import static mcjty.rftoolscontrol.RFToolsControl.tab;
 import static mcjty.rftoolscontrol.setup.Registration.*;
 
 public class ProgrammerModule implements IModule {
 
     public static final RegistryObject<BaseBlock> PROGRAMMER = BLOCKS.register("programmer", ProgrammerBlock::new);
     public static final RegistryObject<BlockEntityType<ProgrammerTileEntity>> TYPE_PROGRAMMER = TILES.register("programmer", () -> BlockEntityType.Builder.of(ProgrammerTileEntity::new, PROGRAMMER.get()).build(null));
-    public static final RegistryObject<Item> PROGRAMMER_ITEM = ITEMS.register("programmer", () -> new BlockItem(PROGRAMMER.get(), Registration.createStandardProperties()));
+    public static final RegistryObject<Item> PROGRAMMER_ITEM = ITEMS.register("programmer", tab(() -> new BlockItem(PROGRAMMER.get(), Registration.createStandardProperties())));
     public static final RegistryObject<MenuType<GenericContainer>> PROGRAMMER_CONTAINER = CONTAINERS.register("programmer", GenericContainer::createContainerType);
 
     @Override

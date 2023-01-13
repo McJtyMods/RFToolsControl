@@ -10,6 +10,7 @@ import mcjty.lib.gui.events.TextSpecialKeyEvent;
 import mcjty.lib.gui.layout.HorizontalAlignment;
 import mcjty.lib.gui.widgets.*;
 import mcjty.lib.typed.TypedMap;
+import mcjty.lib.varia.ClientTools;
 import mcjty.lib.varia.Tools;
 import mcjty.rftoolsbase.api.control.parameters.Parameter;
 import mcjty.rftoolsbase.api.control.parameters.ParameterType;
@@ -178,7 +179,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity, Proce
         sidePanel.bounds(leftPos - SIDEWIDTH, topPos, SIDEWIDTH, imageHeight);
         sideWindow = new Window(this, sidePanel);
 
-        minecraft.keyboardHandler.setSendRepeatsToGui(true);
+        ClientTools.enableKeyboardRepeat();
     }
 
     private void setupLogWindow(Panel toplevel) {

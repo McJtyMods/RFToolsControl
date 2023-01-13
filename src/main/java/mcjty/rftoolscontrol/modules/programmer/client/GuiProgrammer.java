@@ -13,6 +13,7 @@ import mcjty.lib.gui.icons.ImageIcon;
 import mcjty.lib.gui.layout.HorizontalAlignment;
 import mcjty.lib.gui.layout.HorizontalLayout;
 import mcjty.lib.gui.widgets.*;
+import mcjty.lib.varia.ClientTools;
 import mcjty.lib.varia.Logging;
 import mcjty.lib.varia.SafeClientTools;
 import mcjty.rftoolsbase.api.control.code.Opcode;
@@ -167,7 +168,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Gen
         loadProgram(ProgrammerTileEntity.SLOT_DUMMY);
 
         clearCategoryLabels();
-        minecraft.keyboardHandler.setSendRepeatsToGui(true);
+        ClientTools.enableKeyboardRepeat();
     }
 
     @Override
