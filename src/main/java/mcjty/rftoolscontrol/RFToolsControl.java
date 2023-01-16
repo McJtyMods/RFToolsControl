@@ -52,8 +52,7 @@ public class RFToolsControl {
     }
 
     public static <T extends Item> Supplier<T> tab(Supplier<T> supplier) {
-        instance.setup.tab(supplier);
-        return supplier;
+        return instance.setup.tab(supplier);
     }
 
     private void onDataGen(GatherDataEvent event) {
