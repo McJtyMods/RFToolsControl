@@ -80,6 +80,7 @@ import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.ItemHandlerHelper;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nonnull;
@@ -413,8 +414,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
 
         for (BlockPos p : craftingStations) {
             BlockEntity te = level.getBlockEntity(p);
-            if (te instanceof CraftingStationTileEntity) {
-                CraftingStationTileEntity craftingStation = (CraftingStationTileEntity) te;
+            if (te instanceof CraftingStationTileEntity craftingStation) {
                 craftedItem = craftingStation.craftOk(this, ticket, craftedItem);
             }
         }
@@ -684,25 +684,62 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
     // Given a list of ingredients make a combined list where all identical
     // items are grouped
     private List<Ingredient> combineIngredients(List<Ingredient> ingredients) {
-        // @todo 1.15 can we solve this in a different way?
-//        List<Ingredient> needed = new ArrayList<>();
-//        for (Ingredient ingredient : ingredients) {
-////            if (!ingredient.isEmpty()) {
-//                boolean found = false;
-//                for (Ingredient neededStack : needed) {
-//                    if (ingredient.test(neededStack)) {
-//                        neededStack.grow(ingredient.getCount());
-//                        found = true;
-//                        break;
-//                    }
-//                }
-//                if (!found) {
-//                    needed.add(ingredient.copy());
-//                }
-////            }
-//        }
-//        return needed;
-        return ingredients;
+        List<Ingredient> needed = new ArrayList<>();
+        for (Ingredient ingredient : ingredients) {
+            if (!ingredient.isEmpty()) {
+                boolean found = false;
+                for (int i = 0 ; i < needed.size() ; i++) {
+                    Ingredient neededStack = needed.get(i);
+                    if (testIngredientEquality(ingredient, neededStack)) {
+                        needed.set(i, combine(ingredient, neededStack));
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    needed.add(ingredient);
+                }
+            }
+        }
+        return needed;
+    }
+
+    /**
+     * Try to guess if two ingredients are equivalent
+     */
+    private boolean testIngredientEquality(Ingredient i1, Ingredient i2) {
+        if (i1.isSimple() && i2.isSimple()) {
+            // Both ingredients are simple
+            ItemStack[] items1 = i1.getItems();
+            ItemStack[] items2 = i2.getItems();
+            if (items1.length == items2.length) {
+                for (int i = 0 ; i < items1.length ; i++) {
+                    if (!ItemHandlerHelper.canItemStacksStack(items1[i], items2[i])) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Combine two equivalent ingredients (that return true with testIngredientEquality)
+     * into one
+     */
+    private Ingredient combine(Ingredient i1, Ingredient i2) {
+        List<ItemStack> list = new ArrayList<>();
+        ItemStack[] items1 = i1.getItems();
+        ItemStack[] items2 = i2.getItems();
+        if (items1.length == items2.length) {
+            for (int i = 0 ; i < items1.length ; i++) {
+                ItemStack copy = items1[i].copy();
+                copy.grow(items2[i].getCount());
+                list.add(copy);
+            }
+        }
+        return Ingredient.of(list.toArray(new ItemStack[list.size()]));
     }
 
     public int getIngredients(IProgram program, Inventory inv, Inventory cardInv, ItemStack inputStack, int slot1, int slot2) {
@@ -2573,6 +2610,9 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
     public LazyOptional<IItemHandler> getItemHandlerAt(@Nonnull Inventory inv) {
         Direction intSide = inv.getIntSide();
         BlockEntity te = getTileEntityAt(inv);
+        if (te == null) {
+            return LazyOptional.empty();
+        }
         return getItemHandlerAt(te, intSide);
     }
 
@@ -2640,16 +2680,20 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
 
     @Override
     public void loadClientDataFromNBT(CompoundTag tagCompound) {
-        exclusive = tagCompound.getBoolean("exclusive");
-        showHud = tagCompound.getByte("hud");
-        readCardInfo(tagCompound);
+        CompoundTag info = tagCompound.getCompound("Info");
+        if (info != null) {
+            exclusive = info.getBoolean("exclusive");
+            showHud = info.getByte("hud");
+            readCardInfo(info);
+        }
     }
 
     @Override
     public void saveClientDataToNBT(CompoundTag tagCompound) {
-        tagCompound.putBoolean("exclusive", exclusive);
-        tagCompound.putByte("hud", (byte) showHud);
-        writeCardInfo(tagCompound);
+        CompoundTag info = getOrCreateInfo(tagCompound);
+        info.putBoolean("exclusive", exclusive);
+        info.putByte("hud", (byte) showHud);
+        writeCardInfo(info);
     }
 
     @Override
