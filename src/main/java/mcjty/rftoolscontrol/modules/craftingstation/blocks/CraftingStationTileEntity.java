@@ -130,12 +130,12 @@ public class CraftingStationTileEntity extends GenericTileEntity {
             if (!stack.isEmpty()) {
                 Inventory inventory = getInventoryFromTicket(ticket);
                 if (inventory != null) {
+                    ItemStack finalStack = stack;
                     return processor.getItemHandlerAt(inventory)
-                            .map(handlerAt -> ItemHandlerHelper.insertItem(handlerAt, stack, false))
+                            .map(handlerAt -> ItemHandlerHelper.insertItem(handlerAt, finalStack, false))
                             .orElseThrow(() -> new ProgException(ExceptionType.EXCEPT_INVALIDINVENTORY));
                  } else {
-                    getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY)
-                            .map(h -> ItemHandlerHelper.insertItem(h, stack, false));
+                    stack = ItemHandlerHelper.insertItem(items, stack, false);
                 }
             }
         }

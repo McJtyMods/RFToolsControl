@@ -1,3 +1,8 @@
+Upcoming:
+- Fixed 'get ingredients smart'
+- Fixed a few bugs in some of the other crafting opcodes
+- Fixed item and variable allocations not correctly syncing to client
+
 1.19-6.0.1:
 - API Changes
 
