@@ -1,4 +1,5 @@
 Upcoming:
+- Updated to Latest McJtyLib and made compatible with 1.19.3
 - Fixed 'get ingredients smart'
 - Fixed a few bugs in some of the other crafting opcodes
 - Fixed item and variable allocations not correctly syncing to client
