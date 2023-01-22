@@ -1,4 +1,4 @@
-Upcoming:
+1.18-5.0.9:
 - Fixed 'get ingredients smart'
 - Fixed a few bugs in some of the other crafting opcodes
 - Fixed item and variable allocations not correctly syncing to client
