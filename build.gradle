@@ -49,4 +49,4 @@ dependencies {
 }
 
 tasks.curseforge.enabled = project.hasProperty('curseforge_key')
-cfdeps(['the-one-probe'], ['mcjtylib', 'rftools-base'])
+cfdeps(['the-one-probe'], ['mcjtylib', 'rftools-base'], ['1.19.3'])
