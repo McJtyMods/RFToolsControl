@@ -3,5 +3,5 @@
   "loader": "forge:obj",
   "model": "rftoolscontrol:models/block/tank.obj",
   "render_type": "minecraft:translucent",
-  "flip-v": true
+  "flip_v": true
 }
