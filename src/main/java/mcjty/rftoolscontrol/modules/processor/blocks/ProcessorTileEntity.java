@@ -508,39 +508,37 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
     }
 
     public int pushItemsMulti(IProgram program, @Nullable Inventory inv, int slot1, int slot2, @Nullable Integer extSlot) {
-        return getHandlerForInv(inv).map(handler -> {
-            IStorageScanner scanner = getScannerForInv(inv);
+        IItemHandler handler = getHandlerForInv(inv);
+        IStorageScanner scanner = getScannerForInv(inv);
 
-            CardInfo info = this.cardInfo[((RunningProgram) program).getCardIndex()];
-            int e = 0;
-            if (extSlot != null) {
-                e = extSlot;
-            }
+        CardInfo info = this.cardInfo[((RunningProgram) program).getCardIndex()];
+        int e = 0;
+        if (extSlot != null) {
+            e = extSlot;
+        }
 
-            int failed = 0;
-            for (int slot = slot1; slot <= slot2; slot++) {
-                int realSlot = info.getRealSlot(slot);
-                ItemStack stack = ((IItemHandler) items).getStackInSlot(realSlot);
-                if (!stack.isEmpty()) {
-                    ItemStack remaining = LogicInventoryTools.insertItem(handler, scanner, stack, extSlot == null ? null : e);
-                    if (!remaining.isEmpty()) {
-                        failed++;
-                    }
-                    items.setStackInSlot(realSlot, remaining);
+        int failed = 0;
+        for (int slot = slot1; slot <= slot2; slot++) {
+            int realSlot = info.getRealSlot(slot);
+            ItemStack stack = ((IItemHandler) items).getStackInSlot(realSlot);
+            if (!stack.isEmpty()) {
+                ItemStack remaining = LogicInventoryTools.insertItem(handler, scanner, stack, extSlot == null ? null : e);
+                if (!remaining.isEmpty()) {
+                    failed++;
                 }
-                e++;
+                items.setStackInSlot(realSlot, remaining);
             }
-            return failed;
-        }).orElse(0);
+            e++;
+        }
+        return failed;
     }
 
     public int countCardIngredients(IProgram program, @Nullable Inventory inv, ItemStack card) {
+        IItemHandler handler = getHandlerForInv(inv);
         IStorageScanner scanner = getScannerForInv(inv);
-        return getHandlerForInv(inv).map(handler -> {
-            List<Ingredient> ingredients = CraftingCardItem.getIngredients(card);
-            List<Ingredient> needed = combineIngredients(ingredients);
-            return countPossibleCrafts(scanner, handler, needed);
-        }).orElse(0);
+        List<Ingredient> ingredients = CraftingCardItem.getIngredients(card);
+        List<Ingredient> needed = combineIngredients(ingredients);
+        return countPossibleCrafts(scanner, handler, needed);
     }
 
     public boolean checkIngredients(IProgram program, @Nonnull Inventory cardInv, ItemStack item, int slot1, int slot2) {
@@ -594,55 +592,57 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
 
     public int getIngredientsSmart(IProgram program, Inventory inv, @Nonnull Inventory cardInv,
                                    ItemStack inputStack, int slot1, int slot2, @Nonnull Inventory destInv) {
+        IItemHandler handler = getHandlerForInv(inv);
         IStorageScanner scanner = getScannerForInv(inv);
-        return getHandlerForInv(inv).map(handler -> {
-            ItemStack item = inputStack;
-            if (item.isEmpty()) {
-                item = getCraftResult(program);
+        ItemStack item = inputStack;
+        if (item.isEmpty()) {
+            item = getCraftResult(program);
+        }
+        if (item.isEmpty()) {
+            throw new ProgException(EXCEPT_MISSINGCRAFTRESULT);
+        }
+
+        ItemStack finalItem = item;
+        IItemHandler destHandler = getHandlerForInv(destInv);
+        if (destHandler == null) {
+            throw new ProgException(EXCEPT_INVALIDINVENTORY);
+        }
+        ;
+        ItemStack card = getItemHandlerAt(cardInv)
+                .map(cardHandler -> findCraftingCard(cardHandler, finalItem))
+                .orElse(ItemStack.EMPTY);
+        if (card.isEmpty()) {
+            throw new ProgException(EXCEPT_MISSINGCRAFTINGCARD);
+        }
+        CardInfo info = this.cardInfo[((RunningProgram) program).getCardIndex()];
+
+        List<Ingredient> ingredients;
+        if (CraftingCardItem.fitsGrid(card) && (slot2 - slot1 >= 8)) {
+            // We have something that fits a crafting grid and we have enough room for a 3x3 grid
+            ingredients = CraftingCardItem.getIngredientsGrid(card);
+        } else {
+            ingredients = CraftingCardItem.getIngredients(card);
+        }
+
+        List<Ingredient> needed = combineIngredients(ingredients);
+        int requested = checkAvailableItemsAndRequestMissing(destInv, scanner, handler, needed);
+        if (requested != 0) {
+            return requested;
+        }
+        // We got everything;
+        int slot = slot1;
+
+        for (Ingredient ingredient : ingredients) {
+            int realSlot = info.getRealSlot(slot);
+            if (ingredient != Ingredient.EMPTY) {
+                ItemStack stack = LogicInventoryTools.extractItem(handler, scanner, LogicInventoryTools.getCountFromIngredient(ingredient), true, ingredient, null);
+                if (!stack.isEmpty()) {
+                    ((IItemHandler) items).insertItem(realSlot, stack, false);
+                }
             }
-            if (item.isEmpty()) {
-                throw new ProgException(EXCEPT_MISSINGCRAFTRESULT);
-            }
-
-            ItemStack finalItem = item;
-            return getHandlerForInv(destInv).map(destHandler -> {
-                ItemStack card = getItemHandlerAt(cardInv)
-                        .map(cardHandler -> findCraftingCard(cardHandler, finalItem))
-                        .orElse(ItemStack.EMPTY);
-                if (card.isEmpty()) {
-                    throw new ProgException(EXCEPT_MISSINGCRAFTINGCARD);
-                }
-                CardInfo info = this.cardInfo[((RunningProgram) program).getCardIndex()];
-
-                List<Ingredient> ingredients;
-                if (CraftingCardItem.fitsGrid(card) && (slot2 - slot1 >= 8)) {
-                    // We have something that fits a crafting grid and we have enough room for a 3x3 grid
-                    ingredients = CraftingCardItem.getIngredientsGrid(card);
-                } else {
-                    ingredients = CraftingCardItem.getIngredients(card);
-                }
-
-                List<Ingredient> needed = combineIngredients(ingredients);
-                int requested = checkAvailableItemsAndRequestMissing(destInv, scanner, handler, needed);
-                if (requested != 0) {
-                    return requested;
-                }
-                // We got everything;
-                int slot = slot1;
-
-                for (Ingredient ingredient : ingredients) {
-                    int realSlot = info.getRealSlot(slot);
-                    if (ingredient != Ingredient.EMPTY) {
-                        ItemStack stack = LogicInventoryTools.extractItem(handler, scanner, LogicInventoryTools.getCountFromIngredient(ingredient), true, ingredient, null);
-                        if (!stack.isEmpty()) {
-                            ((IItemHandler) items).insertItem(realSlot, stack, false);
-                        }
-                    }
-                    slot++;
-                }
-                return 0;
-            }).orElseThrow(() -> new ProgException(EXCEPT_INVALIDINVENTORY));
-        }).orElse(0);
+            slot++;
+        }
+        return 0;
     }
 
     // Check the storage scanner or handler for a list of ingredients. Any missing
@@ -746,53 +746,52 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
     }
 
     public int getIngredients(IProgram program, Inventory inv, Inventory cardInv, ItemStack inputStack, int slot1, int slot2) {
+        IItemHandler handler = getHandlerForInv(inv);
         IStorageScanner scanner = getScannerForInv(inv);
-        return getHandlerForInv(inv).map(handler -> {
-            ItemStack item = inputStack;
-            if (item.isEmpty()) {
-                item = getCraftResult(program);
-            }
-            if (item.isEmpty()) {
-                throw new ProgException(EXCEPT_MISSINGCRAFTRESULT);
-            }
+        ItemStack item = inputStack;
+        if (item.isEmpty()) {
+            item = getCraftResult(program);
+        }
+        if (item.isEmpty()) {
+            throw new ProgException(EXCEPT_MISSINGCRAFTRESULT);
+        }
 
-            ItemStack finalItem = item;
-            ItemStack card = getItemHandlerAt(cardInv)
-                    .map(cardHandler -> findCraftingCard(cardHandler, finalItem))
-                    .orElse(ItemStack.EMPTY);
-            if (card.isEmpty()) {
-                throw new ProgException(EXCEPT_MISSINGCRAFTINGCARD);
-            }
-            CardInfo info = this.cardInfo[((RunningProgram) program).getCardIndex()];
+        ItemStack finalItem = item;
+        ItemStack card = getItemHandlerAt(cardInv)
+                .map(cardHandler -> findCraftingCard(cardHandler, finalItem))
+                .orElse(ItemStack.EMPTY);
+        if (card.isEmpty()) {
+            throw new ProgException(EXCEPT_MISSINGCRAFTINGCARD);
+        }
+        CardInfo info = this.cardInfo[((RunningProgram) program).getCardIndex()];
 
-            int slot = slot1;
+        int slot = slot1;
 
-            List<Ingredient> ingredients;
-            if (CraftingCardItem.fitsGrid(card) && (slot2 - slot1 >= 8)) {
-                // We have something that fits a crafting grid and we have enough room for a 3x3 grid
-                ingredients = CraftingCardItem.getIngredientsGrid(card);
-            } else {
-                ingredients = CraftingCardItem.getIngredients(card);
-            }
+        List<Ingredient> ingredients;
+        if (CraftingCardItem.fitsGrid(card) && (slot2 - slot1 >= 8)) {
+            // We have something that fits a crafting grid and we have enough room for a 3x3 grid
+            ingredients = CraftingCardItem.getIngredientsGrid(card);
+        } else {
+            ingredients = CraftingCardItem.getIngredients(card);
+        }
 
-            int failed = 0;
-            for (Ingredient ingredient : ingredients) {
-                int realSlot = info.getRealSlot(slot);
-                if (ingredient != Ingredient.EMPTY) {
-                    ItemStack stack = LogicInventoryTools.extractItem(handler, scanner, LogicInventoryTools.getCountFromIngredient(ingredient), true, ingredient, null);
-                    if (!stack.isEmpty()) {
-                        ItemStack remainder = ((IItemHandler) items).insertItem(realSlot, stack, false);
-                        if (!remainder.isEmpty()) {
-                            LogicInventoryTools.insertItem(handler, scanner, remainder, null);
-                        }
-                    } else {
-                        failed++;
+        int failed = 0;
+        for (Ingredient ingredient : ingredients) {
+            int realSlot = info.getRealSlot(slot);
+            if (ingredient != Ingredient.EMPTY) {
+                ItemStack stack = LogicInventoryTools.extractItem(handler, scanner, LogicInventoryTools.getCountFromIngredient(ingredient), true, ingredient, null);
+                if (!stack.isEmpty()) {
+                    ItemStack remainder = ((IItemHandler) items).insertItem(realSlot, stack, false);
+                    if (!remainder.isEmpty()) {
+                        LogicInventoryTools.insertItem(handler, scanner, remainder, null);
                     }
+                } else {
+                    failed++;
                 }
-                slot++;
             }
-            return failed;
-        }).orElse(0);
+            slot++;
+        }
+        return failed;
     }
 
     public void craftWait(IProgram program, @Nonnull Inventory inv, ItemStack stack) {
@@ -903,9 +902,12 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         if (stack.isEmpty()) {
             return ItemStack.EMPTY;
         }
-        return getHandlerForInv(inventory)
-                .map(handler -> findCraftingCard(handler, stack))
-                .orElseThrow(() -> new ProgException(EXCEPT_INVALIDINVENTORY));
+        IItemHandler handler = getHandlerForInv(inventory);
+        if (handler == null) {
+            throw new ProgException(EXCEPT_INVALIDINVENTORY);
+        } else {
+            return findCraftingCard(handler, stack);
+        }
     }
 
     private ItemStack findCraftingCard(IItemHandler handler, ItemStack craftResult) {
@@ -1624,11 +1626,12 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         }
     }
 
-    private LazyOptional<IItemHandler> getHandlerForInv(@Nullable Inventory inv) {
+    @Nullable
+    private IItemHandler getHandlerForInv(@Nullable Inventory inv) {
         if (inv == null) {
-            return LazyOptional.empty();
+            return null;
         } else {
-            return getItemHandlerAt(inv);
+            return getItemHandlerAt(inv).orElse(null);
         }
     }
 
@@ -1779,25 +1782,23 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
             throw new ProgException(EXCEPT_UNKNOWN_FILTER);
         }
 
-        return getHandlerForInv(inv).map(handler -> {
-            CardInfo info = this.cardInfo[((RunningProgram) program).getCardIndex()];
-            int realSlot = info.getRealSlot(virtualSlot);
-            ItemStack stack = LogicInventoryTools.tryExtractItem(handler, amount, cache);
-            if (stack.isEmpty()) {
-                // Nothing to do
-                return 0;
-            }
-            IItemHandler capability = items;
-            if (!capability.insertItem(realSlot, stack, true).isEmpty()) {
-                // Not enough room. Do nothing
-                return 0;
-            }
-            // All seems ok. Do the real thing now.
-            stack = LogicInventoryTools.extractItem(handler, amount, cache);
-            capability.insertItem(realSlot, stack, false);
-            return stack.getCount();
-
-        }).orElse(0);
+        IItemHandler handler = getHandlerForInv(inv);
+        CardInfo info = this.cardInfo[((RunningProgram) program).getCardIndex()];
+        int realSlot = info.getRealSlot(virtualSlot);
+        ItemStack stack = LogicInventoryTools.tryExtractItem(handler, amount, cache);
+        if (stack.isEmpty()) {
+            // Nothing to do
+            return 0;
+        }
+        IItemHandler capability = items;
+        if (!capability.insertItem(realSlot, stack, true).isEmpty()) {
+            // Not enough room. Do nothing
+            return 0;
+        }
+        // All seems ok. Do the real thing now.
+        stack = LogicInventoryTools.extractItem(handler, amount, cache);
+        capability.insertItem(realSlot, stack, false);
+        return stack.getCount();
     }
 
     public int fetchItems(IProgram program, Inventory inv, Integer slot, Ingredient itemMatcher, boolean routable, @Nullable Integer amount, int virtualSlot) {
@@ -1805,26 +1806,25 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
             throw new ProgException(EXCEPT_BADPARAMETERS);
         }
 
+        IItemHandler handler = getHandlerForInv(inv);
         IStorageScanner scanner = getScannerForInv(inv);
-        return getHandlerForInv(inv).map(handler -> {
-            CardInfo info = this.cardInfo[((RunningProgram) program).getCardIndex()];
-            int realSlot = info.getRealSlot(virtualSlot);
+        CardInfo info = this.cardInfo[((RunningProgram) program).getCardIndex()];
+        int realSlot = info.getRealSlot(virtualSlot);
 
-            ItemStack stack = LogicInventoryTools.tryExtractItem(handler, scanner, amount, routable, itemMatcher, slot);
-            if (stack.isEmpty()) {
-                // Nothing to do
-                return 0;
-            }
-            IItemHandler capability = items;
-            if (!capability.insertItem(realSlot, stack, true).isEmpty()) {
-                // Not enough room. Do nothing
-                return 0;
-            }
-            // All seems ok. Do the real thing now.
-            stack = LogicInventoryTools.extractItem(handler, scanner, amount, routable, itemMatcher, slot);
-            capability.insertItem(realSlot, stack, false);
-            return stack.getCount();
-        }).orElse(0);
+        ItemStack stack = LogicInventoryTools.tryExtractItem(handler, scanner, amount, routable, itemMatcher, slot);
+        if (stack.isEmpty()) {
+            // Nothing to do
+            return 0;
+        }
+        IItemHandler capability = items;
+        if (!capability.insertItem(realSlot, stack, true).isEmpty()) {
+            // Not enough room. Do nothing
+            return 0;
+        }
+        // All seems ok. Do the real thing now.
+        stack = LogicInventoryTools.extractItem(handler, scanner, amount, routable, itemMatcher, slot);
+        capability.insertItem(realSlot, stack, false);
+        return stack.getCount();
     }
 
     @Override
@@ -1836,23 +1836,22 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
     }
 
     public int pushItems(IProgram program, Inventory inv, Integer slot, @Nullable Integer amount, int virtualSlot) {
+        IItemHandler handler = getHandlerForInv(inv);
         IStorageScanner scanner = getScannerForInv(inv);
-        return getHandlerForInv(inv).map(handler -> {
-            CardInfo info = this.cardInfo[((RunningProgram) program).getCardIndex()];
-            int realSlot = info.getRealSlot(virtualSlot);
-            IItemHandler itemHandler = items;
-            ItemStack extracted = itemHandler.extractItem(realSlot, amount == null ? 64 : amount, false);
-            if (extracted.isEmpty()) {
-                // Nothing to do
-                return 0;
-            }
-            ItemStack remaining = LogicInventoryTools.insertItem(handler, scanner, extracted, slot);
-            if (!remaining.isEmpty()) {
-                itemHandler.insertItem(realSlot, remaining, false);
-                return extracted.getCount() - remaining.getCount();
-            }
-            return extracted.getCount();
-        }).orElse(0);
+        CardInfo info = this.cardInfo[((RunningProgram) program).getCardIndex()];
+        int realSlot = info.getRealSlot(virtualSlot);
+        IItemHandler itemHandler = items;
+        ItemStack extracted = itemHandler.extractItem(realSlot, amount == null ? 64 : amount, false);
+        if (extracted.isEmpty()) {
+            // Nothing to do
+            return 0;
+        }
+        ItemStack remaining = LogicInventoryTools.insertItem(handler, scanner, extracted, slot);
+        if (!remaining.isEmpty()) {
+            itemHandler.insertItem(realSlot, remaining, false);
+            return extracted.getCount() - remaining.getCount();
+        }
+        return extracted.getCount();
     }
 
     @Override

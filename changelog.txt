@@ -1,3 +1,6 @@
+Upcoming:
+- Fixed many opcodes so that they work again with the storage scanner
+
 1.19-6.1.0:
 - Updated to Latest McJtyLib and made compatible with 1.19.3
 - Fixed 'get ingredients smart'
