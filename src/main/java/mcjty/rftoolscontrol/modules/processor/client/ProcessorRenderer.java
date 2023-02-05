@@ -114,8 +114,7 @@ public class ProcessorRenderer implements BlockEntityRenderer<ProcessorTileEntit
             if (i >= logsize - 11) {
                 // Check if this module has enough room
                 if (currenty + height <= 124) {
-                    fontrenderer.drawInBatch(fontrenderer.plainSubstrByWidth(s, 115), 7, currenty, 0xffffffff, false,
-                            matrixStack.last().pose(), buffer, false, 0, RenderHelper.MAX_BRIGHTNESS);
+                    RenderHelper.renderText(fontrenderer, fontrenderer.plainSubstrByWidth(s, 115), 7, currenty, 0xffffffff, matrixStack, buffer, RenderHelper.MAX_BRIGHTNESS);
                     currenty += height;
                 }
             }

@@ -27,7 +27,7 @@ public class GfxOpText extends GfxOp {
 
     @Override
     public void render(PoseStack matrixStack, MultiBufferSource buffer) {
-        Minecraft.getInstance().font.drawInBatch(text, x, y, color, false, matrixStack.last().pose(), buffer, false, 0, RenderHelper.MAX_BRIGHTNESS);
+        RenderHelper.renderText(Minecraft.getInstance().font, text, x, y, color, matrixStack, buffer, RenderHelper.MAX_BRIGHTNESS);
     }
 
     @Override
