@@ -1,4 +1,4 @@
-Upcoming:
+1.19-6.1.2:
 - 1.19.3 compatibility fix in McJtyLib
 
 1.19-6.1.1:
