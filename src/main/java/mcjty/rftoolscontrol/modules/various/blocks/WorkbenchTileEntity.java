@@ -106,7 +106,7 @@ public class WorkbenchTileEntity extends GenericTileEntity {
             CraftingContainer workInventory = makeWorkInventory();
             Recipe recipe = findRecipe(workInventory);
             if (recipe != null) {
-                ItemStack stack = recipe.assemble(workInventory);
+                ItemStack stack = recipe.assemble(workInventory, level.registryAccess());
                 items.setStackInSlot(SLOT_CRAFTOUTPUT, stack);
             } else {
                 items.setStackInSlot(SLOT_CRAFTOUTPUT, ItemStack.EMPTY);
