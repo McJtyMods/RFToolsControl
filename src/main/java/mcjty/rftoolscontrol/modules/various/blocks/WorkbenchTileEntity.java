@@ -6,6 +6,7 @@ import mcjty.lib.container.AutomationFilterItemHander;
 import mcjty.lib.container.ContainerFactory;
 import mcjty.lib.container.GenericItemHandler;
 import mcjty.lib.container.SlotDefinition;
+import mcjty.lib.crafting.BaseRecipe;
 import mcjty.lib.tileentity.Cap;
 import mcjty.lib.tileentity.CapType;
 import mcjty.lib.tileentity.GenericTileEntity;
@@ -106,7 +107,7 @@ public class WorkbenchTileEntity extends GenericTileEntity {
             CraftingContainer workInventory = makeWorkInventory();
             Recipe recipe = findRecipe(workInventory);
             if (recipe != null) {
-                ItemStack stack = recipe.assemble(workInventory, level.registryAccess());
+                ItemStack stack = BaseRecipe.assemble(recipe, workInventory, level.registryAccess());
                 items.setStackInSlot(SLOT_CRAFTOUTPUT, stack);
             } else {
                 items.setStackInSlot(SLOT_CRAFTOUTPUT, ItemStack.EMPTY);
