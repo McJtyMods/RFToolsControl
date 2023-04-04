@@ -1,3 +1,6 @@
+Upcoming:
+- Update for latest McJtyLib fixing the registryAccess() problem
+
 1.19-6.1.3:
 - Update to 1.19.4
 
