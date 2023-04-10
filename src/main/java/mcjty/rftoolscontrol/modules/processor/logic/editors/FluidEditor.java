@@ -10,8 +10,8 @@ import mcjty.rftoolsbase.api.control.parameters.ParameterValue;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 
 import javax.annotation.Nonnull;
 
@@ -66,13 +66,13 @@ public class FluidEditor extends AbstractParameterEditor {
 
     @Nonnull
     private FluidStack stackToFluid(ItemStack stack) {
-        return stack.getCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY).map(handler -> {
+        return stack.getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM).map(handler -> {
             if (handler.getTanks() > 0) {
                 return handler.getFluidInTank(0);
             } else {
                 return FluidStack.EMPTY;
             }
-        }).orElseGet(() -> stack.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY).map(handler -> {
+        }).orElseGet(() -> stack.getCapability(ForgeCapabilities.FLUID_HANDLER).map(handler -> {
             if (handler.getTanks() > 0) {
                 return handler.getFluidInTank(0);
             } else {

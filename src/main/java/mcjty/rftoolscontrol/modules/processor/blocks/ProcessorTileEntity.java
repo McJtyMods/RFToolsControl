@@ -75,13 +75,11 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler;
-import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
 import org.apache.commons.lang3.tuple.Pair;
@@ -1561,7 +1559,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         if (te == null) {
             throw new ProgException(EXCEPT_NORF);
         }
-        return te.getCapability(CapabilityEnergy.ENERGY, side.getIntSide())
+        return te.getCapability(ForgeCapabilities.ENERGY, side.getIntSide())
                 .map(IEnergyStorage::getEnergyStored).orElseThrow(() -> new ProgException(EXCEPT_NORF));
     }
 
@@ -1571,7 +1569,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         if (te == null) {
             throw new ProgException(EXCEPT_NORF);
         }
-        return te.getCapability(CapabilityEnergy.ENERGY, side.getIntSide())
+        return te.getCapability(ForgeCapabilities.ENERGY, side.getIntSide())
                 .map(IEnergyStorage::getMaxEnergyStored).orElseThrow(() -> new ProgException(EXCEPT_NORF));
     }
 
@@ -2600,7 +2598,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         if (te == null) {
             throw new ProgException(EXCEPT_NOLIQUID);
         }
-        LazyOptional<IFluidHandler> capability = te.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, inv.getIntSide());
+        LazyOptional<IFluidHandler> capability = te.getCapability(ForgeCapabilities.FLUID_HANDLER, inv.getIntSide());
         if (!capability.isPresent()) {
             throw new ProgException(EXCEPT_NOLIQUID);
         }
@@ -2619,7 +2617,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
     }
 
     private LazyOptional<IItemHandler> getItemHandlerAt(@Nonnull BlockEntity te, Direction intSide) {
-        LazyOptional<IItemHandler> capability = te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, intSide);
+        LazyOptional<IItemHandler> capability = te.getCapability(ForgeCapabilities.ITEM_HANDLER, intSide);
         if (!capability.isPresent()) {
             throw new ProgException(EXCEPT_INVALIDINVENTORY);
         }
