@@ -934,7 +934,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
                     ItemStack stack = evaluateItemParameter(compiledOpcode, null, 0);
                     Inventory inv = evaluateInventoryParameter(compiledOpcode, null, 1);
                     if (!stack.isEmpty()) {
-                        if (stack.sameItem(stackToCraft)) {
+                        if (ItemStack.isSameItem(stack, stackToCraft)) {
                             runOrQueueEvent(i, event, ticket, null);
                             return;
                         }
@@ -2140,7 +2140,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         }
 
         if (varValue.getParameterType() == ParameterType.PAR_ITEM) {
-            return ((ItemStack) v1).sameItem((ItemStack) v2);
+            return ItemStack.isSameItem((ItemStack) v1, (ItemStack) v2);
         } else if (varValue.getParameterType() == ParameterType.PAR_FLUID) {
             return ((FluidStack) v1).isFluidEqual((FluidStack) v2);
         } else if (varValue.getParameterType() == ParameterType.PAR_VECTOR) {
@@ -2525,7 +2525,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
                     return 0;
                 } else {
                     if (!itemMatcher.isEmpty()) {
-                        if (!ItemStack.isSame(stackInSlot, itemMatcher)) {
+                        if (!ItemStack.isSameItem(stackInSlot, itemMatcher)) {
                             return 0;
                         }
                     }
@@ -2551,7 +2551,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         int cnt = 0;
         for (int i = 0; i < handler.getSlots(); i++) {
             ItemStack stack = handler.getStackInSlot(i);
-            if (!stack.isEmpty() && ItemStack.isSame(stack, itemMatcher)) {
+            if (!stack.isEmpty() && ItemStack.isSameItem(stack, itemMatcher)) {
                 cnt += stack.getCount();
             }
         }

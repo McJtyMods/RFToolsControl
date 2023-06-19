@@ -1,11 +1,11 @@
 package mcjty.rftoolscontrol.modules.various.items.variablemodule;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import mcjty.rftoolsbase.api.control.parameters.Parameter;
 import mcjty.rftoolsbase.api.screens.*;
 import mcjty.rftoolscontrol.compat.rftoolssupport.ModuleDataVariable;
 import mcjty.rftoolscontrol.modules.processor.logic.TypeConverters;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceKey;
@@ -29,7 +29,7 @@ public class VariableClientScreenModule implements IClientScreenModule<ModuleDat
     }
 
     @Override
-    public void render(PoseStack matrixStack, MultiBufferSource buffer, IModuleRenderHelper renderHelper, Font fontRenderer, int currenty, ModuleDataVariable screenData, ModuleRenderInfo renderInfo) {
+    public void render(GuiGraphics graphics, MultiBufferSource buffer, IModuleRenderHelper renderHelper, Font fontRenderer, int currenty, ModuleDataVariable screenData, ModuleRenderInfo renderInfo) {
         if (labelCache == null) {
             labelCache = renderHelper.createTextRenderHelper().align(textAlign);
         }

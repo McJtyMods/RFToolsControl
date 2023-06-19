@@ -1,5 +1,6 @@
 package mcjty.rftoolscontrol.modules.processor.client;
 
+import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.PoseStack;
 import mcjty.lib.blocks.BaseBlock;
 import mcjty.lib.client.RenderHelper;
@@ -15,6 +16,7 @@ import mcjty.rftoolscontrol.modules.processor.vectorart.GfxOp;
 import mcjty.rftoolscontrol.setup.RFToolsCtrlMessages;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
@@ -72,16 +74,20 @@ public class ProcessorRenderer implements BlockEntityRenderer<ProcessorTileEntit
             matrixStack.translate(0.0F, 0, -0.4375F + .9f);
         }
 
-        renderHud(matrixStack, buffer, Minecraft.getInstance().font, te);
+        GuiGraphics graphics = new GuiGraphics(Minecraft.getInstance(), Minecraft.getInstance().renderBuffers().bufferSource());
+        graphics.pose().last().pose().set(matrixStack.last().pose());
+        graphics.pose().last().normal().set(matrixStack.last().normal());
+        renderHud(graphics, buffer, Minecraft.getInstance().font, te);
 
         matrixStack.popPose();
     }
 
-    private void renderHud(PoseStack matrixStack, MultiBufferSource buffer, Font fontrenderer, ProcessorTileEntity tileEntity) {
+    private void renderHud(GuiGraphics graphics, MultiBufferSource buffer, Font fontrenderer, ProcessorTileEntity tileEntity) {
         float f3;
         float factor = 0 + 1.0f;
         int currenty = 7;
 
+        PoseStack matrixStack = graphics.pose();
         matrixStack.translate(-0.5F, 0.5F, 0.07F);
         f3 = 0.0075F;
         matrixStack.scale(f3 * factor, -f3 * factor, f3);
@@ -89,7 +95,7 @@ public class ProcessorRenderer implements BlockEntityRenderer<ProcessorTileEntit
 //        GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
 
         if (tileEntity.getShowHud() == HUD_GFX) {
-            renderGfx(matrixStack, buffer, tileEntity);
+            renderGfx(graphics, buffer, tileEntity);
         } else {
             renderLog(matrixStack, buffer, fontrenderer, tileEntity, currenty);
         }
@@ -122,7 +128,7 @@ public class ProcessorRenderer implements BlockEntityRenderer<ProcessorTileEntit
         }
     }
 
-    private void renderGfx(PoseStack matrixStack, MultiBufferSource buffer, ProcessorTileEntity tileEntity) {
+    private void renderGfx(GuiGraphics graphics, MultiBufferSource buffer, ProcessorTileEntity tileEntity) {
         long t = System.currentTimeMillis();
         if (t - tileEntity.clientTime > 250) {
             RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketSendServerCommand(RFToolsControl.MODID, CommandHandler.CMD_GETGRAPHICS,
@@ -132,7 +138,7 @@ public class ProcessorRenderer implements BlockEntityRenderer<ProcessorTileEntit
         List<GfxOp> ops = tileEntity.getClientGfxOps();
         if (ops != null) {
             for (GfxOp op : ops) {
-                op.render(matrixStack, buffer);
+                op.render(graphics, buffer);
             }
         }
     }

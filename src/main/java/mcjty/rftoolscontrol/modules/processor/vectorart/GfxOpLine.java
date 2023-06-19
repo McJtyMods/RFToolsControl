@@ -1,9 +1,9 @@
 package mcjty.rftoolscontrol.modules.processor.vectorart;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import mcjty.lib.client.CustomRenderTypes;
 import mcjty.lib.client.RenderHelper;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
@@ -29,14 +29,14 @@ public class GfxOpLine extends GfxOp {
     }
 
     @Override
-    public void render(PoseStack matrixStack, MultiBufferSource buffer) {
+    public void render(GuiGraphics graphics, MultiBufferSource buffer) {
         float alpha = (color >> 24 & 255) / 255.0F;
         float red = (color >> 16 & 255) / 255.0F;
         float green = (color >> 8 & 255) / 255.0F;
         float blue = (color & 255) / 255.0F;
 
         VertexConsumer builder = buffer.getBuffer(CustomRenderTypes.OVERLAY_LINES);
-        RenderHelper.line(builder, matrixStack, x1, y1, 0, x2, y2, 0, red, green, blue, alpha);
+        RenderHelper.line(builder, graphics.pose(), x1, y1, 0, x2, y2, 0, red, green, blue, alpha);
     }
 
     @Override

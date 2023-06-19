@@ -39,6 +39,7 @@ import mcjty.rftoolscontrol.modules.various.items.ProgramCardItem;
 import mcjty.rftoolscontrol.setup.Config;
 import mcjty.rftoolscontrol.setup.RFToolsCtrlMessages;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.Slot;
@@ -1193,8 +1194,8 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Gen
     private int saveCounter = 10;
 
     @Override
-    protected void renderBg(@Nonnull PoseStack matrixStack, float partialTicks, int mouseX, int mouseY) {
-        drawWindow(matrixStack);
+    protected void renderBg(@Nonnull GuiGraphics graphics, float partialTicks, int mouseX, int mouseY) {
+        drawWindow(graphics);
 
         trashcan.setIcon(null);
         saveCounter--;

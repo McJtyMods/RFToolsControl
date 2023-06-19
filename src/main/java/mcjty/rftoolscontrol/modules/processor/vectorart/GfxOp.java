@@ -1,13 +1,13 @@
 package mcjty.rftoolscontrol.modules.processor.vectorart;
 
-import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 
 public abstract class GfxOp {
 
-    public abstract void render(PoseStack matrixStack, MultiBufferSource buffer);
+    public abstract void render(GuiGraphics graphics, MultiBufferSource buffer);
 
     public abstract GfxOpType getType();
 

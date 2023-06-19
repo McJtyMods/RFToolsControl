@@ -1,7 +1,7 @@
 package mcjty.rftoolscontrol.modules.processor.vectorart;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import mcjty.lib.client.RenderHelper;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
@@ -27,8 +27,8 @@ public class GfxOpBox extends GfxOp {
     }
 
     @Override
-    public void render(PoseStack matrixStack, MultiBufferSource buffer) {
-        RenderHelper.drawBeveledBox(matrixStack, buffer, x, y, x+w-1, y+h-1, color, color, color, RenderHelper.MAX_BRIGHTNESS);
+    public void render(GuiGraphics graphics, MultiBufferSource buffer) {
+        RenderHelper.drawBeveledBox(graphics, buffer, x, y, x+w-1, y+h-1, color, color, color, RenderHelper.MAX_BRIGHTNESS);
     }
 
     @Override

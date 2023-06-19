@@ -20,6 +20,7 @@ import mcjty.rftoolscontrol.modules.craftingstation.blocks.CraftingStationTileEn
 import mcjty.rftoolscontrol.modules.craftingstation.util.CraftingRequest;
 import mcjty.rftoolscontrol.setup.RFToolsCtrlMessages;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
@@ -245,7 +246,7 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
     }
 
     @Override
-    protected void renderBg(@Nonnull PoseStack matrixStack, float partialTicks, int mouseX, int mouseY) {
+    protected void renderBg(@Nonnull GuiGraphics graphics, float partialTicks, int mouseX, int mouseY) {
         requestListsIfNeeded();
         updateRecipeList();
         updateRequestList();
@@ -253,6 +254,6 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
             requestList.selected(-1);
         }
         cancelButton.enabled(requestList.getSelected() != -1);
-        drawWindow(matrixStack);
+        drawWindow(graphics);
     }
 }

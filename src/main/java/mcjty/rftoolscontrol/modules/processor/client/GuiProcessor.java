@@ -28,6 +28,7 @@ import mcjty.rftoolscontrol.modules.processor.network.PacketVariableToServer;
 import mcjty.rftoolscontrol.modules.processor.util.CardInfo;
 import mcjty.lib.gui.GuiPopupTools;
 import mcjty.rftoolscontrol.setup.RFToolsCtrlMessages;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
@@ -624,7 +625,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity, Proce
     }
 
     @Override
-    protected void renderBg(@Nonnull PoseStack matrixStack, float partialTicks, int mouseX, int mouseY) {
+    protected void renderBg(@Nonnull GuiGraphics graphics, float partialTicks, int mouseX, int mouseY) {
 
         if (variableList.getChildCount() != tileEntity.getMaxvars()) {
             updateVariableList();
@@ -634,18 +635,19 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity, Proce
         requestListsIfNeeded();
         populateLog();
 
-        drawWindow(matrixStack);
+        drawWindow(graphics);
         updateEnergyBar(energyBar);
 
-        drawAllocatedSlots(matrixStack);
+        drawAllocatedSlots(graphics);
     }
 
-    private void drawAllocatedSlots(PoseStack matrixStack) {
+    private void drawAllocatedSlots(GuiGraphics graphics) {
         int setupMode = getSetupMode();
         if (setupMode == -1) {
             return;
         }
 
+        PoseStack matrixStack = graphics.pose();
         matrixStack.pushPose();
         matrixStack.translate(leftPos, topPos, 0.0F);
 
@@ -664,11 +666,11 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity, Proce
             } else {
                 fill = tileEntity.isItemAllocated(-1, i) ? 0x77660000 : 0x77444444;
             }
-            RenderHelper.drawFlatBox(matrixStack, slot.x, slot.y,
+            RenderHelper.drawFlatBox(graphics, slot.x, slot.y,
                     slot.x + 17, slot.y + 17,
                     border, fill);
             if (allocated) {
-                this.drawString(matrixStack, minecraft.font, String.valueOf(index),
+                graphics.drawString(minecraft.font, String.valueOf(index),
                         slot.x + 4, slot.y + 4, 0xffffffff);
                 index++;
             }

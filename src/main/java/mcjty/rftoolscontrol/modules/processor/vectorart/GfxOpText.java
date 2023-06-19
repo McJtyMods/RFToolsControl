@@ -1,8 +1,8 @@
 package mcjty.rftoolscontrol.modules.processor.vectorart;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import mcjty.lib.client.RenderHelper;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
@@ -26,8 +26,8 @@ public class GfxOpText extends GfxOp {
     }
 
     @Override
-    public void render(PoseStack matrixStack, MultiBufferSource buffer) {
-        RenderHelper.renderText(Minecraft.getInstance().font, text, x, y, color, matrixStack, buffer, RenderHelper.MAX_BRIGHTNESS);
+    public void render(GuiGraphics graphics, MultiBufferSource buffer) {
+        RenderHelper.renderText(Minecraft.getInstance().font, text, x, y, color, graphics.pose(), buffer, RenderHelper.MAX_BRIGHTNESS);
     }
 
     @Override

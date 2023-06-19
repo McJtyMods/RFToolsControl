@@ -18,6 +18,7 @@ import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.CraftingContainer;
+import net.minecraft.world.inventory.TransientCraftingContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeManager;
@@ -116,7 +117,7 @@ public class WorkbenchTileEntity extends GenericTileEntity {
     }
 
     private CraftingContainer makeWorkInventory() {
-        CraftingContainer workInventory = new CraftingContainer(new AbstractContainerMenu(null, -1) {
+        CraftingContainer workInventory = new TransientCraftingContainer(new AbstractContainerMenu(null, -1) {
             @SuppressWarnings("NullableProblems")
             @Override
             public boolean stillValid(Player var1) {
@@ -175,7 +176,7 @@ public class WorkbenchTileEntity extends GenericTileEntity {
                                 if (!remainingItems.get(i).isEmpty()) {
                                     if (s.isEmpty()) {
                                         items.setStackInSlot(i + SLOT_CRAFTINPUT, remainingItems.get(i));
-                                    } else if (ItemStack.isSame(s, remainingItems.get(i)) && ItemStack.tagMatches(s, remainingItems.get(i))) {
+                                    } else if (ItemStack.isSameItem(s, remainingItems.get(i)) && ItemStack.isSameItemSameTags(s, remainingItems.get(i))) {
                                         ItemStack stack = remainingItems.get(i);
                                         stack.grow(s.getCount());
                                         items.setStackInSlot(i + SLOT_CRAFTINPUT, remainingItems.get(i));
