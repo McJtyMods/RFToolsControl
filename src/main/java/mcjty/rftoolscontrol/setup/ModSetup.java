@@ -5,14 +5,11 @@ import mcjty.lib.setup.DefaultModSetup;
 import mcjty.rftoolsbase.api.control.registry.IFunctionRegistry;
 import mcjty.rftoolsbase.api.control.registry.IOpcodeRegistry;
 import mcjty.rftoolscontrol.CommandHandler;
-import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.compat.rftoolssupport.RFToolsSupport;
-import mcjty.rftoolscontrol.modules.processor.ProcessorModule;
 import mcjty.rftoolscontrol.modules.processor.logic.registry.FunctionRegistry;
 import mcjty.rftoolscontrol.modules.processor.logic.registry.Functions;
 import mcjty.rftoolscontrol.modules.processor.logic.registry.OpcodeRegistry;
 import mcjty.rftoolscontrol.modules.processor.logic.registry.Opcodes;
-import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fml.InterModComms;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.InterModProcessEvent;
@@ -21,10 +18,6 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class ModSetup extends DefaultModSetup {
-
-    public ModSetup() {
-        createTab(RFToolsControl.MODID, "rftoolscontrol", () -> new ItemStack(ProcessorModule.PROCESSOR.get()));
-    }
 
     @Override
     public void init(FMLCommonSetupEvent e) {
