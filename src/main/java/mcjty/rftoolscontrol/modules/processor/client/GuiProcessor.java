@@ -671,7 +671,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity, Proce
                     border, fill);
             if (allocated) {
                 graphics.drawString(minecraft.font, String.valueOf(index),
-                        slot.x + 4, slot.y + 4, 0xffffffff);
+                        slot.x + 4, slot.y + 4, 0xffffffff, false);
                 index++;
             }
         }
