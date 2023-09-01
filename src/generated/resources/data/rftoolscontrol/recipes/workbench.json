@@ -10,7 +10,7 @@
       "item": "minecraft:crafting_table"
     },
     "X": {
-      "item": "minecraft:chest"
+      "tag": "forge:chests/wooden"
     },
     "F": {
       "item": "rftoolsbase:machine_frame"
