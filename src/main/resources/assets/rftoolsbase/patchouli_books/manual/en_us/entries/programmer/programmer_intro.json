@@ -1,7 +1,7 @@
 {
   "name": "Programming Introduction",
   "icon": "rftoolscontrol:programmer",
-  "category": "rftoolscontrol:category_rftoolscontrol_programmer",
+  "category": "rftoolsbase:category_rftoolscontrol_programmer",
   "sortnum": 10,
   "pages": [
     {

@@ -1,7 +1,7 @@
 {
   "name": "Expansions",
   "icon": "rftoolscontrol:cpu_core_2000",
-  "category": "rftoolscontrol:category_rftoolscontrol_processor",
+  "category": "rftoolsbase:category_rftoolscontrol_processor",
   "sortnum": 20,
   "pages": [
     {

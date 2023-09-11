@@ -1,7 +1,7 @@
 {
   "name": "Advanced",
   "icon": "minecraft:nether_star",
-  "category": "rftoolscontrol:category_rftoolscontrol_advanced",
+  "category": "rftoolsbase:category_rftoolscontrol_advanced",
   "sortnum": 10,
   "pages": [
     {
