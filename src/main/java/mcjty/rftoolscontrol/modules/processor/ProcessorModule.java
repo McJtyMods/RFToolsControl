@@ -5,6 +5,8 @@ import mcjty.lib.container.GenericContainer;
 import mcjty.lib.datagen.DataGen;
 import mcjty.lib.datagen.Dob;
 import mcjty.lib.modules.IModule;
+import mcjty.lib.setup.DeferredBlock;
+import mcjty.lib.setup.DeferredItem;
 import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorBlock;
 import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorContainer;
 import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorTileEntity;
@@ -24,27 +26,29 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.registries.RegistryObject;
 
+import java.util.function.Supplier;
+
 import static mcjty.lib.datagen.DataGen.has;
 import static mcjty.rftoolscontrol.RFToolsControl.tab;
 import static mcjty.rftoolscontrol.setup.Registration.*;
 
 public class ProcessorModule implements IModule {
 
-    public static final RegistryObject<BaseBlock> PROCESSOR = BLOCKS.register("processor", ProcessorBlock::new);
-    public static final RegistryObject<Item> PROCESSOR_ITEM = ITEMS.register("processor", tab(() -> new BlockItem(PROCESSOR.get(), Registration.createStandardProperties())));
-    public static final RegistryObject<BlockEntityType<ProcessorTileEntity>> TYPE_PROCESSOR = TILES.register("processor", () -> BlockEntityType.Builder.of(ProcessorTileEntity::new, PROCESSOR.get()).build(null));
-    public static final RegistryObject<MenuType<ProcessorContainer>> PROCESSOR_CONTAINER = CONTAINERS.register("processor", GenericContainer::createContainerType);
-    public static final RegistryObject<MenuType<ProcessorContainer>> PROCESSOR_CONTAINER_REMOTE = CONTAINERS.register("processor_remote",
+    public static final DeferredBlock<BaseBlock> PROCESSOR = BLOCKS.register("processor", ProcessorBlock::new);
+    public static final DeferredItem<Item> PROCESSOR_ITEM = ITEMS.register("processor", tab(() -> new BlockItem(PROCESSOR.get(), Registration.createStandardProperties())));
+    public static final Supplier<BlockEntityType<ProcessorTileEntity>> TYPE_PROCESSOR = TILES.register("processor", () -> BlockEntityType.Builder.of(ProcessorTileEntity::new, PROCESSOR.get()).build(null));
+    public static final Supplier<MenuType<ProcessorContainer>> PROCESSOR_CONTAINER = CONTAINERS.register("processor", GenericContainer::createContainerType);
+    public static final Supplier<MenuType<ProcessorContainer>> PROCESSOR_CONTAINER_REMOTE = CONTAINERS.register("processor_remote",
             () -> GenericContainer.createRemoteContainerType(ProcessorTileEntity::new, ProcessorContainer::createRemote, ProcessorContainer.SLOTS));
 
-    public static final RegistryObject<CPUCoreItem> CPU_CORE_500 = ITEMS.register("cpu_core_500", tab(() -> new CPUCoreItem(0)));
-    public static final RegistryObject<CPUCoreItem> CPU_CORE_1000 = ITEMS.register("cpu_core_1000", tab(() -> new CPUCoreItem(1)));
-    public static final RegistryObject<CPUCoreItem> CPU_CORE_2000 = ITEMS.register("cpu_core_2000", tab(() -> new CPUCoreItem(2)));
-    public static final RegistryObject<RAMChipItem> RAM_CHIP = ITEMS.register("ram_chip", tab(RAMChipItem::new));
-    public static final RegistryObject<NetworkCardItem> NETWORK_CARD = ITEMS.register("network_card", tab(() -> new NetworkCardItem(NetworkCardItem.TIER_NORMAL)));
-    public static final RegistryObject<NetworkCardItem> ADVANCED_NETWORK_CARD = ITEMS.register("advanced_network_card", tab(() -> new NetworkCardItem(NetworkCardItem.TIER_ADVANCED)));
-    public static final RegistryObject<NetworkIdentifierItem> NETWORK_IDENTIFIER = ITEMS.register("network_identifier", tab(NetworkIdentifierItem::new));
-    public static final RegistryObject<GraphicsCardItem> GRAPHICS_CARD = ITEMS.register("graphics_card", tab(GraphicsCardItem::new));
+    public static final DeferredItem<CPUCoreItem> CPU_CORE_500 = ITEMS.register("cpu_core_500", tab(() -> new CPUCoreItem(0)));
+    public static final DeferredItem<CPUCoreItem> CPU_CORE_1000 = ITEMS.register("cpu_core_1000", tab(() -> new CPUCoreItem(1)));
+    public static final DeferredItem<CPUCoreItem> CPU_CORE_2000 = ITEMS.register("cpu_core_2000", tab(() -> new CPUCoreItem(2)));
+    public static final DeferredItem<RAMChipItem> RAM_CHIP = ITEMS.register("ram_chip", tab(RAMChipItem::new));
+    public static final DeferredItem<NetworkCardItem> NETWORK_CARD = ITEMS.register("network_card", tab(() -> new NetworkCardItem(NetworkCardItem.TIER_NORMAL)));
+    public static final DeferredItem<NetworkCardItem> ADVANCED_NETWORK_CARD = ITEMS.register("advanced_network_card", tab(() -> new NetworkCardItem(NetworkCardItem.TIER_ADVANCED)));
+    public static final DeferredItem<NetworkIdentifierItem> NETWORK_IDENTIFIER = ITEMS.register("network_identifier", tab(NetworkIdentifierItem::new));
+    public static final DeferredItem<GraphicsCardItem> GRAPHICS_CARD = ITEMS.register("graphics_card", tab(GraphicsCardItem::new));
 
     @Override
     public void init(FMLCommonSetupEvent event) {

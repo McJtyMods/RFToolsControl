@@ -636,7 +636,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Gen
         }
         ProgramCardInstance instance = makeGridInstance(false);
         instance.writeToNBT(card);
-        RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketUpdateNBTItemInventoryProgrammer(tileEntity.getBlockPos(),
+        RFToolsCtrlMessages.sendToServer(PacketUpdateNBTItemInventoryProgrammer.create(tileEntity.getBlockPos(),
                 slot, card.getTag()));
     }
 

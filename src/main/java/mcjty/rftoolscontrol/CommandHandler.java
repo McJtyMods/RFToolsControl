@@ -7,12 +7,10 @@ import mcjty.rftoolsbase.modules.crafting.items.CraftingCardItem;
 import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorTileEntity;
 import mcjty.rftoolscontrol.modules.processor.network.PacketGraphicsReady;
 import mcjty.rftoolscontrol.setup.RFToolsCtrlMessages;
-import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.core.BlockPos;
-import net.minecraftforge.network.NetworkDirection;
 
 public class CommandHandler {
 
@@ -35,7 +33,7 @@ public class CommandHandler {
         McJtyLib.registerCommand(RFToolsControl.MODID, CMD_GETGRAPHICS, (player, arguments) -> {
             BlockEntity te = player.getCommandSenderWorld().getBlockEntity(arguments.get(PARAM_POS));
             if (te instanceof ProcessorTileEntity processor) {
-                RFToolsCtrlMessages.INSTANCE.sendTo(new PacketGraphicsReady(processor), ((ServerPlayer)player).connection.connection, NetworkDirection.PLAY_TO_CLIENT);
+                RFToolsCtrlMessages.sendToPlayer(PacketGraphicsReady.create(processor), player);
             }
             return true;
         });

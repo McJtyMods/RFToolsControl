@@ -5,8 +5,13 @@ import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.modules.processor.network.*;
 import mcjty.rftoolscontrol.modules.programmer.network.PacketUpdateNBTItemInventoryProgrammer;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
+import net.minecraftforge.network.NetworkDirection;
 import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.simple.SimpleChannel;
+
+import static mcjty.lib.network.PlayPayloadContext.wrap;
 
 public class RFToolsCtrlMessages {
     public static SimpleChannel INSTANCE;
@@ -27,18 +32,26 @@ public class RFToolsCtrlMessages {
         INSTANCE = net;
 
         // Server side
-        net.registerMessage(id(), PacketGetLog.class, PacketGetLog::toBytes, PacketGetLog::new, PacketGetLog::handle);
-        net.registerMessage(id(), PacketGetVariables.class, PacketGetVariables::toBytes, PacketGetVariables::new, PacketGetVariables::handle);
-        net.registerMessage(id(), PacketGetFluids.class, PacketGetFluids::toBytes, PacketGetFluids::new, PacketGetFluids::handle);
-        net.registerMessage(id(), PacketVariableToServer.class, PacketVariableToServer::toBytes, PacketVariableToServer::new, PacketVariableToServer::handle);
-        net.registerMessage(id(), PacketUpdateNBTItemInventoryProgrammer.class, PacketUpdateNBTItemInventoryProgrammer::toBytes, PacketUpdateNBTItemInventoryProgrammer::new, PacketUpdateNBTItemInventoryProgrammer::handle);
+        net.registerMessage(id(), PacketGetLog.class, PacketGetLog::write, PacketGetLog::create, wrap(PacketGetLog::handle));
+        net.registerMessage(id(), PacketGetVariables.class, PacketGetVariables::write, PacketGetVariables::create, wrap(PacketGetVariables::handle));
+        net.registerMessage(id(), PacketGetFluids.class, PacketGetFluids::write, PacketGetFluids::create, wrap(PacketGetFluids::handle));
+        net.registerMessage(id(), PacketVariableToServer.class, PacketVariableToServer::write, PacketVariableToServer::create, wrap(PacketVariableToServer::handle));
+        net.registerMessage(id(), PacketUpdateNBTItemInventoryProgrammer.class, PacketUpdateNBTItemInventoryProgrammer::write, PacketUpdateNBTItemInventoryProgrammer::create, wrap(PacketUpdateNBTItemInventoryProgrammer::handle));
 
         // Client side
-        net.registerMessage(id(), PacketLogReady.class, PacketLogReady::toBytes, PacketLogReady::new, PacketLogReady::handle);
-        net.registerMessage(id(), PacketVariablesReady.class, PacketVariablesReady::toBytes, PacketVariablesReady::new, PacketVariablesReady::handle);
-        net.registerMessage(id(), PacketFluidsReady.class, PacketFluidsReady::toBytes, PacketFluidsReady::new, PacketFluidsReady::handle);
-        net.registerMessage(id(), PacketGraphicsReady.class, PacketGraphicsReady::toBytes, PacketGraphicsReady::new, PacketGraphicsReady::handle);
+        net.registerMessage(id(), PacketLogReady.class, PacketLogReady::write, PacketLogReady::create, wrap(PacketLogReady::handle));
+        net.registerMessage(id(), PacketVariablesReady.class, PacketVariablesReady::write, PacketVariablesReady::create, wrap(PacketVariablesReady::handle));
+        net.registerMessage(id(), PacketFluidsReady.class, PacketFluidsReady::write, PacketFluidsReady::create, wrap(PacketFluidsReady::handle));
+        net.registerMessage(id(), PacketGraphicsReady.class, PacketGraphicsReady::write, PacketGraphicsReady::create, wrap(PacketGraphicsReady::handle));
 
         PacketHandler.registerStandardMessages(id(), net);
+    }
+
+    public static <T> void sendToPlayer(T packet, Player player) {
+        INSTANCE.sendTo(packet, ((ServerPlayer)player).connection.connection, NetworkDirection.PLAY_TO_CLIENT);
+    }
+
+    public static <T> void sendToServer(T packet) {
+        INSTANCE.sendToServer(packet);
     }
 }

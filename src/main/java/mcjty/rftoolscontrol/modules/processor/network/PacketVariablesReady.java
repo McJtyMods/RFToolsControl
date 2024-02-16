@@ -1,31 +1,34 @@
 package mcjty.rftoolscontrol.modules.processor.network;
 
 
+import mcjty.lib.network.CustomPacketPayload;
+import mcjty.lib.network.PlayPayloadContext;
 import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.Logging;
 import mcjty.lib.varia.SafeClientTools;
 import mcjty.rftoolsbase.api.control.parameters.Parameter;
+import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorContainer;
 import mcjty.rftoolscontrol.modules.processor.logic.ParameterTools;
-import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.core.BlockPos;
-import net.minecraftforge.network.NetworkEvent;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Supplier;
 
-public class PacketVariablesReady {
+public record PacketVariablesReady(@Nullable BlockPos pos, String command, List<Parameter> list) implements CustomPacketPayload {
 
-    private BlockPos pos;
-    private final List<Parameter> list;
-    private final String command;
+    public static final ResourceLocation ID = new ResourceLocation(RFToolsControl.MODID, "variables_ready");
 
-    public PacketVariablesReady(FriendlyByteBuf buf) {
+    public static PacketVariablesReady create(FriendlyByteBuf buf) {
+        BlockPos pos = null;
+        String command;
+        List<Parameter> list;
         if (buf.readBoolean()) {
             pos = buf.readBlockPos();
         }
@@ -40,6 +43,7 @@ public class PacketVariablesReady {
         } else {
             list = null;
         }
+        return new PacketVariablesReady(pos, command, list);
     }
 
     public PacketVariablesReady(@Nullable BlockPos pos, String command, List<Parameter> list) {
@@ -49,7 +53,8 @@ public class PacketVariablesReady {
         this.list.addAll(list);
     }
 
-    public void toBytes(FriendlyByteBuf buf) {
+    @Override
+    public void write(FriendlyByteBuf buf) {
         if (pos != null) {
             buf.writeBoolean(true);
             buf.writeBlockPos(pos);
@@ -71,9 +76,13 @@ public class PacketVariablesReady {
         }
     }
 
-    public void handle(Supplier<NetworkEvent.Context> supplier) {
-        NetworkEvent.Context ctx = supplier.get();
-        ctx.enqueueWork(() -> {
+    @Override
+    public ResourceLocation id() {
+        return ID;
+    }
+
+    public void handle(PlayPayloadContext ctx) {
+        ctx.workHandler().submitAsync(() -> {
             BlockEntity te;
             if (pos == null) {
                 // We are working from a tablet. Find the tile entity through the open container
@@ -90,7 +99,6 @@ public class PacketVariablesReady {
                 ((GenericTileEntity) te).handleListFromServer(command, SafeClientTools.getClientPlayer(), TypedMap.EMPTY, list);
             }
         });
-        ctx.setPacketHandled(true);
     }
 
     private static ProcessorContainer getOpenContainer() {

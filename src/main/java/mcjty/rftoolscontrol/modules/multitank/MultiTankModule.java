@@ -5,6 +5,8 @@ import mcjty.lib.container.GenericContainer;
 import mcjty.lib.datagen.DataGen;
 import mcjty.lib.datagen.Dob;
 import mcjty.lib.modules.IModule;
+import mcjty.lib.setup.DeferredBlock;
+import mcjty.lib.setup.DeferredItem;
 import mcjty.rftoolsbase.modules.various.VariousModule;
 import mcjty.rftoolscontrol.modules.multitank.blocks.MultiTankBlock;
 import mcjty.rftoolscontrol.modules.multitank.blocks.MultiTankTileEntity;
@@ -18,16 +20,18 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.registries.RegistryObject;
 
+import java.util.function.Supplier;
+
 import static mcjty.lib.datagen.DataGen.has;
 import static mcjty.rftoolscontrol.RFToolsControl.tab;
 import static mcjty.rftoolscontrol.setup.Registration.*;
 
 public class MultiTankModule implements IModule {
 
-    public static final RegistryObject<BaseBlock> MULTITANK = BLOCKS.register("tank", MultiTankBlock::new);
-    public static final RegistryObject<BlockEntityType<MultiTankTileEntity>> TYPE_MULTITANK = TILES.register("tank", () -> BlockEntityType.Builder.of(MultiTankTileEntity::new, MULTITANK.get()).build(null));
-    public static final RegistryObject<Item> MULTITANK_ITEM = ITEMS.register("tank", tab(() -> new BlockItem(MULTITANK.get(), Registration.createStandardProperties())));
-    public static final RegistryObject<MenuType<GenericContainer>> MULTITANK_CONTAINER = CONTAINERS.register("tank", GenericContainer::createContainerType);
+    public static final DeferredBlock<BaseBlock> MULTITANK = BLOCKS.register("tank", MultiTankBlock::new);
+    public static final Supplier<BlockEntityType<MultiTankTileEntity>> TYPE_MULTITANK = TILES.register("tank", () -> BlockEntityType.Builder.of(MultiTankTileEntity::new, MULTITANK.get()).build(null));
+    public static final DeferredItem<Item> MULTITANK_ITEM = ITEMS.register("tank", tab(() -> new BlockItem(MULTITANK.get(), Registration.createStandardProperties())));
+    public static final Supplier<MenuType<GenericContainer>> MULTITANK_CONTAINER = CONTAINERS.register("tank", GenericContainer::createContainerType);
 
     @Override
     public void init(FMLCommonSetupEvent event) {

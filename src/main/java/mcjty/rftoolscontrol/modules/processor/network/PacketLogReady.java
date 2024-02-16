@@ -1,12 +1,16 @@
 package mcjty.rftoolscontrol.modules.processor.network;
 
 
+import mcjty.lib.network.CustomPacketPayload;
 import mcjty.lib.network.NetworkTools;
+import mcjty.lib.network.PlayPayloadContext;
 import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.Logging;
 import mcjty.lib.varia.SafeClientTools;
+import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorContainer;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -19,20 +23,20 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
-public class PacketLogReady {
+public record PacketLogReady(@Nullable BlockPos pos, String command, @Nonnull List<String> list) implements CustomPacketPayload {
 
-    private final BlockPos pos;
-    private final List<String> list;
-    private final String command;
+    public static final ResourceLocation ID = new ResourceLocation(RFToolsControl.MODID, "logready");
 
-    public PacketLogReady(FriendlyByteBuf buf) {
+    public static PacketLogReady create(FriendlyByteBuf buf) {
+        BlockPos pos;
         if (buf.readBoolean()) {
             pos = buf.readBlockPos();
         } else {
             pos = null;
         }
-        command = buf.readUtf(32767);
-        list = NetworkTools.readStringList(buf);
+        String command = buf.readUtf(32767);
+        List<String> list = NetworkTools.readStringList(buf);
+        return new PacketLogReady(pos, command, list);
     }
 
     public PacketLogReady(@Nullable BlockPos pos, String command, @Nonnull List<String> list) {
@@ -42,7 +46,8 @@ public class PacketLogReady {
         this.list.addAll(list);
     }
 
-    public void toBytes(FriendlyByteBuf buf) {
+    @Override
+    public void write(FriendlyByteBuf buf) {
         if (pos != null) {
             buf.writeBoolean(true);
             buf.writeBlockPos(pos);
@@ -53,9 +58,13 @@ public class PacketLogReady {
         NetworkTools.writeStringList(buf, list);
     }
 
-    public void handle(Supplier<NetworkEvent.Context> supplier) {
-        NetworkEvent.Context ctx = supplier.get();
-        ctx.enqueueWork(() -> {
+    @Override
+    public ResourceLocation id() {
+        return ID;
+    }
+
+    public void handle(PlayPayloadContext ctx) {
+        ctx.workHandler().submitAsync(() -> {
             BlockEntity te;
             if (pos == null) {
                 // We are working from a tablet. Find the tile entity through the open container
@@ -72,7 +81,6 @@ public class PacketLogReady {
                 ((GenericTileEntity) te).handleListFromServer(command, SafeClientTools.getClientPlayer(), TypedMap.EMPTY, list);
             }
         });
-        ctx.setPacketHandled(true);
     }
 
     private static ProcessorContainer getOpenContainer() {

@@ -1,11 +1,15 @@
 package mcjty.rftoolscontrol.modules.processor.network;
 
 
+import mcjty.lib.network.CustomPacketPayload;
+import mcjty.lib.network.PlayPayloadContext;
 import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.Logging;
 import mcjty.lib.varia.SafeClientTools;
+import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorContainer;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -17,13 +21,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
-public class PacketFluidsReady {
+public record PacketFluidsReady(@Nullable BlockPos pos, String command, List<PacketGetFluids.FluidEntry> list) implements CustomPacketPayload {
 
-    private BlockPos pos;
-    private final List<PacketGetFluids.FluidEntry> list;
-    private final String command;
+    public static final ResourceLocation ID = new ResourceLocation(RFToolsControl.MODID, "fluidsready");
 
-    public PacketFluidsReady(FriendlyByteBuf buf) {
+    public static PacketFluidsReady create(FriendlyByteBuf buf) {
+        BlockPos pos = null;
+        String command;
+        List<PacketGetFluids.FluidEntry> list;
         if (buf.readBoolean()) {
             pos = buf.readBlockPos();
         }
@@ -38,6 +43,7 @@ public class PacketFluidsReady {
         } else {
             list = null;
         }
+        return new PacketFluidsReady(pos, command, list);
     }
 
     public PacketFluidsReady(@Nullable BlockPos pos, String command, List<PacketGetFluids.FluidEntry> list) {
@@ -47,7 +53,8 @@ public class PacketFluidsReady {
         this.list.addAll(list);
     }
 
-    public void toBytes(FriendlyByteBuf buf) {
+    @Override
+    public void write(FriendlyByteBuf buf) {
         if (pos != null) {
             buf.writeBoolean(true);
             buf.writeBlockPos(pos);
@@ -67,9 +74,13 @@ public class PacketFluidsReady {
         }
     }
 
-    public void handle(Supplier<NetworkEvent.Context> supplier) {
-        NetworkEvent.Context ctx = supplier.get();
-        ctx.enqueueWork(() -> {
+    @Override
+    public ResourceLocation id() {
+        return ID;
+    }
+
+    public void handle(PlayPayloadContext ctx) {
+        ctx.workHandler().submitAsync(() -> {
             BlockEntity te;
             if (pos == null) {
                 // We are working from a tablet. Find the tile entity through the open container
@@ -86,7 +97,6 @@ public class PacketFluidsReady {
                 ((GenericTileEntity) te).handleListFromServer(command, SafeClientTools.getClientPlayer(), TypedMap.EMPTY, list);
             }
         });
-        ctx.setPacketHandled(true);
     }
 
     private static ProcessorContainer getOpenContainer() {

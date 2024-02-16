@@ -1,6 +1,5 @@
 package mcjty.rftoolscontrol.modules.craftingstation.client;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import mcjty.lib.base.StyleConfig;
 import mcjty.lib.container.GenericContainer;
 import mcjty.lib.gui.GenericGuiContainer;
@@ -118,8 +117,8 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
     }
 
     private void requestLists() {
-        RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketGetListFromServer(tileEntity.getBlockPos(), CMD_GETCRAFTABLE.name()));
-        RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketGetListFromServer(tileEntity.getBlockPos(), CMD_GETREQUESTS.name()));
+        RFToolsCtrlMessages.sendToServer(PacketGetListFromServer.create(tileEntity.getBlockPos(), CMD_GETCRAFTABLE.name()));
+        RFToolsCtrlMessages.sendToServer(PacketGetListFromServer.create(tileEntity.getBlockPos(), CMD_GETREQUESTS.name()));
     }
 
     private void requestListsIfNeeded() {

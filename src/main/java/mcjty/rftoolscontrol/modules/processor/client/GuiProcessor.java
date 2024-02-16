@@ -273,9 +273,9 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity, Proce
     }
 
     private void requestLists() {
-        RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketGetLog(tileEntity.getDimension(), tileEntity.getBlockPos(), tileEntity.isDummy()));
-        RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketGetVariables(tileEntity.getBlockPos(), tileEntity.getDimension(), tileEntity.isDummy()));
-        RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketGetFluids(tileEntity.getBlockPos(), tileEntity.getDimension(), tileEntity.isDummy()));
+        RFToolsCtrlMessages.INSTANCE.sendToServer(PacketGetLog.create(tileEntity.getDimension(), tileEntity.getBlockPos(), tileEntity.isDummy()));
+        RFToolsCtrlMessages.INSTANCE.sendToServer(PacketGetVariables.create(tileEntity.getBlockPos(), tileEntity.getDimension(), tileEntity.isDummy()));
+        RFToolsCtrlMessages.INSTANCE.sendToServer(PacketGetFluids.create(tileEntity.getBlockPos(), tileEntity.getDimension(), tileEntity.isDummy()));
     }
 
     private void requestListsIfNeeded() {
@@ -507,7 +507,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity, Proce
             editor.build(minecraft, this, editPanel, o -> {
                 CompoundTag tag = new CompoundTag();
                 ParameterTypeTools.writeToNBT(tag, type, o);
-                RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketVariableToServer(tileEntity.getBlockPos(), varIdx, tag));
+                RFToolsCtrlMessages.sendToServer(PacketVariableToServer.create(tileEntity.getBlockPos(), varIdx, tag));
             });
             editor.writeValue(parameter.getParameterValue());
             editor.constantOnly();

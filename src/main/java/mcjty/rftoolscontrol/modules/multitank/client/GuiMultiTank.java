@@ -1,6 +1,5 @@
 package mcjty.rftoolscontrol.modules.multitank.client;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import mcjty.lib.container.GenericContainer;
 import mcjty.lib.gui.GenericGuiContainer;
 import mcjty.lib.gui.ManualEntry;
@@ -70,7 +69,7 @@ public class GuiMultiTank extends GenericGuiContainer<MultiTankTileEntity, Gener
     }
 
     private void requestLists() {
-        RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketGetListFromServer(tileEntity.getBlockPos(), MultiTankTileEntity.CMD_GETFLUIDS.name()));
+        RFToolsCtrlMessages.sendToServer(PacketGetListFromServer.create(tileEntity.getBlockPos(), MultiTankTileEntity.CMD_GETFLUIDS.name()));
     }
 
     private void requestListsIfNeeded() {

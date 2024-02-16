@@ -2,69 +2,70 @@ package mcjty.rftoolscontrol.modules.processor.network;
 
 
 import mcjty.lib.blockcommands.ISerializer;
+import mcjty.lib.network.CustomPacketPayload;
 import mcjty.lib.network.NetworkTools;
+import mcjty.lib.network.PlayPayloadContext;
 import mcjty.lib.network.TypedMapTools;
 import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.LevelTools;
+import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorTileEntity;
 import mcjty.rftoolscontrol.setup.RFToolsCtrlMessages;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.Level;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.network.NetworkDirection;
-import net.minecraftforge.network.NetworkEvent;
 
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
-public class PacketGetFluids {
+public record PacketGetFluids(BlockPos pos, ResourceKey<Level> type, TypedMap params, boolean fromTablet) implements CustomPacketPayload {
 
-    private final BlockPos pos;
-    private final ResourceKey<Level> type;
-    private final TypedMap params;
-    private final boolean fromTablet;
+    public static final ResourceLocation ID = new ResourceLocation(RFToolsControl.MODID, "getfluids");
 
-    public PacketGetFluids(FriendlyByteBuf buf) {
-        pos = buf.readBlockPos();
-        type = LevelTools.getId(buf.readResourceLocation());
-        params = TypedMapTools.readArguments(buf);
-        fromTablet = buf.readBoolean();
+    public static PacketGetFluids create(FriendlyByteBuf buf) {
+        return new PacketGetFluids(buf.readBlockPos(),
+                LevelTools.getId(buf.readResourceLocation()),
+                TypedMapTools.readArguments(buf),
+                buf.readBoolean());
     }
 
-    public PacketGetFluids(BlockPos pos, ResourceKey<Level> type, boolean fromTablet) {
-        this.pos = pos;
-        this.type = type;
-        this.params = TypedMap.EMPTY;
-        this.fromTablet = fromTablet;
+    public static PacketGetFluids create(BlockPos pos, ResourceKey<Level> type, boolean fromTablet) {
+        return new PacketGetFluids(pos, type, TypedMap.EMPTY, fromTablet);
     }
 
-    public void toBytes(FriendlyByteBuf buf) {
+    @Override
+    public void write(FriendlyByteBuf buf) {
         buf.writeBlockPos(pos);
         buf.writeResourceLocation(type.location());
         TypedMapTools.writeArguments(buf, params);
         buf.writeBoolean(fromTablet);
     }
 
-    public void handle(Supplier<NetworkEvent.Context> supplier) {
-        NetworkEvent.Context ctx = supplier.get();
-        ctx.enqueueWork(() -> {
-            ServerLevel world = LevelTools.getLevel(ctx.getSender().getCommandSenderWorld(), type);
-            if (world.hasChunkAt(pos)) {
-                BlockEntity te = world.getBlockEntity(pos);
-                if (te instanceof GenericTileEntity) {
-                    List<FluidEntry> list = ((GenericTileEntity) te).executeServerCommandList(ProcessorTileEntity.CMD_GETFLUIDS.name(), ctx.getSender(), params, FluidEntry.class);
-                    RFToolsCtrlMessages.INSTANCE.sendTo(new PacketFluidsReady(fromTablet ? null : pos, ProcessorTileEntity.CMD_GETFLUIDS.name(), list), ctx.getSender().connection.connection, NetworkDirection.PLAY_TO_CLIENT);
+    @Override
+    public ResourceLocation id() {
+        return ID;
+    }
+
+    public void handle(PlayPayloadContext ctx) {
+        ctx.workHandler().submitAsync(() -> {
+            ctx.player().ifPresent(player -> {
+                ServerLevel world = LevelTools.getLevel(player.getCommandSenderWorld(), type);
+                if (world.hasChunkAt(pos)) {
+                    BlockEntity te = world.getBlockEntity(pos);
+                    if (te instanceof GenericTileEntity) {
+                        List<FluidEntry> list = ((GenericTileEntity) te).executeServerCommandList(ProcessorTileEntity.CMD_GETFLUIDS.name(), player, params, FluidEntry.class);
+                        RFToolsCtrlMessages.sendToPlayer(new PacketFluidsReady(fromTablet ? null : pos, ProcessorTileEntity.CMD_GETFLUIDS.name(), list), player);
+                    }
                 }
-            }
+            });
         });
-        ctx.setPacketHandled(true);
     }
 
     public static class FluidEntry {

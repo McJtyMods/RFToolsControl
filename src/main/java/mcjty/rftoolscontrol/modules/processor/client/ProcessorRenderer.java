@@ -1,6 +1,5 @@
 package mcjty.rftoolscontrol.modules.processor.client;
 
-import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.PoseStack;
 import mcjty.lib.blocks.BaseBlock;
 import mcjty.lib.client.RenderHelper;
@@ -106,9 +105,9 @@ public class ProcessorRenderer implements BlockEntityRenderer<ProcessorTileEntit
         long t = System.currentTimeMillis();
         if (t - tileEntity.clientTime > 250) {
             if (tileEntity.getShowHud() == HUD_DB) {
-                RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketGetListFromServer(tileEntity.getBlockPos(), CMD_GETDEBUGLOG.name()));
+                RFToolsCtrlMessages.sendToServer(PacketGetListFromServer.create(tileEntity.getBlockPos(), CMD_GETDEBUGLOG.name()));
             } else {
-                RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketGetLog(tileEntity.getDimension(), tileEntity.getBlockPos(), false));
+                RFToolsCtrlMessages.sendToServer(PacketGetLog.create(tileEntity.getDimension(), tileEntity.getBlockPos(), false));
             }
             tileEntity.clientTime = t;
         }
@@ -131,7 +130,7 @@ public class ProcessorRenderer implements BlockEntityRenderer<ProcessorTileEntit
     private void renderGfx(GuiGraphics graphics, MultiBufferSource buffer, ProcessorTileEntity tileEntity) {
         long t = System.currentTimeMillis();
         if (t - tileEntity.clientTime > 250) {
-            RFToolsCtrlMessages.INSTANCE.sendToServer(new PacketSendServerCommand(RFToolsControl.MODID, CommandHandler.CMD_GETGRAPHICS,
+            RFToolsCtrlMessages.sendToServer(PacketSendServerCommand.create(RFToolsControl.MODID, CommandHandler.CMD_GETGRAPHICS,
                     TypedMap.builder().put(CommandHandler.PARAM_POS, tileEntity.getBlockPos()).build()));
             tileEntity.clientTime = t;
         }
