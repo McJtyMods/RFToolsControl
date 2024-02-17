@@ -15,7 +15,6 @@ import net.minecraft.world.item.Item;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.data.event.GatherDataEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.loading.FMLEnvironment;
@@ -38,11 +37,11 @@ public class RFToolsControl {
         RFToolsStuff.init();
         setupModules();
 
-        Config.register(modules);
+        Config.register(bus, modules);
 
         // This has to be done VERY early
 //        FluidRegistry.enableUniversalBucket();
-        Registration.register();
+        Registration.register(bus);
 
         bus.addListener(setup::init);
         bus.addListener(setup::processIMC);

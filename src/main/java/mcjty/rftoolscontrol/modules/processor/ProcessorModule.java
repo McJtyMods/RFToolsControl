@@ -15,16 +15,15 @@ import mcjty.rftoolscontrol.modules.processor.client.ProcessorRenderer;
 import mcjty.rftoolscontrol.modules.processor.items.*;
 import mcjty.rftoolscontrol.modules.various.VariousModule;
 import mcjty.rftoolscontrol.setup.Registration;
-import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.common.Tags;
+import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.registries.RegistryObject;
 
 import java.util.function.Supplier;
 
@@ -65,7 +64,7 @@ public class ProcessorModule implements IModule {
     }
 
     @Override
-    public void initConfig() {
+    public void initConfig(IEventBus bus) {
 
     }
 
