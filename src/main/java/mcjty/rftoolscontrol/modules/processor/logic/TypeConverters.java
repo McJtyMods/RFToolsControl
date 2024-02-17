@@ -9,7 +9,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidUtil;
-import net.minecraftforge.registries.ForgeRegistries;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Nonnull;
@@ -68,7 +67,7 @@ public class TypeConverters {
         }
         switch (type) {
             case PAR_STRING:
-                return new FluidStack(ForgeRegistries.FLUIDS.getValue(new ResourceLocation((String) v)), 1);
+                return new FluidStack(Tools.getFluid(new ResourceLocation((String) v)), 1);
             case PAR_FLUID:
                 return (FluidStack) v;
             case PAR_ITEM:
@@ -104,7 +103,7 @@ public class TypeConverters {
         }
         switch (type) {
             case PAR_STRING:
-                return new ItemStack(ForgeRegistries.ITEMS.getValue(new ResourceLocation((String) v)), 1);
+                return new ItemStack(Tools.getItem(new ResourceLocation((String) v)), 1);
             case PAR_ITEM:
                 return (ItemStack) v;
             case PAR_FLUID:
