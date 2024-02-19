@@ -1,6 +1,7 @@
 package mcjty.rftoolscontrol.modules.processor.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import mcjty.lib.McJtyLib;
 import mcjty.lib.blocks.BaseBlock;
 import mcjty.lib.client.RenderHelper;
 import mcjty.lib.network.PacketGetListFromServer;
@@ -105,7 +106,7 @@ public class ProcessorRenderer implements BlockEntityRenderer<ProcessorTileEntit
         long t = System.currentTimeMillis();
         if (t - tileEntity.clientTime > 250) {
             if (tileEntity.getShowHud() == HUD_DB) {
-                RFToolsCtrlMessages.sendToServer(PacketGetListFromServer.create(tileEntity.getBlockPos(), CMD_GETDEBUGLOG.name()));
+                McJtyLib.sendToServer(PacketGetListFromServer.create(tileEntity.getBlockPos(), CMD_GETDEBUGLOG.name()));
             } else {
                 RFToolsCtrlMessages.sendToServer(PacketGetLog.create(tileEntity.getDimension(), tileEntity.getBlockPos(), false));
             }

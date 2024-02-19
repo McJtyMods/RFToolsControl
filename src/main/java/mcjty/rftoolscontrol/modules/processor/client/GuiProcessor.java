@@ -3,6 +3,7 @@ package mcjty.rftoolscontrol.modules.processor.client;
 import com.mojang.blaze3d.vertex.PoseStack;
 import mcjty.lib.client.RenderHelper;
 import mcjty.lib.gui.GenericGuiContainer;
+import mcjty.lib.gui.GuiPopupTools;
 import mcjty.lib.gui.Window;
 import mcjty.lib.gui.WindowManager;
 import mcjty.lib.gui.events.SelectionEvent;
@@ -26,17 +27,16 @@ import mcjty.rftoolscontrol.modules.processor.network.PacketGetLog;
 import mcjty.rftoolscontrol.modules.processor.network.PacketGetVariables;
 import mcjty.rftoolscontrol.modules.processor.network.PacketVariableToServer;
 import mcjty.rftoolscontrol.modules.processor.util.CardInfo;
-import mcjty.lib.gui.GuiPopupTools;
 import mcjty.rftoolscontrol.setup.RFToolsCtrlMessages;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.MenuScreens;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.ChatFormatting;
 import net.minecraftforge.fluids.FluidStack;
 
 import javax.annotation.Nonnull;
@@ -125,7 +125,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity, Proce
         exclusive
                 .event(() -> {
                     tileEntity.setExclusive(exclusive.isPressed());
-                    sendServerCommandTyped(RFToolsCtrlMessages.INSTANCE, ProcessorTileEntity.CMD_SETEXCLUSIVE,
+                    sendServerCommandTyped(ProcessorTileEntity.CMD_SETEXCLUSIVE,
                             TypedMap.builder().put(PARAM_EXCLUSIVE, exclusive.isPressed()).build());
                 });
         toplevel.children(exclusive);
@@ -155,7 +155,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity, Proce
             } else {
                 m = HUD_GFX;
             }
-            sendServerCommandTyped(RFToolsCtrlMessages.INSTANCE, ProcessorTileEntity.CMD_SETHUDMODE,
+            sendServerCommandTyped(ProcessorTileEntity.CMD_SETHUDMODE,
                     TypedMap.builder().put(PARAM_HUDMODE, m).build());
         });
         toplevel.children(hudMode);
@@ -241,7 +241,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity, Proce
         dumpHistory();
         // Use the version with the dimension type as a parameter so that we can work from within the tablet (which can
         // be in another dimension)
-        sendServerCommandTyped(RFToolsCtrlMessages.INSTANCE, ProcessorTileEntity.CMD_EXECUTE,
+        sendServerCommandTyped(ProcessorTileEntity.CMD_EXECUTE,
                 TypedMap.builder().put(PARAM_CMD, text).build());
 
         if (commandHistoryIndex >= 0 && commandHistoryIndex < commandHistory.size() && text.equals(commandHistory.get(commandHistoryIndex))) {
@@ -273,9 +273,9 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity, Proce
     }
 
     private void requestLists() {
-        RFToolsCtrlMessages.INSTANCE.sendToServer(PacketGetLog.create(tileEntity.getDimension(), tileEntity.getBlockPos(), tileEntity.isDummy()));
-        RFToolsCtrlMessages.INSTANCE.sendToServer(PacketGetVariables.create(tileEntity.getBlockPos(), tileEntity.getDimension(), tileEntity.isDummy()));
-        RFToolsCtrlMessages.INSTANCE.sendToServer(PacketGetFluids.create(tileEntity.getBlockPos(), tileEntity.getDimension(), tileEntity.isDummy()));
+        RFToolsCtrlMessages.sendToServer(PacketGetLog.create(tileEntity.getDimension(), tileEntity.getBlockPos(), tileEntity.isDummy()));
+        RFToolsCtrlMessages.sendToServer(PacketGetVariables.create(tileEntity.getBlockPos(), tileEntity.getDimension(), tileEntity.isDummy()));
+        RFToolsCtrlMessages.sendToServer(PacketGetFluids.create(tileEntity.getBlockPos(), tileEntity.getDimension(), tileEntity.isDummy()));
     }
 
     private void requestListsIfNeeded() {
@@ -353,7 +353,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity, Proce
                         itemAlloc = itemAlloc & ~(1 << i);
                     }
                     cardInfo.setItemAllocation(itemAlloc);
-                    sendServerCommandTyped(RFToolsCtrlMessages.INSTANCE, ProcessorTileEntity.CMD_ALLOCATE,
+                    sendServerCommandTyped(ProcessorTileEntity.CMD_ALLOCATE,
                             TypedMap.builder()
                                     .put(PARAM_CARD, setupMode)
                                     .put(PARAM_ITEMS, itemAlloc)
@@ -402,7 +402,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity, Proce
                     }
                     cardInfo.setFluidAllocation(fluidAlloc);
 
-                    sendServerCommandTyped(RFToolsCtrlMessages.INSTANCE, ProcessorTileEntity.CMD_ALLOCATE,
+                    sendServerCommandTyped(ProcessorTileEntity.CMD_ALLOCATE,
                             TypedMap.builder()
                                     .put(PARAM_CARD, setupMode)
                                     .put(PARAM_ITEMS, itemAlloc)
@@ -453,7 +453,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity, Proce
                     }
                     cardInfo.setVarAllocation(varAlloc);
 
-                    sendServerCommandTyped(RFToolsCtrlMessages.INSTANCE, ProcessorTileEntity.CMD_ALLOCATE,
+                    sendServerCommandTyped(ProcessorTileEntity.CMD_ALLOCATE,
                             TypedMap.builder()
                                     .put(PARAM_CARD, setupMode)
                                     .put(PARAM_ITEMS, itemAlloc)

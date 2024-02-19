@@ -1,5 +1,6 @@
 package mcjty.rftoolscontrol.modules.craftingstation.client;
 
+import mcjty.lib.McJtyLib;
 import mcjty.lib.base.StyleConfig;
 import mcjty.lib.container.GenericContainer;
 import mcjty.lib.gui.GenericGuiContainer;
@@ -17,7 +18,6 @@ import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.modules.craftingstation.CraftingStationModule;
 import mcjty.rftoolscontrol.modules.craftingstation.blocks.CraftingStationTileEntity;
 import mcjty.rftoolscontrol.modules.craftingstation.util.CraftingRequest;
-import mcjty.rftoolscontrol.setup.RFToolsCtrlMessages;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
@@ -97,7 +97,7 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
         if (selected == -1) {
             return;
         }
-        sendServerCommandTyped(RFToolsCtrlMessages.INSTANCE, CraftingStationTileEntity.CMD_CANCEL,
+        sendServerCommandTyped(CraftingStationTileEntity.CMD_CANCEL,
                 TypedMap.builder()
                         .put(PARAM_INDEX, selected)
                         .build());
@@ -117,8 +117,8 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
     }
 
     private void requestLists() {
-        RFToolsCtrlMessages.sendToServer(PacketGetListFromServer.create(tileEntity.getBlockPos(), CMD_GETCRAFTABLE.name()));
-        RFToolsCtrlMessages.sendToServer(PacketGetListFromServer.create(tileEntity.getBlockPos(), CMD_GETREQUESTS.name()));
+        McJtyLib.sendToServer(PacketGetListFromServer.create(tileEntity.getBlockPos(), CMD_GETCRAFTABLE.name()));
+        McJtyLib.sendToServer(PacketGetListFromServer.create(tileEntity.getBlockPos(), CMD_GETREQUESTS.name()));
     }
 
     private void requestListsIfNeeded() {
@@ -236,7 +236,7 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
     }
 
     private void requestItem(ItemStack stack, int amount) {
-        sendServerCommandTyped(RFToolsCtrlMessages.INSTANCE, CraftingStationTileEntity.CMD_REQUEST,
+        sendServerCommandTyped(CraftingStationTileEntity.CMD_REQUEST,
                 TypedMap.builder()
                         .put(PARAM_ITEMNAME, Tools.getId(stack).toString())
                         .put(PARAM_NBT, stack.hasTag() ? stack.serializeNBT().toString() : "")

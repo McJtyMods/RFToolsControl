@@ -1,5 +1,6 @@
 package mcjty.rftoolscontrol.modules.multitank.client;
 
+import mcjty.lib.McJtyLib;
 import mcjty.lib.container.GenericContainer;
 import mcjty.lib.gui.GenericGuiContainer;
 import mcjty.lib.gui.ManualEntry;
@@ -14,10 +15,9 @@ import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.modules.multitank.MultiTankModule;
 import mcjty.rftoolscontrol.modules.multitank.blocks.MultiTankTileEntity;
 import mcjty.rftoolscontrol.modules.multitank.util.MultiTankFluidProperties;
-import mcjty.rftoolscontrol.setup.RFToolsCtrlMessages;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraftforge.fluids.FluidStack;
 
 import javax.annotation.Nonnull;
@@ -69,7 +69,7 @@ public class GuiMultiTank extends GenericGuiContainer<MultiTankTileEntity, Gener
     }
 
     private void requestLists() {
-        RFToolsCtrlMessages.sendToServer(PacketGetListFromServer.create(tileEntity.getBlockPos(), MultiTankTileEntity.CMD_GETFLUIDS.name()));
+        McJtyLib.sendToServer(PacketGetListFromServer.create(tileEntity.getBlockPos(), MultiTankTileEntity.CMD_GETFLUIDS.name()));
     }
 
     private void requestListsIfNeeded() {

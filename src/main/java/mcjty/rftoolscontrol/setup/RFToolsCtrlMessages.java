@@ -1,6 +1,5 @@
 package mcjty.rftoolscontrol.setup;
 
-import mcjty.lib.network.PacketHandler;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.modules.processor.network.*;
 import mcjty.rftoolscontrol.modules.programmer.network.PacketUpdateNBTItemInventoryProgrammer;
@@ -14,7 +13,7 @@ import net.minecraftforge.network.simple.SimpleChannel;
 import static mcjty.lib.network.PlayPayloadContext.wrap;
 
 public class RFToolsCtrlMessages {
-    public static SimpleChannel INSTANCE;
+    private static SimpleChannel INSTANCE;
 
     private static int packetId = 0;
     private static int id() {
@@ -43,8 +42,6 @@ public class RFToolsCtrlMessages {
         net.registerMessage(id(), PacketVariablesReady.class, PacketVariablesReady::write, PacketVariablesReady::create, wrap(PacketVariablesReady::handle));
         net.registerMessage(id(), PacketFluidsReady.class, PacketFluidsReady::write, PacketFluidsReady::create, wrap(PacketFluidsReady::handle));
         net.registerMessage(id(), PacketGraphicsReady.class, PacketGraphicsReady::write, PacketGraphicsReady::create, wrap(PacketGraphicsReady::handle));
-
-        PacketHandler.registerStandardMessages(id(), net);
     }
 
     public static <T> void sendToPlayer(T packet, Player player) {

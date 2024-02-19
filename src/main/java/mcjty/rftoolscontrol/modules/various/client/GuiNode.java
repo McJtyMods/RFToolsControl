@@ -9,7 +9,6 @@ import mcjty.lib.gui.widgets.TextField;
 import mcjty.lib.varia.ClientTools;
 import mcjty.rftoolscontrol.modules.various.VariousModule;
 import mcjty.rftoolscontrol.modules.various.blocks.NodeTileEntity;
-import mcjty.rftoolscontrol.setup.RFToolsCtrlMessages;
 import net.minecraft.world.entity.player.Inventory;
 
 import static mcjty.lib.gui.widgets.Widgets.*;
@@ -49,8 +48,8 @@ public class GuiNode extends GenericGuiContainer<NodeTileEntity, GenericContaine
         toplevel.bounds(leftPos, topPos, WIDTH, HEIGHT);
         window = new Window(this, toplevel);
 
-        window.bind(RFToolsCtrlMessages.INSTANCE, "channel", tileEntity, "channel");
-        window.bind(RFToolsCtrlMessages.INSTANCE, "node", tileEntity, "node");
+        window.bind("channel", tileEntity, "channel");
+        window.bind("node", tileEntity, "node");
 
         ClientTools.enableKeyboardRepeat();
     }
