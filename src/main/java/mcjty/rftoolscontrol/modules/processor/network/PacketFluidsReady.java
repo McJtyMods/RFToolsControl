@@ -27,12 +27,11 @@ public record PacketFluidsReady(@Nullable BlockPos pos, String command, List<Pac
 
     public static PacketFluidsReady create(FriendlyByteBuf buf) {
         BlockPos pos = null;
-        String command;
         List<PacketGetFluids.FluidEntry> list;
         if (buf.readBoolean()) {
             pos = buf.readBlockPos();
         }
-        command = buf.readUtf(32767);
+        String command = buf.readUtf(32767);
 
         int size = buf.readInt();
         if (size != -1) {

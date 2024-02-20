@@ -27,7 +27,7 @@ public class ModSetup extends DefaultModSetup {
             CommandHandler.registerCommands();
         });
 
-        RFToolsCtrlMessages.registerMessages("rftoolsctrl");
+        RFToolsCtrlMessages.registerMessages();
 
         Opcodes.init();
         Functions.init();

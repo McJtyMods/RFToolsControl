@@ -38,8 +38,8 @@ public record PacketGetVariables(ResourceKey<Level> type, BlockPos pos, TypedMap
 
     @Override
     public void write(FriendlyByteBuf buf) {
-        buf.writeBlockPos(pos);
         buf.writeResourceLocation(type.location());
+        buf.writeBlockPos(pos);
         TypedMapTools.writeArguments(buf, params);
         buf.writeBoolean(fromTablet);
     }

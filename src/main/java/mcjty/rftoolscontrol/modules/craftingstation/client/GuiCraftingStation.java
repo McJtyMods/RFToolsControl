@@ -1,6 +1,5 @@
 package mcjty.rftoolscontrol.modules.craftingstation.client;
 
-import mcjty.lib.McJtyLib;
 import mcjty.lib.base.StyleConfig;
 import mcjty.lib.container.GenericContainer;
 import mcjty.lib.gui.GenericGuiContainer;
@@ -9,6 +8,7 @@ import mcjty.lib.gui.ManualEntry;
 import mcjty.lib.gui.Window;
 import mcjty.lib.gui.events.BlockRenderEvent;
 import mcjty.lib.gui.widgets.*;
+import mcjty.lib.network.Networking;
 import mcjty.lib.network.PacketGetListFromServer;
 import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.ComponentFactory;
@@ -117,8 +117,8 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
     }
 
     private void requestLists() {
-        McJtyLib.sendToServer(PacketGetListFromServer.create(tileEntity.getBlockPos(), CMD_GETCRAFTABLE.name()));
-        McJtyLib.sendToServer(PacketGetListFromServer.create(tileEntity.getBlockPos(), CMD_GETREQUESTS.name()));
+        Networking.sendToServer(PacketGetListFromServer.create(tileEntity.getBlockPos(), CMD_GETCRAFTABLE.name()));
+        Networking.sendToServer(PacketGetListFromServer.create(tileEntity.getBlockPos(), CMD_GETREQUESTS.name()));
     }
 
     private void requestListsIfNeeded() {

@@ -1,54 +1,42 @@
 package mcjty.rftoolscontrol.setup;
 
+import mcjty.lib.network.IPayloadRegistrar;
+import mcjty.lib.network.Networking;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.modules.processor.network.*;
 import mcjty.rftoolscontrol.modules.programmer.network.PacketUpdateNBTItemInventoryProgrammer;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.network.NetworkDirection;
-import net.minecraftforge.network.NetworkRegistry;
-import net.minecraftforge.network.simple.SimpleChannel;
-
-import static mcjty.lib.network.PlayPayloadContext.wrap;
 
 public class RFToolsCtrlMessages {
-    private static SimpleChannel INSTANCE;
 
-    private static int packetId = 0;
-    private static int id() {
-        return packetId++;
-    }
+    private static IPayloadRegistrar registrar;
 
-    public static void registerMessages(String name) {
-        SimpleChannel net = NetworkRegistry.ChannelBuilder
-                .named(new ResourceLocation(RFToolsControl.MODID, name))
-                .networkProtocolVersion(() -> "1.0")
-                .clientAcceptedVersions(s -> true)
-                .serverAcceptedVersions(s -> true)
-                .simpleChannel();
-
-        INSTANCE = net;
+    public static void registerMessages() {
+        registrar = Networking.registrar(RFToolsControl.MODID)
+                .versioned("1.0")
+                .optional();
 
         // Server side
-        net.registerMessage(id(), PacketGetLog.class, PacketGetLog::write, PacketGetLog::create, wrap(PacketGetLog::handle));
-        net.registerMessage(id(), PacketGetVariables.class, PacketGetVariables::write, PacketGetVariables::create, wrap(PacketGetVariables::handle));
-        net.registerMessage(id(), PacketGetFluids.class, PacketGetFluids::write, PacketGetFluids::create, wrap(PacketGetFluids::handle));
-        net.registerMessage(id(), PacketVariableToServer.class, PacketVariableToServer::write, PacketVariableToServer::create, wrap(PacketVariableToServer::handle));
-        net.registerMessage(id(), PacketUpdateNBTItemInventoryProgrammer.class, PacketUpdateNBTItemInventoryProgrammer::write, PacketUpdateNBTItemInventoryProgrammer::create, wrap(PacketUpdateNBTItemInventoryProgrammer::handle));
+        registrar.play(PacketGetLog.class, PacketGetLog::create, handler -> handler.server(PacketGetLog::handle));
+        registrar.play(PacketGetVariables.class, PacketGetVariables::create, handler -> handler.server(PacketGetVariables::handle));
+        registrar.play(PacketGetFluids.class, PacketGetFluids::create, handler -> handler.server(PacketGetFluids::handle));
+        registrar.play(PacketVariableToServer.class, PacketVariableToServer::create, handler -> handler.server(PacketVariableToServer::handle));
+        registrar.play(PacketUpdateNBTItemInventoryProgrammer.class, PacketUpdateNBTItemInventoryProgrammer::create, handler -> handler.server(PacketUpdateNBTItemInventoryProgrammer::handle));
 
         // Client side
-        net.registerMessage(id(), PacketLogReady.class, PacketLogReady::write, PacketLogReady::create, wrap(PacketLogReady::handle));
-        net.registerMessage(id(), PacketVariablesReady.class, PacketVariablesReady::write, PacketVariablesReady::create, wrap(PacketVariablesReady::handle));
-        net.registerMessage(id(), PacketFluidsReady.class, PacketFluidsReady::write, PacketFluidsReady::create, wrap(PacketFluidsReady::handle));
-        net.registerMessage(id(), PacketGraphicsReady.class, PacketGraphicsReady::write, PacketGraphicsReady::create, wrap(PacketGraphicsReady::handle));
+        registrar.play(PacketLogReady.class, PacketLogReady::create, handler -> handler.client(PacketLogReady::handle));
+        registrar.play(PacketVariablesReady.class, PacketVariablesReady::create, handler -> handler.client(PacketVariablesReady::handle));
+        registrar.play(PacketFluidsReady.class, PacketFluidsReady::create, handler -> handler.client(PacketFluidsReady::handle));
+        registrar.play(PacketGraphicsReady.class, PacketGraphicsReady::create, handler -> handler.client(PacketGraphicsReady::handle));
     }
 
     public static <T> void sendToPlayer(T packet, Player player) {
-        INSTANCE.sendTo(packet, ((ServerPlayer)player).connection.connection, NetworkDirection.PLAY_TO_CLIENT);
+        registrar.getChannel().sendTo(packet, ((ServerPlayer)player).connection.connection, NetworkDirection.PLAY_TO_CLIENT);
     }
 
     public static <T> void sendToServer(T packet) {
-        INSTANCE.sendToServer(packet);
+        registrar.getChannel().sendToServer(packet);
     }
 }

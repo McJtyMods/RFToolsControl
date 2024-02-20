@@ -1,6 +1,5 @@
 package mcjty.rftoolscontrol.modules.multitank.client;
 
-import mcjty.lib.McJtyLib;
 import mcjty.lib.container.GenericContainer;
 import mcjty.lib.gui.GenericGuiContainer;
 import mcjty.lib.gui.ManualEntry;
@@ -10,6 +9,7 @@ import mcjty.lib.gui.layout.VerticalAlignment;
 import mcjty.lib.gui.widgets.BlockRender;
 import mcjty.lib.gui.widgets.Label;
 import mcjty.lib.gui.widgets.Panel;
+import mcjty.lib.network.Networking;
 import mcjty.lib.network.PacketGetListFromServer;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.modules.multitank.MultiTankModule;
@@ -69,7 +69,7 @@ public class GuiMultiTank extends GenericGuiContainer<MultiTankTileEntity, Gener
     }
 
     private void requestLists() {
-        McJtyLib.sendToServer(PacketGetListFromServer.create(tileEntity.getBlockPos(), MultiTankTileEntity.CMD_GETFLUIDS.name()));
+        Networking.sendToServer(PacketGetListFromServer.create(tileEntity.getBlockPos(), MultiTankTileEntity.CMD_GETFLUIDS.name()));
     }
 
     private void requestListsIfNeeded() {
