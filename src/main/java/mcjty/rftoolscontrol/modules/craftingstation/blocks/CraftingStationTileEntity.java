@@ -60,7 +60,7 @@ public class CraftingStationTileEntity extends GenericTileEntity {
     private final GenericItemHandler items = GenericItemHandler.basic(this, CONTAINER_FACTORY);
 
     @Cap(type = CapType.CONTAINER)
-    private final LazyOptional<MenuProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<GenericContainer>("Crafter")
+    private final Lazy<MenuProvider> screenHandler = Lazy.of(() -> new DefaultContainerProvider<GenericContainer>("Crafter")
             .containerSupplier(container(CRAFTING_STATION_CONTAINER, CONTAINER_FACTORY, this))
             .itemHandler(() -> items)
             .setupSync(this));

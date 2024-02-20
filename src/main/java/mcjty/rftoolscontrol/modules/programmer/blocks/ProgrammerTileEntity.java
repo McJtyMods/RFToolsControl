@@ -39,7 +39,7 @@ public class ProgrammerTileEntity extends GenericTileEntity {
     private final GenericItemHandler items = GenericItemHandler.basic(this, CONTAINER_FACTORY);
 
     @Cap(type = CapType.CONTAINER)
-    private final LazyOptional<MenuProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<GenericContainer>("Programmer")
+    private final Lazy<MenuProvider> screenHandler = Lazy.of(() -> new DefaultContainerProvider<GenericContainer>("Programmer")
             .containerSupplier(container(PROGRAMMER_CONTAINER, CONTAINER_FACTORY, this))
             .itemHandler(() -> items)
             .setupSync(this));

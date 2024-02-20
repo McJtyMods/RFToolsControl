@@ -9,13 +9,13 @@ import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.lib.varia.BlockPosTools;
 import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorTileEntity;
 import mcjty.rftoolscontrol.modules.various.VariousModule;
-import net.minecraft.world.MenuProvider;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.core.Direction;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.common.util.Lazy;
 
 import javax.annotation.Nonnull;
 
@@ -35,7 +35,7 @@ public class NodeTileEntity extends GenericTileEntity {
     private final int[] powerOut = new int[]{0, 0, 0, 0, 0, 0};
 
     @Cap(type = CapType.CONTAINER)
-    private final LazyOptional<MenuProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<GenericContainer>("Node")
+    private final Lazy<MenuProvider> screenHandler = Lazy.of(() -> new DefaultContainerProvider<GenericContainer>("Node")
             .containerSupplier(empty(VariousModule.NODE_CONTAINER, this))
             .setupSync(this));
 

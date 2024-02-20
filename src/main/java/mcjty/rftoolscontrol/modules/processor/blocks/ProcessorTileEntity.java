@@ -76,6 +76,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
+import net.minecraftforge.common.util.Lazy;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.fluids.FluidStack;
@@ -135,7 +136,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
     private final GenericEnergyStorage energyStorage = new GenericEnergyStorage(this, true, Config.processorMaxenergy.get(), Config.processorReceivepertick.get());
 
     @Cap(type = CapType.CONTAINER)
-    private final LazyOptional<MenuProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<ProcessorContainer>("Processor")
+    private final Lazy<MenuProvider> screenHandler = Lazy.of(() -> new DefaultContainerProvider<ProcessorContainer>("Processor")
             .containerSupplier((windowId, player) -> ProcessorContainer.create(windowId, getBlockPos(), ProcessorTileEntity.this, player))
             .itemHandler(() -> items)
             .energyHandler(() -> energyStorage)
