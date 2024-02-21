@@ -15,7 +15,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.util.Lazy;
-import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fluids.FluidStack;
 
 import javax.annotation.Nonnull;
@@ -33,7 +32,7 @@ public class MultiTankTileEntity extends GenericTileEntity {
     private final MultiTankFluidProperties[] properties = new MultiTankFluidProperties[TANKS];
 
     @Cap(type = CapType.FLUIDS)
-    private final LazyOptional<MultiTankHandler> fluidHandler = LazyOptional.of(this::createFluidHandler);
+    private final MultiTankHandler fluidHandler = createFluidHandler();
 
     @Cap(type = CapType.CONTAINER)
     private final Lazy<MenuProvider> screenHandler = Lazy.of(() -> new DefaultContainerProvider<GenericContainer>("Multi tank")
