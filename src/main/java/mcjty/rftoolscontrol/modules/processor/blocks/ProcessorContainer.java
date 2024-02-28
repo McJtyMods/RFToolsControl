@@ -10,9 +10,9 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.core.BlockPos;
-import net.minecraftforge.common.util.Lazy;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.wrapper.InvWrapper;
+import net.neoforged.neoforge.common.util.Lazy;
+import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.items.wrapper.InvWrapper;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;

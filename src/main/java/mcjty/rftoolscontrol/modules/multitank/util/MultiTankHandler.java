@@ -1,12 +1,12 @@
 package mcjty.rftoolscontrol.modules.multitank.util;
 
 import mcjty.rftoolscontrol.modules.multitank.blocks.MultiTankTileEntity;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.capability.IFluidHandler;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 
 import javax.annotation.Nonnull;
 
-import net.minecraftforge.fluids.capability.IFluidHandler.FluidAction;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler.FluidAction;
 
 public class MultiTankHandler implements IFluidHandler {
 

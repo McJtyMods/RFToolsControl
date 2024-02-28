@@ -10,8 +10,8 @@ import mcjty.rftoolsbase.api.control.parameters.ParameterValue;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.fluids.FluidStack;
+import net.neoforged.neoforge.common.capabilities.ForgeCapabilities;
+import net.neoforged.neoforge.fluids.FluidStack;
 
 import javax.annotation.Nonnull;
 

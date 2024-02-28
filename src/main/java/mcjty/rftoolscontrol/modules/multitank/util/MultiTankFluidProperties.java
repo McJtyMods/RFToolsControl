@@ -20,7 +20,7 @@
 package mcjty.rftoolscontrol.modules.multitank.util;
 
 import mcjty.rftoolscontrol.modules.multitank.blocks.MultiTankTileEntity;
-import net.minecraftforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidStack;
 
 import javax.annotation.Nonnull;
 

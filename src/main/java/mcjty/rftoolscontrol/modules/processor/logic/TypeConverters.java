@@ -7,8 +7,8 @@ import mcjty.rftoolscontrol.modules.processor.logic.running.ExceptionType;
 import mcjty.rftoolscontrol.modules.processor.logic.running.ProgException;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.FluidUtil;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidUtil;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Nonnull;

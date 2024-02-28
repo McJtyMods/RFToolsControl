@@ -7,7 +7,7 @@ import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.rftoolscontrol.modules.various.VariousModule;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.core.BlockPos;
-import net.minecraftforge.common.util.Lazy;
+import net.neoforged.neoforge.common.util.Lazy;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
