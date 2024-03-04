@@ -2,8 +2,8 @@ package mcjty.rftoolscontrol.setup;
 
 
 import mcjty.lib.modules.Modules;
-import net.neoforged.neoforge.common.ForgeConfigSpec;
-import net.neoforged.neoforge.eventbus.api.IEventBus;
+import net.neoforged.neoforge.common.ModConfigSpec;
+import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.fml.ModLoadingContext;
 import net.neoforged.neoforge.fml.config.ModConfig;
 
@@ -11,29 +11,29 @@ public class Config {
 
     public static final String CATEGORY_GENERAL = "general";
 
-    public static ForgeConfigSpec.IntValue processorMaxenergy;
-    public static ForgeConfigSpec.IntValue processorReceivepertick;
+    public static ModConfigSpec.IntValue processorMaxenergy;
+    public static ModConfigSpec.IntValue processorReceivepertick;
 
-    public static ForgeConfigSpec.IntValue processorMaxloglines;
+    public static ModConfigSpec.IntValue processorMaxloglines;
 
-    public static ForgeConfigSpec.IntValue coreSpeed[] = new ForgeConfigSpec.IntValue[3];
-    public static ForgeConfigSpec.IntValue coreRFPerTick[] = new ForgeConfigSpec.IntValue[3];
+    public static ModConfigSpec.IntValue coreSpeed[] = new ModConfigSpec.IntValue[3];
+    public static ModConfigSpec.IntValue coreRFPerTick[] = new ModConfigSpec.IntValue[3];
 
-    public static ForgeConfigSpec.IntValue VARIABLEMODULE_RFPERTICK;
-    public static ForgeConfigSpec.IntValue INTERACTMODULE_RFPERTICK;
-    public static ForgeConfigSpec.IntValue CONSOLEMODULE_RFPERTICK;
-    public static ForgeConfigSpec.IntValue VECTORARTMODULE_RFPERTICK;
+    public static ModConfigSpec.IntValue VARIABLEMODULE_RFPERTICK;
+    public static ModConfigSpec.IntValue INTERACTMODULE_RFPERTICK;
+    public static ModConfigSpec.IntValue CONSOLEMODULE_RFPERTICK;
+    public static ModConfigSpec.IntValue VECTORARTMODULE_RFPERTICK;
 
-    public static ForgeConfigSpec.BooleanValue doubleClickToChangeConnector;
-    public static ForgeConfigSpec.IntValue tooltipVerbosityLevel;
+    public static ModConfigSpec.BooleanValue doubleClickToChangeConnector;
+    public static ModConfigSpec.IntValue tooltipVerbosityLevel;
 
-    public static ForgeConfigSpec.IntValue maxGraphicsOpcodes;
-    public static ForgeConfigSpec.IntValue maxEventQueueSize;
-    public static ForgeConfigSpec.IntValue maxCraftRequests;
-    public static ForgeConfigSpec.IntValue maxStackSize;
+    public static ModConfigSpec.IntValue maxGraphicsOpcodes;
+    public static ModConfigSpec.IntValue maxEventQueueSize;
+    public static ModConfigSpec.IntValue maxCraftRequests;
+    public static ModConfigSpec.IntValue maxStackSize;
 
-    public static final ForgeConfigSpec.Builder SERVER_BUILDER = new ForgeConfigSpec.Builder();
-    public static final ForgeConfigSpec.Builder CLIENT_BUILDER = new ForgeConfigSpec.Builder();
+    public static final ModConfigSpec.Builder SERVER_BUILDER = new ModConfigSpec.Builder();
+    public static final ModConfigSpec.Builder CLIENT_BUILDER = new ModConfigSpec.Builder();
 
     public static void register(IEventBus bus, Modules modules) {
         setupGeneralConfig();
@@ -115,6 +115,6 @@ public class Config {
         CLIENT_BUILDER.pop();
     }
 
-    public static ForgeConfigSpec SERVER_CONFIG;
-    public static ForgeConfigSpec CLIENT_CONFIG;
+    public static ModConfigSpec SERVER_CONFIG;
+    public static ModConfigSpec CLIENT_CONFIG;
 }

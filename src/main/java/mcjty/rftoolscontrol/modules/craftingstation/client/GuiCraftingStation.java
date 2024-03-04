@@ -253,6 +253,6 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
             requestList.selected(-1);
         }
         cancelButton.enabled(requestList.getSelected() != -1);
-        drawWindow(graphics);
+        drawWindow(graphics, xxx, xxx, yyy);
     }
 }

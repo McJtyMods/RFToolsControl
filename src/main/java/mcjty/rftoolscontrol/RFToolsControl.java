@@ -14,7 +14,7 @@ import mcjty.rftoolscontrol.setup.Registration;
 import net.minecraft.world.item.Item;
 import net.neoforged.neoforge.api.distmarker.Dist;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
-import net.neoforged.neoforge.eventbus.api.IEventBus;
+import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.fml.common.Mod;
 import net.neoforged.neoforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.neoforged.neoforge.fml.loading.FMLEnvironment;

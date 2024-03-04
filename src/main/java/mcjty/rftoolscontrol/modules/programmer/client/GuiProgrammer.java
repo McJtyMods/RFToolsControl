@@ -1,6 +1,5 @@
 package mcjty.rftoolscontrol.modules.programmer.client;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import mcjty.lib.base.StyleConfig;
 import mcjty.lib.container.GenericContainer;
 import mcjty.lib.gui.GenericGuiContainer;
@@ -1195,7 +1194,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Gen
 
     @Override
     protected void renderBg(@Nonnull GuiGraphics graphics, float partialTicks, int mouseX, int mouseY) {
-        drawWindow(graphics);
+        drawWindow(graphics, xxx, xxx, yyy);
 
         trashcan.setIcon(null);
         saveCounter--;

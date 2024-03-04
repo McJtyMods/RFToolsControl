@@ -635,7 +635,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity, Proce
         requestListsIfNeeded();
         populateLog();
 
-        drawWindow(graphics);
+        drawWindow(graphics, xxx, xxx, yyy);
         updateEnergyBar(energyBar);
 
         drawAllocatedSlots(graphics);

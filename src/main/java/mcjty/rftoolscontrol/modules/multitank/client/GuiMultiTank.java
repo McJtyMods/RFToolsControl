@@ -99,6 +99,6 @@ public class GuiMultiTank extends GenericGuiContainer<MultiTankTileEntity, Gener
     @Override
     protected void renderBg(@Nonnull GuiGraphics graphics, float partialTicks, int mouseX, int mouseY) {
         updateLiquids();
-        drawWindow(graphics);
+        drawWindow(graphics, xxx, xxx, yyy);
     }
 }
