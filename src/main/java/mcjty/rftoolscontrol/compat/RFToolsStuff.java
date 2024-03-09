@@ -7,8 +7,8 @@ import net.neoforged.neoforge.registries.RegistryObject;
 
 public class RFToolsStuff {
 
-    public static RegistryObject<Item> STORAGE_CONTROL_MODULE = RegistryObject.create(new ResourceLocation("rftoolsstorage", "storage_control_module"), ForgeRegistries.ITEMS);
-    public static RegistryObject<Item> CRAFTING_CARD = RegistryObject.create(new ResourceLocation("rftoolsbase", "crafting_card"), ForgeRegistries.ITEMS);
+    public static RegistryObject<Item> STORAGE_CONTROL_MODULE = RegistryObject.create(new ResourceLocation("rftoolsstorage", "storage_control_module"), BuiltInRegistries.ITEM);
+    public static RegistryObject<Item> CRAFTING_CARD = RegistryObject.create(new ResourceLocation("rftoolsbase", "crafting_card"), BuiltInRegistries.ITEM);
 
     public static void init() {
     }

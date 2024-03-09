@@ -10,7 +10,7 @@ import mcjty.rftoolscontrol.modules.processor.logic.registry.FunctionRegistry;
 import mcjty.rftoolscontrol.modules.processor.logic.registry.Functions;
 import mcjty.rftoolscontrol.modules.processor.logic.registry.OpcodeRegistry;
 import mcjty.rftoolscontrol.modules.processor.logic.registry.Opcodes;
-import net.neoforged.neoforge.fml.InterModComms;
+import net.neoforged.fml.InterModComms;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.fml.event.lifecycle.InterModProcessEvent;
 
