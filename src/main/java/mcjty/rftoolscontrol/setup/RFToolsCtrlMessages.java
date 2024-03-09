@@ -1,6 +1,5 @@
 package mcjty.rftoolscontrol.setup;
 
-import mcjty.lib.network.IPayloadRegistrar;
 import mcjty.lib.network.Networking;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.modules.processor.network.*;

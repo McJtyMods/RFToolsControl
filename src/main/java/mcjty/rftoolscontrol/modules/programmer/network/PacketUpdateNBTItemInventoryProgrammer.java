@@ -1,7 +1,5 @@
 package mcjty.rftoolscontrol.modules.programmer.network;
 
-import mcjty.lib.network.CustomPacketPayload;
-import mcjty.lib.network.PlayPayloadContext;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.modules.programmer.blocks.ProgrammerTileEntity;
 import net.minecraft.core.BlockPos;

@@ -1,9 +1,7 @@
 package mcjty.rftoolscontrol.modules.processor.network;
 
 
-import mcjty.lib.network.CustomPacketPayload;
 import mcjty.lib.network.NetworkTools;
-import mcjty.lib.network.PlayPayloadContext;
 import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.Logging;
@@ -21,7 +19,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Supplier;
 
 public record PacketLogReady(@Nullable BlockPos pos, String command, @Nonnull List<String> list) implements CustomPacketPayload {
 
