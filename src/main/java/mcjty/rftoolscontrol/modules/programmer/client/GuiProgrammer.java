@@ -996,8 +996,8 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Gen
     }
 
     @Override
-    public boolean mouseScrolledFromEvent(double x, double y, double amount) {
-        super.mouseScrolledFromEvent(x, y, amount);
+    public boolean mouseScrolledFromEvent(double x, double y, double dx, double dy) {
+        super.mouseScrolledFromEvent(x, y, dx, dy);
         return false;
     }
 
