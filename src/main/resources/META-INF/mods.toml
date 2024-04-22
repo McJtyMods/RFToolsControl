@@ -31,6 +31,6 @@ Visual programming language for automation
 [[dependencies.rftoolscontrol]]
     modId="rftoolsbase"
     mandatory=true
-    versionRange="[1.19-3.0.8,)"
+    versionRange="[1.19-4.1.8,)"
     ordering="AFTER"
     side="BOTH"
