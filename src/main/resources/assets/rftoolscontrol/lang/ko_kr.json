@@ -1,0 +1,123 @@
+{
+  "_comment": "Achievements",
+
+  "_comment": "Items",
+  "item.rftoolscontrol.program_card": "프로그램 카드",
+  "item.rftoolscontrol.cpu_core_500": "CPU 코어 B500",
+  "item.rftoolscontrol.cpu_core_1000": "CPU 코어 S1000",
+  "item.rftoolscontrol.cpu_core_2000": "CPU 코어 EX2000",
+  "item.rftoolscontrol.ram_chip": "RAM 칩 8E",
+  "item.rftoolscontrol.network_card": "네트워크 칩",
+  "item.rftoolscontrol.advanced_network_card": "고급 네트워크 칩",
+  "item.rftoolscontrol.card_base": "카드 베이스",
+  "item.rftoolscontrol.variable_module": "변수 스크린 모듈",
+  "item.rftoolscontrol.interaction_module": "상호 작용 스크린 모듈",
+  "item.rftoolscontrol.console_module": "콘솔 스크린 모듈",
+  "item.rftoolscontrol.vectorart_module": "벡터 아트 스크린 모듈",
+  "item.rftoolscontrol.token": "토큰",
+  "item.rftoolscontrol.network_identifier": "네트워크 식별자",
+  "item.rftoolscontrol.graphics_card": "그래픽 카드",
+  "item.rftoolscontrol.tablet_processor": "태블릿 (프로세서)",
+
+  "_comment": "Blocks",
+  "block.rftoolscontrol.programmer": "프로그래머",
+  "block.rftoolscontrol.processor": "프로세서",
+  "block.rftoolscontrol.craftingstation": "조합 정거장",
+  "block.rftoolscontrol.node": "교점",
+  "block.rftoolscontrol.workbench": "작업대",
+  "block.rftoolscontrol.tank": "멀티 탱크",
+
+  "_comment": "Creative Tabs",
+  "itemGroup.RFToolsControl": "RF툴즈 컨트롤",
+
+  "_comment": "Messages",
+
+  "message.rftoolscontrol.shiftmessage": "<Shift 누르기>",
+
+  "message.rftoolscontrol.token.header": "이 아이템은 단일 토큰입니다. 그것은 아무것도 하지 않지만 정보를 저장할 수 있습니다.",
+  "message.rftoolscontrol.token.gold": "이 토큰은 비어있습니다.",
+  "message.rftoolscontrol.token.type": "유형: ",
+  "message.rftoolscontrol.token.value": "값: ",
+
+  "message.rftoolscontrol.program_card.header": "이 아이템은 단일 토큰입니다. 그것은 아무것도 하지 않지만 정보를 저장할 수 있습니다.",
+  "message.rftoolscontrol.program_card.name": "이름: ",
+
+  "message.rftoolscontrol.cpu_core_500.header": "이 CPU 코어를 프로세서에서 사용하여 프로그램을 실행해야 합니다.",
+  "message.rftoolscontrol.cpu_core_500.speed": "눈금당 작업 수: ",
+  "message.rftoolscontrol.cpu_core_500.power": "눈금당 RF/FE: ",
+
+  "message.rftoolscontrol.cpu_core_1000.header": "이 CPU 코어를 프로세서에서 사용하여 프로그램을 실행해야 합니다.",
+  "message.rftoolscontrol.cpu_core_1000.speed": "눈금당 작업 수: ",
+  "message.rftoolscontrol.cpu_core_1000.power": "눈금당 RF/FE: ",
+
+  "message.rftoolscontrol.cpu_core_2000.header": "이 CPU 코어를 프로세서에서 사용하여 프로그램을 실행해야 합니다.",
+  "message.rftoolscontrol.cpu_core_2000.speed": "눈금당 작업 수: ",
+  "message.rftoolscontrol.cpu_core_2000.power": "눈금당 RF/FE: ",
+
+  "message.rftoolscontrol.card_base.header": "이 아이템은 RF툴즈 컨트롤의 많은 아이템과 기계에 대한 기본 성분입니다.",
+
+  "message.rftoolscontrol.graphics_card.header": "벡터 그래픽을 그릴 수 있으려면 그래픽 카드가 필요합니다.",
+
+  "message.rftoolscontrol.ram_chip.header": "8개의 추가 변수(최대 32개)를 얻으려면 이 아이템을 프로세서에 삽입합니다.",
+
+  "message.rftoolscontrol.tablet_processor.header": "원격 GUI 및 정보를 참조하는 데 사용할 수 있는 태블릿입니다.",
+  "message.rftoolscontrol.tablet_processor.gold": "정보가 포함된 태블릿: 프로세서 GUI를 우클릭하고 태블릿 GUI를 우클릭합니다.",
+
+  "message.rftoolscontrol.network_card.header": "프로세서에 삽입하여 인근 교점에 접속할 수 있습니다.",
+  "message.rftoolscontrol.network_card.gold": "프로세서 콘솔에서 'net setup <name>'을 사용하여 네트워크를 설정합니다.",
+  "message.rftoolscontrol.network_card.range": "범위: 17x17x17 구역",
+  "message.rftoolscontrol.network_card.extra": "",
+
+  "message.rftoolscontrol.advanced_network_card.header": "프로세서에 삽입하여 인근 교점에 접속할 수 있습니다.",
+  "message.rftoolscontrol.advanced_network_card.gold": "프로세서 콘솔에서 'net setup <name>'을 사용하여 네트워크를 설정합니다.",
+  "message.rftoolscontrol.advanced_network_card.range": "범위: 31x31x31 구역",
+  "message.rftoolscontrol.advanced_network_card.extra": "프로세스 간 통신을 지원합니다.",
+
+  "message.rftoolscontrol.network_identifier.header": "이 아이템을 통해 프로세서가 다른 연결된 프로세서와 직접 통신할 수 있습니다.",
+  "message.rftoolscontrol.network_identifier.gold": "프로세서를 우클릭하여 이 모듈의 대상을 설정합니다.",
+  "message.rftoolscontrol.network_identifier.target": "프로세서: ",
+
+  "message.rftoolscontrol.console_module.header": "프로세서의 콘솔을 표시할 수 있는 스크린용 모듈입니다.",
+  "message.rftoolscontrol.console_module.gold": "프로세서를 우클릭하여 이 모듈의 대상을 설정합니다.",
+  "message.rftoolscontrol.console_module.uses": "전력 사용량: ",
+  "message.rftoolscontrol.console_module.info": "프로세서: ",
+
+  "message.rftoolscontrol.interaction_module.header": "프로세서와 상호 작용할 수 있는 스크린용 모듈입니다.",
+  "message.rftoolscontrol.interaction_module.gold": "프로세서를 우클릭하여 이 모듈의 대상을 설정합니다.",
+  "message.rftoolscontrol.interaction_module.uses": "전력 사용량: ",
+  "message.rftoolscontrol.interaction_module.info": "프로세서: ",
+
+  "message.rftoolscontrol.variable_module.header": "프로세서에 변수를 표시할 수 있는 스크린용 모듈입니다.",
+  "message.rftoolscontrol.variable_module.gold": "프로세서를 우클릭하여 이 모듈의 대상을 설정합니다.",
+  "message.rftoolscontrol.variable_module.uses": "전력 사용량: ",
+  "message.rftoolscontrol.variable_module.info": "프로세서: ",
+
+  "message.rftoolscontrol.vectorart_module.header": "프로세서에서 벡터 아트를 표시할 수 있는 스크린용 모듈입니다.",
+  "message.rftoolscontrol.vectorart_module.gold": "프로세서를 우클릭하여 이 모듈의 대상을 설정합니다.",
+  "message.rftoolscontrol.vectorart_module.uses": "전력 사용량: ",
+  "message.rftoolscontrol.vectorart_module.info": "프로세서: ",
+
+  "message.rftoolscontrol.craftingstation.header": "이 블록은 프로세서에 대한 자동 조합 작업을 지원합니다.",
+  "message.rftoolscontrol.tank.header": "이것은 4가지 종류의 액체를 담을 수 있는 용량이 있는 탱크입니다. 이 블록은 프로세서를 위한 것이므로 다른 방법으로 직접 사용할 수 없습니다.",
+  "message.rftoolscontrol.processor.header": "프로세서는 자동화를 위해 프로그램을 실행합니다. 프로그램은 프로그램 카드에 작성되어야 하며 프로그래머 블록으로 만들 수 있습니다.",
+  "message.rftoolscontrol.programmer.header": "이 블록을 사용하여 프로세서용 프로그램 카드에 프로그램을 만듭니다.",
+  "message.rftoolscontrol.node.header": "네트워크 카드가 설치된 프로세서가 이 교점에 원격으로 접속할 수 있습니다.",
+  "message.rftoolscontrol.workbench.header": "프로세서에서 잘 작동하지만 독립 실행형으로도 사용할 수 있는 일반 작업대입니다.",
+
+  "rftoolscontrol.category.main": "RF툴즈 컨트롤",
+  "rftoolscontrol.category.main.description": "RF툴즈 컨트롤은 마인크래프트에서 자동화를 위한 '프로그램' 작업을 그래픽 방식으로 제공합니다.",
+  "rftoolscontrol.category.programmer": "프로그래머",
+  "rftoolscontrol.category.programmer.description": "프로그래머는 실제로 프로그램을 작성하는 데 필요한 기본 블록입니다.",
+  "rftoolscontrol.category.processor": "프로세서",
+  "rftoolscontrol.category.processor.description": "프로세서는 프로그램을 실제로 실행하는 장치입니다.",
+  "rftoolscontrol.category.advanced": "고급",
+  "rftoolscontrol.category.advanced.description": "고급 물건... @todo",
+  "rftoolscontrol.entry.programmer_intro": "프로그래밍 소개",
+  "rftoolscontrol.page.programmer_intro0": "소개... @todo",
+  "rftoolscontrol.entry.processor": "프로세서",
+  "rftoolscontrol.page.processor0": "프로세서는 프로그램을 실제로 실행하는 장치입니다.",
+  "rftoolscontrol.entry.expansions": "확장",
+  "rftoolscontrol.page.expansions0": "다양한 확장...",
+  "rftoolscontrol.entry.advanced_intro": "고급",
+  "rftoolscontrol.page.advanced_intro0": "물건 @todo"
+}
