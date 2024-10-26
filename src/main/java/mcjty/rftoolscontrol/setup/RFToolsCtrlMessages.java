@@ -2,6 +2,7 @@ package mcjty.rftoolscontrol.setup;
 
 import mcjty.lib.network.IPayloadRegistrar;
 import mcjty.lib.network.Networking;
+import mcjty.lib.network.PacketSendServerCommand;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.modules.processor.network.*;
 import mcjty.rftoolscontrol.modules.programmer.network.PacketUpdateNBTItemInventoryProgrammer;
@@ -30,6 +31,8 @@ public class RFToolsCtrlMessages {
         registrar.play(PacketVariablesReady.class, PacketVariablesReady::create, handler -> handler.client(PacketVariablesReady::handle));
         registrar.play(PacketFluidsReady.class, PacketFluidsReady::create, handler -> handler.client(PacketFluidsReady::handle));
         registrar.play(PacketGraphicsReady.class, PacketGraphicsReady::create, handler -> handler.client(PacketGraphicsReady::handle));
+
+        registrar.play(PacketSendServerCommand.class, PacketSendServerCommand::create, handler -> handler.server(PacketSendServerCommand::handle));
     }
 
     public static <T> void sendToPlayer(T packet, Player player) {
