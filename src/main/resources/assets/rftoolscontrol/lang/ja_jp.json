@@ -1,0 +1,106 @@
+{
+  "_comment": "Achievements",
+
+  "_comment": "Items",
+  "item.rftoolscontrol.program_card": "プログラムカード",
+  "item.rftoolscontrol.cpu_core_500": "CPUコア B500",
+  "item.rftoolscontrol.cpu_core_1000": "CPUコア S1000",
+  "item.rftoolscontrol.cpu_core_2000": "CPUコア EX2000",
+  "item.rftoolscontrol.ram_chip": "RAMチップ 8E",
+  "item.rftoolscontrol.network_card": "ネットワークカード",
+  "item.rftoolscontrol.advanced_network_card": "高性能ネットワークカード",
+  "item.rftoolscontrol.card_base": "カードベース",
+  "item.rftoolscontrol.variable_module": "変数スクリーンモジュール",
+  "item.rftoolscontrol.interaction_module": "インタラクションスクリーンモジュール",
+  "item.rftoolscontrol.console_module": "コンソールスクリーンモジュール",
+  "item.rftoolscontrol.vectorart_module": "ベクターアートスクリーンモジュール",
+  "item.rftoolscontrol.token": "トークン",
+  "item.rftoolscontrol.network_identifier": "ネットワーク識別子",
+  "item.rftoolscontrol.graphics_card": "グラフィックスカード",
+  "item.rftoolscontrol.tablet_processor": "タブレット（プロセッサー）",
+
+  "_comment": "block",
+  "block.rftoolscontrol.programmer": "プログラマー",
+  "block.rftoolscontrol.processor": "プロセッサー",
+  "block.rftoolscontrol.craftingstation": "クラフティングステーション",
+  "block.rftoolscontrol.node": "ノード",
+  "block.rftoolscontrol.workbench": "ワークベンチ",
+  "block.rftoolscontrol.tank": "マルチタンク",
+
+  "_comment": "Creative Tabs",
+  "itemGroup.rftoolscontrol": "RFToolsControl",
+
+  "_comment": "Messages",
+
+  "message.rftoolscontrol.shiftmessage": "<Shiftを押す>",
+
+  "message.rftoolscontrol.token.header": "このアイテムは単純なトークンです。何も機能はありませんが情報を格納できます",
+  "message.rftoolscontrol.token.gold": "このトークンは空です",
+  "message.rftoolscontrol.token.type": "タイプ: ",
+  "message.rftoolscontrol.token.value": "値: ",
+
+  "message.rftoolscontrol.program_card.header": "これはプログラムを保存できるカードです。「プログラマー」を使用して作成してください",
+  "message.rftoolscontrol.program_card.name": "名前: ",
+
+  "message.rftoolscontrol.cpu_core_500.header": "このCPUコアは、プログラムを実行するためにプロセッサー内で使用されます",
+  "message.rftoolscontrol.cpu_core_500.speed": "1ティックあたりの操作: ",
+  "message.rftoolscontrol.cpu_core_500.power": "1ティックあたりのRF/FE: ",
+
+  "message.rftoolscontrol.cpu_core_1000.header": "このCPUコアは、プログラムを実行するためにプロセッサー内で使用されます",
+  "message.rftoolscontrol.cpu_core_1000.speed": "1ティックあたりの操作: ",
+  "message.rftoolscontrol.cpu_core_1000.power": "1ティックあたりのRF/FE: ",
+
+  "message.rftoolscontrol.cpu_core_2000.header": "このCPUコアは、プログラムを実行するためにプロセッサー内で使用されます",
+  "message.rftoolscontrol.cpu_core_2000.speed": "1ティックあたりの操作: ",
+  "message.rftoolscontrol.cpu_core_2000.power": "1ティックあたりのRF/FE: ",
+
+  "message.rftoolscontrol.card_base.header": "このアイテムは、RFTools Control内の多くのアイテムや機械の基本材料です",
+
+  "message.rftoolscontrol.graphics_card.header": "このグラフィックスカードは、ベクターグラフィックスを描画するために必要です",
+
+  "message.rftoolscontrol.ram_chip.header": "このアイテムをプロセッサーに挿入すると、8つの追加変数を使用できます（最大32まで）",
+
+  "message.rftoolscontrol.tablet_processor.header": "リモートGUIや情報を参照するために使用されるタブレットです",
+  "message.rftoolscontrol.tablet_processor.gold": "情報を含むタブレット: 右クリックでプロセッサーGUI、スニーク右クリックでタブレットGUIを表示",
+
+  "message.rftoolscontrol.network_card.header": "これをプロセッサーに挿入すると、近くのノードにアクセスできます",
+  "message.rftoolscontrol.network_card.gold": "プロセッサーコンソールで「net setup <name>」を使用してネットワークをセットアップ",
+  "message.rftoolscontrol.network_card.range": "範囲: 17x17x17 エリア",
+  "message.rftoolscontrol.network_card.extra": "",
+
+  "message.rftoolscontrol.advanced_network_card.header": "これをプロセッサーに挿入すると、近くのノードにアクセスできます",
+  "message.rftoolscontrol.advanced_network_card.gold": "プロセッサーコンソールで「net setup <name>」を使用してネットワークをセットアップ",
+  "message.rftoolscontrol.advanced_network_card.range": "範囲: 31x31x31 エリア",
+  "message.rftoolscontrol.advanced_network_card.extra": "プロセス間通信をサポート",
+
+"message.rftoolscontrol.network_identifier.header": "このアイテムは、リンクされた別のプロセッサーとの直接通信を可能にします",
+"message.rftoolscontrol.network_identifier.gold": "スニークしてプロセッサーを右クリックすると、このモジュールのターゲットを設定できます",
+"message.rftoolscontrol.network_identifier.target": "プロセッサー: ",
+
+"message.rftoolscontrol.console_module.header": "プロセッサーのコンソールを表示できるスクリーン用モジュールです。このアイテムはタブレットでも使用できます",
+"message.rftoolscontrol.console_module.gold": "スニークしてプロセッサーを右クリックすると、このモジュールのターゲットを設定できます",
+"message.rftoolscontrol.console_module.uses": "消費電力: ",
+"message.rftoolscontrol.console_module.info": "プロセッサー: ",
+
+"message.rftoolscontrol.interaction_module.header": "プロセッサーとやり取りできるスクリーン用モジュールです",
+"message.rftoolscontrol.interaction_module.gold": "スニークしてプロセッサーを右クリックすると、このモジュールのターゲットを設定できます",
+"message.rftoolscontrol.interaction_module.uses": "消費電力: ",
+"message.rftoolscontrol.interaction_module.info": "プロセッサー: ",
+
+"message.rftoolscontrol.variable_module.header": "プロセッサー内の変数を表示できるスクリーン用モジュールです",
+"message.rftoolscontrol.variable_module.gold": "スニークしてプロセッサーを右クリックすると、このモジュールのターゲットを設定できます",
+"message.rftoolscontrol.variable_module.uses": "消費電力: ",
+"message.rftoolscontrol.variable_module.info": "プロセッサー: ",
+
+"message.rftoolscontrol.vectorart_module.header": "プロセッサーからベクターアートを表示できるスクリーン用モジュールです",
+"message.rftoolscontrol.vectorart_module.gold": "スニークしてプロセッサーを右クリックすると、このモジュールのターゲットを設定できます",
+"message.rftoolscontrol.vectorart_module.uses": "消費電力: ",
+"message.rftoolscontrol.vectorart_module.info": "プロセッサー: ",
+
+"message.rftoolscontrol.craftingstation.header": "このブロックはプロセッサーの自動クラフティング操作を支援します",
+"message.rftoolscontrol.tank.header": "これは4種類の液体を収容できるタンクです。このブロックはプロセッサー用であり、他の目的には直接使用できません",
+"message.rftoolscontrol.processor.header": "プロセッサーは自動化のためのプログラムを実行します。プログラムはプログラムカードに記述され、「プログラマー」ブロックで作成する必要があります",
+"message.rftoolscontrol.programmer.header": "このブロックを使用して、プロセッサー用のプログラムカードにプログラムを作成します",
+"message.rftoolscontrol.node.header": "このノードは、ネットワークカードをインストールしたプロセッサーによってリモートでアクセスできます",
+"message.rftoolscontrol.workbench.header": "プロセッサーと相性の良い汎用作業台ですが、単独でも使用できます"
+}
