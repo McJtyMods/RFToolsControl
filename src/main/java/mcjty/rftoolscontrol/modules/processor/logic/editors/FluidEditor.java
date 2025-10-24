@@ -10,8 +10,9 @@ import mcjty.rftoolsbase.api.control.parameters.ParameterValue;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.common.capabilities.ForgeCapabilities;
+import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 
 import javax.annotation.Nonnull;
 
@@ -66,19 +67,11 @@ public class FluidEditor extends AbstractParameterEditor {
 
     @Nonnull
     private FluidStack stackToFluid(ItemStack stack) {
-        return stack.getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM).map(handler -> {
-            if (handler.getTanks() > 0) {
-                return handler.getFluidInTank(0);
-            } else {
-                return FluidStack.EMPTY;
-            }
-        }).orElseGet(() -> stack.getCapability(ForgeCapabilities.FLUID_HANDLER).map(handler -> {
-            if (handler.getTanks() > 0) {
-                return handler.getFluidInTank(0);
-            } else {
-                return FluidStack.EMPTY;
-            }
-        }).orElse(FluidStack.EMPTY));
+        IFluidHandler handler = stack.getCapability(Capabilities.FluidHandler.ITEM);
+        if (handler != null && handler.getTanks() > 0) {
+            return handler.getFluidInTank(0);
+        }
+        return FluidStack.EMPTY;
     }
 
     @Override

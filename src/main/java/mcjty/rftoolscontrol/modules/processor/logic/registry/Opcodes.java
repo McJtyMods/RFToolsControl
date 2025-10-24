@@ -362,7 +362,7 @@ public class Opcodes {
             .runnable(((processor, program, opcode) -> {
                 ItemStack item = processor.evaluateItemParameter(opcode, program, 0);
                 String tagName = processor.evaluateStringParameterNonNull(opcode, program, 1);
-                TagKey<Item> tag = TagTools.createItemTagKey(new ResourceLocation(tagName));
+                TagKey<Item> tag = TagTools.createItemTagKey(ResourceLocation.parse(tagName));
 //                if (tag == null) {
 //                    throw new ProgException(ExceptionType.EXCEPT_UNKNOWN_TAG);
 //                }

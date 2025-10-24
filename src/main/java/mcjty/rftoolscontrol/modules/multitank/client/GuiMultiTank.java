@@ -31,7 +31,7 @@ public class GuiMultiTank extends GenericGuiContainer<MultiTankTileEntity, Gener
     public static final int WIDTH = 180;
     public static final int HEIGHT = 87;
 
-    private static final ResourceLocation iconLocation = new ResourceLocation(RFToolsControl.MODID, "textures/gui/tank.png");
+    private static final ResourceLocation iconLocation = ResourceLocation.fromNamespaceAndPath(RFToolsControl.MODID, "textures/gui/tank.png");
     private int listDirty = 0;
 
     private final BlockRender[] liquids = new BlockRender[TANKS];

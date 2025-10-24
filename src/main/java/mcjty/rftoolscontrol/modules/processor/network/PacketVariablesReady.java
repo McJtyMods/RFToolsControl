@@ -10,10 +10,13 @@ import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorContainer;
 import mcjty.rftoolscontrol.modules.processor.logic.ParameterTools;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -21,28 +24,38 @@ import java.util.List;
 
 public record PacketVariablesReady(@Nullable BlockPos pos, String command, List<Parameter> list) implements CustomPacketPayload {
 
-    public static final ResourceLocation ID = new ResourceLocation(RFToolsControl.MODID, "variables_ready");
+    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(RFToolsControl.MODID, "variables_ready");
+    public static final CustomPacketPayload.Type<PacketVariablesReady> TYPE = new Type<>(ID);
 
-    public static PacketVariablesReady create(FriendlyByteBuf buf) {
-        BlockPos pos = null;
-        String command;
-        List<Parameter> list;
-        if (buf.readBoolean()) {
-            pos = buf.readBlockPos();
-        }
-        command = buf.readUtf(32767);
-
-        int size = buf.readInt();
-        if (size != -1) {
-            list = new ArrayList<>(size);
-            for (int i = 0 ; i < size ; i++) {
-                list.add(ParameterTools.readFromBuf(buf));
+    public static final StreamCodec<RegistryFriendlyByteBuf, PacketVariablesReady> CODEC = StreamCodec.of(
+            (buf, packet) -> {
+                if (packet.pos != null) {
+                    buf.writeBoolean(true);
+                    buf.writeBlockPos(packet.pos);
+                } else {
+                    buf.writeBoolean(false);
+                }
+                buf.writeUtf(packet.command);
+                buf.writeInt(packet.list.size());
+                for (Parameter parameter : packet.list) {
+                    if (parameter == null) {
+                        buf.writeByte(-1);
+                    } else {
+                        ParameterTools.writeToBuf(buf, parameter);
+                    }
+                }
+            },
+            buf -> {
+                BlockPos pos = buf.readBoolean() ? buf.readBlockPos() : null;
+                String command = buf.readUtf(32767);
+                int size = buf.readInt();
+                List<Parameter> list = new ArrayList<>(size);
+                for (int i = 0; i < size; i++) {
+                    list.add(ParameterTools.readFromBuf(buf));
+                }
+                return new PacketVariablesReady(pos, command, list);
             }
-        } else {
-            list = null;
-        }
-        return new PacketVariablesReady(pos, command, list);
-    }
+    );
 
     public PacketVariablesReady(@Nullable BlockPos pos, String command, List<Parameter> list) {
         this.pos = pos;
@@ -52,35 +65,12 @@ public record PacketVariablesReady(@Nullable BlockPos pos, String command, List<
     }
 
     @Override
-    public void write(FriendlyByteBuf buf) {
-        if (pos != null) {
-            buf.writeBoolean(true);
-            buf.writeBlockPos(pos);
-        } else {
-            buf.writeBoolean(false);
-        }
-        buf.writeUtf(command);
-        if (list == null) {
-            buf.writeInt(-1);
-        } else {
-            buf.writeInt(list.size());
-            for (Parameter item : list) {
-                if (item == null) {
-                    buf.writeByte(-1);
-                } else {
-                    ParameterTools.writeToBuf(buf, item);
-                }
-            }
-        }
+    public Type<? extends CustomPacketPayload> type() {
+        return TYPE;
     }
 
-    @Override
-    public ResourceLocation id() {
-        return ID;
-    }
-
-    public void handle(PlayPayloadContext ctx) {
-        ctx.workHandler().submitAsync(() -> {
+    public void handle(IPayloadContext ctx) {
+        ctx.enqueueWork(() -> {
             BlockEntity te;
             if (pos == null) {
                 // We are working from a tablet. Find the tile entity through the open container

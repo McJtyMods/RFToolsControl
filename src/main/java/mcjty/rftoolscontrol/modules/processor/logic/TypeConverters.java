@@ -67,7 +67,7 @@ public class TypeConverters {
         }
         switch (type) {
             case PAR_STRING:
-                return new FluidStack(Tools.getFluid(new ResourceLocation((String) v)), 1);
+                return new FluidStack(Tools.getFluid(ResourceLocation.parse((String) v)), 1);
             case PAR_FLUID:
                 return (FluidStack) v;
             case PAR_ITEM:
@@ -103,7 +103,7 @@ public class TypeConverters {
         }
         switch (type) {
             case PAR_STRING:
-                return new ItemStack(Tools.getItem(new ResourceLocation((String) v)), 1);
+                return new ItemStack(Tools.getItem(ResourceLocation.parse((String) v)), 1);
             case PAR_ITEM:
                 return (ItemStack) v;
             case PAR_FLUID:

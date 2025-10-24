@@ -395,7 +395,7 @@ public class ParameterTypeTools {
             }
             case PAR_ITEM: {
                 String itemReg = object.get("item").getAsString();
-                Item item = Tools.getItem(new ResourceLocation(itemReg));
+                Item item = Tools.getItem(ResourceLocation.parse(itemReg));
                 int amount = object.has("amount") ? object.get("amount").getAsInt() : 1;
                 // @todo 1.15 meta
 //                int meta = object.get("meta").getAsInt();
@@ -415,7 +415,7 @@ public class ParameterTypeTools {
             case PAR_FLUID: {
                 String fluidName = object.get("fluid").getAsString();
                 int amount = object.get("amount").getAsInt();
-                FluidStack fluidStack = new FluidStack(Tools.getFluid(new ResourceLocation(fluidName)), amount);
+                FluidStack fluidStack = new FluidStack(Tools.getFluid(ResourceLocation.parse(fluidName)), amount);
                 if (object.has("nbt")) {
                     String nbt = object.get("nbt").getAsString();
                     try {

@@ -1,41 +1,41 @@
 package mcjty.rftoolscontrol.setup;
 
-import mcjty.lib.network.Networking;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.modules.processor.network.*;
 import mcjty.rftoolscontrol.modules.programmer.network.PacketUpdateNBTItemInventoryProgrammer;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
-import net.neoforged.neoforge.network.NetworkDirection;
+import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
+import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
 public class RFToolsCtrlMessages {
 
-    private static IPayloadRegistrar registrar;
-
-    public static void registerMessages() {
-        registrar = Networking.registrar(RFToolsControl.MODID)
+    public static void registerMessages(RegisterPayloadHandlersEvent event) {
+        final PayloadRegistrar registrar = event.registrar(RFToolsControl.MODID)
                 .versioned("1.0")
                 .optional();
 
         // Server side
-        registrar.play(PacketGetLog.class, PacketGetLog::create, handler -> handler.server(PacketGetLog::handle));
-        registrar.play(PacketGetVariables.class, PacketGetVariables::create, handler -> handler.server(PacketGetVariables::handle));
-        registrar.play(PacketGetFluids.class, PacketGetFluids::create, handler -> handler.server(PacketGetFluids::handle));
-        registrar.play(PacketVariableToServer.class, PacketVariableToServer::create, handler -> handler.server(PacketVariableToServer::handle));
-        registrar.play(PacketUpdateNBTItemInventoryProgrammer.class, PacketUpdateNBTItemInventoryProgrammer::create, handler -> handler.server(PacketUpdateNBTItemInventoryProgrammer::handle));
+        registrar.playToServer(PacketGetLog.TYPE, PacketGetLog.CODEC, PacketGetLog::handle);
+        registrar.playToServer(PacketGetVariables.TYPE, PacketGetVariables.CODEC, PacketGetVariables::handle);
+        registrar.playToServer(PacketGetFluids.TYPE, PacketGetFluids.CODEC, PacketGetFluids::handle);
+        registrar.playToServer(PacketVariableToServer.TYPE, PacketVariableToServer.CODEC, PacketVariableToServer::handle);
+        registrar.playToServer(PacketUpdateNBTItemInventoryProgrammer.TYPE, PacketUpdateNBTItemInventoryProgrammer.CODEC, PacketUpdateNBTItemInventoryProgrammer::handle);
 
         // Client side
-        registrar.play(PacketLogReady.class, PacketLogReady::create, handler -> handler.client(PacketLogReady::handle));
-        registrar.play(PacketVariablesReady.class, PacketVariablesReady::create, handler -> handler.client(PacketVariablesReady::handle));
-        registrar.play(PacketFluidsReady.class, PacketFluidsReady::create, handler -> handler.client(PacketFluidsReady::handle));
-        registrar.play(PacketGraphicsReady.class, PacketGraphicsReady::create, handler -> handler.client(PacketGraphicsReady::handle));
+        registrar.playToClient(PacketLogReady.TYPE, PacketLogReady.CODEC, PacketLogReady::handle);
+        registrar.playToClient(PacketVariablesReady.TYPE, PacketVariablesReady.CODEC, PacketVariablesReady::handle);
+        registrar.playToClient(PacketFluidsReady.TYPE, PacketFluidsReady.CODEC, PacketFluidsReady::handle);
+        registrar.playToClient(PacketGraphicsReady.TYPE, PacketGraphicsReady.CODEC, PacketGraphicsReady::handle);
     }
 
-    public static <T> void sendToPlayer(T packet, Player player) {
-        registrar.getChannel().sendTo(packet, ((ServerPlayer)player).connection.connection, NetworkDirection.PLAY_TO_CLIENT);
+    public static <T extends CustomPacketPayload> void sendToPlayer(T packet, Player player) {
+        PacketDistributor.sendToPlayer((ServerPlayer) player, packet);
     }
 
-    public static <T> void sendToServer(T packet) {
-        registrar.getChannel().sendToServer(packet);
+    public static <T extends CustomPacketPayload> void sendToServer(T packet) {
+        PacketDistributor.sendToServer(packet);
     }
 }

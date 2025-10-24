@@ -22,7 +22,7 @@ public class GuiWorkbench extends GenericGuiContainer<WorkbenchTileEntity, Workb
     public static final int WIDTH = 171;
     public static final int HEIGHT = 236;
 
-    private static final ResourceLocation mainBackground = new ResourceLocation(RFToolsControl.MODID, "textures/gui/workbench.png");
+    private static final ResourceLocation mainBackground = ResourceLocation.fromNamespaceAndPath(RFToolsControl.MODID, "textures/gui/workbench.png");
 
     public GuiWorkbench(WorkbenchTileEntity te, WorkbenchContainer container, Inventory inventory) {
         super(te, container, inventory, /*@todo 1.15 GuiProxy.GUI_MANUAL_CONTROL*/ ManualEntry.EMPTY);

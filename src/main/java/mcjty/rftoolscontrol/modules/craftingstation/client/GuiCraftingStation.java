@@ -38,7 +38,7 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
     public static final int WIDTH = 231;
     public static final int HEIGHT = 236;
 
-    private static final ResourceLocation mainBackground = new ResourceLocation(RFToolsControl.MODID, "textures/gui/craftingstation.png");
+    private static final ResourceLocation mainBackground = ResourceLocation.fromNamespaceAndPath(RFToolsControl.MODID, "textures/gui/craftingstation.png");
 
     private WidgetList recipeList;
     private WidgetList requestList;

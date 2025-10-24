@@ -24,10 +24,11 @@ import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.common.capabilities.Capability;
-import net.neoforged.neoforge.common.capabilities.ForgeCapabilities;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.capabilities.IBlockCapabilityProvider;
+import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.common.util.Lazy;
-import net.neoforged.neoforge.common.util.LazyOptional;
+import net.neoforged.neoforge.items.IItemHandler;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -36,6 +37,21 @@ import java.util.List;
 import static mcjty.lib.container.SlotDefinition.generic;
 
 public class WorkbenchTileEntity extends GenericTileEntity {
+
+    public static void registerCapabilities(RegisterCapabilitiesEvent event) {
+        event.registerBlock(Capabilities.ItemHandler.BLOCK, (IBlockCapabilityProvider<IItemHandler, Direction>) (level, pos, state, blockEntity, direction) -> {
+            if (blockEntity instanceof WorkbenchTileEntity workbench) {
+                if (direction == Direction.DOWN) {
+                    return workbench.automationItemHandlerDown;
+                } else if (direction == Direction.UP) {
+                    return workbench.automationItemHandlerUp;
+                } else {
+                    return workbench.automationItemHandlerSide;
+                }
+            }
+            return null;
+        }, VariousModule.WORKBENCH.get());
+    }
 
     public static final int SLOT_CRAFTINPUT = 0;
     public static final int SLOT_CRAFTOUTPUT = 9;
@@ -48,9 +64,9 @@ public class WorkbenchTileEntity extends GenericTileEntity {
             .playerSlots(6, 157));
 
     private final GenericItemHandler items = createItemHandler();
-    private final LazyOptional<WorkbenchItemHandler> automationItemHandlerUp = LazyOptional.of(() -> new WorkbenchItemHandler(items, Direction.UP));
-    private final LazyOptional<WorkbenchItemHandler> automationItemHandlerDown = LazyOptional.of(() -> new WorkbenchItemHandler(items, Direction.DOWN));
-    private final LazyOptional<WorkbenchItemHandler> automationItemHandlerSide = LazyOptional.of(() -> new WorkbenchItemHandler(items, null));
+    private final WorkbenchItemHandler automationItemHandlerUp = new WorkbenchItemHandler(items, Direction.UP);
+    private final WorkbenchItemHandler automationItemHandlerDown = new WorkbenchItemHandler(items, Direction.DOWN);
+    private final WorkbenchItemHandler automationItemHandlerSide = new WorkbenchItemHandler(items, null);
 
     @Cap(type = CapType.CONTAINER)
     private final Lazy<MenuProvider> screenHandler = Lazy.of(() -> new DefaultContainerProvider<WorkbenchContainer>("Workbench")
@@ -211,20 +227,6 @@ public class WorkbenchTileEntity extends GenericTileEntity {
                 return true;
             }
         };
-    }
-
-    @Nonnull
-    @Override
-    public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction facing) {
-        if (cap == ForgeCapabilities.ITEM_HANDLER) {
-            if (facing == Direction.DOWN) {
-                return automationItemHandlerDown.cast();
-            } else if (facing == Direction.UP) {
-                return automationItemHandlerUp.cast();
-            }
-            return automationItemHandlerSide.cast();
-        }
-        return super.getCapability(cap, facing);
     }
 
     public class WorkbenchItemHandler extends AutomationFilterItemHander {

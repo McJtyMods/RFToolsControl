@@ -54,9 +54,9 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity, Proce
     public static final int WIDTH = 256;
     public static final int HEIGHT = 236;
 
-    private static final ResourceLocation mainBackground = new ResourceLocation(RFToolsControl.MODID, "textures/gui/processor.png");
-    private static final ResourceLocation sideBackground = new ResourceLocation(RFToolsControl.MODID, "textures/gui/sidegui.png");
-    private static final ResourceLocation icons = new ResourceLocation(RFToolsControl.MODID, "textures/gui/icons.png");
+    private static final ResourceLocation mainBackground = ResourceLocation.fromNamespaceAndPath(RFToolsControl.MODID, "textures/gui/processor.png");
+    private static final ResourceLocation sideBackground = ResourceLocation.fromNamespaceAndPath(RFToolsControl.MODID, "textures/gui/sidegui.png");
+    private static final ResourceLocation icons = ResourceLocation.fromNamespaceAndPath(RFToolsControl.MODID, "textures/gui/icons.png");
 
     private Window sideWindow;
     private EnergyBar energyBar;

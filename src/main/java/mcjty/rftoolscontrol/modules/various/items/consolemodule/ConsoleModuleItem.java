@@ -29,7 +29,8 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.common.capabilities.ForgeCapabilities;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.items.IItemHandler;
 
 import javax.annotation.Nonnull;
 
@@ -61,9 +62,10 @@ public class ConsoleModuleItem extends GenericModuleItem implements ITabletSuppo
             @Override
             public AbstractContainerMenu createMenu(int id, @Nonnull Inventory inventory, @Nonnull Player player) {
                 ProcessorContainer container = ProcessorContainer.createRemote(id, pos, (GenericTileEntity) te, player);
-                te.getCapability(ForgeCapabilities.ITEM_HANDLER).ifPresent(h -> {
-                    container.setupInventories(h, inventory);
-                });
+                IItemHandler handler = te.getLevel().getCapability(Capabilities.ItemHandler.BLOCK, te.getBlockPos(), null);
+                if (handler != null) {
+                    container.setupInventories(handler, inventory);
+                }
                 return container;
             }
         });

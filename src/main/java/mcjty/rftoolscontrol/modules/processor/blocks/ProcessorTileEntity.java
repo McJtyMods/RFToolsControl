@@ -75,9 +75,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
-import net.neoforged.neoforge.common.capabilities.ForgeCapabilities;
+import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.common.util.Lazy;
-import net.neoforged.neoforge.common.util.LazyOptional;
 import net.neoforged.neoforge.energy.IEnergyStorage;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
@@ -381,17 +380,16 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
                             stacks.add(stack);
                         } else {
                             // Find all crafting cards in the inventory
-                            getItemHandlerAt(inv).ifPresent(handler -> {
-                                for (int i = 0; i < handler.getSlots(); i++) {
-                                    ItemStack s = handler.getStackInSlot(i);
-                                    if (!s.isEmpty() && s.getItem() == RFToolsStuff.CRAFTING_CARD.get()) {
-                                        ItemStack result = CraftingCardItem.getResult(s);
-                                        if (!result.isEmpty()) {
-                                            stacks.add(result);
-                                        }
+                            IItemHandler handler = getItemHandlerAt(inv);
+                            for (int i = 0; i < handler.getSlots(); i++) {
+                                ItemStack s = handler.getStackInSlot(i);
+                                if (!s.isEmpty() && s.getItem() == RFToolsStuff.CRAFTING_CARD.get()) {
+                                    ItemStack result = CraftingCardItem.getResult(s);
+                                    if (!result.isEmpty()) {
+                                        stacks.add(result);
                                     }
                                 }
-                            });
+                            }
                         }
                     }
                 }
@@ -455,7 +453,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
             throw new ProgException(EXCEPT_NOTAWORKBENCH);
         }
         ItemStack finalItem = item;
-        ItemStack card = getItemHandlerAt(te, Direction.EAST).map(handler -> findCraftingCard(handler, finalItem)).orElse(ItemStack.EMPTY);
+        ItemStack card = findCraftingCard(getItemHandlerAt(te, Direction.EAST), finalItem);
         if (card.isEmpty()) {
             throw new ProgException(EXCEPT_MISSINGCRAFTINGCARD);
         }
@@ -467,43 +465,42 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         CardInfo info = this.cardInfo[((RunningProgram) program).getCardIndex()];
         IItemHandler itemHandler = items;
 
-        return getItemHandlerAt(te, Direction.UP).map(gridHandler -> {
-            List<Ingredient> ingredients = CraftingCardItem.getIngredientsGrid(card);
-            boolean success = true;
-            for (int i = 0; i < 9; i++) {
-                ItemStack stackInWorkbench = gridHandler.getStackInSlot(i);
-                Ingredient stackInIngredient = ingredients.get(i);
-                if (!stackInWorkbench.isEmpty() && stackInIngredient == Ingredient.EMPTY) {
-                    // Can't work. There is already something in the workbench that doesn't belong
-                    success = false;
-                } else if (stackInWorkbench.isEmpty() && stackInIngredient != Ingredient.EMPTY) {
-                    // Let's see if we can find the needed ingredient
-                    boolean found = false;
-                    for (int slot = slot1; slot <= slot2; slot++) {
-                        int realSlot = info.getRealSlot(slot);
-                        ItemStack localStack = itemHandler.getStackInSlot(realSlot);
-                        if (stackInIngredient.test(localStack)) {
-                            localStack = itemHandler.extractItem(realSlot, LogicInventoryTools.getCountFromIngredient(stackInIngredient), false);
-                            gridHandler.insertItem(i, localStack, false);
-                            found = true;
-                            break;
-                        }
-                    }
-                    if (!found) {
-                        success = false;
-                    }
-                } else if (!stackInWorkbench.isEmpty() && stackInIngredient != Ingredient.EMPTY) {
-                    // See if the item matches and we have enough
-                    if (!stackInIngredient.test(stackInWorkbench)) {
-                        success = false;
-                    } else if (LogicInventoryTools.getCountFromIngredient(stackInIngredient) > stackInWorkbench.getCount()) {
-                        success = false;
+        IItemHandler gridHandler = getItemHandlerAt(te, Direction.UP);
+        List<Ingredient> ingredients = CraftingCardItem.getIngredientsGrid(card);
+        boolean success = true;
+        for (int i = 0; i < 9; i++) {
+            ItemStack stackInWorkbench = gridHandler.getStackInSlot(i);
+            Ingredient stackInIngredient = ingredients.get(i);
+            if (!stackInWorkbench.isEmpty() && stackInIngredient == Ingredient.EMPTY) {
+                // Can't work. There is already something in the workbench that doesn't belong
+                success = false;
+            } else if (stackInWorkbench.isEmpty() && stackInIngredient != Ingredient.EMPTY) {
+                // Let's see if we can find the needed ingredient
+                boolean found = false;
+                for (int slot = slot1; slot <= slot2; slot++) {
+                    int realSlot = info.getRealSlot(slot);
+                    ItemStack localStack = itemHandler.getStackInSlot(realSlot);
+                    if (stackInIngredient.test(localStack)) {
+                        localStack = itemHandler.extractItem(realSlot, LogicInventoryTools.getCountFromIngredient(stackInIngredient), false);
+                        gridHandler.insertItem(i, localStack, false);
+                        found = true;
+                        break;
                     }
                 }
+                if (!found) {
+                    success = false;
+                }
+            } else if (!stackInWorkbench.isEmpty() && stackInIngredient != Ingredient.EMPTY) {
+                // See if the item matches and we have enough
+                if (!stackInIngredient.test(stackInWorkbench)) {
+                    success = false;
+                } else if (LogicInventoryTools.getCountFromIngredient(stackInIngredient) > stackInWorkbench.getCount()) {
+                    success = false;
+                }
             }
+        }
 
-            return success;
-        }).orElse(false);
+        return success;
     }
 
     public int pushItemsMulti(IProgram program, @Nullable Inventory inv, int slot1, int slot2, @Nullable Integer extSlot) {
@@ -548,9 +545,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
             throw new ProgException(EXCEPT_MISSINGCRAFTRESULT);
         }
         ItemStack finalItem = item;
-        ItemStack card = getItemHandlerAt(cardInv)
-                .map(cardHandler -> findCraftingCard(cardHandler, finalItem))
-                .orElse(ItemStack.EMPTY);
+        ItemStack card = findCraftingCard(getItemHandlerAt(cardInv), finalItem);
         if (card.isEmpty()) {
             throw new ProgException(EXCEPT_MISSINGCRAFTINGCARD);
         }
@@ -607,9 +602,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
             throw new ProgException(EXCEPT_INVALIDINVENTORY);
         }
         ;
-        ItemStack card = getItemHandlerAt(cardInv)
-                .map(cardHandler -> findCraftingCard(cardHandler, finalItem))
-                .orElse(ItemStack.EMPTY);
+        ItemStack card = findCraftingCard(getItemHandlerAt(cardInv), finalItem);
         if (card.isEmpty()) {
             throw new ProgException(EXCEPT_MISSINGCRAFTINGCARD);
         }
@@ -756,9 +749,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         }
 
         ItemStack finalItem = item;
-        ItemStack card = getItemHandlerAt(cardInv)
-                .map(cardHandler -> findCraftingCard(cardHandler, finalItem))
-                .orElse(ItemStack.EMPTY);
+        ItemStack card = findCraftingCard(getItemHandlerAt(cardInv), finalItem);
         if (card.isEmpty()) {
             throw new ProgException(EXCEPT_MISSINGCRAFTINGCARD);
         }
@@ -940,9 +931,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
                             return;
                         }
                     } else if (inv != null) {
-                        ItemStack craftingCard = getItemHandlerAt(inv)
-                                .map(handler -> findCraftingCard(handler, stackToCraft))
-                                .orElse(ItemStack.EMPTY);
+                        ItemStack craftingCard = findCraftingCard(getItemHandlerAt(inv), stackToCraft);
                         if (!craftingCard.isEmpty()) {
                             runOrQueueEvent(i, event, ticket, null);
                             return;
@@ -982,9 +971,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
                             found = wfi;
                             break;
                         } else {
-                            int cnt = getItemHandlerAt(wfi.inventory())
-                                    .map(handler -> countItemInHandler(wfi.itemStack(), handler))
-                                    .orElse(0);
+                            int cnt = countItemInHandler(wfi.itemStack(), getItemHandlerAt(wfi.inventory()));
                             if (cnt >= wfi.itemStack().getCount()) {
                                 foundIdx = i;
                                 found = wfi;
@@ -1560,8 +1547,11 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         if (te == null) {
             throw new ProgException(EXCEPT_NORF);
         }
-        return te.getCapability(ForgeCapabilities.ENERGY, side.getIntSide())
-                .map(IEnergyStorage::getEnergyStored).orElseThrow(() -> new ProgException(EXCEPT_NORF));
+        IEnergyStorage storage = te.getLevel().getCapability(Capabilities.EnergyStorage.BLOCK, te.getBlockPos(), side.getIntSide());
+        if (storage == null) {
+            throw new ProgException(EXCEPT_NORF);
+        }
+        return storage.getEnergyStored();
     }
 
     @Override
@@ -1570,8 +1560,11 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         if (te == null) {
             throw new ProgException(EXCEPT_NORF);
         }
-        return te.getCapability(ForgeCapabilities.ENERGY, side.getIntSide())
-                .map(IEnergyStorage::getMaxEnergyStored).orElseThrow(() -> new ProgException(EXCEPT_NORF));
+        IEnergyStorage storage = te.getLevel().getCapability(Capabilities.EnergyStorage.BLOCK, te.getBlockPos(), side.getIntSide());
+        if (storage == null) {
+            throw new ProgException(EXCEPT_NORF);
+        }
+        return storage.getMaxEnergyStored();
     }
 
     @Override
@@ -1596,25 +1589,23 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
 
     @Override
     public int getLiquid(@Nonnull Inventory side) {
-        return getFluidHandlerAt(side).map(handler -> {
-            if (handler.getTanks() > 0) {
-                FluidStack contents = handler.getFluidInTank(0);
-                if (!contents.isEmpty()) {
-                    return contents.getAmount();
-                }
+        IFluidHandler handler = getFluidHandlerAt(side);
+        if (handler.getTanks() > 0) {
+            FluidStack contents = handler.getFluidInTank(0);
+            if (!contents.isEmpty()) {
+                return contents.getAmount();
             }
-            return 0;
-        }).orElse(0);
+        }
+        return 0;
     }
 
     @Override
     public int getMaxLiquid(@Nonnull Inventory side) {
-        return getFluidHandlerAt(side).map(handler -> {
-            if (handler.getTanks() > 0) {
-                return handler.getTankCapacity(0);
-            }
-            return 0;
-        }).orElse(0);
+        IFluidHandler handler = getFluidHandlerAt(side);
+        if (handler.getTanks() > 0) {
+            return handler.getTankCapacity(0);
+        }
+        return 0;
     }
 
     private IStorageScanner getScannerForInv(@Nullable Inventory inv) {
@@ -1630,7 +1621,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         if (inv == null) {
             return null;
         } else {
-            return getItemHandlerAt(inv).orElse(null);
+            return getItemHandlerAt(inv);
         }
     }
 
@@ -1664,12 +1655,11 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
             slot = 0;
         }
         Integer finalSlot = slot;
-        return getFluidHandlerAt(inv).map(handler -> {
-            if (finalSlot < handler.getTanks()) {
-                return handler.getFluidInTank(finalSlot);
-            }
-            return FluidStack.EMPTY;
-        }).orElse(FluidStack.EMPTY);
+        IFluidHandler handler = getFluidHandlerAt(inv);
+        if (finalSlot < handler.getTanks()) {
+            return handler.getFluidInTank(finalSlot);
+        }
+        return FluidStack.EMPTY;
     }
 
     @Nullable
@@ -2511,7 +2501,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
     }
 
     public int countSlots(Inventory inv, IProgram program) {
-        return getItemHandlerAt(inv).map(IItemHandler::getSlots).orElse(0);
+        return getItemHandlerAt(inv).getSlots();
     }
 
     public int countItem(Inventory inv, Integer slot, ItemStack itemMatcher, boolean routable, IProgram program) {
@@ -2519,33 +2509,32 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
             return countItemStorage(itemMatcher, routable);
         }
         // @todo support oredict here?
-        return getItemHandlerAt(inv).map(handler -> {
-            if (slot != null) {
-                ItemStack stackInSlot = handler.getStackInSlot(slot);
-                if (stackInSlot.isEmpty()) {
-                    return 0;
-                } else {
-                    if (!itemMatcher.isEmpty()) {
-                        if (!ItemStack.isSameItem(stackInSlot, itemMatcher)) {
-                            return 0;
-                        }
-                    }
-                    return stackInSlot.getCount();
-                }
-            } else if (!itemMatcher.isEmpty()) {
-                return countItemInHandler(itemMatcher, handler);
+        IItemHandler handler = getItemHandlerAt(inv);
+        if (slot != null) {
+            ItemStack stackInSlot = handler.getStackInSlot(slot);
+            if (stackInSlot.isEmpty()) {
+                return 0;
             } else {
-                // Just count all items
-                int cnt = 0;
-                for (int i = 0; i < handler.getSlots(); i++) {
-                    ItemStack stack = handler.getStackInSlot(i);
-                    if (!stack.isEmpty()) {
-                        cnt += stack.getCount();
+                if (!itemMatcher.isEmpty()) {
+                    if (!ItemStack.isSameItem(stackInSlot, itemMatcher)) {
+                        return 0;
                     }
                 }
-                return cnt;
+                return stackInSlot.getCount();
             }
-        }).orElse(0);
+        } else if (!itemMatcher.isEmpty()) {
+            return countItemInHandler(itemMatcher, handler);
+        } else {
+            // Just count all items
+            int cnt = 0;
+            for (int i = 0; i < handler.getSlots(); i++) {
+                ItemStack stack = handler.getStackInSlot(i);
+                if (!stack.isEmpty()) {
+                    cnt += stack.getCount();
+                }
+            }
+            return cnt;
+        }
     }
 
     private int countItemInHandler(ItemStack itemMatcher, IItemHandler handler) {
@@ -2594,13 +2583,13 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
 
     @Override
     @Nonnull
-    public LazyOptional<IFluidHandler> getFluidHandlerAt(@Nonnull Inventory inv) {
+    public IFluidHandler getFluidHandlerAt(@Nonnull Inventory inv) {
         BlockEntity te = getTileEntityAt(inv);
         if (te == null) {
             throw new ProgException(EXCEPT_NOLIQUID);
         }
-        LazyOptional<IFluidHandler> capability = te.getCapability(ForgeCapabilities.FLUID_HANDLER, inv.getIntSide());
-        if (!capability.isPresent()) {
+        IFluidHandler capability = te.getLevel().getCapability(Capabilities.FluidHandler.BLOCK, te.getBlockPos(), inv.getIntSide());
+        if (capability == null) {
             throw new ProgException(EXCEPT_NOLIQUID);
         }
         return capability;
@@ -2608,18 +2597,18 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
 
     @Override
     @Nonnull
-    public LazyOptional<IItemHandler> getItemHandlerAt(@Nonnull Inventory inv) {
+    public IItemHandler getItemHandlerAt(@Nonnull Inventory inv) {
         Direction intSide = inv.getIntSide();
         BlockEntity te = getTileEntityAt(inv);
         if (te == null) {
-            return LazyOptional.empty();
+            throw new ProgException(EXCEPT_INVALIDINVENTORY);
         }
         return getItemHandlerAt(te, intSide);
     }
 
-    private LazyOptional<IItemHandler> getItemHandlerAt(@Nonnull BlockEntity te, Direction intSide) {
-        LazyOptional<IItemHandler> capability = te.getCapability(ForgeCapabilities.ITEM_HANDLER, intSide);
-        if (!capability.isPresent()) {
+    private IItemHandler getItemHandlerAt(@Nonnull BlockEntity te, Direction intSide) {
+        IItemHandler capability = te.getLevel().getCapability(Capabilities.ItemHandler.BLOCK, te.getBlockPos(), intSide);
+        if (capability == null) {
             throw new ProgException(EXCEPT_INVALIDINVENTORY);
         }
         return capability;

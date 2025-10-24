@@ -12,7 +12,7 @@ import mcjty.rftoolscontrol.modules.processor.logic.registry.OpcodeRegistry;
 import mcjty.rftoolscontrol.modules.processor.logic.registry.Opcodes;
 import net.neoforged.fml.InterModComms;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.neoforged.neoforge.fml.event.lifecycle.InterModProcessEvent;
+import net.neoforged.fml.event.lifecycle.InterModProcessEvent;
 
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -26,8 +26,6 @@ public class ModSetup extends DefaultModSetup {
         e.enqueueWork(() -> {
             CommandHandler.registerCommands();
         });
-
-        RFToolsCtrlMessages.registerMessages();
 
         Opcodes.init();
         Functions.init();

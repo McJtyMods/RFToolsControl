@@ -64,10 +64,10 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Gen
 
     public static final int ICONSIZE = 20;
 
-    private static final ResourceLocation mainBackground = new ResourceLocation(RFToolsControl.MODID, "textures/gui/programmer.png");
-    private static final ResourceLocation sideBackground = new ResourceLocation(RFToolsControl.MODID, "textures/gui/sidegui.png");
-    private static final ResourceLocation icons = new ResourceLocation(RFToolsControl.MODID, "textures/gui/icons.png");
-    private static final ResourceLocation guiElements = new ResourceLocation(RFToolsControl.MODID, "textures/gui/guielements.png");
+    private static final ResourceLocation mainBackground = ResourceLocation.fromNamespaceAndPath(RFToolsControl.MODID, "textures/gui/programmer.png");
+    private static final ResourceLocation sideBackground = ResourceLocation.fromNamespaceAndPath(RFToolsControl.MODID, "textures/gui/sidegui.png");
+    private static final ResourceLocation icons = ResourceLocation.fromNamespaceAndPath(RFToolsControl.MODID, "textures/gui/icons.png");
+    private static final ResourceLocation guiElements = ResourceLocation.fromNamespaceAndPath(RFToolsControl.MODID, "textures/gui/guielements.png");
 
     private Window sideWindow;
     private WidgetList gridList;
@@ -139,7 +139,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Gen
                 Opcode opcode = entry.getValue();
                 ResourceLocation iconResource = icons;
                 if (opcode.getIconResource() != null) {
-                    iconResource = new ResourceLocation(opcode.getIconResource());
+                    iconResource = ResourceLocation.parse(opcode.getIconResource());
                 }
                 ICONS.put(id, new ImageIcon(id).setDimensions(ICONSIZE, ICONSIZE).setImage(iconResource, opcode.getIconU() * ICONSIZE, opcode.getIconV() * ICONSIZE));
             }
