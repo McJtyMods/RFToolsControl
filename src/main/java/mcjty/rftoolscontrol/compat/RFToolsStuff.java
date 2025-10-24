@@ -2,8 +2,6 @@ package mcjty.rftoolscontrol.compat;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
-import net.neoforged.neoforge.registries.ForgeRegistries;
-import net.neoforged.neoforge.registries.RegistryObject;
 
 public class RFToolsStuff {
 
