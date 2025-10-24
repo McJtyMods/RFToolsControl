@@ -87,7 +87,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity, Proce
     private int listDirty = 0;
 
     public GuiProcessor(ProcessorTileEntity te, ProcessorContainer container, Inventory inventory) {
-        super(te, container, inventory, ProcessorModule.PROCESSOR.get().getManualEntry());
+        super(te, container, inventory, ProcessorModule.PROCESSOR.block().get().getManualEntry());
 
         imageWidth = WIDTH;
         imageHeight = HEIGHT;

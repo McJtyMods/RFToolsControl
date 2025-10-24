@@ -1,6 +1,7 @@
 package mcjty.rftoolscontrol.modules.various;
 
 import mcjty.lib.blocks.BaseBlock;
+import mcjty.lib.blocks.RBlock;
 import mcjty.lib.container.GenericContainer;
 import mcjty.lib.datagen.DataGen;
 import mcjty.lib.datagen.Dob;
@@ -21,11 +22,11 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.neoforge.registries.DeferredItem;
 
 import java.util.function.Supplier;
 
@@ -35,14 +36,22 @@ import static mcjty.rftoolscontrol.setup.Registration.*;
 
 public class VariousModule implements IModule {
 
-    public static final DeferredBlock<BaseBlock> NODE = BLOCKS.register("node", NodeBlock::new);
-    public static final Supplier<BlockEntityType<NodeTileEntity>> TYPE_NODE = TILES.register("node", () -> BlockEntityType.Builder.of(NodeTileEntity::new, NODE.get()).build(null));
-    public static final DeferredItem<Item> NODE_ITEM = ITEMS.register("node", tab(() -> new BlockItem(NODE.get(), Registration.createStandardProperties())));
+    public static final RBlock<BaseBlock, BlockItem, NodeTileEntity> NODE = RBLOCKS.registerBlock(
+            "node",
+            NodeTileEntity.class,
+            NodeBlock::new,
+            block -> new BlockItem(block.get(), Registration.createStandardProperties()),
+            NodeTileEntity::new
+    );
     public static final Supplier<MenuType<GenericContainer>> NODE_CONTAINER = CONTAINERS.register("node", GenericContainer::createContainerType);
 
-    public static final DeferredBlock<BaseBlock> WORKBENCH = BLOCKS.register("workbench", WorkbenchBlock::new);
-    public static final Supplier<BlockEntityType<WorkbenchTileEntity>> TYPE_WORKBENCH = TILES.register("workbench", () -> BlockEntityType.Builder.of(WorkbenchTileEntity::new, WORKBENCH.get()).build(null));
-    public static final DeferredItem<Item> WORKBENCH_ITEM = ITEMS.register("workbench", tab(() -> new BlockItem(WORKBENCH.get(), Registration.createStandardProperties())));
+    public static final RBlock<BaseBlock, BlockItem, WorkbenchTileEntity> WORKBENCH = RBLOCKS.registerBlock(
+            "workbench",
+            WorkbenchTileEntity.class,
+            WorkbenchBlock::new,
+            block -> new BlockItem(block.get(), Registration.createStandardProperties()),
+            WorkbenchTileEntity::new
+    );
     public static final Supplier<MenuType<WorkbenchContainer>> WORKBENCH_CONTAINER = CONTAINERS.register("workbench", GenericContainer::createContainerType);
 
     public static final DeferredItem<CardBaseItem> CARD_BASE = ITEMS.register("card_base", tab(CardBaseItem::new));
@@ -80,8 +89,8 @@ public class VariousModule implements IModule {
                 Dob.blockBuilder(WORKBENCH)
                         .ironPickaxeTags()
                         .parentedItem("block/workbench")
-                        .standardLoot(TYPE_WORKBENCH)
-                        .blockState(p -> p.orientedBlock(WORKBENCH.get(), p.frontBasedModel("workbench", p.modLoc("block/machineworkbench"))))
+                        .standardLoot()
+                        .blockState(p -> p.orientedBlock(WORKBENCH.block().get(), p.frontBasedModel("workbench", p.modLoc("block/machineworkbench"))))
                         .shaped(builder -> builder
                                         .define('F', mcjty.rftoolsbase.modules.various.VariousModule.MACHINE_FRAME.get())
                                         .define('C', Items.CRAFTING_TABLE)
@@ -91,8 +100,8 @@ public class VariousModule implements IModule {
                 Dob.blockBuilder(NODE)
                         .ironPickaxeTags()
                         .parentedItem("block/node")
-                        .standardLoot(TYPE_NODE)
-                        .blockState(p -> p.orientedBlock(NODE.get(), p.frontBasedModel("node", p.modLoc("block/machinenode"))))
+                        .standardLoot()
+                        .blockState(p -> p.orientedBlock(NODE.block().get(), p.frontBasedModel("node", p.modLoc("block/machinenode"))))
                         .shaped(builder -> builder
                                         .define('F', mcjty.rftoolsbase.modules.various.VariousModule.MACHINE_FRAME.get())
                                         .define('M', VariousModule.CARD_BASE.get())

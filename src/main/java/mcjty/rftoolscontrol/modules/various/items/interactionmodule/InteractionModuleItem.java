@@ -82,7 +82,7 @@ public class InteractionModuleItem extends GenericModuleItem {
             tagCompound = new CompoundTag();
         }
 
-        if (block == ProcessorModule.PROCESSOR.get()) {
+        if (block == ProcessorModule.PROCESSOR.block().get()) {
             tagCompound.putString("monitordim", world.dimension().location().toString());
             tagCompound.putInt("monitorx", pos.getX());
             tagCompound.putInt("monitory", pos.getY());

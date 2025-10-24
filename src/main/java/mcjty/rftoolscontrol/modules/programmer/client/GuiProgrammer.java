@@ -120,7 +120,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Gen
     }
 
     public GuiProgrammer(ProgrammerTileEntity te, GenericContainer container, Inventory inventory) {
-        super(te, container, inventory, ProgrammerModule.PROGRAMMER.get().getManualEntry());
+        super(te, container, inventory, ProgrammerModule.PROGRAMMER.block().get().getManualEntry());
 
         imageWidth = WIDTH;
         imageHeight = HEIGHT;

@@ -50,7 +50,7 @@ public class WorkbenchTileEntity extends GenericTileEntity {
                 }
             }
             return null;
-        }, VariousModule.WORKBENCH.get());
+        }, VariousModule.WORKBENCH.block().get());
     }
 
     public static final int SLOT_CRAFTINPUT = 0;
@@ -78,7 +78,7 @@ public class WorkbenchTileEntity extends GenericTileEntity {
     private int realItems = 0;
 
     public WorkbenchTileEntity(BlockPos pos, BlockState state) {
-        super(VariousModule.TYPE_WORKBENCH.get(), pos, state);
+        super(VariousModule.WORKBENCH.be().get(), pos, state);
     }
 
 

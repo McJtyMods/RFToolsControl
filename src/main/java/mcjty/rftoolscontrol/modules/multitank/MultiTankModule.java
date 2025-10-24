@@ -1,6 +1,7 @@
 package mcjty.rftoolscontrol.modules.multitank;
 
 import mcjty.lib.blocks.BaseBlock;
+import mcjty.lib.blocks.RBlock;
 import mcjty.lib.container.GenericContainer;
 import mcjty.lib.datagen.DataGen;
 import mcjty.lib.datagen.Dob;
@@ -12,8 +13,6 @@ import mcjty.rftoolscontrol.modules.multitank.client.GuiMultiTank;
 import mcjty.rftoolscontrol.setup.Registration;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
@@ -26,9 +25,13 @@ import static mcjty.rftoolscontrol.setup.Registration.*;
 
 public class MultiTankModule implements IModule {
 
-    public static final DeferredBlock<BaseBlock> MULTITANK = BLOCKS.register("tank", MultiTankBlock::new);
-    public static final Supplier<BlockEntityType<MultiTankTileEntity>> TYPE_MULTITANK = TILES.register("tank", () -> BlockEntityType.Builder.of(MultiTankTileEntity::new, MULTITANK.get()).build(null));
-    public static final DeferredItem<Item> MULTITANK_ITEM = ITEMS.register("tank", tab(() -> new BlockItem(MULTITANK.get(), Registration.createStandardProperties())));
+    public static final RBlock<BaseBlock, BlockItem, MultiTankTileEntity> MULTITANK = RBLOCKS.registerBlock(
+            "tank",
+            MultiTankTileEntity.class,
+            MultiTankBlock::new,
+            block -> new BlockItem(block.get(), Registration.createStandardProperties()),
+            MultiTankTileEntity::new
+    );
     public static final Supplier<MenuType<GenericContainer>> MULTITANK_CONTAINER = CONTAINERS.register("tank", GenericContainer::createContainerType);
 
     @Override
@@ -54,7 +57,7 @@ public class MultiTankModule implements IModule {
                 Dob.blockBuilder(MULTITANK)
                         .ironPickaxeTags()
                         .parentedItem("block/tank")
-                        .standardLoot(TYPE_MULTITANK)
+                        .standardLoot()
                         .shaped(builder -> builder
                                         .define('F', mcjty.rftoolsbase.modules.various.VariousModule.MACHINE_FRAME.get())
                                         .unlockedBy("frame", has(VariousModule.MACHINE_FRAME.get())),

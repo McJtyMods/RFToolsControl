@@ -18,7 +18,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.common.util.Lazy;
-import net.neoforged.neoforge.common.util.LazyOptional;
 
 import static mcjty.lib.api.container.DefaultContainerProvider.container;
 import static mcjty.lib.container.SlotDefinition.generic;
@@ -45,7 +44,7 @@ public class ProgrammerTileEntity extends GenericTileEntity {
             .setupSync(this));
 
     public ProgrammerTileEntity(BlockPos pos, BlockState state) {
-        super(ProgrammerModule.TYPE_PROGRAMMER.get(), pos, state);
+        super(ProgrammerModule.PROGRAMMER.be().get(), pos, state);
         items.setStackInSlot(SLOT_DUMMY, new ItemStack(VariousModule.PROGRAM_CARD.get()));
     }
 
@@ -81,4 +80,3 @@ public class ProgrammerTileEntity extends GenericTileEntity {
     }
 
 }
-

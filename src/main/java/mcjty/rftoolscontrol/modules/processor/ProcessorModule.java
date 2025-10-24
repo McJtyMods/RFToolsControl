@@ -1,6 +1,7 @@
 package mcjty.rftoolscontrol.modules.processor;
 
 import mcjty.lib.blocks.BaseBlock;
+import mcjty.lib.blocks.RBlock;
 import mcjty.lib.container.GenericContainer;
 import mcjty.lib.datagen.DataGen;
 import mcjty.lib.datagen.Dob;
@@ -15,13 +16,12 @@ import mcjty.rftoolscontrol.modules.various.VariousModule;
 import mcjty.rftoolscontrol.setup.Registration;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.neoforge.registries.DeferredItem;
 
 import java.util.function.Supplier;
 
@@ -31,9 +31,13 @@ import static mcjty.rftoolscontrol.setup.Registration.*;
 
 public class ProcessorModule implements IModule {
 
-    public static final DeferredBlock<BaseBlock> PROCESSOR = BLOCKS.register("processor", ProcessorBlock::new);
-    public static final DeferredItem<Item> PROCESSOR_ITEM = ITEMS.register("processor", tab(() -> new BlockItem(PROCESSOR.get(), Registration.createStandardProperties())));
-    public static final Supplier<BlockEntityType<ProcessorTileEntity>> TYPE_PROCESSOR = TILES.register("processor", () -> BlockEntityType.Builder.of(ProcessorTileEntity::new, PROCESSOR.get()).build(null));
+    public static final RBlock<BaseBlock, BlockItem, ProcessorTileEntity> PROCESSOR = RBLOCKS.registerBlock(
+            "processor",
+            ProcessorTileEntity.class,
+            ProcessorBlock::new,
+            block -> new BlockItem(block.get(), Registration.createStandardProperties()),
+            ProcessorTileEntity::new
+    );
     public static final Supplier<MenuType<ProcessorContainer>> PROCESSOR_CONTAINER = CONTAINERS.register("processor", GenericContainer::createContainerType);
     public static final Supplier<MenuType<ProcessorContainer>> PROCESSOR_CONTAINER_REMOTE = CONTAINERS.register("processor_remote",
             () -> GenericContainer.createRemoteContainerType(ProcessorTileEntity::new, ProcessorContainer::createRemote, ProcessorContainer.SLOTS));
@@ -72,8 +76,8 @@ public class ProcessorModule implements IModule {
                 Dob.blockBuilder(PROCESSOR)
                         .ironPickaxeTags()
                         .parentedItem("block/processor")
-                        .standardLoot(TYPE_PROCESSOR)
-                        .blockState(p -> p.orientedBlock(PROCESSOR.get(), p.frontBasedModel("processor", p.modLoc("block/machineprocessoron"))))
+                        .standardLoot()
+                        .blockState(p -> p.orientedBlock(PROCESSOR.block().get(), p.frontBasedModel("processor", p.modLoc("block/machineprocessoron"))))
                         .shaped(builder -> builder
                                         .define('F', mcjty.rftoolsbase.modules.various.VariousModule.MACHINE_FRAME.get())
                                         .define('M', VariousModule.CARD_BASE.get())

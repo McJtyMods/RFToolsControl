@@ -77,7 +77,7 @@ public class InteractionScreenModule implements IScreenModule<IModuleDataBoolean
                 }
 
                 Block block = world.getBlockState(coordinate).getBlock();
-                if (block != ProcessorModule.PROCESSOR.get()) {
+                if (block != ProcessorModule.PROCESSOR.block().get()) {
                     return;
                 }
 

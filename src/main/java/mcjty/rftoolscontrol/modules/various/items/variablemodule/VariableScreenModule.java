@@ -36,7 +36,7 @@ public class VariableScreenModule implements IScreenModule<ModuleDataVariable> {
         }
 
         Block block = world.getBlockState(coordinate).getBlock();
-        if (block != ProcessorModule.PROCESSOR.get()) {
+        if (block != ProcessorModule.PROCESSOR.block().get()) {
             return null;
         }
 

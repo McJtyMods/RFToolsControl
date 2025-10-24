@@ -37,7 +37,7 @@ public class VectorArtScreenModule implements IScreenModule<ModuleDataVectorArt>
         }
 
         Block block = world.getBlockState(coordinate).getBlock();
-        if (block != ProcessorModule.PROCESSOR.get()) {
+        if (block != ProcessorModule.PROCESSOR.block().get()) {
             return null;
         }
 
@@ -87,7 +87,7 @@ public class VectorArtScreenModule implements IScreenModule<ModuleDataVectorArt>
                 }
 
                 Block block = world.getBlockState(coordinate).getBlock();
-                if (block != ProcessorModule.PROCESSOR.get()) {
+                if (block != ProcessorModule.PROCESSOR.block().get()) {
                     return;
                 }
 

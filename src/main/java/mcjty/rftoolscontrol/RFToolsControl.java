@@ -45,6 +45,7 @@ public class RFToolsControl {
         bus.addListener(this::onDataGen);
         bus.addListener(RFToolsCtrlMessages::registerMessages);
         bus.addListener(WorkbenchTileEntity::registerCapabilities);
+        bus.addListener(setup.getBlockCapabilityRegistrar(Registration.RBLOCKS));
 
         if (dist.isClient()) {
             bus.addListener(modules::initClient);

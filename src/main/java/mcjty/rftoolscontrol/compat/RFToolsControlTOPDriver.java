@@ -30,9 +30,9 @@ public class RFToolsControlTOPDriver implements TOPDriver {
     public void addProbeInfo(ProbeMode mode, IProbeInfo probeInfo, Player player, Level world, BlockState blockState, IProbeHitData data) {
         ResourceLocation id = Tools.getId(blockState);
         if (!drivers.containsKey(id)) {
-            if (blockState.getBlock() == VariousModule.NODE.get()) {
+            if (blockState.getBlock() == VariousModule.NODE.block().get()) {
                 drivers.put(id, new NodeDriver());
-            } else if (blockState.getBlock() == ProcessorModule.PROCESSOR.get()) {
+            } else if (blockState.getBlock() == ProcessorModule.PROCESSOR.block().get()) {
                 drivers.put(id, new ProcessorDriver());
             } else {
                 drivers.put(id, new DefaultDriver());

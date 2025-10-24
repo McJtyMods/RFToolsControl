@@ -211,7 +211,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
 
 
     public ProcessorTileEntity(BlockPos pos, BlockState state) {
-        super(ProcessorModule.TYPE_PROCESSOR.get(), pos, state);
+        super(ProcessorModule.PROCESSOR.be().get(), pos, state);
 //        super(ConfigSetup.processorMaxenergy.get(), ConfigSetup.processorReceivepertick.get());
         for (int i = 0; i < cardInfo.length; i++) {
             cardInfo[i] = new CardInfo();

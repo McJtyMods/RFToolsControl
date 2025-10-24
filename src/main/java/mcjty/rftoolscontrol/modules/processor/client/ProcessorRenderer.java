@@ -144,6 +144,6 @@ public class ProcessorRenderer implements BlockEntityRenderer<ProcessorTileEntit
     }
 
     public static void register() {
-        BlockEntityRenderers.register(ProcessorModule.TYPE_PROCESSOR.get(), ProcessorRenderer::new);
+        BlockEntityRenderers.register(ProcessorModule.PROCESSOR.be().get(), ProcessorRenderer::new);
     }
 }

@@ -1,6 +1,7 @@
 package mcjty.rftoolscontrol.modules.programmer;
 
 import mcjty.lib.blocks.BaseBlock;
+import mcjty.lib.blocks.RBlock;
 import mcjty.lib.container.GenericContainer;
 import mcjty.lib.datagen.DataGen;
 import mcjty.lib.datagen.Dob;
@@ -13,8 +14,6 @@ import mcjty.rftoolscontrol.modules.programmer.client.GuiProgrammer;
 import mcjty.rftoolscontrol.setup.Registration;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
@@ -28,9 +27,13 @@ import static mcjty.rftoolscontrol.setup.Registration.*;
 
 public class ProgrammerModule implements IModule {
 
-    public static final DeferredBlock<BaseBlock> PROGRAMMER = BLOCKS.register("programmer", ProgrammerBlock::new);
-    public static final Supplier<BlockEntityType<ProgrammerTileEntity>> TYPE_PROGRAMMER = TILES.register("programmer", () -> BlockEntityType.Builder.of(ProgrammerTileEntity::new, PROGRAMMER.get()).build(null));
-    public static final DeferredItem<Item> PROGRAMMER_ITEM = ITEMS.register("programmer", tab(() -> new BlockItem(PROGRAMMER.get(), Registration.createStandardProperties())));
+    public static final RBlock<BaseBlock, BlockItem, ProgrammerTileEntity> PROGRAMMER = RBLOCKS.registerBlock(
+            "programmer",
+            ProgrammerTileEntity.class,
+            ProgrammerBlock::new,
+            block -> new BlockItem(block.get(), Registration.createStandardProperties()),
+            ProgrammerTileEntity::new
+    );
     public static final Supplier<MenuType<GenericContainer>> PROGRAMMER_CONTAINER = CONTAINERS.register("programmer", GenericContainer::createContainerType);
 
     @Override
@@ -57,8 +60,8 @@ public class ProgrammerModule implements IModule {
                 Dob.blockBuilder(PROGRAMMER)
                         .ironPickaxeTags()
                         .parentedItem("block/programmer")
-                        .standardLoot(TYPE_PROGRAMMER)
-                        .blockState(p -> p.orientedBlock(PROGRAMMER.get(), p.frontBasedModel("programmer", p.modLoc("block/machineprogrammer"))))
+                        .standardLoot()
+                        .blockState(p -> p.orientedBlock(PROGRAMMER.block().get(), p.frontBasedModel("programmer", p.modLoc("block/machineprogrammer"))))
                         .shaped(builder -> builder
                                         .define('F', mcjty.rftoolsbase.modules.various.VariousModule.MACHINE_FRAME.get())
                                         .define('q', Tags.Items.GEMS_QUARTZ)

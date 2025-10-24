@@ -30,6 +30,6 @@ public class RFToolsControlJeiPlugin implements IModPlugin {
 
     @Override
     public void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
-        registration.addRecipeCatalyst(new ItemStack(VariousModule.WORKBENCH.get()), RecipeTypes.CRAFTING);
+        registration.addRecipeCatalyst(new ItemStack(VariousModule.WORKBENCH.block().get()), RecipeTypes.CRAFTING);
     }
 }
