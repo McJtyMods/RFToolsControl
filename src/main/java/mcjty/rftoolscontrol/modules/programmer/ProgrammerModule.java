@@ -12,6 +12,7 @@ import mcjty.rftoolscontrol.modules.programmer.blocks.ProgrammerBlock;
 import mcjty.rftoolscontrol.modules.programmer.blocks.ProgrammerTileEntity;
 import mcjty.rftoolscontrol.modules.programmer.client.GuiProgrammer;
 import mcjty.rftoolscontrol.setup.Registration;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.BlockItem;
 import net.neoforged.neoforge.common.Tags;
@@ -55,12 +56,12 @@ public class ProgrammerModule implements IModule {
     }
 
     @Override
-    public void initDatagen(DataGen dataGen) {
+    public void initDatagen(DataGen dataGen, HolderLookup.Provider registries) {
         dataGen.add(
                 Dob.blockBuilder(PROGRAMMER)
                         .ironPickaxeTags()
                         .parentedItem("block/programmer")
-                        .standardLoot()
+                        .standardLoot() // @todo 1.21 data
                         .blockState(p -> p.orientedBlock(PROGRAMMER.block().get(), p.frontBasedModel("programmer", p.modLoc("block/machineprogrammer"))))
                         .shaped(builder -> builder
                                         .define('F', mcjty.rftoolsbase.modules.various.VariousModule.MACHINE_FRAME.get())

@@ -20,6 +20,7 @@ import net.neoforged.neoforge.fluids.FluidStack;
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
 import static mcjty.lib.api.container.DefaultContainerProvider.empty;
 import static mcjty.rftoolscontrol.modules.multitank.MultiTankModule.MULTITANK_CONTAINER;
@@ -31,13 +32,14 @@ public class MultiTankTileEntity extends GenericTileEntity {
 
     private final MultiTankFluidProperties[] properties = new MultiTankFluidProperties[TANKS];
 
-    @Cap(type = CapType.FLUIDS)
     private final MultiTankHandler fluidHandler = createFluidHandler();
+    @Cap(type = CapType.FLUIDS)
+    private final static Function<MultiTankTileEntity, MultiTankHandler> FLUID_CAP = tile -> tile.fluidHandler;
 
     @Cap(type = CapType.CONTAINER)
-    private final Lazy<MenuProvider> screenHandler = Lazy.of(() -> new DefaultContainerProvider<GenericContainer>("Multi tank")
-            .containerSupplier(empty(MULTITANK_CONTAINER, this))
-            .setupSync(this));
+    private static final Function<MultiTankTileEntity, MenuProvider> SCREEN_CAP = tile -> new DefaultContainerProvider<GenericContainer>("Multi tank")
+            .containerSupplier(empty(MULTITANK_CONTAINER, tile))
+            .setupSync(tile);
 
     public MultiTankTileEntity(BlockPos pos, BlockState state) {
         super(MultiTankModule.MULTITANK.be().get(), pos, state);
@@ -50,28 +52,29 @@ public class MultiTankTileEntity extends GenericTileEntity {
         return properties;
     }
 
-    @Override
-    protected void loadInfo(CompoundTag tagCompound) {
-        super.loadInfo(tagCompound);
-        CompoundTag info = tagCompound.getCompound("Info");
-        for (int i = 0 ; i < TANKS ; i++) {
-            properties[i] = new MultiTankFluidProperties(this, FluidStack.loadFluidStackFromNBT(info.getCompound("f" + i)), MAXCAPACITY);
-        }
-    }
-
-    @Override
-    protected void saveInfo(CompoundTag tagCompound) {
-        super.saveInfo(tagCompound);
-        CompoundTag info = getOrCreateInfo(tagCompound);
-        for (int i = 0 ; i < TANKS ; i++) {
-            FluidStack contents = properties[i].getContents();
-            if (!contents.isEmpty()) {
-                CompoundTag tag = new CompoundTag();
-                contents.writeToNBT(tag);
-                info.put("f" + i, tag);
-            }
-        }
-    }
+    // @todo 1.21 data
+//    @Override
+//    protected void loadInfo(CompoundTag tagCompound) {
+//        super.loadInfo(tagCompound);
+//        CompoundTag info = tagCompound.getCompound("Info");
+//        for (int i = 0 ; i < TANKS ; i++) {
+//            properties[i] = new MultiTankFluidProperties(this, FluidStack.loadFluidStackFromNBT(info.getCompound("f" + i)), MAXCAPACITY);
+//        }
+//    }
+//
+//    @Override
+//    protected void saveInfo(CompoundTag tagCompound) {
+//        super.saveInfo(tagCompound);
+//        CompoundTag info = getOrCreateInfo(tagCompound);
+//        for (int i = 0 ; i < TANKS ; i++) {
+//            FluidStack contents = properties[i].getContents();
+//            if (!contents.isEmpty()) {
+//                CompoundTag tag = new CompoundTag();
+//                contents.writeToNBT(tag);
+//                info.put("f" + i, tag);
+//            }
+//        }
+//    }
 
     @ServerCommand(type = FluidStack.class)
     public static final ListCommand<?, ?> CMD_GETFLUIDS = ListCommand.<MultiTankTileEntity, FluidStack>create("rftoolscontrol.tank.getFluids",

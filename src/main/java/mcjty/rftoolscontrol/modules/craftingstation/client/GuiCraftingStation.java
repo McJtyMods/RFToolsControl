@@ -10,6 +10,7 @@ import mcjty.lib.gui.events.BlockRenderEvent;
 import mcjty.lib.gui.widgets.*;
 import mcjty.lib.network.Networking;
 import mcjty.lib.network.PacketGetListFromServer;
+import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.ComponentFactory;
 import mcjty.lib.varia.SafeClientTools;
@@ -24,6 +25,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
@@ -57,15 +59,15 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
 
     private int listDirty = 0;
 
-    public GuiCraftingStation(CraftingStationTileEntity te, GenericContainer container, Inventory inventory) {
-        super(te, container, inventory, /*@todo 1.15 GuiProxy.GUI_MANUAL_CONTROL*/ ManualEntry.EMPTY);
+    public GuiCraftingStation(GenericContainer container, Inventory inventory, Component title) {
+        super(container, inventory, title, /*@todo 1.15 GuiProxy.GUI_MANUAL_CONTROL*/ ManualEntry.EMPTY);
 
         imageWidth = WIDTH;
         imageHeight = HEIGHT;
     }
 
-    public static void register() {
-        register(CraftingStationModule.CRAFTING_STATION_CONTAINER.get(), GuiCraftingStation::new);
+    public static void register(RegisterMenuScreensEvent event) {
+        event.register(CraftingStationModule.CRAFTING_STATION_CONTAINER.get(), GuiCraftingStation::new);
     }
 
     @Override
@@ -117,8 +119,9 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
     }
 
     private void requestLists() {
-        Networking.sendToServer(PacketGetListFromServer.create(tileEntity.getBlockPos(), CMD_GETCRAFTABLE.name()));
-        Networking.sendToServer(PacketGetListFromServer.create(tileEntity.getBlockPos(), CMD_GETREQUESTS.name()));
+        GenericTileEntity be = getBE();
+        Networking.sendToServer(PacketGetListFromServer.create(be.getBlockPos(), CMD_GETCRAFTABLE.name()));
+        Networking.sendToServer(PacketGetListFromServer.create(be.getBlockPos(), CMD_GETREQUESTS.name()));
     }
 
     private void requestListsIfNeeded() {
@@ -238,8 +241,7 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
     private void requestItem(ItemStack stack, int amount) {
         sendServerCommandTyped(CraftingStationTileEntity.CMD_REQUEST,
                 TypedMap.builder()
-                        .put(PARAM_ITEMNAME, Tools.getId(stack).toString())
-                        .put(PARAM_NBT, stack.hasTag() ? stack.serializeNBT().toString() : "")
+                        .put(PARAM_ITEM, stack)
                         .put(PARAM_AMOUNT, amount)
                         .build());
     }
@@ -253,6 +255,6 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
             requestList.selected(-1);
         }
         cancelButton.enabled(requestList.getSelected() != -1);
-        drawWindow(graphics, xxx, xxx, yyy);
+        drawWindow(graphics, partialTicks, mouseX, mouseY);
     }
 }

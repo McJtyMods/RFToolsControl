@@ -18,6 +18,7 @@ import mcjty.rftoolscontrol.modules.various.items.interactionmodule.InteractionM
 import mcjty.rftoolscontrol.modules.various.items.variablemodule.VariableModuleItem;
 import mcjty.rftoolscontrol.modules.various.items.vectorartmodule.VectorArtModuleItem;
 import mcjty.rftoolscontrol.setup.Registration;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
@@ -84,12 +85,12 @@ public class VariousModule implements IModule {
     }
 
     @Override
-    public void initDatagen(DataGen dataGen) {
+    public void initDatagen(DataGen dataGen, HolderLookup.Provider registries) {
         dataGen.add(
                 Dob.blockBuilder(WORKBENCH)
                         .ironPickaxeTags()
                         .parentedItem("block/workbench")
-                        .standardLoot()
+                        .standardLoot() // @todo 1.21 data
                         .blockState(p -> p.orientedBlock(WORKBENCH.block().get(), p.frontBasedModel("workbench", p.modLoc("block/machineworkbench"))))
                         .shaped(builder -> builder
                                         .define('F', mcjty.rftoolsbase.modules.various.VariousModule.MACHINE_FRAME.get())
@@ -100,7 +101,7 @@ public class VariousModule implements IModule {
                 Dob.blockBuilder(NODE)
                         .ironPickaxeTags()
                         .parentedItem("block/node")
-                        .standardLoot()
+                        .standardLoot() // @todo 1.21 data
                         .blockState(p -> p.orientedBlock(NODE.block().get(), p.frontBasedModel("node", p.modLoc("block/machinenode"))))
                         .shaped(builder -> builder
                                         .define('F', mcjty.rftoolsbase.modules.various.VariousModule.MACHINE_FRAME.get())

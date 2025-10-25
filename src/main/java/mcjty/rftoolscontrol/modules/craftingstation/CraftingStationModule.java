@@ -11,12 +11,15 @@ import mcjty.rftoolscontrol.modules.craftingstation.blocks.CraftingStationTileEn
 import mcjty.rftoolscontrol.modules.craftingstation.client.GuiCraftingStation;
 import mcjty.rftoolscontrol.modules.various.VariousModule;
 import mcjty.rftoolscontrol.setup.Registration;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Items;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
+
 import java.util.function.Supplier;
 
 import static mcjty.lib.datagen.DataGen.has;
@@ -34,6 +37,10 @@ public class CraftingStationModule implements IModule {
     );
     public static final Supplier<MenuType<GenericContainer>> CRAFTING_STATION_CONTAINER = CONTAINERS.register("craftingstation", GenericContainer::createContainerType);
 
+    public CraftingStationModule(IEventBus bus) {
+        bus.addListener(this::registerMenuScreens);
+    }
+
     @Override
     public void init(FMLCommonSetupEvent event) {
 
@@ -41,9 +48,10 @@ public class CraftingStationModule implements IModule {
 
     @Override
     public void initClient(FMLClientSetupEvent event) {
-        event.enqueueWork(() -> {
-            GuiCraftingStation.register();
-        });
+    }
+
+    public void registerMenuScreens(RegisterMenuScreensEvent event) {
+        GuiCraftingStation.register(event);
     }
 
     @Override
@@ -52,12 +60,12 @@ public class CraftingStationModule implements IModule {
     }
 
     @Override
-    public void initDatagen(DataGen dataGen) {
+    public void initDatagen(DataGen dataGen, HolderLookup.Provider registries) {
         dataGen.add(
                 Dob.blockBuilder(CRAFTING_STATION)
                         .ironPickaxeTags()
                         .parentedItem("block/craftingstation")
-                        .standardLoot()
+                        .standardLoot() // @todo 1.21 data
                         .blockState(p -> p.orientedBlock(CRAFTING_STATION.block().get(), p.frontBasedModel("craftingstation", p.modLoc("block/machinecraftingstation"))))
                         .shaped(builder -> builder
                                         .define('F', mcjty.rftoolsbase.modules.various.VariousModule.MACHINE_FRAME.get())

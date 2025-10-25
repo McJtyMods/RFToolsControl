@@ -11,13 +11,16 @@ import mcjty.lib.gui.widgets.Label;
 import mcjty.lib.gui.widgets.Panel;
 import mcjty.lib.network.Networking;
 import mcjty.lib.network.PacketGetListFromServer;
+import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.modules.multitank.MultiTankModule;
 import mcjty.rftoolscontrol.modules.multitank.blocks.MultiTankTileEntity;
 import mcjty.rftoolscontrol.modules.multitank.util.MultiTankFluidProperties;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
+import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.fluids.FluidStack;
 
 import javax.annotation.Nonnull;
@@ -37,15 +40,15 @@ public class GuiMultiTank extends GenericGuiContainer<MultiTankTileEntity, Gener
     private final BlockRender[] liquids = new BlockRender[TANKS];
     private final Label[] labels = new Label[TANKS];
 
-    public GuiMultiTank(MultiTankTileEntity te, GenericContainer container, Inventory inventory) {
-        super(te, container, inventory, /*@todo 1.15 GuiProxy.GUI_MANUAL_CONTROL*/ ManualEntry.EMPTY);
+    public GuiMultiTank(GenericContainer container, Inventory inventory, Component title) {
+        super(container, inventory, title, /*@todo 1.15 GuiProxy.GUI_MANUAL_CONTROL*/ ManualEntry.EMPTY);
 
         imageWidth = WIDTH;
         imageHeight = HEIGHT;
     }
 
-    public static void register() {
-        register(MultiTankModule.MULTITANK_CONTAINER.get(), GuiMultiTank::new);
+    public static void register(RegisterMenuScreensEvent event) {
+        event.register(MultiTankModule.MULTITANK_CONTAINER.get(), GuiMultiTank::new);
     }
 
     @Override
@@ -69,7 +72,8 @@ public class GuiMultiTank extends GenericGuiContainer<MultiTankTileEntity, Gener
     }
 
     private void requestLists() {
-        Networking.sendToServer(PacketGetListFromServer.create(tileEntity.getBlockPos(), MultiTankTileEntity.CMD_GETFLUIDS.name()));
+        GenericTileEntity be = getBE();
+        Networking.sendToServer(PacketGetListFromServer.create(be.getBlockPos(), MultiTankTileEntity.CMD_GETFLUIDS.name()));
     }
 
     private void requestListsIfNeeded() {
@@ -81,7 +85,8 @@ public class GuiMultiTank extends GenericGuiContainer<MultiTankTileEntity, Gener
     }
     private void updateLiquids() {
         requestListsIfNeeded();
-        MultiTankFluidProperties[] properties = tileEntity.getProperties();
+        MultiTankTileEntity be = getBE();
+        MultiTankFluidProperties[] properties = be.getProperties();
         for (int i = 0 ; i < TANKS ; i++) {
             if (i < properties.length && properties[i] != null) {
                 FluidStack stack = properties[i].getContents();
@@ -99,6 +104,6 @@ public class GuiMultiTank extends GenericGuiContainer<MultiTankTileEntity, Gener
     @Override
     protected void renderBg(@Nonnull GuiGraphics graphics, float partialTicks, int mouseX, int mouseY) {
         updateLiquids();
-        drawWindow(graphics, xxx, xxx, yyy);
+        drawWindow(graphics, partialTicks, mouseX, mouseY);
     }
 }

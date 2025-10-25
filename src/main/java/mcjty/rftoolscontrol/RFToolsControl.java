@@ -63,8 +63,8 @@ public class RFToolsControl {
     }
 
     private void setupModules(IEventBus bus, Dist dist) {
-        modules.register(new CraftingStationModule());
-        modules.register(new MultiTankModule());
+        modules.register(new CraftingStationModule(bus));
+        modules.register(new MultiTankModule(bus));
         modules.register(new ProcessorModule());
         modules.register(new ProgrammerModule());
         modules.register(new VariousModule());

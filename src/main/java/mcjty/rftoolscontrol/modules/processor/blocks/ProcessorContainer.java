@@ -59,7 +59,7 @@ public class ProcessorContainer extends GenericContainer {
     public boolean stillValid(@Nonnull Player player) {
         // If we are a remote container our canInteractWith should ignore distance
         if (isRemoteContainer()) {
-            return te == null || !te.isRemoved();
+            return be == null || !be.isRemoved();
         } else {
             return super.stillValid(player);
         }
