@@ -1,9 +1,9 @@
 package mcjty.rftoolscontrol.setup;
+
 import mcjty.lib.blocks.RBlockRegistry;
 import mcjty.lib.setup.DeferredItems;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.modules.processor.ProcessorModule;
-import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
@@ -15,8 +15,9 @@ import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.IEventBus;
-import net.neoforged.neoforge.registries.DeferredHolder;
+import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.registries.DeferredRegister;
+import net.neoforged.neoforge.registries.NeoForgeRegistries;
 
 import java.util.function.Supplier;
 
@@ -27,6 +28,7 @@ public class Registration {
     public static final RBlockRegistry RBLOCKS = new RBlockRegistry(MODID, RFToolsControl.setup::addTabItem);
     public static final DeferredItems ITEMS = DeferredItems.create(MODID);
     public static final DeferredRegister.DataComponents COMPONENTS = DeferredRegister.createDataComponents(Registries.DATA_COMPONENT_TYPE, MODID);
+    public static final DeferredRegister<AttachmentType<?>> ATTACHMENT_TYPES = DeferredRegister.create(NeoForgeRegistries.Keys.ATTACHMENT_TYPES, MODID);
     public static final DeferredRegister<MenuType<?>> CONTAINERS = DeferredRegister.create(BuiltInRegistries.MENU, MODID);
     public static final DeferredRegister<SoundEvent> SOUNDS = DeferredRegister.create(BuiltInRegistries.SOUND_EVENT, MODID);
     public static final DeferredRegister<EntityType<?>> ENTITIES = DeferredRegister.create(BuiltInRegistries.ENTITY_TYPE, MODID);
@@ -36,6 +38,7 @@ public class Registration {
         RBLOCKS.register(bus);
         ITEMS.register(bus);
         COMPONENTS.register(bus);
+        ATTACHMENT_TYPES.register(bus);
         CONTAINERS.register(bus);
         SOUNDS.register(bus);
         ENTITIES.register(bus);

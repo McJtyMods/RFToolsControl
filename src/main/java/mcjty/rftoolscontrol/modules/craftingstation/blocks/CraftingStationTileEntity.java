@@ -7,6 +7,7 @@ import mcjty.lib.blockcommands.ServerCommand;
 import mcjty.lib.container.ContainerFactory;
 import mcjty.lib.container.GenericContainer;
 import mcjty.lib.container.GenericItemHandler;
+import mcjty.lib.setup.Registration;
 import mcjty.lib.tileentity.Cap;
 import mcjty.lib.tileentity.CapType;
 import mcjty.lib.tileentity.GenericTileEntity;
@@ -17,6 +18,7 @@ import mcjty.lib.varia.ItemStackList;
 import mcjty.rftoolsbase.api.control.parameters.Inventory;
 import mcjty.rftoolscontrol.modules.craftingstation.CraftingStationModule;
 import mcjty.rftoolscontrol.modules.craftingstation.client.GuiCraftingStation;
+import mcjty.rftoolscontrol.modules.craftingstation.data.CraftingStationData;
 import mcjty.rftoolscontrol.modules.craftingstation.util.CraftingRequest;
 import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorTileEntity;
 import mcjty.rftoolscontrol.modules.processor.logic.running.ExceptionType;
@@ -24,6 +26,7 @@ import mcjty.rftoolscontrol.modules.processor.logic.running.ProgException;
 import mcjty.rftoolscontrol.setup.Config;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -67,7 +70,6 @@ public class CraftingStationTileEntity extends GenericTileEntity {
             .setupSync(tile);
 
     private final List<BlockPos> processorList = new ArrayList<>();
-    private int currentTicket = 0;
     private List<CraftingRequest> activeCraftingRequests = new ArrayList<>();
     private int cleanupCounter = 50;
 
@@ -237,13 +239,19 @@ public class CraftingStationTileEntity extends GenericTileEntity {
     }
 
     private String getNewTicket(@Nullable Inventory destInv) {
-        currentTicket++;
-        setChanged();
+        int craftId = nextCraftId();
         if (destInv != null) {
-            return destInv.serialize() + "#" + currentTicket;
+            return destInv.serialize() + "#" + craftId;
         } else {
-            return BlockPosTools.toString(worldPosition) + ":" + currentTicket;
+            return BlockPosTools.toString(worldPosition) + ":" + craftId;
         }
+    }
+
+    private int nextCraftId() {
+        CraftingStationData data = getData(CraftingStationModule.CRAFTING_STATION_DATA);
+        int next = data.craftId() + 1;
+        setData(CraftingStationModule.CRAFTING_STATION_DATA, data.withCraftId(next));
+        return next;
     }
 
     /// Returns null if the ticket represents a crafting station instead
@@ -297,19 +305,12 @@ public class CraftingStationTileEntity extends GenericTileEntity {
     }
 
     @Override
-    public void loadAdditional(CompoundTag tagCompound, HolderLookup.Provider provider) {
-        super.loadAdditional(tagCompound, provider);
-        readProcessorList(tagCompound);
-        readRequests(tagCompound, provider);
+    public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
+        super.loadAdditional(tag, provider);
+        readProcessorList(tag);
+        readRequests(tag, provider);
+        items.load(tag, "items", provider);
     }
-
-    // @todo 1.21 data
-//    @Override
-//    protected void loadInfo(CompoundTag tagCompound) {
-//        super.loadInfo(tagCompound);
-//        CompoundTag info = tagCompound.getCompound("Info");
-//        currentTicket = info.getInt("craftId");
-//    }
 
     private void readRequests(CompoundTag tagCompound, HolderLookup.Provider provider) {
         ListTag list = tagCompound.getList("requests", Tag.TAG_COMPOUND);
@@ -336,19 +337,12 @@ public class CraftingStationTileEntity extends GenericTileEntity {
     }
 
     @Override
-    public void saveAdditional(@Nonnull CompoundTag tagCompound, HolderLookup.Provider provider) {
-        super.saveAdditional(tagCompound, provider);
-        writeProcessorList(tagCompound);
-        writeRequests(tagCompound, provider);
+    public void saveAdditional(@Nonnull CompoundTag tag, HolderLookup.Provider provider) {
+        super.saveAdditional(tag, provider);
+        writeProcessorList(tag);
+        writeRequests(tag, provider);
+        items.save(tag, "items", provider);
     }
-
-    // @todo 1.21 data
-//    @Override
-//    protected void saveInfo(CompoundTag tagCompound) {
-//        super.saveInfo(tagCompound);
-//        CompoundTag info = getOrCreateInfo(tagCompound);
-//        info.putInt("craftId", currentTicket);
-//    }
 
     private void writeRequests(CompoundTag tagCompound, HolderLookup.Provider provider) {
         ListTag list = new ListTag();
@@ -377,6 +371,23 @@ public class CraftingStationTileEntity extends GenericTileEntity {
             list.add(tag);
         }
         tagCompound.put("processors", list);
+    }
+
+    @Override
+    protected void applyImplicitComponents(DataComponentInput input) {
+        super.applyImplicitComponents(input);
+        CraftingStationData data = input.get(CraftingStationModule.ITEM_CRAFTING_STATION_DATA);
+        if (data != null) {
+            setData(CraftingStationModule.CRAFTING_STATION_DATA, data);
+        }
+        items.applyImplicitComponents(input.get(Registration.ITEM_INVENTORY));
+    }
+
+    @Override
+    protected void collectImplicitComponents(DataComponentMap.Builder builder) {
+        super.collectImplicitComponents(builder);
+        builder.set(CraftingStationModule.ITEM_CRAFTING_STATION_DATA, getData(CraftingStationModule.CRAFTING_STATION_DATA));
+        items.collectImplicitComponents(builder);
     }
 
     private int findItem(ItemStack stack) {
