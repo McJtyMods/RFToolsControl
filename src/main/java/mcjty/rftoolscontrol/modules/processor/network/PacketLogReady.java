@@ -68,7 +68,7 @@ public record PacketLogReady(@Nullable BlockPos pos, String command, @Nonnull Li
                     Logging.log("Container is missing!");
                     return;
                 }
-                te = container.getTe();
+                te = container.getBe();
             } else {
                 te = SafeClientTools.getClientWorld().getBlockEntity(pos);
             }

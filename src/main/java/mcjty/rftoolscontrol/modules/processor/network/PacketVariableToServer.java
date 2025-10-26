@@ -47,7 +47,7 @@ public record PacketVariableToServer(BlockPos pos, int varIndex, CompoundTag tag
                 if (varIndex < variables.length) {
                     Parameter parameter = variables[varIndex];
                     ParameterType type = parameter.getParameterType();
-                    ParameterValue value = ParameterTypeTools.readFromNBT(tagCompound, type);
+                    ParameterValue value = ParameterTypeTools.readFromNBT(tagCompound, type, ctx.player().registryAccess());
                     // Here we don't want to trigger the watch
                     variables[varIndex] = Parameter.builder()
                             .type(type)

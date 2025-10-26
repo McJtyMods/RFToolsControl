@@ -11,6 +11,7 @@ import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorTileEntity;
 import mcjty.rftoolscontrol.modules.various.VariousModule;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -95,44 +96,46 @@ public class NodeTileEntity extends GenericTileEntity {
     }
 
     @Override
-    public void load(CompoundTag tagCompound) {
-        super.load(tagCompound);
+    public void loadAdditional(CompoundTag tagCompound, HolderLookup.Provider provider) {
+        super.loadAdditional(tagCompound, provider);
         prevIn = tagCompound.getInt("prevIn");
         for (int i = 0; i < 6; i++) {
             powerOut[i] = tagCompound.getByte("p" + i);
         }
     }
 
-    @Override
-    protected void loadInfo(CompoundTag tagCompound) {
-        super.loadInfo(tagCompound);
-        CompoundTag info = tagCompound.getCompound("Info");
-        channel = info.getString("channel");
-        node = info.getString("node");
-        processor = BlockPosTools.read(info, "processor");
-    }
+    // @todo 1.21 data
+//    @Override
+//    protected void loadInfo(CompoundTag tagCompound) {
+//        super.loadInfo(tagCompound);
+//        CompoundTag info = tagCompound.getCompound("Info");
+//        channel = info.getString("channel");
+//        node = info.getString("node");
+//        processor = BlockPosTools.read(info, "processor");
+//    }
 
     @Override
-    public void saveAdditional(@Nonnull CompoundTag tagCompound) {
-        super.saveAdditional(tagCompound);
+    public void saveAdditional(@Nonnull CompoundTag tagCompound, HolderLookup.Provider provider) {
+        super.saveAdditional(tagCompound, provider);
         tagCompound.putInt("prevIn", prevIn);
         for (int i = 0; i < 6; i++) {
             tagCompound.putByte("p" + i, (byte) powerOut[i]);
         }
     }
 
-    @Override
-    protected void saveInfo(CompoundTag tagCompound) {
-        super.saveInfo(tagCompound);
-        CompoundTag info = getOrCreateInfo(tagCompound);
-        if (channel != null) {
-            info.putString("channel", channel);
-        }
-        if (node != null) {
-            info.putString("node", node);
-        }
-        if (processor != null) {
-            BlockPosTools.write(info, "processor", processor);
-        }
-    }
+    // @todo 1.21 data
+//    @Override
+//    protected void saveInfo(CompoundTag tagCompound) {
+//        super.saveInfo(tagCompound);
+//        CompoundTag info = getOrCreateInfo(tagCompound);
+//        if (channel != null) {
+//            info.putString("channel", channel);
+//        }
+//        if (node != null) {
+//            info.putString("node", node);
+//        }
+//        if (processor != null) {
+//            BlockPosTools.write(info, "processor", processor);
+//        }
+//    }
 }

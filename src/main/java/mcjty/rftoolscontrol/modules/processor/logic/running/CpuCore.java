@@ -2,6 +2,7 @@ package mcjty.rftoolscontrol.modules.processor.logic.running;
 
 import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorTileEntity;
 import mcjty.rftoolscontrol.setup.Config;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 
 public class CpuCore {
@@ -91,18 +92,18 @@ public class CpuCore {
         program.setCore(this);
     }
 
-    public CompoundTag writeToNBT() {
+    public CompoundTag writeToNBT(HolderLookup.Provider provider) {
         CompoundTag tag = new CompoundTag();
         if (program != null) {
-            program.writeToNBT(tag);
+            program.writeToNBT(tag, provider);
         }
         tag.putInt("tier", tier);
         tag.putBoolean("debug", debug);
         return tag;
     }
 
-    public void readFromNBT(CompoundTag tag) {
-        program = RunningProgram.readFromNBT(tag);
+    public void readFromNBT(CompoundTag tag, HolderLookup.Provider provider) {
+        program = RunningProgram.readFromNBT(tag, provider);
         if (program != null) {
             program.setCore(this);
         }

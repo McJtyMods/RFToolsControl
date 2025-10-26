@@ -1,6 +1,7 @@
 package mcjty.rftoolscontrol.modules.processor.logic.grid;
 
 import com.google.gson.*;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -40,8 +41,8 @@ public class ProgramCardInstance {
         return new ProgramCardInstance();
     }
 
-    public static ProgramCardInstance parseInstance(ItemStack card) {
-        CompoundTag tagCompound = card.getTag();
+    public static ProgramCardInstance parseInstance(ItemStack card, HolderLookup.Provider provider) {
+        CompoundTag tagCompound = new CompoundTag(); // @todo 1.21 card.getTag();
         if (tagCompound == null) {
             return null;
         }
@@ -50,15 +51,15 @@ public class ProgramCardInstance {
         ListTag grid = tagCompound.getList("grid", Tag.TAG_COMPOUND);
         for (Tag inbt : grid) {
             CompoundTag gridElement = (CompoundTag) inbt;
-            parseElement(gridElement, instance);
+            parseElement(gridElement, instance, provider);
         }
         return instance;
     }
 
-    private static void parseElement(CompoundTag tag, ProgramCardInstance instance) {
+    private static void parseElement(CompoundTag tag, ProgramCardInstance instance, HolderLookup.Provider provider) {
         int x = tag.getInt("x");
         int y = tag.getInt("y");
-        GridInstance gi = GridInstance.readFromNBT(tag);
+        GridInstance gi = GridInstance.readFromNBT(tag, provider);
         if (gi != null) {
             instance.putGridInstance(x, y, gi);
         }
@@ -108,19 +109,20 @@ public class ProgramCardInstance {
     }
 
     public void writeToNBT(ItemStack card) {
-        CompoundTag tagCompound = card.getOrCreateTag();
-        ListTag grid = new ListTag();
-
-        for (Map.Entry<GridPos, GridInstance> entry : gridInstances.entrySet()) {
-            GridPos coordinate = entry.getKey();
-            int x = coordinate.x();
-            int y = coordinate.y();
-            GridInstance gridInstance = entry.getValue();
-            CompoundTag tag = gridInstance.writeToNBT(x, y);
-            grid.add(tag);
-        }
-
-        tagCompound.put("grid", grid);
+        // @todo 1.21 data
+//        CompoundTag tagCompound = card.getOrCreateTag();
+//        ListTag grid = new ListTag();
+//
+//        for (Map.Entry<GridPos, GridInstance> entry : gridInstances.entrySet()) {
+//            GridPos coordinate = entry.getKey();
+//            int x = coordinate.x();
+//            int y = coordinate.y();
+//            GridInstance gridInstance = entry.getValue();
+//            CompoundTag tag = gridInstance.writeToNBT(x, y);
+//            grid.add(tag);
+//        }
+//
+//        tagCompound.put("grid", grid);
     }
 
 }

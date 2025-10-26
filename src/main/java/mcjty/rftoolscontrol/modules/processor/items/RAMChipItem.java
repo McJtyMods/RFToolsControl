@@ -19,7 +19,7 @@ import static mcjty.lib.builder.TooltipBuilder.header;
 
 public class RAMChipItem extends Item implements ITooltipSettings {
 
-    private final Lazy<TooltipBuilder> tooltipBuilder = () -> new TooltipBuilder()
+    private final TooltipBuilder tooltipBuilder = new TooltipBuilder()
             .info(header());
 
     public RAMChipItem() {
@@ -28,9 +28,9 @@ public class RAMChipItem extends Item implements ITooltipSettings {
 
 
     @Override
-    public void appendHoverText(@Nonnull ItemStack stack, @Nullable Level worldIn, @Nonnull List<Component> list, @Nonnull TooltipFlag flag) {
-        super.appendHoverText(stack, worldIn, list, flag);
-        tooltipBuilder.get().makeTooltip(Tools.getId(this), stack, list, flag);
+    public void appendHoverText(@Nonnull ItemStack stack, TooltipContext context, @Nonnull List<Component> list, @Nonnull TooltipFlag flag) {
+        super.appendHoverText(stack, context, list, flag);
+        tooltipBuilder.makeTooltip(Tools.getId(this), stack, list, flag);
     }
 
 }

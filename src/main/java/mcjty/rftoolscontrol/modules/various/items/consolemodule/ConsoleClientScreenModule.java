@@ -10,6 +10,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
 import java.util.List;
@@ -17,12 +18,12 @@ import java.util.List;
 public class ConsoleClientScreenModule implements IClientScreenModule<ModuleDataLog> {
 
     @Override
-    public TransformMode getTransformMode() {
+    public TransformMode getTransformMode(ItemStack moduleItem) {
         return TransformMode.TEXT;
     }
 
     @Override
-    public int getHeight() {
+    public int getHeight(ItemStack moduleItem) {
         return 114;
     }
 
@@ -43,14 +44,15 @@ public class ConsoleClientScreenModule implements IClientScreenModule<ModuleData
         }
     }
 
+    // @todo 1.21
+//    @Override
+//    public void setupFromNBT(CompoundTag tagCompound, ResourceKey<Level> dim, BlockPos pos) {
+//
+//    }
+
+
     @Override
-    public void setupFromNBT(CompoundTag tagCompound, ResourceKey<Level> dim, BlockPos pos) {
-
-    }
-
-    @Override
-    public void mouseClick(Level world, int x, int y, boolean clicked) {
-
+    public void mouseClick(ItemStack moduleStack, Level world, int x, int y, boolean clicked) {
     }
 
     @Override

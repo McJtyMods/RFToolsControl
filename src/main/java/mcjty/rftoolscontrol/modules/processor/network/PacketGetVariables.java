@@ -21,14 +21,14 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import java.util.List;
 
-public record PacketGetVariables(ResourceKey<Level> type, BlockPos pos, TypedMap params, Boolean fromTablet) implements CustomPacketPayload {
+public record PacketGetVariables(ResourceKey<Level> level, BlockPos pos, TypedMap params, Boolean fromTablet) implements CustomPacketPayload {
 
     public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(RFToolsControl.MODID, "getvariables");
     public static final CustomPacketPayload.Type<PacketGetVariables> TYPE = new Type<>(ID);
 
     public static final StreamCodec<RegistryFriendlyByteBuf, PacketGetVariables> CODEC = StreamCodec.of(
             (buf, packet) -> {
-                buf.writeResourceLocation(packet.type.location());
+                buf.writeResourceLocation(packet.level.location());
                 buf.writeBlockPos(packet.pos);
                 TypedMap.STREAM_CODEC.encode(buf, packet.params);
                 buf.writeBoolean(packet.fromTablet);
@@ -39,18 +39,18 @@ public record PacketGetVariables(ResourceKey<Level> type, BlockPos pos, TypedMap
                     buf.readBoolean())
     );
 
-    public static PacketGetVariables create(BlockPos pos, ResourceKey<Level> type, boolean fromTablet) {
-        return new PacketGetVariables(type, pos, TypedMap.EMPTY, fromTablet);
-    }
-
     @Override
     public Type<? extends CustomPacketPayload> type() {
         return TYPE;
     }
 
+    public static PacketGetVariables create(BlockPos pos, ResourceKey<Level> type, boolean fromTablet) {
+        return new PacketGetVariables(type, pos, TypedMap.EMPTY, fromTablet);
+    }
+
     public void handle(IPayloadContext ctx) {
         ctx.enqueueWork(() -> {
-            ServerLevel world = LevelTools.getLevel(ctx.player().getCommandSenderWorld(), type);
+            ServerLevel world = LevelTools.getLevel(ctx.player().getCommandSenderWorld(), level);
             if (world.hasChunkAt(pos)) {
                 BlockEntity te = world.getBlockEntity(pos);
                 if (te instanceof GenericTileEntity) {

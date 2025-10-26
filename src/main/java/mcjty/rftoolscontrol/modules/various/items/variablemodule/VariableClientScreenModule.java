@@ -7,9 +7,7 @@ import mcjty.rftoolscontrol.modules.processor.logic.TypeConverters;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.core.BlockPos;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
 public class VariableClientScreenModule implements IClientScreenModule<ModuleDataVariable> {
@@ -19,12 +17,12 @@ public class VariableClientScreenModule implements IClientScreenModule<ModuleDat
     private ITextRenderHelper labelCache = null;
 
     @Override
-    public TransformMode getTransformMode() {
+    public TransformMode getTransformMode(ItemStack moduleStack) {
         return TransformMode.TEXT;
     }
 
     @Override
-    public int getHeight() {
+    public int getHeight(ItemStack moduleStack) {
         return 10;
     }
 
@@ -55,40 +53,40 @@ public class VariableClientScreenModule implements IClientScreenModule<ModuleDat
     }
 
     @Override
-    public void mouseClick(Level world, int x, int y, boolean clicked) {
-
+    public void mouseClick(ItemStack moduleStack, Level world, int x, int y, boolean clicked) {
     }
 
-    @Override
-    public void setupFromNBT(CompoundTag tagCompound, ResourceKey<Level> dim, BlockPos pos) {
-        if (tagCompound != null) {
-            int varIdx = -1;
-            if (tagCompound.contains("varIdx")) {
-                varIdx = tagCompound.getInt("varIdx");
-            } else {
-                varIdx = -1;
-            }
-            line = tagCompound.getString("text");
-            int color = 0xffffff;
-            if (tagCompound.contains("color")) {
-                color = tagCompound.getInt("color");
-            } else {
-                color = 0xffffff;
-            }
-            int varcolor = 0xffffff;
-            if (tagCompound.contains("varcolor")) {
-                varcolor = tagCompound.getInt("varcolor");
-            } else {
-                varcolor = 0xffffff;
-            }
-            if (tagCompound.contains("align")) {
-                String alignment = tagCompound.getString("align");
-                textAlign = TextAlign.get(alignment);
-            } else {
-                textAlign = TextAlign.ALIGN_LEFT;
-            }
-        }
-    }
+    // @todo 1.21 data
+//    @Override
+//    public void setupFromNBT(CompoundTag tagCompound, ResourceKey<Level> dim, BlockPos pos) {
+//        if (tagCompound != null) {
+//            int varIdx = -1;
+//            if (tagCompound.contains("varIdx")) {
+//                varIdx = tagCompound.getInt("varIdx");
+//            } else {
+//                varIdx = -1;
+//            }
+//            line = tagCompound.getString("text");
+//            int color = 0xffffff;
+//            if (tagCompound.contains("color")) {
+//                color = tagCompound.getInt("color");
+//            } else {
+//                color = 0xffffff;
+//            }
+//            int varcolor = 0xffffff;
+//            if (tagCompound.contains("varcolor")) {
+//                varcolor = tagCompound.getInt("varcolor");
+//            } else {
+//                varcolor = 0xffffff;
+//            }
+//            if (tagCompound.contains("align")) {
+//                String alignment = tagCompound.getString("align");
+//                textAlign = TextAlign.get(alignment);
+//            } else {
+//                textAlign = TextAlign.ALIGN_LEFT;
+//            }
+//        }
+//    }
 
     @Override
     public boolean needsServerData() {

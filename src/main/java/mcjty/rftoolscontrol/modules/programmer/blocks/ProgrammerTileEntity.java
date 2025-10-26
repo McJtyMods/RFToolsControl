@@ -62,20 +62,22 @@ public class ProgrammerTileEntity extends GenericTileEntity {
             if (dummy.isEmpty()) {
                 return;
             }
-            if (!dummy.hasTag()) {
-                return;
-            }
+            // @todo 1.21 data
+//            if (!dummy.hasTag()) {
+//                return;
+//            }
             ItemStack card = items.getStackInSlot(SLOT_CARD);
             if (card.isEmpty()) {
                 return;
             }
-            ProgramCardInstance instance = ProgramCardInstance.parseInstance(dummy);
+            ProgramCardInstance instance = ProgramCardInstance.parseInstance(dummy, level.registryAccess());
             if (instance == null) {
                 return;
             }
             ProgramCardItem.setCardName(card, ProgramCardItem.getCardName(dummy));
-            Tag newGrid = dummy.getTag().get("grid").copy();
-            card.getTag().put("grid", newGrid);
+            // @todo 1.21 data
+//            Tag newGrid = dummy.getTag().get("grid").copy();
+//            card.getTag().put("grid", newGrid);
         }
     }
 

@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
-public record PacketGetFluids(BlockPos pos, ResourceKey<Level> type, TypedMap params, boolean fromTablet) implements CustomPacketPayload {
+public record PacketGetFluids(BlockPos pos, ResourceKey<Level> level, TypedMap params, boolean fromTablet) implements CustomPacketPayload {
 
     public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(RFToolsControl.MODID, "getfluids");
     public static final CustomPacketPayload.Type<PacketGetFluids> TYPE = new Type<>(ID);
@@ -33,7 +33,7 @@ public record PacketGetFluids(BlockPos pos, ResourceKey<Level> type, TypedMap pa
     public static final StreamCodec<RegistryFriendlyByteBuf, PacketGetFluids> CODEC = StreamCodec.of(
             (buf, packet) -> {
                 buf.writeBlockPos(packet.pos);
-                buf.writeResourceLocation(packet.type.location());
+                buf.writeResourceLocation(packet.level.location());
                 TypedMap.STREAM_CODEC.encode(buf, packet.params);
                 buf.writeBoolean(packet.fromTablet);
             },
@@ -54,7 +54,7 @@ public record PacketGetFluids(BlockPos pos, ResourceKey<Level> type, TypedMap pa
 
     public void handle(IPayloadContext ctx) {
         ctx.enqueueWork(() -> {
-            ServerLevel world = LevelTools.getLevel(ctx.player().getCommandSenderWorld(), type);
+            ServerLevel world = LevelTools.getLevel(ctx.player().getCommandSenderWorld(), level);
             if (world.hasChunkAt(pos)) {
                 BlockEntity te = world.getBlockEntity(pos);
                 if (te instanceof GenericTileEntity) {
@@ -71,12 +71,12 @@ public record PacketGetFluids(BlockPos pos, ResourceKey<Level> type, TypedMap pa
 
         public static class Serializer implements ISerializer<FluidEntry> {
             @Override
-            public Function<FriendlyByteBuf, FluidEntry> getDeserializer() {
+            public Function<RegistryFriendlyByteBuf, FluidEntry> getDeserializer() {
                 return FluidEntry::fromPacket;
             }
 
             @Override
-            public BiConsumer<FriendlyByteBuf, FluidEntry> getSerializer() {
+            public BiConsumer<RegistryFriendlyByteBuf, FluidEntry> getSerializer() {
                 return FluidEntry::toPacket;
             }
         }
@@ -86,7 +86,7 @@ public record PacketGetFluids(BlockPos pos, ResourceKey<Level> type, TypedMap pa
             this.allocated = allocated;
         }
 
-        public static FluidEntry fromPacket(FriendlyByteBuf buf) {
+        public static FluidEntry fromPacket(RegistryFriendlyByteBuf buf) {
             if (buf.readBoolean()) {
                 FluidStack fluidStack = null;
                 if (buf.readBoolean()) {
@@ -99,7 +99,7 @@ public record PacketGetFluids(BlockPos pos, ResourceKey<Level> type, TypedMap pa
             }
         }
 
-        public static void toPacket(FriendlyByteBuf buf, FluidEntry item) {
+        public static void toPacket(RegistryFriendlyByteBuf buf, FluidEntry item) {
             if (item == null) {
                 buf.writeBoolean(false);
             } else {

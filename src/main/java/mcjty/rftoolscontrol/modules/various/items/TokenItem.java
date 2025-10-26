@@ -27,7 +27,7 @@ public class TokenItem extends Item implements ITooltipSettings {
 
     public static final ManualEntry MANUAL = ManualHelper.create("rftoolscontrol:various/token");
 
-    private final Lazy<TooltipBuilder> tooltipBuilder = () -> new TooltipBuilder()
+    private final TooltipBuilder tooltipBuilder = new TooltipBuilder()
             .info(key("message.rftoolscontrol.shiftmessage"))
             .infoShift(header(),
                     gold(this::isEmpty),
@@ -40,34 +40,37 @@ public class TokenItem extends Item implements ITooltipSettings {
     }
 
     private boolean isEmpty(ItemStack stack) {
-        if (stack.hasTag()) {
-            CompoundTag parameter = stack.getTag().getCompound("parameter");
-            if (!parameter.isEmpty()) {
-                return false;
-            }
-        }
+        // @todo 1.21 data
+//        if (stack.hasTag()) {
+//            CompoundTag parameter = stack.getTag().getCompound("parameter");
+//            if (!parameter.isEmpty()) {
+//                return false;
+//            }
+//        }
         return true;
     }
 
     private String getParameterType(ItemStack stack) {
-        if (stack.hasTag()) {
-            CompoundTag parameter = stack.getTag().getCompound("parameter");
-            if (!parameter.isEmpty()) {
-                Parameter par = ParameterTools.readFromNBT(parameter);
-                return par.getParameterType().getName();
-            }
-        }
+        // @todo 1.21 data
+//        if (stack.hasTag()) {
+//            CompoundTag parameter = stack.getTag().getCompound("parameter");
+//            if (!parameter.isEmpty()) {
+//                Parameter par = ParameterTools.readFromNBT(parameter);
+//                return par.getParameterType().getName();
+//            }
+//        }
         return "<unknown>";
     }
 
     private String getParameterValue(ItemStack stack) {
-        if (stack.hasTag()) {
-            CompoundTag parameter = stack.getTag().getCompound("parameter");
-            if (!parameter.isEmpty()) {
-                Parameter par = ParameterTools.readFromNBT(parameter);
-                return ParameterTypeTools.stringRepresentation(par.getParameterType(), par.getParameterValue());
-            }
-        }
+        // @todo 1.21 data
+//        if (stack.hasTag()) {
+//            CompoundTag parameter = stack.getTag().getCompound("parameter");
+//            if (!parameter.isEmpty()) {
+//                Parameter par = ParameterTools.readFromNBT(parameter);
+//                return ParameterTypeTools.stringRepresentation(par.getParameterType(), par.getParameterValue());
+//            }
+//        }
         return "<unknown>";
     }
 
@@ -77,8 +80,8 @@ public class TokenItem extends Item implements ITooltipSettings {
 
 
     @Override
-    public void appendHoverText(@Nonnull ItemStack stack, @Nullable Level worldIn, @Nonnull List<Component> list, @Nonnull TooltipFlag flag) {
-        super.appendHoverText(stack, worldIn, list, flag);
-        tooltipBuilder.get().makeTooltip(Tools.getId(this), stack, list, flag);
+    public void appendHoverText(@Nonnull ItemStack stack, TooltipContext context, @Nonnull List<Component> list, @Nonnull TooltipFlag flag) {
+        super.appendHoverText(stack, context, list, flag);
+        tooltipBuilder.makeTooltip(Tools.getId(this), stack, list, flag);
     }
 }

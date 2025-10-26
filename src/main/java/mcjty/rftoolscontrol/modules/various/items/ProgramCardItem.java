@@ -3,7 +3,6 @@ package mcjty.rftoolscontrol.modules.various.items;
 import mcjty.lib.builder.TooltipBuilder;
 import mcjty.lib.gui.ManualEntry;
 import mcjty.lib.tooltips.ITooltipSettings;
-import mcjty.lib.varia.NBTTools;
 import mcjty.lib.varia.Tools;
 import mcjty.rftoolsbase.tools.ManualHelper;
 import mcjty.rftoolscontrol.RFToolsControl;
@@ -26,8 +25,8 @@ public class ProgramCardItem extends Item implements ITooltipSettings {
 
     public static final ManualEntry MANUAL = ManualHelper.create("rftoolscontrol:various/program_card");
 
-    private final Lazy<TooltipBuilder> tooltipBuilder = () -> new TooltipBuilder()
-            .info(header(), parameter("name", stack -> NBTTools.getString(stack, "name", "<unset>")));
+    private final TooltipBuilder tooltipBuilder = new TooltipBuilder()
+            .info(header(), parameter("name", stack -> getCardName(stack)));
 
     public ProgramCardItem() {
         super(RFToolsControl.setup.defaultProperties().stacksTo(1));
@@ -39,23 +38,25 @@ public class ProgramCardItem extends Item implements ITooltipSettings {
     }
 
     @Override
-    public void appendHoverText(@Nonnull ItemStack stack, @Nullable Level worldIn, @Nonnull List<Component> list, @Nonnull TooltipFlag flag) {
-        super.appendHoverText(stack, worldIn, list, flag);
-        tooltipBuilder.get().makeTooltip(Tools.getId(this), stack, list, flag);
+    public void appendHoverText(@Nonnull ItemStack stack, @Nullable TooltipContext context, @Nonnull List<Component> list, @Nonnull TooltipFlag flag) {
+        super.appendHoverText(stack, context, list, flag);
+        tooltipBuilder.makeTooltip(Tools.getId(this), stack, list, flag);
     }
 
     public static String getCardName(ItemStack stack) {
-        CompoundTag tagCompound = stack.getTag();
-        if (tagCompound != null) {
-            return tagCompound.getString("name");
-        } else {
+        // @todo 1.21 data
+//        CompoundTag tagCompound = stack.getTag();
+//        if (tagCompound != null) {
+//            return tagCompound.getString("name");
+//        } else {
             return "";
-        }
+//        }
     }
 
     public static void setCardName(ItemStack stack, String name) {
-        CompoundTag tagCompound = stack.getOrCreateTag();
-        tagCompound.putString("name", name);
+        // @todo 1.21 data
+//        CompoundTag tagCompound = stack.getOrCreateTag();
+//        tagCompound.putString("name", name);
     }
 
 }

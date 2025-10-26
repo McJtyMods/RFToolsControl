@@ -9,8 +9,10 @@ import mcjty.rftoolsbase.api.control.parameters.*;
 import mcjty.rftoolscontrol.modules.processor.logic.registry.InventoryUtil;
 import mcjty.rftoolscontrol.modules.processor.logic.running.ExceptionType;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.fluids.FluidStack;
 
@@ -20,7 +22,7 @@ import java.util.*;
 
 public class ParameterTools {
 
-    public static Parameter readFromBuf(FriendlyByteBuf buf) {
+    public static Parameter readFromBuf(RegistryFriendlyByteBuf buf) {
         byte b = buf.readByte();
         if (b == -1) {
             return null;
@@ -67,7 +69,7 @@ public class ParameterTools {
         return builder.build();
     }
 
-    public static void writeToBuf(FriendlyByteBuf buf, Parameter parameter) {
+    public static void writeToBuf(RegistryFriendlyByteBuf buf, Parameter parameter) {
         buf.writeByte(parameter.getParameterType().ordinal());
         Object value = parameter.getParameterValue().getValue();
         if (value == null) {
@@ -140,18 +142,18 @@ public class ParameterTools {
         }
     }
 
-    public static CompoundTag writeToNBT(Parameter parameter) {
+    public static CompoundTag writeToNBT(Parameter parameter, HolderLookup.Provider provider) {
         ParameterType type = parameter.getParameterType();
         ParameterValue value = parameter.getParameterValue();
         CompoundTag parTag = new CompoundTag();
         parTag.putInt("type", type.ordinal());
-        ParameterTypeTools.writeToNBT(parTag, type, value);
+        ParameterTypeTools.writeToNBT(parTag, type, value, provider);
         return parTag;
     }
 
-    public static Parameter readFromNBT(CompoundTag parTag) {
+    public static Parameter readFromNBT(CompoundTag parTag, HolderLookup.Provider provider) {
         ParameterType type = ParameterType.values()[parTag.getInt("type")];
-        ParameterValue value = ParameterTypeTools.readFromNBT(parTag, type);
+        ParameterValue value = ParameterTypeTools.readFromNBT(parTag, type, provider);
         return Parameter.builder().type(type).value(value).build();
     }
 

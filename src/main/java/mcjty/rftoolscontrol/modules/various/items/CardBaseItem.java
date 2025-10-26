@@ -19,7 +19,7 @@ import static mcjty.lib.builder.TooltipBuilder.header;
 
 public class CardBaseItem extends Item implements ITooltipSettings {
 
-    private final Lazy<TooltipBuilder> tooltipBuilder = () -> new TooltipBuilder()
+    private final TooltipBuilder tooltipBuilder = new TooltipBuilder()
             .info(header());
 
     public CardBaseItem() {
@@ -27,8 +27,8 @@ public class CardBaseItem extends Item implements ITooltipSettings {
     }
 
     @Override
-    public void appendHoverText(@Nullable ItemStack stack, @Nullable Level worldIn, @Nonnull List<Component> list, @Nonnull TooltipFlag flag) {
-        super.appendHoverText(stack, worldIn, list, flag);
-        tooltipBuilder.get().makeTooltip(Tools.getId(this), stack, list, flag);
+    public void appendHoverText(@Nullable ItemStack stack, TooltipContext context, @Nonnull List<Component> list, @Nonnull TooltipFlag flag) {
+        super.appendHoverText(stack, context, list, flag);
+        tooltipBuilder.makeTooltip(Tools.getId(this), stack, list, flag);
     }
 }

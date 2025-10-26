@@ -15,6 +15,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.items.IItemHandler;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
@@ -146,13 +147,14 @@ public class Opcodes {
             .runnable(((processor, program, opcode) -> {
                 Inventory inv = processor.evaluateInventoryParameterNonNull(opcode, program, 0);
                 int slot = processor.evaluateIntParameter(opcode, program, 1);
-                processor.getItemHandlerAt(inv).ifPresent(handler -> {
+                IItemHandler handler = processor.getItemHandlerAt(inv);
+                if (handler != null) {
                     ItemStack item = handler.getStackInSlot(slot);
                     if (!item.isEmpty()) {
                         item = item.copy();
                     }
                     program.setLastValue(Parameter.builder().type(PAR_ITEM).value(ParameterValue.constant(item)).build());
-                });
+                }
                 return POSITIVE;
             }))
             .build();

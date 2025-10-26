@@ -73,7 +73,7 @@ public record PacketFluidsReady(@Nullable BlockPos pos, String command, List<Pac
                     Logging.log("Container is missing!");
                     return;
                 }
-                te = container.getTe();
+                te = container.getBe();
             } else {
                 te = SafeClientTools.getClientWorld().getBlockEntity(pos);
             }

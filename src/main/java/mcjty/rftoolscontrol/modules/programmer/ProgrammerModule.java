@@ -15,16 +15,17 @@ import mcjty.rftoolscontrol.setup.Registration;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.BlockItem;
-import net.neoforged.neoforge.common.Tags;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
+import net.neoforged.neoforge.common.Tags;
 
 import java.util.function.Supplier;
 
 import static mcjty.lib.datagen.DataGen.has;
-import static mcjty.rftoolscontrol.RFToolsControl.tab;
-import static mcjty.rftoolscontrol.setup.Registration.*;
+import static mcjty.rftoolscontrol.setup.Registration.CONTAINERS;
+import static mcjty.rftoolscontrol.setup.Registration.RBLOCKS;
 
 public class ProgrammerModule implements IModule {
 
@@ -37,6 +38,10 @@ public class ProgrammerModule implements IModule {
     );
     public static final Supplier<MenuType<GenericContainer>> PROGRAMMER_CONTAINER = CONTAINERS.register("programmer", GenericContainer::createContainerType);
 
+    public ProgrammerModule(IEventBus bus) {
+        bus.addListener(this::registerMenuScreens);
+    }
+
     @Override
     public void init(FMLCommonSetupEvent event) {
 
@@ -44,10 +49,11 @@ public class ProgrammerModule implements IModule {
 
     @Override
     public void initClient(FMLClientSetupEvent event) {
-        event.enqueueWork(() -> {
-            GuiProgrammer.register();
-        });
         ParameterEditors.init();
+    }
+
+    public void registerMenuScreens(RegisterMenuScreensEvent event) {
+        GuiProgrammer.register(event);
     }
 
     @Override

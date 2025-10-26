@@ -30,7 +30,7 @@ import static mcjty.lib.builder.TooltipBuilder.*;
 
 public class NetworkIdentifierItem extends Item implements ITooltipSettings {
 
-    private final Lazy<TooltipBuilder> tooltipBuilder = () -> new TooltipBuilder()
+    private final TooltipBuilder tooltipBuilder = new TooltipBuilder()
             .info(header(),
                     gold(stack -> !ModuleTools.hasModuleTarget(stack)),
                     parameter("target", ModuleTools::hasModuleTarget, ModuleTools::getTargetString));
@@ -42,9 +42,9 @@ public class NetworkIdentifierItem extends Item implements ITooltipSettings {
     }
 
     @Override
-    public void appendHoverText(@Nonnull ItemStack itemStack, @Nullable Level worldIn, @Nonnull List<Component> list, @Nonnull TooltipFlag flag) {
-        super.appendHoverText(itemStack, worldIn, list, flag);
-        tooltipBuilder.get().makeTooltip(Tools.getId(this), itemStack, list, flag);
+    public void appendHoverText(@Nonnull ItemStack itemStack, TooltipContext context, @Nonnull List<Component> list, @Nonnull TooltipFlag flag) {
+        super.appendHoverText(itemStack, context, list, flag);
+        tooltipBuilder.makeTooltip(Tools.getId(this), itemStack, list, flag);
     }
 
     @Nonnull
@@ -57,7 +57,7 @@ public class NetworkIdentifierItem extends Item implements ITooltipSettings {
         ItemStack stack = player.getItemInHand(hand);
         BlockState state = world.getBlockState(pos);
         Block block = state.getBlock();
-        CompoundTag tagCompound = stack.getTag();
+        CompoundTag tagCompound = null;// @todo 1.21 data stack.getTag();
         if (tagCompound == null) {
             tagCompound = new CompoundTag();
         }
@@ -79,7 +79,7 @@ public class NetworkIdentifierItem extends Item implements ITooltipSettings {
                 Logging.message(player, "Network identifier is cleared");
             }
         }
-        stack.setTag(tagCompound);
+//        stack.setTag(tagCompound);
         return InteractionResult.SUCCESS;
     }
 

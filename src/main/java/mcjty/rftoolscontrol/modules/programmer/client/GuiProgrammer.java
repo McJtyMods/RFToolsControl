@@ -37,14 +37,16 @@ import mcjty.rftoolscontrol.modules.programmer.network.PacketUpdateNBTItemInvent
 import mcjty.rftoolscontrol.modules.various.items.ProgramCardItem;
 import mcjty.rftoolscontrol.setup.Config;
 import mcjty.rftoolscontrol.setup.RFToolsCtrlMessages;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.ChatFormatting;
+import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.lwjgl.glfw.GLFW;
@@ -119,8 +121,8 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Gen
         errorIcon2 = new ImageIcon("E2").setDimensions(ICONSIZE, ICONSIZE).setImage(icons, 2 * ICONSIZE, 8 * ICONSIZE);
     }
 
-    public GuiProgrammer(ProgrammerTileEntity te, GenericContainer container, Inventory inventory) {
-        super(te, container, inventory, ProgrammerModule.PROGRAMMER.block().get().getManualEntry());
+    public GuiProgrammer(GenericContainer container, Inventory inventory, Component title) {
+        super(container, inventory, title, ProgrammerModule.PROGRAMMER.block().get().getManualEntry());
 
         imageWidth = WIDTH;
         imageHeight = HEIGHT;
@@ -128,8 +130,8 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Gen
         initIcons();
     }
 
-    public static void register() {
-        register(ProgrammerModule.PROGRAMMER_CONTAINER.get(), GuiProgrammer::new);
+    public static void register(RegisterMenuScreensEvent event) {
+        event.register(ProgrammerModule.PROGRAMMER_CONTAINER.get(), GuiProgrammer::new);
     }
 
     private void initIcons() {
@@ -612,7 +614,8 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Gen
     }
 
     private void askNameAndSave(int slot) {
-        ItemStack card = tileEntity.getItems().getStackInSlot(slot);
+        ProgrammerTileEntity be = getBE();
+        ItemStack card = be.getItems().getStackInSlot(slot);
         if (card.isEmpty()) {
             GuiPopupTools.showMessage(minecraft, this, getWindowManager(), 50, 50, "No card!");
             return;
@@ -626,7 +629,8 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Gen
     }
 
     private void saveProgram(int slot, String name) {
-        ItemStack card = tileEntity.getItems().getStackInSlot(slot);
+        ProgrammerTileEntity be = getBE();
+        ItemStack card = be.getItems().getStackInSlot(slot);
         if (card.isEmpty()) {
             return;
         }
@@ -635,8 +639,9 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Gen
         }
         ProgramCardInstance instance = makeGridInstance(false);
         instance.writeToNBT(card);
-        RFToolsCtrlMessages.sendToServer(PacketUpdateNBTItemInventoryProgrammer.create(tileEntity.getBlockPos(),
-                slot, card.getTag()));
+        // @todo 1.21 data
+//        RFToolsCtrlMessages.sendToServer(PacketUpdateNBTItemInventoryProgrammer.create(be.getBlockPos(),
+//                slot, card.getTag()));
     }
 
     private ProgramCardInstance makeGridInstance(boolean selectionOnly) {
@@ -684,12 +689,13 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Gen
     }
 
     private void loadProgram(int slot) {
-        ItemStack card = tileEntity.getItems().getStackInSlot(slot);
+        ProgrammerTileEntity be = getBE();
+        ItemStack card = be.getItems().getStackInSlot(slot);
         if (card.isEmpty()) {
             return;
         }
         clearGrid(false);
-        ProgramCardInstance instance = ProgramCardInstance.parseInstance(card);
+        ProgramCardInstance instance = ProgramCardInstance.parseInstance(card, minecraft.level.registryAccess());
         if (instance == null) {
             return;
         }
@@ -1194,7 +1200,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Gen
 
     @Override
     protected void renderBg(@Nonnull GuiGraphics graphics, float partialTicks, int mouseX, int mouseY) {
-        drawWindow(graphics, xxx, xxx, yyy);
+        drawWindow(graphics, partialTicks, mouseX, mouseY);
 
         trashcan.setIcon(null);
         saveCounter--;

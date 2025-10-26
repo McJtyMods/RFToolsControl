@@ -38,7 +38,6 @@ public record PacketUpdateNBTItemInventoryProgrammer(BlockPos pos, int slotIndex
     }
 
     @Override
-    @Override
     public Type<? extends CustomPacketPayload> type() {
         return TYPE;
     }
@@ -54,9 +53,10 @@ public record PacketUpdateNBTItemInventoryProgrammer(BlockPos pos, int slotIndex
                 IItemHandler handler = world.getCapability(Capabilities.ItemHandler.BLOCK, pos, null);
                 if (handler != null) {
                     ItemStack stack = handler.getStackInSlot(slotIndex);
-                    if (!stack.isEmpty()) {
-                        stack.setTag(tagCompound);
-                    }
+                    // @todo 1.21 data
+//                    if (!stack.isEmpty()) {
+//                        stack.setTag(tagCompound);
+//                    }
                     te.setChanged();
                 }
             }

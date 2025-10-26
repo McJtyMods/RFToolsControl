@@ -13,16 +13,9 @@ import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.rftoolscontrol.modules.various.VariousModule;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.MenuProvider;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.CraftingContainer;
-import net.minecraft.world.inventory.TransientCraftingContainer;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Recipe;
-import net.minecraft.world.item.crafting.RecipeManager;
-import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.IBlockCapabilityProvider;
@@ -32,6 +25,7 @@ import net.neoforged.neoforge.items.IItemHandler;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.List;
 
 import static mcjty.lib.container.SlotDefinition.generic;
@@ -82,19 +76,20 @@ public class WorkbenchTileEntity extends GenericTileEntity {
     }
 
 
-    @Override
-    protected void loadInfo(CompoundTag tagCompound) {
-        super.loadInfo(tagCompound);
-        CompoundTag info = tagCompound.getCompound("Info");
-        realItems = info.getInt("realItems");
-    }
-
-    @Override
-    protected void saveInfo(CompoundTag tagCompound) {
-        super.saveInfo(tagCompound);
-        CompoundTag info = getOrCreateInfo(tagCompound);
-        info.putInt("realItems", realItems);
-    }
+    // @todo 1.21 data
+//    @Override
+//    protected void loadInfo(CompoundTag tagCompound) {
+//        super.loadInfo(tagCompound);
+//        CompoundTag info = tagCompound.getCompound("Info");
+//        realItems = info.getInt("realItems");
+//    }
+//
+//    @Override
+//    protected void saveInfo(CompoundTag tagCompound) {
+//        super.saveInfo(tagCompound);
+//        CompoundTag info = getOrCreateInfo(tagCompound);
+//        info.putInt("realItems", realItems);
+//    }
 
     private boolean isCraftInputSlot(int slot) {
         return slot >= SLOT_CRAFTINPUT && slot < SLOT_CRAFTOUTPUT;
@@ -109,9 +104,10 @@ public class WorkbenchTileEntity extends GenericTileEntity {
     }
 
     @Nullable
-    private Recipe findRecipe(CraftingContainer workInventory) {
+    private Recipe findRecipe(CraftingInput workInventory) {
         RecipeManager manager = level.getRecipeManager();
-        for (Recipe r : manager.getRecipes()) {
+        for (RecipeHolder rh : manager.getRecipes()) {
+            Recipe r = rh.value();
             if (r != null && RecipeType.CRAFTING.equals(r.getType()) && r.matches(workInventory, level)) {
                 return r;
             }
@@ -121,7 +117,7 @@ public class WorkbenchTileEntity extends GenericTileEntity {
 
     private void updateRecipe() {
         if (items.getStackInSlot(SLOT_CRAFTOUTPUT).isEmpty() || realItems == 0) {
-            CraftingContainer workInventory = makeWorkInventory();
+            CraftingInput workInventory = makeWorkInventory();
             Recipe recipe = findRecipe(workInventory);
             if (recipe != null) {
                 ItemStack stack = BaseRecipe.assemble(recipe, workInventory, level);
@@ -132,23 +128,20 @@ public class WorkbenchTileEntity extends GenericTileEntity {
         }
     }
 
-    private CraftingContainer makeWorkInventory() {
-        CraftingContainer workInventory = new TransientCraftingContainer(new AbstractContainerMenu(null, -1) {
-            @SuppressWarnings("NullableProblems")
-            @Override
-            public boolean stillValid(Player var1) {
-                return false;
-            }
-
-            @Override
-            public ItemStack quickMoveStack(Player player, int slot) {
-                return ItemStack.EMPTY;
-            }
-        }, 3, 3);
-        for (int i = 0; i < 9; i++) {
-            workInventory.setItem(i, items.getStackInSlot(i + SLOT_CRAFTINPUT));
+    private static List<ItemStack> createList() {
+        List<ItemStack> list = new ArrayList<>();
+        for (int i = 0 ; i < 9 ; i++) {
+            list.add(ItemStack.EMPTY);
         }
-        return workInventory;
+        return list;
+    }
+
+    private CraftingInput makeWorkInventory() {
+        List<ItemStack> items = new ArrayList<>();
+        for (int i = 0; i < 9; i++) {
+            items.add(i, items.get(i + SLOT_CRAFTINPUT));
+        }
+        return CraftingInput.of(3, 3, items);
     }
 
     public void craftItem() {
@@ -177,7 +170,7 @@ public class WorkbenchTileEntity extends GenericTileEntity {
                     return super.extractItem(slot, amount, simulate);
                 } else {
                     if (isCraftOutput(slot) && realItems == 0) {
-                        CraftingContainer workInventory = makeWorkInventory();
+                        CraftingInput workInventory = makeWorkInventory();
                         Recipe recipe = findRecipe(workInventory);
                         if (recipe != null) {
                             crafting++;
@@ -192,7 +185,7 @@ public class WorkbenchTileEntity extends GenericTileEntity {
                                 if (!remainingItems.get(i).isEmpty()) {
                                     if (s.isEmpty()) {
                                         items.setStackInSlot(i + SLOT_CRAFTINPUT, remainingItems.get(i));
-                                    } else if (ItemStack.isSameItem(s, remainingItems.get(i)) && ItemStack.isSameItemSameTags(s, remainingItems.get(i))) {
+                                    } else if (ItemStack.isSameItem(s, remainingItems.get(i)) && ItemStack.isSameItemSameComponents(s, remainingItems.get(i))) {
                                         ItemStack stack = remainingItems.get(i);
                                         stack.grow(s.getCount());
                                         items.setStackInSlot(i + SLOT_CRAFTINPUT, remainingItems.get(i));

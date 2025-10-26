@@ -9,8 +9,10 @@ import mcjty.rftoolscontrol.modules.various.VariousModule;
 import mcjty.rftoolscontrol.modules.various.blocks.WorkbenchContainer;
 import mcjty.rftoolscontrol.modules.various.blocks.WorkbenchTileEntity;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.resources.ResourceLocation;
+import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 
 import javax.annotation.Nonnull;
 
@@ -24,15 +26,15 @@ public class GuiWorkbench extends GenericGuiContainer<WorkbenchTileEntity, Workb
 
     private static final ResourceLocation mainBackground = ResourceLocation.fromNamespaceAndPath(RFToolsControl.MODID, "textures/gui/workbench.png");
 
-    public GuiWorkbench(WorkbenchTileEntity te, WorkbenchContainer container, Inventory inventory) {
-        super(te, container, inventory, /*@todo 1.15 GuiProxy.GUI_MANUAL_CONTROL*/ ManualEntry.EMPTY);
+    public GuiWorkbench(WorkbenchContainer container, Inventory inventory, Component title) {
+        super(container, inventory, title, /*@todo 1.15 GuiProxy.GUI_MANUAL_CONTROL*/ ManualEntry.EMPTY);
 
         imageWidth = WIDTH;
         imageHeight = HEIGHT;
     }
 
-    public static void register() {
-        register(VariousModule.WORKBENCH_CONTAINER.get(), GuiWorkbench::new);
+    public static void register(RegisterMenuScreensEvent event) {
+        event.register(VariousModule.WORKBENCH_CONTAINER.get(), GuiWorkbench::new);
     }
 
     @Override
@@ -47,6 +49,6 @@ public class GuiWorkbench extends GenericGuiContainer<WorkbenchTileEntity, Workb
 
     @Override
     protected void renderBg(@Nonnull GuiGraphics graphics, float partialTicks, int mouseX, int mouseY) {
-        drawWindow(graphics, xxx, xxx, yyy);
+        drawWindow(graphics, partialTicks, mouseX, mouseY);
     }
 }

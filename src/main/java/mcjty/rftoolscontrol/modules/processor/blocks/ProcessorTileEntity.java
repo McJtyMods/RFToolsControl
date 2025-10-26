@@ -58,6 +58,7 @@ import mcjty.rftoolscontrol.setup.Config;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
@@ -333,7 +334,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
 
         setChanged();
         updateCores();
-        compileCards();
+        compileCards(level.registryAccess());
         processEventQueue();
         try {
             handleEvents();
@@ -1520,7 +1521,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         }
     }
 
-    private void compileCards() {
+    private void compileCards(HolderLookup.Provider provider) {
         if (cardsDirty) {
             cardsDirty = false;
             for (int i = ProcessorContainer.SLOT_CARD; i < ProcessorContainer.SLOT_CARD + CARD_SLOTS; i++) {
@@ -1529,7 +1530,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
                     int cardIndex = i - ProcessorContainer.SLOT_CARD;
                     if (cardInfo[cardIndex].getCompiledCard() == null) {
                         // @todo validation
-                        CompiledCard compiled = CompiledCard.compile(ProgramCardInstance.parseInstance(cardStack));
+                        CompiledCard compiled = CompiledCard.compile(ProgramCardInstance.parseInstance(cardStack, provider));
                         cardInfo[cardIndex].setCompiledCard(compiled);
                     }
                 }
@@ -2494,10 +2495,11 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
             throw new ProgException(EXCEPT_MISSINGSTORAGECARD);
         }
         ItemStack storageStack = items.getStackInSlot(card);
-        if (!storageStack.hasTag()) {
-            throw new ProgException(EXCEPT_MISSINGSTORAGECARD);
-        }
-        CompoundTag tagCompound = storageStack.getTag();
+        // @todo 1.21 data
+//        if (!storageStack.hasTag()) {
+//            throw new ProgException(EXCEPT_MISSINGSTORAGECARD);
+//        }
+        CompoundTag tagCompound = new CompoundTag();// = storageStack.getTag();
         BlockPos c = new BlockPos(tagCompound.getInt("monitorx"), tagCompound.getInt("monitory"), tagCompound.getInt("monitorz"));
         String dim = tagCompound.getString("monitordim");
         Level world = LevelTools.getLevel(LevelTools.getId(dim));
@@ -2689,7 +2691,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
     }
 
     @Override
-    public void loadClientDataFromNBT(CompoundTag tagCompound) {
+    public void loadClientDataFromNBT(CompoundTag tagCompound, HolderLookup.Provider provider) {
         CompoundTag info = tagCompound.getCompound("Info");
         if (info != null) {
             exclusive = info.getBoolean("exclusive");
@@ -2699,16 +2701,17 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
     }
 
     @Override
-    public void saveClientDataToNBT(CompoundTag tagCompound) {
-        CompoundTag info = getOrCreateInfo(tagCompound);
-        info.putBoolean("exclusive", exclusive);
-        info.putByte("hud", (byte) showHud);
-        writeCardInfo(info);
+    public void saveClientDataToNBT(CompoundTag tagCompound, HolderLookup.Provider provider) {
+        // @todo 1.21 data
+//        CompoundTag info = getOrCreateInfo(tagCompound);
+//        info.putBoolean("exclusive", exclusive);
+//        info.putByte("hud", (byte) showHud);
+//        writeCardInfo(info);
     }
 
     @Override
-    public void load(CompoundTag tagCompound) {
-        super.load(tagCompound);
+    public void loadAdditional(CompoundTag tagCompound, HolderLookup.Provider provider) {
+        super.loadAdditional(tagCompound, provider);
         prevIn = tagCompound.getInt("prevIn");
         for (int i = 0; i < 6; i++) {
             powerOut[i] = tagCompound.getByte("p" + i);
@@ -2716,42 +2719,43 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
     }
 
     @Override
-    public void saveAdditional(@Nonnull CompoundTag tagCompound) {
-        super.saveAdditional(tagCompound);
+    public void saveAdditional(@Nonnull CompoundTag tagCompound, HolderLookup.Provider provider) {
+        super.saveAdditional(tagCompound, provider);
         tagCompound.putInt("prevIn", prevIn);
         for (int i = 0; i < 6; i++) {
             tagCompound.putByte("p" + i, (byte) powerOut[i]);
         }
     }
 
-    @Override
-    protected void loadInfo(CompoundTag tagCompound) {
-        super.loadInfo(tagCompound);
-        CompoundTag info = tagCompound.getCompound("Info");
-        tickCount = info.getInt("tickCount");
-        channel = info.getString("channel");
-        exclusive = info.getBoolean("exclusive");
-        showHud = info.getByte("hud");
-        if (info.contains("lastExc")) {
-            lastException = info.getString("lastExc");
-            lastExceptionTime = info.getLong("lastExcT");
-        } else {
-            lastException = null;
-            lastExceptionTime = 0;
-        }
-
-        readCardInfo(info);
-        readCores(info);
-        readEventQueue(info);
-        readLog(info);
-        readVariables(info);
-        readNetworkNodes(info);
-        readCraftingStations(info);
-        readWaitingForItems(info);
-        readLocks(info);
-        readRunningEvents(info);
-        readGraphicsOperations(info);
-    }
+    // @todo 1.21 data
+//    @Override
+//    protected void loadInfo(CompoundTag tagCompound) {
+//        super.loadInfo(tagCompound);
+//        CompoundTag info = tagCompound.getCompound("Info");
+//        tickCount = info.getInt("tickCount");
+//        channel = info.getString("channel");
+//        exclusive = info.getBoolean("exclusive");
+//        showHud = info.getByte("hud");
+//        if (info.contains("lastExc")) {
+//            lastException = info.getString("lastExc");
+//            lastExceptionTime = info.getLong("lastExcT");
+//        } else {
+//            lastException = null;
+//            lastExceptionTime = 0;
+//        }
+//
+//        readCardInfo(info);
+//        readCores(info);
+//        readEventQueue(info);
+//        readLog(info);
+//        readVariables(info);
+//        readNetworkNodes(info);
+//        readCraftingStations(info);
+//        readWaitingForItems(info);
+//        readLocks(info);
+//        readRunningEvents(info);
+//        readGraphicsOperations(info);
+//    }
 
     private void readGraphicsOperations(CompoundTag tagCompound) {
         gfxOps.clear();
@@ -2782,7 +2786,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         }
     }
 
-    private void readWaitingForItems(CompoundTag tagCompound) {
+    private void readWaitingForItems(CompoundTag tagCompound, HolderLookup.Provider provider) {
         waitingForItems.clear();
         ListTag waitingList = tagCompound.getList("waiting", Tag.TAG_COMPOUND);
         for (int i = 0; i < waitingList.size(); i++) {
@@ -2791,7 +2795,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
 
             ItemStack stack;
             if (tag.contains("item")) {
-                stack = ItemStack.of(tag.getCompound("item"));
+                stack = ItemStack.parseOptional(provider, tag.getCompound("item"));
             } else {
                 stack = ItemStack.EMPTY;
             }
@@ -2830,7 +2834,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         }
     }
 
-    private void readVariables(CompoundTag tagCompound) {
+    private void readVariables(CompoundTag tagCompound, HolderLookup.Provider provider) {
         for (int i = 0; i < MAXVARS; i++) {
             variables[i] = null;
             watchInfos[i] = null;
@@ -2839,7 +2843,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         for (int i = 0; i < varList.size(); i++) {
             CompoundTag var = varList.getCompound(i);
             int index = var.getInt("varidx");
-            variables[index] = ParameterTools.readFromNBT(var);
+            variables[index] = ParameterTools.readFromNBT(var, provider);
             if (var.contains("watch")) {
                 WatchInfo info = new WatchInfo(var.getBoolean("watch"));
                 watchInfos[index] = info;
@@ -2855,13 +2859,13 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         }
     }
 
-    private void readCores(CompoundTag tagCompound) {
+    private void readCores(CompoundTag tagCompound, HolderLookup.Provider provider) {
         ListTag coreList = tagCompound.getList("cores", Tag.TAG_COMPOUND);
         cpuCores.clear();
         coresDirty = false;
         for (int i = 0; i < coreList.size(); i++) {
             CpuCore core = new CpuCore();
-            core.readFromNBT(coreList.getCompound(i));
+            core.readFromNBT(coreList.getCompound(i), provider);
             cpuCores.add(core);
         }
         if (cpuCores.isEmpty()) {
@@ -2869,7 +2873,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         }
     }
 
-    private void readEventQueue(CompoundTag tagCompound) {
+    private void readEventQueue(CompoundTag tagCompound, HolderLookup.Provider provider) {
         eventQueue.clear();
         ListTag eventQueueList = tagCompound.getList("events", Tag.TAG_COMPOUND);
         for (int i = 0; i < eventQueueList.size(); i++) {
@@ -2880,7 +2884,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
             String ticket = tag.contains("ticket") ? tag.getString("ticket") : null;
             Parameter parameter = null;
             if (tag.contains("parameter")) {
-                parameter = ParameterTools.readFromNBT(tag.getCompound("parameter"));
+                parameter = ParameterTools.readFromNBT(tag.getCompound("parameter"), provider);
             }
             eventQueue.add(new QueuedEvent(card, new CompiledEvent(index, single), ticket, parameter));
         }
@@ -2893,31 +2897,32 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         }
     }
 
-    @Override
-    protected void saveInfo(CompoundTag tagCompound) {
-        super.saveInfo(tagCompound);
-        CompoundTag info = getOrCreateInfo(tagCompound);
-        info.putInt("tickCount", tickCount);
-        info.putString("channel", channel == null ? "" : channel);
-        info.putBoolean("exclusive", exclusive);
-        info.putByte("hud", (byte) showHud);
-        if (lastException != null) {
-            info.putString("lastExc", lastException);
-            info.putLong("lastExcT", lastExceptionTime);
-        }
-
-        writeCardInfo(info);
-        writeCores(info);
-        writeEventQueue(info);
-        writeLog(info);
-        writeVariables(info);
-        writeNetworkNodes(info);
-        writeCraftingStations(info);
-        writeWaitingForItems(info);
-        writeLocks(info);
-        writeRunningEvents(info);
-        writeGraphicsOperation(info);
-    }
+    // @todo 1.21 data
+//    @Override
+//    protected void saveInfo(CompoundTag tagCompound) {
+//        super.saveInfo(tagCompound);
+//        CompoundTag info = getOrCreateInfo(tagCompound);
+//        info.putInt("tickCount", tickCount);
+//        info.putString("channel", channel == null ? "" : channel);
+//        info.putBoolean("exclusive", exclusive);
+//        info.putByte("hud", (byte) showHud);
+//        if (lastException != null) {
+//            info.putString("lastExc", lastException);
+//            info.putLong("lastExcT", lastExceptionTime);
+//        }
+//
+//        writeCardInfo(info);
+//        writeCores(info);
+//        writeEventQueue(info);
+//        writeLog(info);
+//        writeVariables(info);
+//        writeNetworkNodes(info);
+//        writeCraftingStations(info);
+//        writeWaitingForItems(info);
+//        writeLocks(info);
+//        writeRunningEvents(info);
+//        writeGraphicsOperation(info);
+//    }
 
     private void writeGraphicsOperation(CompoundTag tagCompound) {
         CompoundTag opTag = new CompoundTag();
@@ -2946,7 +2951,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         tagCompound.put("locks", lockList);
     }
 
-    private void writeWaitingForItems(CompoundTag tagCompound) {
+    private void writeWaitingForItems(CompoundTag tagCompound, HolderLookup.Provider provider) {
         ListTag waitingList = new ListTag();
         for (WaitForItem waitingForItem : waitingForItems) {
             CompoundTag tag = new CompoundTag();
@@ -2955,7 +2960,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
                 tag.put("inv", InventoryUtil.writeToNBT(waitingForItem.inventory()));
             }
             if (!waitingForItem.itemStack().isEmpty()) {
-                tag.put("item", waitingForItem.itemStack().serializeNBT());
+                tag.put("item", waitingForItem.itemStack().save(provider));
             }
             waitingList.add(tag);
         }
@@ -2988,11 +2993,11 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         tagCompound.put("nodes", networkList);
     }
 
-    private void writeVariables(CompoundTag tagCompound) {
+    private void writeVariables(CompoundTag tagCompound, HolderLookup.Provider provider) {
         ListTag varList = new ListTag();
         for (int i = 0; i < MAXVARS; i++) {
             if (variables[i] != null) {
-                CompoundTag var = ParameterTools.writeToNBT(variables[i]);
+                CompoundTag var = ParameterTools.writeToNBT(variables[i], provider);
                 var.putInt("varidx", i);
                 if (watchInfos[i] != null) {
                     var.putBoolean("watch", watchInfos[i].isBreakOnChange());
@@ -3011,15 +3016,15 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         tagCompound.put("log", logList);
     }
 
-    private void writeCores(CompoundTag tagCompound) {
+    private void writeCores(CompoundTag tagCompound, HolderLookup.Provider provider) {
         ListTag coreList = new ListTag();
         for (CpuCore core : cpuCores) {
-            coreList.add(core.writeToNBT());
+            coreList.add(core.writeToNBT(provider));
         }
         tagCompound.put("cores", coreList);
     }
 
-    private void writeEventQueue(CompoundTag tagCompound) {
+    private void writeEventQueue(CompoundTag tagCompound, HolderLookup.Provider provider) {
         ListTag eventQueueList = new ListTag();
         for (QueuedEvent queuedEvent : eventQueue) {
             CompoundTag tag = new CompoundTag();
@@ -3030,7 +3035,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
                 tag.putString("ticket", queuedEvent.ticket());
             }
             if (queuedEvent.parameter() != null) {
-                CompoundTag parTag = ParameterTools.writeToNBT(queuedEvent.parameter());
+                CompoundTag parTag = ParameterTools.writeToNBT(queuedEvent.parameter(), provider);
                 tag.put("parameter", parTag);
             }
             eventQueueList.add(tag);
@@ -3103,7 +3108,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         CompiledCard card = info.getCompiledCard();
         ItemStack cardStack = items.getStackInSlot(index + ProcessorContainer.SLOT_CARD);
         if (card == null && !cardStack.isEmpty()) {
-            card = CompiledCard.compile(ProgramCardInstance.parseInstance(cardStack));
+            card = CompiledCard.compile(ProgramCardInstance.parseInstance(cardStack, level.registryAccess()));
             cardInfo[index].setCompiledCard(card);
         }
         return card;
@@ -3254,13 +3259,5 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
     public static final ListCommand<?, ?> CMD_GETFLUIDS = ListCommand.<ProcessorTileEntity, PacketGetFluids.FluidEntry>create("rftoolscontrol.processor.getFluids",
             (te, player, params) -> te.getFluids(),
             (te, player, params, list) -> GuiProcessor.storeFluidsForClient(list));
-
-    @Override
-    public AABB getRenderBoundingBox() {
-        int xCoord = getBlockPos().getX();
-        int yCoord = getBlockPos().getY();
-        int zCoord = getBlockPos().getZ();
-        return new AABB(xCoord, yCoord, zCoord, xCoord + 1, yCoord + 21, zCoord + 1);
-    }
 
 }

@@ -13,6 +13,7 @@ import mcjty.rftoolscontrol.modules.processor.logic.compiled.CompiledCard;
 import mcjty.rftoolscontrol.modules.processor.logic.compiled.CompiledEvent;
 import mcjty.rftoolscontrol.modules.processor.logic.compiled.CompiledOpcode;
 import mcjty.rftoolscontrol.setup.Config;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -242,7 +243,7 @@ public class RunningProgram implements IProgram {
         return opcodeCache;
     }
 
-    public void writeToNBT(CompoundTag tag) {
+    public void writeToNBT(CompoundTag tag, HolderLookup.Provider provider) {
         tag.putInt("card", cardIndex);
         tag.putInt("current", current);
         tag.putInt("event", eventIndex);
@@ -257,7 +258,7 @@ public class RunningProgram implements IProgram {
         if (lastValue != null) {
             CompoundTag varTag = new CompoundTag();
             varTag.putInt("type", lastValue.getParameterType().ordinal());
-            ParameterTypeTools.writeToNBT(varTag, lastValue.getParameterType(), lastValue.getParameterValue());
+            ParameterTypeTools.writeToNBT(varTag, lastValue.getParameterType(), lastValue.getParameterValue(), provider);
             tag.put("lastvar", varTag);
         }
         if (!loopStack.isEmpty()) {
@@ -272,7 +273,7 @@ public class RunningProgram implements IProgram {
         }
     }
 
-    public static RunningProgram readFromNBT(CompoundTag tag) {
+    public static RunningProgram readFromNBT(CompoundTag tag, HolderLookup.Provider provider) {
         if (!tag.contains("card")) {
             return null;
         }
@@ -292,7 +293,7 @@ public class RunningProgram implements IProgram {
             CompoundTag varTag = tag.getCompound("lastvar");
             int t = varTag.getInt("type");
             ParameterType type = ParameterType.values()[t];
-            program.lastValue = Parameter.builder().type(type).value(ParameterTypeTools.readFromNBT(varTag, type)).build();
+            program.lastValue = Parameter.builder().type(type).value(ParameterTypeTools.readFromNBT(varTag, type, provider)).build();
         }
         if (tag.contains("loopStack")) {
             program.loopStack.clear();

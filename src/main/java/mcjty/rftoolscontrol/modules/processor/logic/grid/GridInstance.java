@@ -11,6 +11,7 @@ import mcjty.rftoolsbase.api.control.parameters.ParameterValue;
 import mcjty.rftoolscontrol.modules.processor.logic.Connection;
 import mcjty.rftoolscontrol.modules.processor.logic.ParameterTools;
 import mcjty.rftoolscontrol.modules.processor.logic.registry.Opcodes;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -105,7 +106,7 @@ public class GridInstance {
         return builder.build();
     }
 
-    public CompoundTag writeToNBT(int x, int y) {
+    public CompoundTag writeToNBT(int x, int y, HolderLookup.Provider provider) {
         CompoundTag tag = new CompoundTag();
         tag.putInt("x", x);
         tag.putInt("y", y);
@@ -119,7 +120,7 @@ public class GridInstance {
 
         ListTag parList = new ListTag();
         for (Parameter parameter : getParameters()) {
-            CompoundTag nbt = ParameterTools.writeToNBT(parameter);
+            CompoundTag nbt = ParameterTools.writeToNBT(parameter, provider);
 
             parList.add(nbt);
         }
@@ -127,7 +128,7 @@ public class GridInstance {
         return tag;
     }
 
-    public static GridInstance readFromNBT(CompoundTag tag) {
+    public static GridInstance readFromNBT(CompoundTag tag, HolderLookup.Provider provider) {
         String opcodeid = tag.getString("id");
         GridInstance.Builder builder = GridInstance.builder(opcodeid);
         if (tag.contains("prim")) {
@@ -147,7 +148,7 @@ public class GridInstance {
         ListTag parList = tag.getList("pars", Tag.TAG_COMPOUND);
         for (int i = 0 ; i < parList.size() ; i++) {
             CompoundTag parTag = (CompoundTag) parList.get(i);
-            Parameter parameter = ParameterTools.readFromNBT(parTag);
+            Parameter parameter = ParameterTools.readFromNBT(parTag, provider);
             if (parameter.getParameterType() != parameters.get(i).getType()) {
                 // Sanity check
                 builder.parameter(Parameter.builder().type(parameters.get(i).getType()).value(ParameterValue.constant(null)).build());

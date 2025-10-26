@@ -25,7 +25,7 @@ public class NetworkCardItem extends Item implements ITooltipSettings {
     public static final int TIER_NORMAL = 0;
     public static final int TIER_ADVANCED = 1;
 
-    private final Lazy<TooltipBuilder> tooltipBuilder = () -> new TooltipBuilder()
+    private final TooltipBuilder tooltipBuilder = new TooltipBuilder()
             .info(header(),
                     gold(),
                     general("range", ChatFormatting.GREEN),
@@ -42,8 +42,8 @@ public class NetworkCardItem extends Item implements ITooltipSettings {
 
 
     @Override
-    public void appendHoverText(@Nonnull ItemStack stack, @Nullable Level worldIn, @Nonnull List<Component> list, @Nonnull TooltipFlag flag) {
-        super.appendHoverText(stack, worldIn, list, flag);
-        tooltipBuilder.get().makeTooltip(Tools.getId(this), stack, list, flag);
+    public void appendHoverText(@Nonnull ItemStack stack, TooltipContext context, @Nonnull List<Component> list, @Nonnull TooltipFlag flag) {
+        super.appendHoverText(stack, context, list, flag);
+        tooltipBuilder.makeTooltip(Tools.getId(this), stack, list, flag);
     }
 }

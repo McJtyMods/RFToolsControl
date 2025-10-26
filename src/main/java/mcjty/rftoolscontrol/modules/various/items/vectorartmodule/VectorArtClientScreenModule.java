@@ -11,6 +11,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
 import java.util.List;
@@ -18,12 +19,12 @@ import java.util.List;
 public class VectorArtClientScreenModule implements IClientScreenModule<ModuleDataVectorArt> {
 
     @Override
-    public TransformMode getTransformMode() {
+    public TransformMode getTransformMode(ItemStack moduleStack) {
         return TransformMode.TEXT;
     }
 
     @Override
-    public int getHeight() {
+    public int getHeight(ItemStack moduleStack) {
         return 114;
     }
 
@@ -40,13 +41,13 @@ public class VectorArtClientScreenModule implements IClientScreenModule<ModuleDa
     }
 
     @Override
-    public void mouseClick(Level world, int x, int y, boolean clicked) {
-
+    public void mouseClick(ItemStack moduleStack, Level world, int x, int y, boolean clicked) {
     }
 
-    @Override
-    public void setupFromNBT(CompoundTag tagCompound, ResourceKey<Level> dim, BlockPos pos) {
-    }
+    // @todo 1.21 data
+//    @Override
+//    public void setupFromNBT(CompoundTag tagCompound, ResourceKey<Level> dim, BlockPos pos) {
+//    }
 
     @Override
     public boolean needsServerData() {

@@ -79,7 +79,7 @@ public record PacketVariablesReady(@Nullable BlockPos pos, String command, List<
                     Logging.log("Container is missing!");
                     return;
                 }
-                te = container.getTe();
+                te = container.getBe();
             } else {
                 te = SafeClientTools.getClientWorld().getBlockEntity(pos);
             }

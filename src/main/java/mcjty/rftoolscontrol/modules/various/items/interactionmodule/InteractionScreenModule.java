@@ -14,13 +14,15 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
-public class InteractionScreenModule implements IScreenModule<IModuleDataBoolean> {
+public class InteractionScreenModule implements IScreenModule<InteractionScreenModule, IModuleDataBoolean> {
     private BlockPos coordinate = BlockPosTools.INVALID;
     private String line = "";
     private String signal = "";
@@ -30,32 +32,33 @@ public class InteractionScreenModule implements IScreenModule<IModuleDataBoolean
         return null;
     }
 
-    @Override
-    public void setupFromNBT(CompoundTag tagCompound, ResourceKey<Level> dim, BlockPos pos) {
-        if (tagCompound != null) {
-            line = tagCompound.getString("text");
-            signal = tagCompound.getString("signal");
-            coordinate = BlockPosTools.INVALID;
-            if (tagCompound.contains("monitorx")) {
-                ResourceKey<Level> dim1 = Level.OVERWORLD;
-                if (tagCompound.contains("monitordim")) {
-                    dim1 = LevelTools.getId(tagCompound.getString("monitordim"));
-                } else {
-                    // Compatibility reasons
-                    dim1 = LevelTools.getId(tagCompound.getString("dim"));
-                }
-                if (Objects.equals(dim, dim1)) {
-                    BlockPos c = new BlockPos(tagCompound.getInt("monitorx"), tagCompound.getInt("monitory"), tagCompound.getInt("monitorz"));
-                    int dx = Math.abs(c.getX() - pos.getX());
-                    int dy = Math.abs(c.getY() - pos.getY());
-                    int dz = Math.abs(c.getZ() - pos.getZ());
-                    if (dx <= 64 && dy <= 64 && dz <= 64) {
-                        coordinate = c;
-                    }
-                }
-            }
-        }
-    }
+    // @todo 1.21
+//    @Override
+//    public void setupFromNBT(CompoundTag tagCompound, ResourceKey<Level> dim, BlockPos pos) {
+//        if (tagCompound != null) {
+//            line = tagCompound.getString("text");
+//            signal = tagCompound.getString("signal");
+//            coordinate = BlockPosTools.INVALID;
+//            if (tagCompound.contains("monitorx")) {
+//                ResourceKey<Level> dim1 = Level.OVERWORLD;
+//                if (tagCompound.contains("monitordim")) {
+//                    dim1 = LevelTools.getId(tagCompound.getString("monitordim"));
+//                } else {
+//                    // Compatibility reasons
+//                    dim1 = LevelTools.getId(tagCompound.getString("dim"));
+//                }
+//                if (Objects.equals(dim, dim1)) {
+//                    BlockPos c = new BlockPos(tagCompound.getInt("monitorx"), tagCompound.getInt("monitory"), tagCompound.getInt("monitorz"));
+//                    int dx = Math.abs(c.getX() - pos.getX());
+//                    int dy = Math.abs(c.getY() - pos.getY());
+//                    int dz = Math.abs(c.getZ() - pos.getZ());
+//                    if (dx <= 64 && dy <= 64 && dz <= 64) {
+//                        coordinate = c;
+//                    }
+//                }
+//            }
+//        }
+//    }
 
     @Override
     public int getRfPerTick() {
@@ -63,7 +66,12 @@ public class InteractionScreenModule implements IScreenModule<IModuleDataBoolean
     }
 
     @Override
-    public void mouseClick(Level world, int x, int y, boolean clicked, Player player) {
+    public InteractionScreenModule validate(Level world, BlockPos pos, boolean isPlus) {
+        return this;
+    }
+
+    @Override
+    public @NotNull ItemStack mouseClick(ItemStack moduleStack, Level world, int x, int y, boolean clicked, Player player) {
         int xoffset;
         if (!line.isEmpty()) {
             xoffset = 80;
@@ -73,12 +81,12 @@ public class InteractionScreenModule implements IScreenModule<IModuleDataBoolean
         if (x >= xoffset) {
             if (coordinate.getY() != -1) {
                 if (!LevelTools.isLoaded(world, coordinate)) {
-                    return;
+                    return moduleStack;
                 }
 
                 Block block = world.getBlockState(coordinate).getBlock();
                 if (block != ProcessorModule.PROCESSOR.block().get()) {
-                    return;
+                    return moduleStack;
                 }
 
                 if (clicked) {
@@ -91,6 +99,7 @@ public class InteractionScreenModule implements IScreenModule<IModuleDataBoolean
                 player.displayClientMessage(ComponentFactory.literal(ChatFormatting.RED + "Module is not linked to a processor!"), false);
             }
         }
+        return moduleStack;
     }
 
 }

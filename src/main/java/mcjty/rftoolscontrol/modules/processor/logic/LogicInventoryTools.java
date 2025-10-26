@@ -46,7 +46,7 @@ public class LogicInventoryTools {
         if (damage && item1.getDamageValue() != item2.getDamageValue()) {
             return false;
         }
-        if (nbt && !ItemStack.isSameItemSameTags(item1, item2)) {
+        if (nbt && !ItemStack.isSameItemSameComponents(item1, item2)) {
             return false;
         }
         return true;

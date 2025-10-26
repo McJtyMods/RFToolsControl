@@ -10,6 +10,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
 public class InteractionClientScreenModule implements IClientScreenModule<IModuleDataBoolean> {
@@ -22,12 +23,12 @@ public class InteractionClientScreenModule implements IClientScreenModule<IModul
     private ITextRenderHelper buttonCache = null;
 
     @Override
-    public TransformMode getTransformMode() {
+    public TransformMode getTransformMode(ItemStack moduleStack) {
         return TransformMode.TEXT;
     }
 
     @Override
-    public int getHeight() {
+    public int getHeight(ItemStack moduleStack) {
         return 14;
     }
 
@@ -66,7 +67,7 @@ public class InteractionClientScreenModule implements IClientScreenModule<IModul
     }
 
     @Override
-    public void mouseClick(Level world, int x, int y, boolean clicked) {
+    public void mouseClick(ItemStack moduleStack, Level world, int x, int y, boolean clicked) {
         int xoffset;
         if (!line.isEmpty()) {
             xoffset = 80;
@@ -79,31 +80,32 @@ public class InteractionClientScreenModule implements IClientScreenModule<IModul
         }
     }
 
-    @Override
-    public void setupFromNBT(CompoundTag tagCompound, ResourceKey<Level> dim, BlockPos pos) {
-        if (tagCompound != null) {
-            line = tagCompound.getString("text");
-            button = tagCompound.getString("button");
-            int color;
-            if (tagCompound.contains("color")) {
-                color = tagCompound.getInt("color");
-            } else {
-                color = 0xffffff;
-            }
-            int buttonColor;
-            if (tagCompound.contains("buttonColor")) {
-                buttonColor = tagCompound.getInt("buttonColor");
-            } else {
-                buttonColor = 0xffffff;
-            }
-            if (tagCompound.contains("align")) {
-                String alignment = tagCompound.getString("align");
-                textAlign = TextAlign.get(alignment);
-            } else {
-                textAlign = TextAlign.ALIGN_LEFT;
-            }
-        }
-    }
+    // @todo 1.21 data
+//    @Override
+//    public void setupFromNBT(CompoundTag tagCompound, ResourceKey<Level> dim, BlockPos pos) {
+//        if (tagCompound != null) {
+//            line = tagCompound.getString("text");
+//            button = tagCompound.getString("button");
+//            int color;
+//            if (tagCompound.contains("color")) {
+//                color = tagCompound.getInt("color");
+//            } else {
+//                color = 0xffffff;
+//            }
+//            int buttonColor;
+//            if (tagCompound.contains("buttonColor")) {
+//                buttonColor = tagCompound.getInt("buttonColor");
+//            } else {
+//                buttonColor = 0xffffff;
+//            }
+//            if (tagCompound.contains("align")) {
+//                String alignment = tagCompound.getString("align");
+//                textAlign = TextAlign.get(alignment);
+//            } else {
+//                textAlign = TextAlign.ALIGN_LEFT;
+//            }
+//        }
+//    }
 
     @Override
     public boolean needsServerData() {

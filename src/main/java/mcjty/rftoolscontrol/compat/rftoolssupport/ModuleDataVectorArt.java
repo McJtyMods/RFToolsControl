@@ -4,6 +4,7 @@ import mcjty.rftoolsbase.api.screens.data.IModuleData;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.modules.processor.vectorart.GfxOp;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 
 import java.util.List;
 import java.util.Map;
@@ -46,7 +47,7 @@ public class ModuleDataVectorArt implements IModuleData {
     }
 
     @Override
-    public void writeToBuf(FriendlyByteBuf buf) {
+    public void writeToBuf(RegistryFriendlyByteBuf buf) {
         if (operations == null) {
             buf.writeInt(0);
             return;

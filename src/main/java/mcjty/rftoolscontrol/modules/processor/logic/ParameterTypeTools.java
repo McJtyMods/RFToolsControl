@@ -10,6 +10,7 @@ import mcjty.rftoolsbase.api.control.parameters.*;
 import mcjty.rftoolscontrol.modules.processor.logic.registry.Functions;
 import mcjty.rftoolscontrol.modules.processor.logic.running.ExceptionType;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -102,7 +103,7 @@ public class ParameterTypeTools {
         }
     }
 
-    public static void writeToNBT(CompoundTag tag, ParameterType type, ParameterValue value) {
+    public static void writeToNBT(CompoundTag tag, ParameterType type, ParameterValue value, HolderLookup.Provider provider) {
         if (value.isVariable()) {
             tag.putInt("varIdx", value.getVariableIndex());
         } else if (value.isFunction()) {
@@ -111,11 +112,11 @@ public class ParameterTypeTools {
             // No value
             tag.putBoolean("null", true);
         } else {
-            writeToNBTInternal(tag, type, value.getValue());
+            writeToNBTInternal(tag, type, value.getValue(), provider);
         }
     }
 
-    public static ParameterValue readFromNBT(CompoundTag tag, ParameterType type) {
+    public static ParameterValue readFromNBT(CompoundTag tag, ParameterType type, HolderLookup.Provider provider) {
         if (tag.contains("varIdx")) {
             return ParameterValue.variable(tag.getInt("varIdx"));
         } else if (tag.contains("funId")) {
@@ -123,11 +124,11 @@ public class ParameterTypeTools {
         } else if (tag.contains("null")) {
             return ParameterValue.constant(null);
         } else {
-            return readFromNBTInternal(tag, type);
+            return readFromNBTInternal(tag, type, provider);
         }
     }
 
-    private static ParameterValue readFromNBTInternal(CompoundTag tag, ParameterType type) {
+    private static ParameterValue readFromNBTInternal(CompoundTag tag, ParameterType type, HolderLookup.Provider provider) {
         switch (type) {
             case PAR_STRING:
                 return ParameterValue.constant(tag.getString("v"));
@@ -169,7 +170,7 @@ public class ParameterTypeTools {
             case PAR_ITEM:
                 if (tag.contains("item")) {
                     CompoundTag tc = tag.getCompound("item");
-                    ItemStack stack = ItemStack.of(tc);
+                    ItemStack stack = ItemStack.parseOptional(provider, tc);
                     // Fix for 1.10 0-sized stacks
                     if (stack.getCount() == 0) {
                         stack.setCount(1);
@@ -180,7 +181,7 @@ public class ParameterTypeTools {
             case PAR_FLUID:
                 if (tag.contains("fluid")) {
                     CompoundTag tc = tag.getCompound("fluid");
-                    FluidStack stack = FluidStack.loadFluidStackFromNBT(tc);
+                    FluidStack stack = FluidStack.parseOptional(provider, tc);
                     return ParameterValue.constant(stack);
                 }
                 return ParameterValue.constant(null);
@@ -193,14 +194,14 @@ public class ParameterTypeTools {
                 ListTag array = tag.getList("vector", Tag.TAG_COMPOUND);
                 List<Parameter> vector = new ArrayList<>();
                 for (int i = 0 ; i < array.size() ; i++) {
-                    vector.add(ParameterTools.readFromNBT(array.getCompound(i)));
+                    vector.add(ParameterTools.readFromNBT(array.getCompound(i), provider));
                 }
                 return ParameterValue.constant(Collections.unmodifiableList(vector));
         }
         return ParameterValue.constant(null);
     }
 
-    private static void writeToNBTInternal(CompoundTag tag, ParameterType type, Object value) {
+    private static void writeToNBTInternal(CompoundTag tag, ParameterType type, Object value, HolderLookup.Provider provider) {
         switch (type) {
             case PAR_STRING:
                 tag.putString("v", (String) value);
@@ -245,14 +246,12 @@ public class ParameterTypeTools {
                 break;
             case PAR_ITEM:
                 ItemStack itemStack = (ItemStack) value;
-                CompoundTag tc = new CompoundTag();
-                itemStack.save(tc);
+                Tag tc = itemStack.save(provider);
                 tag.put("item", tc);
                 break;
             case PAR_FLUID:
                 FluidStack fluidStack = (FluidStack) value;
-                CompoundTag fluidTc = new CompoundTag();
-                fluidStack.writeToNBT(fluidTc);
+                Tag fluidTc = fluidStack.save(provider);
                 tag.put("fluid", fluidTc);
                 break;
             case PAR_EXCEPTION:
@@ -267,7 +266,7 @@ public class ParameterTypeTools {
                 List<Parameter> vector = (List<Parameter>) value;
                 ListTag list = new ListTag();
                 for (Parameter p : vector) {
-                    list.add(ParameterTools.writeToNBT(p));
+                    list.add(ParameterTools.writeToNBT(p, provider));
                 }
                 tag.put("vector", list);
                 break;
@@ -327,18 +326,20 @@ public class ParameterTypeTools {
                 if (item.getCount() != 1) {
                     object.add("amount", new JsonPrimitive(item.getCount()));
                 }
-                if (item.hasTag()) {
-                    String string = item.getTag().toString();
-                    object.add("nbt", new JsonPrimitive(string));
-                }
+                // @todo 1.21 data
+//                if (item.hasTag()) {
+//                    String string = item.getTag().toString();
+//                    object.add("nbt", new JsonPrimitive(string));
+//                }
                 break;
             case PAR_FLUID:
                 FluidStack fluidStack = (FluidStack) value;
                 object.add("fluid", new JsonPrimitive(Tools.getId(fluidStack).toString()));
                 object.add("amount", new JsonPrimitive(fluidStack.getAmount()));
-                if (fluidStack.hasTag()) {
-                    object.add("nbt", new JsonPrimitive(fluidStack.getTag().toString()));
-                }
+                // @todo 1.21 data
+//                if (fluidStack.hasTag()) {
+//                    object.add("nbt", new JsonPrimitive(fluidStack.getTag().toString()));
+//                }
                 break;
             case PAR_EXCEPTION:
                 ExceptionType exception = (ExceptionType) value;
@@ -408,7 +409,8 @@ public class ParameterTypeTools {
                     } catch (CommandSyntaxException e) {
                         // @todo What to do?
                     }
-                    stack.setTag(tagCompound);
+                    // @todo 1.21 data
+//                    stack.setTag(tagCompound);
                 }
                 return ParameterValue.constant(stack);
             }
@@ -418,11 +420,12 @@ public class ParameterTypeTools {
                 FluidStack fluidStack = new FluidStack(Tools.getFluid(ResourceLocation.parse(fluidName)), amount);
                 if (object.has("nbt")) {
                     String nbt = object.get("nbt").getAsString();
-                    try {
-                        fluidStack.setTag(TagParser.parseTag(nbt));
-                    } catch (CommandSyntaxException e) {
+                    // @todo 1.21 data
+//                    try {
+//                        fluidStack.setTag(TagParser.parseTag(nbt));
+//                    } catch (CommandSyntaxException e) {
                         // @todo What to do?
-                    }
+//                    }
                 }
                 return ParameterValue.constant(fluidStack);
             }

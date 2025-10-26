@@ -1,11 +1,14 @@
 package mcjty.rftoolscontrol.modules.various.items.consolemodule;
 
+import com.mojang.serialization.Codec;
 import mcjty.lib.client.GuiTools;
 import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.lib.varia.ComponentFactory;
 import mcjty.lib.varia.Logging;
 import mcjty.lib.varia.ModuleTools;
+import mcjty.rftoolsbase.api.screens.IClientScreenModule;
 import mcjty.rftoolsbase.api.screens.IModuleGuiBuilder;
+import mcjty.rftoolsbase.api.screens.IScreenModule;
 import mcjty.rftoolsbase.api.various.ITabletSupport;
 import mcjty.rftoolsbase.tools.GenericModuleItem;
 import mcjty.rftoolscontrol.RFToolsControl;
@@ -14,8 +17,11 @@ import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorContainer;
 import mcjty.rftoolscontrol.modules.various.VariousModule;
 import mcjty.rftoolscontrol.setup.Config;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponentType;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -31,6 +37,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.items.IItemHandler;
+import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
 
@@ -40,6 +47,32 @@ public class ConsoleModuleItem extends GenericModuleItem implements ITabletSuppo
         super(RFToolsControl.setup.defaultProperties()
                 .stacksTo(1)
                 .durability(1));
+    }
+
+    // @todo 1.21 methods below!
+    @Override
+    public @Nullable Codec<? extends IScreenModule<?, ?>> codec() {
+        return null;
+    }
+
+    @Override
+    public @Nullable StreamCodec<RegistryFriendlyByteBuf, ? extends IScreenModule<?, ?>> streamCodec() {
+        return null;
+    }
+
+    @Override
+    public @Nullable DataComponentType<? extends IScreenModule<?, ?>> componentType() {
+        return null;
+    }
+
+    @Override
+    public IScreenModule<?, ?> createServerScreenModule() {
+        return null;
+    }
+
+    @Override
+    public IClientScreenModule<?> createClientScreenModule() {
+        return null;
     }
 
     @Override
@@ -86,15 +119,15 @@ public class ConsoleModuleItem extends GenericModuleItem implements ITabletSuppo
         return ModuleTools.getTargetString(stack);
     }
 
-    @Override
-    public Class<ConsoleScreenModule> getServerScreenModule() {
-        return ConsoleScreenModule.class;
-    }
-
-    @Override
-    public Class<ConsoleClientScreenModule> getClientScreenModule() {
-        return ConsoleClientScreenModule.class;
-    }
+//    @Override
+//    public Class<ConsoleScreenModule> getServerScreenModule() {
+//        return ConsoleScreenModule.class;
+//    }
+//
+//    @Override
+//    public Class<ConsoleClientScreenModule> getClientScreenModule() {
+//        return ConsoleClientScreenModule.class;
+//    }
 
     @Override
     public String getModuleName() {
@@ -103,8 +136,9 @@ public class ConsoleModuleItem extends GenericModuleItem implements ITabletSuppo
 
     @Override
     public void createGui(IModuleGuiBuilder guiBuilder) {
-        guiBuilder.
-                block("monitor").nl();
+        // @todo 1.21
+//        guiBuilder.
+//                block("monitor").nl();
     }
 
     @Override
@@ -117,7 +151,7 @@ public class ConsoleModuleItem extends GenericModuleItem implements ITabletSuppo
         ItemStack stack = player.getItemInHand(hand);
         BlockState state = world.getBlockState(pos);
         Block block = state.getBlock();
-        CompoundTag tagCompound = stack.getTag();
+        CompoundTag tagCompound = new CompoundTag();// @todo 1.21 data stack.getTag();
         if (tagCompound == null) {
             tagCompound = new CompoundTag();
         }
@@ -139,7 +173,8 @@ public class ConsoleModuleItem extends GenericModuleItem implements ITabletSuppo
                 Logging.message(player, "Console module is cleared");
             }
         }
-        stack.setTag(tagCompound);
+        // @todo 1.21 data
+//        stack.setTag(tagCompound);
         return InteractionResult.SUCCESS;
     }
 

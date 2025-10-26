@@ -21,9 +21,11 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -145,5 +147,14 @@ public class ProcessorRenderer implements BlockEntityRenderer<ProcessorTileEntit
 
     public static void register() {
         BlockEntityRenderers.register(ProcessorModule.PROCESSOR.be().get(), ProcessorRenderer::new);
+    }
+
+    @Override
+    public AABB getRenderBoundingBox(ProcessorTileEntity blockEntity) {
+        BlockPos pos = blockEntity.getBlockPos();
+        int xCoord = pos.getX();
+        int yCoord = pos.getY();
+        int zCoord = pos.getZ();
+        return new AABB(xCoord, yCoord, zCoord, xCoord + 1, yCoord + 21, zCoord + 1);
     }
 }
