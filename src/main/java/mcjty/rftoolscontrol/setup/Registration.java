@@ -58,18 +58,4 @@ public class Registration {
                 RFToolsControl.setup.populateTab(output);
             })
             .build());
-
-//    public static final DeferredHolder<DataComponentType<?>, DataComponentType<ProgramCardData>> PROGRAM_CARD_GRID_DATA = COMPONENTS.registerComponentType(
-//            "program_card_grid",
-//            builder -> builder
-//                    .persistent(ProgramCardData.CODEC)
-//                    .networkSynchronized(ProgramCardData.STREAM_CODEC)
-//                    .build());
-//
-//    public static final DeferredHolder<DataComponentType<?>, DataComponentType<ProgramCardNameData>> PROGRAM_CARD_NAME_DATA = COMPONENTS.registerComponentType(
-//            "program_card_name",
-//            builder -> builder
-//                    .persistent(ProgramCardNameData.CODEC)
-//                    .networkSynchronized(ProgramCardNameData.STREAM_CODEC)
-//                    .build());
 }

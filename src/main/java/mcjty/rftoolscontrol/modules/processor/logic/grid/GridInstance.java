@@ -4,6 +4,9 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import mcjty.rftoolsbase.api.control.code.Opcode;
 import mcjty.rftoolsbase.api.control.parameters.Parameter;
 import mcjty.rftoolsbase.api.control.parameters.ParameterDescription;
@@ -12,12 +15,16 @@ import mcjty.rftoolscontrol.modules.processor.logic.Connection;
 import mcjty.rftoolscontrol.modules.processor.logic.ParameterTools;
 import mcjty.rftoolscontrol.modules.processor.logic.registry.Opcodes;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class GridInstance {
 
@@ -32,6 +39,38 @@ public class GridInstance {
         this.secondaryConnection = builder.secondaryConnection;
         this.parameters = builder.parameters;
     }
+
+    private static final Codec<Connection> CONNECTION_CODEC = Codec.STRING.flatXmap(
+            id -> {
+                Connection connection = Connection.getConnection(id);
+                return connection != null
+                        ? DataResult.success(connection)
+                        : DataResult.error(() -> "Unknown connection: " + id);
+            },
+            connection -> DataResult.success(connection.getId())
+    ).stable();
+
+    private static final int CONNECTION_ID_MAX_LENGTH = 16;
+
+    private static final StreamCodec<RegistryFriendlyByteBuf, Connection> CONNECTION_STREAM_CODEC = StreamCodec.of(
+            (buf, connection) -> buf.writeUtf(connection.getId(), CONNECTION_ID_MAX_LENGTH),
+            buf -> decodeConnection(buf.readUtf(CONNECTION_ID_MAX_LENGTH))
+    );
+
+    public static final Codec<GridInstance> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            Codec.STRING.fieldOf("id").forGetter(GridInstance::getId),
+            CONNECTION_CODEC.optionalFieldOf("primary").forGetter(grid -> Optional.ofNullable(grid.getPrimaryConnection())),
+            CONNECTION_CODEC.optionalFieldOf("secondary").forGetter(grid -> Optional.ofNullable(grid.getSecondaryConnection())),
+            Parameter.CODEC.listOf().fieldOf("parameters").forGetter(GridInstance::getParameters)
+    ).apply(instance, (id, primary, secondary, parameters) -> createInstance(id, primary, secondary, parameters)));
+
+    public static final StreamCodec<RegistryFriendlyByteBuf, GridInstance> STREAM_CODEC = StreamCodec.composite(
+            ByteBufCodecs.STRING_UTF8, GridInstance::getId,
+            ByteBufCodecs.optional(CONNECTION_STREAM_CODEC), grid -> Optional.ofNullable(grid.getPrimaryConnection()),
+            ByteBufCodecs.optional(CONNECTION_STREAM_CODEC), grid -> Optional.ofNullable(grid.getSecondaryConnection()),
+            Parameter.STREAM_CODEC.apply(ByteBufCodecs.list()), GridInstance::getParameters,
+            GridInstance::createInstance
+    );
 
     public String getId() {
         return id;
@@ -89,19 +128,13 @@ public class GridInstance {
             // Sanity check in case an opcode got removed
             return null;
         }
-        List<ParameterDescription> parameters = opcode.getParameters();
-
         JsonArray parameterArray = gridObject.get("parameters").getAsJsonArray();
-        for (int i = 0 ; i < parameterArray.size() ; i++) {
-            JsonObject parObject = parameterArray.get(i).getAsJsonObject();
-            Parameter parameter = ParameterTools.readFromJson(parObject);
-            if (parameter.getParameterType() != parameters.get(i).getType()) {
-                // Sanity check
-                builder.parameter(Parameter.builder().type(parameters.get(i).getType()).value(ParameterValue.constant(null)).build());
-            } else {
-                builder.parameter(parameter);
-            }
+        List<Parameter> decodedParameters = new ArrayList<>(parameterArray.size());
+        for (JsonElement jsonParameterElement : parameterArray) {
+            JsonObject parObject = jsonParameterElement.getAsJsonObject();
+            decodedParameters.add(ParameterTools.readFromJson(parObject));
         }
+        addParameters(builder, opcode, decodedParameters);
 
         return builder.build();
     }
@@ -143,21 +176,55 @@ public class GridInstance {
             // Sanity check in case an opcode got removed
             return null;
         }
-        List<ParameterDescription> parameters = opcode.getParameters();
-
         ListTag parList = tag.getList("pars", Tag.TAG_COMPOUND);
+        List<Parameter> decodedParameters = new ArrayList<>(parList.size());
         for (int i = 0 ; i < parList.size() ; i++) {
             CompoundTag parTag = (CompoundTag) parList.get(i);
-            Parameter parameter = ParameterTools.readFromNBT(parTag, provider);
-            if (parameter.getParameterType() != parameters.get(i).getType()) {
-                // Sanity check
-                builder.parameter(Parameter.builder().type(parameters.get(i).getType()).value(ParameterValue.constant(null)).build());
+            decodedParameters.add(ParameterTools.readFromNBT(parTag, provider));
+        }
+        addParameters(builder, opcode, decodedParameters);
+
+        return builder.build();
+    }
+
+    private static GridInstance createInstance(String id, Optional<Connection> primary, Optional<Connection> secondary, List<Parameter> parameters) {
+        Builder builder = builder(id);
+        primary.ifPresent(builder::primaryConnection);
+        secondary.ifPresent(builder::secondaryConnection);
+        addParameters(builder, id, parameters);
+        return builder.build();
+    }
+
+    private static void addParameters(Builder builder, String opcodeId, List<Parameter> parameters) {
+        addParameters(builder, Opcodes.OPCODES.get(opcodeId), parameters);
+    }
+
+    private static void addParameters(Builder builder, Opcode opcode, List<Parameter> parameters) {
+        if (opcode == null) {
+            return;
+        }
+        if (parameters == null) {
+            return;
+        }
+        List<ParameterDescription> descriptions = opcode.getParameters();
+        int limit = Math.min(parameters.size(), descriptions.size());
+        for (int i = 0; i < limit; i++) {
+            Parameter parameter = parameters.get(i);
+            ParameterDescription description = descriptions.get(i);
+            if (parameter == null || parameter.getParameterType() != description.getType()) {
+                builder.parameter(Parameter.builder().type(description.getType()).value(ParameterValue.constant(null)).build());
             } else {
                 builder.parameter(parameter);
             }
         }
+    }
 
-        return builder.build();
+    private static Connection decodeConnection(String id) {
+        Connection connection = Connection.getConnection(id);
+        if (connection == null) {
+            throw new IllegalStateException("Unknown connection: " + id);
+        }
+        return connection;
     }
 
     public static class Builder {
