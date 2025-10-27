@@ -1,14 +1,17 @@
 package mcjty.rftoolscontrol.modules.processor.logic.registry;
 
+import com.mojang.serialization.DataResult;
 import mcjty.rftoolsbase.api.control.code.Function;
 import mcjty.rftoolsbase.api.control.machines.IProcessor;
 import mcjty.rftoolsbase.api.control.parameters.IParameter;
 import mcjty.rftoolsbase.api.control.parameters.Parameter;
 import mcjty.rftoolsbase.api.control.parameters.ParameterType;
+import mcjty.rftoolsbase.api.control.parameters.ParameterValue;
 import mcjty.rftoolsbase.api.control.parameters.Tuple;
 import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorTileEntity;
-import mcjty.rftoolscontrol.modules.processor.logic.ParameterTools;
 import mcjty.rftoolscontrol.modules.processor.logic.TypeConverters;
+import mcjty.rftoolscontrol.modules.processor.logic.ParameterTools;
+import mcjty.rftoolscontrol.modules.processor.logic.running.ExceptionType;
 import mcjty.rftoolscontrol.modules.processor.logic.running.ProgException;
 
 import javax.annotation.Nonnull;
@@ -226,6 +229,7 @@ public class Functions {
 
     public static final Map<String, Function> FUNCTIONS = new HashMap<>();
     private static final Map<ParameterType,List<Function>> FUNCTIONS_BY_TYPE = new HashMap<>();
+    private static final int MAX_STRING_LENGTH = 32767;
 
     public static void init() {
         register(LASTBOOL);
@@ -250,6 +254,40 @@ public class Functions {
         register(LENGTH);
         register(TUPLE_X);
         register(TUPLE_Y);
+
+        ParameterValue.setFunctionResolver(FUNCTIONS::get);
+        ParameterValue.registerSerializer(PAR_EXCEPTION, new ParameterValue.ConstantSerializer() {
+            @Override
+            public <T> DataResult<T> encode(com.mojang.serialization.DynamicOps<T> ops, Object value) {
+                return DataResult.success(ops.createString(((ExceptionType) value).getCode()));
+            }
+
+            @Override
+            public <T> DataResult<Object> decode(com.mojang.serialization.DynamicOps<T> ops, T input) {
+                return ops.getStringValue(input).flatMap(code -> {
+                    ExceptionType exception = ExceptionType.getExceptionForCode(code);
+                    if (exception == null) {
+                        return DataResult.error(() -> "Unknown exception code: " + code);
+                    }
+                    return DataResult.success(exception);
+                });
+            }
+
+            @Override
+            public void encodeToNetwork(net.minecraft.network.RegistryFriendlyByteBuf buf, Object value) {
+                buf.writeUtf(((ExceptionType) value).getCode(), MAX_STRING_LENGTH);
+            }
+
+            @Override
+            public Object decodeFromNetwork(net.minecraft.network.RegistryFriendlyByteBuf buf) {
+                String code = buf.readUtf(MAX_STRING_LENGTH);
+                ExceptionType exception = ExceptionType.getExceptionForCode(code);
+                if (exception == null) {
+                    throw new IllegalStateException("Unknown exception code: " + code);
+                }
+                return exception;
+            }
+        });
     }
 
     public static void register(Function function) {
