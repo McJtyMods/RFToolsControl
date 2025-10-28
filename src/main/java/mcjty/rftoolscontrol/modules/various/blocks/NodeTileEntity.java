@@ -2,82 +2,87 @@ package mcjty.rftoolscontrol.modules.various.blocks;
 
 import mcjty.lib.api.container.DefaultContainerProvider;
 import mcjty.lib.bindings.GuiValue;
+import mcjty.lib.bindings.Value;
 import mcjty.lib.container.GenericContainer;
 import mcjty.lib.tileentity.Cap;
 import mcjty.lib.tileentity.CapType;
 import mcjty.lib.tileentity.GenericTileEntity;
-import mcjty.lib.varia.BlockPosTools;
+import mcjty.lib.typed.Type;
 import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorTileEntity;
 import mcjty.rftoolscontrol.modules.various.VariousModule;
+import mcjty.rftoolscontrol.modules.various.data.NodeData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.common.util.Lazy;
 
 import javax.annotation.Nonnull;
+import java.util.function.Function;
 
 import static mcjty.lib.api.container.DefaultContainerProvider.empty;
 
 public class NodeTileEntity extends GenericTileEntity {
 
     @GuiValue
-    private String channel;
+    public static final Value<NodeTileEntity, String> VALUE_CHANNEL = Value.create("channel", Type.STRING, NodeTileEntity::getChannelName, NodeTileEntity::setChannelName);
     @GuiValue
-    private String node;
+    public static final Value<NodeTileEntity, String> VALUE_NODE = Value.create("node", Type.STRING, NodeTileEntity::getNodeName, NodeTileEntity::setNodeName);
 
-    private BlockPos processor = null;
-
-    // Bitmask for all six sides
+    // Bitmask for all six sides of incoming redstone
     private int prevIn = 0;
     private final int[] powerOut = new int[]{0, 0, 0, 0, 0, 0};
 
     @Cap(type = CapType.CONTAINER)
-    private final Lazy<MenuProvider> screenHandler = Lazy.of(() -> new DefaultContainerProvider<GenericContainer>("Node")
-            .containerSupplier(empty(VariousModule.NODE_CONTAINER, this))
-            .setupSync(this));
+    private static final Function<NodeTileEntity, MenuProvider> SCREEN_CAP = tile -> new DefaultContainerProvider<GenericContainer>("Node")
+            .containerSupplier(empty(VariousModule.NODE_CONTAINER, tile))
+            .data(VariousModule.NODE_DATA, NodeData.STREAM_CODEC, NodeData.CODEC)
+            .setupSync(tile);
 
     public NodeTileEntity(BlockPos pos, BlockState state) {
         super(VariousModule.NODE.be().get(), pos, state);
     }
 
     public String getNodeName() {
-        return node;
+        NodeData data = getData(VariousModule.NODE_DATA.get());
+        return data.node() == null ? "" : data.node();
     }
 
     public String getChannelName() {
-        return channel;
+        NodeData data = getData(VariousModule.NODE_DATA.get());
+        return data.channel() == null ? "" : data.channel();
     }
 
     public void setChannelName(String channel) {
-        this.channel = channel;
-        setChanged();
+        NodeData data = getData(VariousModule.NODE_DATA.get());
+        setData(VariousModule.NODE_DATA.get(), data.withChannel(channel));
     }
 
     public void setNodeName(String node) {
-        this.node = node;
-        setChanged();
+        NodeData data = getData(VariousModule.NODE_DATA.get());
+        setData(VariousModule.NODE_DATA.get(), data.withNode(node));
     }
 
     public BlockPos getProcessor() {
-        return processor;
+        return getData(VariousModule.NODE_DATA.get()).processor();
     }
 
     public void setProcessor(BlockPos processor) {
-        this.processor = processor;
-        setChanged();
+        NodeData data = getData(VariousModule.NODE_DATA.get());
+        setData(VariousModule.NODE_DATA.get(), data.withProcessor(processor));
     }
 
     @Override
     public void setPowerInput(int powered) {
         if (powerLevel != powered) {
-            if (processor != null) {
-                BlockEntity te = getLevel().getBlockEntity(processor);
+            BlockPos processorPos = getProcessor();
+            if (processorPos != null && getLevel() != null) {
+                BlockEntity te = getLevel().getBlockEntity(processorPos);
                 if (te instanceof ProcessorTileEntity processor) {
-                    processor.redstoneNodeChange(prevIn, powered, node);
+                    processor.redstoneNodeChange(prevIn, powered, getNodeName());
                 }
             }
             prevIn = powered;
@@ -104,16 +109,6 @@ public class NodeTileEntity extends GenericTileEntity {
         }
     }
 
-    // @todo 1.21 data
-//    @Override
-//    protected void loadInfo(CompoundTag tagCompound) {
-//        super.loadInfo(tagCompound);
-//        CompoundTag info = tagCompound.getCompound("Info");
-//        channel = info.getString("channel");
-//        node = info.getString("node");
-//        processor = BlockPosTools.read(info, "processor");
-//    }
-
     @Override
     public void saveAdditional(@Nonnull CompoundTag tagCompound, HolderLookup.Provider provider) {
         super.saveAdditional(tagCompound, provider);
@@ -123,19 +118,18 @@ public class NodeTileEntity extends GenericTileEntity {
         }
     }
 
-    // @todo 1.21 data
-//    @Override
-//    protected void saveInfo(CompoundTag tagCompound) {
-//        super.saveInfo(tagCompound);
-//        CompoundTag info = getOrCreateInfo(tagCompound);
-//        if (channel != null) {
-//            info.putString("channel", channel);
-//        }
-//        if (node != null) {
-//            info.putString("node", node);
-//        }
-//        if (processor != null) {
-//            BlockPosTools.write(info, "processor", processor);
-//        }
-//    }
+    @Override
+    protected void collectImplicitComponents(DataComponentMap.Builder builder) {
+        super.collectImplicitComponents(builder);
+        builder.set(VariousModule.ITEM_NODE_DATA.get(), getData(VariousModule.NODE_DATA.get()));
+    }
+
+    @Override
+    protected void applyImplicitComponents(DataComponentInput input) {
+        super.applyImplicitComponents(input);
+        NodeData data = input.get(VariousModule.ITEM_NODE_DATA.get());
+        if (data != null) {
+            setData(VariousModule.NODE_DATA.get(), data);
+        }
+    }
 }

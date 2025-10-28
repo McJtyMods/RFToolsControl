@@ -8,9 +8,6 @@ import mcjty.rftoolscontrol.modules.processor.vectorart.GfxOp;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
@@ -43,11 +40,6 @@ public class VectorArtClientScreenModule implements IClientScreenModule<ModuleDa
     @Override
     public void mouseClick(ItemStack moduleStack, Level world, int x, int y, boolean clicked) {
     }
-
-    // @todo 1.21 data
-//    @Override
-//    public void setupFromNBT(CompoundTag tagCompound, ResourceKey<Level> dim, BlockPos pos) {
-//    }
 
     @Override
     public boolean needsServerData() {

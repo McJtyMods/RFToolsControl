@@ -5,6 +5,7 @@ import mcjty.rftoolscontrol.modules.programmer.blocks.ProgrammerTileEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
@@ -15,22 +16,20 @@ import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
-public record PacketUpdateNBTItemInventoryProgrammer(BlockPos pos, int slotIndex, CompoundTag tagCompound) implements CustomPacketPayload {
+public record PacketUpdateNBTItemInventoryProgrammer(BlockPos pos, int slotIndex, ItemStack card) implements CustomPacketPayload {
 
     public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(RFToolsControl.MODID, "updatenbtiteminventoryprogrammer");
     public static final CustomPacketPayload.Type<PacketUpdateNBTItemInventoryProgrammer> TYPE = new Type<>(ID);
 
-    public static final StreamCodec<RegistryFriendlyByteBuf, PacketUpdateNBTItemInventoryProgrammer> CODEC = StreamCodec.of(
-            (buf, packet) -> {
-                buf.writeBlockPos(packet.pos);
-                buf.writeInt(packet.slotIndex);
-                buf.writeNbt(packet.tagCompound);
-            },
-            buf -> new PacketUpdateNBTItemInventoryProgrammer(buf.readBlockPos(), buf.readInt(), buf.readNbt())
+    public static final StreamCodec<RegistryFriendlyByteBuf, PacketUpdateNBTItemInventoryProgrammer> CODEC = StreamCodec.composite(
+            BlockPos.STREAM_CODEC, PacketUpdateNBTItemInventoryProgrammer::pos,
+            ByteBufCodecs.INT, PacketUpdateNBTItemInventoryProgrammer::slotIndex,
+            ItemStack.OPTIONAL_STREAM_CODEC, PacketUpdateNBTItemInventoryProgrammer::card,
+            PacketUpdateNBTItemInventoryProgrammer::new
     );
 
-    public static PacketUpdateNBTItemInventoryProgrammer create(BlockPos blockPos, int slot, CompoundTag tag) {
-        return new PacketUpdateNBTItemInventoryProgrammer(blockPos, slot, tag);
+    public static PacketUpdateNBTItemInventoryProgrammer create(BlockPos blockPos, int slot, ItemStack card) {
+        return new PacketUpdateNBTItemInventoryProgrammer(blockPos, slot, card);
     }
 
     protected boolean isValidBlock(Level world, BlockPos blockPos, BlockEntity tileEntity) {
@@ -53,10 +52,9 @@ public record PacketUpdateNBTItemInventoryProgrammer(BlockPos pos, int slotIndex
                 IItemHandler handler = world.getCapability(Capabilities.ItemHandler.BLOCK, pos, null);
                 if (handler != null) {
                     ItemStack stack = handler.getStackInSlot(slotIndex);
-                    // @todo 1.21 data
-//                    if (!stack.isEmpty()) {
-//                        stack.setTag(tagCompound);
-//                    }
+                    if (stack.getItem() == card.getItem()) {
+                        card.applyComponents(card.getComponents());
+                    }
                     te.setChanged();
                 }
             }

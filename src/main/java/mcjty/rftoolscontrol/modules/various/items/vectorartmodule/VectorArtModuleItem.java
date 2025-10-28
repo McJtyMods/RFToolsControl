@@ -3,16 +3,18 @@ package mcjty.rftoolscontrol.modules.various.items.vectorartmodule;
 import com.mojang.serialization.Codec;
 import mcjty.lib.varia.Logging;
 import mcjty.lib.varia.ModuleTools;
+import mcjty.lib.varia.Tools;
 import mcjty.rftoolsbase.api.screens.IClientScreenModule;
 import mcjty.rftoolsbase.api.screens.IModuleGuiBuilder;
 import mcjty.rftoolsbase.api.screens.IScreenModule;
 import mcjty.rftoolsbase.tools.GenericModuleItem;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.modules.processor.ProcessorModule;
+import mcjty.rftoolscontrol.modules.various.VariousModule;
 import mcjty.rftoolscontrol.setup.Config;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponentType;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.GlobalPos;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.InteractionHand;
@@ -26,6 +28,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
+import java.util.function.Function;
 
 public class VectorArtModuleItem extends GenericModuleItem {
 
@@ -35,30 +38,29 @@ public class VectorArtModuleItem extends GenericModuleItem {
                 .durability(1));
     }
 
-    // @todo 1.21
     @Override
     public @Nullable Codec<? extends IScreenModule<?, ?>> codec() {
-        return null;
+        return VectorArtScreenModule.CODEC;
     }
 
     @Override
     public @Nullable StreamCodec<RegistryFriendlyByteBuf, ? extends IScreenModule<?, ?>> streamCodec() {
-        return null;
+        return VectorArtScreenModule.STREAM_CODEC;
     }
 
     @Override
     public @Nullable DataComponentType<? extends IScreenModule<?, ?>> componentType() {
-        return null;
+        return VariousModule.VECTORART_MODULE_DATA.get();
     }
 
     @Override
     public IScreenModule<?, ?> createServerScreenModule() {
-        return null;
+        return VectorArtScreenModule.DEFAULT;
     }
 
     @Override
     public IClientScreenModule<?> createClientScreenModule() {
-        return null;
+        return new VectorArtClientScreenModule();
     }
 
     @Override
@@ -76,17 +78,6 @@ public class VectorArtModuleItem extends GenericModuleItem {
         return ModuleTools.getTargetString(stack);
     }
 
-    // @todo 1.21
-//    @Override
-//    public Class<VectorArtScreenModule> getServerScreenModule() {
-//        return VectorArtScreenModule.class;
-//    }
-//
-//    @Override
-//    public Class<VectorArtClientScreenModule> getClientScreenModule() {
-//        return VectorArtClientScreenModule.class;
-//    }
-
     @Override
     public String getModuleName() {
         return "VAR";
@@ -94,9 +85,9 @@ public class VectorArtModuleItem extends GenericModuleItem {
 
     @Override
     public void createGui(IModuleGuiBuilder guiBuilder) {
-        // @todo 1.21
-//        guiBuilder
-//                .block("monitor").nl();
+        guiBuilder
+                .block(stack -> GlobalPos.of(data(stack).dim(), data(stack).coordinate()), stack -> data(stack).monitorName())
+                .nl();
     }
 
     @Nonnull
@@ -109,31 +100,35 @@ public class VectorArtModuleItem extends GenericModuleItem {
         ItemStack stack = player.getItemInHand(hand);
         BlockState state = world.getBlockState(pos);
         Block block = state.getBlock();
-        CompoundTag tagCompound = new CompoundTag(); // @todo 1.21 stack.getTag();
-        if (tagCompound == null) {
-            tagCompound = new CompoundTag();
-        }
 
         if (block == ProcessorModule.PROCESSOR.block().get()) {
-            tagCompound.putString("monitordim", world.dimension().location().toString());
-            tagCompound.putInt("monitorx", pos.getX());
-            tagCompound.putInt("monitory", pos.getY());
-            tagCompound.putInt("monitorz", pos.getZ());
+            String name = Tools.getReadableName(world, pos);
+            data(stack, module -> module.withTarget(world.dimension(), pos, name));
+            ModuleTools.setPositionInModule(stack, world.dimension(), pos, name);
             if (world.isClientSide) {
                 Logging.message(player, "Vector art module is set to block");
             }
         } else {
-            tagCompound.remove("monitordim");
-            tagCompound.remove("monitorx");
-            tagCompound.remove("monitory");
-            tagCompound.remove("monitorz");
+            data(stack, VectorArtScreenModule::clearTarget);
+            ModuleTools.clearPositionInModule(stack);
             if (world.isClientSide) {
                 Logging.message(player, "Vector art module is cleared");
             }
         }
-        // @todo 1.21
-//        stack.setTag(tagCompound);
         return InteractionResult.SUCCESS;
     }
 
+    public static VectorArtScreenModule data(ItemStack stack) {
+        VectorArtScreenModule data = stack.get(VariousModule.VECTORART_MODULE_DATA);
+        if (data == null) {
+            data = VectorArtScreenModule.DEFAULT;
+        }
+        return data;
+    }
+
+    public static void data(ItemStack stack, Function<VectorArtScreenModule, VectorArtScreenModule> setter) {
+        VectorArtScreenModule data = data(stack);
+        data = setter.apply(data);
+        stack.set(VariousModule.VECTORART_MODULE_DATA.get(), data);
+    }
 }

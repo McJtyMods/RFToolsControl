@@ -1,18 +1,22 @@
 package mcjty.rftoolscontrol.modules.various.items.variablemodule;
 
 import com.mojang.serialization.Codec;
+import mcjty.lib.varia.BlockPosTools;
 import mcjty.lib.varia.Logging;
 import mcjty.lib.varia.ModuleTools;
+import mcjty.lib.varia.Tools;
 import mcjty.rftoolsbase.api.screens.IClientScreenModule;
 import mcjty.rftoolsbase.api.screens.IModuleGuiBuilder;
 import mcjty.rftoolsbase.api.screens.IScreenModule;
+import mcjty.rftoolsbase.api.screens.TextAlign;
 import mcjty.rftoolsbase.tools.GenericModuleItem;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.modules.processor.ProcessorModule;
+import mcjty.rftoolscontrol.modules.various.VariousModule;
 import mcjty.rftoolscontrol.setup.Config;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponentType;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.GlobalPos;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.InteractionHand;
@@ -26,6 +30,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
+import java.util.function.Function;
 
 public class VariableModuleItem extends GenericModuleItem {
 
@@ -35,30 +40,29 @@ public class VariableModuleItem extends GenericModuleItem {
                 .durability(1));
     }
 
-    // @todo 1.21
     @Override
     public @Nullable Codec<? extends IScreenModule<?, ?>> codec() {
-        return null;
+        return VariableScreenModule.CODEC;
     }
 
     @Override
     public @Nullable StreamCodec<RegistryFriendlyByteBuf, ? extends IScreenModule<?, ?>> streamCodec() {
-        return null;
+        return VariableScreenModule.STREAM_CODEC;
     }
 
     @Override
     public @Nullable DataComponentType<? extends IScreenModule<?, ?>> componentType() {
-        return null;
+        return VariousModule.VARIABLE_MODULE_DATA.get();
     }
 
     @Override
     public IScreenModule<?, ?> createServerScreenModule() {
-        return null;
+        return VariableScreenModule.DEFAULT;
     }
 
     @Override
     public IClientScreenModule<?> createClientScreenModule() {
-        return null;
+        return new VariableClientScreenModule();
     }
 
     @Override
@@ -76,17 +80,6 @@ public class VariableModuleItem extends GenericModuleItem {
         return ModuleTools.getTargetString(stack);
     }
 
-    // @todo 1.21
-//    @Override
-//    public Class<VariableScreenModule> getServerScreenModule() {
-//        return VariableScreenModule.class;
-//    }
-//
-//    @Override
-//    public Class<VariableClientScreenModule> getClientScreenModule() {
-//        return VariableClientScreenModule.class;
-//    }
-
     @Override
     public String getModuleName() {
         return "VAR";
@@ -94,13 +87,25 @@ public class VariableModuleItem extends GenericModuleItem {
 
     @Override
     public void createGui(IModuleGuiBuilder guiBuilder) {
-        // @todo 1.21
-//        guiBuilder
-//                .label("Label:").text("text", "Label text").color("color", "Color for the label").nl()
-//                .label("Stats:").color("varcolor", "Color for the variable text").nl()
-//                .label("Var:").integer("varIdx", "Index of the variable").nl()
-//                .choices("align", "Label alignment", "Left", "Center", "Right").nl()
-//                .block("monitor").nl();
+        guiBuilder
+                .label("Label:")
+                .text((stack, s) -> data(stack, module -> module.withLine(s)), stack -> data(stack).line(), "Label text")
+                .color((stack, c) -> data(stack, module -> module.withColor(c)), stack -> data(stack).color(), "Label color")
+                .nl()
+
+                .label("Stats:")
+                .color((stack, c) -> data(stack, module -> module.withVarColor(c)), stack -> data(stack).varColor(), "Color for the variable text")
+                .nl()
+
+                .label("Var:")
+                .integer((stack, v) -> data(stack, module -> module.withVarIdx(v == null ? -1 : v)), stack -> data(stack).varIdx(), "Index of the variable")
+                .nl()
+
+                .choices((stack, choice) -> data(stack, module -> module.withAlign(TextAlign.get(choice))), stack -> data(stack).align().getSerializedName(), "Label alignment", "Left", "Center", "Right")
+                .nl()
+
+                .block(stack -> GlobalPos.of(data(stack).dim(), data(stack).coordinate()), stack -> data(stack).monitorName())
+                .nl();
     }
 
     @Nonnull
@@ -113,31 +118,35 @@ public class VariableModuleItem extends GenericModuleItem {
         ItemStack stack = player.getItemInHand(hand);
         BlockState state = world.getBlockState(pos);
         Block block = state.getBlock();
-        CompoundTag tagCompound = new CompoundTag();// @todo 1.21 stack.getTag();
-        if (tagCompound == null) {
-            tagCompound = new CompoundTag();
-        }
 
         if (block == ProcessorModule.PROCESSOR.block().get()) {
-            tagCompound.putString("monitordim", world.dimension().location().toString());
-            tagCompound.putInt("monitorx", pos.getX());
-            tagCompound.putInt("monitory", pos.getY());
-            tagCompound.putInt("monitorz", pos.getZ());
+            String name = Tools.getReadableName(world, pos);
+            data(stack, module -> module.withTarget(world.dimension(), pos, name));
+            ModuleTools.setPositionInModule(stack, world.dimension(), pos, name);
             if (world.isClientSide) {
                 Logging.message(player, "Variable module is set to block");
             }
         } else {
-            tagCompound.remove("monitordim");
-            tagCompound.remove("monitorx");
-            tagCompound.remove("monitory");
-            tagCompound.remove("monitorz");
+            data(stack, module -> module.clearTarget());
+            ModuleTools.clearPositionInModule(stack);
             if (world.isClientSide) {
                 Logging.message(player, "Variable module is cleared");
             }
         }
-        // @todo 1.21
-//        stack.setTag(tagCompound);
         return InteractionResult.SUCCESS;
     }
 
+    public static VariableScreenModule data(ItemStack stack) {
+        VariableScreenModule data = stack.get(VariousModule.VARIABLE_MODULE_DATA);
+        if (data == null) {
+            data = VariableScreenModule.DEFAULT;
+        }
+        return data;
+    }
+
+    public static void data(ItemStack stack, Function<VariableScreenModule, VariableScreenModule> setter) {
+        VariableScreenModule data = data(stack);
+        data = setter.apply(data);
+        stack.set(VariousModule.VARIABLE_MODULE_DATA.get(), data);
+    }
 }

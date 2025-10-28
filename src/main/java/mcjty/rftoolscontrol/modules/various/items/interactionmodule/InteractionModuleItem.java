@@ -1,18 +1,21 @@
 package mcjty.rftoolscontrol.modules.various.items.interactionmodule;
 
 import com.mojang.serialization.Codec;
+import mcjty.lib.varia.BlockPosTools;
 import mcjty.lib.varia.Logging;
 import mcjty.lib.varia.ModuleTools;
+import mcjty.lib.varia.Tools;
 import mcjty.rftoolsbase.api.screens.IClientScreenModule;
 import mcjty.rftoolsbase.api.screens.IModuleGuiBuilder;
 import mcjty.rftoolsbase.api.screens.IScreenModule;
+import mcjty.rftoolsbase.api.screens.TextAlign;
 import mcjty.rftoolsbase.tools.GenericModuleItem;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.modules.processor.ProcessorModule;
+import mcjty.rftoolscontrol.modules.various.VariousModule;
 import mcjty.rftoolscontrol.setup.Config;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponentType;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.InteractionHand;
@@ -26,6 +29,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
+import java.util.function.Function;
 
 public class InteractionModuleItem extends GenericModuleItem {
 
@@ -35,30 +39,29 @@ public class InteractionModuleItem extends GenericModuleItem {
                 .durability(1));
     }
 
-    // @todo 1.21
     @Override
     public @Nullable Codec<? extends IScreenModule<?, ?>> codec() {
-        return null;
+        return InteractionScreenModule.CODEC;
     }
 
     @Override
     public @Nullable StreamCodec<RegistryFriendlyByteBuf, ? extends IScreenModule<?, ?>> streamCodec() {
-        return null;
+        return InteractionScreenModule.STREAM_CODEC;
     }
 
     @Override
     public @Nullable DataComponentType<? extends IScreenModule<?, ?>> componentType() {
-        return null;
+        return VariousModule.INTERACTION_MODULE_DATA.get();
     }
 
     @Override
     public IScreenModule<?, ?> createServerScreenModule() {
-        return null;
+        return InteractionScreenModule.DEFAULT;
     }
 
     @Override
     public IClientScreenModule<?> createClientScreenModule() {
-        return null;
+        return new InteractionClientScreenModule();
     }
 
     @Override
@@ -76,17 +79,6 @@ public class InteractionModuleItem extends GenericModuleItem {
         return ModuleTools.getTargetString(stack);
     }
 
-    // @todo 1.21
-//    @Override
-//    public Class<InteractionScreenModule> getServerScreenModule() {
-//        return InteractionScreenModule.class;
-//    }
-//
-//    @Override
-//    public Class<InteractionClientScreenModule> getClientScreenModule() {
-//        return InteractionClientScreenModule.class;
-//    }
-
     @Override
     public String getModuleName() {
         return "INT";
@@ -94,12 +86,20 @@ public class InteractionModuleItem extends GenericModuleItem {
 
     @Override
     public void createGui(IModuleGuiBuilder guiBuilder) {
-        // @todo 1.21
-//        guiBuilder
-//                .label("Label:").text("text", "Label text").color("color", "Label color").nl()
-//                .label("Button:").text("button", "Button text").color("buttonColor", "Button color").nl()
-//                .label("Signal:").text("signal", "Signal name").nl()
-//                .choices("align", "Label alignment", "Left", "Center", "Right").nl();
+        guiBuilder
+                .label("Label:")
+                .text((stack, s) -> data(stack, module -> module.withLine(s)), stack -> data(stack).line(), "Label text")
+                .color((stack, c) -> data(stack, module -> module.withColor(c)), stack -> data(stack).color(), "Label color")
+                .nl()
+                .label("Button:")
+                .text((stack, s) -> data(stack, module -> module.withButton(s)), stack -> data(stack).button(), "Button text")
+                .color((stack, c) -> data(stack, module -> module.withButtonColor(c)), stack -> data(stack).buttonColor(), "Button color")
+                .nl()
+                .label("Signal:")
+                .text((stack, s) -> data(stack, module -> module.withSignal(s)), stack -> data(stack).signal(), "Signal name")
+                .nl()
+                .choices((stack, choice) -> data(stack, module -> module.withAlign(TextAlign.get(choice))), stack -> data(stack).align().getSerializedName(), "Label alignment", "Left", "Center", "Right")
+                .nl();
     }
 
     @Nonnull
@@ -112,31 +112,34 @@ public class InteractionModuleItem extends GenericModuleItem {
         ItemStack stack = player.getItemInHand(hand);
         BlockState state = world.getBlockState(pos);
         Block block = state.getBlock();
-        CompoundTag tagCompound = new CompoundTag();// @todo 1.21 stack.getTag();
-        if (tagCompound == null) {
-            tagCompound = new CompoundTag();
-        }
 
         if (block == ProcessorModule.PROCESSOR.block().get()) {
-            tagCompound.putString("monitordim", world.dimension().location().toString());
-            tagCompound.putInt("monitorx", pos.getX());
-            tagCompound.putInt("monitory", pos.getY());
-            tagCompound.putInt("monitorz", pos.getZ());
+            data(stack, module -> module.withTarget(world.dimension(), pos));
+            ModuleTools.setPositionInModule(stack, world.dimension(), pos, Tools.getReadableName(world, pos));
             if (world.isClientSide) {
                 Logging.message(player, "Interaction module is set to block");
             }
         } else {
-            tagCompound.remove("monitordim");
-            tagCompound.remove("monitorx");
-            tagCompound.remove("monitory");
-            tagCompound.remove("monitorz");
+            data(stack, module -> module.withCoordinate(BlockPosTools.INVALID));
+            ModuleTools.clearPositionInModule(stack);
             if (world.isClientSide) {
                 Logging.message(player, "Interaction module is cleared");
             }
         }
-        // @todo 1.21
-//        stack.setTag(tagCompound);
         return InteractionResult.SUCCESS;
     }
 
+    public static InteractionScreenModule data(ItemStack stack) {
+        InteractionScreenModule data = stack.get(VariousModule.INTERACTION_MODULE_DATA);
+        if (data == null) {
+            data = InteractionScreenModule.DEFAULT;
+        }
+        return data;
+    }
+
+    public static void data(ItemStack stack, Function<InteractionScreenModule, InteractionScreenModule> setter) {
+        InteractionScreenModule data = data(stack);
+        data = setter.apply(data);
+        stack.set(VariousModule.INTERACTION_MODULE_DATA.get(), data);
+    }
 }

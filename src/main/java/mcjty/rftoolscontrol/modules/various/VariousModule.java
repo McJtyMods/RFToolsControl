@@ -12,14 +12,19 @@ import mcjty.rftoolscontrol.modules.programmer.client.GuiProgrammer;
 import mcjty.rftoolscontrol.modules.various.blocks.*;
 import mcjty.rftoolscontrol.modules.various.client.GuiNode;
 import mcjty.rftoolscontrol.modules.various.client.GuiWorkbench;
+import mcjty.rftoolscontrol.modules.various.data.NodeData;
+import mcjty.rftoolscontrol.modules.various.data.WorkbenchData;
 import mcjty.rftoolscontrol.modules.various.items.CardBaseItem;
 import mcjty.rftoolscontrol.modules.various.items.ProgramCardItem;
 import mcjty.rftoolscontrol.modules.various.items.TokenItem;
 import mcjty.rftoolscontrol.modules.various.items.consolemodule.ConsoleModuleItem;
 import mcjty.rftoolscontrol.modules.various.items.consolemodule.ConsoleScreenModule;
 import mcjty.rftoolscontrol.modules.various.items.interactionmodule.InteractionModuleItem;
+import mcjty.rftoolscontrol.modules.various.items.interactionmodule.InteractionScreenModule;
 import mcjty.rftoolscontrol.modules.various.items.variablemodule.VariableModuleItem;
+import mcjty.rftoolscontrol.modules.various.items.variablemodule.VariableScreenModule;
 import mcjty.rftoolscontrol.modules.various.items.vectorartmodule.VectorArtModuleItem;
+import mcjty.rftoolscontrol.modules.various.items.vectorartmodule.VectorArtScreenModule;
 import mcjty.rftoolscontrol.setup.Registration;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentType;
@@ -29,6 +34,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.common.Tags;
+import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
@@ -70,12 +76,53 @@ public class VariousModule implements IModule {
             builder -> builder.persistent(mcjty.rftoolscontrol.modules.various.data.TokenData.CODEC).networkSynchronized(mcjty.rftoolscontrol.modules.various.data.TokenData.STREAM_CODEC)
     );
 
+    public static final Supplier<AttachmentType<NodeData>> NODE_DATA = ATTACHMENT_TYPES.register(
+            "node_data", () -> AttachmentType.builder(NodeData::createDefault)
+                    .serialize(NodeData.CODEC)
+                    .build());
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<NodeData>> ITEM_NODE_DATA = COMPONENTS.registerComponentType(
+            "node_data",
+            builder -> builder.persistent(NodeData.CODEC)
+                    .networkSynchronized(NodeData.STREAM_CODEC)
+    );
+
+    public static final Supplier<AttachmentType<WorkbenchData>> WORKBENCH_DATA = ATTACHMENT_TYPES.register(
+            "workbench_data", () -> AttachmentType.builder(WorkbenchData::createDefault)
+                    .serialize(WorkbenchData.CODEC)
+                    .build());
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<WorkbenchData>> ITEM_WORKBENCH_DATA = COMPONENTS.registerComponentType(
+            "workbench_data",
+            builder -> builder.persistent(WorkbenchData.CODEC)
+                    .networkSynchronized(WorkbenchData.STREAM_CODEC)
+    );
+
     public static final DeferredItem<ProgramCardItem> PROGRAM_CARD = ITEMS.register("program_card", tab(ProgramCardItem::new));
     public static final DeferredItem<VariableModuleItem> VARIABLE_MODULE = ITEMS.register("variable_module", tab(VariableModuleItem::new));
     public static final DeferredItem<InteractionModuleItem> INTERACTION_MODULE = ITEMS.register("interaction_module", tab(InteractionModuleItem::new));
     public static final DeferredItem<ConsoleModuleItem> CONSOLE_MODULE = ITEMS.register("console_module", tab(ConsoleModuleItem::new));
     public static final DeferredItem<VectorArtModuleItem> VECTORART_MODULE = ITEMS.register("vectorart_module", tab(VectorArtModuleItem::new));
     public static final DeferredItem<TabletItem> TABLET_PROCESSOR = ITEMS.register("tablet_processor", tab(TabletItem::new));
+
+    // Data component for interaction module configuration
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<InteractionScreenModule>> INTERACTION_MODULE_DATA = COMPONENTS.registerComponentType(
+            "interaction_module_data",
+            builder -> builder.persistent(InteractionScreenModule.CODEC)
+                    .networkSynchronized(InteractionScreenModule.STREAM_CODEC)
+    );
+
+    // Data component for variable module configuration
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<VariableScreenModule>> VARIABLE_MODULE_DATA = COMPONENTS.registerComponentType(
+            "variable_module_data",
+            builder -> builder.persistent(VariableScreenModule.CODEC)
+                    .networkSynchronized(VariableScreenModule.STREAM_CODEC)
+    );
+
+    // Data component for vector art module configuration
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<VectorArtScreenModule>> VECTORART_MODULE_DATA = COMPONENTS.registerComponentType(
+            "vectorart_module_data",
+            builder -> builder.persistent(VectorArtScreenModule.CODEC)
+                    .networkSynchronized(VectorArtScreenModule.STREAM_CODEC)
+    );
 
     // Data component for console module configuration
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<ConsoleScreenModule>> CONSOLE_MODULE_DATA = COMPONENTS.registerComponentType(
@@ -124,7 +171,7 @@ public class VariousModule implements IModule {
                 Dob.blockBuilder(WORKBENCH)
                         .ironPickaxeTags()
                         .parentedItem("block/workbench")
-                        .standardLoot() // @todo 1.21 data
+                        .standardLoot(VariousModule.ITEM_WORKBENCH_DATA.get())
                         .blockState(p -> p.orientedBlock(WORKBENCH.block().get(), p.frontBasedModel("workbench", p.modLoc("block/machineworkbench"))))
                         .shaped(builder -> builder
                                         .define('F', mcjty.rftoolsbase.modules.various.VariousModule.MACHINE_FRAME.get())
@@ -135,7 +182,7 @@ public class VariousModule implements IModule {
                 Dob.blockBuilder(NODE)
                         .ironPickaxeTags()
                         .parentedItem("block/node")
-                        .standardLoot() // @todo 1.21 data
+                        .standardLoot(VariousModule.ITEM_NODE_DATA.get())
                         .blockState(p -> p.orientedBlock(NODE.block().get(), p.frontBasedModel("node", p.modLoc("block/machinenode"))))
                         .shaped(builder -> builder
                                         .define('F', mcjty.rftoolsbase.modules.various.VariousModule.MACHINE_FRAME.get())

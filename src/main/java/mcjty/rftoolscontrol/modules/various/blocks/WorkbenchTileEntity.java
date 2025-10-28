@@ -11,8 +11,10 @@ import mcjty.lib.tileentity.Cap;
 import mcjty.lib.tileentity.CapType;
 import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.rftoolscontrol.modules.various.VariousModule;
+import mcjty.rftoolscontrol.modules.various.data.WorkbenchData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.*;
@@ -27,6 +29,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
 import static mcjty.lib.container.SlotDefinition.generic;
 
@@ -63,33 +66,13 @@ public class WorkbenchTileEntity extends GenericTileEntity {
     private final WorkbenchItemHandler automationItemHandlerSide = new WorkbenchItemHandler(items, null);
 
     @Cap(type = CapType.CONTAINER)
-    private final Lazy<MenuProvider> screenHandler = Lazy.of(() -> new DefaultContainerProvider<WorkbenchContainer>("Workbench")
-            .containerSupplier((windowId, player) -> new WorkbenchContainer(windowId, CONTAINER_FACTORY.get(), getBlockPos(), WorkbenchTileEntity.this, player))
-            .itemHandler(() -> items));
-
-    // This field contains the number of real items in the craft output slot. i.e. these are
-    // items that are already crafted but only (partially) consumed.
-    private int realItems = 0;
+    private static final Function<WorkbenchTileEntity, MenuProvider> SCREEN_CAP = tile -> new DefaultContainerProvider<WorkbenchContainer>("Workbench")
+            .containerSupplier((windowId, player) -> new WorkbenchContainer(windowId, CONTAINER_FACTORY.get(), tile.getBlockPos(), tile, player))
+            .itemHandler(() -> tile.items);
 
     public WorkbenchTileEntity(BlockPos pos, BlockState state) {
         super(VariousModule.WORKBENCH.be().get(), pos, state);
     }
-
-
-    // @todo 1.21 data
-//    @Override
-//    protected void loadInfo(CompoundTag tagCompound) {
-//        super.loadInfo(tagCompound);
-//        CompoundTag info = tagCompound.getCompound("Info");
-//        realItems = info.getInt("realItems");
-//    }
-//
-//    @Override
-//    protected void saveInfo(CompoundTag tagCompound) {
-//        super.saveInfo(tagCompound);
-//        CompoundTag info = getOrCreateInfo(tagCompound);
-//        info.putInt("realItems", realItems);
-//    }
 
     private boolean isCraftInputSlot(int slot) {
         return slot >= SLOT_CRAFTINPUT && slot < SLOT_CRAFTOUTPUT;
@@ -116,14 +99,16 @@ public class WorkbenchTileEntity extends GenericTileEntity {
     }
 
     private void updateRecipe() {
-        if (items.getStackInSlot(SLOT_CRAFTOUTPUT).isEmpty() || realItems == 0) {
+        if (items.getStackInSlot(SLOT_CRAFTOUTPUT).isEmpty() || getRealItems() == 0) {
             CraftingInput workInventory = makeWorkInventory();
             Recipe recipe = findRecipe(workInventory);
             if (recipe != null) {
                 ItemStack stack = BaseRecipe.assemble(recipe, workInventory, level);
                 items.setStackInSlot(SLOT_CRAFTOUTPUT, stack);
+                setRealItems(stack.isEmpty() ? 0 : stack.getCount());
             } else {
                 items.setStackInSlot(SLOT_CRAFTOUTPUT, ItemStack.EMPTY);
+                setRealItems(0);
             }
         }
     }
@@ -169,7 +154,7 @@ public class WorkbenchTileEntity extends GenericTileEntity {
                     // Use the normal simulated item extraction
                     return super.extractItem(slot, amount, simulate);
                 } else {
-                    if (isCraftOutput(slot) && realItems == 0) {
+                    if (isCraftOutput(slot) && getRealItems() == 0) {
                         CraftingInput workInventory = makeWorkInventory();
                         Recipe recipe = findRecipe(workInventory);
                         if (recipe != null) {
@@ -201,11 +186,7 @@ public class WorkbenchTileEntity extends GenericTileEntity {
                     ItemStack rc = super.extractItem(slot, amount, false);
                     if (isCraftOutput(slot)) {
                         ItemStack stack = items.getStackInSlot(slot);
-                        if (!stack.isEmpty()) {
-                            realItems = stack.getCount();
-                        } else {
-                            realItems = 0;
-                        }
+                        setRealItems(stack.isEmpty() ? 0 : stack.getCount());
                     }
                     if (isCraftInputSlot(slot) || isCraftOutput(slot)) {
                         updateRecipe();
@@ -220,6 +201,42 @@ public class WorkbenchTileEntity extends GenericTileEntity {
                 return true;
             }
         };
+    }
+
+    @Override
+    protected void collectImplicitComponents(DataComponentMap.Builder builder) {
+        super.collectImplicitComponents(builder);
+        builder.set(VariousModule.ITEM_WORKBENCH_DATA.get(), getWorkbenchData());
+    }
+
+    @Override
+    protected void applyImplicitComponents(DataComponentInput input) {
+        super.applyImplicitComponents(input);
+        WorkbenchData data = input.get(VariousModule.ITEM_WORKBENCH_DATA.get());
+        if (data != null) {
+            setData(VariousModule.WORKBENCH_DATA.get(), data);
+        }
+    }
+
+    private int getRealItems() {
+        return getWorkbenchData().realItems();
+    }
+
+    private void setRealItems(int realItems) {
+        WorkbenchData data = getWorkbenchData();
+        if (data.realItems() != realItems) {
+            setData(VariousModule.WORKBENCH_DATA.get(), data.withRealItems(realItems));
+            setChanged();
+        }
+    }
+
+    private WorkbenchData getWorkbenchData() {
+        WorkbenchData data = getData(VariousModule.WORKBENCH_DATA.get());
+        if (data == null) {
+            data = WorkbenchData.createDefault();
+            setData(VariousModule.WORKBENCH_DATA.get(), data);
+        }
+        return data;
     }
 
     public class WorkbenchItemHandler extends AutomationFilterItemHander {

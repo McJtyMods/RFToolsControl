@@ -61,10 +61,6 @@ public class ProgrammerTileEntity extends GenericTileEntity {
             if (dummy.isEmpty()) {
                 return;
             }
-            // @todo 1.21 data
-//            if (!dummy.hasTag()) {
-//                return;
-//            }
             ItemStack card = items.getStackInSlot(SLOT_CARD);
             if (card.isEmpty()) {
                 return;
@@ -74,9 +70,7 @@ public class ProgrammerTileEntity extends GenericTileEntity {
                 return;
             }
             ProgramCardItem.setCardName(card, ProgramCardItem.getCardName(dummy));
-            // @todo 1.21 data
-//            Tag newGrid = dummy.getTag().get("grid").copy();
-//            card.getTag().put("grid", newGrid);
+            card.set(VariousModule.PROGRAM_CARD_DATA.get(), instance);
         }
     }
 

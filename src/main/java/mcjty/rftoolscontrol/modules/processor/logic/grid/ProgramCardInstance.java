@@ -3,11 +3,9 @@ package mcjty.rftoolscontrol.modules.processor.logic.grid;
 import com.google.gson.*;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import mcjty.rftoolscontrol.modules.various.VariousModule;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.world.item.ItemStack;
 
 import java.util.*;
 
@@ -138,9 +136,4 @@ public class ProgramCardInstance {
         jsonObject.add("y", new JsonPrimitive(pos.y()));
         return jsonObject;
     }
-
-    public void writeToNBT(ItemStack card) {
-        card.set(VariousModule.PROGRAM_CARD_DATA.get(), this);
-    }
-
 }
