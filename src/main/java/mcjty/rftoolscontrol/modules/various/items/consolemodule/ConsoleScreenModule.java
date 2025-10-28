@@ -1,5 +1,7 @@
 package mcjty.rftoolscontrol.modules.various.items.consolemodule;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import mcjty.lib.varia.BlockPosTools;
 import mcjty.lib.varia.LevelTools;
 import mcjty.rftoolsbase.api.screens.IScreenDataHelper;
@@ -9,6 +11,10 @@ import mcjty.rftoolscontrol.modules.processor.ProcessorModule;
 import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorTileEntity;
 import mcjty.rftoolscontrol.setup.Config;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -20,8 +26,42 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 
 public class ConsoleScreenModule implements IScreenModule<ConsoleScreenModule, ModuleDataLog> {
-    private ResourceKey<Level> dim = Level.OVERWORLD;
-    private BlockPos coordinate = BlockPosTools.INVALID;
+    public static final ConsoleScreenModule DEFAULT = new ConsoleScreenModule(Level.OVERWORLD, BlockPosTools.INVALID);
+
+    public static final Codec<ConsoleScreenModule> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            ResourceKey.codec(Registries.DIMENSION).fieldOf("dim").forGetter(ConsoleScreenModule::getDim),
+            BlockPos.CODEC.fieldOf("pos").forGetter(ConsoleScreenModule::getCoordinate)
+    ).apply(instance, ConsoleScreenModule::new));
+
+    public static final StreamCodec<RegistryFriendlyByteBuf, ConsoleScreenModule> STREAM_CODEC = StreamCodec.composite(
+            ResourceKey.streamCodec(Registries.DIMENSION), ConsoleScreenModule::getDim,
+            BlockPos.STREAM_CODEC, ConsoleScreenModule::getCoordinate,
+            ConsoleScreenModule::new
+    );
+
+    private final ResourceKey<Level> dim;
+    private final BlockPos coordinate;
+
+    public ConsoleScreenModule(ResourceKey<Level> dim, BlockPos coordinate) {
+        this.dim = dim;
+        this.coordinate = coordinate;
+    }
+
+    public ResourceKey<Level> getDim() {
+        return dim;
+    }
+
+    public BlockPos getCoordinate() {
+        return coordinate;
+    }
+
+    public ConsoleScreenModule withDim(ResourceKey<Level> dim) {
+        return new ConsoleScreenModule(dim, coordinate);
+    }
+
+    public ConsoleScreenModule withCoordinate(BlockPos pos) {
+        return new ConsoleScreenModule(dim, pos);
+    }
 
     @Override
     public ModuleDataLog getData(IScreenDataHelper h, Level worldObj, long millis) {
@@ -47,31 +87,6 @@ public class ConsoleScreenModule implements IScreenModule<ConsoleScreenModule, M
         return null;
     }
 
-    // @todo 1.21 data
-//    @Override
-//    public void setupFromNBT(CompoundTag tagCompound, ResourceKey<Level> dim, BlockPos pos) {
-//        if (tagCompound != null) {
-//            coordinate = BlockPosTools.INVALID;
-//            if (tagCompound.contains("monitorx")) {
-//                if (tagCompound.contains("monitordim")) {
-//                    this.dim = LevelTools.getId(tagCompound.getString("monitordim"));
-//                } else {
-//                    // Compatibility reasons
-//                    this.dim = LevelTools.getId(tagCompound.getString("dim"));
-//                }
-//                if (Objects.equals(dim, this.dim)) {
-//                    BlockPos c = new BlockPos(tagCompound.getInt("monitorx"), tagCompound.getInt("monitory"), tagCompound.getInt("monitorz"));
-//                    int dx = Math.abs(c.getX() - pos.getX());
-//                    int dy = Math.abs(c.getY() - pos.getY());
-//                    int dz = Math.abs(c.getZ() - pos.getZ());
-//                    if (dx <= 64 && dy <= 64 && dz <= 64) {
-//                        coordinate = c;
-//                    }
-//                }
-//            }
-//        }
-//    }
-
     @Override
     public int getRfPerTick() {
         return Config.CONSOLEMODULE_RFPERTICK.get();
@@ -79,7 +94,6 @@ public class ConsoleScreenModule implements IScreenModule<ConsoleScreenModule, M
 
     @Override
     public ConsoleScreenModule validate(Level world, BlockPos pos, boolean isPlus) {
-        // @todo 1.21
         return this;
     }
 

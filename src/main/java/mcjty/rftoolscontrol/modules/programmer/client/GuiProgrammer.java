@@ -33,10 +33,9 @@ import mcjty.rftoolscontrol.modules.processor.logic.grid.ProgramCardInstance;
 import mcjty.rftoolscontrol.modules.processor.logic.registry.Opcodes;
 import mcjty.rftoolscontrol.modules.programmer.ProgrammerModule;
 import mcjty.rftoolscontrol.modules.programmer.blocks.ProgrammerTileEntity;
-import mcjty.rftoolscontrol.modules.programmer.network.PacketUpdateNBTItemInventoryProgrammer;
+import mcjty.rftoolscontrol.modules.various.VariousModule;
 import mcjty.rftoolscontrol.modules.various.items.ProgramCardItem;
 import mcjty.rftoolscontrol.setup.Config;
-import mcjty.rftoolscontrol.setup.RFToolsCtrlMessages;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -695,7 +694,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Gen
             return;
         }
         clearGrid(false);
-        ProgramCardInstance instance = ProgramCardInstance.parseInstance(card, minecraft.level.registryAccess());
+        ProgramCardInstance instance = card.get(VariousModule.PROGRAM_CARD_DATA.get());
         if (instance == null) {
             return;
         }

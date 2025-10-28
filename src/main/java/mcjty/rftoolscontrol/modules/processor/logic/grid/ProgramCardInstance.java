@@ -1,14 +1,15 @@
 package mcjty.rftoolscontrol.modules.processor.logic.grid;
 
 import com.google.gson.*;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import mcjty.rftoolscontrol.modules.various.VariousModule;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class ProgramCardInstance {
 
@@ -17,6 +18,60 @@ public class ProgramCardInstance {
     public Map<GridPos, GridInstance> getGridInstances() {
         return gridInstances;
     }
+
+    // Codec/StreamCodec for persisting on ItemStack
+    private record Entry(GridPos pos, GridInstance opcode) {}
+
+    private static final Codec<Entry> ENTRY_CODEC = RecordCodecBuilder.create(inst -> inst.group(
+            GridPos.CODEC.fieldOf("pos").forGetter(Entry::pos),
+            GridInstance.CODEC.fieldOf("opcode").forGetter(Entry::opcode)
+    ).apply(inst, Entry::new));
+
+    private static final StreamCodec<RegistryFriendlyByteBuf, Entry> ENTRY_STREAM_CODEC = StreamCodec.composite(
+            ByteBufCodecs.VAR_INT, e -> e.pos().x(),
+            ByteBufCodecs.VAR_INT, e -> e.pos().y(),
+            GridInstance.STREAM_CODEC, Entry::opcode,
+            (x, y, op) -> new Entry(new GridPos(x, y), op)
+    );
+
+    public static final Codec<ProgramCardInstance> CODEC = ENTRY_CODEC.listOf().xmap(
+            list -> {
+                ProgramCardInstance inst = new ProgramCardInstance();
+                for (Entry e : list) {
+                    inst.putGridInstance(e.pos().x(), e.pos().y(), e.opcode());
+                }
+                return inst;
+            },
+            inst -> {
+                List<Entry> list = new ArrayList<>();
+                for (Map.Entry<GridPos, GridInstance> me : inst.gridInstances.entrySet()) {
+                    list.add(new Entry(me.getKey(), me.getValue()));
+                }
+                return list;
+            }
+    );
+
+    public static final StreamCodec<RegistryFriendlyByteBuf, ProgramCardInstance> STREAM_CODEC = StreamCodec.of(
+            (buf, inst) -> {
+                ArrayList<Entry> list = new ArrayList<>();
+                for (Map.Entry<GridPos, GridInstance> me : inst.gridInstances.entrySet()) {
+                    list.add(new Entry(me.getKey(), me.getValue()));
+                }
+                ByteBufCodecs.VAR_INT.encode(buf, list.size());
+                for (Entry e : list) {
+                    ENTRY_STREAM_CODEC.encode(buf, e);
+                }
+            },
+            buf -> {
+                int size = ByteBufCodecs.VAR_INT.decode(buf);
+                ProgramCardInstance inst = new ProgramCardInstance();
+                for (int i = 0; i < size; i++) {
+                    Entry e = ENTRY_STREAM_CODEC.decode(buf);
+                    inst.putGridInstance(e.pos().x(), e.pos().y(), e.opcode());
+                }
+                return inst;
+            }
+    );
 
     /**
      * NBT Structure:
@@ -39,30 +94,6 @@ public class ProgramCardInstance {
 
     public static ProgramCardInstance newInstance() {
         return new ProgramCardInstance();
-    }
-
-    public static ProgramCardInstance parseInstance(ItemStack card, HolderLookup.Provider provider) {
-        CompoundTag tagCompound = new CompoundTag(); // @todo 1.21 card.getTag();
-        if (tagCompound == null) {
-            return null;
-        }
-        ProgramCardInstance instance = new ProgramCardInstance();
-
-        ListTag grid = tagCompound.getList("grid", Tag.TAG_COMPOUND);
-        for (Tag inbt : grid) {
-            CompoundTag gridElement = (CompoundTag) inbt;
-            parseElement(gridElement, instance, provider);
-        }
-        return instance;
-    }
-
-    private static void parseElement(CompoundTag tag, ProgramCardInstance instance, HolderLookup.Provider provider) {
-        int x = tag.getInt("x");
-        int y = tag.getInt("y");
-        GridInstance gi = GridInstance.readFromNBT(tag, provider);
-        if (gi != null) {
-            instance.putGridInstance(x, y, gi);
-        }
     }
 
     public void putGridInstance(int x, int y, GridInstance gridInstance) {
@@ -109,20 +140,7 @@ public class ProgramCardInstance {
     }
 
     public void writeToNBT(ItemStack card) {
-        // @todo 1.21 data
-//        CompoundTag tagCompound = card.getOrCreateTag();
-//        ListTag grid = new ListTag();
-//
-//        for (Map.Entry<GridPos, GridInstance> entry : gridInstances.entrySet()) {
-//            GridPos coordinate = entry.getKey();
-//            int x = coordinate.x();
-//            int y = coordinate.y();
-//            GridInstance gridInstance = entry.getValue();
-//            CompoundTag tag = gridInstance.writeToNBT(x, y);
-//            grid.add(tag);
-//        }
-//
-//        tagCompound.put("grid", grid);
+        card.set(VariousModule.PROGRAM_CARD_DATA.get(), this);
     }
 
 }

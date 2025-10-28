@@ -6,7 +6,10 @@ import mcjty.lib.blockcommands.Command;
 import mcjty.lib.blockcommands.ListCommand;
 import mcjty.lib.blockcommands.ServerCommand;
 import mcjty.lib.container.GenericItemHandler;
-import mcjty.lib.tileentity.*;
+import mcjty.lib.tileentity.Cap;
+import mcjty.lib.tileentity.CapType;
+import mcjty.lib.tileentity.GenericEnergyStorage;
+import mcjty.lib.tileentity.TickingTileEntity;
 import mcjty.lib.typed.Key;
 import mcjty.lib.typed.Type;
 import mcjty.lib.varia.BlockPosTools;
@@ -37,7 +40,6 @@ import mcjty.rftoolscontrol.modules.processor.logic.TypeConverters;
 import mcjty.rftoolscontrol.modules.processor.logic.compiled.CompiledCard;
 import mcjty.rftoolscontrol.modules.processor.logic.compiled.CompiledEvent;
 import mcjty.rftoolscontrol.modules.processor.logic.compiled.CompiledOpcode;
-import mcjty.rftoolscontrol.modules.processor.logic.grid.ProgramCardInstance;
 import mcjty.rftoolscontrol.modules.processor.logic.registry.InventoryUtil;
 import mcjty.rftoolscontrol.modules.processor.logic.registry.Opcodes;
 import mcjty.rftoolscontrol.modules.processor.logic.running.CpuCore;
@@ -53,6 +55,7 @@ import mcjty.rftoolscontrol.modules.processor.vectorart.GfxOpText;
 import mcjty.rftoolscontrol.modules.various.VariousModule;
 import mcjty.rftoolscontrol.modules.various.blocks.NodeTileEntity;
 import mcjty.rftoolscontrol.modules.various.blocks.WorkbenchTileEntity;
+import mcjty.rftoolscontrol.modules.various.data.TokenData;
 import mcjty.rftoolscontrol.modules.various.items.TokenItem;
 import mcjty.rftoolscontrol.setup.Config;
 import net.minecraft.ChatFormatting;
@@ -64,7 +67,6 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -72,14 +74,11 @@ import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.AABB;
 import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.common.util.Lazy;
 import net.neoforged.neoforge.energy.IEnergyStorage;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemHandlerHelper;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nonnull;
@@ -860,18 +859,13 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         if (itemStack.getItem() instanceof CraftingCardItem) {
             return CraftingCardItem.getResult(itemStack);
         }
-        // @todo 1.21 data for token item
-//        if (itemStack.getItem() instanceof TokenItem && itemStack.hasTag()) {
-//            CompoundTag tag = itemStack.getTag().getCompound("parameter");
-//            if (tag.isEmpty()) {
-//                return ItemStack.EMPTY;
-//            }
-//            Parameter parameter = ParameterTools.readFromNBT(tag);
-//            if (parameter == null || !parameter.isSet()) {
-//                return ItemStack.EMPTY;
-//            }
-//            return TypeConverters.convertToItem(parameter);
-//        }
+        if (itemStack.getItem() instanceof TokenItem) {
+            TokenData token = itemStack.get(VariousModule.TOKEN_DATA);
+            if (token == null) {
+                return ItemStack.EMPTY;
+            }
+            return TypeConverters.convertToItem(token.parameter());
+        }
         return ItemStack.EMPTY;
     }
 
@@ -1168,7 +1162,6 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
             CompiledCard compiledCard = info.getCompiledCard();
             if (compiledCard != null) {
                 for (CompiledEvent event : compiledCard.getEvents(Opcodes.EVENT_GFX_SELECT)) {
-                    int index = event.index();
                     runOrQueueEvent(i, event, null, Parameter.builder()
                             .type(ParameterType.PAR_TUPLE)
                             .value(ParameterValue.constant(location))
@@ -1530,7 +1523,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
                     int cardIndex = i - ProcessorContainer.SLOT_CARD;
                     if (cardInfo[cardIndex].getCompiledCard() == null) {
                         // @todo validation
-                        CompiledCard compiled = CompiledCard.compile(ProgramCardInstance.parseInstance(cardStack, provider));
+                        CompiledCard compiled = CompiledCard.compile(cardStack.get(VariousModule.PROGRAM_CARD_DATA.get()));
                         cardInfo[cardIndex].setCompiledCard(compiled);
                     }
                 }
@@ -1714,68 +1707,64 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
 
     public int fetchLiquid(IProgram program, @Nonnull Inventory inv, final int amount, @Nullable FluidStack fluidStack, int virtualSlot) {
         IFluidHandler handler = getFluidHandlerAt(inv);
-        if (handler != null) {
-            CardInfo info = this.cardInfo[((RunningProgram) program).getCardIndex()];
-            int realSlot = info.getRealFluidSlot(virtualSlot);
-            Direction side = Direction.values()[realSlot / TANKS];
-            int idx = realSlot % TANKS;
-            MultiTankFluidProperties properties = getFluidPropertiesFromMultiTank(side, idx);
-            if (properties == null) {
-                return 0;
-            }
-
-            int internalAmount = 0;
-            if (properties.hasContents()) {
-                // There is already some fluid in the slot
-                if (fluidStack != null) {
-                    // This has to match
-                    if (!fluidStack.isFluidEqual(properties.getContentsInternal())) {
-                        return 0;
-                    }
-                }
-                internalAmount = properties.getContentsInternal().getAmount();
-            }
-
-            // Make sure we only drain what can fit in the internal slot
-            int newAmount = amount;
-            if (internalAmount + newAmount > MAXCAPACITY) {
-                newAmount = MAXCAPACITY - internalAmount;
-            }
-            if (newAmount <= 0) {
-                return 0;
-            }
-
-            if (fluidStack == null) {
-                // Just drain any fluid
-                FluidStack drained = handler.drain(newAmount, IFluidHandler.FluidAction.SIMULATE);
-                if (!drained.isEmpty()) {
-                    // Check if the fluid matches
-                    if ((!properties.hasContents()) || properties.getContentsInternal().isFluidEqual(drained)) {
-                        drained = handler.drain(newAmount, IFluidHandler.FluidAction.EXECUTE);
-                        properties.fill(drained);
-                        return drained.getAmount();
-                    }
-                    return 0;
-                }
-            } else {
-                // Drain only that fluid
-                FluidStack todrain = fluidStack.copy();
-                todrain.setAmount(newAmount);
-                FluidStack drained = handler.drain(todrain, IFluidHandler.FluidAction.EXECUTE);
-                if (!drained.isEmpty()) {
-                    int drainedAmount = drained.getAmount();
-                    if (properties.hasContents()) {
-                        drained.setAmount(drained.getAmount() + properties.getContentsInternal().getAmount());
-                    }
-                    properties.set(drained);
-                    return drainedAmount;
-                }
-            }
-
-            return 0;
-        } else {
+        CardInfo info = this.cardInfo[((RunningProgram) program).getCardIndex()];
+        int realSlot = info.getRealFluidSlot(virtualSlot);
+        Direction side = Direction.values()[realSlot / TANKS];
+        int idx = realSlot % TANKS;
+        MultiTankFluidProperties properties = getFluidPropertiesFromMultiTank(side, idx);
+        if (properties == null) {
             return 0;
         }
+
+        int internalAmount = 0;
+        if (properties.hasContents()) {
+            // There is already some fluid in the slot
+            if (fluidStack != null) {
+                // This has to match
+                if (!FluidStack.isSameFluidSameComponents(fluidStack, properties.getContentsInternal())) {
+                    return 0;
+                }
+            }
+            internalAmount = properties.getContentsInternal().getAmount();
+        }
+
+        // Make sure we only drain what can fit in the internal slot
+        int newAmount = amount;
+        if (internalAmount + newAmount > MAXCAPACITY) {
+            newAmount = MAXCAPACITY - internalAmount;
+        }
+        if (newAmount <= 0) {
+            return 0;
+        }
+
+        if (fluidStack == null) {
+            // Just drain any fluid
+            FluidStack drained = handler.drain(newAmount, IFluidHandler.FluidAction.SIMULATE);
+            if (!drained.isEmpty()) {
+                // Check if the fluid matches
+                if ((!properties.hasContents()) || FluidStack.isSameFluidSameComponents(properties.getContentsInternal(), drained)) {
+                    drained = handler.drain(newAmount, IFluidHandler.FluidAction.EXECUTE);
+                    properties.fill(drained);
+                    return drained.getAmount();
+                }
+                return 0;
+            }
+        } else {
+            // Drain only that fluid
+            FluidStack todrain = fluidStack.copy();
+            todrain.setAmount(newAmount);
+            FluidStack drained = handler.drain(todrain, IFluidHandler.FluidAction.EXECUTE);
+            if (!drained.isEmpty()) {
+                int drainedAmount = drained.getAmount();
+                if (properties.hasContents()) {
+                    drained.setAmount(drained.getAmount() + properties.getContentsInternal().getAmount());
+                }
+                properties.set(drained);
+                return drainedAmount;
+            }
+        }
+
+        return 0;
     }
 
 
@@ -2151,7 +2140,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         if (varValue.getParameterType() == ParameterType.PAR_ITEM) {
             return ItemStack.isSameItem((ItemStack) v1, (ItemStack) v2);
         } else if (varValue.getParameterType() == ParameterType.PAR_FLUID) {
-            return ((FluidStack) v1).isFluidEqual((FluidStack) v2);
+            return FluidStack.isSameFluidSameComponents((FluidStack) v1, (FluidStack) v2);
         } else if (varValue.getParameterType() == ParameterType.PAR_VECTOR) {
             return ParameterTools.compare(lastValue, varValue) == 0;
         } else {
@@ -2217,17 +2206,12 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         if (stack.isEmpty() || !(stack.getItem() instanceof TokenItem)) {
             throw new ProgException(EXCEPT_NOTATOKEN);
         }
-        // @todo 1.21 data
-//        if (!stack.hasTag()) {
-//            stack.setTag(new CompoundTag());
-//        }
-//        Parameter lastValue = (Parameter) program.getLastValue();
-//        if (lastValue == null) {
-//            stack.getTag().remove("parameter");
-//        } else {
-//            CompoundTag tag = ParameterTools.writeToNBT(lastValue);
-//            stack.getTag().put("parameter", tag);
-//        }
+        Parameter lastValue = (Parameter) program.getLastValue();
+        if (lastValue == null) {
+            stack.remove(mcjty.rftoolscontrol.modules.various.VariousModule.TOKEN_DATA);
+        } else {
+            stack.set(mcjty.rftoolscontrol.modules.various.VariousModule.TOKEN_DATA, new mcjty.rftoolscontrol.modules.various.data.TokenData(lastValue));
+        }
     }
 
     @Nullable
@@ -2238,16 +2222,8 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         if (stack.isEmpty() || !(stack.getItem() instanceof TokenItem)) {
             throw new ProgException(EXCEPT_NOTATOKEN);
         }
-        // @todo 1.21 data
-//        if (!stack.hasTag()) {
-//            return null;
-//        }
-//        CompoundTag tag = stack.getTag().getCompound("parameter");
-//        if (tag.isEmpty()) {
-//            return null;
-//        }
-//        return ParameterTools.readFromNBT(tag);
-        return null;
+        mcjty.rftoolscontrol.modules.various.data.TokenData data = stack.get(mcjty.rftoolscontrol.modules.various.VariousModule.TOKEN_DATA);
+        return data != null ? data.parameter() : null;
     }
 
 
@@ -3108,7 +3084,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         CompiledCard card = info.getCompiledCard();
         ItemStack cardStack = items.getStackInSlot(index + ProcessorContainer.SLOT_CARD);
         if (card == null && !cardStack.isEmpty()) {
-            card = CompiledCard.compile(ProgramCardInstance.parseInstance(cardStack, level.registryAccess()));
+            card = CompiledCard.compile(cardStack.get(VariousModule.PROGRAM_CARD_DATA.get()));
             cardInfo[index].setCompiledCard(card);
         }
         return card;

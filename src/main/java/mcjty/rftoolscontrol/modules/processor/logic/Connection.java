@@ -1,6 +1,10 @@
 package mcjty.rftoolscontrol.modules.processor.logic;
 
+import com.mojang.serialization.Codec;
 import mcjty.rftoolscontrol.modules.processor.logic.grid.GridPos;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.neoforged.neoforge.network.codec.NeoForgeStreamCodecs;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -16,6 +20,9 @@ public enum Connection {
     RIGHT_NEG("r");
 
     private final String id;
+
+    public static final Codec<Connection> CODEC = Codec.STRING.xmap(Connection::getConnection, Connection::name);
+    public static final StreamCodec<FriendlyByteBuf, Connection> STREAM_CODEC = NeoForgeStreamCodecs.enumCodec(Connection.class);
 
     private static final Map<String, Connection> ID_TO_CONNECTION = new HashMap<>();
 

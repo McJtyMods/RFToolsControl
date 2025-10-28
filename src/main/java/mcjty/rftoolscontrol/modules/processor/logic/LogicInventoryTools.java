@@ -52,14 +52,6 @@ public class LogicInventoryTools {
         return true;
     }
 
-    private static boolean isItemEqual(ItemStack thisItem, ItemStack other) {
-        if (other.isEmpty()) {
-            return false;
-        }
-        return ItemStack.isSameItem(thisItem, other);
-    }
-
-
     public static ItemStack extractItem(@Nullable IItemHandler itemHandler, @Nullable IStorageScanner scanner,
                                         @Nullable Integer amount, boolean routable, @Nonnull Ingredient itemMatcher,
                                         @Nullable Integer slot) {

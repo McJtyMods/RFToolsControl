@@ -15,7 +15,6 @@ import mcjty.rftoolscontrol.modules.various.items.ProgramCardItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.nbt.Tag;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.common.util.Lazy;
 
@@ -70,7 +69,7 @@ public class ProgrammerTileEntity extends GenericTileEntity {
             if (card.isEmpty()) {
                 return;
             }
-            ProgramCardInstance instance = ProgramCardInstance.parseInstance(dummy, level.registryAccess());
+            ProgramCardInstance instance = dummy.get(VariousModule.PROGRAM_CARD_DATA.get());
             if (instance == null) {
                 return;
             }

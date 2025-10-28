@@ -7,9 +7,6 @@ import mcjty.rftoolscontrol.compat.rftoolssupport.ModuleDataLog;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
@@ -29,27 +26,17 @@ public class ConsoleClientScreenModule implements IClientScreenModule<ModuleData
 
     @Override
     public void render(GuiGraphics graphics, MultiBufferSource buffer, IModuleRenderHelper renderHelper, Font fontRenderer, int currenty, ModuleDataLog screenData, ModuleRenderInfo renderInfo) {
-        // @todo 1.15 render system @todo 1.18
-//        GlStateManager._disableLighting();
         int xoffset = 7;
         if (screenData != null) {
             List<String> log = screenData.getLog();
             if (log != null) {
                 for (String s : log) {
-                    // @todo 1.15
-//                    renderHelper.renderTextTrimmed(xoffset, currenty, 0xffffffff, renderInfo, s, 480);
+                    renderHelper.renderText(graphics, buffer, xoffset, currenty, 0xffffffff, renderInfo, s);
                     currenty += 10;
                 }
             }
         }
     }
-
-    // @todo 1.21
-//    @Override
-//    public void setupFromNBT(CompoundTag tagCompound, ResourceKey<Level> dim, BlockPos pos) {
-//
-//    }
-
 
     @Override
     public void mouseClick(ItemStack moduleStack, Level world, int x, int y, boolean clicked) {

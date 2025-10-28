@@ -7,6 +7,7 @@ import mcjty.lib.datagen.DataGen;
 import mcjty.lib.datagen.Dob;
 import mcjty.lib.modules.IModule;
 import mcjty.rftoolsbase.modules.tablet.items.TabletItem;
+import mcjty.rftoolscontrol.modules.processor.logic.grid.ProgramCardInstance;
 import mcjty.rftoolscontrol.modules.programmer.client.GuiProgrammer;
 import mcjty.rftoolscontrol.modules.various.blocks.*;
 import mcjty.rftoolscontrol.modules.various.client.GuiNode;
@@ -15,11 +16,13 @@ import mcjty.rftoolscontrol.modules.various.items.CardBaseItem;
 import mcjty.rftoolscontrol.modules.various.items.ProgramCardItem;
 import mcjty.rftoolscontrol.modules.various.items.TokenItem;
 import mcjty.rftoolscontrol.modules.various.items.consolemodule.ConsoleModuleItem;
+import mcjty.rftoolscontrol.modules.various.items.consolemodule.ConsoleScreenModule;
 import mcjty.rftoolscontrol.modules.various.items.interactionmodule.InteractionModuleItem;
 import mcjty.rftoolscontrol.modules.various.items.variablemodule.VariableModuleItem;
 import mcjty.rftoolscontrol.modules.various.items.vectorartmodule.VectorArtModuleItem;
 import mcjty.rftoolscontrol.setup.Registration;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponentType;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
@@ -29,6 +32,7 @@ import net.neoforged.neoforge.common.Tags;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredItem;
 
 import java.util.function.Supplier;
@@ -60,13 +64,36 @@ public class VariousModule implements IModule {
     public static final DeferredItem<CardBaseItem> CARD_BASE = ITEMS.register("card_base", tab(CardBaseItem::new));
     public static final DeferredItem<TokenItem> TOKEN = ITEMS.register("token", tab(TokenItem::new));
 
+    // Data component for token parameter storage
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<mcjty.rftoolscontrol.modules.various.data.TokenData>> TOKEN_DATA = COMPONENTS.registerComponentType(
+            "token_data",
+            builder -> builder.persistent(mcjty.rftoolscontrol.modules.various.data.TokenData.CODEC).networkSynchronized(mcjty.rftoolscontrol.modules.various.data.TokenData.STREAM_CODEC)
+    );
+
     public static final DeferredItem<ProgramCardItem> PROGRAM_CARD = ITEMS.register("program_card", tab(ProgramCardItem::new));
     public static final DeferredItem<VariableModuleItem> VARIABLE_MODULE = ITEMS.register("variable_module", tab(VariableModuleItem::new));
     public static final DeferredItem<InteractionModuleItem> INTERACTION_MODULE = ITEMS.register("interaction_module", tab(InteractionModuleItem::new));
     public static final DeferredItem<ConsoleModuleItem> CONSOLE_MODULE = ITEMS.register("console_module", tab(ConsoleModuleItem::new));
     public static final DeferredItem<VectorArtModuleItem> VECTORART_MODULE = ITEMS.register("vectorart_module", tab(VectorArtModuleItem::new));
-
     public static final DeferredItem<TabletItem> TABLET_PROCESSOR = ITEMS.register("tablet_processor", tab(TabletItem::new));
+
+    // Data component for console module configuration
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<ConsoleScreenModule>> CONSOLE_MODULE_DATA = COMPONENTS.registerComponentType(
+            "console_module_data",
+            builder -> builder.persistent(ConsoleScreenModule.CODEC)
+                    .networkSynchronized(ConsoleScreenModule.STREAM_CODEC)
+    );
+
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<ProgramCardInstance>> PROGRAM_CARD_DATA = COMPONENTS.registerComponentType(
+            "program_card_data",
+            builder -> builder.persistent(ProgramCardInstance.CODEC).networkSynchronized(ProgramCardInstance.STREAM_CODEC)
+    );
+
+    // Name of the program card
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<String>> PROGRAM_CARD_NAME = COMPONENTS.registerComponentType(
+            "program_card_name",
+            builder -> builder.persistent(com.mojang.serialization.Codec.STRING).networkSynchronized(net.minecraft.network.codec.ByteBufCodecs.STRING_UTF8)
+    );
 
     public VariousModule(IEventBus bus) {
         bus.addListener(this::registerMenuScreens);

@@ -7,18 +7,15 @@ import mcjty.lib.varia.Tools;
 import mcjty.rftoolsbase.api.control.parameters.Parameter;
 import mcjty.rftoolsbase.tools.ManualHelper;
 import mcjty.rftoolscontrol.RFToolsControl;
-import mcjty.rftoolscontrol.modules.processor.logic.ParameterTools;
 import mcjty.rftoolscontrol.modules.processor.logic.ParameterTypeTools;
-import net.minecraft.nbt.CompoundTag;
+import mcjty.rftoolscontrol.modules.various.VariousModule;
+import mcjty.rftoolscontrol.modules.various.data.TokenData;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.level.Level;
-import net.neoforged.neoforge.common.util.Lazy;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.List;
 
 import static mcjty.lib.builder.TooltipBuilder.*;
@@ -40,37 +37,29 @@ public class TokenItem extends Item implements ITooltipSettings {
     }
 
     private boolean isEmpty(ItemStack stack) {
-        // @todo 1.21 data
-//        if (stack.hasTag()) {
-//            CompoundTag parameter = stack.getTag().getCompound("parameter");
-//            if (!parameter.isEmpty()) {
-//                return false;
-//            }
-//        }
-        return true;
+        TokenData data = stack.get(VariousModule.TOKEN_DATA);
+        return data == null || data.parameter() == null || !data.parameter().isSet();
     }
 
     private String getParameterType(ItemStack stack) {
-        // @todo 1.21 data
-//        if (stack.hasTag()) {
-//            CompoundTag parameter = stack.getTag().getCompound("parameter");
-//            if (!parameter.isEmpty()) {
-//                Parameter par = ParameterTools.readFromNBT(parameter);
-//                return par.getParameterType().getName();
-//            }
-//        }
+        TokenData data = stack.get(VariousModule.TOKEN_DATA);
+        if (data != null && data.parameter() != null) {
+            Parameter par = data.parameter();
+            if (par != null && par.getParameterType() != null) {
+                return par.getParameterType().getName();
+            }
+        }
         return "<unknown>";
     }
 
     private String getParameterValue(ItemStack stack) {
-        // @todo 1.21 data
-//        if (stack.hasTag()) {
-//            CompoundTag parameter = stack.getTag().getCompound("parameter");
-//            if (!parameter.isEmpty()) {
-//                Parameter par = ParameterTools.readFromNBT(parameter);
-//                return ParameterTypeTools.stringRepresentation(par.getParameterType(), par.getParameterValue());
-//            }
-//        }
+        TokenData data = stack.get(VariousModule.TOKEN_DATA);
+        if (data != null && data.parameter() != null) {
+            Parameter par = data.parameter();
+            if (par != null && par.getParameterType() != null && par.getParameterValue() != null) {
+                return ParameterTypeTools.stringRepresentation(par.getParameterType(), par.getParameterValue());
+            }
+        }
         return "<unknown>";
     }
 

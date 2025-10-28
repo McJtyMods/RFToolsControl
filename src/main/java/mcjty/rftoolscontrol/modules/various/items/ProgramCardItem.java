@@ -6,6 +6,7 @@ import mcjty.lib.tooltips.ITooltipSettings;
 import mcjty.lib.varia.Tools;
 import mcjty.rftoolsbase.tools.ManualHelper;
 import mcjty.rftoolscontrol.RFToolsControl;
+import mcjty.rftoolscontrol.modules.various.VariousModule;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
@@ -44,19 +45,17 @@ public class ProgramCardItem extends Item implements ITooltipSettings {
     }
 
     public static String getCardName(ItemStack stack) {
-        // @todo 1.21 data
-//        CompoundTag tagCompound = stack.getTag();
-//        if (tagCompound != null) {
-//            return tagCompound.getString("name");
-//        } else {
-            return "";
-//        }
+        String name = stack.get(VariousModule.PROGRAM_CARD_NAME.get());
+        return name == null ? "" : name;
     }
 
     public static void setCardName(ItemStack stack, String name) {
-        // @todo 1.21 data
-//        CompoundTag tagCompound = stack.getOrCreateTag();
-//        tagCompound.putString("name", name);
+        if (name == null) {
+            // Clear the name component if null
+            stack.remove(VariousModule.PROGRAM_CARD_NAME.get());
+        } else {
+            stack.set(VariousModule.PROGRAM_CARD_NAME.get(), name);
+        }
     }
 
 }

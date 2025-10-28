@@ -5,7 +5,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import mcjty.rftoolsbase.api.control.code.Opcode;
 import mcjty.rftoolsbase.api.control.parameters.Parameter;
@@ -15,12 +14,12 @@ import mcjty.rftoolscontrol.modules.processor.logic.Connection;
 import mcjty.rftoolscontrol.modules.processor.logic.ParameterTools;
 import mcjty.rftoolscontrol.modules.processor.logic.registry.Opcodes;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,34 +39,17 @@ public class GridInstance {
         this.parameters = builder.parameters;
     }
 
-    private static final Codec<Connection> CONNECTION_CODEC = Codec.STRING.flatXmap(
-            id -> {
-                Connection connection = Connection.getConnection(id);
-                return connection != null
-                        ? DataResult.success(connection)
-                        : DataResult.error(() -> "Unknown connection: " + id);
-            },
-            connection -> DataResult.success(connection.getId())
-    ).stable();
-
-    private static final int CONNECTION_ID_MAX_LENGTH = 16;
-
-    private static final StreamCodec<RegistryFriendlyByteBuf, Connection> CONNECTION_STREAM_CODEC = StreamCodec.of(
-            (buf, connection) -> buf.writeUtf(connection.getId(), CONNECTION_ID_MAX_LENGTH),
-            buf -> decodeConnection(buf.readUtf(CONNECTION_ID_MAX_LENGTH))
-    );
-
     public static final Codec<GridInstance> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.STRING.fieldOf("id").forGetter(GridInstance::getId),
-            CONNECTION_CODEC.optionalFieldOf("primary").forGetter(grid -> Optional.ofNullable(grid.getPrimaryConnection())),
-            CONNECTION_CODEC.optionalFieldOf("secondary").forGetter(grid -> Optional.ofNullable(grid.getSecondaryConnection())),
+            Connection.CODEC.optionalFieldOf("primary").forGetter(grid -> Optional.ofNullable(grid.getPrimaryConnection())),
+            Connection.CODEC.optionalFieldOf("secondary").forGetter(grid -> Optional.ofNullable(grid.getSecondaryConnection())),
             Parameter.CODEC.listOf().fieldOf("parameters").forGetter(GridInstance::getParameters)
-    ).apply(instance, (id, primary, secondary, parameters) -> createInstance(id, primary, secondary, parameters)));
+    ).apply(instance, GridInstance::createInstance));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, GridInstance> STREAM_CODEC = StreamCodec.composite(
             ByteBufCodecs.STRING_UTF8, GridInstance::getId,
-            ByteBufCodecs.optional(CONNECTION_STREAM_CODEC), grid -> Optional.ofNullable(grid.getPrimaryConnection()),
-            ByteBufCodecs.optional(CONNECTION_STREAM_CODEC), grid -> Optional.ofNullable(grid.getSecondaryConnection()),
+            ByteBufCodecs.optional(Connection.STREAM_CODEC), grid -> Optional.ofNullable(grid.getPrimaryConnection()),
+            ByteBufCodecs.optional(Connection.STREAM_CODEC), grid -> Optional.ofNullable(grid.getSecondaryConnection()),
             Parameter.STREAM_CODEC.apply(ByteBufCodecs.list()), GridInstance::getParameters,
             GridInstance::createInstance
     );
@@ -217,14 +199,6 @@ public class GridInstance {
                 builder.parameter(parameter);
             }
         }
-    }
-
-    private static Connection decodeConnection(String id) {
-        Connection connection = Connection.getConnection(id);
-        if (connection == null) {
-            throw new IllegalStateException("Unknown connection: " + id);
-        }
-        return connection;
     }
 
     public static class Builder {

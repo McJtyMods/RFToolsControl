@@ -6,6 +6,7 @@ import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.lib.varia.ComponentFactory;
 import mcjty.lib.varia.Logging;
 import mcjty.lib.varia.ModuleTools;
+import mcjty.lib.varia.Tools;
 import mcjty.rftoolsbase.api.screens.IClientScreenModule;
 import mcjty.rftoolsbase.api.screens.IModuleGuiBuilder;
 import mcjty.rftoolsbase.api.screens.IScreenModule;
@@ -17,12 +18,11 @@ import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorContainer;
 import mcjty.rftoolscontrol.modules.various.VariousModule;
 import mcjty.rftoolscontrol.setup.Config;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.GlobalPos;
 import net.minecraft.core.component.DataComponentType;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
@@ -49,30 +49,29 @@ public class ConsoleModuleItem extends GenericModuleItem implements ITabletSuppo
                 .durability(1));
     }
 
-    // @todo 1.21 methods below!
     @Override
     public @Nullable Codec<? extends IScreenModule<?, ?>> codec() {
-        return null;
+        return ConsoleScreenModule.CODEC;
     }
 
     @Override
     public @Nullable StreamCodec<RegistryFriendlyByteBuf, ? extends IScreenModule<?, ?>> streamCodec() {
-        return null;
+        return ConsoleScreenModule.STREAM_CODEC;
     }
 
     @Override
     public @Nullable DataComponentType<? extends IScreenModule<?, ?>> componentType() {
-        return null;
+        return VariousModule.CONSOLE_MODULE_DATA.get();
     }
 
     @Override
     public IScreenModule<?, ?> createServerScreenModule() {
-        return null;
+        return ConsoleScreenModule.DEFAULT;
     }
 
     @Override
     public IClientScreenModule<?> createClientScreenModule() {
-        return null;
+        return new ConsoleClientScreenModule();
     }
 
     @Override
@@ -83,7 +82,7 @@ public class ConsoleModuleItem extends GenericModuleItem implements ITabletSuppo
     @Override
     public void openGui(@Nonnull Player player, @Nonnull ItemStack tabletItem, @Nonnull ItemStack containingItem) {
         BlockPos pos = ModuleTools.getPositionFromModule(containingItem);
-        ResourceKey<Level> dimensionType = ModuleTools.getDimensionFromModule(containingItem);
+        var dimensionType = ModuleTools.getDimensionFromModule(containingItem);
         GuiTools.openRemoteGui(player, dimensionType, pos, te -> new MenuProvider() {
             @Override
             @Nonnull
@@ -111,70 +110,70 @@ public class ConsoleModuleItem extends GenericModuleItem implements ITabletSuppo
 
     @Override
     protected boolean hasGoldMessage(ItemStack stack) {
-        return !ModuleTools.hasModuleTarget(stack);
+        return !mcjty.lib.varia.BlockPosTools.isValid(consoleData(stack).getCoordinate());
     }
 
     @Override
     protected String getInfoString(ItemStack stack) {
-        return ModuleTools.getTargetString(stack);
+        ConsoleScreenModule data = consoleData(stack);
+        return ModuleTools.getTargetString("Processor", net.minecraft.core.GlobalPos.of(data.getDim(), data.getCoordinate()));
     }
-
-//    @Override
-//    public Class<ConsoleScreenModule> getServerScreenModule() {
-//        return ConsoleScreenModule.class;
-//    }
-//
-//    @Override
-//    public Class<ConsoleClientScreenModule> getClientScreenModule() {
-//        return ConsoleClientScreenModule.class;
-//    }
 
     @Override
     public String getModuleName() {
         return "VAR";
     }
 
+    public static ConsoleScreenModule consoleData(ItemStack stack) {
+        ConsoleScreenModule data = stack.get(VariousModule.CONSOLE_MODULE_DATA);
+        if (data == null) {
+            data = ConsoleScreenModule.DEFAULT;
+        }
+        return data;
+    }
+
+    public static void consoleData(ItemStack stack, java.util.function.Function<ConsoleScreenModule, ConsoleScreenModule> setter) {
+        ConsoleScreenModule data = consoleData(stack);
+        data = setter.apply(data);
+        stack.set(VariousModule.CONSOLE_MODULE_DATA.get(), data);
+    }
+
     @Override
     public void createGui(IModuleGuiBuilder guiBuilder) {
-        // @todo 1.21
-//        guiBuilder.
-//                block("monitor").nl();
+        guiBuilder
+                .label("Block:")
+                .block(stack -> GlobalPos.of(consoleData(stack).getDim(), consoleData(stack).getCoordinate()), stack -> "Processor")
+                .nl();
     }
 
     @Override
     @Nonnull
     public InteractionResult useOn(UseOnContext context) {
         Player player = context.getPlayer();
-        InteractionHand hand = context.getHand();
+        var hand = context.getHand();
         Level world = context.getLevel();
         BlockPos pos = context.getClickedPos();
         ItemStack stack = player.getItemInHand(hand);
         BlockState state = world.getBlockState(pos);
         Block block = state.getBlock();
-        CompoundTag tagCompound = new CompoundTag();// @todo 1.21 data stack.getTag();
-        if (tagCompound == null) {
-            tagCompound = new CompoundTag();
-        }
 
+        ConsoleScreenModule data = consoleData(stack);
         if (block == ProcessorModule.PROCESSOR.block().get()) {
-            tagCompound.putString("monitordim", world.dimension().location().toString());
-            tagCompound.putInt("monitorx", pos.getX());
-            tagCompound.putInt("monitory", pos.getY());
-            tagCompound.putInt("monitorz", pos.getZ());
+            data = data.withDim(world.dimension());
+            data = data.withCoordinate(pos);
+            String name = Tools.getReadableName(world, pos);
+            ModuleTools.setPositionInModule(stack, world.dimension(), pos, name);
             if (world.isClientSide) {
                 Logging.message(player, "Console module is set to block");
             }
         } else {
-            tagCompound.remove("monitordim");
-            tagCompound.remove("monitorx");
-            tagCompound.remove("monitory");
-            tagCompound.remove("monitorz");
+            data = data.withCoordinate(mcjty.lib.varia.BlockPosTools.INVALID);
+            ModuleTools.clearPositionInModule(stack);
             if (world.isClientSide) {
                 Logging.message(player, "Console module is cleared");
             }
         }
-        // @todo 1.21 data
-//        stack.setTag(tagCompound);
+        stack.set(VariousModule.CONSOLE_MODULE_DATA.get(), data);
         return InteractionResult.SUCCESS;
     }
 
