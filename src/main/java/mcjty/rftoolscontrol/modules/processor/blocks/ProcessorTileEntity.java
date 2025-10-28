@@ -12,10 +12,7 @@ import mcjty.lib.tileentity.GenericEnergyStorage;
 import mcjty.lib.tileentity.TickingTileEntity;
 import mcjty.lib.typed.Key;
 import mcjty.lib.typed.Type;
-import mcjty.lib.varia.BlockPosTools;
-import mcjty.lib.varia.Cached;
-import mcjty.lib.varia.EnergyTools;
-import mcjty.lib.varia.LevelTools;
+import mcjty.lib.varia.*;
 import mcjty.rftoolsbase.api.control.code.ICompiledOpcode;
 import mcjty.rftoolsbase.api.control.code.IOpcodeRunnable;
 import mcjty.rftoolsbase.api.control.machines.IProcessor;
@@ -62,11 +59,15 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponentMap;
+import net.minecraft.core.component.DataComponentType;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -1628,19 +1629,29 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         }
     }
 
-    public boolean compareNBTTag(@Nonnull ItemStack v1, @Nonnull ItemStack v2, @Nonnull String tag) {
-        // @todo 1.21 components
-//        if ((!v1.hasTag()) || (!v2.hasTag())) {
-//            return v1.hasTag() == v2.hasTag();
-//        }
-//        Tag tag1 = v1.getTag().get(tag);
-//        Tag tag2 = v2.getTag().get(tag);
-//        if (tag1 == tag2) {
-//            return true;
-//        }
-//        if (tag1 != null) {
-//            return tag1.equals(tag2);
-//        }
+    public boolean compareNBTTag(@Nonnull ItemStack v1, @Nonnull ItemStack v2, @Nonnull ResourceLocation componentId) {
+        DataComponentMap componentsV1 = v1.getComponents();
+        DataComponentMap componentsV2 = v2.getComponents();
+
+        // Find DataComponentType for the given componentId
+        DataComponentType<?> componentType = level.registryAccess().registry(Registries.DATA_COMPONENT_TYPE)
+                .get()
+                .get(componentId);
+
+        // If either item has no components
+        if (!componentsV1.has(componentType) || !componentsV2.has(componentType)) {
+            return componentsV1.has(componentType) == componentsV2.has(componentType);
+        }
+
+        Object component1 = componentsV1.get(componentType);
+        Object component2 = componentsV2.get(componentType);
+
+        if (component1 == component2) {
+            return true;
+        }
+        if (component1 != null) {
+            return component1.equals(component2);
+        }
         return false;
     }
 
@@ -1867,26 +1878,20 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         if (idCard.isEmpty() || !(idCard.getItem() instanceof NetworkIdentifierItem)) {
             throw new ProgException(EXCEPT_NOTANIDENTIFIER);
         }
-        // @todo 1.21 data
-//        CompoundTag tagCompound = idCard.getTag();
-//        if (tagCompound == null || !tagCompound.contains("monitorx")) {
-//            throw new ProgException(EXCEPT_INVALIDDESTINATION);
-//        }
-//        String monitordim = tagCompound.getString("monitordim");
-//        int monitorx = tagCompound.getInt("monitorx");
-//        int monitory = tagCompound.getInt("monitory");
-//        int monitorz = tagCompound.getInt("monitorz");
-//        ServerLevel world = LevelTools.getLevel(LevelTools.getId(monitordim));
-//        BlockPos dest = new BlockPos(monitorx, monitory, monitorz);
-//        if (!LevelTools.isLoaded(world, dest)) {
-//            throw new ProgException(EXCEPT_INVALIDDESTINATION);
-//        }
-//        BlockEntity te = world.getBlockEntity(dest);
-//        if (!(te instanceof ProcessorTileEntity)) {
-//            throw new ProgException(EXCEPT_INVALIDDESTINATION);
-//        }
-//        ProcessorTileEntity destTE = (ProcessorTileEntity) te;
-//        destTE.receiveMessage(messageName, realVariable == null ? null : getVariableArray()[realVariable]);
+        if (!ModuleTools.hasModuleTarget(idCard)) {
+            throw new ProgException(EXCEPT_INVALIDDESTINATION);
+        }
+        var dim = ModuleTools.getDimensionFromModule(idCard);
+        BlockPos dest = ModuleTools.getPositionFromModule(idCard);
+        Level world = LevelTools.getLevel(level, dim);
+        if (world == null || !LevelTools.isLoaded(world, dest)) {
+            throw new ProgException(EXCEPT_INVALIDDESTINATION);
+        }
+        BlockEntity te = world.getBlockEntity(dest);
+        if (!(te instanceof ProcessorTileEntity destTE)) {
+            throw new ProgException(EXCEPT_INVALIDDESTINATION);
+        }
+        destTE.receiveMessage(messageName, realVariable == null ? null : getVariableArray()[realVariable]);
     }
 
     private void setOp(String id, GfxOp op) {
@@ -2471,14 +2476,12 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
             throw new ProgException(EXCEPT_MISSINGSTORAGECARD);
         }
         ItemStack storageStack = items.getStackInSlot(card);
-        // @todo 1.21 data
-//        if (!storageStack.hasTag()) {
-//            throw new ProgException(EXCEPT_MISSINGSTORAGECARD);
-//        }
-        CompoundTag tagCompound = new CompoundTag();// = storageStack.getTag();
-        BlockPos c = new BlockPos(tagCompound.getInt("monitorx"), tagCompound.getInt("monitory"), tagCompound.getInt("monitorz"));
-        String dim = tagCompound.getString("monitordim");
-        Level world = LevelTools.getLevel(LevelTools.getId(dim));
+        BlockPos c = ModuleTools.getPositionFromModule(storageStack);
+        ResourceKey<Level> dim = ModuleTools.getDimensionFromModule(storageStack);
+        if (dim == null) {
+            throw new ProgException(EXCEPT_MISSINGSTORAGECARD);
+        }
+        Level world = LevelTools.getLevel(dim);
         if (world == null) {
             throw new ProgException(EXCEPT_MISSINGSTORAGE);
         }
@@ -2733,6 +2736,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
 //        readGraphicsOperations(info);
 //    }
 
+    // @DONE 1.21
     private void readGraphicsOperations(CompoundTag tagCompound) {
         gfxOps.clear();
         CompoundTag opTag = tagCompound.getCompound("gfxop");
@@ -2742,6 +2746,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         sortOps();
     }
 
+    // @DONE 1.21
     private void readRunningEvents(CompoundTag tagCompound) {
         runningEvents.clear();
         ListTag evList = tagCompound.getList("singev", Tag.TAG_COMPOUND);
@@ -2849,6 +2854,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         }
     }
 
+    // @DONE 1.21
     private void readEventQueue(CompoundTag tagCompound, HolderLookup.Provider provider) {
         eventQueue.clear();
         ListTag eventQueueList = tagCompound.getList("events", Tag.TAG_COMPOUND);
@@ -2866,6 +2872,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         }
     }
 
+    // @DONE 1.21
     private void readCardInfo(CompoundTag tagCompound) {
         ListTag cardInfoList = tagCompound.getList("cardInfo", Tag.TAG_COMPOUND);
         for (int i = 0; i < cardInfoList.size(); i++) {

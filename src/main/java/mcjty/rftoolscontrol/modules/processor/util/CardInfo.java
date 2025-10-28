@@ -1,16 +1,49 @@
 package mcjty.rftoolscontrol.modules.processor.util;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import mcjty.rftoolscontrol.modules.multitank.blocks.MultiTankTileEntity;
 import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorContainer;
 import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorTileEntity;
 import mcjty.rftoolscontrol.modules.processor.logic.compiled.CompiledCard;
 import mcjty.rftoolscontrol.modules.processor.logic.running.ProgException;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 
 import static mcjty.rftoolscontrol.modules.processor.logic.running.ExceptionType.EXCEPT_NOINTERNALFLUIDSLOT;
 import static mcjty.rftoolscontrol.modules.processor.logic.running.ExceptionType.EXCEPT_NOINTERNALSLOT;
 
 public class CardInfo {
+
+    // Codec and StreamCodec for serializing CardInfo without NBT
+    public static final Codec<CardInfo> CODEC = RecordCodecBuilder.create(inst -> inst.group(
+            Codec.INT.fieldOf("itemAlloc").forGetter(CardInfo::getItemAllocation),
+            Codec.INT.fieldOf("varAlloc").forGetter(CardInfo::getVarAllocation),
+            Codec.INT.fieldOf("fluidAlloc").forGetter(CardInfo::getFluidAllocation)
+    ).apply(inst, (itemAlloc, varAlloc, fluidAlloc) -> {
+        CardInfo info = new CardInfo();
+        info.itemAllocation = itemAlloc;
+        info.varAllocation = varAlloc;
+        info.fluidAllocation = fluidAlloc;
+        return info;
+    }));
+
+    public static final StreamCodec<RegistryFriendlyByteBuf, CardInfo> STREAM_CODEC = StreamCodec.of(
+            (buf, value) -> {
+                ByteBufCodecs.INT.encode(buf, value.itemAllocation);
+                ByteBufCodecs.INT.encode(buf, value.varAllocation);
+                ByteBufCodecs.INT.encode(buf, value.fluidAllocation);
+            },
+            buf -> {
+                CardInfo info = new CardInfo();
+                info.itemAllocation = ByteBufCodecs.INT.decode(buf);
+                info.varAllocation = ByteBufCodecs.INT.decode(buf);
+                info.fluidAllocation = ByteBufCodecs.INT.decode(buf);
+                return info;
+            }
+    );
 
     // 32-bit field for item allocation
     private int itemAllocation;

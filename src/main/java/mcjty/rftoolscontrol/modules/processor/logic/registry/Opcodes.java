@@ -1632,13 +1632,13 @@ public class Opcodes {
             .opcodeOutput(YESNO)
             .parameter(ParameterDescription.builder().name("v1").type(PAR_ITEM).description("first item").build())
             .parameter(ParameterDescription.builder().name("v2").type(PAR_ITEM).description("second item").build())
-            .parameter(ParameterDescription.builder().name("tag").type(PAR_STRING).description("the tag to compare").build())
+            .parameter(ParameterDescription.builder().name("tag").type(PAR_STRING).description("the component id to compare").build())
             .icon(8, 4)
             .runnable(((processor, program, opcode) -> {
                 ItemStack v1 = processor.evaluateItemParameterNonNull(opcode, program, 0);
                 ItemStack v2 = processor.evaluateItemParameterNonNull(opcode, program, 1);
                 String tag = processor.evaluateStringParameterNonNull(opcode, program, 2);
-                boolean rc = ((ProcessorTileEntity) processor).compareNBTTag(v1, v2, tag);
+                boolean rc = ((ProcessorTileEntity) processor).compareNBTTag(v1, v2, ResourceLocation.parse(tag));
                 return rc ? POSITIVE : NEGATIVE;
             }))
             .build();

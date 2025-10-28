@@ -1,12 +1,17 @@
 package mcjty.rftoolscontrol.modules.processor.vectorart;
 
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import mcjty.lib.client.CustomRenderTypes;
 import mcjty.lib.client.RenderHelper;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 
 public class GfxOpLine extends GfxOp {
 
@@ -15,6 +20,23 @@ public class GfxOpLine extends GfxOp {
     private int x2;
     private int y2;
     private int color;
+
+    public static final Codec<GfxOpLine> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            Codec.BYTE.fieldOf("x1").forGetter(o -> (byte) o.x1),
+            Codec.BYTE.fieldOf("y1").forGetter(o -> (byte) o.y1),
+            Codec.BYTE.fieldOf("x2").forGetter(o -> (byte) o.x2),
+            Codec.BYTE.fieldOf("y2").forGetter(o -> (byte) o.y2),
+            Codec.INT.fieldOf("color").forGetter(o -> o.color)
+    ).apply(instance, (x1, y1, x2, y2, color) -> new GfxOpLine(x1, y1, x2, y2, color)));
+
+    public static final StreamCodec<RegistryFriendlyByteBuf, GfxOpLine> STREAM_CODEC = StreamCodec.composite(
+            ByteBufCodecs.BYTE, o -> (byte) o.x1,
+            ByteBufCodecs.BYTE, o -> (byte) o.y1,
+            ByteBufCodecs.BYTE, o -> (byte) o.x2,
+            ByteBufCodecs.BYTE, o -> (byte) o.y2,
+            ByteBufCodecs.INT, o -> o.color,
+            (x1, y1, x2, y2, color) -> new GfxOpLine(x1, y1, x2, y2, color)
+    );
 
     public GfxOpLine() {
 

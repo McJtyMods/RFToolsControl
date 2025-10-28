@@ -1,10 +1,15 @@
 package mcjty.rftoolscontrol.modules.processor.vectorart;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import mcjty.lib.client.RenderHelper;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 
 public class GfxOpBox extends GfxOp {
 
@@ -13,6 +18,23 @@ public class GfxOpBox extends GfxOp {
     private int w;
     private int h;
     private int color;
+
+    public static final Codec<GfxOpBox> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            Codec.BYTE.fieldOf("x").forGetter(o -> (byte) o.x),
+            Codec.BYTE.fieldOf("y").forGetter(o -> (byte) o.y),
+            Codec.BYTE.fieldOf("w").forGetter(o -> (byte) o.w),
+            Codec.BYTE.fieldOf("h").forGetter(o -> (byte) o.h),
+            Codec.INT.fieldOf("color").forGetter(o -> o.color)
+    ).apply(instance, (x, y, w, h, color) -> new GfxOpBox(x, y, w, h, color)));
+
+    public static final StreamCodec<RegistryFriendlyByteBuf, GfxOpBox> STREAM_CODEC = StreamCodec.composite(
+            ByteBufCodecs.BYTE, o -> (byte) o.x,
+            ByteBufCodecs.BYTE, o -> (byte) o.y,
+            ByteBufCodecs.BYTE, o -> (byte) o.w,
+            ByteBufCodecs.BYTE, o -> (byte) o.h,
+            ByteBufCodecs.INT, o -> o.color,
+            (x, y, w, h, color) -> new GfxOpBox(x, y, w, h, color)
+    );
 
     public GfxOpBox() {
 

@@ -14,6 +14,7 @@ import mcjty.rftoolscontrol.modules.processor.client.GuiProcessor;
 import mcjty.rftoolscontrol.modules.processor.client.ProcessorRenderer;
 import mcjty.rftoolscontrol.modules.processor.items.*;
 import mcjty.rftoolscontrol.modules.various.VariousModule;
+import mcjty.rftoolscontrol.modules.various.data.WorkbenchData;
 import mcjty.rftoolscontrol.setup.Registration;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.world.inventory.MenuType;
@@ -22,9 +23,16 @@ import net.minecraft.world.item.Items;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.registries.DeferredItem;
+import net.minecraft.core.component.DataComponentType;
+import net.neoforged.neoforge.registries.DeferredHolder;
+import mcjty.rftoolscontrol.modules.processor.data.GraphicsOperationsData;
+import mcjty.rftoolscontrol.modules.processor.data.RunningEventsData;
+import mcjty.rftoolscontrol.modules.processor.data.CardInfoData;
+import mcjty.rftoolscontrol.modules.processor.data.EventQueuesData;
 
 import java.util.function.Supplier;
 
@@ -53,6 +61,43 @@ public class ProcessorModule implements IModule {
     public static final DeferredItem<NetworkCardItem> ADVANCED_NETWORK_CARD = ITEMS.register("advanced_network_card", tab(() -> new NetworkCardItem(NetworkCardItem.TIER_ADVANCED)));
     public static final DeferredItem<NetworkIdentifierItem> NETWORK_IDENTIFIER = ITEMS.register("network_identifier", tab(NetworkIdentifierItem::new));
     public static final DeferredItem<GraphicsCardItem> GRAPHICS_CARD = ITEMS.register("graphics_card", tab(GraphicsCardItem::new));
+
+    // Data components for processor saved data blocks
+    public static final Supplier<AttachmentType<GraphicsOperationsData>> GRAPHICS_OPS_DATA = ATTACHMENT_TYPES.register(
+            "graphics_operations_data", () -> AttachmentType.builder(() -> GraphicsOperationsData.DEFAULT)
+                    .serialize(GraphicsOperationsData.CODEC)
+                    .build());
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<GraphicsOperationsData>> ITEM_GRAPHICS_OPS_DATA = COMPONENTS.registerComponentType(
+            "graphics_operations_data",
+            builder -> builder.persistent(GraphicsOperationsData.CODEC).networkSynchronized(GraphicsOperationsData.STREAM_CODEC)
+    );
+
+    public static final Supplier<AttachmentType<RunningEventsData>> RUNNING_EVENTS_DATA = ATTACHMENT_TYPES.register(
+            "running_events_data", () -> AttachmentType.builder(() -> RunningEventsData.DEFAULT)
+                    .serialize(RunningEventsData.CODEC)
+                    .build());
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<RunningEventsData>> ITEM_RUNNING_EVENTS_DATA = COMPONENTS.registerComponentType(
+            "running_events_data",
+            builder -> builder.persistent(RunningEventsData.CODEC).networkSynchronized(RunningEventsData.STREAM_CODEC)
+    );
+
+    public static final Supplier<AttachmentType<CardInfoData>> CARD_INFO_DATA = ATTACHMENT_TYPES.register(
+            "card_info_data", () -> AttachmentType.builder(() -> CardInfoData.DEFAULT)
+                    .serialize(CardInfoData.CODEC)
+                    .build());
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<CardInfoData>> ITEM_CARD_INFO_DATA = COMPONENTS.registerComponentType(
+            "card_info_data",
+            builder -> builder.persistent(CardInfoData.CODEC).networkSynchronized(CardInfoData.STREAM_CODEC)
+    );
+
+    public static final Supplier<AttachmentType<EventQueuesData>> EVENT_QUEUES_DATA = ATTACHMENT_TYPES.register(
+            "event_queues_data", () -> AttachmentType.builder(() -> EventQueuesData.DEFAULT)
+                    .serialize(EventQueuesData.CODEC)
+                    .build());
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<EventQueuesData>> ITEM_EVENT_QUEUES_DATA = COMPONENTS.registerComponentType(
+            "event_queues_data",
+            builder -> builder.persistent(EventQueuesData.CODEC).networkSynchronized(EventQueuesData.STREAM_CODEC)
+    );
 
     public ProcessorModule(IEventBus bus) {
         bus.addListener(this::registerMenuScreens);

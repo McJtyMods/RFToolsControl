@@ -8,7 +8,6 @@ import mcjty.lib.varia.Tools;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.modules.processor.ProcessorModule;
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -57,29 +56,19 @@ public class NetworkIdentifierItem extends Item implements ITooltipSettings {
         ItemStack stack = player.getItemInHand(hand);
         BlockState state = world.getBlockState(pos);
         Block block = state.getBlock();
-        CompoundTag tagCompound = null;// @todo 1.21 data stack.getTag();
-        if (tagCompound == null) {
-            tagCompound = new CompoundTag();
-        }
 
         if (block == ProcessorModule.PROCESSOR.block().get()) {
-            tagCompound.putString("monitordim", world.dimension().location().toString());
-            tagCompound.putInt("monitorx", pos.getX());
-            tagCompound.putInt("monitory", pos.getY());
-            tagCompound.putInt("monitorz", pos.getZ());
+            // Store a human-readable target (for tooltip) and position in the standard ItemModule component
+            ModuleTools.setPositionInModule(stack, world.dimension(), pos, Tools.getReadableName(world, pos));
             if (world.isClientSide) {
                 Logging.message(player, "Network identifier is set to block");
             }
         } else {
-            tagCompound.remove("monitordim");
-            tagCompound.remove("monitorx");
-            tagCompound.remove("monitory");
-            tagCompound.remove("monitorz");
+            ModuleTools.clearPositionInModule(stack);
             if (world.isClientSide) {
                 Logging.message(player, "Network identifier is cleared");
             }
         }
-//        stack.setTag(tagCompound);
         return InteractionResult.SUCCESS;
     }
 

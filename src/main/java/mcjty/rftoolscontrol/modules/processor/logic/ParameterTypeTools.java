@@ -4,8 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import mcjty.lib.varia.Tools;
+import com.mojang.serialization.JsonOps;
 import mcjty.rftoolsbase.api.control.parameters.*;
 import mcjty.rftoolscontrol.modules.processor.logic.registry.Functions;
 import mcjty.rftoolscontrol.modules.processor.logic.running.ExceptionType;
@@ -14,9 +13,6 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.nbt.TagParser;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.fluids.FluidStack;
 import org.apache.commons.lang3.StringUtils;
@@ -322,24 +318,15 @@ public class ParameterTypeTools {
                 break;
             case PAR_ITEM:
                 ItemStack item = (ItemStack) value;
-                object.add("item", new JsonPrimitive(Tools.getId(item).toString()));
-                if (item.getCount() != 1) {
-                    object.add("amount", new JsonPrimitive(item.getCount()));
-                }
-                // @todo 1.21 data
-//                if (item.hasTag()) {
-//                    String string = item.getTag().toString();
-//                    object.add("nbt", new JsonPrimitive(string));
-//                }
+                ItemStack.OPTIONAL_CODEC.encodeStart(JsonOps.INSTANCE, item).resultOrPartial(System.err::println).ifPresent(obj -> {
+                    object.add("item", obj);
+                });
                 break;
             case PAR_FLUID:
                 FluidStack fluidStack = (FluidStack) value;
-                object.add("fluid", new JsonPrimitive(Tools.getId(fluidStack).toString()));
-                object.add("amount", new JsonPrimitive(fluidStack.getAmount()));
-                // @todo 1.21 data
-//                if (fluidStack.hasTag()) {
-//                    object.add("nbt", new JsonPrimitive(fluidStack.getTag().toString()));
-//                }
+                FluidStack.OPTIONAL_CODEC.encodeStart(JsonOps.INSTANCE, fluidStack).resultOrPartial(System.err::println).ifPresent(obj -> {
+                    object.add("fluid", obj);
+                });
                 break;
             case PAR_EXCEPTION:
                 ExceptionType exception = (ExceptionType) value;
@@ -395,39 +382,12 @@ public class ParameterTypeTools {
                 return ParameterValue.constant(new Inventory(node, side, intSide));
             }
             case PAR_ITEM: {
-                String itemReg = object.get("item").getAsString();
-                Item item = Tools.getItem(ResourceLocation.parse(itemReg));
-                int amount = object.has("amount") ? object.get("amount").getAsInt() : 1;
-                // @todo 1.15 meta
-//                int meta = object.get("meta").getAsInt();
-                ItemStack stack = new ItemStack(item, amount);
-                if (object.has("nbt")) {
-                    String nbt = object.get("nbt").getAsString();
-                    CompoundTag tagCompound = null;
-                    try {
-                        tagCompound = TagParser.parseTag(nbt);
-                    } catch (CommandSyntaxException e) {
-                        // @todo What to do?
-                    }
-                    // @todo 1.21 data
-//                    stack.setTag(tagCompound);
-                }
-                return ParameterValue.constant(stack);
+                JsonElement itemObj = object.get("item");
+                return ItemStack.OPTIONAL_CODEC.parse(JsonOps.INSTANCE, itemObj).result().map(ParameterValue::constant).orElseThrow(RuntimeException::new);
             }
             case PAR_FLUID: {
-                String fluidName = object.get("fluid").getAsString();
-                int amount = object.get("amount").getAsInt();
-                FluidStack fluidStack = new FluidStack(Tools.getFluid(ResourceLocation.parse(fluidName)), amount);
-                if (object.has("nbt")) {
-                    String nbt = object.get("nbt").getAsString();
-                    // @todo 1.21 data
-//                    try {
-//                        fluidStack.setTag(TagParser.parseTag(nbt));
-//                    } catch (CommandSyntaxException e) {
-                        // @todo What to do?
-//                    }
-                }
-                return ParameterValue.constant(fluidStack);
+                JsonElement fluidObj = object.get("fluid");
+                return ItemStack.OPTIONAL_CODEC.parse(JsonOps.INSTANCE, fluidObj).result().map(ParameterValue::constant).orElseThrow(RuntimeException::new);
             }
             case PAR_EXCEPTION:
                 String code = object.get("code").getAsString();

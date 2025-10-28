@@ -67,7 +67,7 @@ public class ProgrammerModule implements IModule {
                 Dob.blockBuilder(PROGRAMMER)
                         .ironPickaxeTags()
                         .parentedItem("block/programmer")
-                        .standardLoot() // @todo 1.21 data
+                        .standardLoot()
                         .blockState(p -> p.orientedBlock(PROGRAMMER.block().get(), p.frontBasedModel("programmer", p.modLoc("block/machineprogrammer"))))
                         .shaped(builder -> builder
                                         .define('F', mcjty.rftoolsbase.modules.various.VariousModule.MACHINE_FRAME.get())
