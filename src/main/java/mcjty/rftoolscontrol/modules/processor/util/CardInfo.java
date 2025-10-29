@@ -7,7 +7,6 @@ import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorContainer;
 import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorTileEntity;
 import mcjty.rftoolscontrol.modules.processor.logic.compiled.CompiledCard;
 import mcjty.rftoolscontrol.modules.processor.logic.running.ProgException;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -173,24 +172,5 @@ public class CardInfo {
             return null;
         }
         return getRealVar((int)virtualVar);
-    }
-
-    public CompoundTag writeToNBT() {
-        CompoundTag tag = new CompoundTag();
-        tag.putInt("itemAlloc", itemAllocation);
-        tag.putInt("varAlloc", varAllocation);
-        tag.putInt("fluidAlloc", fluidAllocation);
-        return tag;
-    }
-
-    public static CardInfo readFromNBT(CompoundTag tag) {
-        CardInfo cardInfo = new CardInfo();
-        cardInfo.itemAllocation = tag.getInt("itemAlloc");
-        cardInfo.varAllocation = tag.getInt("varAlloc");
-        cardInfo.fluidAllocation = tag.getInt("fluidAlloc");
-        cardInfo.slotCache = null;
-        cardInfo.varCache = null;
-        cardInfo.fluidCache = null;
-        return cardInfo;
     }
 }

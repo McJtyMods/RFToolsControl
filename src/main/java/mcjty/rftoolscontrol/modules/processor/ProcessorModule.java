@@ -12,11 +12,17 @@ import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorContainer;
 import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorTileEntity;
 import mcjty.rftoolscontrol.modules.processor.client.GuiProcessor;
 import mcjty.rftoolscontrol.modules.processor.client.ProcessorRenderer;
+import mcjty.rftoolscontrol.modules.processor.data.CardInfoData;
+import mcjty.rftoolscontrol.modules.processor.data.GraphicsOperationsData;
+import mcjty.rftoolscontrol.modules.processor.data.ProcessorCoreData;
+import mcjty.rftoolscontrol.modules.processor.data.ProcessorCraftingData;
+import mcjty.rftoolscontrol.modules.processor.data.ProcessorEventData;
 import mcjty.rftoolscontrol.modules.processor.items.*;
 import mcjty.rftoolscontrol.modules.various.VariousModule;
 import mcjty.rftoolscontrol.modules.various.data.WorkbenchData;
 import mcjty.rftoolscontrol.setup.Registration;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponentType;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Items;
@@ -26,13 +32,8 @@ import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.common.Tags;
-import net.neoforged.neoforge.registries.DeferredItem;
-import net.minecraft.core.component.DataComponentType;
 import net.neoforged.neoforge.registries.DeferredHolder;
-import mcjty.rftoolscontrol.modules.processor.data.GraphicsOperationsData;
-import mcjty.rftoolscontrol.modules.processor.data.RunningEventsData;
-import mcjty.rftoolscontrol.modules.processor.data.CardInfoData;
-import mcjty.rftoolscontrol.modules.processor.data.EventQueuesData;
+import net.neoforged.neoforge.registries.DeferredItem;
 
 import java.util.function.Supplier;
 
@@ -72,15 +73,6 @@ public class ProcessorModule implements IModule {
             builder -> builder.persistent(GraphicsOperationsData.CODEC).networkSynchronized(GraphicsOperationsData.STREAM_CODEC)
     );
 
-    public static final Supplier<AttachmentType<RunningEventsData>> RUNNING_EVENTS_DATA = ATTACHMENT_TYPES.register(
-            "running_events_data", () -> AttachmentType.builder(() -> RunningEventsData.DEFAULT)
-                    .serialize(RunningEventsData.CODEC)
-                    .build());
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<RunningEventsData>> ITEM_RUNNING_EVENTS_DATA = COMPONENTS.registerComponentType(
-            "running_events_data",
-            builder -> builder.persistent(RunningEventsData.CODEC).networkSynchronized(RunningEventsData.STREAM_CODEC)
-    );
-
     public static final Supplier<AttachmentType<CardInfoData>> CARD_INFO_DATA = ATTACHMENT_TYPES.register(
             "card_info_data", () -> AttachmentType.builder(() -> CardInfoData.DEFAULT)
                     .serialize(CardInfoData.CODEC)
@@ -90,13 +82,31 @@ public class ProcessorModule implements IModule {
             builder -> builder.persistent(CardInfoData.CODEC).networkSynchronized(CardInfoData.STREAM_CODEC)
     );
 
-    public static final Supplier<AttachmentType<EventQueuesData>> EVENT_QUEUES_DATA = ATTACHMENT_TYPES.register(
-            "event_queues_data", () -> AttachmentType.builder(() -> EventQueuesData.DEFAULT)
-                    .serialize(EventQueuesData.CODEC)
+    public static final Supplier<AttachmentType<ProcessorCoreData>> PROCESSOR_CORE_DATA = ATTACHMENT_TYPES.register(
+            "processor_core_data", () -> AttachmentType.builder(() -> ProcessorCoreData.DEFAULT)
+                    .serialize(ProcessorCoreData.CODEC)
                     .build());
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<EventQueuesData>> ITEM_EVENT_QUEUES_DATA = COMPONENTS.registerComponentType(
-            "event_queues_data",
-            builder -> builder.persistent(EventQueuesData.CODEC).networkSynchronized(EventQueuesData.STREAM_CODEC)
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<ProcessorCoreData>> ITEM_PROCESSOR_CORE_DATA = COMPONENTS.registerComponentType(
+            "processor_core_data",
+            builder -> builder.persistent(ProcessorCoreData.CODEC).networkSynchronized(ProcessorCoreData.STREAM_CODEC)
+    );
+
+    public static final Supplier<AttachmentType<ProcessorEventData>> PROCESSOR_EVENTS_DATA = ATTACHMENT_TYPES.register(
+            "processor_events_data", () -> AttachmentType.builder(ProcessorEventData::empty)
+                    .serialize(ProcessorEventData.CODEC)
+                    .build());
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<ProcessorEventData>> ITEM_PROCESSOR_EVENTS_DATA = COMPONENTS.registerComponentType(
+            "processor_events_data",
+            builder -> builder.persistent(ProcessorEventData.CODEC).networkSynchronized(ProcessorEventData.STREAM_CODEC)
+    );
+
+    public static final Supplier<AttachmentType<ProcessorCraftingData>> PROCESSOR_CRAFTING_DATA = ATTACHMENT_TYPES.register(
+            "processor_crafting_data", () -> AttachmentType.builder(() -> ProcessorCraftingData.DEFAULT)
+                    .serialize(ProcessorCraftingData.CODEC)
+                    .build());
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<ProcessorCraftingData>> ITEM_PROCESSOR_CRAFTING_DATA = COMPONENTS.registerComponentType(
+            "processor_crafting_data",
+            builder -> builder.persistent(ProcessorCraftingData.CODEC).networkSynchronized(ProcessorCraftingData.STREAM_CODEC)
     );
 
     public ProcessorModule(IEventBus bus) {

@@ -2675,7 +2675,8 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         if (info != null) {
             exclusive = info.getBoolean("exclusive");
             showHud = info.getByte("hud");
-            readCardInfo(info);
+            // @todo 1.21
+//            readCardInfo(info);
         }
     }
 
@@ -2736,74 +2737,6 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
 //        readGraphicsOperations(info);
 //    }
 
-    // @DONE 1.21
-    private void readGraphicsOperations(CompoundTag tagCompound) {
-        gfxOps.clear();
-        CompoundTag opTag = tagCompound.getCompound("gfxop");
-        for (String key : opTag.getAllKeys()) {
-            gfxOps.put(key, GfxOp.readFromNBT(opTag.getCompound(key)));
-        }
-        sortOps();
-    }
-
-    // @DONE 1.21
-    private void readRunningEvents(CompoundTag tagCompound) {
-        runningEvents.clear();
-        ListTag evList = tagCompound.getList("singev", Tag.TAG_COMPOUND);
-        for (int i = 0; i < evList.size(); i++) {
-            CompoundTag tag = evList.getCompound(i);
-            int cardIndex = tag.getInt("card");
-            int eventIndex = tag.getInt("event");
-            runningEvents.add(Pair.of(cardIndex, eventIndex));
-        }
-    }
-
-    private void readLocks(CompoundTag tagCompound) {
-        locks.clear();
-        ListTag lockList = tagCompound.getList("locks", Tag.TAG_STRING);
-        for (int i = 0; i < lockList.size(); i++) {
-            String name = lockList.getString(i);
-            locks.add(name);
-        }
-    }
-
-    private void readWaitingForItems(CompoundTag tagCompound, HolderLookup.Provider provider) {
-        waitingForItems.clear();
-        ListTag waitingList = tagCompound.getList("waiting", Tag.TAG_COMPOUND);
-        for (int i = 0; i < waitingList.size(); i++) {
-            CompoundTag tag = waitingList.getCompound(i);
-            String ticket = tag.getString("ticket");
-
-            ItemStack stack;
-            if (tag.contains("item")) {
-                stack = ItemStack.parseOptional(provider, tag.getCompound("item"));
-            } else {
-                stack = ItemStack.EMPTY;
-            }
-
-            Inventory inventory;
-            if (tag.contains("inv")) {
-                inventory = InventoryUtil.readFromNBT(tag.getCompound("inv"));
-            } else {
-                inventory = null;
-            }
-
-            WaitForItem waitForItem = new WaitForItem(ticket, stack, inventory);
-            waitingForItems.add(waitForItem);
-        }
-    }
-
-
-    private void readCraftingStations(CompoundTag tagCompound) {
-        craftingStations.clear();
-        ListTag stationList = tagCompound.getList("stations", Tag.TAG_COMPOUND);
-        for (int i = 0; i < stationList.size(); i++) {
-            CompoundTag tag = stationList.getCompound(i);
-            BlockPos nodePos = new BlockPos(tag.getInt("nodex"), tag.getInt("nodey"), tag.getInt("nodez"));
-            craftingStations.add(nodePos);
-        }
-    }
-
     private void readNetworkNodes(CompoundTag tagCompound) {
         networkNodes.clear();
         ListTag networkList = tagCompound.getList("nodes", Tag.TAG_COMPOUND);
@@ -2815,68 +2748,11 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         }
     }
 
-    private void readVariables(CompoundTag tagCompound, HolderLookup.Provider provider) {
-        for (int i = 0; i < MAXVARS; i++) {
-            variables[i] = null;
-            watchInfos[i] = null;
-        }
-        ListTag varList = tagCompound.getList("vars", Tag.TAG_COMPOUND);
-        for (int i = 0; i < varList.size(); i++) {
-            CompoundTag var = varList.getCompound(i);
-            int index = var.getInt("varidx");
-            variables[index] = ParameterTools.readFromNBT(var, provider);
-            if (var.contains("watch")) {
-                WatchInfo info = new WatchInfo(var.getBoolean("watch"));
-                watchInfos[index] = info;
-            }
-        }
-    }
-
     private void readLog(CompoundTag tagCompound) {
         logMessages.clear();
         ListTag logList = tagCompound.getList("log", Tag.TAG_STRING);
         for (int i = 0; i < logList.size(); i++) {
             logMessages.add(logList.getString(i));
-        }
-    }
-
-    private void readCores(CompoundTag tagCompound, HolderLookup.Provider provider) {
-        ListTag coreList = tagCompound.getList("cores", Tag.TAG_COMPOUND);
-        cpuCores.clear();
-        coresDirty = false;
-        for (int i = 0; i < coreList.size(); i++) {
-            CpuCore core = new CpuCore();
-            core.readFromNBT(coreList.getCompound(i), provider);
-            cpuCores.add(core);
-        }
-        if (cpuCores.isEmpty()) {
-            coresDirty = true;
-        }
-    }
-
-    // @DONE 1.21
-    private void readEventQueue(CompoundTag tagCompound, HolderLookup.Provider provider) {
-        eventQueue.clear();
-        ListTag eventQueueList = tagCompound.getList("events", Tag.TAG_COMPOUND);
-        for (int i = 0; i < eventQueueList.size(); i++) {
-            CompoundTag tag = eventQueueList.getCompound(i);
-            int card = tag.getInt("card");
-            int index = tag.getInt("index");
-            boolean single = tag.getBoolean("single");
-            String ticket = tag.contains("ticket") ? tag.getString("ticket") : null;
-            Parameter parameter = null;
-            if (tag.contains("parameter")) {
-                parameter = ParameterTools.readFromNBT(tag.getCompound("parameter"), provider);
-            }
-            eventQueue.add(new QueuedEvent(card, new CompiledEvent(index, single), ticket, parameter));
-        }
-    }
-
-    // @DONE 1.21
-    private void readCardInfo(CompoundTag tagCompound) {
-        ListTag cardInfoList = tagCompound.getList("cardInfo", Tag.TAG_COMPOUND);
-        for (int i = 0; i < cardInfoList.size(); i++) {
-            cardInfo[i] = CardInfo.readFromNBT(cardInfoList.getCompound(i));
         }
     }
 
@@ -2907,62 +2783,6 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
 //        writeGraphicsOperation(info);
 //    }
 
-    private void writeGraphicsOperation(CompoundTag tagCompound) {
-        CompoundTag opTag = new CompoundTag();
-        for (Map.Entry<String, GfxOp> entry : gfxOps.entrySet()) {
-            opTag.put(entry.getKey(), entry.getValue().writeToNBT());
-        }
-        tagCompound.put("gfxop", opTag);
-    }
-
-    private void writeRunningEvents(CompoundTag tagCompound) {
-        ListTag evList = new ListTag();
-        for (Pair<Integer, Integer> pair : runningEvents) {
-            CompoundTag tag = new CompoundTag();
-            tag.putInt("card", pair.getLeft());
-            tag.putInt("event", pair.getRight());
-            evList.add(tag);
-        }
-        tagCompound.put("singev", evList);
-    }
-
-    private void writeLocks(CompoundTag tagCompound) {
-        ListTag lockList = new ListTag();
-        for (String name : locks) {
-            lockList.add(StringTag.valueOf(name));
-        }
-        tagCompound.put("locks", lockList);
-    }
-
-    private void writeWaitingForItems(CompoundTag tagCompound, HolderLookup.Provider provider) {
-        ListTag waitingList = new ListTag();
-        for (WaitForItem waitingForItem : waitingForItems) {
-            CompoundTag tag = new CompoundTag();
-            tag.putString("ticket", waitingForItem.ticket());
-            if (waitingForItem.inventory() != null) {
-                tag.put("inv", InventoryUtil.writeToNBT(waitingForItem.inventory()));
-            }
-            if (!waitingForItem.itemStack().isEmpty()) {
-                tag.put("item", waitingForItem.itemStack().save(provider));
-            }
-            waitingList.add(tag);
-        }
-        tagCompound.put("waiting", waitingList);
-    }
-
-
-    private void writeCraftingStations(CompoundTag tagCompound) {
-        ListTag stationList = new ListTag();
-        for (BlockPos pos : craftingStations) {
-            CompoundTag tag = new CompoundTag();
-            tag.putInt("nodex", pos.getX());
-            tag.putInt("nodey", pos.getY());
-            tag.putInt("nodez", pos.getZ());
-            stationList.add(tag);
-        }
-        tagCompound.put("stations", stationList);
-    }
-
     private void writeNetworkNodes(CompoundTag tagCompound) {
         ListTag networkList = new ListTag();
         for (Map.Entry<String, BlockPos> entry : networkNodes.entrySet()) {
@@ -2976,62 +2796,12 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         tagCompound.put("nodes", networkList);
     }
 
-    private void writeVariables(CompoundTag tagCompound, HolderLookup.Provider provider) {
-        ListTag varList = new ListTag();
-        for (int i = 0; i < MAXVARS; i++) {
-            if (variables[i] != null) {
-                CompoundTag var = ParameterTools.writeToNBT(variables[i], provider);
-                var.putInt("varidx", i);
-                if (watchInfos[i] != null) {
-                    var.putBoolean("watch", watchInfos[i].isBreakOnChange());
-                }
-                varList.add(var);
-            }
-        }
-        tagCompound.put("vars", varList);
-    }
-
     private void writeLog(CompoundTag tagCompound) {
         ListTag logList = new ListTag();
         for (String message : logMessages) {
             logList.add(StringTag.valueOf(message));
         }
         tagCompound.put("log", logList);
-    }
-
-    private void writeCores(CompoundTag tagCompound, HolderLookup.Provider provider) {
-        ListTag coreList = new ListTag();
-        for (CpuCore core : cpuCores) {
-            coreList.add(core.writeToNBT(provider));
-        }
-        tagCompound.put("cores", coreList);
-    }
-
-    private void writeEventQueue(CompoundTag tagCompound, HolderLookup.Provider provider) {
-        ListTag eventQueueList = new ListTag();
-        for (QueuedEvent queuedEvent : eventQueue) {
-            CompoundTag tag = new CompoundTag();
-            tag.putInt("card", queuedEvent.cardIndex());
-            tag.putInt("index", queuedEvent.compiledEvent().index());
-            tag.putBoolean("single", queuedEvent.compiledEvent().single());
-            if (queuedEvent.ticket() != null) {
-                tag.putString("ticket", queuedEvent.ticket());
-            }
-            if (queuedEvent.parameter() != null) {
-                CompoundTag parTag = ParameterTools.writeToNBT(queuedEvent.parameter(), provider);
-                tag.put("parameter", parTag);
-            }
-            eventQueueList.add(tag);
-        }
-        tagCompound.put("events", eventQueueList);
-    }
-
-    private void writeCardInfo(CompoundTag tagCompound) {
-        ListTag cardInfoList = new ListTag();
-        for (CardInfo info : cardInfo) {
-            cardInfoList.add(info.writeToNBT());
-        }
-        tagCompound.put("cardInfo", cardInfoList);
     }
 
     public boolean isFluidAllocated(int cardIndex, int fluidIndex) {
