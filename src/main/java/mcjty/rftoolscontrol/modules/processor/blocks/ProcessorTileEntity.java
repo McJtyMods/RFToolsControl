@@ -171,15 +171,11 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
     private boolean hasGraphicsCard = false;
     private final Cached<List<Predicate<ItemStack>>> filterCaches = Cached.of(this::getFilterCaches);
 
-    private final Map<String, GfxOp> gfxOps = new HashMap<>(); // MARK: covered by ProcessorGraphicsOperationsData.operations
     private List<String> orderedOps = null;
 
     // Client-side only: for the HUD
     private final List<GfxOp> clientGfxOps = new ArrayList<>();
 
-
-    private String lastException = null; // MARK: covered by ProcessorCoreData.lastException
-    private long lastExceptionTime = 0; // MARK: covered by ProcessorCoreData.lastExceptionTime
 
     private String channel = ""; // MARK: covered by ProcessorCoreData.channel
     private final Map<String, BlockPos> networkNodes = new HashMap<>(); // MARK: covered by ProcessorExtraData.networkNodes
@@ -1250,8 +1246,10 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         log("Waiting items: " + waitingForItems.size());
         log("Locks: " + locks.size());
 
-        if (lastException != null) {
-            long dt = System.currentTimeMillis() - lastExceptionTime;
+        ProcessorCoreData coreData = getCoreData();
+        String lastException = coreData.lastException();
+        if (!lastException.isEmpty()) {
+            long dt = System.currentTimeMillis() - coreData.lastExceptionTime();
             log("Last: " + ChatFormatting.RED + lastException);
             if (dt > 60000 * 60) {
                 log("(" + (dt / (60000 / 60)) + "hours ago)");
@@ -1294,8 +1292,11 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
                 }
             }
         }
-        gfxOps.clear();
-        orderedOps.clear();
+        ProcessorGraphicsOperationsData graphicsData = getGraphicsOperationsData();
+        if (!graphicsData.operations().isEmpty()) {
+            setData(ProcessorModule.PROCESSOR_GRAPHICS_DATA.get(), graphicsData.withOperations(Collections.emptyMap()));
+        }
+        orderedOps = null;
         for (CpuCore core : cpuCores) {
             core.setDebug(false);
         }
@@ -1324,7 +1325,9 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
 
     public void clearLog() {
         logMessages.clear();
-        lastException = null;
+        ProcessorCoreData coreData = getCoreData();
+        ProcessorCoreData updated = coreData.withLastException("").withLastExceptionTime(0L);
+        setData(ProcessorModule.PROCESSOR_CORE_DATA.get(), updated);
         setChanged();
     }
 
@@ -1364,8 +1367,10 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         } else {
             message = ChatFormatting.RED + exception.getDescription();
         }
-        lastException = message;
-        lastExceptionTime = System.currentTimeMillis();
+        long timestamp = System.currentTimeMillis();
+        ProcessorCoreData coreData = getCoreData();
+        ProcessorCoreData updated = coreData.withLastException(message).withLastExceptionTime(timestamp);
+        setData(ProcessorModule.PROCESSOR_CORE_DATA.get(), updated);
         log(message);
     }
 
@@ -1391,8 +1396,10 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         showWithWarn("Waiting items: ", waitingForItems.size(), 20, result);
         showWithWarn("Locks: ", locks.size(), 10, result);
 
-        if (lastException != null) {
-            long dt = System.currentTimeMillis() - lastExceptionTime;
+        ProcessorCoreData coreData = getCoreData();
+        String lastException = coreData.lastException();
+        if (!lastException.isEmpty()) {
+            long dt = System.currentTimeMillis() - coreData.lastExceptionTime();
             result.add(ChatFormatting.RED + lastException);
             if (dt > 60000 * 60) {
                 result.add("(" + (dt / (60000 / 60)) + "hours ago)");
@@ -1930,18 +1937,23 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         if (!hasGraphicsCard()) {
             throw new ProgException(EXCEPT_MISSINGGRAPHICSCARD);
         }
-        if (!gfxOps.containsKey(id)) {
-            if (gfxOps.size() >= Config.maxGraphicsOpcodes.get()) {
+        ProcessorGraphicsOperationsData graphicsData = getGraphicsOperationsData();
+        Map<String, GfxOp> currentOps = graphicsData.operations();
+        boolean alreadyPresent = currentOps.containsKey(id);
+        if (!alreadyPresent) {
+            if (currentOps.size() >= Config.maxGraphicsOpcodes.get()) {
                 throw new ProgException(EXCEPT_MISSINGNETWORKCARD);
             }
-            orderedOps = null;
         }
-        gfxOps.put(id, op);
+        Map<String, GfxOp> updatedOps = new LinkedHashMap<>(currentOps);
+        updatedOps.put(id, op);
+        setData(ProcessorModule.PROCESSOR_GRAPHICS_DATA.get(), graphicsData.withOperations(updatedOps));
+        orderedOps = null;
         setChanged();
     }
 
     private void sortOps() {
-        orderedOps = new ArrayList<>(gfxOps.keySet());
+        orderedOps = new ArrayList<>(getGraphicsOperationsData().operations().keySet());
         orderedOps.sort(String::compareTo);
     }
 
@@ -1977,18 +1989,28 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
 
     @Override
     public void gfxClear(IProgram program, @Nullable String id) {
+        ProcessorGraphicsOperationsData graphicsData = getGraphicsOperationsData();
+        Map<String, GfxOp> currentOps = graphicsData.operations();
+        boolean changed = false;
         if (id == null || id.isEmpty()) {
-            gfxOps.clear();
-            orderedOps = null;
-        } else {
-            gfxOps.remove(id);
-            orderedOps = null;
+            if (!currentOps.isEmpty()) {
+                setData(ProcessorModule.PROCESSOR_GRAPHICS_DATA.get(), graphicsData.withOperations(Collections.emptyMap()));
+                changed = true;
+            }
+        } else if (currentOps.containsKey(id)) {
+            Map<String, GfxOp> updated = new LinkedHashMap<>(currentOps);
+            updated.remove(id);
+            setData(ProcessorModule.PROCESSOR_GRAPHICS_DATA.get(), graphicsData.withOperations(updated));
+            changed = true;
         }
-        setChanged();
+        if (changed) {
+            orderedOps = null;
+            setChanged();
+        }
     }
 
     public Map<String, GfxOp> getGfxOps() {
-        return gfxOps;
+        return getGraphicsOperationsData().operations();
     }
 
     public List<String> getOrderedOps() {
