@@ -142,7 +142,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
             .data(ProcessorModule.PROCESSOR_SETTINGS_DATA, ProcessorSettingsData.STREAM_CODEC, ProcessorSettingsData.CODEC)
             .setupSync(tile);
 
-    private final List<CpuCore> cpuCores = new ArrayList<>(); // MARK: covered by ProcessorCoreData.cores
+    private final List<CpuCore> cpuCores = new ArrayList<>();
 
     public static final int HUD_OFF = 0;
 
@@ -177,18 +177,14 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
     private final List<GfxOp> clientGfxOps = new ArrayList<>();
 
 
-    private String channel = ""; // MARK: covered by ProcessorCoreData.channel
-    private final Map<String, BlockPos> networkNodes = new HashMap<>(); // MARK: covered by ProcessorExtraData.networkNodes
     private final Set<BlockPos> craftingStations = new HashSet<>();
 
     // Bitmask for all six sides
     private int prevIn = 0;
     private final int[] powerOut = new int[]{0, 0, 0, 0, 0, 0};
 
-    private int tickCount = 0; // MARK: covered by ProcessorCoreData.tickCount
-
-    private final Parameter[] variables = new Parameter[MAXVARS]; // MARK: covered by ProcessorCoreData.variables
-    private final WatchInfo[] watchInfos = new WatchInfo[MAXVARS]; // MARK: covered by ProcessorCoreData.watchInfos
+//    private final Parameter[] variables = new Parameter[MAXVARS]; // MARK: covered by ProcessorCoreData.variables
+//    private final WatchInfo[] watchInfos = new WatchInfo[MAXVARS]; // MARK: covered by ProcessorCoreData.watchInfos
     private int fluidSlotsAvailable = -1;    // Bitmask indexed by side (6 bits), -1 means unset
 
     private final CardInfo[] cardInfo = new CardInfo[CARD_SLOTS]; // MARK: covered by ProcessorCardInfoData.infos
@@ -197,7 +193,6 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
 
     private final List<WaitForItem> waitingForItems = new ArrayList<>();
 
-    private final Queue<String> logMessages = new ArrayDeque<>(); // MARK: covered by ProcessorExtraData.logMessages
 
     // Client side: log from server
     public long clientTime = 0;
@@ -207,7 +202,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
     // Card index, Opcode index
     private Set<Pair<Integer, Integer>> runningEvents = new HashSet<>(); // MARK: covered by ProcessorEventData.runningEvents
 
-    private final Set<String> locks = new HashSet<>(); // MARK: covered by ProcessorCoreData.locks
+//    private final Set<String> locks = new HashSet<>(); // MARK: covered by ProcessorCoreData.locks
 
     // If set this is a dummy tile entity
     private ResourceKey<Level> dummyType = null;
@@ -219,10 +214,11 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         for (int i = 0; i < cardInfo.length; i++) {
             cardInfo[i] = new CardInfo();
         }
-        for (int i = 0; i < MAXVARS; i++) {
-            variables[i] = null;
-            watchInfos[i] = null;
-        }
+        // @todo 1.21
+//        for (int i = 0; i < MAXVARS; i++) {
+//            variables[i] = null;
+//            watchInfos[i] = null;
+//        }
         fluidSlotsAvailable = -1;
     }
 
@@ -248,6 +244,61 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
     public ProcessorEventData getEventData() {
         return getData(ProcessorModule.PROCESSOR_EVENTS_DATA.get());
     }
+
+    // ==== Core data helpers (migrated from local fields) ====
+    private int getTickCount() {
+        return getCoreData().tickCount();
+    }
+    private void incTickCount() {
+        ProcessorCoreData cd = getCoreData();
+        setData(ProcessorModule.PROCESSOR_CORE_DATA.get(), cd.withTickCount(cd.tickCount() + 1));
+    }
+
+    @Nullable
+    private WatchInfo getWatchInfoAt(int idx) {
+        for (ProcessorCoreData.WatchInfoEntry e : getCoreData().watchInfos()) {
+            if (e.index() == idx) {
+                return new WatchInfo(e.breakOnChange());
+            }
+        }
+        return null;
+    }
+    private void setWatchAt(int idx, boolean br) {
+        ProcessorCoreData cd = getCoreData();
+        List<ProcessorCoreData.WatchInfoEntry> list = new ArrayList<>(cd.watchInfos());
+        list.removeIf(e -> e.index() == idx);
+        list.add(new ProcessorCoreData.WatchInfoEntry(idx, br));
+        setData(ProcessorModule.PROCESSOR_CORE_DATA.get(), cd.withWatchInfos(list));
+    }
+    private void clearWatchAt(int idx) {
+        ProcessorCoreData cd = getCoreData();
+        List<ProcessorCoreData.WatchInfoEntry> list = new ArrayList<>(cd.watchInfos());
+        list.removeIf(e -> e.index() == idx);
+        setData(ProcessorModule.PROCESSOR_CORE_DATA.get(), cd.withWatchInfos(list));
+    }
+
+    private int getLocksSize() { return getCoreData().locks().size(); }
+    private void clearLocks() {
+        ProcessorCoreData cd = getCoreData();
+        if (!cd.locks().isEmpty()) {
+            setData(ProcessorModule.PROCESSOR_CORE_DATA.get(), cd.withLocks(new LinkedHashSet<>()));
+        }
+    }
+    private void addLock(String name) {
+        ProcessorCoreData cd = getCoreData();
+        Set<String> locks = new LinkedHashSet<>(cd.locks());
+        if (locks.add(name)) {
+            setData(ProcessorModule.PROCESSOR_CORE_DATA.get(), cd.withLocks(locks));
+        }
+    }
+    private void removeLock(String name) {
+        ProcessorCoreData cd = getCoreData();
+        Set<String> locks = new LinkedHashSet<>(cd.locks());
+        if (locks.remove(name)) {
+            setData(ProcessorModule.PROCESSOR_CORE_DATA.get(), cd.withLocks(locks));
+        }
+    }
+    private boolean hasLock(String name) { return getCoreData().locks().contains(name); }
 
     public ProcessorCraftingData getCraftingData() {
         return getData(ProcessorModule.PROCESSOR_CRAFTING_DATA.get());
@@ -287,7 +338,11 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
     }
 
     public Parameter getParameter(int idx) {
-        return variables[idx];
+        List<Parameter> variables = getCoreData().variables();
+        if (idx >= variables.size()) {
+            return Parameter.EMPTY;
+        }
+        return variables.get(idx);
     }
 
     public boolean isFluidSlotAvailable(int idx) {
@@ -298,7 +353,8 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
     private BlockPos getAdjacentPosition(@Nonnull BlockSide side) {
         BlockPos p;
         if (side.getNodeName() != null && !side.getNodeName().isEmpty()) {
-            p = networkNodes.get(side.getNodeName());
+            Map<String, BlockPos> nodes = getExtraData().networkNodes();
+            p = nodes.get(side.getNodeName());
             if (p == null) {
                 throw new ProgException(EXCEPT_MISSINGNODE);
             }
@@ -358,7 +414,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
     }
 
     private void process() {
-        tickCount++;
+        incTickCount();
 
         setChanged();
         updateCores();
@@ -990,7 +1046,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
             int index = event.index();
             CompiledOpcode compiledOpcode = compiledCard.getOpcodes().get(index);
             int ticks = evaluateIntParameter(compiledOpcode, null, 0);
-            if (ticks > 0 && tickCount % ticks == 0) {
+            if (ticks > 0 && getTickCount() % ticks == 0) {
                 if (!waitingForItems.isEmpty()) {
                     WaitForItem found = null;
                     int foundIdx = -1;
@@ -1023,7 +1079,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
             int index = event.index();
             CompiledOpcode compiledOpcode = compiledCard.getOpcodes().get(index);
             int ticks = evaluateIntParameter(compiledOpcode, null, 0);
-            if (ticks > 0 && tickCount % ticks == 0) {
+            if (ticks > 0 && getTickCount() % ticks == 0) {
                 runOrDropEvent(i, event, null, null);
             }
         }
@@ -1244,7 +1300,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         }
         log("Event queue: " + eventQueue.size());
         log("Waiting items: " + waitingForItems.size());
-        log("Locks: " + locks.size());
+        log("Locks: " + getLocksSize());
 
         ProcessorCoreData coreData = getCoreData();
         String lastException = coreData.lastException();
@@ -1271,7 +1327,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
                 core.stopProgram();
             }
         }
-        locks.clear();
+        clearLocks();
         runningEvents.clear();
         return n;
     }
@@ -1283,7 +1339,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         for (Direction facing : Direction.values()) {
             powerOut[facing.ordinal()] = 0;
         }
-        for (BlockPos np : networkNodes.values()) {
+        for (BlockPos np : getExtraData().networkNodes().values()) {
             BlockEntity te = level.getBlockEntity(np);
             if (te instanceof NodeTileEntity) {
                 NodeTileEntity tileEntity = (NodeTileEntity) te;
@@ -1309,22 +1365,28 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         if (testLock(name)) {
             return IOpcodeRunnable.OpcodeResult.HOLD;
         }
-        locks.add(name);
+        addLock(name);
         return IOpcodeRunnable.OpcodeResult.POSITIVE;
     }
 
     @Override
     public void releaseLock(String name) {
-        locks.remove(name);
+        ProcessorCoreData coreData = getCoreData();
+        coreData.locks().remove(name);
+        setData(ProcessorModule.PROCESSOR_CORE_DATA, coreData);
     }
 
     @Override
     public boolean testLock(String name) {
-        return locks.contains(name);
+        ProcessorCoreData coreData = getCoreData();
+        return coreData.locks().contains(name);
     }
 
     public void clearLog() {
-        logMessages.clear();
+        ProcessorExtraData extra = getExtraData();
+        if (!extra.logMessages().isEmpty()) {
+            setData(ProcessorModule.PROCESSOR_EXTRA_DATA.get(), extra.withLogMessages(List.of()));
+        }
         ProcessorCoreData coreData = getCoreData();
         ProcessorCoreData updated = coreData.withLastException("").withLastExceptionTime(0L);
         setData(ProcessorModule.PROCESSOR_CORE_DATA.get(), updated);
@@ -1377,13 +1439,15 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
     @Override
     public void log(String message) {
         if (message == null) {
-            // @todo report?
             return;
         }
-        logMessages.add(message);
-        while (logMessages.size() > Config.processorMaxloglines.get()) {
-            logMessages.remove();
+        ProcessorExtraData extra = getExtraData();
+        List<String> msgs = new ArrayList<>(extra.logMessages());
+        msgs.add(message);
+        while (msgs.size() > Config.processorMaxloglines.get()) {
+            msgs.remove(0);
         }
+        setData(ProcessorModule.PROCESSOR_EXTRA_DATA.get(), extra.withLogMessages(msgs));
     }
 
     private List<String> getDebugLog() {
@@ -1394,7 +1458,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
 
         showWithWarn("Event queue: ", eventQueue.size(), 20, result);
         showWithWarn("Waiting items: ", waitingForItems.size(), 20, result);
-        showWithWarn("Locks: ", locks.size(), 10, result);
+        showWithWarn("Locks: ", getLocksSize(), 10, result);
 
         ProcessorCoreData coreData = getCoreData();
         String lastException = coreData.lastException();
@@ -1424,7 +1488,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
     }
 
     private List<String> getLog() {
-        return logMessages.stream().collect(Collectors.toList());
+        return new ArrayList<>(getExtraData().logMessages());
     }
 
     public List<String> getClientLog() {
@@ -1437,6 +1501,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
 
     public List<String> getLastMessages(int n) {
         List<String> rc = new ArrayList<>();
+        List<String> logMessages = getExtraData().logMessages();
         int i = 0;
         for (String s : logMessages) {
             if (i >= logMessages.size() - n) {
@@ -1454,27 +1519,32 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         return fluidSlotsAvailable;
     }
 
-    public Parameter[] getVariableArray() {
-        return variables;
+    public List<Parameter> getVariableArray() {
+        return getCoreData().variables();
     }
 
+    // @todo 1.21
     public List<Parameter> getVariables() {
-        List<Parameter> pars = new ArrayList<>();
-        Collections.addAll(pars, variables);
-        return pars;
+        return getCoreData().variables();
     }
 
     public WatchInfo[] getWatchInfos() {
-        return watchInfos;
+        WatchInfo[] infos = new WatchInfo[MAXVARS];
+        for (ProcessorCoreData.WatchInfoEntry e : getCoreData().watchInfos()) {
+            if (e.index() >= 0 && e.index() < MAXVARS) {
+                infos[e.index()] = new WatchInfo(e.breakOnChange());
+            }
+        }
+        return infos;
     }
 
     public void setWatch(int varIndex, boolean br) {
-        watchInfos[varIndex] = new WatchInfo(br);
+        setWatchAt(varIndex, br);
         markDirtyQuick();
     }
 
     public void clearWatch(int varIndex) {
-        watchInfos[varIndex] = null;
+        clearWatchAt(varIndex);
         markDirtyQuick();
     }
 
@@ -1540,16 +1610,37 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
     private void updateCores() {
         if (coresDirty) {
             coresDirty = false;
-            // @todo, keep state of current running programs?
-            cpuCores.clear();
+            // Build desired static core entries from installed expansion items
+            List<ProcessorCoreData.CoreEntry> desired = new ArrayList<>();
             for (int i = SLOT_EXPANSION; i < SLOT_EXPANSION + EXPANSION_SLOTS; i++) {
                 ItemStack expansionStack = items.getStackInSlot(i);
-                if (!expansionStack.isEmpty() && expansionStack.getItem() instanceof CPUCoreItem) {
-                    CPUCoreItem coreItem = (CPUCoreItem) expansionStack.getItem();
-                    CpuCore core = new CpuCore();
-                    core.setTier(coreItem.getTier());
-                    cpuCores.add(core);
+                if (!expansionStack.isEmpty() && expansionStack.getItem() instanceof CPUCoreItem coreItem) {
+                    desired.add(new ProcessorCoreData.CoreEntry(coreItem.getTier()));
                 }
+            }
+
+            // Compare to stored data and update if needed
+            ProcessorCoreData coreData = getCoreData();
+            List<ProcessorCoreData.CoreEntry> stored = coreData.cores();
+            boolean different = stored.size() != desired.size();
+            if (!different) {
+                for (int i = 0; i < stored.size(); i++) {
+                    if (stored.get(i).tier() != desired.get(i).tier()) {
+                        different = true;
+                        break;
+                    }
+                }
+            }
+            if (different) {
+                setData(ProcessorModule.PROCESSOR_CORE_DATA.get(), coreData.withCores(desired));
+            }
+
+            // Rebuild runtime cores from static core data
+            cpuCores.clear();
+            for (ProcessorCoreData.CoreEntry entry : getCoreData().cores()) {
+                CpuCore core = new CpuCore();
+                core.setTier(entry.tier());
+                cpuCores.add(core);
             }
         }
     }
@@ -1930,7 +2021,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         if (!(te instanceof ProcessorTileEntity destTE)) {
             throw new ProgException(EXCEPT_INVALIDDESTINATION);
         }
-        destTE.receiveMessage(messageName, realVariable == null ? null : getVariableArray()[realVariable]);
+        destTE.receiveMessage(messageName, realVariable == null ? null : getVariableArray().get(realVariable));
     }
 
     private void setOp(String id, GfxOp op) {
@@ -2141,11 +2232,11 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
     }
 
     public String getChannelName() {
-        return channel;
+        return getExtraData().channel();
     }
 
     public int getNodeCount() {
-        return networkNodes.size();
+        return getExtraData().networkNodes().size();
     }
 
     public void stopOrResume(IProgram program) {
@@ -2157,7 +2248,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         int realVar = getRealVarSafe(var, info);
 
         Parameter lastValue = (Parameter) program.getLastValue();
-        Parameter varValue = variables[realVar];
+        Parameter varValue = getParameter(realVar);
 
         if (lastValue == null) {
             return varValue == null;
@@ -2176,7 +2267,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         int realVar = getRealVarSafe(var, info);
 
         Parameter lastValue = (Parameter) program.getLastValue();
-        Parameter varValue = variables[realVar];
+        Parameter varValue = getParameter(realVar);
 
         if (lastValue == null) {
             return varValue == null;
@@ -2248,7 +2339,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         CardInfo info = this.cardInfo[((RunningProgram) program).getCardIndex()];
         int realVar = getRealVarSafe(varIdx, info);
 
-        Parameter parameter = getVariableArray()[realVar];
+        Parameter parameter = getParameter(realVar);
         int i = TypeConverters.convertToInt(parameter);
         if (i > end) {
             return IOpcodeRunnable.OpcodeResult.NEGATIVE;
@@ -2294,17 +2385,19 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
     }
 
     public void setVariableInternal(IProgram program, int realVar, Parameter value) {
-        if (watchInfos[realVar] != null) {
-            Parameter oldValue = variables[realVar];
+        ProcessorCoreData.WatchInfoEntry wi = getCoreData().watchInfos().get(realVar);
+        if (wi != null) {
+            Parameter oldValue = getParameter(realVar);
             if (isWatchTriggered(oldValue, value)) {
                 log(ChatFormatting.BLUE + "W" + realVar + ": " + TypeConverters.convertToString(value));
-                if (watchInfos[realVar].isBreakOnChange()) {
+                if (wi.breakOnChange()) {
                     CpuCore core = ((RunningProgram) program).getCore();    // @todo ugly cast
                     core.setDebug(true);
                 }
             }
         }
-        variables[realVar] = value;
+        // @todo 1.21
+        getCoreData().variables().set(realVar, value);
     }
 
     private boolean isWatchTriggered(Parameter old, Parameter value) {
@@ -2323,7 +2416,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
     public IParameter getVariable(IProgram program, int var) {
         CardInfo info = this.cardInfo[((RunningProgram) program).getCardIndex()];
         int realVar = getRealVarSafe(var, info);
-        return variables[realVar];
+        return getParameter(realVar);
     }
 
     @Nullable
@@ -2344,7 +2437,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         } else {
             CardInfo info = this.cardInfo[((RunningProgram) program).getCardIndex()];
             int realVar = getRealVarSafe(value.getVariableIndex(), info);
-            Parameter par = variables[realVar];
+            Parameter par = getParameter(realVar);
             if (par == null || par.getParameterValue() == null) {
                 return null;
             }
@@ -2624,7 +2717,8 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
             if (!hasNetworkCard()) {
                 throw new ProgException(EXCEPT_MISSINGNETWORKCARD);
             }
-            p = networkNodes.get(inv.getNodeName());
+            Map<String, BlockPos> nodes = getExtraData().networkNodes();
+            p = nodes.get(inv.getNodeName());
             if (p == null) {
                 throw new ProgException(EXCEPT_MISSINGNODE);
             }
@@ -2887,15 +2981,17 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
     }
 
     public void showNetworkInfo() {
-        log("Channel: " + channel);
-        log("Nodes: " + networkNodes.size());
+        ProcessorExtraData extra = getExtraData();
+        log("Channel: " + extra.channel());
+        log("Nodes: " + extra.networkNodes().size());
     }
 
     public void listNodes() {
-        if (networkNodes.isEmpty() && craftingStations.isEmpty()) {
+        Map<String, BlockPos> nodes = getExtraData().networkNodes();
+        if (nodes.isEmpty() && craftingStations.isEmpty()) {
             log("No nodes or crafting stations!");
         } else {
-            for (Map.Entry<String, BlockPos> entry : networkNodes.entrySet()) {
+            for (Map.Entry<String, BlockPos> entry : nodes.entrySet()) {
                 log(ChatFormatting.GREEN + "Node " + ChatFormatting.YELLOW + entry.getKey() + ChatFormatting.GREEN + " at " + ChatFormatting.YELLOW + BlockPosTools.toString(entry.getValue()));
             }
             for (BlockPos station : craftingStations) {
@@ -2905,7 +3001,10 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
     }
 
     public void setupNetwork(String name) {
-        channel = name;
+        ProcessorExtraData extra = getExtraData();
+        if (!Objects.equals(extra.channel(), name)) {
+            setData(ProcessorModule.PROCESSOR_EXTRA_DATA.get(), extra.withChannel(name));
+        }
         setChanged();
     }
 
@@ -2925,11 +3024,13 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
             log(ChatFormatting.RED + "No network card!");
             return;
         }
+        ProcessorExtraData extra = getExtraData();
+        String channel = extra.channel();
         if (channel == null || channel.isEmpty()) {
             log(ChatFormatting.RED + "Setup a channel first!");
             return;
         }
-        networkNodes.clear();
+        Map<String, BlockPos> nodes = new HashMap<>();
         craftingStations.clear();
         int range = hasNetworkCard == NetworkCardItem.TIER_NORMAL ? 8 : 16;
         for (int x = -range; x <= range; x++) {
@@ -2943,7 +3044,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
                             if (node.getNodeName() == null || node.getNodeName().isEmpty()) {
                                 log("Node is missing a name!");
                             } else {
-                                networkNodes.put(node.getNodeName(), n);
+                                nodes.put(node.getNodeName(), n);
                                 node.setProcessor(getBlockPos());
                             }
                         }
@@ -2955,7 +3056,8 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
                 }
             }
         }
-        log("Found " + networkNodes.size() + " node(s)");
+        setData(ProcessorModule.PROCESSOR_EXTRA_DATA.get(), extra.withNetworkNodes(nodes));
+        log("Found " + nodes.size() + " node(s)");
         log("Found " + craftingStations.size() + " crafting station(s)");
         setChanged();
     }
