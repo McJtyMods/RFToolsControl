@@ -6,20 +6,20 @@ import mcjty.lib.container.GenericContainer;
 import mcjty.lib.datagen.DataGen;
 import mcjty.lib.datagen.Dob;
 import mcjty.lib.modules.IModule;
-import mcjty.rftoolscontrol.modules.multitank.client.GuiMultiTank;
 import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorBlock;
 import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorContainer;
 import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorTileEntity;
 import mcjty.rftoolscontrol.modules.processor.client.GuiProcessor;
 import mcjty.rftoolscontrol.modules.processor.client.ProcessorRenderer;
-import mcjty.rftoolscontrol.modules.processor.data.CardInfoData;
-import mcjty.rftoolscontrol.modules.processor.data.GraphicsOperationsData;
+import mcjty.rftoolscontrol.modules.processor.data.ProcessorCardInfoData;
+import mcjty.rftoolscontrol.modules.processor.data.ProcessorGraphicsOperationsData;
 import mcjty.rftoolscontrol.modules.processor.data.ProcessorCoreData;
 import mcjty.rftoolscontrol.modules.processor.data.ProcessorCraftingData;
 import mcjty.rftoolscontrol.modules.processor.data.ProcessorEventData;
+import mcjty.rftoolscontrol.modules.processor.data.ProcessorExtraData;
+import mcjty.rftoolscontrol.modules.processor.data.ProcessorSettingsData;
 import mcjty.rftoolscontrol.modules.processor.items.*;
 import mcjty.rftoolscontrol.modules.various.VariousModule;
-import mcjty.rftoolscontrol.modules.various.data.WorkbenchData;
 import mcjty.rftoolscontrol.setup.Registration;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentType;
@@ -64,22 +64,22 @@ public class ProcessorModule implements IModule {
     public static final DeferredItem<GraphicsCardItem> GRAPHICS_CARD = ITEMS.register("graphics_card", tab(GraphicsCardItem::new));
 
     // Data components for processor saved data blocks
-    public static final Supplier<AttachmentType<GraphicsOperationsData>> GRAPHICS_OPS_DATA = ATTACHMENT_TYPES.register(
-            "graphics_operations_data", () -> AttachmentType.builder(() -> GraphicsOperationsData.DEFAULT)
-                    .serialize(GraphicsOperationsData.CODEC)
+    public static final Supplier<AttachmentType<ProcessorGraphicsOperationsData>> PROCESSOR_GRAPHICS_DATA = ATTACHMENT_TYPES.register(
+            "processor_graphics_data", () -> AttachmentType.builder(() -> ProcessorGraphicsOperationsData.DEFAULT)
+                    .serialize(ProcessorGraphicsOperationsData.CODEC)
                     .build());
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<GraphicsOperationsData>> ITEM_GRAPHICS_OPS_DATA = COMPONENTS.registerComponentType(
-            "graphics_operations_data",
-            builder -> builder.persistent(GraphicsOperationsData.CODEC).networkSynchronized(GraphicsOperationsData.STREAM_CODEC)
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<ProcessorGraphicsOperationsData>> ITEM_PROCESSOR_GRAPHICS_DATA = COMPONENTS.registerComponentType(
+            "processor_graphics_data",
+            builder -> builder.persistent(ProcessorGraphicsOperationsData.CODEC).networkSynchronized(ProcessorGraphicsOperationsData.STREAM_CODEC)
     );
 
-    public static final Supplier<AttachmentType<CardInfoData>> CARD_INFO_DATA = ATTACHMENT_TYPES.register(
-            "card_info_data", () -> AttachmentType.builder(() -> CardInfoData.DEFAULT)
-                    .serialize(CardInfoData.CODEC)
+    public static final Supplier<AttachmentType<ProcessorCardInfoData>> PROCESSOR_CARD_INFO_DATA = ATTACHMENT_TYPES.register(
+            "processor_card_info_data", () -> AttachmentType.builder(() -> ProcessorCardInfoData.DEFAULT)
+                    .serialize(ProcessorCardInfoData.CODEC)
                     .build());
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<CardInfoData>> ITEM_CARD_INFO_DATA = COMPONENTS.registerComponentType(
-            "card_info_data",
-            builder -> builder.persistent(CardInfoData.CODEC).networkSynchronized(CardInfoData.STREAM_CODEC)
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<ProcessorCardInfoData>> ITEM_PROCESSOR_CARD_INFO_DATA = COMPONENTS.registerComponentType(
+            "processor_card_info_data",
+            builder -> builder.persistent(ProcessorCardInfoData.CODEC).networkSynchronized(ProcessorCardInfoData.STREAM_CODEC)
     );
 
     public static final Supplier<AttachmentType<ProcessorCoreData>> PROCESSOR_CORE_DATA = ATTACHMENT_TYPES.register(
@@ -107,6 +107,26 @@ public class ProcessorModule implements IModule {
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<ProcessorCraftingData>> ITEM_PROCESSOR_CRAFTING_DATA = COMPONENTS.registerComponentType(
             "processor_crafting_data",
             builder -> builder.persistent(ProcessorCraftingData.CODEC).networkSynchronized(ProcessorCraftingData.STREAM_CODEC)
+    );
+
+    // Extra data: network nodes and log messages
+    public static final Supplier<AttachmentType<ProcessorExtraData>> PROCESSOR_EXTRA_DATA = ATTACHMENT_TYPES.register(
+            "processor_extra_data", () -> AttachmentType.builder(() -> ProcessorExtraData.DEFAULT)
+                    .serialize(ProcessorExtraData.CODEC)
+                    .build());
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<ProcessorExtraData>> ITEM_PROCESSOR_EXTRA_DATA = COMPONENTS.registerComponentType(
+            "processor_extra_data",
+            builder -> builder.persistent(ProcessorExtraData.CODEC).networkSynchronized(ProcessorExtraData.STREAM_CODEC)
+    );
+
+    // Settings data: HUD and exclusive mode
+    public static final Supplier<AttachmentType<ProcessorSettingsData>> PROCESSOR_SETTINGS_DATA = ATTACHMENT_TYPES.register(
+            "processor_settings_data", () -> AttachmentType.builder(() -> ProcessorSettingsData.DEFAULT)
+                    .serialize(ProcessorSettingsData.CODEC)
+                    .build());
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<ProcessorSettingsData>> ITEM_PROCESSOR_SETTINGS_DATA = COMPONENTS.registerComponentType(
+            "processor_settings_data",
+            builder -> builder.persistent(ProcessorSettingsData.CODEC).networkSynchronized(ProcessorSettingsData.STREAM_CODEC)
     );
 
     public ProcessorModule(IEventBus bus) {
@@ -138,7 +158,9 @@ public class ProcessorModule implements IModule {
                 Dob.blockBuilder(PROCESSOR)
                         .ironPickaxeTags()
                         .parentedItem("block/processor")
-                        .standardLoot() // @todo 1.21 data
+                        .standardLoot(ITEM_PROCESSOR_CARD_INFO_DATA.get(), ITEM_PROCESSOR_CORE_DATA.get(),
+                                ITEM_PROCESSOR_CRAFTING_DATA.get(), ITEM_PROCESSOR_EVENTS_DATA.get(), ITEM_PROCESSOR_EXTRA_DATA.get(),
+                                ITEM_PROCESSOR_SETTINGS_DATA.get())
                         .blockState(p -> p.orientedBlock(PROCESSOR.block().get(), p.frontBasedModel("processor", p.modLoc("block/machineprocessoron"))))
                         .shaped(builder -> builder
                                         .define('F', mcjty.rftoolsbase.modules.various.VariousModule.MACHINE_FRAME.get())

@@ -31,4 +31,7 @@ public record ProcessorCraftingData(List<WaitForItem> waitingForItems, Set<Block
             BlockPos.STREAM_CODEC.apply(ByteBufCodecs.list()), data -> new ArrayList<>(data.craftingStations()),
             (waiting, stations) -> new ProcessorCraftingData(waiting, new HashSet<>(stations))
     );
+
+    public ProcessorCraftingData withWaitingForItems(List<WaitForItem> waitingForItems) { return new ProcessorCraftingData(waitingForItems, this.craftingStations); }
+    public ProcessorCraftingData withCraftingStations(Set<BlockPos> craftingStations) { return new ProcessorCraftingData(this.waitingForItems, craftingStations); }
 }

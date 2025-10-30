@@ -51,16 +51,20 @@ public record ProcessorEventData(Queue<QueuedEvent> queuedEvents, Set<Pair<Integ
                 });
             },
             buf -> new ProcessorEventData(
-                    new LinkedList<>(buf.readCollection(
+                    buf.readCollection(
                             ArrayDeque::new,
                             b -> QueuedEvent.STREAM_CODEC.decode((RegistryFriendlyByteBuf) b)
-                    )),
+                    ),
                     buf.readCollection(
                             HashSet::new,
                             b -> Pair.of(b.readInt(), b.readInt())
                     )
             )
     );
+
+    // withXxx helpers
+    public ProcessorEventData withQueuedEvents(Queue<QueuedEvent> queuedEvents) { return new ProcessorEventData(queuedEvents, this.runningEvents); }
+    public ProcessorEventData withRunningEvents(Set<Pair<Integer, Integer>> runningEvents) { return new ProcessorEventData(this.queuedEvents, runningEvents); }
 
     private static Set<Pair<Integer, Integer>> zipToPairs(List<Integer> left, List<Integer> right) {
         int size = Math.min(left.size(), right.size());

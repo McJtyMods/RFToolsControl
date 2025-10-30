@@ -2,10 +2,12 @@ package mcjty.rftoolscontrol.modules.processor.blocks;
 
 import mcjty.lib.api.container.DefaultContainerProvider;
 import mcjty.lib.bindings.GuiValue;
+import mcjty.lib.bindings.Value;
 import mcjty.lib.blockcommands.Command;
 import mcjty.lib.blockcommands.ListCommand;
 import mcjty.lib.blockcommands.ServerCommand;
 import mcjty.lib.container.GenericItemHandler;
+import mcjty.lib.setup.Registration;
 import mcjty.lib.tileentity.Cap;
 import mcjty.lib.tileentity.CapType;
 import mcjty.lib.tileentity.GenericEnergyStorage;
@@ -29,6 +31,7 @@ import mcjty.rftoolscontrol.modules.multitank.blocks.MultiTankTileEntity;
 import mcjty.rftoolscontrol.modules.multitank.util.MultiTankFluidProperties;
 import mcjty.rftoolscontrol.modules.processor.ProcessorModule;
 import mcjty.rftoolscontrol.modules.processor.client.GuiProcessor;
+import mcjty.rftoolscontrol.modules.processor.data.*;
 import mcjty.rftoolscontrol.modules.processor.items.*;
 import mcjty.rftoolscontrol.modules.processor.logic.LogicInventoryTools;
 import mcjty.rftoolscontrol.modules.processor.logic.ParameterSerializer;
@@ -37,7 +40,6 @@ import mcjty.rftoolscontrol.modules.processor.logic.TypeConverters;
 import mcjty.rftoolscontrol.modules.processor.logic.compiled.CompiledCard;
 import mcjty.rftoolscontrol.modules.processor.logic.compiled.CompiledEvent;
 import mcjty.rftoolscontrol.modules.processor.logic.compiled.CompiledOpcode;
-import mcjty.rftoolscontrol.modules.processor.logic.registry.InventoryUtil;
 import mcjty.rftoolscontrol.modules.processor.logic.registry.Opcodes;
 import mcjty.rftoolscontrol.modules.processor.logic.running.CpuCore;
 import mcjty.rftoolscontrol.modules.processor.logic.running.ExceptionType;
@@ -63,9 +65,6 @@ import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.StringTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.MenuProvider;
@@ -136,13 +135,14 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
     private static final Function<ProcessorTileEntity, GenericEnergyStorage> ENERGY_CAP = tile -> tile.energyStorage;
 
     @Cap(type = CapType.CONTAINER)
-    private static final Function<ProcessorTileEntity, MenuProvider> screenHandler = tile -> new DefaultContainerProvider<ProcessorContainer>("Processor")
+    private static final Function<ProcessorTileEntity, MenuProvider> SCREEN_CAP = tile -> new DefaultContainerProvider<ProcessorContainer>("Processor")
             .containerSupplier((windowId, player) -> ProcessorContainer.create(windowId, tile.getBlockPos(), tile, player))
             .itemHandler(() -> tile.items)
             .energyHandler(() -> tile.energyStorage)
+            .data(ProcessorModule.PROCESSOR_SETTINGS_DATA, ProcessorSettingsData.STREAM_CODEC, ProcessorSettingsData.CODEC)
             .setupSync(tile);
 
-    private final List<CpuCore> cpuCores = new ArrayList<>();
+    private final List<CpuCore> cpuCores = new ArrayList<>(); // MARK: covered by ProcessorCoreData.cores
 
     public static final int HUD_OFF = 0;
 
@@ -154,9 +154,12 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
     public static final int HUD_DB = 2;
     public static final int HUD_GFX = 3;
 
+    // GUI bindings for settings stored in ProcessorSettingsData
     @GuiValue
-    private int showHud = HUD_OFF;
-
+    public static final Value<ProcessorTileEntity, Integer> VALUE_HUD = Value.create("hud", Type.INTEGER, ProcessorTileEntity::getShowHud, ProcessorTileEntity::setShowHud);
+    @GuiValue
+    public static final Value<ProcessorTileEntity, Boolean> VALUE_EXCLUSIVE = Value.create("exclusive", Type.BOOLEAN, ProcessorTileEntity::isExclusive, ProcessorTileEntity::setExclusive);
+ 
     // If true some cards might need compiling
     private boolean cardsDirty = true;
     // If true some cpu cores need updating
@@ -168,39 +171,37 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
     private boolean hasGraphicsCard = false;
     private final Cached<List<Predicate<ItemStack>>> filterCaches = Cached.of(this::getFilterCaches);
 
-    private final Map<String, GfxOp> gfxOps = new HashMap<>();
+    private final Map<String, GfxOp> gfxOps = new HashMap<>(); // MARK: covered by ProcessorGraphicsOperationsData.operations
     private List<String> orderedOps = null;
 
     // Client-side only: for the HUD
     private final List<GfxOp> clientGfxOps = new ArrayList<>();
 
-    @GuiValue
-    private boolean exclusive = false;
 
-    private String lastException = null;
-    private long lastExceptionTime = 0;
+    private String lastException = null; // MARK: covered by ProcessorCoreData.lastException
+    private long lastExceptionTime = 0; // MARK: covered by ProcessorCoreData.lastExceptionTime
 
-    private String channel = "";
-    private final Map<String, BlockPos> networkNodes = new HashMap<>();
+    private String channel = ""; // MARK: covered by ProcessorCoreData.channel
+    private final Map<String, BlockPos> networkNodes = new HashMap<>(); // MARK: covered by ProcessorExtraData.networkNodes
     private final Set<BlockPos> craftingStations = new HashSet<>();
 
     // Bitmask for all six sides
     private int prevIn = 0;
     private final int[] powerOut = new int[]{0, 0, 0, 0, 0, 0};
 
-    private int tickCount = 0;
+    private int tickCount = 0; // MARK: covered by ProcessorCoreData.tickCount
 
-    private final Parameter[] variables = new Parameter[MAXVARS];
-    private final WatchInfo[] watchInfos = new WatchInfo[MAXVARS];
+    private final Parameter[] variables = new Parameter[MAXVARS]; // MARK: covered by ProcessorCoreData.variables
+    private final WatchInfo[] watchInfos = new WatchInfo[MAXVARS]; // MARK: covered by ProcessorCoreData.watchInfos
     private int fluidSlotsAvailable = -1;    // Bitmask indexed by side (6 bits), -1 means unset
 
-    private final CardInfo[] cardInfo = new CardInfo[CARD_SLOTS];
+    private final CardInfo[] cardInfo = new CardInfo[CARD_SLOTS]; // MARK: covered by ProcessorCardInfoData.infos
 
-    private Queue<QueuedEvent> eventQueue = new ArrayDeque<>();        // Integer == card index
+    private Queue<QueuedEvent> eventQueue = new ArrayDeque<>();        // Integer == card index // MARK: covered by ProcessorEventData.queuedEvents
 
     private final List<WaitForItem> waitingForItems = new ArrayList<>();
 
-    private final Queue<String> logMessages = new ArrayDeque<>();
+    private final Queue<String> logMessages = new ArrayDeque<>(); // MARK: covered by ProcessorExtraData.logMessages
 
     // Client side: log from server
     public long clientTime = 0;
@@ -208,9 +209,9 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
     private List<String> clientDebugLog = new ArrayList<>();
 
     // Card index, Opcode index
-    private Set<Pair<Integer, Integer>> runningEvents = new HashSet<>();
+    private Set<Pair<Integer, Integer>> runningEvents = new HashSet<>(); // MARK: covered by ProcessorEventData.runningEvents
 
-    private final Set<String> locks = new HashSet<>();
+    private final Set<String> locks = new HashSet<>(); // MARK: covered by ProcessorCoreData.locks
 
     // If set this is a dummy tile entity
     private ResourceKey<Level> dummyType = null;
@@ -235,6 +236,35 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         dummyType = type;
     }
 
+    // Getters for processor data attachments/components
+    public ProcessorCoreData getCoreData() {
+        return getData(ProcessorModule.PROCESSOR_CORE_DATA.get());
+    }
+
+    public ProcessorCardInfoData getCardInfoData() {
+        return getData(ProcessorModule.PROCESSOR_CARD_INFO_DATA.get());
+    }
+
+    public ProcessorGraphicsOperationsData getGraphicsOperationsData() {
+        return getData(ProcessorModule.PROCESSOR_GRAPHICS_DATA.get());
+    }
+
+    public ProcessorEventData getEventData() {
+        return getData(ProcessorModule.PROCESSOR_EVENTS_DATA.get());
+    }
+
+    public ProcessorCraftingData getCraftingData() {
+        return getData(ProcessorModule.PROCESSOR_CRAFTING_DATA.get());
+    }
+
+    public ProcessorExtraData getExtraData() {
+        return getData(ProcessorModule.PROCESSOR_EXTRA_DATA.get());
+    }
+
+    public ProcessorSettingsData getSettingsData() {
+        return getData(ProcessorModule.PROCESSOR_SETTINGS_DATA.get());
+    }
+
 
     // Return true if this is a dummy tile entity for the tablet
     public boolean isDummy() {
@@ -250,12 +280,14 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
     }
 
     public boolean isExclusive() {
-        return exclusive;
+        return getSettingsData().exclusive();
     }
 
     public void setExclusive(boolean exclusive) {
-        this.exclusive = exclusive;
-        setChanged();
+        ProcessorSettingsData data = getSettingsData();
+        if (data.exclusive() != exclusive) {
+            setData(ProcessorModule.PROCESSOR_SETTINGS_DATA.get(), data.withExclusive(exclusive));
+        }
     }
 
     public Parameter getParameter(int idx) {
@@ -1466,7 +1498,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
     }
 
     private CpuCore findAvailableCore(int cardIndex) {
-        if (exclusive) {
+        if (isExclusive()) {
             if (cardIndex < cpuCores.size()) {
                 CpuCore core = cpuCores.get(cardIndex);
                 if (!core.hasProgram()) {
@@ -2661,20 +2693,24 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
     }
 
     public int getShowHud() {
-        return showHud;
+        return getSettingsData().showHud();
     }
 
     public void setShowHud(int showHud) {
-        this.showHud = showHud;
-        markDirtyClient();
+        ProcessorSettingsData data = getSettingsData();
+        if (data.showHud() != showHud) {
+            setData(ProcessorModule.PROCESSOR_SETTINGS_DATA.get(), data.withShowHud(showHud));
+            markDirtyClient();
+        }
     }
 
     @Override
     public void loadClientDataFromNBT(CompoundTag tagCompound, HolderLookup.Provider provider) {
         CompoundTag info = tagCompound.getCompound("Info");
         if (info != null) {
-            exclusive = info.getBoolean("exclusive");
-            showHud = info.getByte("hud");
+            boolean ex = info.getBoolean("exclusive");
+            int hud = info.getByte("hud");
+            setData(ProcessorModule.PROCESSOR_SETTINGS_DATA.get(), new ProcessorSettingsData(ex, hud));
             // @todo 1.21
 //            readCardInfo(info);
         }
@@ -2707,101 +2743,55 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         }
     }
 
-    // @todo 1.21 data
-//    @Override
-//    protected void loadInfo(CompoundTag tagCompound) {
-//        super.loadInfo(tagCompound);
-//        CompoundTag info = tagCompound.getCompound("Info");
-//        tickCount = info.getInt("tickCount");
-//        channel = info.getString("channel");
-//        exclusive = info.getBoolean("exclusive");
-//        showHud = info.getByte("hud");
-//        if (info.contains("lastExc")) {
-//            lastException = info.getString("lastExc");
-//            lastExceptionTime = info.getLong("lastExcT");
-//        } else {
-//            lastException = null;
-//            lastExceptionTime = 0;
-//        }
-//
-//        readCardInfo(info);
-//        readCores(info);
-//        readEventQueue(info);
-//        readLog(info);
-//        readVariables(info);
-//        readNetworkNodes(info);
-//        readCraftingStations(info);
-//        readWaitingForItems(info);
-//        readLocks(info);
-//        readRunningEvents(info);
-//        readGraphicsOperations(info);
-//    }
-
-    private void readNetworkNodes(CompoundTag tagCompound) {
-        networkNodes.clear();
-        ListTag networkList = tagCompound.getList("nodes", Tag.TAG_COMPOUND);
-        for (int i = 0; i < networkList.size(); i++) {
-            CompoundTag tag = networkList.getCompound(i);
-            String name = tag.getString("name");
-            BlockPos nodePos = new BlockPos(tag.getInt("nodex"), tag.getInt("nodey"), tag.getInt("nodez"));
-            networkNodes.put(name, nodePos);
+    @Override
+    protected void applyImplicitComponents(DataComponentInput input) {
+        super.applyImplicitComponents(input);
+        var core = input.get(ProcessorModule.ITEM_PROCESSOR_CORE_DATA.get());
+        if (core != null) {
+            setData(ProcessorModule.PROCESSOR_CORE_DATA.get(), core);
         }
+        var cardInfo = input.get(ProcessorModule.ITEM_PROCESSOR_CARD_INFO_DATA.get());
+        if (cardInfo != null) {
+            setData(ProcessorModule.PROCESSOR_CARD_INFO_DATA.get(), cardInfo);
+        }
+        var graphics = input.get(ProcessorModule.ITEM_PROCESSOR_GRAPHICS_DATA.get());
+        if (graphics != null) {
+            setData(ProcessorModule.PROCESSOR_GRAPHICS_DATA.get(), graphics);
+        }
+        var events = input.get(ProcessorModule.ITEM_PROCESSOR_EVENTS_DATA.get());
+        if (events != null) {
+            setData(ProcessorModule.PROCESSOR_EVENTS_DATA.get(), events);
+        }
+        var crafting = input.get(ProcessorModule.ITEM_PROCESSOR_CRAFTING_DATA.get());
+        if (crafting != null) {
+            setData(ProcessorModule.PROCESSOR_CRAFTING_DATA.get(), crafting);
+        }
+        var extra = input.get(ProcessorModule.ITEM_PROCESSOR_EXTRA_DATA.get());
+        if (extra != null) {
+            setData(ProcessorModule.PROCESSOR_EXTRA_DATA.get(), extra);
+        }
+        var settings = input.get(ProcessorModule.ITEM_PROCESSOR_SETTINGS_DATA.get());
+        if (settings != null) {
+            setData(ProcessorModule.PROCESSOR_SETTINGS_DATA.get(), settings);
+        }
+        // Energy and items
+        energyStorage.applyImplicitComponents(input.get(Registration.ITEM_ENERGY));
+        items.applyImplicitComponents(input.get(Registration.ITEM_INVENTORY));
     }
 
-    private void readLog(CompoundTag tagCompound) {
-        logMessages.clear();
-        ListTag logList = tagCompound.getList("log", Tag.TAG_STRING);
-        for (int i = 0; i < logList.size(); i++) {
-            logMessages.add(logList.getString(i));
-        }
-    }
-
-    // @todo 1.21 data
-//    @Override
-//    protected void saveInfo(CompoundTag tagCompound) {
-//        super.saveInfo(tagCompound);
-//        CompoundTag info = getOrCreateInfo(tagCompound);
-//        info.putInt("tickCount", tickCount);
-//        info.putString("channel", channel == null ? "" : channel);
-//        info.putBoolean("exclusive", exclusive);
-//        info.putByte("hud", (byte) showHud);
-//        if (lastException != null) {
-//            info.putString("lastExc", lastException);
-//            info.putLong("lastExcT", lastExceptionTime);
-//        }
-//
-//        writeCardInfo(info);
-//        writeCores(info);
-//        writeEventQueue(info);
-//        writeLog(info);
-//        writeVariables(info);
-//        writeNetworkNodes(info);
-//        writeCraftingStations(info);
-//        writeWaitingForItems(info);
-//        writeLocks(info);
-//        writeRunningEvents(info);
-//        writeGraphicsOperation(info);
-//    }
-
-    private void writeNetworkNodes(CompoundTag tagCompound) {
-        ListTag networkList = new ListTag();
-        for (Map.Entry<String, BlockPos> entry : networkNodes.entrySet()) {
-            CompoundTag tag = new CompoundTag();
-            tag.putString("name", entry.getKey());
-            tag.putInt("nodex", entry.getValue().getX());
-            tag.putInt("nodey", entry.getValue().getY());
-            tag.putInt("nodez", entry.getValue().getZ());
-            networkList.add(tag);
-        }
-        tagCompound.put("nodes", networkList);
-    }
-
-    private void writeLog(CompoundTag tagCompound) {
-        ListTag logList = new ListTag();
-        for (String message : logMessages) {
-            logList.add(StringTag.valueOf(message));
-        }
-        tagCompound.put("log", logList);
+    @Override
+    protected void collectImplicitComponents(DataComponentMap.Builder builder) {
+        super.collectImplicitComponents(builder);
+        builder.set(ProcessorModule.ITEM_PROCESSOR_CORE_DATA.get(), getData(ProcessorModule.PROCESSOR_CORE_DATA.get()));
+        builder.set(ProcessorModule.ITEM_PROCESSOR_CARD_INFO_DATA.get(), getData(ProcessorModule.PROCESSOR_CARD_INFO_DATA.get()));
+        builder.set(ProcessorModule.ITEM_PROCESSOR_GRAPHICS_DATA.get(), getData(ProcessorModule.PROCESSOR_GRAPHICS_DATA.get()));
+        builder.set(ProcessorModule.ITEM_PROCESSOR_EVENTS_DATA.get(), getData(ProcessorModule.PROCESSOR_EVENTS_DATA.get()));
+        builder.set(ProcessorModule.ITEM_PROCESSOR_CRAFTING_DATA.get(), getData(ProcessorModule.PROCESSOR_CRAFTING_DATA.get()));
+        builder.set(ProcessorModule.ITEM_PROCESSOR_EXTRA_DATA.get(), getData(ProcessorModule.PROCESSOR_EXTRA_DATA.get()));
+        builder.set(ProcessorModule.ITEM_PROCESSOR_SETTINGS_DATA.get(), getData(ProcessorModule.PROCESSOR_SETTINGS_DATA.get()));
+        // Energy and items
+        energyStorage.collectImplicitComponents(builder);
+        items.collectImplicitComponents(builder);
     }
 
     public boolean isFluidAllocated(int cardIndex, int fluidIndex) {
