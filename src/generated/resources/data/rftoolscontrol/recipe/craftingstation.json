@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "C": {
+      "item": "minecraft:crafting_table"
+    },
+    "F": {
+      "item": "rftoolsbase:machine_frame"
+    },
+    "M": {
+      "item": "rftoolscontrol:card_base"
+    },
+    "r": {
+      "item": "minecraft:redstone"
+    }
+  },
+  "pattern": [
+    "rMr",
+    "CFC",
+    "rMr"
+  ],
+  "result": {
+    "count": 1,
+    "id": "rftoolscontrol:craftingstation"
+  }
+}

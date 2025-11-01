@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "M": {
+      "item": "rftoolscontrol:card_base"
+    },
+    "p": {
+      "item": "minecraft:paper"
+    }
+  },
+  "pattern": [
+    "pp",
+    "Mp"
+  ],
+  "result": {
+    "count": 1,
+    "id": "rftoolscontrol:program_card"
+  }
+}

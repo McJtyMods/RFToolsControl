@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "M": {
+      "item": "rftoolscontrol:card_base"
+    },
+    "P": {
+      "tag": "c:glass_panes"
+    },
+    "i": {
+      "tag": "c:ingots/iron"
+    },
+    "r": {
+      "item": "minecraft:redstone"
+    },
+    "z": {
+      "tag": "c:dyes/black"
+    }
+  },
+  "pattern": [
+    "PMP",
+    "rir",
+    "PzP"
+  ],
+  "result": {
+    "count": 1,
+    "id": "rftoolscontrol:console_module"
+  }
+}

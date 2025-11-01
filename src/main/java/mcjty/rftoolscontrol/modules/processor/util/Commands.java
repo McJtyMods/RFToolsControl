@@ -71,13 +71,13 @@ public class Commands {
                 processor.log(ChatFormatting.RED + "Wrong variable index!");
                 return;
             }
-            processor.setWatch(index, false);
+            processor.setWatchAt(index, false);
         } else if ("list".equals(sub)) {
             boolean hasWatches = false;
             for (int i = 0 ; i < ProcessorTileEntity.MAXVARS ; i++) {
-                WatchInfo info = processor.getWatchInfos()[i];
+                WatchInfo info = processor.getWatchInfoAt(i);
                 if (info != null) {
-                    processor.log("Watch " + i + (info.isBreakOnChange() ? " (break)" : ""));
+                    processor.log("Watch " + i + (info.breakOnChange() ? " (break)" : ""));
                     hasWatches = true;
                 }
             }
@@ -94,7 +94,7 @@ public class Commands {
                 processor.log(ChatFormatting.RED + "Wrong variable index!");
                 return;
             }
-            processor.setWatch(index, true);
+            processor.setWatchAt(index, true);
         } else if ("clear".equals(sub)) {
             if (splitted.length <= 2) {
                 processor.log(ChatFormatting.RED + "Missing variable index!");
@@ -105,7 +105,7 @@ public class Commands {
                 processor.log(ChatFormatting.RED + "Wrong variable index!");
                 return;
             }
-            processor.clearWatch(index);
+            processor.clearWatchAt(index);
         } else {
             processor.log("Unknown 'watch' command!");
         }

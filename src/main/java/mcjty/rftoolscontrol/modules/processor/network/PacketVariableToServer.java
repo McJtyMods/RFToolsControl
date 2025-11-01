@@ -45,7 +45,7 @@ public record PacketVariableToServer(BlockPos pos, int varIndex, CompoundTag tag
         ctx.enqueueWork(() -> {
             BlockEntity te = ctx.player().getCommandSenderWorld().getBlockEntity(pos);
             if (te instanceof ProcessorTileEntity processor) {
-                List<Parameter> variables = processor.getVariableArray();
+                List<Parameter> variables = processor.getVariables();
                 if (varIndex < variables.size()) {
                     Parameter parameter = variables.get(varIndex);
                     ParameterType type = parameter.getParameterType();

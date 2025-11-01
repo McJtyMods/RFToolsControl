@@ -1,0 +1,37 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "function": "minecraft:copy_name",
+              "source": "block_entity"
+            },
+            {
+              "function": "minecraft:copy_components",
+              "include": [
+                "mcjtylib:item_energy",
+                "mcjtylib:item_inventory",
+                "rftoolscontrol:processor_card_info_data",
+                "rftoolscontrol:processor_core_data",
+                "rftoolscontrol:processor_crafting_data",
+                "rftoolscontrol:processor_events_data",
+                "rftoolscontrol:processor_extra_data",
+                "rftoolscontrol:processor_settings_data"
+              ],
+              "source": "block_entity"
+            }
+          ],
+          "name": "rftoolscontrol:processor"
+        }
+      ],
+      "name": "processor",
+      "rolls": 1.0
+    }
+  ],
+  "random_sequence": "rftoolscontrol:blocks/processor"
+}

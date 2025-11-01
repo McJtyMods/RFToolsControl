@@ -192,7 +192,7 @@ public class RunningProgram implements IProgram {
                 // We are returning from a function call
             } else {
                 // We are ending a loop
-                Parameter parameter = processor.getVariableArray().get(varIdx);
+                Parameter parameter = processor.getVariableAt(varIdx);
                 int i = TypeConverters.convertToInt(parameter);
                 i++;
                 processor.setVariableInternal(this, varIdx, Parameter.builder().type(ParameterType.PAR_INTEGER).value(ParameterValue.constant(i)).build());

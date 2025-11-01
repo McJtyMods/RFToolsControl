@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "F": {
+      "item": "rftoolsbase:machine_frame"
+    },
+    "p": {
+      "item": "minecraft:paper"
+    },
+    "q": {
+      "tag": "c:gems/quartz"
+    },
+    "r": {
+      "item": "minecraft:redstone"
+    }
+  },
+  "pattern": [
+    "rqr",
+    "pFp",
+    "rqr"
+  ],
+  "result": {
+    "count": 1,
+    "id": "rftoolscontrol:programmer"
+  }
+}

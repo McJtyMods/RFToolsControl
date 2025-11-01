@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "core500": {
+      "conditions": {
+        "items": [
+          {
+            "items": "rftoolscontrol:cpu_core_500"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "rftoolscontrol:cpu_core_1000"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "core500"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "rftoolscontrol:cpu_core_1000"
+    ]
+  }
+}

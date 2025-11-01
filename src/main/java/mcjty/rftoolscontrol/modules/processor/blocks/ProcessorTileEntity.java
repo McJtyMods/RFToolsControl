@@ -177,32 +177,16 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
     private final List<GfxOp> clientGfxOps = new ArrayList<>();
 
 
-    private final Set<BlockPos> craftingStations = new HashSet<>();
-
     // Bitmask for all six sides
     private int prevIn = 0;
     private final int[] powerOut = new int[]{0, 0, 0, 0, 0, 0};
 
-//    private final Parameter[] variables = new Parameter[MAXVARS]; // MARK: covered by ProcessorCoreData.variables
-//    private final WatchInfo[] watchInfos = new WatchInfo[MAXVARS]; // MARK: covered by ProcessorCoreData.watchInfos
     private int fluidSlotsAvailable = -1;    // Bitmask indexed by side (6 bits), -1 means unset
-
-    private final CardInfo[] cardInfo = new CardInfo[CARD_SLOTS]; // MARK: covered by ProcessorCardInfoData.infos
-
-    private Queue<QueuedEvent> eventQueue = new ArrayDeque<>();        // Integer == card index // MARK: covered by ProcessorEventData.queuedEvents
-
-    private final List<WaitForItem> waitingForItems = new ArrayList<>();
-
 
     // Client side: log from server
     public long clientTime = 0;
     private List<String> clientLog = new ArrayList<>();
     private List<String> clientDebugLog = new ArrayList<>();
-
-    // Card index, Opcode index
-    private Set<Pair<Integer, Integer>> runningEvents = new HashSet<>(); // MARK: covered by ProcessorEventData.runningEvents
-
-//    private final Set<String> locks = new HashSet<>(); // MARK: covered by ProcessorCoreData.locks
 
     // If set this is a dummy tile entity
     private ResourceKey<Level> dummyType = null;
@@ -211,14 +195,6 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
     public ProcessorTileEntity(BlockPos pos, BlockState state) {
         super(ProcessorModule.PROCESSOR.be().get(), pos, state);
 //        super(ConfigSetup.processorMaxenergy.get(), ConfigSetup.processorReceivepertick.get());
-        for (int i = 0; i < cardInfo.length; i++) {
-            cardInfo[i] = new CardInfo();
-        }
-        // @todo 1.21
-//        for (int i = 0; i < MAXVARS; i++) {
-//            variables[i] = null;
-//            watchInfos[i] = null;
-//        }
         fluidSlotsAvailable = -1;
     }
 
@@ -245,6 +221,149 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         return getData(ProcessorModule.PROCESSOR_EVENTS_DATA.get());
     }
 
+    private Queue<QueuedEvent> getEventQueue() {
+        return getEventData().queuedEvents();
+    }
+
+    private void setEventQueue(Queue<QueuedEvent> queue) {
+        ProcessorEventData data = getEventData();
+        setData(ProcessorModule.PROCESSOR_EVENTS_DATA.get(), data.withQueuedEvents(queue));
+    }
+
+    private void clearEventQueue() {
+        ProcessorEventData data = getEventData();
+        if (!data.queuedEvents().isEmpty()) {
+            setData(ProcessorModule.PROCESSOR_EVENTS_DATA.get(), data.withQueuedEvents(new ArrayDeque<>()));
+        }
+    }
+
+    private void filterEventQueue(Predicate<QueuedEvent> predicate) {
+        ProcessorEventData data = getEventData();
+        Queue<QueuedEvent> filtered = data.queuedEvents().stream()
+                .filter(predicate)
+                .collect(Collectors.toCollection(ArrayDeque::new));
+        if (filtered.size() != data.queuedEvents().size()) {
+            setData(ProcessorModule.PROCESSOR_EVENTS_DATA.get(), data.withQueuedEvents(filtered));
+        }
+    }
+
+    private boolean isEventRunning(int cardIndex, int eventIndex) {
+        return getEventData().runningEvents().contains(Pair.of(cardIndex, eventIndex));
+    }
+
+    private void addRunningEvent(int cardIndex, int eventIndex) {
+        Pair<Integer, Integer> key = Pair.of(cardIndex, eventIndex);
+        ProcessorEventData data = getEventData();
+        if (!data.runningEvents().contains(key)) {
+            Set<Pair<Integer, Integer>> updated = new HashSet<>(data.runningEvents());
+            updated.add(key);
+            setData(ProcessorModule.PROCESSOR_EVENTS_DATA.get(), data.withRunningEvents(updated));
+        }
+    }
+
+    private void removeRunningEvent(int cardIndex, int eventIndex) {
+        Pair<Integer, Integer> key = Pair.of(cardIndex, eventIndex);
+        ProcessorEventData data = getEventData();
+        if (data.runningEvents().contains(key)) {
+            Set<Pair<Integer, Integer>> updated = new HashSet<>(data.runningEvents());
+            updated.remove(key);
+            setData(ProcessorModule.PROCESSOR_EVENTS_DATA.get(), data.withRunningEvents(updated));
+        }
+    }
+
+    private void retainRunningEvents(Predicate<Pair<Integer, Integer>> predicate) {
+        ProcessorEventData data = getEventData();
+        Set<Pair<Integer, Integer>> filtered = data.runningEvents().stream()
+                .filter(predicate)
+                .collect(Collectors.toCollection(HashSet::new));
+        if (filtered.size() != data.runningEvents().size()) {
+            setData(ProcessorModule.PROCESSOR_EVENTS_DATA.get(), data.withRunningEvents(filtered));
+        }
+    }
+
+    private void clearRunningEvents() {
+        ProcessorEventData data = getEventData();
+        if (!data.runningEvents().isEmpty()) {
+            setData(ProcessorModule.PROCESSOR_EVENTS_DATA.get(), data.withRunningEvents(new HashSet<>()));
+        }
+    }
+
+    private List<WaitForItem> getWaitingForItems() {
+        return getCraftingData().waitingForItems();
+    }
+
+    private void setWaitingForItems(List<WaitForItem> waitingForItems) {
+        ProcessorCraftingData data = getCraftingData();
+        setData(ProcessorModule.PROCESSOR_CRAFTING_DATA.get(), data.withWaitingForItems(waitingForItems));
+    }
+
+    private Set<BlockPos> getCraftingStations() {
+        return getCraftingData().craftingStations();
+    }
+
+    private void setCraftingStations(Set<BlockPos> stations) {
+        ProcessorCraftingData data = getCraftingData();
+        setData(ProcessorModule.PROCESSOR_CRAFTING_DATA.get(), data.withCraftingStations(stations));
+    }
+
+    private void addWaitingForItem(WaitForItem waitForItem) {
+        ProcessorCraftingData data = getCraftingData();
+        List<WaitForItem> updated = new ArrayList<>(data.waitingForItems());
+        updated.add(waitForItem);
+        setData(ProcessorModule.PROCESSOR_CRAFTING_DATA.get(), data.withWaitingForItems(updated));
+    }
+
+    private void removeWaitingForItem(int index) {
+        ProcessorCraftingData data = getCraftingData();
+        List<WaitForItem> updated = new ArrayList<>(data.waitingForItems());
+        if (index >= 0 && index < updated.size()) {
+            updated.remove(index);
+            setData(ProcessorModule.PROCESSOR_CRAFTING_DATA.get(), data.withWaitingForItems(updated));
+        }
+    }
+
+    private void clearWaitingForItems() {
+        if (!getWaitingForItems().isEmpty()) {
+            setWaitingForItems(new ArrayList<>());
+        }
+    }
+
+    private List<CardInfo> getCardInfos() {
+        ProcessorCardInfoData data = getCardInfoData();
+        List<CardInfo> infos = data.infos();
+        if (infos.size() != CARD_SLOTS) {
+            List<CardInfo> adjusted = new ArrayList<>(infos);
+            if (adjusted.size() > CARD_SLOTS) {
+                adjusted = new ArrayList<>(adjusted.subList(0, CARD_SLOTS));
+            }
+            while (adjusted.size() < CARD_SLOTS) {
+                adjusted.add(new CardInfo());
+            }
+            ProcessorCardInfoData updated = data.withInfos(List.copyOf(adjusted));
+            setData(ProcessorModule.PROCESSOR_CARD_INFO_DATA.get(), updated);
+            infos = updated.infos();
+        }
+        return infos;
+    }
+
+    private void setCardInfos(List<CardInfo> infos) {
+        List<CardInfo> adjusted = new ArrayList<>(infos);
+        if (adjusted.size() > CARD_SLOTS) {
+            adjusted = new ArrayList<>(adjusted.subList(0, CARD_SLOTS));
+        }
+        while (adjusted.size() < CARD_SLOTS) {
+            adjusted.add(new CardInfo());
+        }
+        ProcessorCardInfoData updated = getCardInfoData().withInfos(List.copyOf(adjusted));
+        setData(ProcessorModule.PROCESSOR_CARD_INFO_DATA.get(), updated);
+    }
+
+    private void updateCardInfos(java.util.function.Consumer<List<CardInfo>> consumer) {
+        List<CardInfo> infos = new ArrayList<>(getCardInfos());
+        consumer.accept(infos);
+        setCardInfos(infos);
+    }
+
     // ==== Core data helpers (migrated from local fields) ====
     private int getTickCount() {
         return getCoreData().tickCount();
@@ -255,26 +374,12 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
     }
 
     @Nullable
-    private WatchInfo getWatchInfoAt(int idx) {
-        for (ProcessorCoreData.WatchInfoEntry e : getCoreData().watchInfos()) {
-            if (e.index() == idx) {
-                return new WatchInfo(e.breakOnChange());
-            }
+    public WatchInfo getWatchInfoAt(int idx) {
+        ProcessorCoreData cd = getCoreData();
+        if (idx >= cd.watchInfos().size()) {
+            return null;
         }
-        return null;
-    }
-    private void setWatchAt(int idx, boolean br) {
-        ProcessorCoreData cd = getCoreData();
-        List<ProcessorCoreData.WatchInfoEntry> list = new ArrayList<>(cd.watchInfos());
-        list.removeIf(e -> e.index() == idx);
-        list.add(new ProcessorCoreData.WatchInfoEntry(idx, br));
-        setData(ProcessorModule.PROCESSOR_CORE_DATA.get(), cd.withWatchInfos(list));
-    }
-    private void clearWatchAt(int idx) {
-        ProcessorCoreData cd = getCoreData();
-        List<ProcessorCoreData.WatchInfoEntry> list = new ArrayList<>(cd.watchInfos());
-        list.removeIf(e -> e.index() == idx);
-        setData(ProcessorModule.PROCESSOR_CORE_DATA.get(), cd.withWatchInfos(list));
+        return cd.watchInfos().get(idx);
     }
 
     private int getLocksSize() { return getCoreData().locks().size(); }
@@ -337,12 +442,22 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         }
     }
 
-    public Parameter getParameter(int idx) {
+    public Parameter getVariableAt(int idx) {
         List<Parameter> variables = getCoreData().variables();
         if (idx >= variables.size()) {
-            return Parameter.EMPTY;
+            return null;
         }
         return variables.get(idx);
+    }
+
+    public void setVariableAt(int idx, Parameter parameter) {
+        ProcessorCoreData cd = getCoreData();
+        List<Parameter> list = cd.variables();
+        while (list.size() < idx) {
+            list.add(null);
+        }
+        list.set(idx, parameter);
+        setData(ProcessorModule.PROCESSOR_CORE_DATA.get(), cd.withVariables(list));
     }
 
     public boolean isFluidSlotAvailable(int idx) {
@@ -429,22 +544,25 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
     }
 
     private void processEventQueue() {
-        QueuedEvent queuedEvent = eventQueue.peek();
+        Queue<QueuedEvent> queue = getEventQueue();
+        QueuedEvent queuedEvent = queue.peek();
         if (queuedEvent != null) {
             CompiledEvent compiledEvent = queuedEvent.compiledEvent();
-            if (compiledEvent.single() && runningEvents.contains(Pair.of(queuedEvent.cardIndex(), compiledEvent.index()))) {
+            if (compiledEvent.single() && isEventRunning(queuedEvent.cardIndex(), compiledEvent.index())) {
                 return;
             }
             CpuCore core = findAvailableCore(queuedEvent.cardIndex());
             if (core != null) {
-                eventQueue.remove();
+                Queue<QueuedEvent> newQueue = new ArrayDeque<>(queue);
+                newQueue.remove();
+                setEventQueue(newQueue);
                 RunningProgram program = new RunningProgram(queuedEvent.cardIndex());
                 program.startFromEvent(compiledEvent);
                 program.setCraftTicket(queuedEvent.ticket());
                 program.setLastValue(queuedEvent.parameter());
                 core.startProgram(program);
                 if (compiledEvent.single()) {
-                    runningEvents.add(Pair.of(queuedEvent.cardIndex(), compiledEvent.index()));
+                    addRunningEvent(queuedEvent.cardIndex(), compiledEvent.index());
                 }
             }
         }
@@ -452,7 +570,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
 
     public void getCraftableItems(List<ItemStack> stacks) {
         try {
-            for (CardInfo info : cardInfo) {
+            for (CardInfo info : getCardInfos()) {
                 CompiledCard compiledCard = info.getCompiledCard();
                 if (compiledCard != null) {
                     for (CompiledEvent event : compiledCard.getEvents(Opcodes.EVENT_CRAFT)) {
@@ -495,14 +613,14 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         }
         String ticket = program.getCraftTicket();
 
-        CardInfo info = this.cardInfo[((RunningProgram) program).getCardIndex()];
+        CardInfo info = getCardInfo(((RunningProgram) program).getCardIndex());
         Integer realSlot = info.getRealSlot(slot);
         ItemStack craftedItem = ItemStack.EMPTY;
         if (realSlot != null) {
             craftedItem = ((IItemHandler) items).getStackInSlot(realSlot);
         }
 
-        for (BlockPos p : craftingStations) {
+        for (BlockPos p : getCraftingStations()) {
             BlockEntity te = level.getBlockEntity(p);
             if (te instanceof CraftingStationTileEntity craftingStation) {
                 craftedItem = craftingStation.craftOk(this, ticket, craftedItem);
@@ -521,7 +639,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         }
         String ticket = program.getCraftTicket();
 
-        for (BlockPos p : craftingStations) {
+        for (BlockPos p : getCraftingStations()) {
             BlockEntity te = level.getBlockEntity(p);
             if (te instanceof CraftingStationTileEntity) {
                 CraftingStationTileEntity craftingStation = (CraftingStationTileEntity) te;
@@ -552,7 +670,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
             throw new ProgException(EXCEPT_NOTAGRID);
         }
 
-        CardInfo info = this.cardInfo[((RunningProgram) program).getCardIndex()];
+        CardInfo info = getCardInfo(((RunningProgram) program).getCardIndex());
         IItemHandler itemHandler = items;
 
         IItemHandler gridHandler = getItemHandlerAt(te, Direction.UP);
@@ -597,7 +715,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         IItemHandler handler = getHandlerForInv(inv);
         IStorageScanner scanner = getScannerForInv(inv);
 
-        CardInfo info = this.cardInfo[((RunningProgram) program).getCardIndex()];
+        CardInfo info = getCardInfo(((RunningProgram) program).getCardIndex());
         int e = 0;
         if (extSlot != null) {
             e = extSlot;
@@ -640,7 +758,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
             throw new ProgException(EXCEPT_MISSINGCRAFTINGCARD);
         }
 
-        CardInfo info = this.cardInfo[((RunningProgram) program).getCardIndex()];
+        CardInfo info = getCardInfo(((RunningProgram) program).getCardIndex());
 
         int slot = slot1;
 
@@ -696,7 +814,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         if (card.isEmpty()) {
             throw new ProgException(EXCEPT_MISSINGCRAFTINGCARD);
         }
-        CardInfo info = this.cardInfo[((RunningProgram) program).getCardIndex()];
+        CardInfo info = getCardInfo(((RunningProgram) program).getCardIndex());
 
         List<Ingredient> ingredients;
         if (CraftingCardItem.fitsGrid(card) && (slot2 - slot1 >= 8)) {
@@ -843,7 +961,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         if (card.isEmpty()) {
             throw new ProgException(EXCEPT_MISSINGCRAFTINGCARD);
         }
-        CardInfo info = this.cardInfo[((RunningProgram) program).getCardIndex()];
+        CardInfo info = getCardInfo(((RunningProgram) program).getCardIndex());
 
         int slot = slot1;
 
@@ -885,7 +1003,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
             }
         }
         WaitForItem waitForItem = new WaitForItem(program.getCraftTicket(), stack, inv);
-        waitingForItems.add(waitForItem);
+        addWaitingForItem(waitForItem);
         setChanged();
     }
 
@@ -894,12 +1012,12 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
             throw new ProgException(EXCEPT_MISSINGCRAFTTICKET);
         }
         WaitForItem waitForItem = new WaitForItem(program.getCraftTicket(), ItemStack.EMPTY, null);
-        waitingForItems.add(waitForItem);
+        addWaitingForItem(waitForItem);
         setChanged();
     }
 
     public boolean isRequested(Ingredient ingredient) {
-        for (BlockPos p : craftingStations) {
+        for (BlockPos p : getCraftingStations()) {
             BlockEntity te = level.getBlockEntity(p);
             if (te instanceof CraftingStationTileEntity) {
                 CraftingStationTileEntity craftingStation = (CraftingStationTileEntity) te;
@@ -915,7 +1033,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
 
     @Override
     public boolean requestCraft(@Nonnull Ingredient ingredient, @Nullable Inventory inventory) {
-        for (BlockPos p : craftingStations) {
+        for (BlockPos p : getCraftingStations()) {
             BlockEntity te = level.getBlockEntity(p);
             if (te instanceof CraftingStationTileEntity) {
                 CraftingStationTileEntity craftingStation = (CraftingStationTileEntity) te;
@@ -960,10 +1078,9 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         if (!program.hasCraftTicket()) {
             return ItemStack.EMPTY;
         }
-        for (BlockPos p : craftingStations) {
+        for (BlockPos p : getCraftingStations()) {
             BlockEntity te = level.getBlockEntity(p);
-            if (te instanceof CraftingStationTileEntity) {
-                CraftingStationTileEntity craftingStation = (CraftingStationTileEntity) te;
+            if (te instanceof CraftingStationTileEntity craftingStation) {
                 ItemStack stack = craftingStation.getCraftResult(program.getCraftTicket());
                 if (!stack.isEmpty()) {
                     return stack;
@@ -1002,8 +1119,9 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
     }
 
     public void fireCraftEvent(String ticket, ItemStack stackToCraft) {
-        for (int i = 0; i < cardInfo.length; i++) {
-            CardInfo info = cardInfo[i];
+        List<CardInfo> cardInfos = getCardInfos();
+        for (int i = 0; i < cardInfos.size(); i++) {
+            CardInfo info = cardInfos.get(i);
             CompiledCard compiledCard = info.getCompiledCard();
             if (compiledCard != null) {
                 for (CompiledEvent event : compiledCard.getEvents(Opcodes.EVENT_CRAFT)) {
@@ -1029,8 +1147,9 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
     }
 
     private void handleEvents() {
-        for (int i = 0; i < cardInfo.length; i++) {
-            CardInfo info = cardInfo[i];
+        List<CardInfo> cardInfos = getCardInfos();
+        for (int i = 0; i < cardInfos.size(); i++) {
+            CardInfo info = cardInfos.get(i);
             CompiledCard compiledCard = info.getCompiledCard();
             if (compiledCard != null) {
                 handleEventsRedstoneOn(i, compiledCard);
@@ -1047,11 +1166,12 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
             CompiledOpcode compiledOpcode = compiledCard.getOpcodes().get(index);
             int ticks = evaluateIntParameter(compiledOpcode, null, 0);
             if (ticks > 0 && getTickCount() % ticks == 0) {
-                if (!waitingForItems.isEmpty()) {
+                List<WaitForItem> waiting = getWaitingForItems();
+                if (!waiting.isEmpty()) {
                     WaitForItem found = null;
                     int foundIdx = -1;
-                    for (int i = 0; i < waitingForItems.size(); i++) {
-                        WaitForItem wfi = waitingForItems.get(i);
+                    for (int i = 0; i < waiting.size(); i++) {
+                        WaitForItem wfi = waiting.get(i);
                         if (wfi.inventory() == null || wfi.itemStack().isEmpty()) {
                             foundIdx = i;
                             found = wfi;
@@ -1066,7 +1186,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
                         }
                     }
                     if (found != null) {
-                        waitingForItems.remove(foundIdx);
+                        removeWaitingForItem(foundIdx);
                         runOrQueueEvent(cardIndex, event, found.ticket(), null);
                     }
                 }
@@ -1154,11 +1274,11 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
     }
 
     public void clearRunningEvent(int cardIndex, int eventIndex) {
-        runningEvents.remove(Pair.of(cardIndex, eventIndex));
+        removeRunningEvent(cardIndex, eventIndex);
     }
 
     private void runOrDropEvent(int cardIndex, CompiledEvent event, @Nullable String ticket, @Nullable Parameter parameter) {
-        if (event.single() && runningEvents.contains(Pair.of(cardIndex, event.index()))) {
+        if (event.single() && isEventRunning(cardIndex, event.index())) {
             // Already running and single
             return;
         }
@@ -1166,7 +1286,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         if (core == null) {
             // No available core. First we check if this exact event is already
             // in the queue. If so we drop it. Otherwise we add it
-            for (QueuedEvent q : eventQueue) {
+            for (QueuedEvent q : getEventQueue()) {
                 if (q.cardIndex() == cardIndex) {
                     if (q.compiledEvent().equals(event)) {
                         // This event is already in the queue. Just drop it
@@ -1183,13 +1303,13 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
             program.setLastValue(parameter);
             core.startProgram(program);
             if (event.single()) {
-                runningEvents.add(Pair.of(cardIndex, event.index()));
+                addRunningEvent(cardIndex, event.index());
             }
         }
     }
 
     private void runOrQueueEvent(int cardIndex, CompiledEvent event, @Nullable String ticket, @Nullable Parameter parameter) {
-        if (event.single() && runningEvents.contains(Pair.of(cardIndex, event.index()))) {
+        if (event.single() && isEventRunning(cardIndex, event.index())) {
             // Already running and single
             queueEvent(cardIndex, event, ticket, parameter);
             return;
@@ -1205,24 +1325,28 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
             program.setLastValue(parameter);
             core.startProgram(program);
             if (event.single()) {
-                runningEvents.add(Pair.of(cardIndex, event.index()));
+                addRunningEvent(cardIndex, event.index());
             }
         }
     }
 
     private void queueEvent(int cardIndex, CompiledEvent event, @Nullable String ticket, @Nullable Parameter parameter) {
-        if (eventQueue.size() >= Config.maxEventQueueSize.get()) {
+        Queue<QueuedEvent> currentQueue = getEventQueue();
+        if (currentQueue.size() >= Config.maxEventQueueSize.get()) {
             // Too many events
             throw new ProgException(ExceptionType.EXCEPT_TOOMANYEVENTS);
         }
-        eventQueue.add(new QueuedEvent(cardIndex, event, ticket, parameter));
+        Queue<QueuedEvent> updatedQueue = new ArrayDeque<>(currentQueue);
+        updatedQueue.add(new QueuedEvent(cardIndex, event, ticket, parameter));
+        setEventQueue(updatedQueue);
     }
 
     @Override
     public int signal(String signal) {
         int cnt = 0;
-        for (int i = 0; i < cardInfo.length; i++) {
-            CardInfo info = cardInfo[i];
+        List<CardInfo> cardInfos = getCardInfos();
+        for (int i = 0; i < cardInfos.size(); i++) {
+            CardInfo info = cardInfos.get(i);
             CompiledCard compiledCard = info.getCompiledCard();
             if (compiledCard != null) {
                 for (CompiledEvent event : compiledCard.getEvents(Opcodes.EVENT_SIGNAL)) {
@@ -1242,8 +1366,9 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
     @Override
     public int signal(Tuple location) {
         int cnt = 0;
-        for (int i = 0; i < cardInfo.length; i++) {
-            CardInfo info = cardInfo[i];
+        List<CardInfo> cardInfos = getCardInfos();
+        for (int i = 0; i < cardInfos.size(); i++) {
+            CardInfo info = cardInfos.get(i);
             CompiledCard compiledCard = info.getCompiledCard();
             if (compiledCard != null) {
                 for (CompiledEvent event : compiledCard.getEvents(Opcodes.EVENT_GFX_SELECT)) {
@@ -1259,8 +1384,9 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
     }
 
     public void receiveMessage(String name, @Nullable Parameter value) {
-        for (int i = 0; i < cardInfo.length; i++) {
-            CardInfo info = cardInfo[i];
+        List<CardInfo> cardInfos = getCardInfos();
+        for (int i = 0; i < cardInfos.size(); i++) {
+            CardInfo info = cardInfos.get(i);
             CompiledCard compiledCard = info.getCompiledCard();
             if (compiledCard != null) {
                 for (CompiledEvent event : compiledCard.getEvents(Opcodes.EVENT_MESSAGE)) {
@@ -1298,8 +1424,8 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
             log("Core: " + n + " -> " + getStatus(n));
             n++;
         }
-        log("Event queue: " + eventQueue.size());
-        log("Waiting items: " + waitingForItems.size());
+        log("Event queue: " + getEventQueue().size());
+        log("Waiting items: " + getWaitingForItems().size());
         log("Locks: " + getLocksSize());
 
         ProcessorCoreData coreData = getCoreData();
@@ -1328,23 +1454,23 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
             }
         }
         clearLocks();
-        runningEvents.clear();
+        clearRunningEvents();
         return n;
     }
 
     public void reset() {
-        waitingForItems.clear();
-        eventQueue.clear();
+        clearWaitingForItems();
+        clearEventQueue();
         stopPrograms();
+        setCraftingStations(new HashSet<>());
         for (Direction facing : Direction.values()) {
             powerOut[facing.ordinal()] = 0;
         }
         for (BlockPos np : getExtraData().networkNodes().values()) {
             BlockEntity te = level.getBlockEntity(np);
-            if (te instanceof NodeTileEntity) {
-                NodeTileEntity tileEntity = (NodeTileEntity) te;
+            if (te instanceof NodeTileEntity node) {
                 for (Direction facing : Direction.values()) {
-                    tileEntity.setPowerOut(facing, 0);
+                    node.setPowerOut(facing, 0);
                 }
             }
         }
@@ -1396,8 +1522,9 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
     public void exception(ExceptionType exception, @Nullable RunningProgram program) {
         // For too many events exception we don't want to queue another event for obvious reasons
         if (exception != EXCEPT_TOOMANYEVENTS) {
-            for (int i = 0; i < cardInfo.length; i++) {
-                CardInfo info = cardInfo[i];
+            List<CardInfo> cardInfos = getCardInfos();
+            for (int i = 0; i < cardInfos.size(); i++) {
+                CardInfo info = cardInfos.get(i);
                 CompiledCard compiledCard = info.getCompiledCard();
                 if (compiledCard != null) {
                     for (CompiledEvent event : compiledCard.getEvents(Opcodes.EVENT_EXCEPTION)) {
@@ -1456,8 +1583,8 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
             result.add(ChatFormatting.BLUE + "Core " + i + " " + ChatFormatting.WHITE + getStatus(i));
         }
 
-        showWithWarn("Event queue: ", eventQueue.size(), 20, result);
-        showWithWarn("Waiting items: ", waitingForItems.size(), 20, result);
+        showWithWarn("Event queue: ", getEventQueue().size(), 20, result);
+        showWithWarn("Waiting items: ", getWaitingForItems().size(), 20, result);
         showWithWarn("Locks: ", getLocksSize(), 10, result);
 
         ProcessorCoreData coreData = getCoreData();
@@ -1519,33 +1646,28 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         return fluidSlotsAvailable;
     }
 
-    public List<Parameter> getVariableArray() {
-        return getCoreData().variables();
-    }
-
-    // @todo 1.21
     public List<Parameter> getVariables() {
         return getCoreData().variables();
     }
 
-    public WatchInfo[] getWatchInfos() {
-        WatchInfo[] infos = new WatchInfo[MAXVARS];
-        for (ProcessorCoreData.WatchInfoEntry e : getCoreData().watchInfos()) {
-            if (e.index() >= 0 && e.index() < MAXVARS) {
-                infos[e.index()] = new WatchInfo(e.breakOnChange());
-            }
+    public void setWatchAt(int varIndex, boolean br) {
+        ProcessorCoreData cd = getCoreData();
+        List<WatchInfo> list = cd.watchInfos();
+        while (list.size() < varIndex) {
+            list.add(null);
         }
-        return infos;
+        list.set(varIndex, new WatchInfo(br));
+        setData(ProcessorModule.PROCESSOR_CORE_DATA.get(), cd.withWatchInfos(list));
     }
 
-    public void setWatch(int varIndex, boolean br) {
-        setWatchAt(varIndex, br);
-        markDirtyQuick();
-    }
-
-    public void clearWatch(int varIndex) {
-        clearWatchAt(varIndex);
-        markDirtyQuick();
+    public void clearWatchAt(int varIndex) {
+        ProcessorCoreData cd = getCoreData();
+        List<WatchInfo> list = cd.watchInfos();
+        while (list.size() < varIndex) {
+            list.add(null);
+        }
+        list.set(varIndex, null);
+        setData(ProcessorModule.PROCESSOR_CORE_DATA.get(), cd.withWatchInfos(list));
     }
 
     public List<PacketGetFluids.FluidEntry> getFluids() {
@@ -1554,8 +1676,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
             if (isFluidSlotAvailable(i)) {
                 Direction side = Direction.values()[i / TANKS];
                 BlockEntity te = level.getBlockEntity(getBlockPos().relative(side));
-                if (te instanceof MultiTankTileEntity) {
-                    MultiTankTileEntity mtank = (MultiTankTileEntity) te;
+                if (te instanceof MultiTankTileEntity mtank) {
                     MultiTankFluidProperties[] propertyList = mtank.getProperties();
                     MultiTankFluidProperties properties = propertyList[i % TANKS];
                     FluidStack fluidStack = properties == null ? null : properties.getContents();
@@ -1652,10 +1773,10 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
                 ItemStack cardStack = items.getStackInSlot(i);
                 if (!cardStack.isEmpty()) {
                     int cardIndex = i - ProcessorContainer.SLOT_CARD;
-                    if (cardInfo[cardIndex].getCompiledCard() == null) {
+                    if (getCardInfo(cardIndex).getCompiledCard() == null) {
                         // @todo validation
                         CompiledCard compiled = CompiledCard.compile(cardStack.get(VariousModule.PROGRAM_CARD_DATA.get()));
-                        cardInfo[cardIndex].setCompiledCard(compiled);
+                        updateCardInfos(infos -> infos.get(cardIndex).setCompiledCard(compiled));
                     }
                 }
             }
@@ -1787,8 +1908,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
 
     private MultiTankFluidProperties getFluidPropertiesFromMultiTank(Direction side, int idx) {
         BlockEntity te = level.getBlockEntity(getBlockPos().relative(side));
-        if (te instanceof MultiTankTileEntity) {
-            MultiTankTileEntity mtank = (MultiTankTileEntity) te;
+        if (te instanceof MultiTankTileEntity mtank) {
             return mtank.getProperties()[idx];
         }
         return null;
@@ -1809,7 +1929,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
 
     @Nullable
     public FluidStack examineLiquidInternal(IProgram program, int virtualSlot) {
-        CardInfo info = this.cardInfo[((RunningProgram) program).getCardIndex()];
+        CardInfo info = getCardInfo(((RunningProgram) program).getCardIndex());
         int realSlot = info.getRealFluidSlot(virtualSlot);
         Direction side = Direction.values()[realSlot / TANKS];
         int idx = realSlot % TANKS;
@@ -1823,7 +1943,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
     public int pushLiquid(IProgram program, @Nonnull Inventory inv, int amount, int virtualSlot) {
         IFluidHandler handler = getFluidHandlerAt(inv);
         if (handler != null) {
-            CardInfo info = this.cardInfo[((RunningProgram) program).getCardIndex()];
+            CardInfo info = getCardInfo(((RunningProgram) program).getCardIndex());
             int realSlot = info.getRealFluidSlot(virtualSlot);
             Direction side = Direction.values()[realSlot / TANKS];
             int idx = realSlot % TANKS;
@@ -1848,7 +1968,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
 
     public int fetchLiquid(IProgram program, @Nonnull Inventory inv, final int amount, @Nullable FluidStack fluidStack, int virtualSlot) {
         IFluidHandler handler = getFluidHandlerAt(inv);
-        CardInfo info = this.cardInfo[((RunningProgram) program).getCardIndex()];
+        CardInfo info = getCardInfo(((RunningProgram) program).getCardIndex());
         int realSlot = info.getRealFluidSlot(virtualSlot);
         Direction side = Direction.values()[realSlot / TANKS];
         int idx = realSlot % TANKS;
@@ -1919,7 +2039,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         }
 
         IItemHandler handler = getHandlerForInv(inv);
-        CardInfo info = this.cardInfo[((RunningProgram) program).getCardIndex()];
+        CardInfo info = getCardInfo(((RunningProgram) program).getCardIndex());
         int realSlot = info.getRealSlot(virtualSlot);
         ItemStack stack = LogicInventoryTools.tryExtractItem(handler, amount, cache);
         if (stack.isEmpty()) {
@@ -1944,7 +2064,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
 
         IItemHandler handler = getHandlerForInv(inv);
         IStorageScanner scanner = getScannerForInv(inv);
-        CardInfo info = this.cardInfo[((RunningProgram) program).getCardIndex()];
+        CardInfo info = getCardInfo(((RunningProgram) program).getCardIndex());
         int realSlot = info.getRealSlot(virtualSlot);
 
         ItemStack stack = LogicInventoryTools.tryExtractItem(handler, scanner, amount, routable, itemMatcher, slot);
@@ -1966,7 +2086,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
     @Override
     @Nullable
     public ItemStack getItemInternal(IProgram program, int virtualSlot) {
-        CardInfo info = this.cardInfo[((RunningProgram) program).getCardIndex()];
+        CardInfo info = getCardInfo(((RunningProgram) program).getCardIndex());
         int realSlot = info.getRealSlot(virtualSlot);
         return items.getStackInSlot(realSlot);
     }
@@ -1974,7 +2094,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
     public int pushItems(IProgram program, Inventory inv, Integer slot, @Nullable Integer amount, int virtualSlot) {
         IItemHandler handler = getHandlerForInv(inv);
         IStorageScanner scanner = getScannerForInv(inv);
-        CardInfo info = this.cardInfo[((RunningProgram) program).getCardIndex()];
+        CardInfo info = getCardInfo(((RunningProgram) program).getCardIndex());
         int realSlot = info.getRealSlot(virtualSlot);
         IItemHandler itemHandler = items;
         ItemStack extracted = itemHandler.extractItem(realSlot, amount == null ? 64 : amount, false);
@@ -1999,7 +2119,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
             throw new ProgException(EXCEPT_NEEDSADVANCEDNETWORK);
         }
 
-        CardInfo info = this.cardInfo[((RunningProgram) program).getCardIndex()];
+        CardInfo info = getCardInfo(((RunningProgram) program).getCardIndex());
         int realIdSlot = info.getRealSlot(idSlot);
 
         Integer realVariable = info.getRealVar(variableSlot);
@@ -2021,7 +2141,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         if (!(te instanceof ProcessorTileEntity destTE)) {
             throw new ProgException(EXCEPT_INVALIDDESTINATION);
         }
-        destTE.receiveMessage(messageName, realVariable == null ? null : getVariableArray().get(realVariable));
+        destTE.receiveMessage(messageName, realVariable == null ? null : getVariableAt(realVariable));
     }
 
     private void setOp(String id, GfxOp op) {
@@ -2161,8 +2281,8 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
             for (int i = SLOT_EXPANSION; i < SLOT_EXPANSION + EXPANSION_SLOTS; i++) {
                 ItemStack stack = items.getStackInSlot(i);
                 if (!stack.isEmpty()) {
-                    if (stack.getItem() instanceof NetworkCardItem) {
-                        hasNetworkCard = ((NetworkCardItem) stack.getItem()).getTier();
+                    if (stack.getItem() instanceof NetworkCardItem networkCardItem) {
+                        hasNetworkCard = networkCardItem.getTier();
                     } else if (stack.getItem() instanceof RAMChipItem) {
                         maxVars += 8;
                     } else if (stack.getItem() instanceof GraphicsCardItem) {
@@ -2199,7 +2319,8 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
     }
 
     private void fixCardInfoForSlotAvailability() {
-        for (CardInfo info : cardInfo) {
+        updateCardInfos(infos -> {
+            for (CardInfo info : infos) {
             int alloc = info.getFluidAllocation();
             for (int i = 0; i < MultiTankTileEntity.TANKS * 6; i++) {
                 if ((fluidSlotsAvailable & (1 << (i / TANKS))) == 0) {
@@ -2208,6 +2329,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
             }
             info.setFluidAllocation(alloc);
         }
+        });
     }
 
     public boolean hasGraphicsCard() {
@@ -2244,11 +2366,11 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
     }
 
     public boolean testGreater(IProgram program, int var) {
-        CardInfo info = this.cardInfo[((RunningProgram) program).getCardIndex()];
+        CardInfo info = getCardInfo(((RunningProgram) program).getCardIndex());
         int realVar = getRealVarSafe(var, info);
 
         Parameter lastValue = (Parameter) program.getLastValue();
-        Parameter varValue = getParameter(realVar);
+        Parameter varValue = getVariableAt(realVar);
 
         if (lastValue == null) {
             return varValue == null;
@@ -2263,11 +2385,11 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
     }
 
     public boolean testEquality(IProgram program, int var) {
-        CardInfo info = this.cardInfo[((RunningProgram) program).getCardIndex()];
+        CardInfo info = getCardInfo(((RunningProgram) program).getCardIndex());
         int realVar = getRealVarSafe(var, info);
 
         Parameter lastValue = (Parameter) program.getLastValue();
-        Parameter varValue = getParameter(realVar);
+        Parameter varValue = getVariableAt(realVar);
 
         if (lastValue == null) {
             return varValue == null;
@@ -2311,7 +2433,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
 
     public void handleCall(IProgram program, String signal) {
         RunningProgram p = (RunningProgram) program;
-        CardInfo info = this.cardInfo[p.getCardIndex()];
+        CardInfo info = this.getCardInfo(p.getCardIndex());
         CompiledCard compiledCard = info.getCompiledCard();
         if (compiledCard != null) {
             for (CompiledEvent event : compiledCard.getEvents(Opcodes.EVENT_SIGNAL)) {
@@ -2336,10 +2458,10 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
 //    }
 //
     public IOpcodeRunnable.OpcodeResult handleLoop(IProgram program, int varIdx, int end) {
-        CardInfo info = this.cardInfo[((RunningProgram) program).getCardIndex()];
+        CardInfo info = getCardInfo(((RunningProgram) program).getCardIndex());
         int realVar = getRealVarSafe(varIdx, info);
 
-        Parameter parameter = getParameter(realVar);
+        Parameter parameter = getVariableAt(realVar);
         int i = TypeConverters.convertToInt(parameter);
         if (i > end) {
             return IOpcodeRunnable.OpcodeResult.NEGATIVE;
@@ -2350,7 +2472,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
     }
 
     public void setValueInToken(IProgram program, int slot) {
-        CardInfo info = this.cardInfo[((RunningProgram) program).getCardIndex()];
+        CardInfo info = getCardInfo(((RunningProgram) program).getCardIndex());
         int realSlot = info.getRealSlot(slot);
         ItemStack stack = ((IItemHandler) items).getStackInSlot(realSlot);
         if (stack.isEmpty() || !(stack.getItem() instanceof TokenItem)) {
@@ -2366,7 +2488,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
 
     @Nullable
     public Parameter getParameterFromToken(IProgram program, int slot) {
-        CardInfo info = this.cardInfo[((RunningProgram) program).getCardIndex()];
+        CardInfo info = getCardInfo(((RunningProgram) program).getCardIndex());
         int realSlot = info.getRealSlot(slot);
         ItemStack stack = ((IItemHandler) items).getStackInSlot(realSlot);
         if (stack.isEmpty() || !(stack.getItem() instanceof TokenItem)) {
@@ -2379,15 +2501,15 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
 
     @Override
     public void setVariable(IProgram program, int var) {
-        CardInfo info = this.cardInfo[((RunningProgram) program).getCardIndex()];
+        CardInfo info = getCardInfo(((RunningProgram) program).getCardIndex());
         int realVar = getRealVarSafe(var, info);
         setVariableInternal(program, realVar, (Parameter) program.getLastValue());
     }
 
     public void setVariableInternal(IProgram program, int realVar, Parameter value) {
-        ProcessorCoreData.WatchInfoEntry wi = getCoreData().watchInfos().get(realVar);
+        WatchInfo wi = getWatchInfoAt(realVar);
         if (wi != null) {
-            Parameter oldValue = getParameter(realVar);
+            Parameter oldValue = getVariableAt(realVar);
             if (isWatchTriggered(oldValue, value)) {
                 log(ChatFormatting.BLUE + "W" + realVar + ": " + TypeConverters.convertToString(value));
                 if (wi.breakOnChange()) {
@@ -2396,8 +2518,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
                 }
             }
         }
-        // @todo 1.21
-        getCoreData().variables().set(realVar, value);
+        setVariableAt(realVar, value);
     }
 
     private boolean isWatchTriggered(Parameter old, Parameter value) {
@@ -2414,9 +2535,9 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
 
     @Override
     public IParameter getVariable(IProgram program, int var) {
-        CardInfo info = this.cardInfo[((RunningProgram) program).getCardIndex()];
+        CardInfo info = getCardInfo(((RunningProgram) program).getCardIndex());
         int realVar = getRealVarSafe(var, info);
-        return getParameter(realVar);
+        return getVariableAt(realVar);
     }
 
     @Nullable
@@ -2435,9 +2556,9 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
             Object v = function.getFunctionRunnable().run(this, program);
             return convertor.apply(function.getReturnType(), v);
         } else {
-            CardInfo info = this.cardInfo[((RunningProgram) program).getCardIndex()];
+            CardInfo info = getCardInfo(((RunningProgram) program).getCardIndex());
             int realVar = getRealVarSafe(value.getVariableIndex(), info);
-            Parameter par = getParameter(realVar);
+            Parameter par = getVariableAt(realVar);
             if (par == null || par.getParameterValue() == null) {
                 return null;
             }
@@ -2772,16 +2893,10 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
     }
 
     private void removeCard(int index) {
-        cardInfo[index].setCompiledCard(null);
+        updateCardInfos(infos -> infos.get(index).setCompiledCard(null));
         stopPrograms(index);
 
-        Queue<QueuedEvent> newQueue = new ArrayDeque<>();
-        for (QueuedEvent event : eventQueue) {
-            if (event.cardIndex() != index) {
-                newQueue.add(event);
-            }
-        }
-        eventQueue = newQueue;
+        filterEventQueue(event -> event.cardIndex() != index);
     }
 
     private void stopPrograms(int cardIndex) {
@@ -2791,13 +2906,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
             }
         }
 
-        Set<Pair<Integer, Integer>> newRunningEvents = new HashSet<>();
-        for (Pair<Integer, Integer> pair : runningEvents) {
-            if (pair.getLeft() != cardIndex) {
-                newRunningEvents.add(pair);
-            }
-        }
-        runningEvents = newRunningEvents;
+        retainRunningEvents(pair -> pair.getLeft() != cardIndex);
     }
 
     private void clearExpansions() {
@@ -2822,23 +2931,15 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
 
     @Override
     public void loadClientDataFromNBT(CompoundTag tagCompound, HolderLookup.Provider provider) {
-        CompoundTag info = tagCompound.getCompound("Info");
-        if (info != null) {
-            boolean ex = info.getBoolean("exclusive");
-            int hud = info.getByte("hud");
-            setData(ProcessorModule.PROCESSOR_SETTINGS_DATA.get(), new ProcessorSettingsData(ex, hud));
-            // @todo 1.21
-//            readCardInfo(info);
-        }
+        boolean ex = tagCompound.getBoolean("exclusive");
+        int hud = tagCompound.getByte("hud");
+        setData(ProcessorModule.PROCESSOR_SETTINGS_DATA.get(), new ProcessorSettingsData(ex, hud));
     }
 
     @Override
     public void saveClientDataToNBT(CompoundTag tagCompound, HolderLookup.Provider provider) {
-        // @todo 1.21 data
-//        CompoundTag info = getOrCreateInfo(tagCompound);
-//        info.putBoolean("exclusive", exclusive);
-//        info.putByte("hud", (byte) showHud);
-//        writeCardInfo(info);
+        tagCompound.putBoolean("exclusive", isExclusive());
+        tagCompound.putInt("hud", getShowHud());
     }
 
     @Override
@@ -2912,7 +3013,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
 
     public boolean isFluidAllocated(int cardIndex, int fluidIndex) {
         if (cardIndex == -1) {
-            for (CardInfo info : cardInfo) {
+            for (CardInfo info : getCardInfos()) {
                 int fluidAlloc = info.getFluidAllocation();
                 if (((fluidAlloc >> fluidIndex) & 1) != 0) {
                     return true;
@@ -2928,7 +3029,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
 
     public boolean isVarAllocated(int cardIndex, int varIndex) {
         if (cardIndex == -1) {
-            for (CardInfo info : cardInfo) {
+            for (CardInfo info : getCardInfos()) {
                 int varAlloc = info.getVarAllocation();
                 if (((varAlloc >> varIndex) & 1) != 0) {
                     return true;
@@ -2944,7 +3045,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
 
     public boolean isItemAllocated(int cardIndex, int itemIndex) {
         if (cardIndex == -1) {
-            for (CardInfo info : cardInfo) {
+            for (CardInfo info : getCardInfos()) {
                 int itemAlloc = info.getItemAllocation();
                 if (((itemAlloc >> itemIndex) & 1) != 0) {
                     return true;
@@ -2959,7 +3060,8 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
     }
 
     public CardInfo getCardInfo(int index) {
-        return cardInfo[index];
+        List<CardInfo> infos = getCardInfos();
+        return infos.get(index);
     }
 
     public CompiledCard getCompiledCard(int index) {
@@ -2967,16 +3069,20 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         CompiledCard card = info.getCompiledCard();
         ItemStack cardStack = items.getStackInSlot(index + ProcessorContainer.SLOT_CARD);
         if (card == null && !cardStack.isEmpty()) {
-            card = CompiledCard.compile(cardStack.get(VariousModule.PROGRAM_CARD_DATA.get()));
-            cardInfo[index].setCompiledCard(card);
+            CompiledCard compiled = CompiledCard.compile(cardStack.get(VariousModule.PROGRAM_CARD_DATA.get()));
+            updateCardInfos(infos -> infos.get(index).setCompiledCard(compiled));
+            card = compiled;
         }
         return card;
     }
 
     private void allocate(int card, int itemAlloc, int varAlloc, int fluidAlloc) {
-        cardInfo[card].setItemAllocation(itemAlloc);
-        cardInfo[card].setVarAllocation(varAlloc);
-        cardInfo[card].setFluidAllocation(fluidAlloc);
+        updateCardInfos(infos -> {
+            CardInfo info = infos.get(card);
+            info.setItemAllocation(itemAlloc);
+            info.setVarAllocation(varAlloc);
+            info.setFluidAllocation(fluidAlloc);
+        });
         setChanged();
     }
 
@@ -2988,6 +3094,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
 
     public void listNodes() {
         Map<String, BlockPos> nodes = getExtraData().networkNodes();
+        Set<BlockPos> craftingStations = getCraftingStations();
         if (nodes.isEmpty() && craftingStations.isEmpty()) {
             log("No nodes or crafting stations!");
         } else {
@@ -3009,8 +3116,9 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
     }
 
     public void redstoneNodeChange(int previousMask, int newMask, String node) {
-        for (int i = 0; i < cardInfo.length; i++) {
-            CardInfo info = cardInfo[i];
+        List<CardInfo> cardInfos = getCardInfos();
+        for (int i = 0; i < cardInfos.size(); i++) {
+            CardInfo info = cardInfos.get(i);
             CompiledCard compiledCard = info.getCompiledCard();
             if (compiledCard != null) {
                 handleEventsRedstoneOn(i, compiledCard, node, previousMask, newMask);
@@ -3031,15 +3139,14 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
             return;
         }
         Map<String, BlockPos> nodes = new HashMap<>();
-        craftingStations.clear();
         int range = hasNetworkCard == NetworkCardItem.TIER_NORMAL ? 8 : 16;
+        Set<BlockPos> newStations = new HashSet<>();
         for (int x = -range; x <= range; x++) {
             for (int y = -range; y <= range; y++) {
                 for (int z = -range; z <= range; z++) {
                     BlockPos n = new BlockPos(worldPosition.getX() + x, worldPosition.getY() + y, worldPosition.getZ() + z);
                     BlockEntity te = level.getBlockEntity(n);
-                    if (te instanceof NodeTileEntity) {
-                        NodeTileEntity node = (NodeTileEntity) te;
+                    if (te instanceof NodeTileEntity node) {
                         if (channel.equals(node.getChannelName())) {
                             if (node.getNodeName() == null || node.getNodeName().isEmpty()) {
                                 log("Node is missing a name!");
@@ -3048,17 +3155,17 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
                                 node.setProcessor(getBlockPos());
                             }
                         }
-                    } else if (te instanceof CraftingStationTileEntity) {
-                        CraftingStationTileEntity craftingStation = (CraftingStationTileEntity) te;
+                    } else if (te instanceof CraftingStationTileEntity craftingStation) {
                         craftingStation.registerProcessor(worldPosition);
-                        craftingStations.add(n);
+                        newStations.add(n);
                     }
                 }
             }
         }
         setData(ProcessorModule.PROCESSOR_EXTRA_DATA.get(), extra.withNetworkNodes(nodes));
+        setCraftingStations(newStations);
         log("Found " + nodes.size() + " node(s)");
-        log("Found " + craftingStations.size() + " crafting station(s)");
+        log("Found " + newStations.size() + " crafting station(s)");
         setChanged();
     }
 

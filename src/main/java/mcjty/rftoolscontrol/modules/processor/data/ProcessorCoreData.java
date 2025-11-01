@@ -4,6 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import mcjty.lib.varia.CompositeStreamCodec;
 import mcjty.rftoolsbase.api.control.parameters.Parameter;
+import mcjty.rftoolscontrol.modules.processor.util.WatchInfo;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -18,7 +19,7 @@ import java.util.Set;
  */
 public record ProcessorCoreData(Set<String> locks,
                                 List<Parameter> variables,
-                                List<WatchInfoEntry> watchInfos,
+                                List<WatchInfo> watchInfos,
                                 List<CoreEntry> cores,
                                 int tickCount,
                                 String lastException,
@@ -29,7 +30,7 @@ public record ProcessorCoreData(Set<String> locks,
     public static final Codec<ProcessorCoreData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.STRING.listOf().fieldOf("locks").forGetter(data -> new ArrayList<>(data.locks())),
             Parameter.CODEC.listOf().fieldOf("variables").forGetter(ProcessorCoreData::variables),
-            WatchInfoEntry.CODEC.listOf().fieldOf("watch_infos").forGetter(ProcessorCoreData::watchInfos),
+            WatchInfo.CODEC.listOf().fieldOf("watch_infos").forGetter(ProcessorCoreData::watchInfos),
             CoreEntry.CODEC.listOf().fieldOf("cores").forGetter(ProcessorCoreData::cores),
             Codec.INT.fieldOf("tickCount").forGetter(ProcessorCoreData::tickCount),
             Codec.STRING.fieldOf("lastException").forGetter(ProcessorCoreData::lastException),
@@ -40,7 +41,7 @@ public record ProcessorCoreData(Set<String> locks,
     public static final StreamCodec<RegistryFriendlyByteBuf, ProcessorCoreData> STREAM_CODEC = CompositeStreamCodec.composite(
             ByteBufCodecs.collection(ArrayList::new, ByteBufCodecs.STRING_UTF8), data -> new ArrayList<>(data.locks()),
             Parameter.STREAM_CODEC.apply(ByteBufCodecs.collection(ArrayList::new)), ProcessorCoreData::variables,
-            WatchInfoEntry.STREAM_CODEC.apply(ByteBufCodecs.collection(ArrayList::new)), ProcessorCoreData::watchInfos,
+            WatchInfo.STREAM_CODEC.apply(ByteBufCodecs.collection(ArrayList::new)), ProcessorCoreData::watchInfos,
             CoreEntry.STREAM_CODEC.apply(ByteBufCodecs.collection(ArrayList::new)), ProcessorCoreData::cores,
             ByteBufCodecs.INT, ProcessorCoreData::tickCount,
             ByteBufCodecs.STRING_UTF8, ProcessorCoreData::lastException,
@@ -51,25 +52,11 @@ public record ProcessorCoreData(Set<String> locks,
     // withXxx helpers
     public ProcessorCoreData withLocks(Set<String> locks) { return new ProcessorCoreData(locks, this.variables, this.watchInfos, this.cores, this.tickCount, this.lastException, this.lastExceptionTime); }
     public ProcessorCoreData withVariables(List<Parameter> variables) { return new ProcessorCoreData(this.locks, variables, this.watchInfos, this.cores, this.tickCount, this.lastException, this.lastExceptionTime); }
-    public ProcessorCoreData withWatchInfos(List<WatchInfoEntry> watchInfos) { return new ProcessorCoreData(this.locks, this.variables, watchInfos, this.cores, this.tickCount, this.lastException, this.lastExceptionTime); }
+    public ProcessorCoreData withWatchInfos(List<WatchInfo> watchInfos) { return new ProcessorCoreData(this.locks, this.variables, watchInfos, this.cores, this.tickCount, this.lastException, this.lastExceptionTime); }
     public ProcessorCoreData withCores(List<CoreEntry> cores) { return new ProcessorCoreData(this.locks, this.variables, this.watchInfos, cores, this.tickCount, this.lastException, this.lastExceptionTime); }
     public ProcessorCoreData withTickCount(int tickCount) { return new ProcessorCoreData(this.locks, this.variables, this.watchInfos, this.cores, tickCount, this.lastException, this.lastExceptionTime); }
     public ProcessorCoreData withLastException(String lastException) { return new ProcessorCoreData(this.locks, this.variables, this.watchInfos, this.cores, this.tickCount, lastException, this.lastExceptionTime); }
     public ProcessorCoreData withLastExceptionTime(long lastExceptionTime) { return new ProcessorCoreData(this.locks, this.variables, this.watchInfos, this.cores, this.tickCount, this.lastException, lastExceptionTime); }
-
-    public record WatchInfoEntry(int index, boolean breakOnChange) {
-
-        public static final Codec<WatchInfoEntry> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-                Codec.INT.fieldOf("index").forGetter(WatchInfoEntry::index),
-                Codec.BOOL.fieldOf("breakOnChange").forGetter(WatchInfoEntry::breakOnChange)
-        ).apply(instance, WatchInfoEntry::new));
-
-        public static final StreamCodec<RegistryFriendlyByteBuf, WatchInfoEntry> STREAM_CODEC = StreamCodec.composite(
-                ByteBufCodecs.INT, WatchInfoEntry::index,
-                ByteBufCodecs.BOOL, WatchInfoEntry::breakOnChange,
-                WatchInfoEntry::new
-        );
-    }
 
     /**
      * Static representation of a CPU core installed in the processor. Runtime state lives in ProcessorTileEntity.cpuCores.

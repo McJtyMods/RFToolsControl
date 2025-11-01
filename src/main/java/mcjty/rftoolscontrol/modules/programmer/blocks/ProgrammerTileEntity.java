@@ -18,6 +18,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.common.util.Lazy;
 
+import java.util.function.Function;
+
 import static mcjty.lib.api.container.DefaultContainerProvider.container;
 import static mcjty.lib.container.SlotDefinition.generic;
 import static mcjty.lib.container.SlotDefinition.specific;
@@ -33,14 +35,15 @@ public class ProgrammerTileEntity extends GenericTileEntity {
             .box(generic(), SLOT_DUMMY, -1000, -1000, 1, 1)
             .playerSlots(91, 157));
 
-    @Cap(type = CapType.ITEMS_AUTOMATION)
     private final GenericItemHandler items = GenericItemHandler.basic(this, CONTAINER_FACTORY);
+    @Cap(type = CapType.ITEMS_AUTOMATION)
+    private static final Function<ProgrammerTileEntity, GenericItemHandler> ITEM_CAP = tile -> tile.items;
 
     @Cap(type = CapType.CONTAINER)
-    private final Lazy<MenuProvider> screenHandler = Lazy.of(() -> new DefaultContainerProvider<GenericContainer>("Programmer")
-            .containerSupplier(container(PROGRAMMER_CONTAINER, CONTAINER_FACTORY, this))
-            .itemHandler(() -> items)
-            .setupSync(this));
+    private static final Function<ProgrammerTileEntity, MenuProvider> screenHandler = tile -> new DefaultContainerProvider<GenericContainer>("Programmer")
+            .containerSupplier(container(PROGRAMMER_CONTAINER, CONTAINER_FACTORY, tile))
+            .itemHandler(() -> tile.items)
+            .setupSync(tile);
 
     public ProgrammerTileEntity(BlockPos pos, BlockState state) {
         super(ProgrammerModule.PROGRAMMER.be().get(), pos, state);

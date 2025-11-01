@@ -136,7 +136,7 @@ public record VariableScreenModule(String line,
 
         BlockEntity te = world.getBlockEntity(coordinate);
         if (te instanceof ProcessorTileEntity processor) {
-            Parameter parameter = processor.getParameter(varIdx);
+            Parameter parameter = processor.getVariableAt(varIdx);
             return new ModuleDataVariable(parameter);
         }
         return null;

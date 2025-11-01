@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "M": {
+      "item": "rftoolscontrol:card_base"
+    },
+    "i": {
+      "tag": "c:ingots/iron"
+    },
+    "r": {
+      "item": "minecraft:redstone"
+    },
+    "z": {
+      "tag": "c:dyes/black"
+    }
+  },
+  "pattern": [
+    " M ",
+    "rir",
+    " z "
+  ],
+  "result": {
+    "count": 1,
+    "id": "rftoolscontrol:variable_module"
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "cardbase": {
+      "conditions": {
+        "items": [
+          {
+            "items": "rftoolscontrol:card_base"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "rftoolscontrol:interaction_module"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "cardbase"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "rftoolscontrol:interaction_module"
+    ]
+  }
+}
