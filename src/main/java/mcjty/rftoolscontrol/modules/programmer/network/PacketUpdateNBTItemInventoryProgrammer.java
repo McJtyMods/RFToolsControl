@@ -53,7 +53,7 @@ public record PacketUpdateNBTItemInventoryProgrammer(BlockPos pos, int slotIndex
                 if (handler != null) {
                     ItemStack stack = handler.getStackInSlot(slotIndex);
                     if (stack.getItem() == card.getItem()) {
-                        card.applyComponents(card.getComponents());
+                        stack.applyComponents(card.getComponents());
                     }
                     te.setChanged();
                 }

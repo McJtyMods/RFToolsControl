@@ -70,7 +70,7 @@ public class ProgrammerModule implements IModule {
                         .standardLoot()
                         .blockState(p -> p.orientedBlock(PROGRAMMER.block().get(), p.frontBasedModel("programmer", p.modLoc("block/machineprogrammer"))))
                         .shaped(builder -> builder
-                                        .define('F', mcjty.rftoolsbase.modules.various.VariousModule.MACHINE_FRAME.get())
+                                        .define('F', VariousModule.MACHINE_FRAME.get())
                                         .define('q', Tags.Items.GEMS_QUARTZ)
                                         .unlockedBy("frame", has(VariousModule.MACHINE_FRAME.get())),
                                 "rqr", "pFp", "rqr")

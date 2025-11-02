@@ -24,7 +24,7 @@ public class CompiledCard {
 
         CompiledCard card = new CompiledCard();
 
-        Map<GridPos, GridInstance> gridInstances = cardInstance.getGridInstances();
+        Map<GridPos, GridInstance> gridInstances = cardInstance.gridInstances();
 
         // First find the indices of all compiled grid instances
         Map<GridPos, Integer> posToIndex = new HashMap<>();

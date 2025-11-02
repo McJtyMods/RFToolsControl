@@ -7,6 +7,7 @@ import mcjty.lib.varia.Tools;
 import mcjty.rftoolsbase.tools.ManualHelper;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.modules.various.VariousModule;
+import mcjty.rftoolscontrol.modules.various.data.ProgramCardData;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -42,8 +43,8 @@ public class ProgramCardItem extends Item implements ITooltipSettings {
     }
 
     public static String getCardName(ItemStack stack) {
-        String name = stack.get(VariousModule.PROGRAM_CARD_NAME.get());
-        return name == null ? "" : name;
+        ProgramCardData data = stack.get(VariousModule.PROGRAM_CARD_NAME.get());
+        return data == null ? "" : data.name();
     }
 
     public static void setCardName(ItemStack stack, String name) {
@@ -51,7 +52,7 @@ public class ProgramCardItem extends Item implements ITooltipSettings {
             // Clear the name component if null
             stack.remove(VariousModule.PROGRAM_CARD_NAME.get());
         } else {
-            stack.set(VariousModule.PROGRAM_CARD_NAME.get(), name);
+            stack.set(VariousModule.PROGRAM_CARD_NAME.get(), new ProgramCardData(name));
         }
     }
 

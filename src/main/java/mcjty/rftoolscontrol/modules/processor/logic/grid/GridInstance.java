@@ -23,6 +23,7 @@ import net.minecraft.network.codec.StreamCodec;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 public class GridInstance {
@@ -36,7 +37,7 @@ public class GridInstance {
         this.id = builder.id;
         this.primaryConnection = builder.primaryConnection;
         this.secondaryConnection = builder.secondaryConnection;
-        this.parameters = builder.parameters;
+        this.parameters = List.copyOf(builder.parameters);
     }
 
     public static final Codec<GridInstance> CODEC = RecordCodecBuilder.create(instance -> instance.group(
@@ -121,54 +122,6 @@ public class GridInstance {
         return builder.build();
     }
 
-    public CompoundTag writeToNBT(int x, int y, HolderLookup.Provider provider) {
-        CompoundTag tag = new CompoundTag();
-        tag.putInt("x", x);
-        tag.putInt("y", y);
-        tag.putString("id", getId());
-        if (primaryConnection != null) {
-            tag.putString("prim", primaryConnection.getId());
-        }
-        if (secondaryConnection != null) {
-            tag.putString("sec", secondaryConnection.getId());
-        }
-
-        ListTag parList = new ListTag();
-        for (Parameter parameter : getParameters()) {
-            CompoundTag nbt = ParameterTools.writeToNBT(parameter, provider);
-
-            parList.add(nbt);
-        }
-        tag.put("pars", parList);
-        return tag;
-    }
-
-    public static GridInstance readFromNBT(CompoundTag tag, HolderLookup.Provider provider) {
-        String opcodeid = tag.getString("id");
-        GridInstance.Builder builder = GridInstance.builder(opcodeid);
-        if (tag.contains("prim")) {
-            builder.primaryConnection(Connection.getConnection(tag.getString("prim")));
-        }
-        if (tag.contains("sec")) {
-            builder.secondaryConnection(Connection.getConnection(tag.getString("sec")));
-        }
-
-        Opcode opcode = Opcodes.OPCODES.get(opcodeid);
-        if (opcode == null) {
-            // Sanity check in case an opcode got removed
-            return null;
-        }
-        ListTag parList = tag.getList("pars", Tag.TAG_COMPOUND);
-        List<Parameter> decodedParameters = new ArrayList<>(parList.size());
-        for (int i = 0 ; i < parList.size() ; i++) {
-            CompoundTag parTag = (CompoundTag) parList.get(i);
-            decodedParameters.add(ParameterTools.readFromNBT(parTag, provider));
-        }
-        addParameters(builder, opcode, decodedParameters);
-
-        return builder.build();
-    }
-
     private static GridInstance createInstance(String id, Optional<Connection> primary, Optional<Connection> secondary, List<Parameter> parameters) {
         Builder builder = builder(id);
         primary.ifPresent(builder::primaryConnection);
@@ -199,6 +152,26 @@ public class GridInstance {
                 builder.parameter(parameter);
             }
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        GridInstance that = (GridInstance) o;
+        return Objects.equals(id, that.id)
+                && Objects.equals(primaryConnection, that.primaryConnection)
+                && Objects.equals(secondaryConnection, that.secondaryConnection)
+                && parameters.equals(that.parameters);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, primaryConnection, secondaryConnection, parameters);
     }
 
     public static class Builder {

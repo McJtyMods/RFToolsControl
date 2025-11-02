@@ -645,7 +645,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Gen
     }
 
     private ProgramCardInstance makeGridInstance(boolean selectionOnly) {
-        ProgramCardInstance instance = ProgramCardInstance.newInstance();
+        Map<GridPos, GridInstance> gridInstances = new HashMap<>();
         for (int x = 0; x < GRID_WIDTH; x++) {
             for (int y = 0; y < GRID_HEIGHT; y++) {
                 IconHolder holder = getHolder(x, y);
@@ -676,11 +676,11 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Gen
                         builder.parameter(parameter);
                     }
 
-                    instance.putGridInstance(x, y, builder.build());
+                    gridInstances.put(GridPos.pos(x, y), builder.build());
                 }
             }
         }
-        return instance;
+        return new ProgramCardInstance(gridInstances);
     }
 
     private void clearProgram() {
@@ -726,7 +726,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Gen
             posx = pos.x();
             posy = pos.y();
 
-            for (Map.Entry<GridPos, GridInstance> entry : instance.getGridInstances().entrySet()) {
+            for (Map.Entry<GridPos, GridInstance> entry : instance.gridInstances().entrySet()) {
                 int x = entry.getKey().x();
                 int y = entry.getKey().y();
                 if (x < leftTop.x()) {
@@ -741,7 +741,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Gen
         }
 
         // Check if the program fits in the grid
-        for (Map.Entry<GridPos, GridInstance> entry : instance.getGridInstances().entrySet()) {
+        for (Map.Entry<GridPos, GridInstance> entry : instance.gridInstances().entrySet()) {
             int x = entry.getKey().x() - leftTop.x() + posx;
             int y = entry.getKey().y() - leftTop.y() + posy;
             if (!checkValidGridPos(new GridPos(x, y))) {
@@ -755,7 +755,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Gen
         }
 
         // There is room
-        for (Map.Entry<GridPos, GridInstance> entry : instance.getGridInstances().entrySet()) {
+        for (Map.Entry<GridPos, GridInstance> entry : instance.gridInstances().entrySet()) {
             int x = entry.getKey().x() - leftTop.x() + posx;
             int y = entry.getKey().y() - leftTop.y() + posy;
             loadGridInstance(entry, x, y);
@@ -763,7 +763,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Gen
     }
 
     private void loadProgram(ProgramCardInstance instance) {
-        for (Map.Entry<GridPos, GridInstance> entry : instance.getGridInstances().entrySet()) {
+        for (Map.Entry<GridPos, GridInstance> entry : instance.gridInstances().entrySet()) {
             int x = entry.getKey().x();
             int y = entry.getKey().y();
             loadGridInstance(entry, x, y);

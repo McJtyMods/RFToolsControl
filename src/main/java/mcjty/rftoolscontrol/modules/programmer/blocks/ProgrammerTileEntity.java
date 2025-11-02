@@ -5,6 +5,7 @@ import mcjty.lib.api.container.DefaultContainerProvider;
 import mcjty.lib.container.ContainerFactory;
 import mcjty.lib.container.GenericContainer;
 import mcjty.lib.container.GenericItemHandler;
+import mcjty.lib.setup.Registration;
 import mcjty.lib.tileentity.Cap;
 import mcjty.lib.tileentity.CapType;
 import mcjty.lib.tileentity.GenericTileEntity;
@@ -13,6 +14,9 @@ import mcjty.rftoolscontrol.modules.programmer.ProgrammerModule;
 import mcjty.rftoolscontrol.modules.various.VariousModule;
 import mcjty.rftoolscontrol.modules.various.items.ProgramCardItem;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponentMap;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
@@ -53,6 +57,31 @@ public class ProgrammerTileEntity extends GenericTileEntity {
     public GenericItemHandler getItems() {
         return items;
     }
+
+    @Override
+    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
+        super.saveAdditional(tag, provider);
+        items.save(tag, "items", provider);
+    }
+
+    @Override
+    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
+        super.loadAdditional(tag, provider);
+        items.load(tag, "items", provider);
+    }
+
+    @Override
+    protected void applyImplicitComponents(DataComponentInput input) {
+        super.applyImplicitComponents(input);
+        items.applyImplicitComponents(input.get(Registration.ITEM_INVENTORY));
+    }
+
+    @Override
+    protected void collectImplicitComponents(DataComponentMap.Builder builder) {
+        super.collectImplicitComponents(builder);
+        items.collectImplicitComponents(builder);
+    }
+
 
     @Override
     public void setPowerInput(int powered) {

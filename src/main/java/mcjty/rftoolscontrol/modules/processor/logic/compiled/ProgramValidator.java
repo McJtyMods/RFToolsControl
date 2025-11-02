@@ -16,7 +16,7 @@ public class ProgramValidator {
     public static List<Pair<GridPos, String>> validate(ProgramCardInstance program) {
         List<Pair<GridPos, String>> errors = new ArrayList<>();
 
-        Map<GridPos, GridInstance> grid = program.getGridInstances();
+        Map<GridPos, GridInstance> grid = program.gridInstances();
 
         // Find all unreachable instances:
         Set<GridPos> reachableLocations = new HashSet<>();

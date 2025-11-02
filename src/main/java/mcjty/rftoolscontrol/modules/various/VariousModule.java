@@ -8,11 +8,11 @@ import mcjty.lib.datagen.Dob;
 import mcjty.lib.modules.IModule;
 import mcjty.rftoolsbase.modules.tablet.items.TabletItem;
 import mcjty.rftoolscontrol.modules.processor.logic.grid.ProgramCardInstance;
-import mcjty.rftoolscontrol.modules.programmer.client.GuiProgrammer;
 import mcjty.rftoolscontrol.modules.various.blocks.*;
 import mcjty.rftoolscontrol.modules.various.client.GuiNode;
 import mcjty.rftoolscontrol.modules.various.client.GuiWorkbench;
 import mcjty.rftoolscontrol.modules.various.data.NodeData;
+import mcjty.rftoolscontrol.modules.various.data.ProgramCardData;
 import mcjty.rftoolscontrol.modules.various.data.WorkbenchData;
 import mcjty.rftoolscontrol.modules.various.items.CardBaseItem;
 import mcjty.rftoolscontrol.modules.various.items.ProgramCardItem;
@@ -30,14 +30,13 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
-import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
-import net.neoforged.neoforge.common.Tags;
-import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.neoforge.attachment.AttachmentType;
+import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
+import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredItem;
 
@@ -137,9 +136,9 @@ public class VariousModule implements IModule {
     );
 
     // Name of the program card
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<String>> PROGRAM_CARD_NAME = COMPONENTS.registerComponentType(
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<ProgramCardData>> PROGRAM_CARD_NAME = COMPONENTS.registerComponentType(
             "program_card_name",
-            builder -> builder.persistent(com.mojang.serialization.Codec.STRING).networkSynchronized(net.minecraft.network.codec.ByteBufCodecs.STRING_UTF8)
+            builder -> builder.persistent(ProgramCardData.CODEC).networkSynchronized(ProgramCardData.STREAM_CODEC)
     );
 
     public VariousModule(IEventBus bus) {

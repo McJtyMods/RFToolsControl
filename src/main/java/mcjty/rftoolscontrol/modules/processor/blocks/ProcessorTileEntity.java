@@ -375,35 +375,31 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
 
     @Nullable
     public WatchInfo getWatchInfoAt(int idx) {
-        ProcessorCoreData cd = getCoreData();
-        if (idx >= cd.watchInfos().size()) {
-            return null;
-        }
-        return cd.watchInfos().get(idx);
+        return getCoreData().watchInfoAt(idx);
     }
 
     private int getLocksSize() { return getCoreData().locks().size(); }
     private void clearLocks() {
         ProcessorCoreData cd = getCoreData();
         if (!cd.locks().isEmpty()) {
-            setData(ProcessorModule.PROCESSOR_CORE_DATA.get(), cd.withLocks(new LinkedHashSet<>()));
+            setData(ProcessorModule.PROCESSOR_CORE_DATA.get(), cd.withLocks(Set.of()));
         }
     }
     private void addLock(String name) {
         ProcessorCoreData cd = getCoreData();
-        Set<String> locks = new LinkedHashSet<>(cd.locks());
-        if (locks.add(name)) {
-            setData(ProcessorModule.PROCESSOR_CORE_DATA.get(), cd.withLocks(locks));
+        ProcessorCoreData updated = cd.withLockAdded(name);
+        if (updated != cd) {
+            setData(ProcessorModule.PROCESSOR_CORE_DATA.get(), updated);
         }
     }
     private void removeLock(String name) {
         ProcessorCoreData cd = getCoreData();
-        Set<String> locks = new LinkedHashSet<>(cd.locks());
-        if (locks.remove(name)) {
-            setData(ProcessorModule.PROCESSOR_CORE_DATA.get(), cd.withLocks(locks));
+        ProcessorCoreData updated = cd.withLockRemoved(name);
+        if (updated != cd) {
+            setData(ProcessorModule.PROCESSOR_CORE_DATA.get(), updated);
         }
     }
-    private boolean hasLock(String name) { return getCoreData().locks().contains(name); }
+    private boolean hasLock(String name) { return getCoreData().hasLock(name); }
 
     public ProcessorCraftingData getCraftingData() {
         return getData(ProcessorModule.PROCESSOR_CRAFTING_DATA.get());
@@ -443,21 +439,15 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
     }
 
     public Parameter getVariableAt(int idx) {
-        List<Parameter> variables = getCoreData().variables();
-        if (idx >= variables.size()) {
-            return null;
-        }
-        return variables.get(idx);
+        return getCoreData().variableAt(idx);
     }
 
     public void setVariableAt(int idx, Parameter parameter) {
         ProcessorCoreData cd = getCoreData();
-        List<Parameter> list = cd.variables();
-        while (list.size() < idx) {
-            list.add(null);
+        ProcessorCoreData updated = cd.withVariable(idx, parameter);
+        if (updated != cd) {
+            setData(ProcessorModule.PROCESSOR_CORE_DATA.get(), updated);
         }
-        list.set(idx, parameter);
-        setData(ProcessorModule.PROCESSOR_CORE_DATA.get(), cd.withVariables(list));
     }
 
     public boolean isFluidSlotAvailable(int idx) {
@@ -1498,14 +1488,16 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
     @Override
     public void releaseLock(String name) {
         ProcessorCoreData coreData = getCoreData();
-        coreData.locks().remove(name);
-        setData(ProcessorModule.PROCESSOR_CORE_DATA, coreData);
+        ProcessorCoreData updated = coreData.withLockRemoved(name);
+        if (updated != coreData) {
+            setData(ProcessorModule.PROCESSOR_CORE_DATA, updated);
+        }
     }
 
     @Override
     public boolean testLock(String name) {
         ProcessorCoreData coreData = getCoreData();
-        return coreData.locks().contains(name);
+        return coreData.hasLock(name);
     }
 
     public void clearLog() {
@@ -1652,22 +1644,18 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
 
     public void setWatchAt(int varIndex, boolean br) {
         ProcessorCoreData cd = getCoreData();
-        List<WatchInfo> list = cd.watchInfos();
-        while (list.size() < varIndex) {
-            list.add(null);
+        ProcessorCoreData updated = cd.withWatchInfo(varIndex, new WatchInfo(br));
+        if (updated != cd) {
+            setData(ProcessorModule.PROCESSOR_CORE_DATA.get(), updated);
         }
-        list.set(varIndex, new WatchInfo(br));
-        setData(ProcessorModule.PROCESSOR_CORE_DATA.get(), cd.withWatchInfos(list));
     }
 
     public void clearWatchAt(int varIndex) {
         ProcessorCoreData cd = getCoreData();
-        List<WatchInfo> list = cd.watchInfos();
-        while (list.size() < varIndex) {
-            list.add(null);
+        ProcessorCoreData updated = cd.withWatchInfo(varIndex, null);
+        if (updated != cd) {
+            setData(ProcessorModule.PROCESSOR_CORE_DATA.get(), updated);
         }
-        list.set(varIndex, null);
-        setData(ProcessorModule.PROCESSOR_CORE_DATA.get(), cd.withWatchInfos(list));
     }
 
     public List<PacketGetFluids.FluidEntry> getFluids() {
@@ -2943,21 +2931,25 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
     }
 
     @Override
-    public void loadAdditional(CompoundTag tagCompound, HolderLookup.Provider provider) {
-        super.loadAdditional(tagCompound, provider);
-        prevIn = tagCompound.getInt("prevIn");
+    public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
+        super.loadAdditional(tag, provider);
+        prevIn = tag.getInt("prevIn");
         for (int i = 0; i < 6; i++) {
-            powerOut[i] = tagCompound.getByte("p" + i);
+            powerOut[i] = tag.getByte("p" + i);
         }
+        items.save(tag, "items", provider);
+        energyStorage.save(tag, "energy", provider);
     }
 
     @Override
-    public void saveAdditional(@Nonnull CompoundTag tagCompound, HolderLookup.Provider provider) {
-        super.saveAdditional(tagCompound, provider);
-        tagCompound.putInt("prevIn", prevIn);
+    public void saveAdditional(@Nonnull CompoundTag tag, HolderLookup.Provider provider) {
+        super.saveAdditional(tag, provider);
+        tag.putInt("prevIn", prevIn);
         for (int i = 0; i < 6; i++) {
-            tagCompound.putByte("p" + i, (byte) powerOut[i]);
+            tag.putByte("p" + i, (byte) powerOut[i]);
         }
+        items.load(tag, "items", provider);
+        energyStorage.load(tag, "energy", provider);
     }
 
     @Override

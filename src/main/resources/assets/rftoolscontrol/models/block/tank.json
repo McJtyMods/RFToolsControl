@@ -1,6 +1,6 @@
 {
   "parent": "block/cube",
-  "loader": "forge:obj",
+  "loader": "neoforge:obj",
   "model": "rftoolscontrol:models/block/tank.obj",
   "render_type": "minecraft:translucent",
   "flip_v": true

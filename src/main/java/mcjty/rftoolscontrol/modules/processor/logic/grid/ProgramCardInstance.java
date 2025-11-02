@@ -9,12 +9,17 @@ import net.minecraft.network.codec.StreamCodec;
 
 import java.util.*;
 
-public class ProgramCardInstance {
+public record ProgramCardInstance(Map<GridPos, GridInstance> gridInstances) {
 
-    private final Map<GridPos, GridInstance> gridInstances = new HashMap<>();
+    private static final ProgramCardInstance EMPTY = new ProgramCardInstance(Collections.emptyMap());
 
-    public Map<GridPos, GridInstance> getGridInstances() {
-        return gridInstances;
+    public ProgramCardInstance {
+        Objects.requireNonNull(gridInstances, "gridInstances cannot be null");
+        gridInstances = Collections.unmodifiableMap(new LinkedHashMap<>(gridInstances));
+    }
+
+    public static ProgramCardInstance empty() {
+        return EMPTY;
     }
 
     // Codec/StreamCodec for persisting on ItemStack
@@ -34,15 +39,15 @@ public class ProgramCardInstance {
 
     public static final Codec<ProgramCardInstance> CODEC = ENTRY_CODEC.listOf().xmap(
             list -> {
-                ProgramCardInstance inst = new ProgramCardInstance();
+                Map<GridPos, GridInstance> map = new HashMap<>();
                 for (Entry e : list) {
-                    inst.putGridInstance(e.pos().x(), e.pos().y(), e.opcode());
+                    map.put(e.pos(), e.opcode());
                 }
-                return inst;
+                return new ProgramCardInstance(map);
             },
             inst -> {
                 List<Entry> list = new ArrayList<>();
-                for (Map.Entry<GridPos, GridInstance> me : inst.gridInstances.entrySet()) {
+                for (Map.Entry<GridPos, GridInstance> me : inst.gridInstances().entrySet()) {
                     list.add(new Entry(me.getKey(), me.getValue()));
                 }
                 return list;
@@ -52,7 +57,7 @@ public class ProgramCardInstance {
     public static final StreamCodec<RegistryFriendlyByteBuf, ProgramCardInstance> STREAM_CODEC = StreamCodec.of(
             (buf, inst) -> {
                 ArrayList<Entry> list = new ArrayList<>();
-                for (Map.Entry<GridPos, GridInstance> me : inst.gridInstances.entrySet()) {
+                for (Map.Entry<GridPos, GridInstance> me : inst.gridInstances().entrySet()) {
                     list.add(new Entry(me.getKey(), me.getValue()));
                 }
                 ByteBufCodecs.VAR_INT.encode(buf, list.size());
@@ -62,46 +67,44 @@ public class ProgramCardInstance {
             },
             buf -> {
                 int size = ByteBufCodecs.VAR_INT.decode(buf);
-                ProgramCardInstance inst = new ProgramCardInstance();
+                Map<GridPos, GridInstance> map = new HashMap<>();
                 for (int i = 0; i < size; i++) {
                     Entry e = ENTRY_STREAM_CODEC.decode(buf);
-                    inst.putGridInstance(e.pos().x(), e.pos().y(), e.opcode());
+                    map.put(e.pos(), e.opcode());
                 }
-                return inst;
+                return new ProgramCardInstance(map);
             }
     );
 
-    /**
-     * NBT Structure:
-     * "grid": [
-     *     "[
-     *         "x": 3.
-     *         "y": 4,
-     *         "id": "rs.if",
-     *         "con": "uW",
-     *         "pars": ...
-     *     ],
-     *     [
-     *     ]
-     * ]
-     */
-
-    private ProgramCardInstance() {
-
+    public ProgramCardInstance withGridInstance(int x, int y, GridInstance gridInstance) {
+        Objects.requireNonNull(gridInstance, "gridInstance cannot be null");
+        Map<GridPos, GridInstance> mutable = new HashMap<>(gridInstances());
+        mutable.put(GridPos.pos(x, y), gridInstance);
+        return new ProgramCardInstance(mutable);
     }
 
-    public static ProgramCardInstance newInstance() {
-        return new ProgramCardInstance();
+    public ProgramCardInstance withGridInstance(GridPos pos, GridInstance gridInstance) {
+        Objects.requireNonNull(pos, "pos cannot be null");
+        return withGridInstance(pos.x(), pos.y(), gridInstance);
     }
 
-    public void putGridInstance(int x, int y, GridInstance gridInstance) {
-        gridInstances.put(GridPos.pos(x, y), gridInstance);
+    public ProgramCardInstance withoutGridInstance(GridPos pos) {
+        Objects.requireNonNull(pos, "pos cannot be null");
+        if (!gridInstances.containsKey(pos)) {
+            return this;
+        }
+        Map<GridPos, GridInstance> mutable = new HashMap<>(gridInstances());
+        mutable.remove(pos);
+        return new ProgramCardInstance(mutable);
+    }
+
+    public GridInstance gridInstanceAt(GridPos pos) {
+        return gridInstances.get(pos);
     }
 
     public static ProgramCardInstance readFromJson(String json) {
-        JsonParser parser = new JsonParser();
-        JsonElement root = parser.parse(json);
-        ProgramCardInstance instance = new ProgramCardInstance();
+        JsonElement root = JsonParser.parseString(json);
+        Map<GridPos, GridInstance> map = new HashMap<>();
         for (JsonElement entry : root.getAsJsonArray()) {
             JsonElement posElement = entry.getAsJsonObject().get("pos");
             JsonElement gridElement = entry.getAsJsonObject().get("opcode");
@@ -109,15 +112,15 @@ public class ProgramCardInstance {
             int y = posElement.getAsJsonObject().get("y").getAsInt();
             GridInstance gi = GridInstance.readFromJson(gridElement);
             if (gi != null) {
-                instance.putGridInstance(x, y, gi);
+                map.put(GridPos.pos(x, y), gi);
             }
         }
-        return instance;
+        return new ProgramCardInstance(map);
     }
 
     public String writeToJson() {
         JsonArray array = new JsonArray();
-        for (Map.Entry<GridPos, GridInstance> entry : gridInstances.entrySet()) {
+        for (Map.Entry<GridPos, GridInstance> entry : gridInstances().entrySet()) {
             GridPos coordinate = entry.getKey();
             GridInstance gridInstance = entry.getValue();
 
@@ -130,7 +133,7 @@ public class ProgramCardInstance {
         return gson.toJson(array);
     }
 
-    private JsonElement buildCoordinateElement(GridPos pos) {
+    private static JsonElement buildCoordinateElement(GridPos pos) {
         JsonObject jsonObject = new JsonObject();
         jsonObject.add("x", new JsonPrimitive(pos.x()));
         jsonObject.add("y", new JsonPrimitive(pos.y()));

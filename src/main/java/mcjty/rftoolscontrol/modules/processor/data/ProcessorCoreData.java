@@ -10,8 +10,10 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -26,6 +28,17 @@ public record ProcessorCoreData(Set<String> locks,
                                 long lastExceptionTime) {
 
     public static final ProcessorCoreData DEFAULT = new ProcessorCoreData(Set.of(), List.of(), List.of(), List.of(), 0, "", 0L);
+
+    public ProcessorCoreData {
+        Objects.requireNonNull(locks, "locks cannot be null");
+        Objects.requireNonNull(variables, "variables cannot be null");
+        Objects.requireNonNull(watchInfos, "watchInfos cannot be null");
+        Objects.requireNonNull(cores, "cores cannot be null");
+        locks = immutableLinkedSet(locks);
+        variables = immutableListAllowNulls(variables);
+        watchInfos = immutableListAllowNulls(watchInfos);
+        cores = immutableListNoNulls(cores);
+    }
 
     public static final Codec<ProcessorCoreData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.STRING.listOf().fieldOf("locks").forGetter(data -> new ArrayList<>(data.locks())),
@@ -57,6 +70,110 @@ public record ProcessorCoreData(Set<String> locks,
     public ProcessorCoreData withTickCount(int tickCount) { return new ProcessorCoreData(this.locks, this.variables, this.watchInfos, this.cores, tickCount, this.lastException, this.lastExceptionTime); }
     public ProcessorCoreData withLastException(String lastException) { return new ProcessorCoreData(this.locks, this.variables, this.watchInfos, this.cores, this.tickCount, lastException, this.lastExceptionTime); }
     public ProcessorCoreData withLastExceptionTime(long lastExceptionTime) { return new ProcessorCoreData(this.locks, this.variables, this.watchInfos, this.cores, this.tickCount, this.lastException, lastExceptionTime); }
+
+    public Parameter variableAt(int index) {
+        if (index < 0 || index >= variables.size()) {
+            return null;
+        }
+        return variables.get(index);
+    }
+
+    public ProcessorCoreData withVariable(int index, Parameter value) {
+        if (index < 0) {
+            throw new IndexOutOfBoundsException("index must be >= 0");
+        }
+        List<Parameter> copy = new ArrayList<>(variables);
+        boolean requiresResize = index >= copy.size();
+        if (!requiresResize && Objects.equals(copy.get(index), value)) {
+            return this;
+        }
+        while (copy.size() <= index) {
+            copy.add(null);
+        }
+        copy.set(index, value);
+        return withVariables(copy);
+    }
+
+    public WatchInfo watchInfoAt(int index) {
+        if (index < 0 || index >= watchInfos.size()) {
+            return null;
+        }
+        return watchInfos.get(index);
+    }
+
+    public ProcessorCoreData withWatchInfo(int index, WatchInfo info) {
+        if (index < 0) {
+            throw new IndexOutOfBoundsException("index must be >= 0");
+        }
+        List<WatchInfo> copy = new ArrayList<>(watchInfos);
+        boolean requiresResize = index >= copy.size();
+        if (!requiresResize && Objects.equals(copy.get(index), info)) {
+            return this;
+        }
+        while (copy.size() <= index) {
+            copy.add(null);
+        }
+        copy.set(index, info);
+        return withWatchInfos(copy);
+    }
+
+    public boolean hasLock(String name) {
+        return locks.contains(name);
+    }
+
+    public ProcessorCoreData withLockAdded(String name) {
+        if (locks.contains(name)) {
+            return this;
+        }
+        Set<String> copy = new LinkedHashSet<>(locks);
+        copy.add(name);
+        return withLocks(copy);
+    }
+
+    public ProcessorCoreData withLockRemoved(String name) {
+        if (!locks.contains(name)) {
+            return this;
+        }
+        Set<String> copy = new LinkedHashSet<>(locks);
+        copy.remove(name);
+        return withLocks(copy);
+    }
+
+    public CoreEntry coreAt(int index) {
+        if (index < 0 || index >= cores.size()) {
+            return null;
+        }
+        return cores.get(index);
+    }
+
+    public ProcessorCoreData withCore(int index, CoreEntry entry) {
+        if (index < 0 || index >= cores.size()) {
+            throw new IndexOutOfBoundsException("index out of bounds: " + index);
+        }
+        if (Objects.equals(cores.get(index), entry)) {
+            return this;
+        }
+        Objects.requireNonNull(entry, "entry cannot be null");
+        List<CoreEntry> copy = new ArrayList<>(cores);
+        copy.set(index, entry);
+        return withCores(copy);
+    }
+
+    private static <T> List<T> immutableListAllowNulls(List<T> source) {
+        return Collections.unmodifiableList(new ArrayList<>(source));
+    }
+
+    private static <T> List<T> immutableListNoNulls(List<T> source) {
+        ArrayList<T> copy = new ArrayList<>(source.size());
+        for (T element : source) {
+            copy.add(Objects.requireNonNull(element, "List element cannot be null"));
+        }
+        return Collections.unmodifiableList(copy);
+    }
+
+    private static <T> Set<T> immutableLinkedSet(Set<T> source) {
+        return Collections.unmodifiableSet(new LinkedHashSet<>(source));
+    }
 
     /**
      * Static representation of a CPU core installed in the processor. Runtime state lives in ProcessorTileEntity.cpuCores.
