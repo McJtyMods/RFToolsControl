@@ -4,12 +4,13 @@ import com.mojang.serialization.Codec;
 import mcjty.rftoolscontrol.modules.processor.logic.grid.GridPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.util.StringRepresentable;
 import net.neoforged.neoforge.network.codec.NeoForgeStreamCodecs;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public enum Connection {
+public enum Connection implements StringRepresentable {
     UP("U"),
     DOWN("D"),
     LEFT("L"),
@@ -21,7 +22,7 @@ public enum Connection {
 
     private final String id;
 
-    public static final Codec<Connection> CODEC = Codec.STRING.xmap(Connection::getConnection, Connection::name);
+    public static final Codec<Connection> CODEC = StringRepresentable.fromEnum(Connection::values);
     public static final StreamCodec<FriendlyByteBuf, Connection> STREAM_CODEC = NeoForgeStreamCodecs.enumCodec(Connection.class);
 
     private static final Map<String, Connection> ID_TO_CONNECTION = new HashMap<>();
@@ -43,6 +44,7 @@ public enum Connection {
     public static Connection getConnection(String id) {
         return ID_TO_CONNECTION.get(id);
     }
+
 
     public boolean isPrimary() {
         return id.equals(id.toUpperCase());
@@ -68,5 +70,10 @@ public enum Connection {
             case LEFT_NEG -> LEFT;
             case RIGHT_NEG -> RIGHT;
         };
+    }
+
+    @Override
+    public String getSerializedName() {
+        return id;
     }
 }

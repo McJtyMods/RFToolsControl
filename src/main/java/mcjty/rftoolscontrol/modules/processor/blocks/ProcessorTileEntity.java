@@ -2767,30 +2767,34 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         }
         // @todo support oredict here?
         IItemHandler handler = getItemHandlerAt(inv);
-        if (slot != null) {
-            ItemStack stackInSlot = handler.getStackInSlot(slot);
-            if (stackInSlot.isEmpty()) {
-                return 0;
+        if (handler != null) {
+            if (slot != null) {
+                ItemStack stackInSlot = handler.getStackInSlot(slot);
+                if (stackInSlot.isEmpty()) {
+                    return 0;
+                } else {
+                    if (!itemMatcher.isEmpty()) {
+                        if (!ItemStack.isSameItem(stackInSlot, itemMatcher)) {
+                            return 0;
+                        }
+                    }
+                    return stackInSlot.getCount();
+                }
+            } else if (!itemMatcher.isEmpty()) {
+                return countItemInHandler(itemMatcher, handler);
             } else {
-                if (!itemMatcher.isEmpty()) {
-                    if (!ItemStack.isSameItem(stackInSlot, itemMatcher)) {
-                        return 0;
+                // Just count all items
+                int cnt = 0;
+                for (int i = 0; i < handler.getSlots(); i++) {
+                    ItemStack stack = handler.getStackInSlot(i);
+                    if (!stack.isEmpty()) {
+                        cnt += stack.getCount();
                     }
                 }
-                return stackInSlot.getCount();
+                return cnt;
             }
-        } else if (!itemMatcher.isEmpty()) {
-            return countItemInHandler(itemMatcher, handler);
         } else {
-            // Just count all items
-            int cnt = 0;
-            for (int i = 0; i < handler.getSlots(); i++) {
-                ItemStack stack = handler.getStackInSlot(i);
-                if (!stack.isEmpty()) {
-                    cnt += stack.getCount();
-                }
-            }
-            return cnt;
+            return 0;
         }
     }
 
@@ -2937,8 +2941,8 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         for (int i = 0; i < 6; i++) {
             powerOut[i] = tag.getByte("p" + i);
         }
-        items.save(tag, "items", provider);
-        energyStorage.save(tag, "energy", provider);
+        items.load(tag, "items", provider);
+        energyStorage.load(tag, "energy", provider);
     }
 
     @Override
@@ -2948,8 +2952,8 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         for (int i = 0; i < 6; i++) {
             tag.putByte("p" + i, (byte) powerOut[i]);
         }
-        items.load(tag, "items", provider);
-        energyStorage.load(tag, "energy", provider);
+        items.save(tag, "items", provider);
+        energyStorage.save(tag, "energy", provider);
     }
 
     @Override

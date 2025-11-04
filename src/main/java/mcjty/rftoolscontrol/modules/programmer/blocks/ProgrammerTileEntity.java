@@ -44,7 +44,7 @@ public class ProgrammerTileEntity extends GenericTileEntity {
     private static final Function<ProgrammerTileEntity, GenericItemHandler> ITEM_CAP = tile -> tile.items;
 
     @Cap(type = CapType.CONTAINER)
-    private static final Function<ProgrammerTileEntity, MenuProvider> screenHandler = tile -> new DefaultContainerProvider<GenericContainer>("Programmer")
+    private static final Function<ProgrammerTileEntity, MenuProvider> SCREEN_CAP = tile -> new DefaultContainerProvider<GenericContainer>("Programmer")
             .containerSupplier(container(PROGRAMMER_CONTAINER, CONTAINER_FACTORY, tile))
             .itemHandler(() -> tile.items)
             .setupSync(tile);

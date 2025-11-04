@@ -3,11 +3,7 @@ package mcjty.rftoolscontrol.modules.processor.logic.registry;
 import com.mojang.serialization.DataResult;
 import mcjty.rftoolsbase.api.control.code.Function;
 import mcjty.rftoolsbase.api.control.machines.IProcessor;
-import mcjty.rftoolsbase.api.control.parameters.IParameter;
-import mcjty.rftoolsbase.api.control.parameters.Parameter;
-import mcjty.rftoolsbase.api.control.parameters.ParameterType;
-import mcjty.rftoolsbase.api.control.parameters.ParameterValue;
-import mcjty.rftoolsbase.api.control.parameters.Tuple;
+import mcjty.rftoolsbase.api.control.parameters.*;
 import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorTileEntity;
 import mcjty.rftoolscontrol.modules.processor.logic.TypeConverters;
 import mcjty.rftoolscontrol.modules.processor.logic.ParameterTools;
@@ -255,8 +251,8 @@ public class Functions {
         register(TUPLE_X);
         register(TUPLE_Y);
 
-        ParameterValue.setFunctionResolver(FUNCTIONS::get);
-        ParameterValue.registerSerializer(PAR_EXCEPTION, new ParameterValue.ConstantSerializer() {
+        ParameterSerializerHelpers.setFunctionResolver(FUNCTIONS::get);
+        ParameterSerializerHelpers.registerSerializer(PAR_EXCEPTION, new ParameterSerializerHelpers.ConstantSerializer() {
             @Override
             public <T> DataResult<T> encode(com.mojang.serialization.DynamicOps<T> ops, Object value) {
                 return DataResult.success(ops.createString(((ExceptionType) value).getCode()));

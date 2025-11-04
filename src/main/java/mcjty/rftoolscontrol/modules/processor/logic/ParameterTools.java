@@ -65,6 +65,9 @@ public class ParameterTools {
                     builder.value(ParameterValue.constant(Collections.unmodifiableList(vector)));
                 }
             }
+        } else {
+            // No value present; ensure we still create a ParameterValue instance with a null constant
+            builder.value(ParameterValue.constant(null));
         }
         return builder.build();
     }
