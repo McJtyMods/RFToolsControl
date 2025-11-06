@@ -30,6 +30,7 @@ import net.minecraft.world.phys.AABB;
 import javax.annotation.Nonnull;
 import java.util.List;
 
+import mcjty.rftoolscontrol.modules.processor.data.HudMode;
 import static mcjty.rftoolscontrol.modules.processor.blocks.ProcessorTileEntity.*;
 
 
@@ -40,7 +41,7 @@ public class ProcessorRenderer implements BlockEntityRenderer<ProcessorTileEntit
 
     @Override
     public void render(ProcessorTileEntity te, float partialTicks, @Nonnull PoseStack matrixStack, @Nonnull MultiBufferSource buffer, int combinedLightIn, int combinedOverlayIn) {
-        if (te.getShowHud() == HUD_OFF) {
+        if (te.getShowHud() == HudMode.OFF) {
             return;
         }
 
@@ -96,7 +97,7 @@ public class ProcessorRenderer implements BlockEntityRenderer<ProcessorTileEntit
 //        GlStateManager.normal3f(0.0F, 0.0F, 1.0F);
 //        GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
 
-        if (tileEntity.getShowHud() == HUD_GFX) {
+        if (tileEntity.getShowHud() == HudMode.GFX) {
             renderGfx(graphics, buffer, tileEntity);
         } else {
             renderLog(matrixStack, buffer, fontrenderer, tileEntity, currenty);
@@ -104,10 +105,10 @@ public class ProcessorRenderer implements BlockEntityRenderer<ProcessorTileEntit
     }
 
     private void renderLog(PoseStack matrixStack, MultiBufferSource buffer, Font fontrenderer, ProcessorTileEntity tileEntity, int currenty) {
-        List<String> log = tileEntity.getShowHud() == HUD_DB ? tileEntity.getClientDebugLog() : tileEntity.getClientLog();
+        List<String> log = tileEntity.getShowHud() == HudMode.DB ? tileEntity.getClientDebugLog() : tileEntity.getClientLog();
         long t = System.currentTimeMillis();
         if (t - tileEntity.clientTime > 250) {
-            if (tileEntity.getShowHud() == HUD_DB) {
+            if (tileEntity.getShowHud() == HudMode.DB) {
                 Networking.sendToServer(PacketGetListFromServer.create(tileEntity.getBlockPos(), CMD_GETDEBUGLOG.name()));
             } else {
                 RFToolsCtrlMessages.sendToServer(PacketGetLog.create(tileEntity.getDimension(), tileEntity.getBlockPos(), false));

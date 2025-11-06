@@ -85,6 +85,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -144,19 +145,9 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
 
     private final List<CpuCore> cpuCores = new ArrayList<>();
 
-    public static final int HUD_OFF = 0;
-
-    public static BiFunction<ParameterType, Object, List<Parameter>> getConvertorVector() {
-        return CONVERTOR_VECTOR;
-    }
-
-    public static final int HUD_LOG = 1;
-    public static final int HUD_DB = 2;
-    public static final int HUD_GFX = 3;
-
     // GUI bindings for settings stored in ProcessorSettingsData
     @GuiValue
-    public static final Value<ProcessorTileEntity, Integer> VALUE_HUD = Value.create("hud", Type.INTEGER, ProcessorTileEntity::getShowHud, ProcessorTileEntity::setShowHud);
+    public static final Value<ProcessorTileEntity, HudMode> VALUE_HUD = Value.create("hud", HudMode.TYPE, ProcessorTileEntity::getShowHud, ProcessorTileEntity::setShowHud);
     @GuiValue
     public static final Value<ProcessorTileEntity, Boolean> VALUE_EXCLUSIVE = Value.create("exclusive", Type.BOOLEAN, ProcessorTileEntity::isExclusive, ProcessorTileEntity::setExclusive);
  
@@ -358,7 +349,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         setData(ProcessorModule.PROCESSOR_CARD_INFO_DATA.get(), updated);
     }
 
-    private void updateCardInfos(java.util.function.Consumer<List<CardInfo>> consumer) {
+    private void updateCardInfos(Consumer<List<CardInfo>> consumer) {
         List<CardInfo> infos = new ArrayList<>(getCardInfos());
         consumer.accept(infos);
         setCardInfos(infos);
@@ -392,14 +383,6 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
             setData(ProcessorModule.PROCESSOR_CORE_DATA.get(), updated);
         }
     }
-    private void removeLock(String name) {
-        ProcessorCoreData cd = getCoreData();
-        ProcessorCoreData updated = cd.withLockRemoved(name);
-        if (updated != cd) {
-            setData(ProcessorModule.PROCESSOR_CORE_DATA.get(), updated);
-        }
-    }
-    private boolean hasLock(String name) { return getCoreData().hasLock(name); }
 
     public ProcessorCraftingData getCraftingData() {
         return getData(ProcessorModule.PROCESSOR_CRAFTING_DATA.get());
@@ -501,7 +484,6 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
             powerOut[facing.ordinal()] = amount;
             setChanged();
             level.neighborChanged(this.worldPosition.relative(facing), this.getBlockState().getBlock(), this.worldPosition);
-//            getLevel().neighborChanged(this.worldPosition.relative(outputSide), state.getBlock(), this.worldPosition);
         } else {
             NodeTileEntity te = (NodeTileEntity) level.getBlockEntity(p);
             te.setPowerOut(facing, amount);
@@ -607,7 +589,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         Integer realSlot = info.getRealSlot(slot);
         ItemStack craftedItem = ItemStack.EMPTY;
         if (realSlot != null) {
-            craftedItem = ((IItemHandler) items).getStackInSlot(realSlot);
+            craftedItem = items.getStackInSlot(realSlot);
         }
 
         for (BlockPos p : getCraftingStations()) {
@@ -631,8 +613,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
 
         for (BlockPos p : getCraftingStations()) {
             BlockEntity te = level.getBlockEntity(p);
-            if (te instanceof CraftingStationTileEntity) {
-                CraftingStationTileEntity craftingStation = (CraftingStationTileEntity) te;
+            if (te instanceof CraftingStationTileEntity craftingStation) {
                 craftingStation.craftFail(ticket);
             }
         }
@@ -669,10 +650,10 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         for (int i = 0; i < 9; i++) {
             ItemStack stackInWorkbench = gridHandler.getStackInSlot(i);
             Ingredient stackInIngredient = ingredients.get(i);
-            if (!stackInWorkbench.isEmpty() && stackInIngredient == Ingredient.EMPTY) {
+            if (!stackInWorkbench.isEmpty() && stackInIngredient.isEmpty()) {
                 // Can't work. There is already something in the workbench that doesn't belong
                 success = false;
-            } else if (stackInWorkbench.isEmpty() && stackInIngredient != Ingredient.EMPTY) {
+            } else if (stackInWorkbench.isEmpty() && !stackInIngredient.isEmpty()) {
                 // Let's see if we can find the needed ingredient
                 boolean found = false;
                 for (int slot = slot1; slot <= slot2; slot++) {
@@ -688,7 +669,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
                 if (!found) {
                     success = false;
                 }
-            } else if (!stackInWorkbench.isEmpty() && stackInIngredient != Ingredient.EMPTY) {
+            } else if (!stackInWorkbench.isEmpty() && !stackInIngredient.isEmpty()) {
                 // See if the item matches and we have enough
                 if (!stackInIngredient.test(stackInWorkbench)) {
                     success = false;
@@ -714,7 +695,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         int failed = 0;
         for (int slot = slot1; slot <= slot2; slot++) {
             int realSlot = info.getRealSlot(slot);
-            ItemStack stack = ((IItemHandler) items).getStackInSlot(realSlot);
+            ItemStack stack = items.getStackInSlot(realSlot);
             if (!stack.isEmpty()) {
                 ItemStack remaining = LogicInventoryTools.insertItem(handler, scanner, stack, extSlot == null ? null : e);
                 if (!remaining.isEmpty()) {
@@ -763,8 +744,8 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         int failed = 0;
         for (Ingredient ingredient : ingredients) {
             int realSlot = info.getRealSlot(slot);
-            ItemStack localStack = ((IItemHandler) items).getStackInSlot(realSlot);
-            if (ingredient != Ingredient.EMPTY) {
+            ItemStack localStack = items.getStackInSlot(realSlot);
+            if (!ingredient.isEmpty()) {
 //                if (!InventoryTools.areItemsEqual(ingredient, localStack, true, false, oredict)) {
                 if (!ingredient.test(localStack)) {
                     return false;
@@ -824,10 +805,10 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
 
         for (Ingredient ingredient : ingredients) {
             int realSlot = info.getRealSlot(slot);
-            if (ingredient != Ingredient.EMPTY) {
+            if (!ingredient.isEmpty()) {
                 ItemStack stack = LogicInventoryTools.extractItem(handler, scanner, LogicInventoryTools.getCountFromIngredient(ingredient), true, ingredient, null);
                 if (!stack.isEmpty()) {
-                    ((IItemHandler) items).insertItem(realSlot, stack, false);
+                    items.insertItem(realSlot, stack, false);
                 }
             }
             slot++;
@@ -842,7 +823,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
     private int checkAvailableItemsAndRequestMissing(Inventory destInv, IStorageScanner scanner, IItemHandler handler, List<Ingredient> needed) {
         int requested = 0;
         for (Ingredient ingredient : needed) {
-            if (ingredient != Ingredient.EMPTY) {
+            if (!ingredient.isEmpty()) {
                 int countFromIngredient = LogicInventoryTools.getCountFromIngredient(ingredient);
                 int cnt = LogicInventoryTools.countItem(handler, scanner, ingredient, countFromIngredient);
                 if (cnt < countFromIngredient) {
@@ -863,7 +844,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
     private int countPossibleCrafts(IStorageScanner scanner, IItemHandler handler, List<Ingredient> needed) {
         int maxPossible = Integer.MAX_VALUE;
         for (Ingredient ingredient : needed) {
-            if (ingredient != Ingredient.EMPTY) {
+            if (!ingredient.isEmpty()) {
                 int cnt = LogicInventoryTools.countItem(handler, scanner, ingredient, -1);
                 int possible = cnt / LogicInventoryTools.getCountFromIngredient(ingredient);
                 if (possible < maxPossible) {
@@ -966,10 +947,10 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         int failed = 0;
         for (Ingredient ingredient : ingredients) {
             int realSlot = info.getRealSlot(slot);
-            if (ingredient != Ingredient.EMPTY) {
+            if (!ingredient.isEmpty()) {
                 ItemStack stack = LogicInventoryTools.extractItem(handler, scanner, LogicInventoryTools.getCountFromIngredient(ingredient), true, ingredient, null);
                 if (!stack.isEmpty()) {
-                    ItemStack remainder = ((IItemHandler) items).insertItem(realSlot, stack, false);
+                    ItemStack remainder = items.insertItem(realSlot, stack, false);
                     if (!remainder.isEmpty()) {
                         LogicInventoryTools.insertItem(handler, scanner, remainder, null);
                     }
@@ -1009,8 +990,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
     public boolean isRequested(Ingredient ingredient) {
         for (BlockPos p : getCraftingStations()) {
             BlockEntity te = level.getBlockEntity(p);
-            if (te instanceof CraftingStationTileEntity) {
-                CraftingStationTileEntity craftingStation = (CraftingStationTileEntity) te;
+            if (te instanceof CraftingStationTileEntity craftingStation) {
                 if (craftingStation.isRequested(ingredient)) {
                     return true;
                 }
@@ -1025,8 +1005,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
     public boolean requestCraft(@Nonnull Ingredient ingredient, @Nullable Inventory inventory) {
         for (BlockPos p : getCraftingStations()) {
             BlockEntity te = level.getBlockEntity(p);
-            if (te instanceof CraftingStationTileEntity) {
-                CraftingStationTileEntity craftingStation = (CraftingStationTileEntity) te;
+            if (te instanceof CraftingStationTileEntity craftingStation) {
                 if (craftingStation.request(ingredient, inventory)) {
                     return true;
                 }
@@ -1868,7 +1847,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         }
     }
 
-    public boolean compareNBTTag(@Nonnull ItemStack v1, @Nonnull ItemStack v2, @Nonnull ResourceLocation componentId) {
+    public boolean compareComponents(@Nonnull ItemStack v1, @Nonnull ItemStack v2, @Nonnull ResourceLocation componentId) {
         DataComponentMap componentsV1 = v1.getComponents();
         DataComponentMap componentsV2 = v2.getComponents();
 
@@ -2909,11 +2888,11 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         filterCaches.clear();
     }
 
-    public int getShowHud() {
+    public HudMode getShowHud() {
         return getSettingsData().showHud();
     }
 
-    public void setShowHud(int showHud) {
+    public void setShowHud(HudMode showHud) {
         ProcessorSettingsData data = getSettingsData();
         if (data.showHud() != showHud) {
             setData(ProcessorModule.PROCESSOR_SETTINGS_DATA.get(), data.withShowHud(showHud));
@@ -2925,13 +2904,13 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
     public void loadClientDataFromNBT(CompoundTag tagCompound, HolderLookup.Provider provider) {
         boolean ex = tagCompound.getBoolean("exclusive");
         int hud = tagCompound.getByte("hud");
-        setData(ProcessorModule.PROCESSOR_SETTINGS_DATA.get(), new ProcessorSettingsData(ex, hud));
+        setData(ProcessorModule.PROCESSOR_SETTINGS_DATA.get(), new ProcessorSettingsData(ex, HudMode.fromOrdinal(hud)));
     }
 
     @Override
     public void saveClientDataToNBT(CompoundTag tagCompound, HolderLookup.Provider provider) {
         tagCompound.putBoolean("exclusive", isExclusive());
-        tagCompound.putInt("hud", getShowHud());
+        tagCompound.putInt("hud", getShowHud().ordinal());
     }
 
     @Override
@@ -3189,7 +3168,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
     public static final Key<Integer> PARAM_FLUID = new Key<>("fluids", Type.INTEGER);
     public static final Key<String> PARAM_CMD = new Key<>("cmd", Type.STRING);
     public static final Key<Boolean> PARAM_EXCLUSIVE = new Key<>("exclusive", Type.BOOLEAN);
-    public static final Key<Integer> PARAM_HUDMODE = new Key<>("hudmode", Type.INTEGER);
+    public static final Key<HudMode> PARAM_HUDMODE = new Key<>("hudmode", HudMode.TYPE);
 
     @ServerCommand
     public static final Command<?> CMD_ALLOCATE = Command.<ProcessorTileEntity>create("allocate",

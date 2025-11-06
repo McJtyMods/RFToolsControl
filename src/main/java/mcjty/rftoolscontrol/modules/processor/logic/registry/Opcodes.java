@@ -1638,7 +1638,7 @@ public class Opcodes {
                 ItemStack v1 = processor.evaluateItemParameterNonNull(opcode, program, 0);
                 ItemStack v2 = processor.evaluateItemParameterNonNull(opcode, program, 1);
                 String tag = processor.evaluateStringParameterNonNull(opcode, program, 2);
-                boolean rc = ((ProcessorTileEntity) processor).compareNBTTag(v1, v2, ResourceLocation.parse(tag));
+                boolean rc = ((ProcessorTileEntity) processor).compareComponents(v1, v2, ResourceLocation.parse(tag));
                 return rc ? POSITIVE : NEGATIVE;
             }))
             .build();

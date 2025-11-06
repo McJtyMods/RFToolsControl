@@ -10,7 +10,6 @@ import mcjty.lib.gui.events.SelectionEvent;
 import mcjty.lib.gui.events.TextSpecialKeyEvent;
 import mcjty.lib.gui.layout.HorizontalAlignment;
 import mcjty.lib.gui.widgets.*;
-import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.ClientTools;
 import mcjty.lib.varia.Tools;
@@ -20,6 +19,7 @@ import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.modules.processor.ProcessorModule;
 import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorContainer;
 import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorTileEntity;
+import mcjty.rftoolscontrol.modules.processor.data.HudMode;
 import mcjty.rftoolscontrol.modules.processor.logic.ParameterTypeTools;
 import mcjty.rftoolscontrol.modules.processor.logic.editors.ParameterEditor;
 import mcjty.rftoolscontrol.modules.processor.logic.editors.ParameterEditors;
@@ -141,24 +141,10 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity, Proce
                 .choiceTooltip("Log", "Show the normal log")
                 .choiceTooltip("Db", "Show a debug display")
                 .choiceTooltip("Gfx", "Graphics display");
-        switch (be.getShowHud()) {
-            case HUD_OFF -> hudMode.choice("Off");
-            case HUD_LOG -> hudMode.choice("Log");
-            case HUD_DB -> hudMode.choice("Db");
-            case HUD_GFX -> hudMode.choice("Gfx");
-        }
+        hudMode.choice(be.getShowHud().getName());
         hudMode.event((newChoice) -> {
             String choice = hudMode.getCurrentChoice();
-            int m;
-            if ("Off".equals(choice)) {
-                m = HUD_OFF;
-            } else if ("Log".equals(choice)) {
-                m = HUD_LOG;
-            } else if ("Db".equals(choice)) {
-                m = HUD_DB;
-            } else {
-                m = HUD_GFX;
-            }
+            HudMode m = HudMode.stringToMode(choice);
             sendServerCommandTyped(ProcessorTileEntity.CMD_SETHUDMODE,
                     TypedMap.builder().put(PARAM_HUDMODE, m).build());
         });
