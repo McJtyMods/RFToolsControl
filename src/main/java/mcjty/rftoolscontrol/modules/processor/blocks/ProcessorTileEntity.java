@@ -147,7 +147,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
 
     // GUI bindings for settings stored in ProcessorSettingsData
     @GuiValue
-    public static final Value<ProcessorTileEntity, HudMode> VALUE_HUD = Value.create("hud", HudMode.TYPE, ProcessorTileEntity::getShowHud, ProcessorTileEntity::setShowHud);
+    public static final Value<ProcessorTileEntity, String> VALUE_HUD = Value.create("hud", Type.STRING, s -> s.getShowHud().getName(), (s,val) -> s.setShowHud(HudMode.stringToMode(val)));
     @GuiValue
     public static final Value<ProcessorTileEntity, Boolean> VALUE_EXCLUSIVE = Value.create("exclusive", Type.BOOLEAN, ProcessorTileEntity::isExclusive, ProcessorTileEntity::setExclusive);
  
@@ -3168,7 +3168,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
     public static final Key<Integer> PARAM_FLUID = new Key<>("fluids", Type.INTEGER);
     public static final Key<String> PARAM_CMD = new Key<>("cmd", Type.STRING);
     public static final Key<Boolean> PARAM_EXCLUSIVE = new Key<>("exclusive", Type.BOOLEAN);
-    public static final Key<HudMode> PARAM_HUDMODE = new Key<>("hudmode", HudMode.TYPE);
+    public static final Key<String> PARAM_HUDMODE = new Key<>("hudmode", Type.STRING);
 
     @ServerCommand
     public static final Command<?> CMD_ALLOCATE = Command.<ProcessorTileEntity>create("allocate",
@@ -3187,7 +3187,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
             (te, player, params) -> te.setExclusive(params.get(PARAM_EXCLUSIVE)));
     @ServerCommand
     public static final Command<?> CMD_SETHUDMODE = Command.<ProcessorTileEntity>create("setHudMode",
-            (te, player, params) -> te.setShowHud(params.get(PARAM_HUDMODE)));
+            (te, player, params) -> te.setShowHud(HudMode.stringToMode(params.get(PARAM_HUDMODE))));
 
     @ServerCommand(type = String.class)
     public static final ListCommand<?, ?> CMD_GETDEBUGLOG = ListCommand.<ProcessorTileEntity, String>create("rftoolscontrol.processor.getDebugLog",

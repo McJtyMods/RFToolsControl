@@ -144,9 +144,8 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity, Proce
         hudMode.choice(be.getShowHud().getName());
         hudMode.event((newChoice) -> {
             String choice = hudMode.getCurrentChoice();
-            HudMode m = HudMode.stringToMode(choice);
             sendServerCommandTyped(ProcessorTileEntity.CMD_SETHUDMODE,
-                    TypedMap.builder().put(PARAM_HUDMODE, m).build());
+                    TypedMap.builder().put(PARAM_HUDMODE, choice).build());
         });
         toplevel.children(hudMode);
 
