@@ -1518,7 +1518,7 @@ public class Opcodes {
             .icon(5, 7)
             .runnable(((processor, program, opcode) -> {
                 FluidStack fluid = processor.evaluateFluidParameterNonNull(opcode, program, 0);
-                String name = fluid.getDisplayName().getString() /* was getFormattedText() */;
+                String name = fluid.getHoverName().getString() /* was getFormattedText() */;
                 program.setLastValue(Parameter.builder().type(PAR_STRING).value(ParameterValue.constant(name)).build());
                 return POSITIVE;
             }))

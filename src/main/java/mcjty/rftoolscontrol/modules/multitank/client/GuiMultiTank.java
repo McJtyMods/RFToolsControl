@@ -92,7 +92,7 @@ public class GuiMultiTank extends GenericGuiContainer<MultiTankTileEntity, Gener
                 FluidStack stack = properties[i].getContents();
                 if (!stack.isEmpty()) {
                     liquids[i].renderItem(stack);
-                    labels[i].text(stack.getDisplayName().getString() /* was getFormattedText() */ + " (" + stack.getAmount() + "mb)");
+                    labels[i].text(stack.getHoverName().getString() /* was getFormattedText() */ + " (" + stack.getAmount() + "mb)");
                     continue;
                 }
             }

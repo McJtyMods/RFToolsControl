@@ -60,7 +60,7 @@ public class ParameterTypeTools {
                 return StringUtils.left(itemStack.getHoverName().getString() /* was getFormattedText() */, 10);
             case PAR_FLUID:
                 FluidStack fluidStack = (FluidStack) value;
-                return StringUtils.left(fluidStack.getDisplayName().getString() /* was getFormattedText() */, 10);
+                return StringUtils.left(fluidStack.getHoverName().getString() /* was getFormattedText() */, 10);
             case PAR_EXCEPTION:
                 ExceptionType exception = (ExceptionType) value;
                 return exception.getCode();
