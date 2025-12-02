@@ -22,7 +22,7 @@ import static mcjty.lib.builder.TooltipBuilder.*;
 
 public class TokenItem extends Item implements ITooltipSettings {
 
-    public static final ManualEntry MANUAL = ManualHelper.create("rftoolscontrol:various/token");
+    public static final ManualEntry MANUAL = ManualHelper.create("rftoolsbase:various/token");
 
     private final TooltipBuilder tooltipBuilder = new TooltipBuilder()
             .info(key("message.rftoolscontrol.shiftmessage"))

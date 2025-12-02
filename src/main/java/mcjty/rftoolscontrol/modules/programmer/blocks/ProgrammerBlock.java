@@ -13,7 +13,7 @@ public class ProgrammerBlock extends BaseBlock {
     public ProgrammerBlock() {
         super(new BlockBuilder()
                 .topDriver(RFToolsControlTOPDriver.DRIVER)
-                .manualEntry(ManualHelper.create("rftoolscontrol:programmer/programmer_intro"))
+                .manualEntry(ManualHelper.create("rftoolsbase:programmer/programmer_intro"))
                 .info(key("message.rftoolscontrol.shiftmessage"))
                 .infoShift(header())
                 .tileEntitySupplier(ProgrammerTileEntity::new));

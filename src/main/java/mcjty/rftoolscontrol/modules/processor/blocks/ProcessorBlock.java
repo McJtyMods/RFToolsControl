@@ -24,7 +24,7 @@ public class ProcessorBlock extends BaseBlock {
     public ProcessorBlock() {
         super(new BlockBuilder()
                 .topDriver(RFToolsControlTOPDriver.DRIVER)
-                .manualEntry(ManualHelper.create("rftoolscontrol:processor/processor"))
+                .manualEntry(ManualHelper.create("rftoolsbase:processor/processor"))
                 .info(key("message.rftoolscontrol.shiftmessage"))
                 .infoShift(header())
                 .tileEntitySupplier(ProcessorTileEntity::new));

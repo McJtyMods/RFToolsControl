@@ -22,7 +22,7 @@ import static mcjty.lib.builder.TooltipBuilder.parameter;
 
 public class ProgramCardItem extends Item implements ITooltipSettings {
 
-    public static final ManualEntry MANUAL = ManualHelper.create("rftoolscontrol:various/program_card");
+    public static final ManualEntry MANUAL = ManualHelper.create("rftoolsbase:various/program_card");
 
     private final TooltipBuilder tooltipBuilder = new TooltipBuilder()
             .info(header(), parameter("name", stack -> getCardName(stack)));
