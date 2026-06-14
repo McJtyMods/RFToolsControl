@@ -2,6 +2,21 @@
   "name": "Expansions",
   "icon": "rftoolscontrol:cpu_core_2000",
   "category": "rftoolsbase:category_rftoolscontrol_processor",
+  "extra_recipe_mappings": {
+    "rftoolscontrol:cpu_core_500": 0,
+    "rftoolscontrol:cpu_core_1000": 0,
+    "rftoolscontrol:cpu_core_2000": 0,
+    "rftoolscontrol:ram_chip": 0,
+    "rftoolscontrol:graphics_card": 0,
+    "rftoolscontrol:network_card": 0,
+    "rftoolscontrol:advanced_network_card": 0,
+    "rftoolscontrol:network_identifier": 0,
+    "rftoolscontrol:node": 0,
+    "rftoolscontrol:console_module": 0,
+    "rftoolscontrol:variable_module": 0,
+    "rftoolscontrol:vectorart_module": 0,
+    "rftoolscontrol:interaction_module": 0
+  },
   "sortnum": 20,
   "pages": [
     {

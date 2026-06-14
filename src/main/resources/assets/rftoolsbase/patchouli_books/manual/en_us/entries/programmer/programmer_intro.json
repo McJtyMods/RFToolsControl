@@ -2,6 +2,9 @@
   "name": "Programming Introduction",
   "icon": "rftoolscontrol:programmer",
   "category": "rftoolsbase:category_rftoolscontrol_programmer",
+  "extra_recipe_mappings": {
+    "rftoolscontrol:programmer": 0
+  },
   "sortnum": 10,
   "pages": [
     {

@@ -2,6 +2,9 @@
   "name": "Processor",
   "icon": "rftoolscontrol:processor",
   "category": "rftoolsbase:category_rftoolscontrol_processor",
+  "extra_recipe_mappings": {
+    "rftoolscontrol:processor": 0
+  },
   "sortnum": 10,
   "pages": [
     {
