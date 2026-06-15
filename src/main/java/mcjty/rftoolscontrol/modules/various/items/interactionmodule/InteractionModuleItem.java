@@ -14,6 +14,8 @@ import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.modules.processor.ProcessorModule;
 import mcjty.rftoolscontrol.modules.various.VariousModule;
 import mcjty.rftoolscontrol.setup.Config;
+import mcjty.lib.gui.ManualEntry;
+import mcjty.rftoolsbase.tools.ManualHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -142,4 +144,10 @@ public class InteractionModuleItem extends GenericModuleItem {
         data = setter.apply(data);
         stack.set(VariousModule.INTERACTION_MODULE_DATA.get(), data);
     }
+
+    @Override
+    public ManualEntry getManualEntry() {
+        return ManualHelper.create("rftoolscontrol:advanced/modules");
+    }
+
 }

@@ -2,11 +2,26 @@
   "name": "Processor",
   "icon": "rftoolscontrol:processor",
   "category": "rftoolsbase:category_rftoolscontrol_processor",
+  "extra_recipe_mappings": {
+    "rftoolscontrol:processor": 0
+  },
   "sortnum": 10,
   "pages": [
     {
       "type": "text",
-      "text": "The Processor is the device that actually runs your programs"
+      "text": "The Processor runs Program Cards. It needs FE, at least one CPU core, enough RAM, and a Program Card in one of the card slots."
+    },
+    {
+      "type": "crafting",
+      "recipe": "rftoolscontrol:processor"
+    },
+    {
+      "type": "text",
+      "text": "The top card slots hold programs. Expansion slots hold CPU, RAM, network, and graphics cards. Buffer slots are general storage for program operations."
+    },
+    {
+      "type": "text",
+      "text": "Programs can be enabled from the Processor GUI. Runtime errors are shown in the GUI so you can return to the Programmer and fix the card."
     }
   ]
 }

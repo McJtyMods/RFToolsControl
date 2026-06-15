@@ -41,7 +41,7 @@ public class GuiMultiTank extends GenericGuiContainer<MultiTankTileEntity, Gener
     private final Label[] labels = new Label[TANKS];
 
     public GuiMultiTank(GenericContainer container, Inventory inventory, Component title) {
-        super(container, inventory, title, /*@todo 1.15 GuiProxy.GUI_MANUAL_CONTROL*/ ManualEntry.EMPTY);
+        super(container, inventory, title, MultiTankModule.MULTITANK.block().get().getManualEntry());
 
         imageWidth = WIDTH;
         imageHeight = HEIGHT;

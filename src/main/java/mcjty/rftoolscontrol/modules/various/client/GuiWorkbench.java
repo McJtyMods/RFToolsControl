@@ -27,7 +27,7 @@ public class GuiWorkbench extends GenericGuiContainer<WorkbenchTileEntity, Workb
     private static final ResourceLocation mainBackground = ResourceLocation.fromNamespaceAndPath(RFToolsControl.MODID, "textures/gui/workbench.png");
 
     public GuiWorkbench(WorkbenchContainer container, Inventory inventory, Component title) {
-        super(container, inventory, title, /*@todo 1.15 GuiProxy.GUI_MANUAL_CONTROL*/ ManualEntry.EMPTY);
+        super(container, inventory, title, VariousModule.WORKBENCH.block().get().getManualEntry());
 
         imageWidth = WIDTH;
         imageHeight = HEIGHT;

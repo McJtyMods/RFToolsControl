@@ -6,7 +6,15 @@
   "pages": [
     {
       "type": "text",
-      "text": "Stuff @todo"
+      "text": "RFTools Control automation usually starts with a Programmer, a Program Card, and a Processor. Add expansions and support blocks as the program needs more reach or features."
+    },
+    {
+      "type": "text",
+      "text": "Use Nodes for world interaction, Workbenches and Crafting Stations for crafting workflows, and screen modules to display or control Processor state."
+    },
+    {
+      "type": "crafting",
+      "recipe": "rftoolscontrol:card_base"
     }
   ]
 }

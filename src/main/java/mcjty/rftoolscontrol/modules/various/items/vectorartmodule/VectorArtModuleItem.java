@@ -12,6 +12,8 @@ import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.modules.processor.ProcessorModule;
 import mcjty.rftoolscontrol.modules.various.VariousModule;
 import mcjty.rftoolscontrol.setup.Config;
+import mcjty.lib.gui.ManualEntry;
+import mcjty.rftoolsbase.tools.ManualHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.GlobalPos;
@@ -131,4 +133,10 @@ public class VectorArtModuleItem extends GenericModuleItem {
         data = setter.apply(data);
         stack.set(VariousModule.VECTORART_MODULE_DATA.get(), data);
     }
+
+    @Override
+    public ManualEntry getManualEntry() {
+        return ManualHelper.create("rftoolscontrol:advanced/modules");
+    }
+
 }

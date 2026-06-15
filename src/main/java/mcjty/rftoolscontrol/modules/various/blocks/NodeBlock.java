@@ -3,6 +3,7 @@ package mcjty.rftoolscontrol.modules.various.blocks;
 import mcjty.lib.blocks.BaseBlock;
 import mcjty.lib.builder.BlockBuilder;
 import mcjty.rftoolscontrol.compat.RFToolsControlTOPDriver;
+import mcjty.rftoolsbase.tools.ManualHelper;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.core.Direction;
@@ -21,6 +22,7 @@ public class NodeBlock extends BaseBlock {
     public NodeBlock() {
         super(new BlockBuilder()
                 .topDriver(RFToolsControlTOPDriver.DRIVER)
+                .manualEntry(ManualHelper.create("rftoolscontrol:advanced/nodes"))
                 .info(key("message.rftoolscontrol.shiftmessage"))
                 .infoShift(header())
                 .tileEntitySupplier(NodeTileEntity::new));

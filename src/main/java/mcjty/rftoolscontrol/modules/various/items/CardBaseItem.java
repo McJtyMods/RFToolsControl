@@ -4,6 +4,8 @@ import mcjty.lib.builder.TooltipBuilder;
 import mcjty.lib.tooltips.ITooltipSettings;
 import mcjty.lib.varia.Tools;
 import mcjty.rftoolscontrol.RFToolsControl;
+import mcjty.lib.gui.ManualEntry;
+import mcjty.rftoolsbase.tools.ManualHelper;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -31,4 +33,10 @@ public class CardBaseItem extends Item implements ITooltipSettings {
         super.appendHoverText(stack, context, list, flag);
         tooltipBuilder.makeTooltip(Tools.getId(this), stack, list, flag);
     }
+
+    @Override
+    public ManualEntry getManualEntry() {
+        return ManualHelper.create("rftoolscontrol:advanced/advanced_intro");
+    }
+
 }

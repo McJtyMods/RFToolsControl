@@ -1,0 +1,27 @@
+{
+  "name": "Nodes and Networks",
+  "icon": "rftoolscontrol:node",
+  "category": "rftoolsbase:category_rftoolscontrol_advanced",
+  "extra_recipe_mappings": {
+    "rftoolscontrol:node": 1
+  },
+  "sortnum": 20,
+  "pages": [
+    {
+      "type": "text",
+      "text": "Nodes are named endpoints for a Processor network. Programs use them to interact with inventories, tanks, blocks, and redstone away from the Processor."
+    },
+    {
+      "type": "crafting",
+      "recipe": "rftoolscontrol:node"
+    },
+    {
+      "type": "text",
+      "text": "Set the network channel and node name in the Node GUI. A Processor needs a network card to reach nodes beyond its local area."
+    },
+    {
+      "type": "text",
+      "text": "Nodes can read redstone input per side and output redstone for program-controlled signaling."
+    }
+  ]
+}

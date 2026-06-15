@@ -2,11 +2,26 @@
   "name": "Programming Introduction",
   "icon": "rftoolscontrol:programmer",
   "category": "rftoolsbase:category_rftoolscontrol_programmer",
+  "extra_recipe_mappings": {
+    "rftoolscontrol:programmer": 0
+  },
   "sortnum": 10,
   "pages": [
     {
       "type": "text",
-      "text": "Intro... @todo"
+      "text": "The Programmer is where you create and edit RFTools Control programs. Programs are node graphs stored on Program Cards."
+    },
+    {
+      "type": "crafting",
+      "recipe": "rftoolscontrol:programmer"
+    },
+    {
+      "type": "text",
+      "text": "Place a Program Card in the Programmer, add opcodes, connect their flow, and configure parameters. Use comments and clear names for larger programs."
+    },
+    {
+      "type": "text",
+      "text": "Typical programs read inventories, fluids, redstone, variables, or tokens, then branch to actions that move items, request crafts, send signals, or draw graphics."
     }
   ]
 }

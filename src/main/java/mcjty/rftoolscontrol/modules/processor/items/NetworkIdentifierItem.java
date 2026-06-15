@@ -7,6 +7,8 @@ import mcjty.lib.varia.ModuleTools;
 import mcjty.lib.varia.Tools;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.modules.processor.ProcessorModule;
+import mcjty.lib.gui.ManualEntry;
+import mcjty.rftoolsbase.tools.ManualHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
@@ -70,6 +72,12 @@ public class NetworkIdentifierItem extends Item implements ITooltipSettings {
             }
         }
         return InteractionResult.SUCCESS;
+    }
+
+
+    @Override
+    public ManualEntry getManualEntry() {
+        return ManualHelper.create("rftoolscontrol:processor/expansions");
     }
 
 }

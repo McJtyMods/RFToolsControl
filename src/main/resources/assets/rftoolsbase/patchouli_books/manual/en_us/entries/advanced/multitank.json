@@ -1,0 +1,23 @@
+{
+  "name": "Multi Tank",
+  "icon": "rftoolscontrol:tank",
+  "category": "rftoolsbase:category_rftoolscontrol_advanced",
+  "extra_recipe_mappings": {
+    "rftoolscontrol:tank": 1
+  },
+  "sortnum": 60,
+  "pages": [
+    {
+      "type": "text",
+      "text": "The Multi Tank stores several fluids in one block. It is useful as a compact fluid buffer for Processor programs."
+    },
+    {
+      "type": "crafting",
+      "recipe": "rftoolscontrol:tank"
+    },
+    {
+      "type": "text",
+      "text": "The GUI shows each stored fluid and amount. Programs can use fluid opcodes with connected tanks and nodes."
+    }
+  ]
+}

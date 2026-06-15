@@ -60,7 +60,7 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
     private int listDirty = 0;
 
     public GuiCraftingStation(GenericContainer container, Inventory inventory, Component title) {
-        super(container, inventory, title, /*@todo 1.15 GuiProxy.GUI_MANUAL_CONTROL*/ ManualEntry.EMPTY);
+        super(container, inventory, title, CraftingStationModule.CRAFTING_STATION.block().get().getManualEntry());
 
         imageWidth = WIDTH;
         imageHeight = HEIGHT;

@@ -4,6 +4,8 @@ import mcjty.lib.builder.TooltipBuilder;
 import mcjty.lib.tooltips.ITooltipSettings;
 import mcjty.lib.varia.Tools;
 import mcjty.rftoolscontrol.RFToolsControl;
+import mcjty.lib.gui.ManualEntry;
+import mcjty.rftoolsbase.tools.ManualHelper;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -31,6 +33,12 @@ public class RAMChipItem extends Item implements ITooltipSettings {
     public void appendHoverText(@Nonnull ItemStack stack, TooltipContext context, @Nonnull List<Component> list, @Nonnull TooltipFlag flag) {
         super.appendHoverText(stack, context, list, flag);
         tooltipBuilder.makeTooltip(Tools.getId(this), stack, list, flag);
+    }
+
+
+    @Override
+    public ManualEntry getManualEntry() {
+        return ManualHelper.create("rftoolscontrol:processor/expansions");
     }
 
 }

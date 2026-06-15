@@ -22,7 +22,7 @@ public class GuiNode extends GenericGuiContainer<NodeTileEntity, GenericContaine
     public static final int HEIGHT = 30;
 
     public GuiNode(GenericContainer container, Inventory inventory, Component title) {
-        super(container, inventory, title, /*@todo 1.15 GuiProxy.GUI_MANUAL_CONTROL*/ ManualEntry.EMPTY);
+        super(container, inventory, title, VariousModule.NODE.block().get().getManualEntry());
 
         imageWidth = WIDTH;
         imageHeight = HEIGHT;

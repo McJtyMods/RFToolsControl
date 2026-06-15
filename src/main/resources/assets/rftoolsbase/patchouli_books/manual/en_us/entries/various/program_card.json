@@ -1,0 +1,23 @@
+{
+  "name": "Program Card",
+  "icon": "rftoolscontrol:program_card",
+  "category": "rftoolsbase:category_rftoolscontrol_programmer",
+  "extra_recipe_mappings": {
+    "rftoolscontrol:program_card": 0
+  },
+  "sortnum": 20,
+  "pages": [
+    {
+      "type": "text",
+      "text": "Program Cards store programs made in the Programmer. Put one in a Processor card slot to run it."
+    },
+    {
+      "type": "crafting",
+      "recipe": "rftoolscontrol:program_card"
+    },
+    {
+      "type": "text",
+      "text": "A card can have a name and a graph of opcodes. Copy cards before making risky changes so a working version remains available."
+    }
+  ]
+}

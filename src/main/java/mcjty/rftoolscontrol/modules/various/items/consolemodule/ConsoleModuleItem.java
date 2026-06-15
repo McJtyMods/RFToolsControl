@@ -17,6 +17,8 @@ import mcjty.rftoolscontrol.modules.processor.ProcessorModule;
 import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorContainer;
 import mcjty.rftoolscontrol.modules.various.VariousModule;
 import mcjty.rftoolscontrol.setup.Config;
+import mcjty.lib.gui.ManualEntry;
+import mcjty.rftoolsbase.tools.ManualHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.core.component.DataComponentType;
@@ -175,6 +177,12 @@ public class ConsoleModuleItem extends GenericModuleItem implements ITabletSuppo
         }
         stack.set(VariousModule.CONSOLE_MODULE_DATA.get(), data);
         return InteractionResult.SUCCESS;
+    }
+
+
+    @Override
+    public ManualEntry getManualEntry() {
+        return ManualHelper.create("rftoolscontrol:advanced/modules");
     }
 
 }

@@ -4,6 +4,7 @@ import mcjty.lib.blocks.BaseBlock;
 import mcjty.lib.blocks.RotationType;
 import mcjty.lib.builder.BlockBuilder;
 import mcjty.rftoolscontrol.compat.RFToolsControlTOPDriver;
+import mcjty.rftoolsbase.tools.ManualHelper;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -22,6 +23,7 @@ public class MultiTankBlock extends BaseBlock {
     public MultiTankBlock() {
         super(new BlockBuilder()
                 .topDriver(RFToolsControlTOPDriver.DRIVER)
+                .manualEntry(ManualHelper.create("rftoolscontrol:advanced/multitank"))
                 .info(key("message.rftoolscontrol.shiftmessage"))
                 .infoShift(header())
                 .tileEntitySupplier(MultiTankTileEntity::new));
