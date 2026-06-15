@@ -2,7 +2,6 @@ package mcjty.rftoolscontrol.modules.various.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import mcjty.lib.gui.GenericGuiContainer;
-import mcjty.lib.gui.ManualEntry;
 import mcjty.lib.gui.Window;
 import mcjty.lib.gui.widgets.Panel;
 import mcjty.rftoolscontrol.RFToolsControl;
@@ -26,7 +25,7 @@ public class GuiWorkbench extends GenericGuiContainer<WorkbenchTileEntity, Workb
     private static final ResourceLocation mainBackground = new ResourceLocation(RFToolsControl.MODID, "textures/gui/workbench.png");
 
     public GuiWorkbench(WorkbenchTileEntity te, WorkbenchContainer container, Inventory inventory) {
-        super(te, container, inventory, /*@todo 1.15 GuiProxy.GUI_MANUAL_CONTROL*/ ManualEntry.EMPTY);
+        super(te, container, inventory, VariousModule.WORKBENCH.get().getManualEntry());
 
         imageWidth = WIDTH;
         imageHeight = HEIGHT;

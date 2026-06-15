@@ -2,7 +2,6 @@ package mcjty.rftoolscontrol.modules.multitank.client;
 
 import mcjty.lib.container.GenericContainer;
 import mcjty.lib.gui.GenericGuiContainer;
-import mcjty.lib.gui.ManualEntry;
 import mcjty.lib.gui.Window;
 import mcjty.lib.gui.layout.HorizontalAlignment;
 import mcjty.lib.gui.layout.VerticalAlignment;
@@ -38,7 +37,7 @@ public class GuiMultiTank extends GenericGuiContainer<MultiTankTileEntity, Gener
     private final Label[] labels = new Label[TANKS];
 
     public GuiMultiTank(MultiTankTileEntity te, GenericContainer container, Inventory inventory) {
-        super(te, container, inventory, /*@todo 1.15 GuiProxy.GUI_MANUAL_CONTROL*/ ManualEntry.EMPTY);
+        super(te, container, inventory, MultiTankModule.MULTITANK.get().getManualEntry());
 
         imageWidth = WIDTH;
         imageHeight = HEIGHT;

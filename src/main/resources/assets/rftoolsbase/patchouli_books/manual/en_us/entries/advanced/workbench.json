@@ -1,0 +1,23 @@
+{
+  "name": "Workbench",
+  "icon": "rftoolscontrol:workbench",
+  "category": "rftoolsbase:category_rftoolscontrol_advanced",
+  "extra_recipe_mappings": {
+    "rftoolscontrol:workbench": 1
+  },
+  "sortnum": 30,
+  "pages": [
+    {
+      "type": "text",
+      "text": "The Workbench is used by crafting-oriented programs as a managed crafting inventory. It gives the Processor a place to stage ingredients and results."
+    },
+    {
+      "type": "crafting",
+      "recipe": "rftoolscontrol:workbench"
+    },
+    {
+      "type": "text",
+      "text": "Use workbench-related opcodes when a program needs to prepare ingredients, push items into crafting, or handle crafting results."
+    }
+  ]
+}

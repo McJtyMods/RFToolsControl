@@ -21,7 +21,39 @@
   "pages": [
     {
       "type": "text",
-      "text": "Various expansions..."
+      "text": "Processor expansions define what a Processor can do. CPU cores run instructions, RAM chips provide variables, and network cards let programs reach connected Nodes."
+    },
+    {
+      "type": "crafting",
+      "recipe": "rftoolscontrol:cpu_core_500"
+    },
+    {
+      "type": "crafting",
+      "recipe": "rftoolscontrol:ram_chip"
+    },
+    {
+      "type": "text",
+      "text": "Better CPU cores run faster but use more FE. Network cards increase the usable network range, and the advanced card supports larger setups."
+    },
+    {
+      "type": "crafting",
+      "recipe": "rftoolscontrol:network_card"
+    },
+    {
+      "type": "crafting",
+      "recipe": "rftoolscontrol:advanced_network_card"
+    },
+    {
+      "type": "text",
+      "text": "The Network Identifier binds screen modules or tools to a Processor. Use it on a Processor to store the target."
+    },
+    {
+      "type": "crafting",
+      "recipe": "rftoolscontrol:network_identifier"
+    },
+    {
+      "type": "crafting",
+      "recipe": "rftoolscontrol:graphics_card"
     }
   ]
 }

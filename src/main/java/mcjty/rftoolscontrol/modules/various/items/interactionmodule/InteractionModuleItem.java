@@ -1,9 +1,11 @@
 package mcjty.rftoolscontrol.modules.various.items.interactionmodule;
 
+import mcjty.lib.gui.ManualEntry;
 import mcjty.lib.varia.Logging;
 import mcjty.lib.varia.ModuleTools;
 import mcjty.rftoolsbase.api.screens.IModuleGuiBuilder;
 import mcjty.rftoolsbase.tools.GenericModuleItem;
+import mcjty.rftoolsbase.tools.ManualHelper;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.modules.processor.ProcessorModule;
 import mcjty.rftoolscontrol.setup.Config;
@@ -26,6 +28,11 @@ public class InteractionModuleItem extends GenericModuleItem {
         super(RFToolsControl.setup.defaultProperties()
                 .stacksTo(1)
                 .durability(1));
+    }
+
+    @Override
+    public ManualEntry getManualEntry() {
+        return ManualHelper.create("rftoolscontrol:advanced/modules");
     }
 
     @Override

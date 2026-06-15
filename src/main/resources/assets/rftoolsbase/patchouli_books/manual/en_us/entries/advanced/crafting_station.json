@@ -1,0 +1,23 @@
+{
+  "name": "Crafting Station",
+  "icon": "rftoolscontrol:craftingstation",
+  "category": "rftoolsbase:category_rftoolscontrol_advanced",
+  "extra_recipe_mappings": {
+    "rftoolscontrol:craftingstation": 1
+  },
+  "sortnum": 40,
+  "pages": [
+    {
+      "type": "text",
+      "text": "The Crafting Station exposes craftable items and active crafting requests. It is the player-facing side of RFTools Control crafting automation."
+    },
+    {
+      "type": "crafting",
+      "recipe": "rftoolscontrol:craftingstation"
+    },
+    {
+      "type": "text",
+      "text": "Use the GUI to search craftables, request crafting, and cancel selected requests. Programs can service those requests through crafting opcodes."
+    }
+  ]
+}

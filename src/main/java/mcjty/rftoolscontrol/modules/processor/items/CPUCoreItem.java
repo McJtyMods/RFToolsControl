@@ -1,8 +1,10 @@
 package mcjty.rftoolscontrol.modules.processor.items;
 
 import mcjty.lib.builder.TooltipBuilder;
+import mcjty.lib.gui.ManualEntry;
 import mcjty.lib.tooltips.ITooltipSettings;
 import mcjty.lib.varia.Tools;
+import mcjty.rftoolsbase.tools.ManualHelper;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.setup.Config;
 import net.minecraft.network.chat.Component;
@@ -35,6 +37,11 @@ public class CPUCoreItem extends Item implements ITooltipSettings {
 
     public int getTier() {
         return tier;
+    }
+
+    @Override
+    public ManualEntry getManualEntry() {
+        return ManualHelper.create("rftoolscontrol:processor/expansions");
     }
 
     @Override

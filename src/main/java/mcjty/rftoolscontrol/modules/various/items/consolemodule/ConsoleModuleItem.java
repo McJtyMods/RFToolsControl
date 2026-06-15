@@ -1,6 +1,7 @@
 package mcjty.rftoolscontrol.modules.various.items.consolemodule;
 
 import mcjty.lib.client.GuiTools;
+import mcjty.lib.gui.ManualEntry;
 import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.lib.varia.ComponentFactory;
 import mcjty.lib.varia.Logging;
@@ -8,6 +9,7 @@ import mcjty.lib.varia.ModuleTools;
 import mcjty.rftoolsbase.api.screens.IModuleGuiBuilder;
 import mcjty.rftoolsbase.api.various.ITabletSupport;
 import mcjty.rftoolsbase.tools.GenericModuleItem;
+import mcjty.rftoolsbase.tools.ManualHelper;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.modules.processor.ProcessorModule;
 import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorContainer;
@@ -39,6 +41,11 @@ public class ConsoleModuleItem extends GenericModuleItem implements ITabletSuppo
         super(RFToolsControl.setup.defaultProperties()
                 .stacksTo(1)
                 .durability(1));
+    }
+
+    @Override
+    public ManualEntry getManualEntry() {
+        return ManualHelper.create("rftoolscontrol:advanced/modules");
     }
 
     @Override

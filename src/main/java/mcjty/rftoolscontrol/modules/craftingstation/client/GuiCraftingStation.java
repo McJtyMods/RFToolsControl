@@ -4,7 +4,6 @@ import mcjty.lib.base.StyleConfig;
 import mcjty.lib.container.GenericContainer;
 import mcjty.lib.gui.GenericGuiContainer;
 import mcjty.lib.gui.GuiPopupTools;
-import mcjty.lib.gui.ManualEntry;
 import mcjty.lib.gui.Window;
 import mcjty.lib.gui.events.BlockRenderEvent;
 import mcjty.lib.gui.widgets.*;
@@ -58,7 +57,7 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
     private int listDirty = 0;
 
     public GuiCraftingStation(CraftingStationTileEntity te, GenericContainer container, Inventory inventory) {
-        super(te, container, inventory, /*@todo 1.15 GuiProxy.GUI_MANUAL_CONTROL*/ ManualEntry.EMPTY);
+        super(te, container, inventory, CraftingStationModule.CRAFTING_STATION.get().getManualEntry());
 
         imageWidth = WIDTH;
         imageHeight = HEIGHT;

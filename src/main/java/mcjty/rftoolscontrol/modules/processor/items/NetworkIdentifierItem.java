@@ -1,10 +1,12 @@
 package mcjty.rftoolscontrol.modules.processor.items;
 
 import mcjty.lib.builder.TooltipBuilder;
+import mcjty.lib.gui.ManualEntry;
 import mcjty.lib.tooltips.ITooltipSettings;
 import mcjty.lib.varia.Logging;
 import mcjty.lib.varia.ModuleTools;
 import mcjty.lib.varia.Tools;
+import mcjty.rftoolsbase.tools.ManualHelper;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.modules.processor.ProcessorModule;
 import net.minecraft.core.BlockPos;
@@ -39,6 +41,11 @@ public class NetworkIdentifierItem extends Item implements ITooltipSettings {
         super(RFToolsControl.setup.defaultProperties()
                 .stacksTo(1)
                 .durability(1));
+    }
+
+    @Override
+    public ManualEntry getManualEntry() {
+        return ManualHelper.create("rftoolscontrol:processor/expansions");
     }
 
     @Override
