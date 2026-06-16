@@ -1,3 +1,6 @@
+1.21-8.0.2:
+- Updated and expanded the Patchouli manual documentation
+
 1.21-8.0.1:
 - Fixed patchouli integration
 
