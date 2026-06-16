@@ -1,3 +1,6 @@
+1.20-7.0.4:
+- Various Patchouli documentation updates and fixes
+
 1.20-7.0.3:
 - Bug fix when selecting 'gfx' mode in the controller
 
