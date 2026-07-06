@@ -1,0 +1,106 @@
+{
+  "_comment": "Achievements",
+
+  "_comment": "Items",
+  "item.rftoolscontrol.program_card": "Carte de programme",
+  "item.rftoolscontrol.cpu_core_500": "Cœur de processeur B500",
+  "item.rftoolscontrol.cpu_core_1000": "Cœur de processeur S1000",
+  "item.rftoolscontrol.cpu_core_2000": "Cœur de processeur EX2000",
+  "item.rftoolscontrol.ram_chip": "Puce de RAM 8E",
+  "item.rftoolscontrol.network_card": "Carte réseau",
+  "item.rftoolscontrol.advanced_network_card": "Carte réseau avancée",
+  "item.rftoolscontrol.card_base": "Base de carte",
+  "item.rftoolscontrol.variable_module": "Module d'écran de variables",
+  "item.rftoolscontrol.interaction_module": "Module d'écran d'interaction",
+  "item.rftoolscontrol.console_module": "Module d'écran de console",
+  "item.rftoolscontrol.vectorart_module": "Module d'écran d'art vectoriel",
+  "item.rftoolscontrol.token": "Jeton",
+  "item.rftoolscontrol.network_identifier": "Identifiant réseau",
+  "item.rftoolscontrol.graphics_card": "Carte graphique",
+  "item.rftoolscontrol.tablet_processor": "Tablette (processeur)",
+
+  "_comment": "Blocks",
+  "block.rftoolscontrol.programmer": "Programmateur",
+  "block.rftoolscontrol.processor": "Processeur",
+  "block.rftoolscontrol.craftingstation": "Station de fabrication",
+  "block.rftoolscontrol.node": "Nœud",
+  "block.rftoolscontrol.workbench": "Établi",
+  "block.rftoolscontrol.tank": "Réservoir multiple",
+
+  "_comment": "Creative Tabs",
+  "itemGroup.rftoolscontrol": "RFTools Control",
+
+  "_comment": "Messages",
+
+  "message.rftoolscontrol.shiftmessage": "<Appuyez sur Maj>",
+
+  "message.rftoolscontrol.token.header": "Cet objet est un simple jeton. Il ne fait rien mais peut stocker des informations",
+  "message.rftoolscontrol.token.gold": "Ce jeton est vide",
+  "message.rftoolscontrol.token.type": "Type : ",
+  "message.rftoolscontrol.token.value": "Valeur : ",
+
+  "message.rftoolscontrol.program_card.header": "Ceci est une carte qui peut stocker des programmes. Utilisez le 'Programmateur' pour les écrire",
+  "message.rftoolscontrol.program_card.name": "Nom : ",
+
+  "message.rftoolscontrol.cpu_core_500.header": "Ce cœur de processeur doit être utilisé dans le processeur pour lui permettre d'exécuter des programmes",
+  "message.rftoolscontrol.cpu_core_500.speed": "Opérations par tick : ",
+  "message.rftoolscontrol.cpu_core_500.power": "RF/FE par tick : ",
+
+  "message.rftoolscontrol.cpu_core_1000.header": "Ce cœur de processeur doit être utilisé dans le processeur pour lui permettre d'exécuter des programmes",
+  "message.rftoolscontrol.cpu_core_1000.speed": "Opérations par tick : ",
+  "message.rftoolscontrol.cpu_core_1000.power": "RF/FE par tick : ",
+
+  "message.rftoolscontrol.cpu_core_2000.header": "Ce cœur de processeur doit être utilisé dans le processeur pour lui permettre d'exécuter des programmes",
+  "message.rftoolscontrol.cpu_core_2000.speed": "Opérations par tick : ",
+  "message.rftoolscontrol.cpu_core_2000.power": "RF/FE par tick : ",
+
+  "message.rftoolscontrol.card_base.header": "Cet objet est l'ingrédient de base pour beaucoup d'objets et de machines de RFTools Control",
+
+  "message.rftoolscontrol.graphics_card.header": "La carte graphique est nécessaire pour pouvoir dessiner des graphismes vectoriels",
+
+  "message.rftoolscontrol.ram_chip.header": "Insérez cet objet dans le processeur pour obtenir huit variables supplémentaires (32 maximum)",
+
+  "message.rftoolscontrol.tablet_processor.header": "Tablette qui peut être utilisée pour référencer des interfaces et informations à distance",
+  "message.rftoolscontrol.tablet_processor.gold": "Tablette contenant des informations : clic droit pour l'interface du processeur, clic droit accroupi pour l'interface de la tablette",
+
+  "message.rftoolscontrol.network_card.header": "Insérez ceci dans le processeur pour permettre l'accès aux nœuds voisins",
+  "message.rftoolscontrol.network_card.gold": "Utilisez 'net setup <nom>' dans la console du processeur pour configurer le réseau",
+  "message.rftoolscontrol.network_card.range": "Portée : zone de 17x17x17",
+  "message.rftoolscontrol.network_card.extra": "",
+
+  "message.rftoolscontrol.advanced_network_card.header": "Insérez ceci dans le processeur pour permettre l'accès aux nœuds voisins",
+  "message.rftoolscontrol.advanced_network_card.gold": "Utilisez 'net setup <nom>' dans la console du processeur pour configurer le réseau",
+  "message.rftoolscontrol.advanced_network_card.range": "Portée : zone de 31x31x31",
+  "message.rftoolscontrol.advanced_network_card.extra": "Prend en charge la communication inter-processus",
+
+  "message.rftoolscontrol.network_identifier.header": "Cet objet permet à un processeur de communiquer directement avec un autre processeur lié",
+  "message.rftoolscontrol.network_identifier.gold": "Clic droit accroupi sur un processeur pour définir la cible de ce module",
+  "message.rftoolscontrol.network_identifier.target": "Processeur : ",
+
+  "message.rftoolscontrol.console_module.header": "Un module d'écran permettant d'afficher la console d'un processeur. Cet objet peut aussi être utilisé dans une tablette",
+  "message.rftoolscontrol.console_module.gold": "Clic droit accroupi sur un processeur pour définir la cible de ce module",
+  "message.rftoolscontrol.console_module.uses": "Consommation d'énergie : ",
+  "message.rftoolscontrol.console_module.info": "Processeur : ",
+
+  "message.rftoolscontrol.interaction_module.header": "Un module d'écran permettant d'interagir avec un processeur",
+  "message.rftoolscontrol.interaction_module.gold": "Clic droit accroupi sur un processeur pour définir la cible de ce module",
+  "message.rftoolscontrol.interaction_module.uses": "Consommation d'énergie : ",
+  "message.rftoolscontrol.interaction_module.info": "Processeur : ",
+
+  "message.rftoolscontrol.variable_module.header": "Un module d'écran permettant d'afficher les variables d'un processeur",
+  "message.rftoolscontrol.variable_module.gold": "Clic droit accroupi sur un processeur pour définir la cible de ce module",
+  "message.rftoolscontrol.variable_module.uses": "Consommation d'énergie : ",
+  "message.rftoolscontrol.variable_module.info": "Processeur : ",
+
+  "message.rftoolscontrol.vectorart_module.header": "Un module d'écran permettant d'afficher de l'art vectoriel provenant d'un processeur",
+  "message.rftoolscontrol.vectorart_module.gold": "Clic droit accroupi sur un processeur pour définir la cible de ce module",
+  "message.rftoolscontrol.vectorart_module.uses": "Consommation d'énergie : ",
+  "message.rftoolscontrol.vectorart_module.info": "Processeur : ",
+
+  "message.rftoolscontrol.craftingstation.header": "Ce bloc assiste les opérations de fabrication automatique pour un processeur",
+  "message.rftoolscontrol.tank.header": "Ceci est un réservoir ayant une capacité pour quatre types de liquides. Ce bloc est destiné au processeur et ne peut pas être utilisé directement autrement",
+  "message.rftoolscontrol.processor.header": "Le processeur exécute des programmes pour l'automatisation. Les programmes doivent être écrits sur une carte de programme et peuvent être créés avec le bloc Programmateur",
+  "message.rftoolscontrol.programmer.header": "Utilisez ce bloc pour créer des programmes sur une carte de programme pour le processeur",
+  "message.rftoolscontrol.node.header": "Ce nœud peut être accédé à distance par le processeur possédant une carte réseau installée",
+  "message.rftoolscontrol.workbench.header": "Un établi général qui fonctionne bien avec un processeur mais peut aussi être utilisé de manière autonome"
+}
