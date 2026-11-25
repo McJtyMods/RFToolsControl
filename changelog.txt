@@ -1,3 +1,6 @@
+26.1.2-9.0.1:
+- Fixed a crash when opening a tablet with a linked Console Screen Module.
+
 26.1.2-9.0.0:
 - Port to Minecraft 26.1.2 on NeoForge
 
