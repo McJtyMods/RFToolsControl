@@ -1,3 +1,6 @@
+1.20-7.0.5:
+- Fixed a crash when opening a tablet with a linked Console Screen Module.
+
 1.20-7.0.4:
 - Various Patchouli documentation updates and fixes
 

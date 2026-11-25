@@ -2041,6 +2041,11 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
 
     private void updateFluidSlotsAvailability() {
         fluidSlotsAvailable = 0;
+        // The tablet's dummy processor has no level. The server supplies the fluid list.
+        if (isDummy()) {
+            return;
+        }
+
         for (Direction facing : Direction.values()) {
             BlockEntity te = level.getBlockEntity(getBlockPos().relative(facing));
             if (te instanceof MultiTankTileEntity) {
