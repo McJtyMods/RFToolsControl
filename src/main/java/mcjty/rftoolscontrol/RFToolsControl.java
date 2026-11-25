@@ -1,7 +1,10 @@
 package mcjty.rftoolscontrol;
 
+import java.util.Map;
+import java.util.function.Function;
 import mcjty.lib.datagen.DataGen;
 import mcjty.lib.modules.Modules;
+import mcjty.rftoolsbase.tools.ClientItemDefinitions;
 import mcjty.rftoolscontrol.compat.RFToolsStuff;
 import mcjty.rftoolscontrol.modules.craftingstation.CraftingStationModule;
 import mcjty.rftoolscontrol.modules.multitank.MultiTankModule;
@@ -19,8 +22,6 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
-
-import java.util.function.Supplier;
 
 @Mod(RFToolsControl.MODID)
 public class RFToolsControl {
@@ -52,14 +53,15 @@ public class RFToolsControl {
         }
     }
 
-    public static <T extends Item> Supplier<T> tab(Supplier<T> supplier) {
-        return instance.setup.tab(supplier);
+    public static <T extends Item> Function<Item.Properties, T> tab(Function<Item.Properties, T> factory) {
+        return properties -> setup.tab(() -> factory.apply(properties)).get();
     }
 
-    private void onDataGen(GatherDataEvent event) {
+    private void onDataGen(GatherDataEvent.Client event) {
         DataGen datagen = new DataGen(MODID, event);
-        modules.datagen(datagen, event.getLookupProvider());
+        modules.datagen(datagen, event.getWorldLookupProvider());
         datagen.generate();
+        event.getGenerator().addProvider(true, new ClientItemDefinitions(event.getGenerator().getPackOutput(), MODID, Map.of()));
     }
 
     private void setupModules(IEventBus bus, Dist dist) {

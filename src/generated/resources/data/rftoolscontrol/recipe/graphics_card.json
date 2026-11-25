@@ -1,19 +1,10 @@
 {
   "type": "minecraft:crafting_shaped",
-  "category": "misc",
   "key": {
-    "M": {
-      "item": "rftoolscontrol:card_base"
-    },
-    "g": {
-      "tag": "c:dusts/glowstone"
-    },
-    "q": {
-      "tag": "c:gems/quartz"
-    },
-    "r": {
-      "item": "minecraft:redstone"
-    }
+    "M": "rftoolscontrol:card_base",
+    "g": "#c:dusts/glowstone",
+    "q": "#c:gems/quartz",
+    "r": "minecraft:redstone"
   },
   "pattern": [
     "qqq",
@@ -21,7 +12,6 @@
     "qgq"
   ],
   "result": {
-    "count": 1,
     "id": "rftoolscontrol:graphics_card"
   }
 }

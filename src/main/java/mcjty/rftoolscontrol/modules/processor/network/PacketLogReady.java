@@ -1,6 +1,10 @@
 package mcjty.rftoolscontrol.modules.processor.network;
 
 
+import java.util.ArrayList;
+import java.util.List;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import mcjty.lib.network.NetworkTools;
 import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.lib.typed.TypedMap;
@@ -8,23 +12,18 @@ import mcjty.lib.varia.Logging;
 import mcjty.lib.varia.SafeClientTools;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorContainer;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.core.BlockPos;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.List;
 
 public record PacketLogReady(@Nullable BlockPos pos, String command, @Nonnull List<String> list) implements CustomPacketPayload {
 
-    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(RFToolsControl.MODID, "logready");
+    public static final Identifier ID = Identifier.fromNamespaceAndPath(RFToolsControl.MODID, "logready");
     public static final CustomPacketPayload.Type<PacketLogReady> TYPE = new Type<>(ID);
 
     public static final StreamCodec<RegistryFriendlyByteBuf, PacketLogReady> CODEC = StreamCodec.of(

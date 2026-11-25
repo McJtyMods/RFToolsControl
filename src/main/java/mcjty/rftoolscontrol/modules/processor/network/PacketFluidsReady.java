@@ -1,6 +1,9 @@
 package mcjty.rftoolscontrol.modules.processor.network;
 
 
+import java.util.ArrayList;
+import java.util.List;
+import javax.annotation.Nullable;
 import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.Logging;
@@ -11,18 +14,14 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
-import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.List;
-
 public record PacketFluidsReady(@Nullable BlockPos pos, String command, List<PacketGetFluids.FluidEntry> list) implements CustomPacketPayload {
 
-    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(RFToolsControl.MODID, "fluidsready");
+    public static final Identifier ID = Identifier.fromNamespaceAndPath(RFToolsControl.MODID, "fluidsready");
     public static final CustomPacketPayload.Type<PacketFluidsReady> TYPE = new Type<>(ID);
 
     public static final StreamCodec<RegistryFriendlyByteBuf, PacketFluidsReady> CODEC = StreamCodec.of(

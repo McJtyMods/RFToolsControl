@@ -1,5 +1,11 @@
 package mcjty.rftoolscontrol.modules.craftingstation.blocks;
 
+import com.mojang.serialization.MapCodec;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Function;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import mcjty.lib.api.container.DefaultContainerProvider;
 import mcjty.lib.blockcommands.Command;
 import mcjty.lib.blockcommands.ListCommand;
@@ -7,13 +13,13 @@ import mcjty.lib.blockcommands.ServerCommand;
 import mcjty.lib.container.ContainerFactory;
 import mcjty.lib.container.GenericContainer;
 import mcjty.lib.container.GenericItemHandler;
-import mcjty.lib.setup.Registration;
 import mcjty.lib.tileentity.Cap;
 import mcjty.lib.tileentity.CapType;
 import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.lib.typed.Key;
 import mcjty.lib.typed.Type;
 import mcjty.lib.varia.BlockPosTools;
+import mcjty.lib.varia.InventoryTools;
 import mcjty.lib.varia.ItemStackList;
 import mcjty.rftoolsbase.api.control.parameters.Inventory;
 import mcjty.rftoolscontrol.modules.craftingstation.CraftingStationModule;
@@ -26,29 +32,28 @@ import mcjty.rftoolscontrol.modules.processor.logic.running.ProgException;
 import mcjty.rftoolscontrol.setup.Config;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.component.DataComponentGetter;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.common.util.Lazy;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemHandlerHelper;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Function;
-
 import static mcjty.lib.api.container.DefaultContainerProvider.container;
 import static mcjty.lib.container.SlotDefinition.generic;
+import static mcjty.lib.setup.Registration.ITEM_INVENTORY;
 import static mcjty.rftoolscontrol.modules.craftingstation.CraftingStationModule.CRAFTING_STATION_CONTAINER;
 
 public class CraftingStationTileEntity extends GenericTileEntity {
@@ -133,14 +138,14 @@ public class CraftingStationTileEntity extends GenericTileEntity {
             if (!stack.isEmpty()) {
                 Inventory inventory = getInventoryFromTicket(ticket);
                 if (inventory != null) {
-                    IItemHandler inv = processor.getItemHandlerAt(inventory);
+                    ResourceHandler<ItemResource> inv = processor.getItemHandlerAt(inventory);
                     if (inv != null) {
-                        stack = ItemHandlerHelper.insertItem(inv, stack, false);
+                        stack = InventoryTools.insertItem(inv, stack, false);
                     } else {
                         throw new ProgException(ExceptionType.EXCEPT_INVALIDINVENTORY);
                     }
                  } else {
-                    stack = ItemHandlerHelper.insertItem(items, stack, false);
+                    stack = InventoryTools.insertItem(items, stack, false);
                 }
             }
         }
@@ -305,43 +310,48 @@ public class CraftingStationTileEntity extends GenericTileEntity {
     }
 
     @Override
-    public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.loadAdditional(tag, provider);
+    public void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        CompoundTag tag = input.read(MapCodec.assumeMapUnsafe(CompoundTag.CODEC)).orElseGet(CompoundTag::new);
+        HolderLookup.Provider provider = input.lookup();
         readProcessorList(tag);
         readRequests(tag, provider);
         items.load(tag, "items", provider);
     }
 
     private void readRequests(CompoundTag tagCompound, HolderLookup.Provider provider) {
-        ListTag list = tagCompound.getList("requests", Tag.TAG_COMPOUND);
+        ListTag list = tagCompound.getListOrEmpty("requests");
         activeCraftingRequests.clear();
         for (int i = 0; i < list.size(); i++) {
-            CompoundTag requestTag = list.getCompound(i);
-            String craftId = requestTag.getString("craftId");
-            ItemStack stack = ItemStack.parseOptional(provider, requestTag.getCompound("stack"));
-            int count = requestTag.getInt("count");
+            CompoundTag requestTag = list.getCompoundOrEmpty(i);
+            String craftId = requestTag.getStringOr("craftId", "");
+            ItemStack stack = ItemStack.OPTIONAL_CODEC.parse(provider.createSerializationContext(NbtOps.INSTANCE), requestTag.getCompoundOrEmpty("stack")).result().orElse(ItemStack.EMPTY);
+            int count = requestTag.getIntOr("count", 0);
             CraftingRequest request = new CraftingRequest(craftId, stack, count);
-            request.setFailed(requestTag.getLong("failed"));
-            request.setOk(requestTag.getLong("ok"));
+            request.setFailed(requestTag.getLongOr("failed", 0L));
+            request.setOk(requestTag.getLongOr("ok", 0L));
             activeCraftingRequests.add(request);
         }
     }
 
     private void readProcessorList(CompoundTag tagCompound) {
-        ListTag list = tagCompound.getList("processors", Tag.TAG_COMPOUND);
+        ListTag list = tagCompound.getListOrEmpty("processors");
         processorList.clear();
         for (int i = 0; i < list.size(); i++) {
-            CompoundTag tag = list.getCompound(i);
-            processorList.add(new BlockPos(tag.getInt("x"), tag.getInt("y"), tag.getInt("z")));
+            CompoundTag tag = list.getCompoundOrEmpty(i);
+            processorList.add(new BlockPos(tag.getIntOr("x", 0), tag.getIntOr("y", 0), tag.getIntOr("z", 0)));
         }
     }
 
     @Override
-    public void saveAdditional(@Nonnull CompoundTag tag, HolderLookup.Provider provider) {
-        super.saveAdditional(tag, provider);
+    public void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+        CompoundTag tag = new CompoundTag();
+        HolderLookup.Provider provider = level == null ? RegistryAccess.EMPTY : level.registryAccess();
         writeProcessorList(tag);
         writeRequests(tag, provider);
         items.save(tag, "items", provider);
+        output.store(MapCodec.assumeMapUnsafe(CompoundTag.CODEC), tag);
     }
 
     private void writeRequests(CompoundTag tagCompound, HolderLookup.Provider provider) {
@@ -349,9 +359,7 @@ public class CraftingStationTileEntity extends GenericTileEntity {
         for (CraftingRequest request : activeCraftingRequests) {
             CompoundTag requestTag = new CompoundTag();
             requestTag.putString("craftId", request.getTicket());
-            CompoundTag stackNbt = new CompoundTag();
-            request.getStack().save(provider, stackNbt);
-            requestTag.put("stack", stackNbt);
+            requestTag.put("stack", ItemStack.OPTIONAL_CODEC.encodeStart(provider.createSerializationContext(NbtOps.INSTANCE), request.getStack()).getOrThrow());
             requestTag.putInt("count", request.getTodo());
             requestTag.putLong("failed", request.getFailed());
             requestTag.putLong("ok", request.getOk());
@@ -374,13 +382,13 @@ public class CraftingStationTileEntity extends GenericTileEntity {
     }
 
     @Override
-    protected void applyImplicitComponents(DataComponentInput input) {
+    protected void applyImplicitComponents(DataComponentGetter input) {
         super.applyImplicitComponents(input);
         CraftingStationData data = input.get(CraftingStationModule.ITEM_CRAFTING_STATION_DATA);
         if (data != null) {
             setData(CraftingStationModule.CRAFTING_STATION_DATA, data);
         }
-        items.applyImplicitComponents(input.get(Registration.ITEM_INVENTORY));
+        items.applyImplicitComponents(input.get(ITEM_INVENTORY));
     }
 
     @Override

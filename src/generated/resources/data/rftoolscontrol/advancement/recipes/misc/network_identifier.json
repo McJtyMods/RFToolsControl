@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "rftoolscontrol:network_identifier"
+        "recipes": "rftoolscontrol:network_identifier"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

@@ -107,7 +107,7 @@ public class CpuCore {
         if (program != null) {
             program.setCore(this);
         }
-        tier = tag.getInt("tier");
-        debug = tag.getBoolean("debug");
+        tier = tag.getIntOr("tier", 0);
+        debug = tag.getBooleanOr("debug", false);
     }
 }

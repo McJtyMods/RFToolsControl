@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "rftoolscontrol:interaction_module"
+        "recipes": "rftoolscontrol:interaction_module"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

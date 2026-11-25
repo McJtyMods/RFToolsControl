@@ -2,6 +2,7 @@ package mcjty.rftoolscontrol.modules.various.items.interactionmodule;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import java.util.Objects;
 import mcjty.lib.varia.BlockPosTools;
 import mcjty.lib.varia.ComponentFactory;
 import mcjty.lib.varia.CompositeStreamCodec;
@@ -26,8 +27,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Objects;
 
 public record InteractionScreenModule(String line,
                                       String button,
@@ -148,7 +147,7 @@ public record InteractionScreenModule(String line,
 
         if (!BlockPosTools.isValid(coordinate)) {
             if (player != null) {
-                player.displayClientMessage(ComponentFactory.literal(ChatFormatting.RED + "Module is not linked to a processor!"), false);
+                player.sendSystemMessage(ComponentFactory.literal(ChatFormatting.RED + "Module is not linked to a processor!"));
             }
             return moduleStack;
         }

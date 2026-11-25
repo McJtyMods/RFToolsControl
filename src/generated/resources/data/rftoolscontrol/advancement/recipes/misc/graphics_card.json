@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "rftoolscontrol:graphics_card"
+        "recipes": "rftoolscontrol:graphics_card"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

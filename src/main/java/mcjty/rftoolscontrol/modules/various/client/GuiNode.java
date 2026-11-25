@@ -2,7 +2,6 @@ package mcjty.rftoolscontrol.modules.various.client;
 
 import mcjty.lib.container.GenericContainer;
 import mcjty.lib.gui.GenericGuiContainer;
-import mcjty.lib.gui.ManualEntry;
 import mcjty.lib.gui.Window;
 import mcjty.lib.gui.widgets.Panel;
 import mcjty.lib.gui.widgets.TextField;
@@ -24,8 +23,7 @@ public class GuiNode extends GenericGuiContainer<NodeTileEntity, GenericContaine
     public GuiNode(GenericContainer container, Inventory inventory, Component title) {
         super(container, inventory, title, VariousModule.NODE.block().get().getManualEntry());
 
-        imageWidth = WIDTH;
-        imageHeight = HEIGHT;
+        setWindowDimensions(WIDTH, HEIGHT);
     }
 
     public static void register(RegisterMenuScreensEvent event) {

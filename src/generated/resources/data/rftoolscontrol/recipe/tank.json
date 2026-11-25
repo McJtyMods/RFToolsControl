@@ -1,16 +1,9 @@
 {
   "type": "minecraft:crafting_shaped",
-  "category": "misc",
   "key": {
-    "F": {
-      "item": "rftoolsbase:machine_frame"
-    },
-    "G": {
-      "tag": "c:glass_blocks"
-    },
-    "i": {
-      "tag": "c:ingots/iron"
-    }
+    "F": "rftoolsbase:machine_frame",
+    "G": "#c:glass_blocks",
+    "i": "#c:ingots/iron"
   },
   "pattern": [
     "Fii",
@@ -18,7 +11,6 @@
     "iGG"
   ],
   "result": {
-    "count": 1,
     "id": "rftoolscontrol:tank"
   }
 }

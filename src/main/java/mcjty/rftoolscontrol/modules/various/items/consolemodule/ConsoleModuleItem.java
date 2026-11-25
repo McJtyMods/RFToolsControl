@@ -1,8 +1,11 @@
 package mcjty.rftoolscontrol.modules.various.items.consolemodule;
 
 import com.mojang.serialization.Codec;
+import javax.annotation.Nonnull;
 import mcjty.lib.client.GuiTools;
+import mcjty.lib.gui.ManualEntry;
 import mcjty.lib.tileentity.GenericTileEntity;
+import mcjty.lib.varia.CapabilityTools;
 import mcjty.lib.varia.ComponentFactory;
 import mcjty.lib.varia.Logging;
 import mcjty.lib.varia.ModuleTools;
@@ -12,20 +15,17 @@ import mcjty.rftoolsbase.api.screens.IModuleGuiBuilder;
 import mcjty.rftoolsbase.api.screens.IScreenModule;
 import mcjty.rftoolsbase.api.various.ITabletSupport;
 import mcjty.rftoolsbase.tools.GenericModuleItem;
-import mcjty.rftoolscontrol.RFToolsControl;
+import mcjty.rftoolsbase.tools.ManualHelper;
 import mcjty.rftoolscontrol.modules.processor.ProcessorModule;
 import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorContainer;
 import mcjty.rftoolscontrol.modules.various.VariousModule;
 import mcjty.rftoolscontrol.setup.Config;
-import mcjty.lib.gui.ManualEntry;
-import mcjty.rftoolsbase.tools.ManualHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
@@ -38,15 +38,14 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 import org.jetbrains.annotations.Nullable;
-
-import javax.annotation.Nonnull;
 
 public class ConsoleModuleItem extends GenericModuleItem implements ITabletSupport {
 
-    public ConsoleModuleItem() {
-        super(RFToolsControl.setup.defaultProperties()
+    public ConsoleModuleItem(Properties properties) {
+        super(properties
                 .stacksTo(1)
                 .durability(1));
     }
@@ -96,7 +95,7 @@ public class ConsoleModuleItem extends GenericModuleItem implements ITabletSuppo
             @Override
             public AbstractContainerMenu createMenu(int id, @Nonnull Inventory inventory, @Nonnull Player player) {
                 ProcessorContainer container = ProcessorContainer.createRemote(id, pos, (GenericTileEntity) te, player);
-                IItemHandler handler = te.getLevel().getCapability(Capabilities.ItemHandler.BLOCK, te.getBlockPos(), null);
+                ResourceHandler<ItemResource> handler = CapabilityTools.itemHandler(te.getLevel().getCapability(Capabilities.Item.BLOCK, te.getBlockPos(), null));
                 if (handler != null) {
                     container.setupInventories(handler, inventory);
                 }
@@ -165,13 +164,13 @@ public class ConsoleModuleItem extends GenericModuleItem implements ITabletSuppo
             data = data.withCoordinate(pos);
             String name = Tools.getReadableName(world, pos);
             ModuleTools.setPositionInModule(stack, world.dimension(), pos, name);
-            if (world.isClientSide) {
+            if (world.isClientSide()) {
                 Logging.message(player, "Console module is set to block");
             }
         } else {
             data = data.withCoordinate(mcjty.lib.varia.BlockPosTools.INVALID);
             ModuleTools.clearPositionInModule(stack);
-            if (world.isClientSide) {
+            if (world.isClientSide()) {
                 Logging.message(player, "Console module is cleared");
             }
         }

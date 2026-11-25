@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "rftoolscontrol:console_module"
+        "recipes": "rftoolscontrol:console_module"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

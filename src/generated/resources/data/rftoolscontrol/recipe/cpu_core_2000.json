@@ -1,16 +1,9 @@
 {
   "type": "minecraft:crafting_shaped",
-  "category": "misc",
   "key": {
-    "M": {
-      "item": "rftoolscontrol:cpu_core_1000"
-    },
-    "r": {
-      "item": "minecraft:redstone"
-    },
-    "s": {
-      "item": "rftoolsbase:dimensionalshard"
-    }
+    "M": "rftoolscontrol:cpu_core_1000",
+    "r": "minecraft:redstone",
+    "s": "rftoolsbase:dimensionalshard"
   },
   "pattern": [
     "rsr",
@@ -18,7 +11,6 @@
     "rsr"
   ],
   "result": {
-    "count": 1,
     "id": "rftoolscontrol:cpu_core_2000"
   }
 }

@@ -3,7 +3,7 @@
   "criteria": {
     "has_the_recipe": {
       "conditions": {
-        "recipe": "rftoolscontrol:advanced_network_card"
+        "recipes": "rftoolscontrol:advanced_network_card"
       },
       "trigger": "minecraft:recipe_unlocked"
     },

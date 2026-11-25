@@ -1,6 +1,9 @@
 package mcjty.rftoolscontrol.modules.processor.network;
 
 
+import java.util.List;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
 import mcjty.lib.blockcommands.ISerializer;
 import mcjty.lib.network.NetworkTools;
 import mcjty.lib.tileentity.GenericTileEntity;
@@ -13,32 +16,28 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
-import java.util.List;
-import java.util.function.BiConsumer;
-import java.util.function.Function;
-
 public record PacketGetFluids(BlockPos pos, ResourceKey<Level> level, TypedMap params, boolean fromTablet) implements CustomPacketPayload {
 
-    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(RFToolsControl.MODID, "getfluids");
+    public static final Identifier ID = Identifier.fromNamespaceAndPath(RFToolsControl.MODID, "getfluids");
     public static final CustomPacketPayload.Type<PacketGetFluids> TYPE = new Type<>(ID);
 
     public static final StreamCodec<RegistryFriendlyByteBuf, PacketGetFluids> CODEC = StreamCodec.of(
             (buf, packet) -> {
                 buf.writeBlockPos(packet.pos);
-                buf.writeResourceLocation(packet.level.location());
+                buf.writeIdentifier(packet.level.identifier());
                 TypedMap.STREAM_CODEC.encode(buf, packet.params);
                 buf.writeBoolean(packet.fromTablet);
             },
             buf -> new PacketGetFluids(buf.readBlockPos(),
-                    LevelTools.getId(buf.readResourceLocation()),
+                    LevelTools.getId(buf.readIdentifier()),
                     TypedMap.STREAM_CODEC.decode(buf),
                     buf.readBoolean())
     );
@@ -54,7 +53,7 @@ public record PacketGetFluids(BlockPos pos, ResourceKey<Level> level, TypedMap p
 
     public void handle(IPayloadContext ctx) {
         ctx.enqueueWork(() -> {
-            ServerLevel world = LevelTools.getLevel(ctx.player().getCommandSenderWorld(), level);
+            ServerLevel world = LevelTools.getLevel(ctx.player().level(), level);
             if (world.hasChunkAt(pos)) {
                 BlockEntity te = world.getBlockEntity(pos);
                 if (te instanceof GenericTileEntity) {
