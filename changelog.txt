@@ -1,3 +1,6 @@
+26.2-10.0.1-fabric:
+- Fixed a crash when opening a tablet with a linked Console Screen Module.
+
 26.2-10.0.0-fabric:
 - Port to Minecraft 26.2 on Fabric
 
