@@ -1,5 +1,8 @@
 package mcjty.rftoolscontrol.compat;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import mcjty.lib.compat.theoneprobe.McJtyLibTOPDriver;
 import mcjty.lib.compat.theoneprobe.TOPDriver;
 import mcjty.lib.varia.Tools;
@@ -11,24 +14,20 @@ import mcjty.theoneprobe.api.CompoundText;
 import mcjty.theoneprobe.api.IProbeHitData;
 import mcjty.theoneprobe.api.IProbeInfo;
 import mcjty.theoneprobe.api.ProbeMode;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import net.minecraft.world.level.block.state.BlockState;
 
 public class RFToolsControlTOPDriver implements TOPDriver {
 
     public static final RFToolsControlTOPDriver DRIVER = new RFToolsControlTOPDriver();
 
-    private final Map<ResourceLocation, TOPDriver> drivers = new HashMap<>();
+    private final Map<Identifier, TOPDriver> drivers = new HashMap<>();
 
     @Override
     public void addProbeInfo(ProbeMode mode, IProbeInfo probeInfo, Player player, Level world, BlockState blockState, IProbeHitData data) {
-        ResourceLocation id = Tools.getId(blockState);
+        Identifier id = Tools.getId(blockState);
         if (!drivers.containsKey(id)) {
             if (blockState.getBlock() == VariousModule.NODE.block().get()) {
                 drivers.put(id, new NodeDriver());

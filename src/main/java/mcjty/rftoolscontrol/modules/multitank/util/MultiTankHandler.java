@@ -1,14 +1,11 @@
 package mcjty.rftoolscontrol.modules.multitank.util;
 
 import mcjty.rftoolscontrol.modules.multitank.blocks.MultiTankTileEntity;
-import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 
-import javax.annotation.Nonnull;
-
-import net.neoforged.neoforge.fluids.capability.IFluidHandler.FluidAction;
-
-public class MultiTankHandler implements IFluidHandler {
+public class MultiTankHandler implements ResourceHandler<FluidResource> {
 
     private final MultiTankTileEntity tank;
 
@@ -17,40 +14,37 @@ public class MultiTankHandler implements IFluidHandler {
     }
 
     @Override
-    public int getTanks() {
+    public int size() {
         return MultiTankTileEntity.TANKS;
     }
 
-    @Nonnull
     @Override
-    public FluidStack getFluidInTank(int id) {
-        return tank.getProperties()[id].getContents();
+    public FluidResource getResource(int index) {
+        return FluidResource.of(tank.getProperties()[index].getContentsInternal());
     }
 
     @Override
-    public int getTankCapacity(int id) {
-        return tank.getProperties()[id].getCapacity();
+    public long getAmountAsLong(int index) {
+        return tank.getProperties()[index].getContentsInternal().getAmount();
     }
 
     @Override
-    public boolean isFluidValid(int tank, @Nonnull FluidStack stack) {
+    public long getCapacityAsLong(int index, FluidResource resource) {
+        return tank.getProperties()[index].getCapacity();
+    }
+
+    @Override
+    public boolean isValid(int index, FluidResource resource) {
         return false;
     }
 
     @Override
-    public int fill(FluidStack resource, FluidAction action) {
+    public int insert(int index, FluidResource resource, int amount, TransactionContext transaction) {
         return 0;
     }
 
-    @Nonnull
     @Override
-    public FluidStack drain(FluidStack resource, FluidAction action) {
-        return FluidStack.EMPTY;
-    }
-
-    @Nonnull
-    @Override
-    public FluidStack drain(int maxDrain, FluidAction action) {
-        return FluidStack.EMPTY;
+    public int extract(int index, FluidResource resource, int amount, TransactionContext transaction) {
+        return 0;
     }
 }

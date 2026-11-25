@@ -1,10 +1,11 @@
 package mcjty.rftoolscontrol.modules.processor.vectorart;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import mcjty.lib.client.RenderHelper;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -49,8 +50,18 @@ public class GfxOpBox extends GfxOp {
     }
 
     @Override
-    public void render(GuiGraphics graphics, MultiBufferSource buffer) {
-        RenderHelper.drawBeveledBox(graphics, buffer, x, y, x+w-1, y+h-1, color, color, color, RenderHelper.MAX_BRIGHTNESS);
+    public void render(GuiGraphicsExtractor graphics) {
+        graphics.fill(x, y, x + w, y + h, color);
+    }
+
+    @Override
+    public void submit(PoseStack pose, SubmitNodeCollector collector) {
+        collector.submitCustomGeometry(pose, RenderTypes.debugQuads(), (transform, vertices) -> {
+            vertices.addVertex(transform, x, y, 0).setColor(color);
+            vertices.addVertex(transform, x + w, y, 0).setColor(color);
+            vertices.addVertex(transform, x + w, y + h, 0).setColor(color);
+            vertices.addVertex(transform, x, y + h, 0).setColor(color);
+        });
     }
 
     @Override
@@ -60,11 +71,11 @@ public class GfxOpBox extends GfxOp {
 
     @Override
     protected void readFromNBTInternal(CompoundTag tag) {
-        x = tag.getByte("x");
-        y = tag.getByte("y");
-        w = tag.getByte("w");
-        h = tag.getByte("h");
-        color = tag.getInt("color");
+        x = tag.getByteOr("x", (byte) 0);
+        y = tag.getByteOr("y", (byte) 0);
+        w = tag.getByteOr("w", (byte) 0);
+        h = tag.getByteOr("h", (byte) 0);
+        color = tag.getIntOr("color", 0);
     }
 
     @Override

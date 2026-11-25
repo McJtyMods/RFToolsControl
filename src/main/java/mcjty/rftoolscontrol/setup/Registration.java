@@ -1,5 +1,6 @@
 package mcjty.rftoolscontrol.setup;
 
+import java.util.function.Supplier;
 import mcjty.lib.blocks.RBlockRegistry;
 import mcjty.lib.setup.DeferredItems;
 import mcjty.rftoolscontrol.RFToolsControl;
@@ -12,14 +13,11 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
-
-import java.util.function.Supplier;
 
 import static mcjty.rftoolscontrol.RFToolsControl.MODID;
 
@@ -46,9 +44,6 @@ public class Registration {
     }
 
 
-    public static Item.Properties createStandardProperties() {
-        return RFToolsControl.setup.defaultProperties();
-    }
 
     public static Supplier<CreativeModeTab> TAB = TABS.register(MODID, () -> CreativeModeTab.builder()
             .title(Component.translatable("itemGroup." + MODID))

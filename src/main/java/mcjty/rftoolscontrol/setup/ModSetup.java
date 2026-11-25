@@ -1,5 +1,7 @@
 package mcjty.rftoolscontrol.setup;
 
+import java.util.function.Function;
+import java.util.function.Supplier;
 import mcjty.lib.compat.MainCompatHandler;
 import mcjty.lib.setup.DefaultModSetup;
 import mcjty.rftoolsbase.api.control.registry.IFunctionRegistry;
@@ -13,9 +15,6 @@ import mcjty.rftoolscontrol.modules.processor.logic.registry.Opcodes;
 import net.neoforged.fml.InterModComms;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.fml.event.lifecycle.InterModProcessEvent;
-
-import java.util.function.Function;
-import java.util.function.Supplier;
 
 public class ModSetup extends DefaultModSetup {
 
@@ -31,14 +30,15 @@ public class ModSetup extends DefaultModSetup {
         Functions.init();
     }
 
+    @SuppressWarnings("unchecked")
     public void processIMC(final InterModProcessEvent event) {
         event.getIMCStream().forEach(message -> {
-            if ("getOpcodeRegistry".equalsIgnoreCase(message.getMethod())) {
-                Supplier<Function<IOpcodeRegistry, Void>> supplier = message.getMessageSupplier();
-                supplier.get().apply(new OpcodeRegistry());
-            } else if ("getFunctionRegistry".equalsIgnoreCase(message.getMethod())) {
-                Supplier<Function<IFunctionRegistry, Void>> supplier = message.getMessageSupplier();
-                supplier.get().apply(new FunctionRegistry());
+            if ("getOpcodeRegistry".equalsIgnoreCase(message.method())) {
+                Supplier<?> supplier = message.messageSupplier();
+                ((Function<IOpcodeRegistry, Void>) supplier.get()).apply(new OpcodeRegistry());
+            } else if ("getFunctionRegistry".equalsIgnoreCase(message.method())) {
+                Supplier<?> supplier = message.messageSupplier();
+                ((Function<IFunctionRegistry, Void>) supplier.get()).apply(new FunctionRegistry());
             }
         });
     }

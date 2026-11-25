@@ -1,5 +1,8 @@
 package mcjty.rftoolscontrol.modules.programmer.client;
 
+import com.mojang.blaze3d.platform.InputConstants;
+import java.util.*;
+import javax.annotation.Nonnull;
 import mcjty.lib.base.StyleConfig;
 import mcjty.lib.container.GenericContainer;
 import mcjty.lib.gui.GenericGuiContainer;
@@ -40,20 +43,17 @@ import mcjty.rftoolscontrol.setup.Config;
 import mcjty.rftoolscontrol.setup.RFToolsCtrlMessages;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.input.KeyEvent;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.lwjgl.glfw.GLFW;
-
-import javax.annotation.Nonnull;
-import java.util.*;
 
 import static mcjty.lib.gui.widgets.Widgets.*;
 
@@ -67,10 +67,10 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Gen
 
     public static final int ICONSIZE = 20;
 
-    private static final ResourceLocation mainBackground = ResourceLocation.fromNamespaceAndPath(RFToolsControl.MODID, "textures/gui/programmer.png");
-    private static final ResourceLocation sideBackground = ResourceLocation.fromNamespaceAndPath(RFToolsControl.MODID, "textures/gui/sidegui.png");
-    private static final ResourceLocation icons = ResourceLocation.fromNamespaceAndPath(RFToolsControl.MODID, "textures/gui/icons.png");
-    private static final ResourceLocation guiElements = ResourceLocation.fromNamespaceAndPath(RFToolsControl.MODID, "textures/gui/guielements.png");
+    private static final Identifier mainBackground = Identifier.fromNamespaceAndPath(RFToolsControl.MODID, "textures/gui/programmer.png");
+    private static final Identifier sideBackground = Identifier.fromNamespaceAndPath(RFToolsControl.MODID, "textures/gui/sidegui.png");
+    private static final Identifier icons = Identifier.fromNamespaceAndPath(RFToolsControl.MODID, "textures/gui/icons.png");
+    private static final Identifier guiElements = Identifier.fromNamespaceAndPath(RFToolsControl.MODID, "textures/gui/guielements.png");
 
     private Window sideWindow;
     private WidgetList gridList;
@@ -125,8 +125,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Gen
     public GuiProgrammer(GenericContainer container, Inventory inventory, Component title) {
         super(container, inventory, title, ProgrammerModule.PROGRAMMER.block().get().getManualEntry());
 
-        imageWidth = WIDTH;
-        imageHeight = HEIGHT;
+        setWindowDimensions(WIDTH, HEIGHT);
 
         initIcons();
     }
@@ -140,9 +139,9 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Gen
             for (Map.Entry<String, Opcode> entry : Opcodes.OPCODES.entrySet()) {
                 String id = entry.getKey();
                 Opcode opcode = entry.getValue();
-                ResourceLocation iconResource = icons;
+                Identifier iconResource = icons;
                 if (opcode.getIconResource() != null) {
-                    iconResource = ResourceLocation.parse(opcode.getIconResource());
+                    iconResource = Identifier.parse(opcode.getIconResource());
                 }
                 ICONS.put(id, new ImageIcon(id).setDimensions(ICONSIZE, ICONSIZE).setImage(iconResource, opcode.getIconU() * ICONSIZE, opcode.getIconV() * ICONSIZE));
             }
@@ -918,11 +917,11 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Gen
     }
 
     @Override
-    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        if (handleClipboard(keyCode)) {
+    public boolean keyPressed(KeyEvent event) {
+        if (handleClipboard(event.key())) {
             return true;
         }
-        return super.keyPressed(keyCode, scanCode, modifiers);
+        return super.keyPressed(event);
     }
 
     @Override
@@ -935,9 +934,9 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Gen
 
     private boolean handleClipboard(int keyCode) {
         if (SafeClientTools.isCtrlKeyDown()) {
-            if (keyCode == GLFW.GLFW_KEY_A) {
+            if (keyCode == InputConstants.KEY_A) {
                 selectAll();
-            } else if (keyCode == GLFW.GLFW_KEY_C) {
+            } else if (keyCode == InputConstants.KEY_C) {
                 if (!checkSelection()) {
                     GuiPopupTools.showMessage(minecraft, this, getWindowManager(), 50, 50, ChatFormatting.RED + "Nothing is selected!");
                 } else {
@@ -950,7 +949,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Gen
                     }
                 }
                 return true;
-            } else if (keyCode == GLFW.GLFW_KEY_Z) {
+            } else if (keyCode == InputConstants.KEY_Z) {
                 if (undoProgram != null) {
                     ProgramCardInstance curProgram = makeGridInstance(false);
                     clearGrid(false);
@@ -958,7 +957,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Gen
                     undoProgram = curProgram;
                 }
                 return true;
-            } else if (keyCode == GLFW.GLFW_KEY_X) {
+            } else if (keyCode == InputConstants.KEY_X) {
                 if (!checkSelection()) {
                     GuiPopupTools.showMessage(minecraft, this, getWindowManager(), 50, 50, ChatFormatting.RED + "Nothing is selected!");
                 } else {
@@ -973,7 +972,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Gen
                     }
                 }
                 return true;
-            } else if (keyCode == GLFW.GLFW_KEY_V) {
+            } else if (keyCode == InputConstants.KEY_V) {
                 try {
                     String data = Minecraft.getInstance().keyboardHandler.getClipboard();
                     ProgramCardInstance program = ProgramCardInstance.readFromJson(data);
@@ -1009,7 +1008,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Gen
 
     @SuppressWarnings("NullableProblems")
     @Override
-    protected void slotClicked(Slot slotIn, int slotId, int mouseButton, ClickType type) {
+    protected void slotClicked(Slot slotIn, int slotId, int mouseButton, ContainerInput type) {
         if (slotId == -999) {
             return;
         }
@@ -1199,7 +1198,7 @@ public class GuiProgrammer extends GenericGuiContainer<ProgrammerTileEntity, Gen
     private int saveCounter = 10;
 
     @Override
-    protected void renderBg(@Nonnull GuiGraphics graphics, float partialTicks, int mouseX, int mouseY) {
+    protected void renderBg(@Nonnull GuiGraphicsExtractor graphics, float partialTicks, int mouseX, int mouseY) {
         drawWindow(graphics, partialTicks, mouseX, mouseY);
 
         trashcan.setIcon(null);

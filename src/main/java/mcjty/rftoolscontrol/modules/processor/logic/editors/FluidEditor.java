@@ -1,20 +1,18 @@
 package mcjty.rftoolscontrol.modules.processor.logic.editors;
 
+import javax.annotation.Nonnull;
 import mcjty.lib.gui.events.BlockRenderEvent;
 import mcjty.lib.gui.widgets.BlockRender;
 import mcjty.lib.gui.widgets.Label;
 import mcjty.lib.gui.widgets.Panel;
 import mcjty.lib.gui.widgets.Widgets;
+import mcjty.lib.varia.FluidTools;
 import mcjty.rftoolsbase.api.control.parameters.ParameterType;
 import mcjty.rftoolsbase.api.control.parameters.ParameterValue;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-
-import javax.annotation.Nonnull;
 
 import static mcjty.lib.gui.widgets.Widgets.horizontal;
 
@@ -67,11 +65,7 @@ public class FluidEditor extends AbstractParameterEditor {
 
     @Nonnull
     private FluidStack stackToFluid(ItemStack stack) {
-        IFluidHandler handler = stack.getCapability(Capabilities.FluidHandler.ITEM);
-        if (handler != null && handler.getTanks() > 0) {
-            return handler.getFluidInTank(0);
-        }
-        return FluidStack.EMPTY;
+        return FluidTools.convertBucketToFluid(stack);
     }
 
     @Override

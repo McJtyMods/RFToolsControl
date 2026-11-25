@@ -14,23 +14,30 @@ plugins {
     id 'eclipse'
     id 'idea'
     id 'maven-publish'
-    id 'net.neoforged.gradle.userdev' version '7.1.4'
+    id 'net.neoforged.gradle.userdev' version '7.1.38'
 }
 
 apply plugin: 'com.hypherionmc.modutils.modpublisher'
 
-if (project.file('../gradletools.gradle').exists()) {
-    apply from: '../gradletools.gradle'
-} else {
-    apply from: 'https://raw.githubusercontent.com/McJtyMods/MultiWorkspace/1.21_neo/gradletools.gradle'
+def sharedTools = [
+        providers.gradleProperty('gradletools_path').map { file(it) }.orNull,
+        rootProject.file('gradletools.gradle'),
+        file('../Multi_neo/gradletools.gradle'),
+        file('../gradletools.gradle'),
+        file('gradletools.gradle')
+].find { it != null && it.isFile() }
+apply from: sharedTools ?: 'https://raw.githubusercontent.com/McJtyMods/MultiWorkspace/26.1.2_neo/gradletools.gradle'
+
+group = 'com.github.mcjty'
+base.archivesName = 'rftoolscontrol'
+java.toolchain.languageVersion = JavaLanguageVersion.of(25)
+neo_version = '26.1.2.99'
+
+if (System.getenv('BUILD_NUMBER') != null) {
+    version += "-${System.getenv('BUILD_NUMBER')}"
 }
 
-group = "com.github.mcjty"
-archivesBaseName = "rftoolscontrol"
-java.toolchain.languageVersion = JavaLanguageVersion.of(21)
-
 repos()
-at()
 runs()
 jars()
 
@@ -44,6 +51,7 @@ dependencies {
     top()
     mcjtylib()
     rftoolsbase()
+    patchouli()
 }
 
 modpublisher(['the-one-probe'], ['mcjtylib', 'rftools-base'], ['the-one-probe'], ['mcjtylib', 'rftools-base'], [])

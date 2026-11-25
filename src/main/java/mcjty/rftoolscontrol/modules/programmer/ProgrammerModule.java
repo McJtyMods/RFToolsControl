@@ -1,17 +1,18 @@
 package mcjty.rftoolscontrol.modules.programmer;
 
+import java.util.function.Supplier;
 import mcjty.lib.blocks.BaseBlock;
 import mcjty.lib.blocks.RBlock;
 import mcjty.lib.container.GenericContainer;
 import mcjty.lib.datagen.DataGen;
 import mcjty.lib.datagen.Dob;
+import mcjty.lib.items.BaseBlockItem;
 import mcjty.lib.modules.IModule;
 import mcjty.rftoolsbase.modules.various.VariousModule;
 import mcjty.rftoolscontrol.modules.processor.logic.editors.ParameterEditors;
 import mcjty.rftoolscontrol.modules.programmer.blocks.ProgrammerBlock;
 import mcjty.rftoolscontrol.modules.programmer.blocks.ProgrammerTileEntity;
 import mcjty.rftoolscontrol.modules.programmer.client.GuiProgrammer;
-import mcjty.rftoolscontrol.setup.Registration;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.BlockItem;
@@ -20,8 +21,6 @@ import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.common.Tags;
-
-import java.util.function.Supplier;
 
 import static mcjty.lib.datagen.DataGen.has;
 import static mcjty.rftoolscontrol.setup.Registration.CONTAINERS;
@@ -33,7 +32,7 @@ public class ProgrammerModule implements IModule {
             "programmer",
             ProgrammerTileEntity.class,
             ProgrammerBlock::new,
-            block -> new BlockItem(block.get(), Registration.createStandardProperties()),
+            (block, properties) -> new BaseBlockItem(block.get(), properties.useBlockDescriptionPrefix()),
             ProgrammerTileEntity::new
     );
     public static final Supplier<MenuType<GenericContainer>> PROGRAMMER_CONTAINER = CONTAINERS.register("programmer", GenericContainer::createContainerType);

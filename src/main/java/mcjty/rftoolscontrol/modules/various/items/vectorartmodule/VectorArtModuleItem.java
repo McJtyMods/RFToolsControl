@@ -1,6 +1,9 @@
 package mcjty.rftoolscontrol.modules.various.items.vectorartmodule;
 
 import com.mojang.serialization.Codec;
+import java.util.function.Function;
+import javax.annotation.Nonnull;
+import mcjty.lib.gui.ManualEntry;
 import mcjty.lib.varia.Logging;
 import mcjty.lib.varia.ModuleTools;
 import mcjty.lib.varia.Tools;
@@ -8,15 +11,13 @@ import mcjty.rftoolsbase.api.screens.IClientScreenModule;
 import mcjty.rftoolsbase.api.screens.IModuleGuiBuilder;
 import mcjty.rftoolsbase.api.screens.IScreenModule;
 import mcjty.rftoolsbase.tools.GenericModuleItem;
-import mcjty.rftoolscontrol.RFToolsControl;
+import mcjty.rftoolsbase.tools.ManualHelper;
 import mcjty.rftoolscontrol.modules.processor.ProcessorModule;
 import mcjty.rftoolscontrol.modules.various.VariousModule;
 import mcjty.rftoolscontrol.setup.Config;
-import mcjty.lib.gui.ManualEntry;
-import mcjty.rftoolsbase.tools.ManualHelper;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.GlobalPos;
+import net.minecraft.core.component.DataComponentType;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.InteractionHand;
@@ -29,13 +30,10 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
-import java.util.function.Function;
-
 public class VectorArtModuleItem extends GenericModuleItem {
 
-    public VectorArtModuleItem() {
-        super(RFToolsControl.setup.defaultProperties()
+    public VectorArtModuleItem(Properties properties) {
+        super(properties
                 .stacksTo(1)
                 .durability(1));
     }
@@ -107,13 +105,13 @@ public class VectorArtModuleItem extends GenericModuleItem {
             String name = Tools.getReadableName(world, pos);
             data(stack, module -> module.withTarget(world.dimension(), pos, name));
             ModuleTools.setPositionInModule(stack, world.dimension(), pos, name);
-            if (world.isClientSide) {
+            if (world.isClientSide()) {
                 Logging.message(player, "Vector art module is set to block");
             }
         } else {
             data(stack, VectorArtScreenModule::clearTarget);
             ModuleTools.clearPositionInModule(stack);
-            if (world.isClientSide) {
+            if (world.isClientSide()) {
                 Logging.message(player, "Vector art module is cleared");
             }
         }

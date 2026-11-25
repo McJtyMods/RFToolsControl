@@ -2,21 +2,11 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "I": {
-      "tag": "c:ingots/gold"
-    },
-    "M": {
-      "item": "rftoolscontrol:card_base"
-    },
-    "P": {
-      "tag": "c:glass_panes"
-    },
-    "r": {
-      "item": "minecraft:redstone"
-    },
-    "z": {
-      "tag": "c:dyes/black"
-    }
+    "I": "#c:ingots/gold",
+    "M": "rftoolscontrol:card_base",
+    "P": "#c:glass_panes",
+    "r": "minecraft:redstone",
+    "z": "#c:dyes/black"
   },
   "pattern": [
     "PMP",
@@ -24,7 +14,6 @@
     "PzP"
   ],
   "result": {
-    "count": 1,
     "id": "rftoolscontrol:vectorart_module"
   }
 }

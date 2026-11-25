@@ -2,18 +2,10 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "M": {
-      "item": "rftoolscontrol:cpu_core_500"
-    },
-    "d": {
-      "item": "minecraft:diamond"
-    },
-    "e": {
-      "item": "minecraft:emerald"
-    },
-    "r": {
-      "item": "minecraft:redstone"
-    }
+    "M": "rftoolscontrol:cpu_core_500",
+    "d": "minecraft:diamond",
+    "e": "minecraft:emerald",
+    "r": "minecraft:redstone"
   },
   "pattern": [
     "rdr",
@@ -21,7 +13,6 @@
     "rdr"
   ],
   "result": {
-    "count": 1,
     "id": "rftoolscontrol:cpu_core_1000"
   }
 }
