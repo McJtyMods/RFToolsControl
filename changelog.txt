@@ -1,3 +1,6 @@
+26.3-11.0.1:
+- Fixed a crash when opening a tablet with a linked Console Screen Module.
+
 26.3-11.0.0:
 - Port to Minecraft 26.3 on NeoForge
 
