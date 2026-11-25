@@ -10,8 +10,8 @@ import mcjty.rftoolsbase.tools.ScreenTextHelper;
 import mcjty.rftoolscontrol.compat.rftoolssupport.ModuleDataVariable;
 import mcjty.rftoolscontrol.modules.processor.logic.TypeConverters;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
@@ -34,7 +34,7 @@ public class VariableClientScreenModule implements IClientScreenModule<ModuleDat
     }
 
     @Override
-    public void render(GuiGraphics graphics, MultiBufferSource buffer, IModuleRenderHelper renderHelper, Font fontRenderer, int currenty, ModuleDataVariable screenData, ModuleRenderInfo renderInfo) {
+    public void render(GuiGraphicsExtractor graphics, SubmitNodeCollector buffer, IModuleRenderHelper renderHelper, Font fontRenderer, int currenty, ModuleDataVariable screenData, ModuleRenderInfo renderInfo) {
         VariableScreenModule data = VariableModuleItem.data(renderInfo.moduleStack);
 
         int xoffset = 7;

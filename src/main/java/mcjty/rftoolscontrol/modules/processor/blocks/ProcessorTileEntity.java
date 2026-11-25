@@ -1,5 +1,14 @@
 package mcjty.rftoolscontrol.modules.processor.blocks;
 
+import com.mojang.serialization.MapCodec;
+import java.util.*;
+import java.util.function.BiFunction;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import mcjty.lib.api.container.DefaultContainerProvider;
 import mcjty.lib.bindings.GuiValue;
 import mcjty.lib.bindings.Value;
@@ -7,7 +16,6 @@ import mcjty.lib.blockcommands.Command;
 import mcjty.lib.blockcommands.ListCommand;
 import mcjty.lib.blockcommands.ServerCommand;
 import mcjty.lib.container.GenericItemHandler;
-import mcjty.lib.setup.Registration;
 import mcjty.lib.tileentity.Cap;
 import mcjty.lib.tileentity.CapType;
 import mcjty.lib.tileentity.GenericEnergyStorage;
@@ -15,6 +23,7 @@ import mcjty.lib.tileentity.TickingTileEntity;
 import mcjty.lib.typed.Key;
 import mcjty.lib.typed.Type;
 import mcjty.lib.varia.*;
+import mcjty.lib.varia.CapabilityTools;
 import mcjty.rftoolsbase.api.control.code.ICompiledOpcode;
 import mcjty.rftoolsbase.api.control.code.IOpcodeRunnable;
 import mcjty.rftoolsbase.api.control.machines.IProcessor;
@@ -61,12 +70,14 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.component.DataComponentGetter;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.core.component.DataComponentType;
-import net.minecraft.core.registries.Registries;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -74,6 +85,8 @@ import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.energy.IEnergyStorage;
 import net.neoforged.neoforge.fluids.FluidStack;
@@ -81,15 +94,9 @@ import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.items.IItemHandler;
 import org.apache.commons.lang3.tuple.Pair;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.*;
-import java.util.function.BiFunction;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-
+import static mcjty.lib.setup.Registration.ITEM_ENERGY;
+import static mcjty.lib.setup.Registration.ITEM_INVENTORY;
+import static mcjty.rftoolsbase.modules.crafting.items.CraftingCardContainer.INPUT_SLOTS;
 import static mcjty.rftoolscontrol.modules.multitank.blocks.MultiTankTileEntity.MAXCAPACITY;
 import static mcjty.rftoolscontrol.modules.multitank.blocks.MultiTankTileEntity.TANKS;
 import static mcjty.rftoolscontrol.modules.processor.blocks.ProcessorContainer.CONTAINER_FACTORY;
@@ -359,6 +366,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
     private int getTickCount() {
         return getCoreData().tickCount();
     }
+
     private void incTickCount() {
         ProcessorCoreData cd = getCoreData();
         setData(ProcessorModule.PROCESSOR_CORE_DATA.get(), cd.withTickCount(cd.tickCount() + 1));
@@ -376,6 +384,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
             setData(ProcessorModule.PROCESSOR_CORE_DATA.get(), cd.withLocks(Set.of()));
         }
     }
+
     private void addLock(String name) {
         ProcessorCoreData cd = getCoreData();
         ProcessorCoreData updated = cd.withLockAdded(name);
@@ -483,7 +492,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         if (p.equals(worldPosition)) {
             powerOut[facing.ordinal()] = amount;
             setChanged();
-            level.neighborChanged(this.worldPosition.relative(facing), this.getBlockState().getBlock(), this.worldPosition);
+            level.neighborChanged(this.worldPosition.relative(facing), this.getBlockState().getBlock(), null);
         } else {
             NodeTileEntity te = (NodeTileEntity) level.getBlockEntity(p);
             te.setPowerOut(facing, amount);
@@ -645,11 +654,11 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         IItemHandler itemHandler = items;
 
         IItemHandler gridHandler = getItemHandlerAt(te, Direction.UP);
-        List<Ingredient> ingredients = CraftingCardItem.getIngredientsGrid(card);
+        List<ItemStack> ingredients = CraftingCardItem.getIngredientStacks(card);
         boolean success = true;
         for (int i = 0; i < 9; i++) {
             ItemStack stackInWorkbench = gridHandler.getStackInSlot(i);
-            Ingredient stackInIngredient = ingredients.get(i);
+            ItemStack stackInIngredient = ingredients.get(i);
             if (!stackInWorkbench.isEmpty() && stackInIngredient.isEmpty()) {
                 // Can't work. There is already something in the workbench that doesn't belong
                 success = false;
@@ -659,8 +668,8 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
                 for (int slot = slot1; slot <= slot2; slot++) {
                     int realSlot = info.getRealSlot(slot);
                     ItemStack localStack = itemHandler.getStackInSlot(realSlot);
-                    if (stackInIngredient.test(localStack)) {
-                        localStack = itemHandler.extractItem(realSlot, LogicInventoryTools.getCountFromIngredient(stackInIngredient), false);
+                    if (ItemStack.isSameItem(stackInIngredient, localStack)) {
+                        localStack = itemHandler.extractItem(realSlot, stackInIngredient.getCount(), false);
                         gridHandler.insertItem(i, localStack, false);
                         found = true;
                         break;
@@ -671,9 +680,9 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
                 }
             } else if (!stackInWorkbench.isEmpty() && !stackInIngredient.isEmpty()) {
                 // See if the item matches and we have enough
-                if (!stackInIngredient.test(stackInWorkbench)) {
+                if (!ItemStack.isSameItem(stackInIngredient, stackInWorkbench)) {
                     success = false;
-                } else if (LogicInventoryTools.getCountFromIngredient(stackInIngredient) > stackInWorkbench.getCount()) {
+                } else if (stackInIngredient.getCount() > stackInWorkbench.getCount()) {
                     success = false;
                 }
             }
@@ -711,8 +720,8 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
     public int countCardIngredients(IProgram program, @Nullable Inventory inv, ItemStack card) {
         IItemHandler handler = getHandlerForInv(inv);
         IStorageScanner scanner = getScannerForInv(inv);
-        List<Ingredient> ingredients = CraftingCardItem.getIngredients(card);
-        List<Ingredient> needed = combineIngredients(ingredients);
+        List<ItemStack> ingredients = getCardIngredients(card);
+        List<ItemStack> needed = combineIngredients(ingredients);
         return countPossibleCrafts(scanner, handler, needed);
     }
 
@@ -733,24 +742,24 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
 
         int slot = slot1;
 
-        List<Ingredient> ingredients;
+        List<ItemStack> ingredients;
         if (CraftingCardItem.fitsGrid(card) && (slot2 - slot1 >= 8)) {
             // We have something that fits a crafting grid and we have enough room for a 3x3 grid
-            ingredients = CraftingCardItem.getIngredientsGrid(card);
+            ingredients = CraftingCardItem.getIngredientStacks(card);
         } else {
-            ingredients = CraftingCardItem.getIngredients(card);
+            ingredients = getCardIngredients(card);
         }
 
         int failed = 0;
-        for (Ingredient ingredient : ingredients) {
+        for (ItemStack ingredient : ingredients) {
             int realSlot = info.getRealSlot(slot);
             ItemStack localStack = items.getStackInSlot(realSlot);
             if (!ingredient.isEmpty()) {
 //                if (!InventoryTools.areItemsEqual(ingredient, localStack, true, false, oredict)) {
-                if (!ingredient.test(localStack)) {
+                if (!ItemStack.isSameItem(ingredient, localStack)) {
                     return false;
                 }
-                if (LogicInventoryTools.getCountFromIngredient(ingredient) != localStack.getCount()) {
+                if (ingredient.getCount() != localStack.getCount()) {
                     return false;
                 }
             } else {
@@ -787,15 +796,15 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         }
         CardInfo info = getCardInfo(((RunningProgram) program).getCardIndex());
 
-        List<Ingredient> ingredients;
+        List<ItemStack> ingredients;
         if (CraftingCardItem.fitsGrid(card) && (slot2 - slot1 >= 8)) {
             // We have something that fits a crafting grid and we have enough room for a 3x3 grid
-            ingredients = CraftingCardItem.getIngredientsGrid(card);
+            ingredients = CraftingCardItem.getIngredientStacks(card);
         } else {
-            ingredients = CraftingCardItem.getIngredients(card);
+            ingredients = getCardIngredients(card);
         }
 
-        List<Ingredient> needed = combineIngredients(ingredients);
+        List<ItemStack> needed = combineIngredients(ingredients);
         int requested = checkAvailableItemsAndRequestMissing(destInv, scanner, handler, needed);
         if (requested != 0) {
             return requested;
@@ -803,10 +812,10 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         // We got everything;
         int slot = slot1;
 
-        for (Ingredient ingredient : ingredients) {
+        for (ItemStack ingredient : ingredients) {
             int realSlot = info.getRealSlot(slot);
             if (!ingredient.isEmpty()) {
-                ItemStack stack = LogicInventoryTools.extractItem(handler, scanner, LogicInventoryTools.getCountFromIngredient(ingredient), true, ingredient, null);
+                ItemStack stack = LogicInventoryTools.extractItem(handler, scanner, ingredient.getCount(), true, Ingredient.of(ingredient.getItem()), null);
                 if (!stack.isEmpty()) {
                     items.insertItem(realSlot, stack, false);
                 }
@@ -820,16 +829,17 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
     // ingredient is requested if possible. Returns -1 if there were ingredients that
     // could not be requested. Returns 0 if nothing had to be requested and otherwise
     // returns the amount of requested items
-    private int checkAvailableItemsAndRequestMissing(Inventory destInv, IStorageScanner scanner, IItemHandler handler, List<Ingredient> needed) {
+    private int checkAvailableItemsAndRequestMissing(Inventory destInv, IStorageScanner scanner, IItemHandler handler, List<ItemStack> needed) {
         int requested = 0;
-        for (Ingredient ingredient : needed) {
+        for (ItemStack ingredient : needed) {
             if (!ingredient.isEmpty()) {
-                int countFromIngredient = LogicInventoryTools.getCountFromIngredient(ingredient);
-                int cnt = LogicInventoryTools.countItem(handler, scanner, ingredient, countFromIngredient);
+                Ingredient matcher = Ingredient.of(ingredient.getItem());
+                int countFromIngredient = ingredient.getCount();
+                int cnt = LogicInventoryTools.countItem(handler, scanner, matcher, countFromIngredient);
                 if (cnt < countFromIngredient) {
                     requested++;
-                    if (!isRequested(ingredient)) {
-                        if (!requestCraft(ingredient, destInv)) {
+                    if (!isRequested(matcher)) {
+                        if (!requestCraft(matcher, destInv)) {
                             // It can't be requested, total failure
                             return -1;
                         }
@@ -841,12 +851,12 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
     }
 
     // Check the storage scanner or handler for a list of ingredients and count them
-    private int countPossibleCrafts(IStorageScanner scanner, IItemHandler handler, List<Ingredient> needed) {
+    private int countPossibleCrafts(IStorageScanner scanner, IItemHandler handler, List<ItemStack> needed) {
         int maxPossible = Integer.MAX_VALUE;
-        for (Ingredient ingredient : needed) {
+        for (ItemStack ingredient : needed) {
             if (!ingredient.isEmpty()) {
-                int cnt = LogicInventoryTools.countItem(handler, scanner, ingredient, -1);
-                int possible = cnt / LogicInventoryTools.getCountFromIngredient(ingredient);
+                int cnt = LogicInventoryTools.countItem(handler, scanner, Ingredient.of(ingredient.getItem()), -1);
+                int possible = cnt / ingredient.getCount();
                 if (possible < maxPossible) {
                     maxPossible = possible;
                 }
@@ -855,65 +865,25 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         return maxPossible;
     }
 
-    // Given a list of ingredients make a combined list where all identical
-    // items are grouped
-    private List<Ingredient> combineIngredients(List<Ingredient> ingredients) {
-        List<Ingredient> needed = new ArrayList<>();
-        for (Ingredient ingredient : ingredients) {
+    private List<ItemStack> combineIngredients(List<ItemStack> ingredients) {
+        List<ItemStack> needed = new ArrayList<>();
+        for (ItemStack ingredient : ingredients) {
             if (!ingredient.isEmpty()) {
-                boolean found = false;
-                for (int i = 0 ; i < needed.size() ; i++) {
-                    Ingredient neededStack = needed.get(i);
-                    if (testIngredientEquality(ingredient, neededStack)) {
-                        needed.set(i, combine(ingredient, neededStack));
-                        found = true;
-                        break;
-                    }
-                }
-                if (!found) {
-                    needed.add(ingredient);
+                ItemStack existing = needed.stream()
+                        .filter(stack -> ItemStack.isSameItemSameComponents(stack, ingredient))
+                        .findFirst().orElse(ItemStack.EMPTY);
+                if (existing.isEmpty()) {
+                    needed.add(ingredient.copy());
+                } else {
+                    existing.grow(ingredient.getCount());
                 }
             }
         }
         return needed;
     }
 
-    /**
-     * Try to guess if two ingredients are equivalent
-     */
-    private boolean testIngredientEquality(Ingredient i1, Ingredient i2) {
-        if (i1.isSimple() && i2.isSimple()) {
-            // Both ingredients are simple
-            ItemStack[] items1 = i1.getItems();
-            ItemStack[] items2 = i2.getItems();
-            if (items1.length == items2.length) {
-                for (int i = 0 ; i < items1.length ; i++) {
-                    if (!ItemStack.isSameItemSameComponents(items1[i], items2[i])) {
-                        return false;
-                    }
-                }
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Combine two equivalent ingredients (that return true with testIngredientEquality)
-     * into one
-     */
-    private Ingredient combine(Ingredient i1, Ingredient i2) {
-        List<ItemStack> list = new ArrayList<>();
-        ItemStack[] items1 = i1.getItems();
-        ItemStack[] items2 = i2.getItems();
-        if (items1.length == items2.length) {
-            for (int i = 0 ; i < items1.length ; i++) {
-                ItemStack copy = items1[i].copy();
-                copy.grow(items2[i].getCount());
-                list.add(copy);
-            }
-        }
-        return Ingredient.of(list.toArray(new ItemStack[list.size()]));
+    private List<ItemStack> getCardIngredients(ItemStack card) {
+        return CraftingCardItem.getStacksFromItem(card).stream().limit(INPUT_SLOTS).toList();
     }
 
     public int getIngredients(IProgram program, Inventory inv, Inventory cardInv, ItemStack inputStack, int slot1, int slot2) {
@@ -936,19 +906,19 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
 
         int slot = slot1;
 
-        List<Ingredient> ingredients;
+        List<ItemStack> ingredients;
         if (CraftingCardItem.fitsGrid(card) && (slot2 - slot1 >= 8)) {
             // We have something that fits a crafting grid and we have enough room for a 3x3 grid
-            ingredients = CraftingCardItem.getIngredientsGrid(card);
+            ingredients = CraftingCardItem.getIngredientStacks(card);
         } else {
-            ingredients = CraftingCardItem.getIngredients(card);
+            ingredients = getCardIngredients(card);
         }
 
         int failed = 0;
-        for (Ingredient ingredient : ingredients) {
+        for (ItemStack ingredient : ingredients) {
             int realSlot = info.getRealSlot(slot);
             if (!ingredient.isEmpty()) {
-                ItemStack stack = LogicInventoryTools.extractItem(handler, scanner, LogicInventoryTools.getCountFromIngredient(ingredient), true, ingredient, null);
+                ItemStack stack = LogicInventoryTools.extractItem(handler, scanner, ingredient.getCount(), true, Ingredient.of(ingredient.getItem()), null);
                 if (!stack.isEmpty()) {
                     ItemStack remainder = items.insertItem(realSlot, stack, false);
                     if (!remainder.isEmpty()) {
@@ -1769,7 +1739,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         if (te == null) {
             throw new ProgException(EXCEPT_NORF);
         }
-        IEnergyStorage storage = te.getLevel().getCapability(Capabilities.EnergyStorage.BLOCK, te.getBlockPos(), side.getIntSide());
+        IEnergyStorage storage = CapabilityTools.energyHandler(te.getLevel().getCapability(Capabilities.Energy.BLOCK, te.getBlockPos(), side.getIntSide()));
         if (storage == null) {
             throw new ProgException(EXCEPT_NORF);
         }
@@ -1782,7 +1752,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         if (te == null) {
             throw new ProgException(EXCEPT_NORF);
         }
-        IEnergyStorage storage = te.getLevel().getCapability(Capabilities.EnergyStorage.BLOCK, te.getBlockPos(), side.getIntSide());
+        IEnergyStorage storage = CapabilityTools.energyHandler(te.getLevel().getCapability(Capabilities.Energy.BLOCK, te.getBlockPos(), side.getIntSide()));
         if (storage == null) {
             throw new ProgException(EXCEPT_NORF);
         }
@@ -1792,8 +1762,8 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
     @Override
     public long getEnergyLong(Inventory side) {
         BlockEntity te = getTileEntityAt(side);
-        EnergyTools.EnergyLevel level = EnergyTools.getEnergyLevelMulti(te, null);  // @todo fix side
-        if (level.maxEnergy() >= 0) {
+        EnergyTools.EnergyLevel level = EnergyTools.getEnergyLevelMulti(te, side.getIntSide());
+        if (level.maxEnergy() < 0) {
             throw new ProgException(EXCEPT_NORF);
         }
         return level.energy();
@@ -1802,8 +1772,8 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
     @Override
     public long getMaxEnergyLong(Inventory side) {
         BlockEntity te = getTileEntityAt(side);
-        EnergyTools.EnergyLevel level = EnergyTools.getEnergyLevelMulti(te, null);  // @todo fix side
-        if (level.maxEnergy() >= 0) {
+        EnergyTools.EnergyLevel level = EnergyTools.getEnergyLevelMulti(te, side.getIntSide());
+        if (level.maxEnergy() < 0) {
             throw new ProgException(EXCEPT_NORF);
         }
         return level.maxEnergy();
@@ -1847,17 +1817,15 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         }
     }
 
-    public boolean compareComponents(@Nonnull ItemStack v1, @Nonnull ItemStack v2, @Nonnull ResourceLocation componentId) {
+    public boolean compareComponents(@Nonnull ItemStack v1, @Nonnull ItemStack v2, @Nonnull Identifier componentId) {
         DataComponentMap componentsV1 = v1.getComponents();
         DataComponentMap componentsV2 = v2.getComponents();
 
         // Find DataComponentType for the given componentId
-        DataComponentType<?> componentType = level.registryAccess().registry(Registries.DATA_COMPONENT_TYPE)
-                .get()
-                .get(componentId);
+        DataComponentType<?> componentType = BuiltInRegistries.DATA_COMPONENT_TYPE.getValue(componentId);
 
         // If either item has no components
-        if (!componentsV1.has(componentType) || !componentsV2.has(componentType)) {
+        if (componentType == null || !componentsV1.has(componentType) || !componentsV2.has(componentType)) {
             return componentsV1.has(componentType) == componentsV2.has(componentType);
         }
 
@@ -2024,7 +1992,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         return stack.getCount();
     }
 
-    public int fetchItems(IProgram program, Inventory inv, Integer slot, Ingredient itemMatcher, boolean routable, @Nullable Integer amount, int virtualSlot) {
+    public int fetchItems(IProgram program, Inventory inv, Integer slot, @Nullable Ingredient itemMatcher, boolean routable, @Nullable Integer amount, int virtualSlot) {
         if (amount != null && amount == 0) {
             throw new ProgException(EXCEPT_BADPARAMETERS);
         }
@@ -2447,10 +2415,12 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         }
         Parameter lastValue = (Parameter) program.getLastValue();
         if (lastValue == null) {
-            stack.remove(mcjty.rftoolscontrol.modules.various.VariousModule.TOKEN_DATA);
+            stack.remove(VariousModule.TOKEN_DATA);
         } else {
-            stack.set(mcjty.rftoolscontrol.modules.various.VariousModule.TOKEN_DATA, new mcjty.rftoolscontrol.modules.various.data.TokenData(lastValue));
+            stack.set(VariousModule.TOKEN_DATA, new TokenData(lastValue));
         }
+        items.setStackInSlot(realSlot, stack);
+        setChanged();
     }
 
     @Nullable
@@ -2461,7 +2431,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         if (stack.isEmpty() || !(stack.getItem() instanceof TokenItem)) {
             throw new ProgException(EXCEPT_NOTATOKEN);
         }
-        mcjty.rftoolscontrol.modules.various.data.TokenData data = stack.get(mcjty.rftoolscontrol.modules.various.VariousModule.TOKEN_DATA);
+        TokenData data = stack.get(VariousModule.TOKEN_DATA);
         return data != null ? data.parameter() : null;
     }
 
@@ -2829,7 +2799,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         if (te == null) {
             throw new ProgException(EXCEPT_NOLIQUID);
         }
-        IFluidHandler capability = te.getLevel().getCapability(Capabilities.FluidHandler.BLOCK, te.getBlockPos(), inv.getIntSide());
+        IFluidHandler capability = CapabilityTools.fluidHandler(te.getLevel().getCapability(Capabilities.Fluid.BLOCK, te.getBlockPos(), inv.getIntSide()));
         if (capability == null) {
             throw new ProgException(EXCEPT_NOLIQUID);
         }
@@ -2848,7 +2818,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
     }
 
     private IItemHandler getItemHandlerAt(@Nonnull BlockEntity te, Direction intSide) {
-        IItemHandler capability = te.getLevel().getCapability(Capabilities.ItemHandler.BLOCK, te.getBlockPos(), intSide);
+        IItemHandler capability = CapabilityTools.itemHandler(te.getLevel().getCapability(Capabilities.Item.BLOCK, te.getBlockPos(), intSide));
         if (capability == null) {
             throw new ProgException(EXCEPT_INVALIDINVENTORY);
         }
@@ -2902,8 +2872,8 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
 
     @Override
     public void loadClientDataFromNBT(CompoundTag tagCompound, HolderLookup.Provider provider) {
-        boolean ex = tagCompound.getBoolean("exclusive");
-        int hud = tagCompound.getByte("hud");
+        boolean ex = tagCompound.getBooleanOr("exclusive", false);
+        int hud = tagCompound.getByteOr("hud", (byte) 0);
         setData(ProcessorModule.PROCESSOR_SETTINGS_DATA.get(), new ProcessorSettingsData(ex, HudMode.fromOrdinal(hud)));
     }
 
@@ -2914,29 +2884,34 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
     }
 
     @Override
-    public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.loadAdditional(tag, provider);
-        prevIn = tag.getInt("prevIn");
+    public void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        CompoundTag tag = input.read(MapCodec.assumeMapUnsafe(CompoundTag.CODEC)).orElseGet(CompoundTag::new);
+        HolderLookup.Provider provider = input.lookup();
+        prevIn = tag.getIntOr("prevIn", 0);
         for (int i = 0; i < 6; i++) {
-            powerOut[i] = tag.getByte("p" + i);
+            powerOut[i] = tag.getByteOr("p" + i, (byte) 0);
         }
         items.load(tag, "items", provider);
         energyStorage.load(tag, "energy", provider);
     }
 
     @Override
-    public void saveAdditional(@Nonnull CompoundTag tag, HolderLookup.Provider provider) {
-        super.saveAdditional(tag, provider);
+    public void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+        CompoundTag tag = new CompoundTag();
+        HolderLookup.Provider provider = level == null ? RegistryAccess.EMPTY : level.registryAccess();
         tag.putInt("prevIn", prevIn);
         for (int i = 0; i < 6; i++) {
             tag.putByte("p" + i, (byte) powerOut[i]);
         }
         items.save(tag, "items", provider);
         energyStorage.save(tag, "energy", provider);
+        output.store(MapCodec.assumeMapUnsafe(CompoundTag.CODEC), tag);
     }
 
     @Override
-    protected void applyImplicitComponents(DataComponentInput input) {
+    protected void applyImplicitComponents(DataComponentGetter input) {
         super.applyImplicitComponents(input);
         var core = input.get(ProcessorModule.ITEM_PROCESSOR_CORE_DATA.get());
         if (core != null) {
@@ -2967,8 +2942,8 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
             setData(ProcessorModule.PROCESSOR_SETTINGS_DATA.get(), settings);
         }
         // Energy and items
-        energyStorage.applyImplicitComponents(input.get(Registration.ITEM_ENERGY));
-        items.applyImplicitComponents(input.get(Registration.ITEM_INVENTORY));
+        energyStorage.applyImplicitComponents(input.get(ITEM_ENERGY));
+        items.applyImplicitComponents(input.get(ITEM_INVENTORY));
     }
 
     @Override

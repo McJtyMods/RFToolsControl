@@ -1,6 +1,10 @@
 package mcjty.rftoolscontrol.modules.processor.network;
 
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import mcjty.lib.varia.SafeClientTools;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorTileEntity;
@@ -9,18 +13,13 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 public record PacketGraphicsReady(BlockPos pos, Map<String, GfxOp> gfxOps, List<String> orderedOps) implements CustomPacketPayload {
 
-    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(RFToolsControl.MODID, "graphics_ready");
+    public static final Identifier ID = Identifier.fromNamespaceAndPath(RFToolsControl.MODID, "graphics_ready");
     public static final CustomPacketPayload.Type<PacketGraphicsReady> TYPE = new Type<>(ID);
 
     public static final StreamCodec<RegistryFriendlyByteBuf, PacketGraphicsReady> CODEC = StreamCodec.of(

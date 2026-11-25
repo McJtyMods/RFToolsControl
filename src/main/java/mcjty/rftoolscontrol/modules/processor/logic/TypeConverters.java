@@ -1,19 +1,18 @@
 package mcjty.rftoolscontrol.modules.processor.logic;
 
+import java.util.List;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import mcjty.lib.varia.FluidTools;
 import mcjty.lib.varia.Tools;
 import mcjty.rftoolsbase.api.control.parameters.*;
 import mcjty.rftoolscontrol.modules.processor.logic.running.ExceptionType;
 import mcjty.rftoolscontrol.modules.processor.logic.running.ProgException;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidUtil;
 import org.apache.commons.lang3.StringUtils;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.List;
 
 public class TypeConverters {
 
@@ -67,7 +66,7 @@ public class TypeConverters {
         }
         switch (type) {
             case PAR_STRING:
-                return new FluidStack(Tools.getFluid(ResourceLocation.parse((String) v)), 1);
+                return new FluidStack(Tools.getFluid(Identifier.parse((String) v)), 1);
             case PAR_FLUID:
                 return (FluidStack) v;
             case PAR_ITEM:
@@ -103,7 +102,7 @@ public class TypeConverters {
         }
         switch (type) {
             case PAR_STRING:
-                return new ItemStack(Tools.getItem(ResourceLocation.parse((String) v)), 1);
+                return new ItemStack(Tools.getItem(Identifier.parse((String) v)), 1);
             case PAR_ITEM:
                 return (ItemStack) v;
             case PAR_FLUID:

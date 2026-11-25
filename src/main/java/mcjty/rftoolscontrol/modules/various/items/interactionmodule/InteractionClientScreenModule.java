@@ -5,8 +5,8 @@ import mcjty.rftoolsbase.api.screens.*;
 import mcjty.rftoolsbase.api.screens.data.IModuleDataBoolean;
 import mcjty.rftoolsbase.tools.ScreenTextHelper;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
@@ -32,7 +32,7 @@ public class InteractionClientScreenModule implements IClientScreenModule<IModul
     }
 
     @Override
-    public void render(GuiGraphics graphics, MultiBufferSource buffer, IModuleRenderHelper renderHelper, Font fontRenderer, int currenty, IModuleDataBoolean screenData, ModuleRenderInfo renderInfo) {
+    public void render(GuiGraphicsExtractor graphics, SubmitNodeCollector buffer, IModuleRenderHelper renderHelper, Font fontRenderer, int currenty, IModuleDataBoolean screenData, ModuleRenderInfo renderInfo) {
 
         InteractionScreenModule data = InteractionModuleItem.data(renderInfo.moduleStack);
 
@@ -51,11 +51,10 @@ public class InteractionClientScreenModule implements IClientScreenModule<IModul
 
         boolean act = activated;
 
-        RenderHelper.drawBeveledBox(graphics, buffer, xoffset - 5, currenty, 130 - 7, currenty + 12,
+        RenderHelper.drawBeveledBox(graphics, xoffset - 5, currenty, 130 - 7, currenty + 12,
                 act ? 0xff333333 : 0xffeeeeee,
                 act ? 0xffeeeeee : 0xff333333,
-                0xff666666,
-                renderInfo.getLightmapValue());
+                0xff666666);
         buttonCache.setup(data.button(), buttonWidth, renderInfo);
         buttonCache.renderText(graphics, buffer, xoffset - 10 + (act ? 1 : 0), currenty + 2, data.buttonColor(), renderInfo);
     }

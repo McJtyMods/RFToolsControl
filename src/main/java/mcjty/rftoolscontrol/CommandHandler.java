@@ -26,12 +26,12 @@ public class CommandHandler {
                 return false;
             }
             if (heldItem.getItem() instanceof CraftingCardItem) {
-                CraftingCardItem.testRecipe(player.getCommandSenderWorld(), heldItem);
+                CraftingCardItem.testRecipe(player.level(), heldItem);
             }
             return true;
         });
         McJtyLib.registerCommand(RFToolsControl.MODID, CMD_GETGRAPHICS, (player, arguments) -> {
-            BlockEntity te = player.getCommandSenderWorld().getBlockEntity(arguments.get(PARAM_POS));
+            BlockEntity te = player.level().getBlockEntity(arguments.get(PARAM_POS));
             if (te instanceof ProcessorTileEntity processor) {
                 RFToolsCtrlMessages.sendToPlayer(PacketGraphicsReady.create(processor), player);
             }

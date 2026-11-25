@@ -1,6 +1,9 @@
 package mcjty.rftoolscontrol.modules.various.items.interactionmodule;
 
 import com.mojang.serialization.Codec;
+import java.util.function.Function;
+import javax.annotation.Nonnull;
+import mcjty.lib.gui.ManualEntry;
 import mcjty.lib.varia.BlockPosTools;
 import mcjty.lib.varia.Logging;
 import mcjty.lib.varia.ModuleTools;
@@ -10,12 +13,10 @@ import mcjty.rftoolsbase.api.screens.IModuleGuiBuilder;
 import mcjty.rftoolsbase.api.screens.IScreenModule;
 import mcjty.rftoolsbase.api.screens.TextAlign;
 import mcjty.rftoolsbase.tools.GenericModuleItem;
-import mcjty.rftoolscontrol.RFToolsControl;
+import mcjty.rftoolsbase.tools.ManualHelper;
 import mcjty.rftoolscontrol.modules.processor.ProcessorModule;
 import mcjty.rftoolscontrol.modules.various.VariousModule;
 import mcjty.rftoolscontrol.setup.Config;
-import mcjty.lib.gui.ManualEntry;
-import mcjty.rftoolsbase.tools.ManualHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -30,13 +31,10 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
-import java.util.function.Function;
-
 public class InteractionModuleItem extends GenericModuleItem {
 
-    public InteractionModuleItem() {
-        super(RFToolsControl.setup.defaultProperties()
+    public InteractionModuleItem(Properties properties) {
+        super(properties
                 .stacksTo(1)
                 .durability(1));
     }
@@ -118,13 +116,13 @@ public class InteractionModuleItem extends GenericModuleItem {
         if (block == ProcessorModule.PROCESSOR.block().get()) {
             data(stack, module -> module.withTarget(world.dimension(), pos));
             ModuleTools.setPositionInModule(stack, world.dimension(), pos, Tools.getReadableName(world, pos));
-            if (world.isClientSide) {
+            if (world.isClientSide()) {
                 Logging.message(player, "Interaction module is set to block");
             }
         } else {
             data(stack, module -> module.withCoordinate(BlockPosTools.INVALID));
             ModuleTools.clearPositionInModule(stack);
-            if (world.isClientSide) {
+            if (world.isClientSide()) {
                 Logging.message(player, "Interaction module is cleared");
             }
         }

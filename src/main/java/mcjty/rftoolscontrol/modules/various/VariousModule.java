@@ -1,10 +1,13 @@
 package mcjty.rftoolscontrol.modules.various;
 
+import com.mojang.serialization.MapCodec;
+import java.util.function.Supplier;
 import mcjty.lib.blocks.BaseBlock;
 import mcjty.lib.blocks.RBlock;
 import mcjty.lib.container.GenericContainer;
 import mcjty.lib.datagen.DataGen;
 import mcjty.lib.datagen.Dob;
+import mcjty.lib.items.BaseBlockItem;
 import mcjty.lib.modules.IModule;
 import mcjty.rftoolsbase.modules.tablet.items.TabletItem;
 import mcjty.rftoolscontrol.modules.processor.logic.grid.ProgramCardInstance;
@@ -25,7 +28,6 @@ import mcjty.rftoolscontrol.modules.various.items.variablemodule.VariableModuleI
 import mcjty.rftoolscontrol.modules.various.items.variablemodule.VariableScreenModule;
 import mcjty.rftoolscontrol.modules.various.items.vectorartmodule.VectorArtModuleItem;
 import mcjty.rftoolscontrol.modules.various.items.vectorartmodule.VectorArtScreenModule;
-import mcjty.rftoolscontrol.setup.Registration;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.world.inventory.MenuType;
@@ -40,8 +42,6 @@ import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredItem;
 
-import java.util.function.Supplier;
-
 import static mcjty.lib.datagen.DataGen.has;
 import static mcjty.rftoolscontrol.RFToolsControl.tab;
 import static mcjty.rftoolscontrol.setup.Registration.*;
@@ -52,7 +52,7 @@ public class VariousModule implements IModule {
             "node",
             NodeTileEntity.class,
             NodeBlock::new,
-            block -> new BlockItem(block.get(), Registration.createStandardProperties()),
+            (block, properties) -> new BaseBlockItem(block.get(), properties.useBlockDescriptionPrefix()),
             NodeTileEntity::new
     );
     public static final Supplier<MenuType<GenericContainer>> NODE_CONTAINER = CONTAINERS.register("node", GenericContainer::createContainerType);
@@ -61,7 +61,7 @@ public class VariousModule implements IModule {
             "workbench",
             WorkbenchTileEntity.class,
             WorkbenchBlock::new,
-            block -> new BlockItem(block.get(), Registration.createStandardProperties()),
+            (block, properties) -> new BaseBlockItem(block.get(), properties.useBlockDescriptionPrefix()),
             WorkbenchTileEntity::new
     );
     public static final Supplier<MenuType<WorkbenchContainer>> WORKBENCH_CONTAINER = CONTAINERS.register("workbench", GenericContainer::createContainerType);
@@ -77,7 +77,7 @@ public class VariousModule implements IModule {
 
     public static final Supplier<AttachmentType<NodeData>> NODE_DATA = ATTACHMENT_TYPES.register(
             "node_data", () -> AttachmentType.builder(NodeData::createDefault)
-                    .serialize(NodeData.CODEC)
+                    .serialize(MapCodec.assumeMapUnsafe(NodeData.CODEC))
                     .build());
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<NodeData>> ITEM_NODE_DATA = COMPONENTS.registerComponentType(
             "node_data",
@@ -87,7 +87,7 @@ public class VariousModule implements IModule {
 
     public static final Supplier<AttachmentType<WorkbenchData>> WORKBENCH_DATA = ATTACHMENT_TYPES.register(
             "workbench_data", () -> AttachmentType.builder(WorkbenchData::createDefault)
-                    .serialize(WorkbenchData.CODEC)
+                    .serialize(MapCodec.assumeMapUnsafe(WorkbenchData.CODEC))
                     .build());
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<WorkbenchData>> ITEM_WORKBENCH_DATA = COMPONENTS.registerComponentType(
             "workbench_data",
@@ -170,7 +170,7 @@ public class VariousModule implements IModule {
                 Dob.blockBuilder(WORKBENCH)
                         .ironPickaxeTags()
                         .parentedItem("block/workbench")
-                        .standardLoot(VariousModule.ITEM_WORKBENCH_DATA.get())
+                        .standardLoot(ITEM_WORKBENCH_DATA.get())
                         .blockState(p -> p.orientedBlock(WORKBENCH.block().get(), p.frontBasedModel("workbench", p.modLoc("block/machineworkbench"))))
                         .shaped(builder -> builder
                                         .define('F', mcjty.rftoolsbase.modules.various.VariousModule.MACHINE_FRAME.get())

@@ -1,5 +1,6 @@
 package mcjty.rftoolscontrol.setup;
 
+import mcjty.lib.network.Networking;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.modules.processor.network.*;
 import mcjty.rftoolscontrol.modules.programmer.network.PacketUpdateNBTItemInventoryProgrammer;
@@ -36,6 +37,6 @@ public class RFToolsCtrlMessages {
     }
 
     public static <T extends CustomPacketPayload> void sendToServer(T packet) {
-        PacketDistributor.sendToServer(packet);
+        Networking.sendToServer(packet);
     }
 }
