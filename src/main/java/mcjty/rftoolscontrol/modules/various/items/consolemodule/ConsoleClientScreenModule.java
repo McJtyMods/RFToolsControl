@@ -1,16 +1,15 @@
 package mcjty.rftoolscontrol.modules.various.items.consolemodule;
 
+import java.util.List;
 import mcjty.rftoolsbase.api.screens.IClientScreenModule;
 import mcjty.rftoolsbase.api.screens.IModuleRenderHelper;
 import mcjty.rftoolsbase.api.screens.ModuleRenderInfo;
 import mcjty.rftoolscontrol.compat.rftoolssupport.ModuleDataLog;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-
-import java.util.List;
 
 public class ConsoleClientScreenModule implements IClientScreenModule<ModuleDataLog> {
 
@@ -25,7 +24,7 @@ public class ConsoleClientScreenModule implements IClientScreenModule<ModuleData
     }
 
     @Override
-    public void render(GuiGraphics graphics, MultiBufferSource buffer, IModuleRenderHelper renderHelper, Font fontRenderer, int currenty, ModuleDataLog screenData, ModuleRenderInfo renderInfo) {
+    public void render(GuiGraphicsExtractor graphics, SubmitNodeCollector buffer, IModuleRenderHelper renderHelper, Font fontRenderer, int currenty, ModuleDataLog screenData, ModuleRenderInfo renderInfo) {
         int xoffset = 7;
         if (screenData != null) {
             List<String> log = screenData.getLog();

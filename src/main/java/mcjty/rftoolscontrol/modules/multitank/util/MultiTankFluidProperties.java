@@ -19,10 +19,9 @@
 
 package mcjty.rftoolscontrol.modules.multitank.util;
 
-import mcjty.rftoolscontrol.modules.multitank.blocks.MultiTankTileEntity;
-import net.neoforged.neoforge.fluids.FluidStack;
-
 import javax.annotation.Nonnull;
+import mcjty.lib.varia.FluidStack;
+import mcjty.rftoolscontrol.modules.multitank.blocks.MultiTankTileEntity;
 
 public class MultiTankFluidProperties {
 

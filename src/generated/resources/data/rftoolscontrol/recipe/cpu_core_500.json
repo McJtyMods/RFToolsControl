@@ -2,18 +2,10 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "M": {
-      "item": "rftoolscontrol:card_base"
-    },
-    "g": {
-      "tag": "c:nuggets/gold"
-    },
-    "p": {
-      "item": "minecraft:paper"
-    },
-    "r": {
-      "item": "minecraft:redstone"
-    }
+    "M": "rftoolscontrol:card_base",
+    "g": "#c:nuggets/gold",
+    "p": "minecraft:paper",
+    "r": "minecraft:redstone"
   },
   "pattern": [
     "rgr",
@@ -21,7 +13,6 @@
     "rgr"
   ],
   "result": {
-    "count": 1,
     "id": "rftoolscontrol:cpu_core_500"
   }
 }

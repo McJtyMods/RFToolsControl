@@ -1,5 +1,6 @@
 package mcjty.rftoolscontrol.compat.jei;
 
+import javax.annotation.Nonnull;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.modules.various.VariousModule;
 import mcjty.rftoolscontrol.modules.various.blocks.WorkbenchContainer;
@@ -9,18 +10,16 @@ import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.constants.RecipeTypes;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeTransferRegistration;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
-
-import javax.annotation.Nonnull;
 
 @JeiPlugin
 public class RFToolsControlJeiPlugin implements IModPlugin {
 
     @Nonnull
     @Override
-    public ResourceLocation getPluginUid() {
-        return ResourceLocation.fromNamespaceAndPath(RFToolsControl.MODID, "rftoolscontrol");
+    public Identifier getPluginUid() {
+        return Identifier.fromNamespaceAndPath(RFToolsControl.MODID, "rftoolscontrol");
     }
 
     @Override

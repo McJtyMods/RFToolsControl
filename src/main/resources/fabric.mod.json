@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "id": "rftoolscontrol",
+  "version": "${version}",
+  "name": "RFToolsControl",
+  "description": "Visual programming language for automation",
+  "authors": [
+    "McJty"
+  ],
+  "license": "MIT",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "mcjty.rftoolscontrol.RFToolsControl"
+    ],
+    "client": [
+      "mcjty.rftoolscontrol.setup.ClientSetup"
+    ],
+    "fabric-datagen": [
+      "mcjty.rftoolscontrol.datagen.FabricDataGen"
+    ],
+    "rftoolsutility": [
+      "mcjty.rftoolscontrol.compat.rftoolssupport.RFToolsSupport::register"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.19.3",
+    "minecraft": "=26.1.2",
+    "java": ">=25",
+    "fabric-api": ">=0.155.3+26.1.2",
+    "forgeconfigapiport": ">=26.1.5",
+    "mcjtylib": ">=26.1.2-10.0.3-fabric",
+    "rftoolsbase": ">=26.1.2-7.0.0-fabric"
+  },
+  "suggests": {
+    "theoneprobe": "*",
+    "jei": "*",
+    "rftoolsutility": "*"
+  },
+  "accessWidener": "rftoolscontrol.accesswidener"
+}

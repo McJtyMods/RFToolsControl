@@ -1,9 +1,9 @@
 package mcjty.rftoolscontrol.setup;
 
 
+import fuzs.forgeconfigapiport.fabric.api.v5.ConfigRegistry;
 import mcjty.lib.modules.Modules;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.fml.ModContainer;
+import mcjty.rftoolscontrol.RFToolsControl;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.neoforge.common.ModConfigSpec;
 
@@ -35,15 +35,15 @@ public class Config {
     public static final ModConfigSpec.Builder SERVER_BUILDER = new ModConfigSpec.Builder();
     public static final ModConfigSpec.Builder CLIENT_BUILDER = new ModConfigSpec.Builder();
 
-    public static void register(ModContainer mod, IEventBus bus, Modules modules) {
+    public static void register(Modules modules) {
         setupGeneralConfig();
-        modules.initConfig(bus);
+        modules.initConfig();
 
         SERVER_CONFIG = SERVER_BUILDER.build();
         CLIENT_CONFIG = CLIENT_BUILDER.build();
 
-        mod.registerConfig(ModConfig.Type.CLIENT, CLIENT_CONFIG);
-        mod.registerConfig(ModConfig.Type.SERVER, SERVER_CONFIG);
+        ConfigRegistry.INSTANCE.register(RFToolsControl.MODID, ModConfig.Type.CLIENT, CLIENT_CONFIG);
+        ConfigRegistry.INSTANCE.register(RFToolsControl.MODID, ModConfig.Type.SERVER, SERVER_CONFIG);
     }
 
     private static void setupGeneralConfig() {

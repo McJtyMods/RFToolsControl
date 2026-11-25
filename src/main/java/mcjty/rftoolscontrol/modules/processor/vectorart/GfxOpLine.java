@@ -1,12 +1,11 @@
 package mcjty.rftoolscontrol.modules.processor.vectorart;
 
-import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import mcjty.lib.client.CustomRenderTypes;
-import mcjty.lib.client.RenderHelper;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -51,14 +50,28 @@ public class GfxOpLine extends GfxOp {
     }
 
     @Override
-    public void render(GuiGraphics graphics, MultiBufferSource buffer) {
-        float alpha = (color >> 24 & 255) / 255.0F;
-        float red = (color >> 16 & 255) / 255.0F;
-        float green = (color >> 8 & 255) / 255.0F;
-        float blue = (color & 255) / 255.0F;
+    public void render(GuiGraphicsExtractor graphics) {
+        float dx = x2 - x1;
+        float dy = y2 - y1;
+        var pose = graphics.pose();
+        pose.pushMatrix();
+        pose.translate(x1, y1);
+        pose.rotate((float) Math.atan2(dy, dx));
+        graphics.fill(0, 0, Math.max(1, (int) Math.ceil(Math.hypot(dx, dy))), 1, color);
+        pose.popMatrix();
+    }
 
-        VertexConsumer builder = buffer.getBuffer(CustomRenderTypes.OVERLAY_LINES);
-        RenderHelper.line(builder, graphics.pose(), x1, y1, 0, x2, y2, 0, red, green, blue, alpha);
+    @Override
+    public void submit(PoseStack pose, SubmitNodeCollector collector) {
+        double length = Math.hypot(x2 - x1, y2 - y1);
+        float dx = length == 0 ? 0 : (float) ((y2 - y1) / length);
+        float dy = length == 0 ? 1 : (float) ((x1 - x2) / length);
+        collector.submitCustomGeometry(pose, RenderTypes.debugQuads(), (transform, vertices) -> {
+            vertices.addVertex(transform, x1, y1, 0).setColor(color);
+            vertices.addVertex(transform, x2, y2, 0).setColor(color);
+            vertices.addVertex(transform, x2 + dx, y2 + dy, 0).setColor(color);
+            vertices.addVertex(transform, x1 + dx, y1 + dy, 0).setColor(color);
+        });
     }
 
     @Override
@@ -68,11 +81,11 @@ public class GfxOpLine extends GfxOp {
 
     @Override
     protected void readFromNBTInternal(CompoundTag tag) {
-        x1 = tag.getByte("x1");
-        y1 = tag.getByte("y1");
-        x2 = tag.getByte("x2");
-        y2 = tag.getByte("y2");
-        color = tag.getInt("color");
+        x1 = tag.getByteOr("x1", (byte) 0);
+        y1 = tag.getByteOr("y1", (byte) 0);
+        x2 = tag.getByteOr("x2", (byte) 0);
+        y2 = tag.getByteOr("y2", (byte) 0);
+        color = tag.getIntOr("color", 0);
     }
 
     @Override

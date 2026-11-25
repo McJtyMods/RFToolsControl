@@ -1,14 +1,12 @@
 package mcjty.rftoolscontrol.modules.processor.logic;
 
 import com.mojang.serialization.Codec;
+import java.util.HashMap;
+import java.util.Map;
 import mcjty.rftoolscontrol.modules.processor.logic.grid.GridPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.StringRepresentable;
-import net.neoforged.neoforge.network.codec.NeoForgeStreamCodecs;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public enum Connection implements StringRepresentable {
     UP("U"),
@@ -23,7 +21,7 @@ public enum Connection implements StringRepresentable {
     private final String id;
 
     public static final Codec<Connection> CODEC = StringRepresentable.fromEnum(Connection::values);
-    public static final StreamCodec<FriendlyByteBuf, Connection> STREAM_CODEC = NeoForgeStreamCodecs.enumCodec(Connection.class);
+    public static final StreamCodec<FriendlyByteBuf, Connection> STREAM_CODEC = StreamCodec.of(FriendlyByteBuf::writeEnum, buffer -> buffer.readEnum(Connection.class));
 
     private static final Map<String, Connection> ID_TO_CONNECTION = new HashMap<>();
 

@@ -2,7 +2,6 @@ package mcjty.rftoolscontrol.modules.various.client;
 
 import mcjty.lib.container.GenericContainer;
 import mcjty.lib.gui.GenericGuiContainer;
-import mcjty.lib.gui.ManualEntry;
 import mcjty.lib.gui.Window;
 import mcjty.lib.gui.widgets.Panel;
 import mcjty.lib.gui.widgets.TextField;
@@ -10,9 +9,9 @@ import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.lib.varia.ClientTools;
 import mcjty.rftoolscontrol.modules.various.VariousModule;
 import mcjty.rftoolscontrol.modules.various.blocks.NodeTileEntity;
+import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
-import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 
 import static mcjty.lib.gui.widgets.Widgets.*;
 
@@ -24,12 +23,11 @@ public class GuiNode extends GenericGuiContainer<NodeTileEntity, GenericContaine
     public GuiNode(GenericContainer container, Inventory inventory, Component title) {
         super(container, inventory, title, VariousModule.NODE.block().get().getManualEntry());
 
-        imageWidth = WIDTH;
-        imageHeight = HEIGHT;
+        setWindowDimensions(WIDTH, HEIGHT);
     }
 
-    public static void register(RegisterMenuScreensEvent event) {
-        event.register(VariousModule.NODE_CONTAINER.get(), GuiNode::new);
+    public static void register() {
+        MenuScreens.register(VariousModule.NODE_CONTAINER.get(), GuiNode::new);
     }
 
     @Override

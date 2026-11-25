@@ -1,5 +1,8 @@
 package mcjty.rftoolscontrol.modules.processor.logic.running;
 
+import java.util.ArrayList;
+import java.util.List;
+import javax.annotation.Nullable;
 import mcjty.rftoolsbase.api.control.code.IOpcodeRunnable;
 import mcjty.rftoolsbase.api.control.machines.IProgram;
 import mcjty.rftoolsbase.api.control.parameters.IParameter;
@@ -16,13 +19,8 @@ import mcjty.rftoolscontrol.setup.Config;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
-
-import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.List;
 
 public class RunningProgram implements IProgram {
 
@@ -277,31 +275,31 @@ public class RunningProgram implements IProgram {
         if (!tag.contains("card")) {
             return null;
         }
-        int cardIndex = tag.getInt("card");
+        int cardIndex = tag.getIntOr("card", 0);
         RunningProgram program = new RunningProgram(cardIndex);
-        program.setCurrent(tag.getInt("current"));
-        program.eventIndex = tag.getInt("event");
-        program.setDelay(tag.getInt("delay"));
-        program.dead = tag.getBoolean("dead");
+        program.setCurrent(tag.getIntOr("current", 0));
+        program.eventIndex = tag.getIntOr("event", 0);
+        program.setDelay(tag.getIntOr("delay", 0));
+        program.dead = tag.getBooleanOr("dead", false);
         if (tag.contains("ticket")) {
-            program.ticket = tag.getString("ticket");
+            program.ticket = tag.getStringOr("ticket", "");
         }
         if (tag.contains("lock")) {
-            program.lock = tag.getString("lock");
+            program.lock = tag.getStringOr("lock", "");
         }
         if (tag.contains("lastvar")) {
-            CompoundTag varTag = tag.getCompound("lastvar");
-            int t = varTag.getInt("type");
+            CompoundTag varTag = tag.getCompoundOrEmpty("lastvar");
+            int t = varTag.getIntOr("type", 0);
             ParameterType type = ParameterType.values()[t];
             program.lastValue = Parameter.builder().type(type).value(ParameterTypeTools.readFromNBT(varTag, type, provider)).build();
         }
         if (tag.contains("loopStack")) {
             program.loopStack.clear();
-            ListTag loopList = tag.getList("loopStack", Tag.TAG_COMPOUND);
+            ListTag loopList = tag.getListOrEmpty("loopStack");
             for (int i = 0 ; i < loopList.size() ; i++) {
-                CompoundTag t = loopList.getCompound(i);
-                int var = tag.getInt("var");
-                program.loopStack.add(new FlowStack(tag.getInt("index"), var == -1 ? null : var));
+                CompoundTag t = loopList.getCompoundOrEmpty(i);
+                int var = tag.getIntOr("var", 0);
+                program.loopStack.add(new FlowStack(tag.getIntOr("index", 0), var == -1 ? null : var));
             }
         }
         return program;

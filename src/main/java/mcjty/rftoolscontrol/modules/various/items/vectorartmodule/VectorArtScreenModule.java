@@ -2,9 +2,9 @@ package mcjty.rftoolscontrol.modules.various.items.vectorartmodule;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import java.util.Objects;
 import mcjty.lib.varia.BlockPosTools;
 import mcjty.lib.varia.ComponentFactory;
-import mcjty.lib.varia.CompositeStreamCodec;
 import mcjty.lib.varia.LevelTools;
 import mcjty.rftoolsbase.api.control.parameters.Tuple;
 import mcjty.rftoolsbase.api.screens.IScreenDataHelper;
@@ -26,8 +26,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Objects;
 
 public record VectorArtScreenModule(ResourceKey<Level> dim,
                                     BlockPos coordinate,
@@ -110,7 +108,7 @@ public record VectorArtScreenModule(ResourceKey<Level> dim,
     public @NotNull ItemStack mouseClick(ItemStack moduleStack, Level world, int x, int y, boolean clicked, Player player) {
         if (!BlockPosTools.isValid(coordinate)) {
             if (player != null) {
-                player.displayClientMessage(ComponentFactory.literal(ChatFormatting.RED + "Module is not linked to a processor!"), false);
+                player.sendSystemMessage(ComponentFactory.literal(ChatFormatting.RED + "Module is not linked to a processor!"));
             }
             return moduleStack;
         }

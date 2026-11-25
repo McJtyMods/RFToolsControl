@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "M": {
-      "item": "rftoolscontrol:card_base"
-    },
-    "p": {
-      "item": "minecraft:paper"
-    },
-    "r": {
-      "item": "minecraft:redstone"
-    }
+    "M": "rftoolscontrol:card_base",
+    "p": "minecraft:paper",
+    "r": "minecraft:redstone"
   },
   "pattern": [
     "rrr",
@@ -18,7 +12,6 @@
     "rrr"
   ],
   "result": {
-    "count": 1,
     "id": "rftoolscontrol:ram_chip"
   }
 }

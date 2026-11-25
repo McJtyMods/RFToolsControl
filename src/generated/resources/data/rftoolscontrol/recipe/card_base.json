@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "g": {
-      "tag": "c:nuggets/gold"
-    },
-    "n": {
-      "tag": "c:dyes/green"
-    },
-    "r": {
-      "item": "minecraft:redstone"
-    }
+    "g": "#c:nuggets/gold",
+    "n": "#c:dyes/green",
+    "r": "minecraft:redstone"
   },
   "pattern": [
     "rrr",
@@ -18,7 +12,6 @@
     "ggg"
   ],
   "result": {
-    "count": 1,
     "id": "rftoolscontrol:card_base"
   }
 }

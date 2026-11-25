@@ -1,12 +1,10 @@
 package mcjty.rftoolscontrol.modules.processor.data;
 
 import com.mojang.serialization.Codec;
+import java.util.Locale;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.StringRepresentable;
-import net.neoforged.neoforge.network.codec.NeoForgeStreamCodecs;
-
-import java.util.Locale;
 
 /**
  * HUD display modes for the Processor.
@@ -25,7 +23,7 @@ public enum HudMode implements StringRepresentable {
 
     // Use the standard convenience codec for StringRepresentable enums
     public static final Codec<HudMode> CODEC = StringRepresentable.fromEnum(HudMode::values);
-    public static final StreamCodec<FriendlyByteBuf, HudMode> STREAM_CODEC = NeoForgeStreamCodecs.enumCodec(HudMode.class);
+    public static final StreamCodec<FriendlyByteBuf, HudMode> STREAM_CODEC = StreamCodec.of(FriendlyByteBuf::writeEnum, buffer -> buffer.readEnum(HudMode.class));
 
     public static HudMode fromOrdinal(int ord) {
         HudMode[] values = values();
