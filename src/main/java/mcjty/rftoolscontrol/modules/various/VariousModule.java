@@ -1,12 +1,17 @@
 package mcjty.rftoolscontrol.modules.various;
 
+import java.util.function.Supplier;
 import mcjty.lib.blocks.BaseBlock;
 import mcjty.lib.blocks.RBlock;
 import mcjty.lib.container.GenericContainer;
 import mcjty.lib.datagen.DataGen;
 import mcjty.lib.datagen.Dob;
+import mcjty.lib.items.BaseBlockItem;
 import mcjty.lib.modules.IModule;
+import mcjty.lib.setup.DeferredHolder;
+import mcjty.lib.setup.DeferredItem;
 import mcjty.rftoolsbase.modules.tablet.items.TabletItem;
+import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.modules.processor.logic.grid.ProgramCardInstance;
 import mcjty.rftoolscontrol.modules.various.blocks.*;
 import mcjty.rftoolscontrol.modules.various.client.GuiNode;
@@ -25,22 +30,16 @@ import mcjty.rftoolscontrol.modules.various.items.variablemodule.VariableModuleI
 import mcjty.rftoolscontrol.modules.various.items.variablemodule.VariableScreenModule;
 import mcjty.rftoolscontrol.modules.various.items.vectorartmodule.VectorArtModuleItem;
 import mcjty.rftoolscontrol.modules.various.items.vectorartmodule.VectorArtScreenModule;
-import mcjty.rftoolscontrol.setup.Registration;
+import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry;
+import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentType;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Items;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
-import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.neoforged.neoforge.attachment.AttachmentType;
-import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
-import net.neoforged.neoforge.common.Tags;
-import net.neoforged.neoforge.registries.DeferredHolder;
-import net.neoforged.neoforge.registries.DeferredItem;
-
-import java.util.function.Supplier;
 
 import static mcjty.lib.datagen.DataGen.has;
 import static mcjty.rftoolscontrol.RFToolsControl.tab;
@@ -52,7 +51,7 @@ public class VariousModule implements IModule {
             "node",
             NodeTileEntity.class,
             NodeBlock::new,
-            block -> new BlockItem(block.get(), Registration.createStandardProperties()),
+            (block, properties) -> new BaseBlockItem(block.get(), properties.useBlockDescriptionPrefix()),
             NodeTileEntity::new
     );
     public static final Supplier<MenuType<GenericContainer>> NODE_CONTAINER = CONTAINERS.register("node", GenericContainer::createContainerType);
@@ -61,7 +60,7 @@ public class VariousModule implements IModule {
             "workbench",
             WorkbenchTileEntity.class,
             WorkbenchBlock::new,
-            block -> new BlockItem(block.get(), Registration.createStandardProperties()),
+            (block, properties) -> new BaseBlockItem(block.get(), properties.useBlockDescriptionPrefix()),
             WorkbenchTileEntity::new
     );
     public static final Supplier<MenuType<WorkbenchContainer>> WORKBENCH_CONTAINER = CONTAINERS.register("workbench", GenericContainer::createContainerType);
@@ -75,20 +74,18 @@ public class VariousModule implements IModule {
             builder -> builder.persistent(mcjty.rftoolscontrol.modules.various.data.TokenData.CODEC).networkSynchronized(mcjty.rftoolscontrol.modules.various.data.TokenData.STREAM_CODEC)
     );
 
-    public static final Supplier<AttachmentType<NodeData>> NODE_DATA = ATTACHMENT_TYPES.register(
-            "node_data", () -> AttachmentType.builder(NodeData::createDefault)
-                    .serialize(NodeData.CODEC)
-                    .build());
+    public static final AttachmentType<NodeData> NODE_DATA = AttachmentRegistry.create(
+            Identifier.fromNamespaceAndPath(RFToolsControl.MODID, "node_data"),
+            builder -> builder.initializer(NodeData::createDefault).persistent(NodeData.CODEC));
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<NodeData>> ITEM_NODE_DATA = COMPONENTS.registerComponentType(
             "node_data",
             builder -> builder.persistent(NodeData.CODEC)
                     .networkSynchronized(NodeData.STREAM_CODEC)
     );
 
-    public static final Supplier<AttachmentType<WorkbenchData>> WORKBENCH_DATA = ATTACHMENT_TYPES.register(
-            "workbench_data", () -> AttachmentType.builder(WorkbenchData::createDefault)
-                    .serialize(WorkbenchData.CODEC)
-                    .build());
+    public static final AttachmentType<WorkbenchData> WORKBENCH_DATA = AttachmentRegistry.create(
+            Identifier.fromNamespaceAndPath(RFToolsControl.MODID, "workbench_data"),
+            builder -> builder.initializer(WorkbenchData::createDefault).persistent(WorkbenchData.CODEC));
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<WorkbenchData>> ITEM_WORKBENCH_DATA = COMPONENTS.registerComponentType(
             "workbench_data",
             builder -> builder.persistent(WorkbenchData.CODEC)
@@ -141,26 +138,23 @@ public class VariousModule implements IModule {
             builder -> builder.persistent(ProgramCardData.CODEC).networkSynchronized(ProgramCardData.STREAM_CODEC)
     );
 
-    public VariousModule(IEventBus bus) {
-        bus.addListener(this::registerMenuScreens);
-    }
-
     @Override
-    public void init(FMLCommonSetupEvent event) {
+    public void init() {
 
     }
 
     @Override
-    public void initClient(FMLClientSetupEvent event) {
+    public void initClient() {
+        registerMenuScreens();
     }
 
-    public void registerMenuScreens(RegisterMenuScreensEvent event) {
-        GuiWorkbench.register(event);
-        GuiNode.register(event);
+    private void registerMenuScreens() {
+        GuiWorkbench.register();
+        GuiNode.register();
     }
 
     @Override
-    public void initConfig(IEventBus bus) {
+    public void initConfig() {
 
     }
 
@@ -170,7 +164,7 @@ public class VariousModule implements IModule {
                 Dob.blockBuilder(WORKBENCH)
                         .ironPickaxeTags()
                         .parentedItem("block/workbench")
-                        .standardLoot(VariousModule.ITEM_WORKBENCH_DATA.get())
+                        .standardLoot(ITEM_WORKBENCH_DATA.get())
                         .blockState(p -> p.orientedBlock(WORKBENCH.block().get(), p.frontBasedModel("workbench", p.modLoc("block/machineworkbench"))))
                         .shaped(builder -> builder
                                         .define('F', mcjty.rftoolsbase.modules.various.VariousModule.MACHINE_FRAME.get())
@@ -197,8 +191,8 @@ public class VariousModule implements IModule {
                 Dob.itemBuilder(CARD_BASE)
                         .generatedItem("item/cardbase")
                         .shaped(builder -> builder
-                                        .define('n', Tags.Items.DYES_GREEN)
-                                        .define('g', Tags.Items.NUGGETS_GOLD)
+                                        .define('n', TagKey.create(Registries.ITEM, Identifier.parse("c:dyes/green")))
+                                        .define('g', TagKey.create(Registries.ITEM, Identifier.parse("c:nuggets/gold")))
                                         .unlockedBy("redstone", has(Items.REDSTONE)),
                                 "rrr", "nnn", "ggg"),
                 Dob.itemBuilder(TOKEN)
@@ -211,14 +205,14 @@ public class VariousModule implements IModule {
                         .generatedItem("item/variablemoduleitem")
                         .shaped(builder -> builder
                                         .define('M', VariousModule.CARD_BASE.get())
-                                        .define('z', Tags.Items.DYES_BLACK)
+                                        .define('z', TagKey.create(Registries.ITEM, Identifier.parse("c:dyes/black")))
                                         .unlockedBy("cardbase", has(VariousModule.CARD_BASE.get())),
                                 " M ", "rir", " z "),
                 Dob.itemBuilder(INTERACTION_MODULE)
                         .generatedItem("item/interactionmoduleitem")
                         .shaped(builder -> builder
                                         .define('M', VariousModule.CARD_BASE.get())
-                                        .define('z', Tags.Items.DYES_BLACK)
+                                        .define('z', TagKey.create(Registries.ITEM, Identifier.parse("c:dyes/black")))
                                         .define('P', Items.STONE_PRESSURE_PLATE)
                                         .unlockedBy("cardbase", has(VariousModule.CARD_BASE.get())),
                                 "PMP", "rir", " z "),
@@ -226,17 +220,17 @@ public class VariousModule implements IModule {
                         .generatedItem("item/consolemoduleitem")
                         .shaped(builder -> builder
                                         .define('M', VariousModule.CARD_BASE.get())
-                                        .define('P', Tags.Items.GLASS_PANES)
-                                        .define('z', Tags.Items.DYES_BLACK)
+                                        .define('P', TagKey.create(Registries.ITEM, Identifier.parse("c:glass_panes")))
+                                        .define('z', TagKey.create(Registries.ITEM, Identifier.parse("c:dyes/black")))
                                         .unlockedBy("cardbase", has(VariousModule.CARD_BASE.get())),
                                 "PMP", "rir", "PzP"),
                 Dob.itemBuilder(VECTORART_MODULE)
                         .generatedItem("item/vectorartmoduleitem")
                         .shaped(builder -> builder
                                         .define('M', VariousModule.CARD_BASE.get())
-                                        .define('z', Tags.Items.DYES_BLACK)
-                                        .define('P', Tags.Items.GLASS_PANES)
-                                        .define('I', Tags.Items.INGOTS_GOLD)
+                                        .define('z', TagKey.create(Registries.ITEM, Identifier.parse("c:dyes/black")))
+                                        .define('P', TagKey.create(Registries.ITEM, Identifier.parse("c:glass_panes")))
+                                        .define('I', TagKey.create(Registries.ITEM, Identifier.parse("c:ingots/gold")))
                                         .unlockedBy("cardbase", has(VariousModule.CARD_BASE.get())),
                                 "PMP", "rIr", "PzP"),
                 Dob.itemBuilder(TABLET_PROCESSOR)

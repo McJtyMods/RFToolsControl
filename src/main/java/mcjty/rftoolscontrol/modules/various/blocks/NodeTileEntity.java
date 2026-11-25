@@ -1,5 +1,6 @@
 package mcjty.rftoolscontrol.modules.various.blocks;
 
+import java.util.function.Function;
 import mcjty.lib.api.container.DefaultContainerProvider;
 import mcjty.lib.bindings.GuiValue;
 import mcjty.lib.bindings.Value;
@@ -13,15 +14,13 @@ import mcjty.rftoolscontrol.modules.various.VariousModule;
 import mcjty.rftoolscontrol.modules.various.data.NodeData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponentGetter;
 import net.minecraft.core.component.DataComponentMap;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-
-import javax.annotation.Nonnull;
-import java.util.function.Function;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 
 import static mcjty.lib.api.container.DefaultContainerProvider.empty;
 
@@ -47,32 +46,32 @@ public class NodeTileEntity extends GenericTileEntity {
     }
 
     public String getNodeName() {
-        NodeData data = getData(VariousModule.NODE_DATA.get());
+        NodeData data = getData(VariousModule.NODE_DATA);
         return data.node() == null ? "" : data.node();
     }
 
     public String getChannelName() {
-        NodeData data = getData(VariousModule.NODE_DATA.get());
+        NodeData data = getData(VariousModule.NODE_DATA);
         return data.channel() == null ? "" : data.channel();
     }
 
     public void setChannelName(String channel) {
-        NodeData data = getData(VariousModule.NODE_DATA.get());
-        setData(VariousModule.NODE_DATA.get(), data.withChannel(channel));
+        NodeData data = getData(VariousModule.NODE_DATA);
+        setData(VariousModule.NODE_DATA, data.withChannel(channel));
     }
 
     public void setNodeName(String node) {
-        NodeData data = getData(VariousModule.NODE_DATA.get());
-        setData(VariousModule.NODE_DATA.get(), data.withNode(node));
+        NodeData data = getData(VariousModule.NODE_DATA);
+        setData(VariousModule.NODE_DATA, data.withNode(node));
     }
 
     public BlockPos getProcessor() {
-        return getData(VariousModule.NODE_DATA.get()).processor();
+        return getData(VariousModule.NODE_DATA).processor();
     }
 
     public void setProcessor(BlockPos processor) {
-        NodeData data = getData(VariousModule.NODE_DATA.get());
-        setData(VariousModule.NODE_DATA.get(), data.withProcessor(processor));
+        NodeData data = getData(VariousModule.NODE_DATA);
+        setData(VariousModule.NODE_DATA, data.withProcessor(processor));
     }
 
     @Override
@@ -97,39 +96,39 @@ public class NodeTileEntity extends GenericTileEntity {
     public void setPowerOut(Direction side, int powerOut) {
         this.powerOut[side.ordinal()] = powerOut;
         setChanged();
-        getLevel().neighborChanged(this.worldPosition.relative(side), this.getBlockState().getBlock(), this.worldPosition);
+        getLevel().neighborChanged(this.worldPosition.relative(side), this.getBlockState().getBlock(), null);
     }
 
     @Override
-    public void loadAdditional(CompoundTag tagCompound, HolderLookup.Provider provider) {
-        super.loadAdditional(tagCompound, provider);
-        prevIn = tagCompound.getInt("prevIn");
+    public void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        prevIn = input.getIntOr("prevIn", 0);
         for (int i = 0; i < 6; i++) {
-            powerOut[i] = tagCompound.getByte("p" + i);
+            powerOut[i] = input.getByteOr("p" + i, (byte) 0);
         }
     }
 
     @Override
-    public void saveAdditional(@Nonnull CompoundTag tagCompound, HolderLookup.Provider provider) {
-        super.saveAdditional(tagCompound, provider);
-        tagCompound.putInt("prevIn", prevIn);
+    public void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+        output.putInt("prevIn", prevIn);
         for (int i = 0; i < 6; i++) {
-            tagCompound.putByte("p" + i, (byte) powerOut[i]);
+            output.putByte("p" + i, (byte) powerOut[i]);
         }
     }
 
     @Override
     protected void collectImplicitComponents(DataComponentMap.Builder builder) {
         super.collectImplicitComponents(builder);
-        builder.set(VariousModule.ITEM_NODE_DATA.get(), getData(VariousModule.NODE_DATA.get()));
+        builder.set(VariousModule.ITEM_NODE_DATA.get(), getData(VariousModule.NODE_DATA));
     }
 
     @Override
-    protected void applyImplicitComponents(DataComponentInput input) {
+    protected void applyImplicitComponents(DataComponentGetter input) {
         super.applyImplicitComponents(input);
         NodeData data = input.get(VariousModule.ITEM_NODE_DATA.get());
         if (data != null) {
-            setData(VariousModule.NODE_DATA.get(), data);
+            setData(VariousModule.NODE_DATA, data);
         }
     }
 }

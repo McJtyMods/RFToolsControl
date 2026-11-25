@@ -1,9 +1,9 @@
 package mcjty.rftoolscontrol.modules.processor.logic.registry;
 
 import mcjty.rftoolsbase.api.control.parameters.Inventory;
+import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.core.Direction;
 
 public class InventoryUtil {
 
@@ -25,11 +25,11 @@ public class InventoryUtil {
     public static Inventory readFromNBT(CompoundTag tag) {
         String nodeName = null;
         if (tag.contains("node")) {
-            nodeName = tag.getString("node");
+            nodeName = tag.getStringOr("node", "");
         }
-        int sideIdx = tag.getByte("side");
+        int sideIdx = tag.getByteOr("side", (byte) 0);
         Direction side = Direction.values()[sideIdx];
-        sideIdx = tag.getByte("intside");
+        sideIdx = tag.getByteOr("intside", (byte) 0);
         Direction intSide = sideIdx == -1 ? null : Direction.values()[sideIdx];
         return new Inventory(nodeName, side, intSide);
     }

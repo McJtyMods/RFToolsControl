@@ -1,16 +1,15 @@
 package mcjty.rftoolscontrol.modules.processor.vectorart;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.*;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-
-import java.util.Map;
 
 public abstract class GfxOp {
 
@@ -79,7 +78,9 @@ public abstract class GfxOp {
             }
     );
 
-    public abstract void render(GuiGraphics graphics, MultiBufferSource buffer);
+    public abstract void render(GuiGraphicsExtractor graphics);
+
+    public abstract void submit(PoseStack pose, SubmitNodeCollector collector);
 
     public abstract GfxOpType getType();
 
@@ -92,7 +93,7 @@ public abstract class GfxOp {
     }
 
     public static GfxOp readFromNBT(CompoundTag tag) {
-        GfxOpType type = GfxOpType.values()[tag.getByte("type")];
+        GfxOpType type = GfxOpType.values()[tag.getByteOr("type", (byte) 0)];
         GfxOp op = createGfxOp(type);
         op.readFromNBTInternal(tag);
         return op;

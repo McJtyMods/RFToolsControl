@@ -1,28 +1,29 @@
 package mcjty.rftoolscontrol.modules.processor.blocks;
 
+import javax.annotation.Nonnull;
 import mcjty.lib.blocks.BaseBlock;
 import mcjty.lib.builder.BlockBuilder;
 import mcjty.rftoolsbase.tools.ManualHelper;
 import mcjty.rftoolscontrol.compat.RFToolsControlTOPDriver;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.core.Direction;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.Level;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.MapColor;
+import net.minecraft.world.level.redstone.Orientation;
 
 import static mcjty.lib.builder.TooltipBuilder.header;
 import static mcjty.lib.builder.TooltipBuilder.key;
 
 public class ProcessorBlock extends BaseBlock {
 
-    public ProcessorBlock() {
+    public ProcessorBlock(Properties properties) {
         super(new BlockBuilder()
+                .properties(properties.mapColor(MapColor.METAL).strength(2.0f).requiresCorrectToolForDrops().sound(SoundType.METAL))
                 .topDriver(RFToolsControlTOPDriver.DRIVER)
                 .manualEntry(ManualHelper.create("rftoolsbase:processor/processor"))
                 .info(key("message.rftoolscontrol.shiftmessage"))
@@ -31,21 +32,14 @@ public class ProcessorBlock extends BaseBlock {
     }
 
     @Override
-    public void neighborChanged(@Nonnull BlockState state, @Nonnull Level world, @Nonnull BlockPos pos, @Nonnull Block blockIn, @Nonnull BlockPos fromPos, boolean isMoving) {
-        super.neighborChanged(state, world, pos, blockIn, fromPos, isMoving);
+    public void neighborChanged(@Nonnull BlockState state, @Nonnull Level world, @Nonnull BlockPos pos, @Nonnull Block blockIn, Orientation orientation, boolean isMoving) {
+        super.neighborChanged(state, world, pos, blockIn, orientation, isMoving);
         BlockEntity te = world.getBlockEntity(pos);
         if (te instanceof ProcessorTileEntity) {
             ((ProcessorTileEntity) te).markFluidSlotsDirty();
         }
     }
 
-    @Override
-    public void onNeighborChange(BlockState state, LevelReader world, BlockPos pos, BlockPos neighbor) {
-        BlockEntity te = world.getBlockEntity(pos);
-        if (te instanceof ProcessorTileEntity) {
-            ((ProcessorTileEntity) te).markFluidSlotsDirty();
-        }
-    }
 
     private int getInputStrength(Level world, BlockPos pos, Direction side) {
         return world.getSignal(pos.relative(side), side);
@@ -80,7 +74,7 @@ public class ProcessorBlock extends BaseBlock {
     }
 
     @Override
-    public boolean canConnectRedstone(BlockState state, BlockGetter world, BlockPos pos, @Nullable Direction side) {
+    protected boolean isSignalSource(BlockState state) {
         return true;
     }
 

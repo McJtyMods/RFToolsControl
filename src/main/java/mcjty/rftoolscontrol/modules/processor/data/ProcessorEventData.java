@@ -1,6 +1,8 @@
 package mcjty.rftoolscontrol.modules.processor.data;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import mcjty.rftoolscontrol.modules.processor.util.QueuedEvent;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -9,7 +11,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.Set;
@@ -21,22 +22,16 @@ public record ProcessorEventData(Queue<QueuedEvent> queuedEvents, Set<Pair<Integ
 
     public static final ProcessorEventData DEFAULT = empty();
 
-    public static final Codec<ProcessorEventData> CODEC = Codec.pair(
-            QueuedEvent.CODEC.listOf(),
-            Codec.pair(Codec.INT.listOf(), Codec.INT.listOf())
-    ).xmap(
-            pair -> new ProcessorEventData(
-                    new LinkedList<>(pair.getFirst()),
-                    zipToPairs(pair.getSecond().getFirst(), pair.getSecond().getSecond())
-            ),
-            data -> com.mojang.datafixers.util.Pair.of(
-                    new ArrayList<>(data.queuedEvents()),
-                    com.mojang.datafixers.util.Pair.of(
-                            data.runningEvents().stream().map(Pair::getLeft).toList(),
-                            data.runningEvents().stream().map(Pair::getRight).toList()
-                    )
-            )
-    );
+    private static final Codec<Pair<Integer, Integer>> RUNNING_EVENT_CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            Codec.INT.fieldOf("card").forGetter(Pair::getLeft),
+            Codec.INT.fieldOf("event").forGetter(Pair::getRight)
+    ).apply(instance, Pair::of));
+
+    public static final MapCodec<ProcessorEventData> MAP_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+            QueuedEvent.CODEC.listOf().optionalFieldOf("queued", List.of()).forGetter(data -> new ArrayList<>(data.queuedEvents())),
+            RUNNING_EVENT_CODEC.listOf().optionalFieldOf("running", List.of()).forGetter(data -> new ArrayList<>(data.runningEvents()))
+    ).apply(instance, (queued, running) -> new ProcessorEventData(new ArrayDeque<>(queued), new HashSet<>(running))));
+    public static final Codec<ProcessorEventData> CODEC = MAP_CODEC.codec();
 
     public static ProcessorEventData empty() {
         return new ProcessorEventData(new ArrayDeque<>(), new HashSet<>());
@@ -65,13 +60,4 @@ public record ProcessorEventData(Queue<QueuedEvent> queuedEvents, Set<Pair<Integ
     // withXxx helpers
     public ProcessorEventData withQueuedEvents(Queue<QueuedEvent> queuedEvents) { return new ProcessorEventData(queuedEvents, this.runningEvents); }
     public ProcessorEventData withRunningEvents(Set<Pair<Integer, Integer>> runningEvents) { return new ProcessorEventData(this.queuedEvents, runningEvents); }
-
-    private static Set<Pair<Integer, Integer>> zipToPairs(List<Integer> left, List<Integer> right) {
-        int size = Math.min(left.size(), right.size());
-        Set<Pair<Integer, Integer>> result = new HashSet<>();
-        for (int i = 0; i < size; i++) {
-            result.add(Pair.of(left.get(i), right.get(i)));
-        }
-        return result;
-    }
 }

@@ -1,11 +1,12 @@
 package mcjty.rftoolscontrol.modules.processor.vectorart;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import mcjty.lib.client.RenderHelper;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -46,8 +47,13 @@ public class GfxOpText extends GfxOp {
     }
 
     @Override
-    public void render(GuiGraphics graphics, MultiBufferSource buffer) {
-        RenderHelper.renderText(Minecraft.getInstance().font, text, x, y, color, graphics.pose(), buffer, RenderHelper.MAX_BRIGHTNESS);
+    public void render(GuiGraphicsExtractor graphics) {
+        graphics.text(Minecraft.getInstance().font, text, x, y, color, false);
+    }
+
+    @Override
+    public void submit(PoseStack pose, SubmitNodeCollector collector) {
+        RenderHelper.renderText(Minecraft.getInstance().font, text, x, y, color, pose, collector, RenderHelper.MAX_BRIGHTNESS);
     }
 
     @Override
@@ -57,10 +63,10 @@ public class GfxOpText extends GfxOp {
 
     @Override
     protected void readFromNBTInternal(CompoundTag tag) {
-        x = tag.getByte("x");
-        y = tag.getByte("y");
-        text = tag.getString("text");
-        color = tag.getInt("color");
+        x = tag.getByteOr("x", (byte) 0);
+        y = tag.getByteOr("y", (byte) 0);
+        text = tag.getStringOr("text", "");
+        color = tag.getIntOr("color", 0);
     }
 
     @Override

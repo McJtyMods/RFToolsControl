@@ -1,26 +1,27 @@
 package mcjty.rftoolscontrol.modules.various.blocks;
 
+import javax.annotation.Nonnull;
 import mcjty.lib.blocks.BaseBlock;
 import mcjty.lib.builder.BlockBuilder;
-import mcjty.rftoolscontrol.compat.RFToolsControlTOPDriver;
 import mcjty.rftoolsbase.tools.ManualHelper;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.core.Direction;
+import mcjty.rftoolscontrol.compat.RFToolsControlTOPDriver;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.MapColor;
 
 import static mcjty.lib.builder.TooltipBuilder.header;
 import static mcjty.lib.builder.TooltipBuilder.key;
 
 public class NodeBlock extends BaseBlock {
 
-    public NodeBlock() {
+    public NodeBlock(Properties properties) {
         super(new BlockBuilder()
+                .properties(properties.mapColor(MapColor.METAL).strength(2.0f).requiresCorrectToolForDrops().sound(SoundType.METAL))
                 .topDriver(RFToolsControlTOPDriver.DRIVER)
                 .manualEntry(ManualHelper.create("rftoolscontrol:advanced/nodes"))
                 .info(key("message.rftoolscontrol.shiftmessage"))
@@ -67,7 +68,7 @@ public class NodeBlock extends BaseBlock {
     }
 
     @Override
-    public boolean canConnectRedstone(BlockState state, BlockGetter world, BlockPos pos, @Nullable Direction side) {
+    protected boolean isSignalSource(BlockState state) {
         return true;
     }
 

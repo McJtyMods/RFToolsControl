@@ -1,18 +1,17 @@
 package mcjty.rftoolscontrol.modules.processor.logic;
 
+import java.util.function.Predicate;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import mcjty.lib.container.IItemHandler;
+import mcjty.lib.container.ItemHandlerHelper;
 import mcjty.rftoolsbase.api.control.parameters.BlockSide;
 import mcjty.rftoolsbase.api.control.parameters.Inventory;
 import mcjty.rftoolsbase.api.storage.IStorageScanner;
+import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.core.Direction;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemHandlerHelper;
 import org.apache.commons.lang3.StringUtils;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.function.Predicate;
 
 public class LogicInventoryTools {
 
@@ -53,12 +52,12 @@ public class LogicInventoryTools {
     }
 
     public static ItemStack extractItem(@Nullable IItemHandler itemHandler, @Nullable IStorageScanner scanner,
-                                        @Nullable Integer amount, boolean routable, @Nonnull Ingredient itemMatcher,
+                                        @Nullable Integer amount, boolean routable, @Nullable Ingredient itemMatcher,
                                         @Nullable Integer slot) {
         if (itemHandler != null) {
             // @todo implement oredict here
             if (slot == null) {
-                if (itemMatcher == Ingredient.EMPTY) {
+                if (itemMatcher == null) {
                     // Just find the first available stack
                     for (int i = 0 ; i < itemHandler.getSlots() ; i++) {
                         ItemStack stack = itemHandler.getStackInSlot(i);
@@ -75,7 +74,7 @@ public class LogicInventoryTools {
                     }
                 }
             } else {
-                if (itemMatcher == Ingredient.EMPTY) {
+                if (itemMatcher == null) {
                     return itemHandler.extractItem(slot, amount == null ? 64 : amount, false);
                 } else {
                     if (!itemMatcher.test(itemHandler.getStackInSlot(slot))) {
@@ -84,7 +83,7 @@ public class LogicInventoryTools {
                     return itemHandler.extractItem(slot, amount == null ? getMaxStackSizeFromIngredient(itemMatcher) : amount, false);
                 }
             }
-        } else if (scanner != null) {
+        } else if (scanner != null && itemMatcher != null) {
             return scanner.requestItem(itemMatcher, false, amount == null ? getMaxStackSizeFromIngredient(itemMatcher) : amount, routable); // @todo 1.15 check
         }
         return ItemStack.EMPTY;
@@ -122,12 +121,12 @@ public class LogicInventoryTools {
 
     public static ItemStack tryExtractItem(@Nullable IItemHandler itemHandler, @Nullable IStorageScanner scanner,
                                            @Nullable Integer amount, boolean routable,
-                                           Ingredient itemMatcher,
+                                           @Nullable Ingredient itemMatcher,
                                            @Nullable Integer slot) {
 
         if (itemHandler != null) {
             if (slot == null) {
-                if (itemMatcher == Ingredient.EMPTY) {
+                if (itemMatcher == null) {
                     // Just find the first available stack
                     for (int i = 0 ; i < itemHandler.getSlots() ; i++) {
                         ItemStack stack = itemHandler.getStackInSlot(i);
@@ -144,7 +143,7 @@ public class LogicInventoryTools {
                     }
                 }
             } else {
-                if (itemMatcher == Ingredient.EMPTY) {
+                if (itemMatcher == null) {
                     return itemHandler.extractItem(slot, amount == null ? 64 : amount, true);
                 } else {
                     if (!itemMatcher.test(itemHandler.getStackInSlot(slot))) {
@@ -154,7 +153,7 @@ public class LogicInventoryTools {
                 }
             }
         }
-        if (scanner != null) {
+        if (scanner != null && itemMatcher != null) {
             return scanner.getItem(itemMatcher, routable);
         }
         return ItemStack.EMPTY;
@@ -266,23 +265,7 @@ public class LogicInventoryTools {
         return new BlockSide(s.substring(0, indexOf), side);
     }
 
-    // @todo 1.15 is this the right way?
-    public static int getCountFromIngredient(Ingredient ingredient) {
-        ItemStack[] stacks = ingredient.getItems();
-        if (stacks.length > 0) {
-            return stacks[0].getCount();
-        } else {
-            return 1;   // Unknown
-        }
-    }
-
-    // @todo 1.15 is this the right way?
     public static int getMaxStackSizeFromIngredient(Ingredient ingredient) {
-        ItemStack[] stacks = ingredient.getItems();
-        if (stacks.length > 0) {
-            return stacks[0].getMaxStackSize();
-        } else {
-            return 1;   // Unknown
-        }
+        return ingredient.items().findFirst().map(item -> new ItemStack(item).getMaxStackSize()).orElse(1);
     }
 }

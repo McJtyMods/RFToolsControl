@@ -2,13 +2,12 @@ package mcjty.rftoolscontrol.modules.multitank.data;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import java.util.ArrayList;
+import java.util.List;
+import mcjty.lib.varia.FluidStack;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.neoforged.neoforge.fluids.FluidStack;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import static mcjty.rftoolscontrol.modules.multitank.blocks.MultiTankTileEntity.TANKS;
 

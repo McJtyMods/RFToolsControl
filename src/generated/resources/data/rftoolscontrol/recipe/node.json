@@ -1,19 +1,10 @@
 {
   "type": "minecraft:crafting_shaped",
-  "category": "misc",
   "key": {
-    "F": {
-      "item": "rftoolsbase:machine_frame"
-    },
-    "M": {
-      "item": "rftoolscontrol:card_base"
-    },
-    "o": {
-      "tag": "c:ender_pearls"
-    },
-    "r": {
-      "item": "minecraft:redstone"
-    }
+    "F": "rftoolsbase:machine_frame",
+    "M": "rftoolscontrol:card_base",
+    "o": "#c:ender_pearls",
+    "r": "minecraft:redstone"
   },
   "pattern": [
     "ror",
@@ -21,7 +12,6 @@
     "rMr"
   ],
   "result": {
-    "count": 1,
     "id": "rftoolscontrol:node"
   }
 }

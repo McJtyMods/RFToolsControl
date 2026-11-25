@@ -1,24 +1,20 @@
 package mcjty.rftoolscontrol.modules.programmer.network;
 
+import mcjty.lib.network.PayloadContext;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.modules.programmer.blocks.ProgrammerTileEntity;
+import mcjty.rftoolscontrol.modules.various.VariousModule;
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 public record PacketUpdateNBTItemInventoryProgrammer(BlockPos pos, int slotIndex, ItemStack card) implements CustomPacketPayload {
 
-    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(RFToolsControl.MODID, "updatenbtiteminventoryprogrammer");
+    public static final Identifier ID = Identifier.fromNamespaceAndPath(RFToolsControl.MODID, "updatenbtiteminventoryprogrammer");
     public static final CustomPacketPayload.Type<PacketUpdateNBTItemInventoryProgrammer> TYPE = new Type<>(ID);
 
     public static final StreamCodec<RegistryFriendlyByteBuf, PacketUpdateNBTItemInventoryProgrammer> CODEC = StreamCodec.composite(
@@ -32,32 +28,31 @@ public record PacketUpdateNBTItemInventoryProgrammer(BlockPos pos, int slotIndex
         return new PacketUpdateNBTItemInventoryProgrammer(blockPos, slot, card);
     }
 
-    protected boolean isValidBlock(Level world, BlockPos blockPos, BlockEntity tileEntity) {
-        return tileEntity instanceof ProgrammerTileEntity;
-    }
-
     @Override
     public Type<? extends CustomPacketPayload> type() {
         return TYPE;
     }
 
-    public void handle(IPayloadContext ctx) {
+    public void handle(PayloadContext ctx) {
         ctx.enqueueWork(() -> {
-            Level world = ctx.player().getCommandSenderWorld();
-            BlockEntity te = world.getBlockEntity(pos);
-            if (te != null) {
-                if (!isValidBlock(world, pos, te)) {
-                    return;
-                }
-                IItemHandler handler = world.getCapability(Capabilities.ItemHandler.BLOCK, pos, null);
-                if (handler != null) {
-                    ItemStack stack = handler.getStackInSlot(slotIndex);
-                    if (stack.getItem() == card.getItem()) {
-                        stack.applyComponents(card.getComponents());
-                    }
-                    te.setChanged();
-                }
+            if (slotIndex != ProgrammerTileEntity.SLOT_DUMMY && slotIndex != ProgrammerTileEntity.SLOT_CARD) {
+                return;
             }
+            var player = ctx.player();
+            if (!(player.level().getBlockEntity(pos) instanceof ProgrammerTileEntity programmer)
+                    || !player.isWithinBlockInteractionRange(pos, 0) || !programmer.canPlayerAccess(player)) {
+                return;
+            }
+            var items = programmer.getItems();
+            ItemStack existing = items.getStackInSlot(slotIndex);
+            if (existing.isEmpty() || !ItemStack.isSameItem(existing, card) || !card.is(VariousModule.PROGRAM_CARD.get())) {
+                return;
+            }
+            ItemStack updated = existing.copy();
+            updated.set(VariousModule.PROGRAM_CARD_DATA.get(), card.get(VariousModule.PROGRAM_CARD_DATA.get()));
+            updated.set(VariousModule.PROGRAM_CARD_NAME.get(), card.get(VariousModule.PROGRAM_CARD_NAME.get()));
+            items.setStackInSlot(slotIndex, updated);
+            programmer.setChanged();
         });
     }
 }
