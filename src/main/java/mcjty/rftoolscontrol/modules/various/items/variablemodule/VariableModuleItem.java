@@ -1,7 +1,9 @@
 package mcjty.rftoolscontrol.modules.various.items.variablemodule;
 
 import com.mojang.serialization.Codec;
-import mcjty.lib.varia.BlockPosTools;
+import java.util.function.Function;
+import javax.annotation.Nonnull;
+import mcjty.lib.gui.ManualEntry;
 import mcjty.lib.varia.Logging;
 import mcjty.lib.varia.ModuleTools;
 import mcjty.lib.varia.Tools;
@@ -10,15 +12,13 @@ import mcjty.rftoolsbase.api.screens.IModuleGuiBuilder;
 import mcjty.rftoolsbase.api.screens.IScreenModule;
 import mcjty.rftoolsbase.api.screens.TextAlign;
 import mcjty.rftoolsbase.tools.GenericModuleItem;
-import mcjty.rftoolscontrol.RFToolsControl;
+import mcjty.rftoolsbase.tools.ManualHelper;
 import mcjty.rftoolscontrol.modules.processor.ProcessorModule;
 import mcjty.rftoolscontrol.modules.various.VariousModule;
 import mcjty.rftoolscontrol.setup.Config;
-import mcjty.lib.gui.ManualEntry;
-import mcjty.rftoolsbase.tools.ManualHelper;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.GlobalPos;
+import net.minecraft.core.component.DataComponentType;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.InteractionHand;
@@ -31,13 +31,10 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
-import java.util.function.Function;
-
 public class VariableModuleItem extends GenericModuleItem {
 
-    public VariableModuleItem() {
-        super(RFToolsControl.setup.defaultProperties()
+    public VariableModuleItem(Properties properties) {
+        super(properties
                 .stacksTo(1)
                 .durability(1));
     }
@@ -125,13 +122,13 @@ public class VariableModuleItem extends GenericModuleItem {
             String name = Tools.getReadableName(world, pos);
             data(stack, module -> module.withTarget(world.dimension(), pos, name));
             ModuleTools.setPositionInModule(stack, world.dimension(), pos, name);
-            if (world.isClientSide) {
+            if (world.isClientSide()) {
                 Logging.message(player, "Variable module is set to block");
             }
         } else {
             data(stack, module -> module.clearTarget());
             ModuleTools.clearPositionInModule(stack);
-            if (world.isClientSide) {
+            if (world.isClientSide()) {
                 Logging.message(player, "Variable module is cleared");
             }
         }
@@ -139,7 +136,7 @@ public class VariableModuleItem extends GenericModuleItem {
     }
 
     public static VariableScreenModule data(ItemStack stack) {
-        VariableScreenModule data = stack.get(VariousModule.VARIABLE_MODULE_DATA);
+        VariableScreenModule data = stack.get(VariousModule.VARIABLE_MODULE_DATA.get());
         if (data == null) {
             data = VariableScreenModule.DEFAULT;
         }

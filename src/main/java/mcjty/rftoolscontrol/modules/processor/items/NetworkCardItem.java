@@ -1,22 +1,20 @@
 package mcjty.rftoolscontrol.modules.processor.items;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Consumer;
+import javax.annotation.Nonnull;
 import mcjty.lib.builder.TooltipBuilder;
+import mcjty.lib.gui.ManualEntry;
 import mcjty.lib.tooltips.ITooltipSettings;
 import mcjty.lib.varia.Tools;
-import mcjty.rftoolscontrol.RFToolsControl;
-import mcjty.lib.gui.ManualEntry;
 import mcjty.rftoolsbase.tools.ManualHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.level.Level;
-import net.neoforged.neoforge.common.util.Lazy;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.List;
+import net.minecraft.world.item.component.TooltipDisplay;
 
 import static mcjty.lib.builder.TooltipBuilder.*;
 
@@ -33,8 +31,8 @@ public class NetworkCardItem extends Item implements ITooltipSettings {
                     general("range", ChatFormatting.GREEN),
                     general("extra", stack -> getTier() == TIER_ADVANCED, ChatFormatting.GREEN));
 
-    public NetworkCardItem(int tier) {
-        super(RFToolsControl.setup.defaultProperties().stacksTo(1));
+    public NetworkCardItem(Properties properties, int tier) {
+        super(properties.stacksTo(1));
         this.tier = tier;
     }
 
@@ -44,9 +42,11 @@ public class NetworkCardItem extends Item implements ITooltipSettings {
 
 
     @Override
-    public void appendHoverText(@Nonnull ItemStack stack, TooltipContext context, @Nonnull List<Component> list, @Nonnull TooltipFlag flag) {
-        super.appendHoverText(stack, context, list, flag);
+    public void appendHoverText(@Nonnull ItemStack stack, TooltipContext context, TooltipDisplay display, Consumer<Component> consumer, @Nonnull TooltipFlag flag) {
+        super.appendHoverText(stack, context, display, consumer, flag);
+        List<Component> list = new ArrayList<>();
         tooltipBuilder.makeTooltip(Tools.getId(this), stack, list, flag);
+        list.forEach(consumer);
     }
 
     @Override

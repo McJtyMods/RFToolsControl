@@ -1,7 +1,12 @@
 {
   "parent": "block/cube",
-  "loader": "neoforge:obj",
+  "fabric:type": "rftoolscontrol:tank_obj",
   "model": "rftoolscontrol:models/block/tank.obj",
-  "render_type": "minecraft:translucent",
-  "flip_v": true
+  "flip_v": true,
+  "textures": {
+    "particle": "rftoolscontrol:block/machinetank",
+    "rftoolscontrol:block/machinetank": "rftoolscontrol:block/machinetank",
+    "rftoolscontrol:block/machinetankinside": "rftoolscontrol:block/machinetankinside",
+    "rftoolscontrol:block/machinetanktop": "rftoolscontrol:block/machinetanktop"
+  }
 }

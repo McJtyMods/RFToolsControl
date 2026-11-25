@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "rftoolscontrol:ram_chip"
+        "recipes": "rftoolscontrol:ram_chip"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

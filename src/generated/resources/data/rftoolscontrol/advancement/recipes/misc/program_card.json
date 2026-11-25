@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "rftoolscontrol:program_card"
+        "recipes": "rftoolscontrol:program_card"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

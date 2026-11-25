@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "rftoolscontrol:network_card"
+        "recipes": "rftoolscontrol:network_card"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

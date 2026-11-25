@@ -5,6 +5,10 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.mojang.serialization.JsonOps;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import mcjty.lib.varia.FluidStack;
 import mcjty.rftoolsbase.api.control.parameters.*;
 import mcjty.rftoolscontrol.modules.processor.logic.registry.Functions;
 import mcjty.rftoolscontrol.modules.processor.logic.running.ExceptionType;
@@ -12,14 +16,10 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.fluids.FluidStack;
 import org.apache.commons.lang3.StringUtils;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 public class ParameterTypeTools {
 
@@ -114,9 +114,9 @@ public class ParameterTypeTools {
 
     public static ParameterValue readFromNBT(CompoundTag tag, ParameterType type, HolderLookup.Provider provider) {
         if (tag.contains("varIdx")) {
-            return ParameterValue.variable(tag.getInt("varIdx"));
+            return ParameterValue.variable(tag.getIntOr("varIdx", 0));
         } else if (tag.contains("funId")) {
-            return ParameterValue.function(Functions.FUNCTIONS.get(tag.getString("funId")));
+            return ParameterValue.function(Functions.FUNCTIONS.get(tag.getStringOr("funId", "")));
         } else if (tag.contains("null")) {
             return ParameterValue.constant(null);
         } else {
@@ -127,46 +127,46 @@ public class ParameterTypeTools {
     private static ParameterValue readFromNBTInternal(CompoundTag tag, ParameterType type, HolderLookup.Provider provider) {
         switch (type) {
             case PAR_STRING:
-                return ParameterValue.constant(tag.getString("v"));
+                return ParameterValue.constant(tag.getStringOr("v", ""));
             case PAR_INTEGER:
-                return ParameterValue.constant(tag.getInt("v"));
+                return ParameterValue.constant(tag.getIntOr("v", 0));
             case PAR_LONG:
-                return ParameterValue.constant(tag.getLong("v"));
+                return ParameterValue.constant(tag.getLongOr("v", 0L));
             case PAR_FLOAT:
-                return ParameterValue.constant(tag.getFloat("v"));
+                return ParameterValue.constant(tag.getFloatOr("v", 0F));
             case PAR_NUMBER:
                 if (tag.contains("v")) {
-                    return ParameterValue.constant(tag.getInt("v"));
+                    return ParameterValue.constant(tag.getIntOr("v", 0));
                 } else if (tag.contains("l")) {
-                    return ParameterValue.constant(tag.getLong("l"));
+                    return ParameterValue.constant(tag.getLongOr("l", 0L));
                 } else if (tag.contains("f")) {
-                    return ParameterValue.constant(tag.getFloat("f"));
+                    return ParameterValue.constant(tag.getFloatOr("f", 0F));
                 } else if (tag.contains("d")) {
-                    return ParameterValue.constant(tag.getDouble("d"));
+                    return ParameterValue.constant(tag.getDoubleOr("d", 0D));
                 }
                 break;
             case PAR_SIDE:
-                int v = tag.getInt("v");
+                int v = tag.getIntOr("v", 0);
                 Direction facing = v == -1 ? null : Direction.values()[v];
-                String node = tag.getString("node");
+                String node = tag.getStringOr("node", "");
                 return ParameterValue.constant(new BlockSide(node, facing));
             case PAR_BOOLEAN:
-                return ParameterValue.constant(tag.getBoolean("v"));
+                return ParameterValue.constant(tag.getBooleanOr("v", false));
             case PAR_INVENTORY:
-                Direction side = Direction.values()[tag.getInt("side")];
+                Direction side = Direction.values()[tag.getIntOr("side", 0)];
                 String name = null;
                 Direction intSide = null;
                 if (tag.contains("nodeName")) {
-                    name = tag.getString("nodeName");
+                    name = tag.getStringOr("nodeName", "");
                 }
                 if (tag.contains("intSide")) {
-                    intSide = Direction.values()[tag.getInt("intSide")];
+                    intSide = Direction.values()[tag.getIntOr("intSide", 0)];
                 }
                 return ParameterValue.constant(new Inventory(name, side, intSide));
             case PAR_ITEM:
                 if (tag.contains("item")) {
-                    CompoundTag tc = tag.getCompound("item");
-                    ItemStack stack = ItemStack.parseOptional(provider, tc);
+                    CompoundTag tc = tag.getCompoundOrEmpty("item");
+                    ItemStack stack = ItemStack.OPTIONAL_CODEC.parse(provider.createSerializationContext(NbtOps.INSTANCE), tc).result().orElse(ItemStack.EMPTY);
                     // Fix for 1.10 0-sized stacks
                     if (stack.getCount() == 0) {
                         stack.setCount(1);
@@ -176,21 +176,21 @@ public class ParameterTypeTools {
                 return ParameterValue.constant(ItemStack.EMPTY);
             case PAR_FLUID:
                 if (tag.contains("fluid")) {
-                    CompoundTag tc = tag.getCompound("fluid");
-                    FluidStack stack = FluidStack.parseOptional(provider, tc);
+                    CompoundTag tc = tag.getCompoundOrEmpty("fluid");
+                    FluidStack stack = FluidStack.OPTIONAL_CODEC.parse(provider.createSerializationContext(NbtOps.INSTANCE), tc).result().orElse(FluidStack.EMPTY);
                     return ParameterValue.constant(stack);
                 }
                 return ParameterValue.constant(null);
             case PAR_EXCEPTION:
-                String code = tag.getString("code");
+                String code = tag.getStringOr("code", "");
                 return ParameterValue.constant(ExceptionType.getExceptionForCode(code));
             case PAR_TUPLE:
-                return ParameterValue.constant(new Tuple(tag.getInt("x"), tag.getInt("y")));
+                return ParameterValue.constant(new Tuple(tag.getIntOr("x", 0), tag.getIntOr("y", 0)));
             case PAR_VECTOR:
-                ListTag array = tag.getList("vector", Tag.TAG_COMPOUND);
+                ListTag array = tag.getListOrEmpty("vector");
                 List<Parameter> vector = new ArrayList<>();
                 for (int i = 0 ; i < array.size() ; i++) {
-                    vector.add(ParameterTools.readFromNBT(array.getCompound(i), provider));
+                    vector.add(ParameterTools.readFromNBT(array.getCompoundOrEmpty(i), provider));
                 }
                 return ParameterValue.constant(Collections.unmodifiableList(vector));
         }
@@ -242,12 +242,12 @@ public class ParameterTypeTools {
                 break;
             case PAR_ITEM:
                 ItemStack itemStack = (ItemStack) value;
-                Tag tc = itemStack.save(provider);
+                Tag tc = ItemStack.OPTIONAL_CODEC.encodeStart(provider.createSerializationContext(NbtOps.INSTANCE), itemStack).getOrThrow();
                 tag.put("item", tc);
                 break;
             case PAR_FLUID:
                 FluidStack fluidStack = (FluidStack) value;
-                Tag fluidTc = fluidStack.save(provider);
+                Tag fluidTc = FluidStack.OPTIONAL_CODEC.encodeStart(provider.createSerializationContext(NbtOps.INSTANCE), fluidStack).getOrThrow();
                 tag.put("fluid", fluidTc);
                 break;
             case PAR_EXCEPTION:

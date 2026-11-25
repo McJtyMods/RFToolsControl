@@ -1,26 +1,25 @@
 package mcjty.rftoolscontrol.modules.processor.network;
 
 
+import java.util.List;
+import mcjty.lib.network.PayloadContext;
 import mcjty.rftoolsbase.api.control.parameters.Parameter;
 import mcjty.rftoolsbase.api.control.parameters.ParameterType;
 import mcjty.rftoolsbase.api.control.parameters.ParameterValue;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorTileEntity;
 import mcjty.rftoolscontrol.modules.processor.logic.ParameterTypeTools;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.core.BlockPos;
-import net.neoforged.neoforge.network.handling.IPayloadContext;
-
-import java.util.List;
 
 public record PacketVariableToServer(BlockPos pos, int varIndex, CompoundTag tagCompound) implements CustomPacketPayload {
 
-    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(RFToolsControl.MODID, "variable_to_server");
+    public static final Identifier ID = Identifier.fromNamespaceAndPath(RFToolsControl.MODID, "variable_to_server");
     public static final CustomPacketPayload.Type<PacketVariableToServer> TYPE = new Type<>(ID);
 
     public static final StreamCodec<RegistryFriendlyByteBuf, PacketVariableToServer> CODEC = StreamCodec.of(
@@ -41,9 +40,9 @@ public record PacketVariableToServer(BlockPos pos, int varIndex, CompoundTag tag
         return TYPE;
     }
 
-    public void handle(IPayloadContext ctx) {
+    public void handle(PayloadContext ctx) {
         ctx.enqueueWork(() -> {
-            BlockEntity te = ctx.player().getCommandSenderWorld().getBlockEntity(pos);
+            BlockEntity te = ctx.player().level().getBlockEntity(pos);
             if (te instanceof ProcessorTileEntity processor) {
                 List<Parameter> variables = processor.getVariables();
                 if (varIndex < variables.size()) {

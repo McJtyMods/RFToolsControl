@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "rftoolscontrol:cpu_core_1000"
+        "recipes": "rftoolscontrol:cpu_core_1000"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

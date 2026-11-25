@@ -1,6 +1,10 @@
 package mcjty.rftoolscontrol.modules.processor.client;
 
-import com.mojang.blaze3d.vertex.PoseStack;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import javax.annotation.Nonnull;
 import mcjty.lib.client.RenderHelper;
 import mcjty.lib.gui.GenericGuiContainer;
 import mcjty.lib.gui.GuiPopupTools;
@@ -12,6 +16,7 @@ import mcjty.lib.gui.layout.HorizontalAlignment;
 import mcjty.lib.gui.widgets.*;
 import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.ClientTools;
+import mcjty.lib.varia.FluidStack;
 import mcjty.lib.varia.Tools;
 import mcjty.rftoolsbase.api.control.parameters.Parameter;
 import mcjty.rftoolsbase.api.control.parameters.ParameterType;
@@ -19,7 +24,6 @@ import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.modules.processor.ProcessorModule;
 import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorContainer;
 import mcjty.rftoolscontrol.modules.processor.blocks.ProcessorTileEntity;
-import mcjty.rftoolscontrol.modules.processor.data.HudMode;
 import mcjty.rftoolscontrol.modules.processor.logic.ParameterTypeTools;
 import mcjty.rftoolscontrol.modules.processor.logic.editors.ParameterEditor;
 import mcjty.rftoolscontrol.modules.processor.logic.editors.ParameterEditors;
@@ -30,23 +34,16 @@ import mcjty.rftoolscontrol.modules.processor.network.PacketVariableToServer;
 import mcjty.rftoolscontrol.modules.processor.util.CardInfo;
 import mcjty.rftoolscontrol.setup.RFToolsCtrlMessages;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.MenuScreens;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
-import net.neoforged.neoforge.fluids.FluidStack;
-
-import javax.annotation.Nonnull;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
 
 import static mcjty.lib.gui.widgets.Widgets.*;
 import static mcjty.rftoolscontrol.modules.multitank.blocks.MultiTankTileEntity.TANKS;
@@ -57,9 +54,9 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity, Proce
     public static final int WIDTH = 256;
     public static final int HEIGHT = 236;
 
-    private static final ResourceLocation mainBackground = ResourceLocation.fromNamespaceAndPath(RFToolsControl.MODID, "textures/gui/processor.png");
-    private static final ResourceLocation sideBackground = ResourceLocation.fromNamespaceAndPath(RFToolsControl.MODID, "textures/gui/sidegui.png");
-    private static final ResourceLocation icons = ResourceLocation.fromNamespaceAndPath(RFToolsControl.MODID, "textures/gui/icons.png");
+    private static final Identifier mainBackground = Identifier.fromNamespaceAndPath(RFToolsControl.MODID, "textures/gui/processor.png");
+    private static final Identifier sideBackground = Identifier.fromNamespaceAndPath(RFToolsControl.MODID, "textures/gui/sidegui.png");
+    private static final Identifier icons = Identifier.fromNamespaceAndPath(RFToolsControl.MODID, "textures/gui/icons.png");
 
     private Window sideWindow;
     private EnergyBar energyBar;
@@ -92,18 +89,17 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity, Proce
     public GuiProcessor(ProcessorContainer container, Inventory inventory, Component title) {
         super(container, inventory, title, ProcessorModule.PROCESSOR.block().get().getManualEntry());
 
-        imageWidth = WIDTH;
-        imageHeight = HEIGHT;
+        setWindowDimensions(WIDTH, HEIGHT);
     }
 
-    public static void register(RegisterMenuScreensEvent event) {
-        event.register(ProcessorModule.PROCESSOR_CONTAINER.get(), GuiProcessor::new);
+    public static void register() {
+        MenuScreens.register(ProcessorModule.PROCESSOR_CONTAINER.get(), GuiProcessor::new);
 
         MenuScreens.ScreenConstructor<ProcessorContainer, GuiProcessor> factory = (container, inventory, title) -> {
             BlockEntity te = container.getBe();
             return Tools.safeMap(te, (ProcessorTileEntity tile) -> new GuiProcessor(container, inventory, title), "Invalid tile entity!");
         };
-        event.register(ProcessorModule.PROCESSOR_CONTAINER_REMOTE.get(), factory);
+        MenuScreens.register(ProcessorModule.PROCESSOR_CONTAINER_REMOTE.get(), factory);
     }
 
     @Override
@@ -310,16 +306,19 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity, Proce
     }
 
     @Override
-    public boolean mouseClicked(double x, double y, int button) {
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        double x = event.x();
+        double y = event.y();
+        int button = event.button();
         int setupMode = getSetupMode();
         if (setupMode == -1) {
-            super.mouseClicked(x, y, button);
+            super.mouseClicked(event, doubleClick);
         } else {
             Optional<Widget<?>> widget = getWindowManager().findWidgetAtPosition(x, y);
             if (widget.isPresent()) {
                 Widget<?> w = widget.get();
                 if ("allowed".equals(w.getUserObject())) {
-                    return super.mouseClicked(x, y, button);
+                    return super.mouseClicked(event, doubleClick);
                 }
             }
 
@@ -622,7 +621,7 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity, Proce
     }
 
     @Override
-    protected void renderBg(@Nonnull GuiGraphics graphics, float partialTicks, int mouseX, int mouseY) {
+    protected void renderBg(@Nonnull GuiGraphicsExtractor graphics, float partialTicks, int mouseX, int mouseY) {
 
         ProcessorTileEntity be = getBE();
         if (variableList.getChildCount() != be.getMaxvars()) {
@@ -639,15 +638,15 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity, Proce
         drawAllocatedSlots(graphics);
     }
 
-    private void drawAllocatedSlots(GuiGraphics graphics) {
+    private void drawAllocatedSlots(GuiGraphicsExtractor graphics) {
         int setupMode = getSetupMode();
         if (setupMode == -1) {
             return;
         }
 
-        PoseStack matrixStack = graphics.pose();
-        matrixStack.pushPose();
-        matrixStack.translate(leftPos, topPos, 0.0F);
+        var matrixStack = graphics.pose();
+        matrixStack.pushMatrix();
+        matrixStack.translate(leftPos, topPos);
 
         ProcessorTileEntity be = getBE();
         CardInfo cardInfo = be.getCardInfo(setupMode);
@@ -669,12 +668,12 @@ public class GuiProcessor extends GenericGuiContainer<ProcessorTileEntity, Proce
                     slot.x + 17, slot.y + 17,
                     border, fill);
             if (allocated) {
-                graphics.drawString(minecraft.font, String.valueOf(index),
+                graphics.text(minecraft.font, String.valueOf(index),
                         slot.x + 4, slot.y + 4, 0xffffffff, false);
                 index++;
             }
         }
 
-        matrixStack.popPose();
+        matrixStack.popMatrix();
     }
 }

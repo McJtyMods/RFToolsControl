@@ -1,10 +1,13 @@
 package mcjty.rftoolscontrol.modules.craftingstation.client;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import javax.annotation.Nonnull;
 import mcjty.lib.base.StyleConfig;
 import mcjty.lib.container.GenericContainer;
 import mcjty.lib.gui.GenericGuiContainer;
 import mcjty.lib.gui.GuiPopupTools;
-import mcjty.lib.gui.ManualEntry;
 import mcjty.lib.gui.Window;
 import mcjty.lib.gui.events.BlockRenderEvent;
 import mcjty.lib.gui.widgets.*;
@@ -14,23 +17,17 @@ import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.ComponentFactory;
 import mcjty.lib.varia.SafeClientTools;
-import mcjty.lib.varia.Tools;
 import mcjty.rftoolscontrol.RFToolsControl;
 import mcjty.rftoolscontrol.modules.craftingstation.CraftingStationModule;
 import mcjty.rftoolscontrol.modules.craftingstation.blocks.CraftingStationTileEntity;
 import mcjty.rftoolscontrol.modules.craftingstation.util.CraftingRequest;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
-
-import javax.annotation.Nonnull;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
 
 import static mcjty.lib.gui.widgets.Widgets.*;
 import static mcjty.rftoolscontrol.modules.craftingstation.blocks.CraftingStationTileEntity.*;
@@ -40,7 +37,7 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
     public static final int WIDTH = 231;
     public static final int HEIGHT = 236;
 
-    private static final ResourceLocation mainBackground = ResourceLocation.fromNamespaceAndPath(RFToolsControl.MODID, "textures/gui/craftingstation.png");
+    private static final Identifier mainBackground = Identifier.fromNamespaceAndPath(RFToolsControl.MODID, "textures/gui/craftingstation.png");
 
     private WidgetList recipeList;
     private WidgetList requestList;
@@ -62,12 +59,11 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
     public GuiCraftingStation(GenericContainer container, Inventory inventory, Component title) {
         super(container, inventory, title, CraftingStationModule.CRAFTING_STATION.block().get().getManualEntry());
 
-        imageWidth = WIDTH;
-        imageHeight = HEIGHT;
+        setWindowDimensions(WIDTH, HEIGHT);
     }
 
-    public static void register(RegisterMenuScreensEvent event) {
-        event.register(CraftingStationModule.CRAFTING_STATION_CONTAINER.get(), GuiCraftingStation::new);
+    public static void register() {
+        MenuScreens.register(CraftingStationModule.CRAFTING_STATION_CONTAINER.get(), GuiCraftingStation::new);
     }
 
     @Override
@@ -247,7 +243,7 @@ public class GuiCraftingStation extends GenericGuiContainer<CraftingStationTileE
     }
 
     @Override
-    protected void renderBg(@Nonnull GuiGraphics graphics, float partialTicks, int mouseX, int mouseY) {
+    protected void renderBg(@Nonnull GuiGraphicsExtractor graphics, float partialTicks, int mouseX, int mouseY) {
         requestListsIfNeeded();
         updateRecipeList();
         updateRequestList();

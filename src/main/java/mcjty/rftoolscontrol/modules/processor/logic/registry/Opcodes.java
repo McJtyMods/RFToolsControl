@@ -1,5 +1,10 @@
 package mcjty.rftoolscontrol.modules.processor.logic.registry;
 
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import mcjty.lib.container.IItemHandler;
+import mcjty.lib.varia.FluidStack;
 import mcjty.lib.varia.TagTools;
 import mcjty.rftoolsbase.api.control.code.Opcode;
 import mcjty.rftoolsbase.api.control.parameters.*;
@@ -9,18 +14,12 @@ import mcjty.rftoolscontrol.modules.processor.logic.ParameterTools;
 import mcjty.rftoolscontrol.modules.processor.logic.running.ExceptionType;
 import mcjty.rftoolscontrol.modules.processor.logic.running.ProgException;
 import net.minecraft.ChatFormatting;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.items.IItemHandler;
 import org.apache.commons.lang3.tuple.Pair;
-
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import static mcjty.rftoolsbase.api.control.code.IOpcodeRunnable.OpcodeResult.*;
 import static mcjty.rftoolsbase.api.control.code.OpcodeCategory.*;
@@ -364,7 +363,7 @@ public class Opcodes {
             .runnable(((processor, program, opcode) -> {
                 ItemStack item = processor.evaluateItemParameter(opcode, program, 0);
                 String tagName = processor.evaluateStringParameterNonNull(opcode, program, 1);
-                TagKey<Item> tag = TagTools.createItemTagKey(ResourceLocation.parse(tagName));
+                TagKey<Item> tag = TagTools.createItemTagKey(Identifier.parse(tagName));
 //                if (tag == null) {
 //                    throw new ProgException(ExceptionType.EXCEPT_UNKNOWN_TAG);
 //                }
@@ -495,8 +494,9 @@ public class Opcodes {
                 ItemStack item = processor.evaluateItemParameter(opcode, program, 2);
                 Integer amount = processor.evaluateIntegerParameter(opcode, program, 3);
                 int slotOut = processor.evaluateIntParameter(opcode, program, 4);
-                boolean routable = processor.evaluateBoolParameter(opcode, program, 6);
-                int cnt = ((ProcessorTileEntity)processor).fetchItems(program, inv, slot, Ingredient.of(item), routable, amount, slotOut);
+                boolean routable = processor.evaluateBoolParameter(opcode, program, 5);
+                Ingredient matcher = item == null || item.isEmpty() ? null : Ingredient.of(item.getItem());
+                int cnt = ((ProcessorTileEntity)processor).fetchItems(program, inv, slot, matcher, routable, amount, slotOut);
                 program.setLastValue(Parameter.builder().type(PAR_INTEGER).value(ParameterValue.constant(cnt)).build());
                 return POSITIVE;
             }))
@@ -1257,7 +1257,7 @@ public class Opcodes {
             .runnable(((processor, program, opcode) -> {
                 ItemStack item = processor.evaluateItemParameterNonNull(opcode, program, 0);
                 Inventory inv = processor.evaluateInventoryParameter(opcode, program, 1);
-                processor.requestCraft(Ingredient.of(item), inv);
+                processor.requestCraft(Ingredient.of(item.getItem()), inv);
                 return POSITIVE;
             }))
             .build();
@@ -1638,7 +1638,7 @@ public class Opcodes {
                 ItemStack v1 = processor.evaluateItemParameterNonNull(opcode, program, 0);
                 ItemStack v2 = processor.evaluateItemParameterNonNull(opcode, program, 1);
                 String tag = processor.evaluateStringParameterNonNull(opcode, program, 2);
-                boolean rc = ((ProcessorTileEntity) processor).compareComponents(v1, v2, ResourceLocation.parse(tag));
+                boolean rc = ((ProcessorTileEntity) processor).compareComponents(v1, v2, Identifier.parse(tag));
                 return rc ? POSITIVE : NEGATIVE;
             }))
             .build();

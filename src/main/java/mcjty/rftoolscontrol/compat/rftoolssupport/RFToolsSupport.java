@@ -1,26 +1,20 @@
 package mcjty.rftoolscontrol.compat.rftoolssupport;
 
+import java.util.ArrayList;
+import java.util.List;
+import javax.annotation.Nullable;
 import mcjty.rftoolsbase.api.screens.IScreenModuleRegistry;
+import mcjty.rftoolsbase.api.teleportation.ITeleportationManager;
 import mcjty.rftoolscontrol.modules.processor.logic.ParameterTools;
 import mcjty.rftoolscontrol.modules.processor.vectorart.GfxOp;
 import net.minecraft.network.FriendlyByteBuf;
 
-import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Function;
-
 public class RFToolsSupport {
 
-    public static class GetScreenModuleRegistry implements Function<IScreenModuleRegistry, Void> {
-        @Nullable
-        @Override
-        public Void apply(IScreenModuleRegistry manager) {
-            manager.registerModuleDataFactory(ModuleDataVariable.ID, buf -> new ModuleDataVariable(ParameterTools.readFromBuf(buf)));
-            manager.registerModuleDataFactory(ModuleDataLog.ID, buf -> new ModuleDataLog(readLog(buf)));
-            manager.registerModuleDataFactory(ModuleDataVectorArt.ID, buf -> new ModuleDataVectorArt(readGfxOp(buf)));
-            return null;
-        }
+    public static void register(ITeleportationManager teleportationManager, IScreenModuleRegistry manager) {
+        manager.registerModuleDataFactory(ModuleDataVariable.ID, buf -> new ModuleDataVariable(ParameterTools.readFromBuf(buf)));
+        manager.registerModuleDataFactory(ModuleDataLog.ID, buf -> new ModuleDataLog(readLog(buf)));
+        manager.registerModuleDataFactory(ModuleDataVectorArt.ID, buf -> new ModuleDataVectorArt(readGfxOp(buf)));
     }
 
     @Nullable

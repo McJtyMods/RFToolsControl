@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "rftoolscontrol:processor"
+        "recipes": "rftoolscontrol:processor"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

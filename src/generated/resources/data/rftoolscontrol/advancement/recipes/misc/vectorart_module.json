@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "rftoolscontrol:vectorart_module"
+        "recipes": "rftoolscontrol:vectorart_module"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

@@ -1,6 +1,10 @@
 package mcjty.rftoolscontrol.modules.processor.network;
 
 
+import java.util.ArrayList;
+import java.util.List;
+import javax.annotation.Nullable;
+import mcjty.lib.network.PayloadContext;
 import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.Logging;
@@ -13,18 +17,13 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.neoforged.neoforge.network.handling.IPayloadContext;
-
-import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.List;
 
 public record PacketVariablesReady(@Nullable BlockPos pos, String command, List<Parameter> list) implements CustomPacketPayload {
 
-    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(RFToolsControl.MODID, "variables_ready");
+    public static final Identifier ID = Identifier.fromNamespaceAndPath(RFToolsControl.MODID, "variables_ready");
     public static final CustomPacketPayload.Type<PacketVariablesReady> TYPE = new Type<>(ID);
 
     public static final StreamCodec<RegistryFriendlyByteBuf, PacketVariablesReady> CODEC = StreamCodec.of(
@@ -69,7 +68,7 @@ public record PacketVariablesReady(@Nullable BlockPos pos, String command, List<
         return TYPE;
     }
 
-    public void handle(IPayloadContext ctx) {
+    public void handle(PayloadContext ctx) {
         ctx.enqueueWork(() -> {
             BlockEntity te;
             if (pos == null) {
