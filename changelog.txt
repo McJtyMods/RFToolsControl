@@ -1,3 +1,6 @@
+26.2-10.0.2-fabric:
+- Processors can now use Deep Resonance opcodes on Fabric when Deep Resonance is installed.
+
 26.2-10.0.1-fabric:
 - Fixed a crash when opening a tablet with a linked Console Screen Module.
 
