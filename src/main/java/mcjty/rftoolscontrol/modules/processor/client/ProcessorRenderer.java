@@ -140,9 +140,7 @@ public class ProcessorRenderer implements BlockEntityRenderer<ProcessorTileEntit
         }
         List<GfxOp> ops = tileEntity.getClientGfxOps();
         if (ops != null) {
-            for (GfxOp op : ops) {
-                op.render(graphics, buffer);
-            }
+            GfxOp.renderAll(ops, graphics, buffer);
         }
     }
 

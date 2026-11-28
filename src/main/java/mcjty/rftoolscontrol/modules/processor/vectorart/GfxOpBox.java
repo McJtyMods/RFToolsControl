@@ -2,6 +2,7 @@ package mcjty.rftoolscontrol.modules.processor.vectorart;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import mcjty.lib.client.CustomRenderTypes;
 import mcjty.lib.client.RenderHelper;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -50,7 +51,15 @@ public class GfxOpBox extends GfxOp {
 
     @Override
     public void render(GuiGraphics graphics, MultiBufferSource buffer) {
-        RenderHelper.drawBeveledBox(graphics, buffer, x, y, x+w-1, y+h-1, color, color, color, RenderHelper.MAX_BRIGHTNESS);
+        renderAtDepth(graphics, buffer, -1.0f);
+    }
+
+    void renderAtDepth(GuiGraphics graphics, MultiBufferSource buffer, float depth) {
+        int right = x + w;
+        int bottom = y + h;
+        RenderHelper.drawQuadGui(graphics.pose(), buffer.getBuffer(CustomRenderTypes.QUADS_NOTEXTURE),
+                Math.min(x, right), Math.max(x, right), Math.min(y, bottom), Math.max(y, bottom),
+                depth, color, RenderHelper.MAX_BRIGHTNESS);
     }
 
     @Override

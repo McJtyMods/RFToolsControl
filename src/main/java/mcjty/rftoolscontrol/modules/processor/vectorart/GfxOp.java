@@ -12,6 +12,8 @@ import net.minecraft.network.codec.StreamCodec;
 
 import java.util.Map;
 
+import java.util.List;
+
 public abstract class GfxOp {
 
     // Codec without NBT: encode as a small map {"type": int, "data": <subtype>}
@@ -80,6 +82,20 @@ public abstract class GfxOp {
     );
 
     public abstract void render(GuiGraphics graphics, MultiBufferSource buffer);
+
+    public static void renderAll(List<GfxOp> operations, GuiGraphics graphics, MultiBufferSource buffer) {
+        // Keep boxes between the screen backing and the plane used for lines and text.
+        float depthStep = 1.0f / Math.max(operations.size(), 8);
+        int boxLayer = 0;
+        for (GfxOp operation : operations) {
+            if (operation instanceof GfxOpBox box) {
+                box.renderAtDepth(graphics, buffer, -1.0f + boxLayer * depthStep);
+                boxLayer++;
+            } else {
+                operation.render(graphics, buffer);
+            }
+        }
+    }
 
     public abstract GfxOpType getType();
 

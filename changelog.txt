@@ -1,3 +1,6 @@
+1.21-8.0.4:
+- Fixed flickering where graphics opcode boxes overlap.
+
 1.21-8.0.3:
 - Fixed a crash when opening a tablet with a linked Console Screen Module.
 
