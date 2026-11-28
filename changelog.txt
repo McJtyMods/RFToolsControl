@@ -1,3 +1,6 @@
+26.3-11.0.2:
+- Recursive crafting orders now stop retrying when a required subcraft fails.
+
 26.3-11.0.1:
 - Fixed a crash when opening a tablet with a linked Console Screen Module.
 
