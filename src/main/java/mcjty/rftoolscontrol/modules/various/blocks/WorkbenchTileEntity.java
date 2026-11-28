@@ -14,10 +14,15 @@ import mcjty.rftoolscontrol.modules.various.VariousModule;
 import mcjty.rftoolscontrol.modules.various.data.WorkbenchData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentMap;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.*;
+import net.minecraft.world.item.crafting.CraftingInput;
+import net.minecraft.world.item.crafting.CraftingRecipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.IBlockCapabilityProvider;
@@ -87,46 +92,27 @@ public class WorkbenchTileEntity extends GenericTileEntity {
     }
 
     @Nullable
-    private Recipe findRecipe(CraftingInput workInventory) {
-        RecipeManager manager = level.getRecipeManager();
-        for (RecipeHolder rh : manager.getRecipes()) {
-            Recipe r = rh.value();
-            if (r != null && RecipeType.CRAFTING.equals(r.getType()) && r.matches(workInventory, level)) {
-                return r;
-            }
-        }
-        return null;
+    private CraftingRecipe findRecipe(CraftingInput workInventory) {
+        return level.getRecipeManager().getRecipeFor(RecipeType.CRAFTING, workInventory, level)
+                .map(RecipeHolder::value).orElse(null);
     }
 
     private void updateRecipe() {
         if (items.getStackInSlot(SLOT_CRAFTOUTPUT).isEmpty() || getRealItems() == 0) {
-            CraftingInput workInventory = makeWorkInventory();
-            Recipe recipe = findRecipe(workInventory);
-            if (recipe != null) {
-                ItemStack stack = BaseRecipe.assemble(recipe, workInventory, level);
-                items.setStackInSlot(SLOT_CRAFTOUTPUT, stack);
-                setRealItems(stack.isEmpty() ? 0 : stack.getCount());
-            } else {
-                items.setStackInSlot(SLOT_CRAFTOUTPUT, ItemStack.EMPTY);
-                setRealItems(0);
-            }
+            CraftingInput workInventory = makeWorkInventory().input();
+            CraftingRecipe recipe = findRecipe(workInventory);
+            setRealItems(0);
+            items.setStackInSlot(SLOT_CRAFTOUTPUT, recipe == null
+                    ? ItemStack.EMPTY : BaseRecipe.assemble(recipe, workInventory, level));
         }
     }
 
-    private static List<ItemStack> createList() {
-        List<ItemStack> list = new ArrayList<>();
-        for (int i = 0 ; i < 9 ; i++) {
-            list.add(ItemStack.EMPTY);
-        }
-        return list;
-    }
-
-    private CraftingInput makeWorkInventory() {
-        List<ItemStack> items = new ArrayList<>();
+    private CraftingInput.Positioned makeWorkInventory() {
+        List<ItemStack> grid = new ArrayList<>(9);
         for (int i = 0; i < 9; i++) {
-            items.add(i, items.get(i + SLOT_CRAFTINPUT));
+            grid.add(items.getStackInSlot(i + SLOT_CRAFTINPUT));
         }
-        return CraftingInput.of(3, 3, items);
+        return CraftingInput.ofPositioned(3, 3, grid);
     }
 
     public void craftItem() {
@@ -140,46 +126,58 @@ public class WorkbenchTileEntity extends GenericTileEntity {
 
             @Override
             protected void onUpdate(int index, ItemStack stack) {
-                if (isCraftInputSlot(index)) {
-                    if (crafting <= 0) {
-                        updateRecipe();
-                    }
+                super.onUpdate(index, stack);
+                if (isCraftInputSlot(index) && crafting == 0) {
+                    updateRecipe();
                 }
             }
 
             @Nonnull
             @Override
             public ItemStack extractItem(int slot, int amount, boolean simulate) {
+                if (amount <= 0 || getStackInSlot(slot).isEmpty()) {
+                    return ItemStack.EMPTY;
+                }
                 if (simulate) {
                     // Use the normal simulated item extraction
                     return super.extractItem(slot, amount, simulate);
                 } else {
                     if (isCraftOutput(slot) && getRealItems() == 0) {
-                        CraftingInput workInventory = makeWorkInventory();
-                        Recipe recipe = findRecipe(workInventory);
-                        if (recipe != null) {
-                            crafting++;
+                        CraftingInput.Positioned positioned = makeWorkInventory();
+                        CraftingInput workInventory = positioned.input();
+                        CraftingRecipe recipe = findRecipe(workInventory);
+                        if (recipe == null) {
+                            updateRecipe();
+                            return ItemStack.EMPTY;
+                        }
+
+                        crafting++;
+                        try {
                             List<ItemStack> remainingItems = recipe.getRemainingItems(workInventory);
-                            for (int i = 0; i < 9; i++) {
-                                ItemStack s = items.getStackInSlot(i + SLOT_CRAFTINPUT);
+                            for (int i = 0; i < workInventory.size(); i++) {
+                                int x = positioned.left() + i % workInventory.width();
+                                int y = positioned.top() + i / workInventory.width();
+                                int inputSlot = SLOT_CRAFTINPUT + x + 3 * y;
+                                ItemStack s = items.getStackInSlot(inputSlot);
                                 if (!s.isEmpty()) {
-                                    super.extractItem(i + SLOT_CRAFTINPUT, 1, false);
-                                    s = items.getStackInSlot(i + SLOT_CRAFTINPUT);
+                                    super.extractItem(inputSlot, 1, false);
+                                    s = items.getStackInSlot(inputSlot);
                                 }
 
                                 if (!remainingItems.get(i).isEmpty()) {
                                     if (s.isEmpty()) {
-                                        items.setStackInSlot(i + SLOT_CRAFTINPUT, remainingItems.get(i));
+                                        items.setStackInSlot(inputSlot, remainingItems.get(i));
                                     } else if (ItemStack.isSameItem(s, remainingItems.get(i)) && ItemStack.isSameItemSameComponents(s, remainingItems.get(i))) {
                                         ItemStack stack = remainingItems.get(i);
                                         stack.grow(s.getCount());
-                                        items.setStackInSlot(i + SLOT_CRAFTINPUT, remainingItems.get(i));
+                                        items.setStackInSlot(inputSlot, remainingItems.get(i));
                                     } else {
                                         // @todo
                                         // Not enough room!
                                     }
                                 }
                             }
+                        } finally {
                             crafting--;
                         }
                     }
@@ -201,6 +199,18 @@ public class WorkbenchTileEntity extends GenericTileEntity {
                 return true;
             }
         };
+    }
+
+    @Override
+    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
+        super.saveAdditional(tag, provider);
+        items.save(tag, "items", provider);
+    }
+
+    @Override
+    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
+        super.loadAdditional(tag, provider);
+        items.load(tag, "items", provider);
     }
 
     @Override

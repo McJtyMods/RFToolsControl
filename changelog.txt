@@ -1,4 +1,7 @@
 1.21-8.0.4:
+- Fixed Workbench crafting crashes, ingredient consumption, and saving the Workbench inventory across world reloads.
+- Recursive crafting orders now stop retrying when a required subcraft fails.
+- Fixed active crafting orders losing their requested item when a world is saved and reopened.
 - Fixed flickering where graphics opcode boxes overlap.
 
 1.21-8.0.3:

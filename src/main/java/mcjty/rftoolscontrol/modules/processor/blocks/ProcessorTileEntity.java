@@ -780,7 +780,6 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         if (destHandler == null) {
             throw new ProgException(EXCEPT_INVALIDINVENTORY);
         }
-        ;
         ItemStack card = findCraftingCard(getItemHandlerAt(cardInv), finalItem);
         if (card.isEmpty()) {
             throw new ProgException(EXCEPT_MISSINGCRAFTINGCARD);
@@ -796,7 +795,7 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
         }
 
         List<Ingredient> needed = combineIngredients(ingredients);
-        int requested = checkAvailableItemsAndRequestMissing(destInv, scanner, handler, needed);
+        int requested = checkAvailableItemsAndRequestMissing(program.getCraftTicket(), destInv, scanner, handler, needed);
         if (requested != 0) {
             return requested;
         }
@@ -820,7 +819,13 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
     // ingredient is requested if possible. Returns -1 if there were ingredients that
     // could not be requested. Returns 0 if nothing had to be requested and otherwise
     // returns the amount of requested items
-    private int checkAvailableItemsAndRequestMissing(Inventory destInv, IStorageScanner scanner, IItemHandler handler, List<Ingredient> needed) {
+    private int checkAvailableItemsAndRequestMissing(@Nullable String ticket, Inventory destInv, IStorageScanner scanner,
+                                                     IItemHandler handler, List<Ingredient> needed) {
+        CraftingStationTileEntity station = findCraftingStationForTicket(ticket);
+        if (station != null && station.hasFailedDependency(ticket)) {
+            return -1;
+        }
+
         int requested = 0;
         for (Ingredient ingredient : needed) {
             if (!ingredient.isEmpty()) {
@@ -828,16 +833,28 @@ public class ProcessorTileEntity extends TickingTileEntity implements IProcessor
                 int cnt = LogicInventoryTools.countItem(handler, scanner, ingredient, countFromIngredient);
                 if (cnt < countFromIngredient) {
                     requested++;
-                    if (!isRequested(ingredient)) {
-                        if (!requestCraft(ingredient, destInv)) {
-                            // It can't be requested, total failure
-                            return -1;
-                        }
+                    boolean accepted = station == null
+                            ? isRequested(ingredient) || requestCraft(ingredient, destInv)
+                            : station.requestDependency(ticket, ingredient, destInv);
+                    if (!accepted) {
+                        return -1;
                     }
                 }
             }
         }
         return requested;
+    }
+
+    @Nullable
+    private CraftingStationTileEntity findCraftingStationForTicket(@Nullable String ticket) {
+        if (ticket != null) {
+            for (BlockPos pos : getCraftingStations()) {
+                if (level.getBlockEntity(pos) instanceof CraftingStationTileEntity station && !station.getCraftResult(ticket).isEmpty()) {
+                    return station;
+                }
+            }
+        }
+        return null;
     }
 
     // Check the storage scanner or handler for a list of ingredients and count them
