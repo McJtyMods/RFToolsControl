@@ -1,3 +1,6 @@
+26.2-10.0.3-fabric:
+- Recursive crafting orders now stop retrying when a required subcraft fails.
+
 26.2-10.0.2-fabric:
 - Processors can now use Deep Resonance opcodes on Fabric when Deep Resonance is installed.
 
