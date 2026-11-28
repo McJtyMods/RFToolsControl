@@ -26,6 +26,7 @@ import mcjty.rftoolscontrol.setup.Config;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.item.ItemStack;
@@ -41,8 +42,11 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static mcjty.lib.api.container.DefaultContainerProvider.container;
 import static mcjty.lib.container.SlotDefinition.generic;
@@ -82,15 +86,19 @@ public class CraftingStationTileEntity extends GenericTileEntity {
     }
 
 
-    // @todo optimize finding requests on craftid!!!!
-
     public ItemStack getCraftResult(String craftId) {
+        CraftingRequest request = findRequest(craftId);
+        return request == null ? ItemStack.EMPTY : request.getStack();
+    }
+
+    @Nullable
+    private CraftingRequest findRequest(String ticket) {
         for (CraftingRequest request : activeCraftingRequests) {
-            if (craftId.equals(request.getTicket())) {
-                return request.getStack();
+            if (ticket.equals(request.getTicket())) {
+                return request;
             }
         }
-        return ItemStack.EMPTY;
+        return null;
     }
 
     private Pair<ProcessorTileEntity, ItemStack> findCraftableItem(int index) {
@@ -112,13 +120,7 @@ public class CraftingStationTileEntity extends GenericTileEntity {
     }
 
     public ItemStack craftOk(ProcessorTileEntity processor, String ticket, ItemStack stack) {
-        CraftingRequest foundRequest = null;
-        for (CraftingRequest request : activeCraftingRequests) {
-            if (ticket.equals(request.getTicket())) {
-                foundRequest = request;
-                break;
-            }
-        }
+        CraftingRequest foundRequest = findRequest(ticket);
         if (foundRequest != null) {
             setChanged();
             foundRequest.decrTodo();
@@ -143,20 +145,23 @@ public class CraftingStationTileEntity extends GenericTileEntity {
     }
 
     public void craftFail(String ticket) {
-        for (CraftingRequest request : activeCraftingRequests) {
-            if (ticket.equals(request.getTicket())) {
-                request.setFailed(System.currentTimeMillis() + 2000);
-                setChanged();
-            }
+        CraftingRequest request = findRequest(ticket);
+        if (request != null) {
+            request.setFailed(System.currentTimeMillis() + 2000);
+            failDependents(request);
+            setChanged();
         }
     }
 
     private void cancelCraft(int index) {
-        try {
-            activeCraftingRequests.remove(index);
-        } catch (Exception ignored) {
-
+        if (index < 0 || index >= activeCraftingRequests.size()) {
+            return;
         }
+        CraftingRequest request = activeCraftingRequests.remove(index);
+        if (request.isActive()) {
+            failDependents(request);
+        }
+        setChanged();
     }
 
     private void startCraft(int index, int amount) {
@@ -199,18 +204,74 @@ public class CraftingStationTileEntity extends GenericTileEntity {
 
     public boolean isRequested(Ingredient item) {
         for (CraftingRequest request : activeCraftingRequests) {
-            long failed = request.getFailed();
-            long ok = request.getOk();
-            if ((failed == -1) && (ok == -1)) {
-                if (item.test(request.getStack())) {
-                    return true;
-                }
+            if (request.isActive() && item.test(request.getStack())) {
+                return true;
             }
         }
         return false;
     }
 
     public boolean request(@Nonnull Ingredient item, @Nullable Inventory destination) {
+        return request(item, destination, null);
+    }
+
+    public boolean hasFailedDependency(String ticket) {
+        CraftingRequest request = findRequest(ticket);
+        return request != null && request.hasFailedDependency();
+    }
+
+    public boolean requestDependency(String parentTicket, Ingredient item, Inventory destination) {
+        CraftingRequest parent = findRequest(parentTicket);
+        if (parent == null || !parent.isActive() || parent.hasFailedDependency()) {
+            return false;
+        }
+
+        Set<String> ancestors = collectAncestorTickets(parent);
+        boolean matchesAncestor = false;
+        for (CraftingRequest request : activeCraftingRequests) {
+            if (!request.isActive() || !item.test(request.getStack())) {
+                continue;
+            }
+            if (ancestors.contains(request.getTicket())) {
+                matchesAncestor = true;
+            } else if (destination.equals(getInventoryFromTicket(request.getTicket()))) {
+                if (request.getDependentTickets().add(parentTicket)) {
+                    setChanged();
+                }
+                return true;
+            }
+        }
+        return !matchesAncestor && request(item, destination, parentTicket);
+    }
+
+    private Set<String> collectAncestorTickets(CraftingRequest request) {
+        Set<String> ancestors = new HashSet<>();
+        ArrayDeque<CraftingRequest> pending = new ArrayDeque<>();
+        pending.add(request);
+        while (!pending.isEmpty()) {
+            CraftingRequest current = pending.removeFirst();
+            if (ancestors.add(current.getTicket())) {
+                for (String ticket : current.getDependentTickets()) {
+                    CraftingRequest dependent = findRequest(ticket);
+                    if (dependent != null && dependent.isActive()) {
+                        pending.add(dependent);
+                    }
+                }
+            }
+        }
+        return ancestors;
+    }
+
+    private void failDependents(CraftingRequest request) {
+        for (String ticket : request.getDependentTickets()) {
+            CraftingRequest dependent = findRequest(ticket);
+            if (dependent != null && dependent.isActive()) {
+                dependent.setDependencyFailed(true);
+            }
+        }
+    }
+
+    private boolean request(Ingredient item, @Nullable Inventory destination, @Nullable String dependentTicket) {
         for (BlockPos p : processorList) {
             BlockEntity te = level.getBlockEntity(p);
             if (te instanceof ProcessorTileEntity processor) {
@@ -222,7 +283,11 @@ public class CraftingStationTileEntity extends GenericTileEntity {
                         if (!checkRequestAmount()) {
                             return false;
                         }
-                        activeCraftingRequests.add(new CraftingRequest(ticket, i, 1));
+                        CraftingRequest request = new CraftingRequest(ticket, i, 1);
+                        if (dependentTicket != null) {
+                            request.getDependentTickets().add(dependentTicket);
+                        }
+                        activeCraftingRequests.add(request);
                         processor.fireCraftEvent(ticket, i);
                         return true;
                     }
@@ -318,6 +383,11 @@ public class CraftingStationTileEntity extends GenericTileEntity {
             CraftingRequest request = new CraftingRequest(craftId, stack, count);
             request.setFailed(requestTag.getLong("failed"));
             request.setOk(requestTag.getLong("ok"));
+            request.setDependencyFailed(requestTag.getBoolean("dependencyFailed"));
+            ListTag dependents = requestTag.getList("dependents", Tag.TAG_STRING);
+            for (int j = 0; j < dependents.size(); j++) {
+                request.getDependentTickets().add(dependents.getString(j));
+            }
             activeCraftingRequests.add(request);
         }
     }
@@ -356,6 +426,16 @@ public class CraftingStationTileEntity extends GenericTileEntity {
             requestTag.putInt("count", request.getTodo());
             requestTag.putLong("failed", request.getFailed());
             requestTag.putLong("ok", request.getOk());
+            if (request.hasFailedDependency()) {
+                requestTag.putBoolean("dependencyFailed", true);
+            }
+            if (!request.getDependentTickets().isEmpty()) {
+                ListTag dependents = new ListTag();
+                for (String ticket : request.getDependentTickets()) {
+                    dependents.add(StringTag.valueOf(ticket));
+                }
+                requestTag.put("dependents", dependents);
+            }
             list.add(requestTag);
         }
 

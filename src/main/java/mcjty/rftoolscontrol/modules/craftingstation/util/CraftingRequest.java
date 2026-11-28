@@ -5,12 +5,16 @@ import mcjty.lib.network.NetworkTools;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.network.FriendlyByteBuf;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 public class CraftingRequest {
     private final String ticket;
     private final ItemStack stack;
+    private final Set<String> dependentTickets = new HashSet<>();
+    private boolean dependencyFailed;
     private long failed = -1;             // If != -1 we failed but show for a while longer
     private long ok = -1;                 // If != -1we are ok but show for a while longer
     private int todo = 0;                 // Todo counter
@@ -53,6 +57,22 @@ public class CraftingRequest {
 
     public ItemStack getStack() {
         return stack;
+    }
+
+    public Set<String> getDependentTickets() {
+        return dependentTickets;
+    }
+
+    public boolean hasFailedDependency() {
+        return dependencyFailed;
+    }
+
+    public void setDependencyFailed(boolean dependencyFailed) {
+        this.dependencyFailed = dependencyFailed;
+    }
+
+    public boolean isActive() {
+        return failed == -1 && ok == -1;
     }
 
     public long getFailed() {

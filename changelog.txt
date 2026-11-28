@@ -1,5 +1,6 @@
 1.20-7.0.6:
 - Fixed flickering where graphics opcode boxes overlap.
+- Recursive crafting orders now stop retrying when a required subcraft fails.
 
 1.20-7.0.5:
 - Fixed a crash when opening a tablet with a linked Console Screen Module.
